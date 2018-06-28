@@ -1,0 +1,29 @@
+version: '2'
+services:
+  cli:
+    volumes_from:
+      - container:amazeeio-ssh-agent
+    environment:
+      - XDEBUG_ENABLE=true
+    volumes:
+      - .:/app:delegated
+  php:
+    environment:
+      - XDEBUG_ENABLE=true
+    volumes:
+      - .:/app:delegated
+  nginx:
+    networks:
+      - amazeeio-network
+    environment:
+      - AMAZEEIO_URL=behat-steps.docker.amazee.io
+      - AMAZEEIO=AMAZEEIO
+      - AMAZEEIO_HTTP_PORT=8080
+    volumes:
+      - .:/app:delegated
+  mariadb:
+    ports:
+      - 13309:3306
+networks:
+  amazeeio-network:
+    external: true

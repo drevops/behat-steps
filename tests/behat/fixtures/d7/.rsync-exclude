@@ -1,0 +1,6 @@
+- vendor
+- node_modules
++ docroot/sites/all/modules/
+- docroot/sites/all/modules/contrib/
++ docroot/sites/all/modules/custom/*
+- docroot/*

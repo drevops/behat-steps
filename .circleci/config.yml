@@ -1,0 +1,73 @@
+version: 2
+aliases:
+  - &build
+    working_directory: /app
+    docker:
+      - image: integratedexperts/circleci2-builder
+        environment:
+          COMPOSER_ALLOW_SUPERUSER: 1
+          COMPOSE_PROJECT_NAME: mysite
+          COMPOSE_FILE: docker-compose.yml
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Composer validate
+          command: composer validate --ansi --strict
+      - run:
+          name: Start containers
+          command: |
+            printenv
+            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+            make docker-start
+      - run:
+          name: Copy files into container
+          command: |
+            docker cp -L /app/. $(docker-compose ps -q cli):/app/
+      - run:
+          name: Install dev dependencies
+          command: |
+            docker exec $(docker-compose ps -q cli) apk add --update make
+            docker exec $(docker-compose ps -q cli) composer install --ansi
+      - run:
+          name: Lint code
+          command: docker exec $(docker-compose ps -q cli) make lint
+      - run:
+          name: Prepare test fixtures
+          command: make site-install
+      - run:
+          name: Run tests
+          command: |
+            make test-behat || make test-behat -- --rerun
+      - run:
+          name: Copy artifacts
+          command: |
+            mkdir -p /tmp/artifacts/behat
+            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+          when: always
+      - store_artifacts:
+          path: /tmp/artifacts
+
+jobs:
+  build_d7:
+    <<: *build
+    docker:
+      - image: integratedexperts/circleci2-builder
+        environment:
+          DRUPAL_VERSION: 7
+
+  build_d8:
+    <<: *build
+    docker:
+      - image: integratedexperts/circleci2-builder
+        environment:
+          DRUPAL_VERSION: 8
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build_d7
+      - build_d8

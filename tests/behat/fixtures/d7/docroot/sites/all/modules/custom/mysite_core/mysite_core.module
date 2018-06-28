@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Code for the mysite core feature.
+ */
+
+include_once 'mysite_core.features.inc';
+
+/**
+ * @file
+ * Drupal needs this blank file.
+ */

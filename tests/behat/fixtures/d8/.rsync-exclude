@@ -1,0 +1,6 @@
+- vendor
+- node_modules
++ docroot/modules/
+- docroot/modules/contrib/
++ docroot/modules/custom/*
+- docroot/*

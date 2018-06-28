@@ -1,0 +1,32 @@
+version: '2'
+services:
+  cli:
+    image: amazeeio/php:7.1-cli-drupal
+    environment:
+      - WEBROOT=build/docroot
+    volumes:
+      - .:/app
+  php:
+    image: amazeeio/php:7.1-fpm
+    environment:
+      - WEBROOT=build/docroot
+    volumes:
+      - .:/app
+    depends_on:
+      - cli
+  nginx:
+    image: amazeeio/nginx-drupal
+    environment:
+      - WEBROOT=build/docroot
+    volumes:
+      - .:/app
+    networks:
+      - default
+    depends_on:
+      - cli
+    expose:
+      - "8080"
+  mariadb:
+    image: amazeeio/centos7-mariadb10-drupal
+  selenium:
+    image: selenium/standalone-chrome

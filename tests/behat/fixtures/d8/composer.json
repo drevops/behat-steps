@@ -1,0 +1,70 @@
+{
+    "name": "myorg/mysite",
+    "description": "Drupal 8 site for MYSITE",
+    "license": "proprietary",
+    "require": {
+        "composer/installers": "^1.2.0",
+        "drupal-composer/drupal-scaffold": "^2.3",
+        "drupal/coffee": "^1.0-beta2",
+        "drupal/core": "^8.5.2",
+        "drupal/paragraphs": "^1.3",
+        "webflo/drupal-finder": "^1.0",
+        "webmozart/path-util": "^2.3"
+    },
+    "config": {
+        "platform": {
+            "php": "7.1.16"
+        },
+        "process-timeout": 0,
+        "sort-packages": true
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/"
+        ]
+    },
+    "conflict": {
+        "drupal/core": "7.*"
+    },
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    },
+    "extra": {
+        "installer-paths": {
+            "docroot/core": [
+                "type:drupal-core"
+            ],
+            "docroot/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "docroot/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "docroot/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "docroot/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "drush/contrib/{$name}": [
+                "type:drupal-drush"
+            ]
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+            "rm -f docroot/sites/default/settings.php",
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "drupal-post-install": [
+            "drush -r docroot config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y",
+            "drush -r docroot ev \"\\Drupal::entityManager()->getStorage('shortcut_set')->load('default')->delete();\"",
+            "drush -r docroot en mysite_core -y",
+            "drush -r docroot cim -y"
+        ]
+    }
+}
