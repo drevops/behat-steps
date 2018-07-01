@@ -1,6 +1,8 @@
 # Behat Steps
 Collection of Behat steps for Drupal development.
 
+[![CircleCI](https://circleci.com/gh/integratedexperts/behat-steps.svg?style=shield)](https://circleci.com/gh/integratedexperts/behat-steps)
+
 # Why traits?
 Usually, such packages implement own Drupal driver with several contexts, service containers and a lot of other useful architectural structures.
 But for this simple library, using traits helps to lower entry barrier for usage, maintenance and support. 
