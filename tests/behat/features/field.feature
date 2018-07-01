@@ -1,4 +1,4 @@
-@d7
+@d7 @d8
 Feature: Check that FieldTrait works
 
   Scenario: Assert field exists

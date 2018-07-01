@@ -1,6 +1,43 @@
 <?php
-
 /**
  * @file
- * Core module for MYSITE.
+ * Code for the mysite core feature.
  */
+
+/**
+ * Implements hook_menu().
+ */
+function mysite_core_menu() {
+  $items = [];
+
+  $items['test-form'] = [
+    'title' => 'Test Page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['mysite_core_test_form'],
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  ];
+
+  return $items;
+}
+
+/**
+ * Form callback for a test form.
+ */
+function mysite_core_test_form() {
+  $form['field1'] = [
+    '#title' => t('Field 1'),
+    '#type' => 'textfield',
+  ];
+  $form['field2'] = [
+    '#title' => t('Field 2'),
+    '#type' => 'textfield',
+  ];
+  $form['field3disabled'] = [
+    '#title' => t('Field 3 disabled'),
+    '#type' => 'textfield',
+    '#disabled' => TRUE,
+  ];
+
+  return $form;
+}
