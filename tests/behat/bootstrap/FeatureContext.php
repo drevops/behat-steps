@@ -27,7 +27,7 @@ use IntegratedExperts\BehatSteps\ResponseTrait;
  */
 class FeatureContext extends DrupalContext {
 
-//  use ContentTrait;
+  use ContentTrait;
 //  use DomainTrait;
 //  use EmailTrait;
 //  use MediaTrait;
