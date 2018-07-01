@@ -10,9 +10,11 @@ namespace IntegratedExperts\BehatSteps;
 trait LinkTrait {
 
   /**
+   * @Then I should see the link :text with :href
    * @Then I should see the link :text with :href in :locator
    */
   public function linkAssertTextHref($text, $href, $locator = NULL) {
+    /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
     if ($locator) {
       $element = $page->find('css', $locator);
