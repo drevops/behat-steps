@@ -3,13 +3,14 @@
 namespace IntegratedExperts\BehatSteps;
 
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait Field.
  *
  * @package IntegratedExperts\BehatSteps
  */
-trait Field {
+trait FieldTrait {
 
   /**
    * @Then I see field :name
@@ -56,7 +57,7 @@ trait Field {
   }
 
   /**
-   * @Then field :name :disabled on the page
+   * @Then field :name is :disabled on the page
    */
   public function fieldAssertState($field_name, $disabled) {
     $field = $this->fieldAssertExists($field_name);
