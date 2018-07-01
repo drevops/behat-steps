@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace IntegratedExperts\BehatSteps\D8;
 
 /**
  * @file
