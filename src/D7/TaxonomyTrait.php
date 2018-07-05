@@ -2,8 +2,6 @@
 
 namespace IntegratedExperts\BehatSteps\D7;
 
-use Behat\Mink\Exception\ExpectationException;
-
 /**
  * Trait TaxonomyTrait.
  */
@@ -23,7 +21,7 @@ trait TaxonomyTrait {
     ]);
 
     if (count($found) == 0) {
-      throw new ExpectationException(printf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vocabulary));
+      throw new \Exception(printf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vocabulary));
     }
   }
 

@@ -5,7 +5,6 @@ namespace IntegratedExperts\BehatSteps\D7;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait EmailTrait.
@@ -82,7 +81,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf("Unable to find email sent to '%s' retrieved from test email collector.", $address), $this->getSession());
+    throw new \Exception(sprintf("Unable to find email sent to '%s' retrieved from test email collector.", $address));
   }
 
   /**
@@ -90,7 +89,7 @@ trait EmailTrait {
    */
   public function emailAssertNoEmailsWereSent() {
     if (count($this->emailGetCollectedEmails()) > 0) {
-      throw new ExpectationException('No emails were supposed to be sent', $this->getSession());
+      throw new \Exception('No emails were supposed to be sent');
     }
   }
 
@@ -132,7 +131,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf("Unable to find email with%s text '%s' in field '%s' retrieved from test email collector.", ($exact ? ' exact' : ''), $string, $field), $this->getSession());
+    throw new \Exception(sprintf("Unable to find email with%s text '%s' in field '%s' retrieved from test email collector.", ($exact ? ' exact' : ''), $string, $field));
   }
 
   /**
@@ -155,7 +154,7 @@ trait EmailTrait {
     foreach ($this->emailGetCollectedEmails() as $email) {
       $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
       if (strpos($field_string, $string) !== FALSE) {
-        throw new ExpectationException(sprintf("Found email with%s text '%s' in field '%s' retrieved from test email collector, but should not.", ($exact ? ' exact' : ''), $string, $field), $this->getSession());
+        throw new \Exception(sprintf("Found email with%s text '%s' in field '%s' retrieved from test email collector, but should not.", ($exact ? ' exact' : ''), $string, $field));
       }
     }
   }

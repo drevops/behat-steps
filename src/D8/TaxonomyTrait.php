@@ -3,7 +3,6 @@
 namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Exception\ExpectationException;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -19,10 +18,10 @@ trait TaxonomyTrait {
   public function taxonomyAssertVocabularyExist($name, $vid) {
     $vocab = Vocabulary::load($vid);
     if (!$vocab) {
-      throw new ExpectationException(sprintf('"%s" vocabulary does not exist', $vid));
+      throw new \Exception(sprintf('"%s" vocabulary does not exist', $vid));
     }
     elseif ($vocab->get('name') != $name) {
-      throw new ExpectationException(sprintf('"%s" vocabulary name is not "%s"', $vid, $name));
+      throw new \Exception(sprintf('"%s" vocabulary name is not "%s"', $vid, $name));
     }
   }
 
@@ -44,7 +43,7 @@ trait TaxonomyTrait {
       ]);
 
     if (count($found) == 0) {
-      throw new ExpectationException(sprintf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vid));
+      throw new \Exception(sprintf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vid));
     }
   }
 

@@ -2,8 +2,6 @@
 
 namespace IntegratedExperts\BehatSteps;
 
-use Behat\Mink\Exception\ExpectationException;
-
 /**
  * Trait PathTrait.
  *
@@ -21,7 +19,7 @@ trait PathTrait {
     $current_path = $current_path == '' ? '<front>' : $current_path;
 
     if ($current_path != ltrim($path, '/')) {
-      throw new ExpectationException(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
+      throw new \Exception(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
     }
   }
 
@@ -34,7 +32,7 @@ trait PathTrait {
     $current_path = ltrim($current_path, '/');
 
     if ($current_path == $path) {
-      throw new ExpectationException(sprintf('Current path should not be "%s"', $current_path));
+      throw new \Exception(sprintf('Current path should not be "%s"', $current_path));
     }
 
     return TRUE;

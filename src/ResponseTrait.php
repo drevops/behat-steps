@@ -2,8 +2,6 @@
 
 namespace IntegratedExperts\BehatSteps;
 
-use Behat\Mink\Exception\ExpectationException;
-
 /**
  * Trait ResponseTrait.
  *
@@ -18,7 +16,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($name);
 
     if (!$header) {
-      throw new ExpectationException(sprintf('Response does not contain header %s', $name), $this->getSession()->getDriver());
+      throw new \Exception(sprintf('Response does not contain header %s', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -29,7 +27,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($name);
 
     if ($header) {
-      throw new ExpectationException(sprintf('Response contains header %s, but should not', $name), $this->getSession()->getDriver());
+      throw new \Exception(sprintf('Response contains header %s, but should not', $name), $this->getSession()->getDriver());
     }
   }
 

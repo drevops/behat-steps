@@ -8,7 +8,6 @@ namespace IntegratedExperts\BehatSteps\D8;
  */
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait WatchdogTrait.
@@ -68,7 +67,7 @@ trait WatchdogTrait {
         }
 
         if (!empty($entries)) {
-          throw new ExpectationException('PHP errors were logged to watchdog during this scenario.');
+          throw new \Exception('PHP errors were logged to watchdog during this scenario.');
         }
       }
     }
