@@ -30,7 +30,7 @@ trait DateTrait {
   public static function dateProcess($value, $now = NULL) {
     // If `now` is not provided, round to the current hour to make sure that
     // assertions are running within the same timeframe (for long tests).
-    $now = $now ? $now : strtotime(date('Y-m-d H:m:00', time()));
+    $now = $now ? $now : strtotime(date('Y-m-d 12:30:00', time()));
 
     return preg_replace_callback('/\[([^:]+):([^\]\[\#]+)(?:\#([^\]\[]+))?\]/', function ($matches) use ($now) {
       $timestamp = strtotime($matches[2], $now);
