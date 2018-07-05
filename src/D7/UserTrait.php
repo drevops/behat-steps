@@ -13,6 +13,21 @@ use Behat\Mink\Exception\ExpectationException;
 trait UserTrait {
 
   /**
+   * @When I visit user :name profile
+   */
+  public function userVisitProfile($name) {
+    $user = user_load_by_name($name);
+
+    if (empty($user)) {
+      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+    }
+
+    $path = $this->locatePath('/user/' . $user->uid);
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
    * @Given no users:
    */
   public function userDelete(TableNode $usersTable) {
