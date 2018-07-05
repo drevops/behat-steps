@@ -41,6 +41,21 @@ trait PathTrait {
   }
 
   /**
+   * @Then I :can visit :path with HTTP credentials :user :pass
+   */
+  public function pathAssertVisitWithBasicAuth($can, $path, $user, $pass) {
+    $this->getSession()->setBasicAuth($user, $pass);
+    $this->visitPath($path);
+
+    if ($can == 'can') {
+      $this->assertSession()->statusCodeEquals(200);
+    }
+    else {
+      $this->assertSession()->statusCodeNotEquals(200);
+    }
+  }
+
+  /**
    * @When I visit :path then the final URL should be :alias
    */
   public function assertAtPathRedirect($path, $alias) {
