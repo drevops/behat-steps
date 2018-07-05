@@ -2,6 +2,9 @@
 Collection of Behat steps for Drupal development.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/behat-steps.svg?style=shield)](https://circleci.com/gh/integratedexperts/behat-steps)
+[![Latest Stable Version](https://poser.pugx.org/integratedexperts/behat-steps/v/stable)](https://packagist.org/packages/integratedexperts/behat-steps)
+[![Total Downloads](https://poser.pugx.org/integratedexperts/behat-steps/downloads)](https://packagist.org/packages/integratedexperts/behat-steps)
+[![License](https://poser.pugx.org/integratedexperts/behat-steps/license)](https://packagist.org/packages/integratedexperts/behat-steps)
 
 # Why traits?
 Usually, such packages implement own Drupal driver with several contexts, service containers and a lot of other useful architectural structures.
