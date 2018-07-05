@@ -2,6 +2,8 @@
 
 namespace IntegratedExperts\BehatSteps;
 
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Trait LinkTrait.
  *
@@ -39,7 +41,7 @@ trait LinkTrait {
     // Support for simplified wildcard using '*'.
     $pattern = strpos($href, '*') !== FALSE ? str_replace('\*', '.*', $pattern) : $pattern;
     if (!preg_match($pattern, $link->getAttribute('href'))) {
-      throw new \Exception(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href));
+      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href));
     }
   }
 

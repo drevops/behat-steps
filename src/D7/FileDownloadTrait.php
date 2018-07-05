@@ -6,6 +6,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -90,10 +91,10 @@ trait FileDownloadTrait {
     $link_element = $page->findLink($link);
 
     if ($should_be_present && !$link_element) {
-      throw new \Exception(sprintf('No link "%s" is present on the page, but expected to be present', $link));
+      throw new ExpectationException(sprintf('No link "%s" is present on the page, but expected to be present', $link));
     }
     elseif (!$should_be_present && $link_element) {
-      throw new \Exception(sprintf('Link "%s" is present on the page, but expected to be absent', $link));
+      throw new ExpectationException(sprintf('Link "%s" is present on the page, but expected to be absent', $link));
     }
 
     return $link_element;
@@ -119,7 +120,7 @@ trait FileDownloadTrait {
       }
     }
 
-    throw new \Exception('Unable to find a content line with searched string.');
+    throw new ExpectationException('Unable to find a content line with searched string.');
   }
 
   /**
@@ -131,7 +132,7 @@ trait FileDownloadTrait {
     }
 
     if ($name != $this->fileDownloadDownloadedFileInfo['file_name']) {
-      throw new \Exception(sprintf('Downloaded file %s, but expected %s', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+      throw new ExpectationException(sprintf('Downloaded file %s, but expected %s', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
     }
   }
 
@@ -149,7 +150,7 @@ trait FileDownloadTrait {
     }
 
     if (!empty($errors)) {
-      throw new \Exception(implode(PHP_EOL, $errors));
+      throw new ExpectationException(implode(PHP_EOL, $errors));
     }
   }
 
@@ -167,7 +168,7 @@ trait FileDownloadTrait {
     }
 
     if (!empty($errors)) {
-      throw new \Exception(implode(PHP_EOL, $errors));
+      throw new ExpectationException(implode(PHP_EOL, $errors));
     }
   }
 

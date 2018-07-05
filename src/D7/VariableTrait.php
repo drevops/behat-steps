@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D7;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Class VariableTrait.
@@ -35,7 +36,7 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if ($value != $variable_value) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should have value "%s".', $name, $variable_value, $value));
+      throw new ExpectationException(sprintf('Variable %s has value "%s", but should have value "%s".', $name, $variable_value, $value));
     }
   }
 
@@ -46,7 +47,7 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if ($value == $variable_value) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have it.', $name, $variable_value));
+      throw new ExpectationException(sprintf('Variable %s has value "%s", but should not have it.', $name, $variable_value));
     }
   }
 
@@ -57,7 +58,7 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if (!is_null($variable_value)) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have any value set.', $name, $variable_value));
+      throw new ExpectationException(sprintf('Variable %s has value "%s", but should not have any value set.', $name, $variable_value));
     }
   }
 

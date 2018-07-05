@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait ContentTrait.
@@ -111,7 +112,7 @@ trait ContentTrait {
     $node = current($nodes);
     $current_old_state = $node->get('moderation_state')->first()->getString();
     if ($current_old_state != $old_state) {
-      throw new \Exception(sprintf('The current state "%s" is different from "%s"', $current_old_state, $old_state));
+      throw new ExpectationException(sprintf('The current state "%s" is different from "%s"', $current_old_state, $old_state));
     }
 
     $node->set('moderation_state', $new_state);
