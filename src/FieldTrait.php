@@ -3,7 +3,6 @@
 namespace IntegratedExperts\BehatSteps;
 
 use Behat\Mink\Exception\ElementNotFoundException;
-use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait Field.
@@ -39,7 +38,7 @@ trait FieldTrait {
     $field = $field ? $field : $page->findById($field_name);
 
     if ($field !== NULL) {
-      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field_name), $this->getSession()
+      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $field_name), $this->getSession()
         ->getDriver());
     }
   }
@@ -63,11 +62,11 @@ trait FieldTrait {
     $field = $this->fieldAssertExists($field_name);
 
     if ($disabled == 'disabled' && !$field->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field_name), $this->getSession()
+      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $field_name), $this->getSession()
         ->getDriver());
     }
     elseif ($disabled != 'disabled' && $field->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field_name), $this->getSession()
+      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $field_name), $this->getSession()
         ->getDriver());
     }
   }

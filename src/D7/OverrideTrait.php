@@ -12,7 +12,10 @@ namespace IntegratedExperts\BehatSteps\D7;
 trait OverrideTrait {
 
   /**
-   * {@inheritdoc}
+   * Creates and authenticates a user with the given role(s).
+   *
+   * @Given I am logged in as a user with the :role role(s)
+   * @Given I am logged in as a/an :role
    */
   public function assertAuthenticatedByRole($role) {
     // Override parent assertion to allow using 'anonymous user' role without

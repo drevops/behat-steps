@@ -32,10 +32,8 @@ build:
 ## Remove dependencies.
 clean:
 	$(call title,Removing dependencies)
-	$(call exec,chmod -Rf 777 $(WEBROOT)/sites/default)
+	$(call exec,chmod -Rf 777 $(WEBROOT)/sites/default||true)
 	$(call exec,git ls-files --directory --other -i --exclude-from=.gitignore $(WEBROOT)|xargs rm -Rf)
-	$(call exec,rm -Rf vendor)
-	$(call exec,rm -Rf node_modules)
 
 ## Remove dependencies and Docker images.
 clean-full: docker-stop docker-destroy clean

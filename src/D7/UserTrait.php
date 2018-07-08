@@ -3,7 +3,6 @@
 namespace IntegratedExperts\BehatSteps\D7;
 
 use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Trait UserTrait.
@@ -58,7 +57,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->roles)) != count($roles)) {
-      throw new ExpectationException(sprintf('User "%s" does not have role(s) "%s", but has roles "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
+      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
     }
   }
 
@@ -74,7 +73,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->roles)) > 0) {
-      throw new ExpectationException(sprintf('User "%s" should not have roles(s) "%s", but has "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
+      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
     }
   }
 
@@ -90,7 +89,7 @@ trait UserTrait {
     }
 
     if ($user->status != $status) {
-      throw new ExpectationException(sprintf('User "%s" is expected to have status "%s", but has status "%s"', $name, $status ? 'active' : 'blocked', $user->status ? 'active' : 'blocked'));
+      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s"', $name, $status ? 'active' : 'blocked', $user->status ? 'active' : 'blocked'));
     }
   }
 
