@@ -30,21 +30,18 @@ trait ContentTrait {
    * @When I visit :type :title
    */
   public function contentVisitPageWithTitle($type, $title) {
-    $nodes = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->loadByProperties([
-        'title' => $title,
-        'type' => $type,
-      ]);
+    $nids = $this->nodeLoadMultiple($type, [
+      'title' => $title,
+    ]);
 
-    if (empty($nodes)) {
-      throw new \Exception(sprintf('Unable to find %s page "%s"', $type, $title));
+    if (empty($nids)) {
+      throw new RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
     }
 
-    ksort($nodes);
+    ksort($nids);
 
-    $node = end($nodes);
-    $path = $this->locatePath($node->toUrl()->getInternalPath());
+    $nid = end($nids);
+    $path = $this->locatePath('/node/' . $nid);
     print $path;
     $this->getSession()->visit($path);
   }
@@ -53,30 +50,30 @@ trait ContentTrait {
    * @When I edit :type :title
    */
   public function contentEditPageWithTitle($type, $title) {
-    $nodes = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->loadByProperties([
-        'title' => $title,
-        'type' => $type,
-      ]);
+    $nids = $this->nodeLoadMultiple($type, [
+      'title' => $title,
+    ]);
 
-    if (empty($nodes)) {
-      throw new \Exception(sprintf('Unable to find %s page "%s"', $type, $title));
+    if (empty($nids)) {
+      throw new RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
     }
 
-    $node = current($nodes);
-    $path = $this->locatePath('/node/' . $node->id()) . '/edit';
+    $nid = current($nids);
+    $path = $this->locatePath('/node/' . $nid) . '/edit';
     print $path;
     $this->getSession()->visit($path);
   }
 
   /**
-   * @Given no :type content type
+   * @Given /^no ([a-zA-z0-9_-]+) content:$/
    */
-  public function contentDelete($type) {
-    $content_type_entity = \Drupal::entityManager()->getStorage('node_type')->load($type);
-    if ($content_type_entity) {
-      $content_type_entity->delete();
+  public function contentDelete($type, TableNode $nodesTable) {
+    foreach ($nodesTable->getHash() as $nodeHash) {
+      $nids = $this->nodeLoadMultiple($type, $nodeHash);
+
+      $controller = \Drupal::entityTypeManager()->getStorage('node');
+      $entities = $controller->loadMultiple($nids);
+      $controller->delete($entities);
     }
   }
 
@@ -128,6 +125,21 @@ trait ContentTrait {
    */
   public function contentFillCkeditorField($field, $value) {
     $this->minkContext->getSession()->executeScript("CKEDITOR.instances[\"$field\"].setData(\"$value\");");
+  }
+
+  /**
+   * Helper to load multiple nodes with specified type and conditions.
+   */
+  protected function nodeLoadMultiple($type, $conditions = []) {
+    $query = \Drupal::entityQuery('node')
+      ->condition('type', $type);
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }
