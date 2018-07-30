@@ -18,7 +18,7 @@ include .env
 build:
 	$(call title,Building project)
 	$(call exec,$(MAKE) docker-start)
-	$(call exec,composer install -n --ansi --prefer-dist --no-suggest)
+	$(call exec,docker-compose exec cli composer install -n --ansi --prefer-dist --no-suggest)
 	$(call exec,$(MAKE) site-install)
 	@echo ''
 	$(call title,Build complete)
@@ -109,7 +109,7 @@ test: test-behat
 ## Run Behat tests.
 test-behat:
 	$(call title,Running behat tests)
-	$(call exec,docker-compose exec cli vendor/bin/behat --format=progress_fail --colors $(BEHAT_PROFILE) --profile=d$(DRUPAL_VERSION) $(filter-out $@,$(MAKECMDGOALS)))
+	$(call exec,docker-compose exec cli vendor/bin/behat --strict --format=progress_fail --colors $(BEHAT_PROFILE) --profile=d$(DRUPAL_VERSION) $(filter-out $@,$(MAKECMDGOALS)))
 
 #-------------------------------------------------------------------------------
 # VARIABLES.
