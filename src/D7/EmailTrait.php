@@ -115,7 +115,7 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains
+   * @Then an email :field contains:
    */
   public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
@@ -135,7 +135,7 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains exact
+   * @Then an email :field contains exact:
    */
   public function emailAssertEmailContainsExact($field, PyStringNode $string) {
     $this->emailAssertEmailContains($field, $string, TRUE);
@@ -200,7 +200,7 @@ trait EmailTrait {
   }
 
   /**
-   * @When I send test email to :email with
+   * @When I send test email to :email with:
    */
   public function emailSendTestEmail($email, PyStringNode $string) {
     drupal_mail('behat_test_email', 'test_email', $email, language_default(), ['body' => $string], FALSE);
