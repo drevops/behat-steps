@@ -28,12 +28,12 @@ use IntegratedExperts\BehatSteps\ResponseTrait;
 class FeatureContext extends DrupalContext {
 
   use ContentTrait;
+  use EmailTrait;
   use FieldTrait;
   use LinkTrait;
   use PathTrait;
+  use ResponseTrait;
   use UserTrait;
   use VariableTrait;
-  use ResponseTrait;
-  use EmailTrait;
 
 }
