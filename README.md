@@ -76,5 +76,5 @@ class FeatureContext extends DrupalContext {
 - Run all scenarios tagged with `@wip` tag: `make test-behat -- --tags=wip`
 
 To debug tests from CLI:
-1. SSH into CLI container: `docker-compose -p behatsteps exec cli ssh`
+1. SSH into CLI container: `docker-compose -p behatsteps exec cli sh`
 2. `./xdebug.sh vendor/bin/behat path/to/file`
