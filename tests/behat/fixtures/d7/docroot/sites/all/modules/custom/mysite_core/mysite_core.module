@@ -43,3 +43,15 @@ function mysite_core_test_form() {
 
   return $form;
 }
+
+/**
+ * Implements hook_mail().
+ */
+function mysite_core_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'test_email':
+      $message['subject'] = t('Test Email');
+      $message['body'][] = $params['body'];
+      break;
+  }
+}
