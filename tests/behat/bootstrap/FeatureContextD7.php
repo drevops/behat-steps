@@ -5,8 +5,10 @@
  * MYSITE Drupal context for Behat testing.
  */
 
+use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
+use IntegratedExperts\BehatSteps\D7\EmailTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
@@ -19,6 +21,7 @@ use IntegratedExperts\BehatSteps\ResponseTrait;
 class FeatureContextD7 extends DrupalContext {
 
   use ContentTrait;
+  use EmailTrait;
   use FieldTrait;
   use LinkTrait;
   use PathTrait;
@@ -44,6 +47,14 @@ class FeatureContextD7 extends DrupalContext {
     }
 
     throw new \Exception(sprintf('User "%s" does not exist in DB, but still exists in test variables', $name));
+  }
+
+  /**
+   * @When I send test email to :email with
+   * @When I send test email to :email with:
+   */
+  public function emailSendTestEmail($email, PyStringNode $string) {
+    drupal_mail('mysite_core', 'test_email', $email, language_default(), ['body' => $string], FALSE);
   }
 
 }

@@ -7,6 +7,12 @@ default:
   suites:
     default:
       paths: [ %paths.base%/tests/behat/features ]
+      contexts:
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+        - FeatureContextD7
 
   extensions:
     Behat\MinkExtension:
@@ -44,14 +50,7 @@ d7:
   gherkin:
     filters:
       tags: "@d7&&~@skipped"
-  suites:
-    default:
-      contexts:
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MarkupContext
-        - Drupal\DrupalExtension\Context\MessageContext
-        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
-        - FeatureContextD7
+
 d8:
   gherkin:
     filters:
