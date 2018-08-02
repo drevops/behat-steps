@@ -10,6 +10,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
+use IntegratedExperts\BehatSteps\D7\VariableTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -27,6 +28,7 @@ class FeatureContextD7 extends DrupalContext {
   use PathTrait;
   use ResponseTrait;
   use UserTrait;
+  use VariableTrait;
 
   /**
    * @Then user :name does not exists
@@ -53,8 +55,22 @@ class FeatureContextD7 extends DrupalContext {
    * @When I send test email to :email with
    * @When I send test email to :email with:
    */
-  public function emailSendTestEmail($email, PyStringNode $string) {
+  public function sendTestEmail($email, PyStringNode $string) {
     drupal_mail('mysite_core', 'test_email', $email, language_default(), ['body' => $string], FALSE);
+  }
+
+  /**
+   * @Given I set test variable :name to value :value
+   */
+  public function setTestVariable($name, $value) {
+    variable_set($name, (string) $value);
+  }
+
+  /**
+   * @Given I delete test variable :name
+   */
+  public function deleteTestVariable($name) {
+    variable_del($name);
   }
 
 }
