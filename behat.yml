@@ -3,6 +3,7 @@ default:
   gherkin:
     filters:
       tags: "~@skipped"
+    cache: ~
   suites:
     default:
       paths: [ %paths.base%/tests/behat/features ]
