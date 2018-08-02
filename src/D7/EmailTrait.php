@@ -115,7 +115,7 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains
+   * @Then an email :field contains:
    */
   public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
@@ -135,7 +135,7 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains exact
+   * @Then an email :field contains exact:
    */
   public function emailAssertEmailContainsExact($field, PyStringNode $string) {
     $this->emailAssertEmailContains($field, $string, TRUE);
@@ -185,7 +185,7 @@ trait EmailTrait {
   }
 
   /**
-   * @Then file :name attached to the email with the subject
+   * @Then file :name attached to the email with the subject:
    */
   public function emailAssertEmailContainsAttachmentWithName($name, PyStringNode $subject) {
     $email = $this->emailAssertEmailContains('subject', $subject);
@@ -200,19 +200,40 @@ trait EmailTrait {
   }
 
   /**
-   * @When I send test email to :email with
+   * @When I send test email to :email with:
    */
   public function emailSendTestEmail($email, PyStringNode $string) {
-    drupal_mail('behat_test_email', 'test_email', $email, language_default(), ['body' => $string], FALSE);
+    $fields = $string->getStrings();
+    if (!isset($fields[0]) || empty($fields[0])) {
+      throw new \Exception(sprintf('Subject is empty'));
+    }
+    if (!isset($fields[1]) || empty($fields[1])) {
+      throw new \Exception(sprintf('Body is empty'));
+    }
+    drupal_mail('behat_test_email', 'test_email', $email, language_default(), [
+      'subject' => $fields[0],
+      'body' => $fields[1],
+    ], FALSE);
   }
 
   /**
    * Get emails collected during the test.
    */
   protected function emailGetCollectedEmails() {
-    $emails = array_map('unserialize', db_query("SELECT name, value FROM {variable} WHERE name = 'drupal_test_email_collector'")->fetchAllKeyed());
+    $emailsData = array_map('unserialize', db_query("SELECT name, value FROM {variable} WHERE name = 'drupal_test_email_collector'")->fetchAllKeyed());
+    $prepareFields = ['body', 'subject'];
+    $emails = [];
+    foreach ($prepareFields as $prepareField) {
+      if (!empty($emailsData['drupal_test_email_collector'])) {
+        foreach ($emails =& $emailsData['drupal_test_email_collector'] as $delta => $email) {
+          if (isset($email['params'][$prepareField]) && empty($email[$prepareField])) {
+            $emails[$delta][$prepareField] = $email['params'][$prepareField];
+          }
+        }
+      }
+    }
 
-    return !empty($emails['drupal_test_email_collector']) ? $emails['drupal_test_email_collector'] : [];
+    return $emails;
   }
 
   /**
@@ -244,7 +265,7 @@ trait EmailTrait {
 function dhhs_email_mail($key, &$message, $params) {
   switch ($key) {
     case 'test_email':
-      $message['subject'] = t('Test Email');
+      $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
       break;
   }
