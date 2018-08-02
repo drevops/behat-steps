@@ -36,7 +36,10 @@ clean:
 	$(call exec,git ls-files --directory --other -i --exclude-from=.gitignore $(WEBROOT)|xargs rm -Rf)
 
 ## Remove dependencies and Docker images.
-clean-full: docker-stop docker-destroy clean
+clean-full:
+	$(call exec,$(MAKE) docker-stop)
+	$(call exec,$(MAKE) docker-destroy)
+	$(call exec,$(MAKE) clean)
 
 ## Start Docker containers.
 docker-start:
@@ -89,10 +92,14 @@ update-fixtures:
 	$(call exec,rsync -av --delete --no-progress --exclude-from=$(BUILD)/.rsync-exclude $(BUILD)/ $(FIXTURES)/d$(DRUPAL_VERSION)/)
 
 ## Re-build project dependencies.
-rebuild: clean build
+rebuild:
+	$(call exec,$(MAKE) clean)
+	$(call exec,$(MAKE) build)
 
 ## clean and fully re-build project dependencies.
 rebuild-full: clean-full build
+	$(call exec,$(MAKE) clean-full)
+	$(call exec,$(MAKE) build)
 
 # Install site.
 site-install:

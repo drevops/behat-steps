@@ -60,3 +60,21 @@ class FeatureContext extends DrupalContext {
 
 }
 ```
+
+## Development
+
+### Local environment setup
+1. Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
+2. Checkout project repo
+3. Set the version of Drupal to run test against in `.env.local` file: `DRUPAL_VERSION = 7`
+4. `pygmy up`
+5. `make build`
+
+### Behat tests
+- Run all tests: `make test-behat`
+- Run all scenarios in specific feature file: `make test-behat -- path/to/file`
+- Run all scenarios tagged with `@wip` tag: `make test-behat -- --tags=wip`
+
+To debug tests from CLI:
+1. SSH into CLI container: `docker-compose -p behatsteps exec cli sh`
+2. `./xdebug.sh vendor/bin/behat path/to/file`

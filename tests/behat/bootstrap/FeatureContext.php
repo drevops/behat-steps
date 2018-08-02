@@ -31,5 +31,30 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use LinkTrait;
   use PathTrait;
+  use ResponseTrait;
+  use UserTrait;
+
+  /**
+   * @Then user :name does not exists
+   */
+  public function userDoesNotExist($name) {
+    // We need to check that user was removed from both DB and test variables.
+
+    // @todo: Implement support for D8 core driver.
+    $user = user_load($name);
+
+    if ($user) {
+      throw new \Exception(sprintf('User "%s" exists in DB but should not', $name));
+    }
+
+    try {
+      $this->getUserManager()->getUser($name);
+    }
+    catch (\Exception $exception) {
+      return;
+    }
+
+    throw new \Exception(sprintf('User "%s" does not exist in DB, but still exists in test variables', $name));
+  }
 
 }

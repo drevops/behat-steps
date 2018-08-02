@@ -81,7 +81,7 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf("Unable to find email sent to '%s' retrieved from test email collector.", $address));
+    throw new \Exception(sprintf('Unable to find email sent to "%s" retrieved from test email collector.', $address));
   }
 
   /**
@@ -96,7 +96,7 @@ trait EmailTrait {
   /**
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
-  public function emailAssertEmailIsActionToUserWithContent($name, $action, $field, PyStringNode $string) {
+  public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
     $user = $name == 'current' && !empty($this->user) ? $this->user : user_load_by_name($name);
     if (!$user) {
       throw new \RuntimeException(sprintf('Unable to find a user "%s"', $name));
@@ -116,6 +116,7 @@ trait EmailTrait {
 
   /**
    * @Then an email :field contains
+   * @Then an email :field contains:
    */
   public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
@@ -131,11 +132,12 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf("Unable to find email with%s text '%s' in field '%s' retrieved from test email collector.", ($exact ? ' exact' : ''), $string, $field));
+    throw new \Exception(sprintf('Unable to find email with%s text "%s" in field "%s" retrieved from test email collector.', ($exact ? ' exact' : ''), $string, $field));
   }
 
   /**
    * @Then an email :field contains exact
+   * @Then an email :field contains exact:
    */
   public function emailAssertEmailContainsExact($field, PyStringNode $string) {
     $this->emailAssertEmailContains($field, $string, TRUE);
@@ -143,6 +145,7 @@ trait EmailTrait {
 
   /**
    * @Then an email :field does not contain
+   * @Then an email :field does not contain:
    */
   public function emailAssertEmailNotContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
@@ -154,13 +157,14 @@ trait EmailTrait {
     foreach ($this->emailGetCollectedEmails() as $email) {
       $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
       if (strpos($field_string, $string) !== FALSE) {
-        throw new \Exception(sprintf("Found email with%s text '%s' in field '%s' retrieved from test email collector, but should not.", ($exact ? ' exact' : ''), $string, $field));
+        throw new \Exception(sprintf('Found email with%s text "%s" in field "%s" retrieved from test email collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
       }
     }
   }
 
   /**
    * @Then an email :field does not contain exact
+   * @Then an email :field does not contain exact:
    */
   public function emailAssertEmailNotContainsExact($field, PyStringNode $string) {
     $this->emailAssertEmailNotContains($field, $string, TRUE);
@@ -168,6 +172,7 @@ trait EmailTrait {
 
   /**
    * @When I follow the link number :number in the email with the subject
+   * @When I follow the link number :number in the email with the subject:
    */
   public function emailFollowLinkNumber($number, PyStringNode $subject) {
     $email = $this->emailAssertEmailContains('subject', $subject);
@@ -186,6 +191,7 @@ trait EmailTrait {
 
   /**
    * @Then file :name attached to the email with the subject
+   * @Then file :name attached to the email with the subject:
    */
   public function emailAssertEmailContainsAttachmentWithName($name, PyStringNode $subject) {
     $email = $this->emailAssertEmailContains('subject', $subject);
@@ -197,13 +203,6 @@ trait EmailTrait {
     }
 
     throw new \Exception(sprintf('No attachments were found in the email with subject %s', $subject));
-  }
-
-  /**
-   * @When I send test email to :email with
-   */
-  public function emailSendTestEmail($email, PyStringNode $string) {
-    drupal_mail('behat_test_email', 'test_email', $email, language_default(), ['body' => $string], FALSE);
   }
 
   /**
@@ -236,16 +235,4 @@ trait EmailTrait {
     return !empty($matches[0]) ? $matches[0] : [];
   }
 
-}
-
-/**
- * Implements hook_mail().
- */
-function dhhs_email_mail($key, &$message, $params) {
-  switch ($key) {
-    case 'test_email':
-      $message['subject'] = t('Test Email');
-      $message['body'][] = $params['body'];
-      break;
-  }
 }

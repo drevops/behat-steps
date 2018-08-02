@@ -41,6 +41,7 @@ trait UserTrait {
 
       if ($user) {
         user_delete($user->uid);
+        $this->getUserManager()->removeUser($user->name);
       }
     }
   }
