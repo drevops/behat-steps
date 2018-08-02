@@ -33,7 +33,6 @@ class FeatureContext extends DrupalContext {
   use PathTrait;
   use ResponseTrait;
   use UserTrait;
-  use VariableTrait;
 
   /**
    * @Then user :name does not exists
