@@ -5,6 +5,6 @@ Feature: Check that ResponseTrait for D7 works
   Scenario: Assert header response
     Given I go to "/"
     And response contains header "Server"
-    And response does not contain header "NotExist"
+    And response does not contain header "NotExistingHeader"
     And response header "Server" contains "nginx"
-    And response header "Server" does not contain "NotExist"
+    And response header "Server" does not contain "NotExistingHeaderValue"
