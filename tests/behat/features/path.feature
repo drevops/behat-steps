@@ -1,4 +1,4 @@
-@d7
+@d7 @d8
 Feature: Check that PathTrait works
 
   Scenario: User is at the path without prefixed slash.
