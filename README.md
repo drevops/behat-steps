@@ -77,4 +77,14 @@ class FeatureContext extends DrupalContext {
 
 To debug tests from CLI:
 1. SSH into CLI container: `docker-compose -p behatsteps exec cli sh`
-2. `./xdebug.sh vendor/bin/behat path/to/file`
+2. `./xdebug.sh vendor/bin/behat -p d7 path/to/file`
+   
+   IMPORTANT: When running tests directly, always specify profile for the 
+   version of Drupal your are running:
+      ```
+      vendor/bin/behat -p d7
+      ```      
+      or
+      ```
+      vendor/bin/behat -p d8
+      ```
