@@ -1,4 +1,4 @@
-@d7 @d8
+@d7
 Feature: Check that LinkTrait works
 
   Scenario: Assert link with href without locator
