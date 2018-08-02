@@ -31,5 +31,7 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use LinkTrait;
   use PathTrait;
+  use UserTrait;
+  use VariableTrait;
 
 }
