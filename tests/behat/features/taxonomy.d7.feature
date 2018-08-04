@@ -2,35 +2,43 @@
 Feature: Check that TaxonomyTrait for D7 works
 
   Background:
-    Given I am logged in as a user with the "administrator" role
-    Given "tags" terms:
-      | name             | description         | parent           |
-      | Test term first  | parent term         | 0                |
-      | Test term second | child & parent term | Test term first  |
-      | Test term third  | child & parent term | Test term second |
-      | Test term fourth | child & parent term | Test term third  |
-      | Test term fifth  | child term          | Test term fourth |
+    Given no "tags" terms:
+      | T1  |
+      | T11 |
+      | T12 |
+      | T13 |
+      | T2  |
+    And "tags" terms:
+      | name | description         | parent |
+      | T1   | parent term         | 0      |
+      | T11  | child & parent term | T1     |
+      | T12  | child & parent term | T1     |
+      | T13  | child & parent term | T1     |
+      | T2   | parent term         | 0      |
+    And no article content:
+      | title           |
+      | [TEST] Article1 |
+      | [TEST] Article2 |
     And article content:
-      | title              | field_tags                        |
-      | Test Article first | Test term first, Test term second |
-    And article content:
-      | title               | field_tags                       |
-      | Test Article second | Test term first, Test term third |
+      | title           | field_tags |
+      | [TEST] Article1 | T1, T11    |
+      | [TEST] Article2 | T1, T12    |
+
+  @api @wip
+  Scenario: Assert "Given taxonomy term :name from vocabulary :vocab exists"
+  and "Given :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):"
+    Given taxonomy term "T1" from vocabulary "tags" exists
+    And "[TEST] Article1" has "field_tags" field populated with the following terms from "tags" vocabulary:
+      | T1  |
+      | T11 |
+    And "[TEST] Article1" has "field_tags" field populated with the following terms from "tags":
+      | T1  |
+      | T11 |
+    And "[TEST] Article1" has "field_tags" field populated with terms from "tags":
+      | T1  |
+      | T11 |
 
   @api
-  Scenario: Assert visiting page with title of specified content type
-    And taxonomy term "Test term first" from vocabulary "tags" exists
-    Given "Test Article first" node has "field_tags" of "tags" vocabulary with taxonomies:
-      | Test term first  |
-      | Test term second |
-
-  @api
-  Scenario Outline: Assert that taxonomies has a parents
-    Given "<taxonomy_child>" has parent "<taxonomy_parent>" with "<level>" level in "tags" vocabulary
-    Examples:
-      | taxonomy_child   | taxonomy_parent  |
-      | Test term first  | 0                |
-      | Test term second | Test term first  |
-      | Test term third  | Test term second |
-      | Test term fourth | Test term third  |
-      | Test term fifth  | Test term fourth |
+  Scenario: Assert "Given :term_name in :vocabulary( vocabulary) has parent :parent_term_name( and depth :depth)"
+    Given "T11" in "tags" vocabulary has parent "T1" and depth "1"
+    Given "T11" in "tags" vocabulary has parent "T1"

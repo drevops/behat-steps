@@ -10,6 +10,23 @@ use Behat\Gherkin\Node\TableNode;
 trait TaxonomyTrait {
 
   /**
+   * @Given no :vocabulary terms:
+   */
+  public function removeTerms($vocabulary, TableNode $termsTable) {
+    $vocab = taxonomy_vocabulary_machine_name_load($vocabulary);
+    foreach ($termsTable->getColumn(0) as $name) {
+      $terms = taxonomy_term_load_multiple([], [
+        'name' => $name,
+        'vid' => $vocab->vid,
+      ]);
+
+      foreach ($terms as $term) {
+        taxonomy_term_delete($term->tid);
+      }
+    }
+  }
+
+  /**
    * @Given taxonomy term :name from vocabulary :vocab exists
    */
   public function taxonomyAssertTermExistsByName($name, $vocabulary) {
@@ -25,76 +42,69 @@ trait TaxonomyTrait {
     if (count($found) == 0) {
       throw new \Exception(printf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vocabulary));
     }
+
+    $term = reset($found);
+
+    return $term;
   }
 
   /**
-   * @Given :node_title node has :field of :vocab vocabulary with taxonomies:
+   * @Given :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):
    */
-  public function nodeHasTaxonomyField($node_title, $field, $vocabulary, TableNode $taxomies) {
+  public function nodeHasTaxonomyField($node_title, $field_name, $vocabulary, TableNode $table) {
+    $term_names = $table->getColumn(0);
 
-    // Get term names from given table.
-    $given_terms = $taxomies->getColumn(0);
-
-    // Find previously created node title.
-    $node = $this->getCurrentEntity([
+    $node = node_load_multiple(NULL, [
       'title' => $node_title,
     ]);
+    $node = reset($node);
 
-    $i = 0;
-    foreach ($node->{$field}->getIterator() as $delta => $term_wrapper) {
-      $term_title = $term_wrapper->name->value();
-      $this->taxonomyAssertTermExistsByName($term_title, $vocabulary);
-      if (!in_array($term_title, $given_terms)) {
-        throw new \Exception(sprintf('%s taxonomy not exist in %s node.', $given_terms[$delta], $node_title));
+    $field_terms = [];
+    foreach ($node->{$field_name}[LANGUAGE_NONE] as $value) {
+      $term = taxonomy_term_load($value['tid']);
+      $field_terms[] = $term->name;
+    }
+
+    $diff_provided = array_diff($term_names, $field_terms);
+    $diff_actual = array_diff($field_terms, $term_names);
+
+    if (count($diff_provided) > 0 || count($diff_actual) > 0) {
+      $message = '';
+      if (count($diff_provided) > 0) {
+        $message .= sprintf('Missing expected terms: %s', implode(', ', $diff_provided));
       }
-      $i++;
-    }
-    if ($i != count($given_terms)) {
-      throw new \Exception(sprintf('Wrong amount items'));
+      if (count($diff_provided) > 0) {
+        $message .= (strlen($message) > 0 ? ' ' : '') . sprintf('More terms exist then expected: %s', implode(', ', $diff_actual));
+      }
+      throw new \Exception($message);
     }
   }
 
   /**
-   * Find node using provided conditions.
+   * @Given /^"(?P<term_name>[^"]*)" in "(?P<vocabulary>[^"]*)" vocabulary has parent "(?P<parent_term_name>[^"]*)"( and depth "(?P<depth>[^"]*)")?$/
    */
-  protected function getCurrentEntity($conditions, $entity_type = 'node') {
-    $entity_load_multiple = $entity_type . '_load_multiple';
-    $entities = $entity_load_multiple(NULL, $conditions);
+  public function taxonomyTermHasNodeParent($term_name, $vocabulary, $parent_term_name, $depth = NULL) {
+    $term = $this->taxonomyAssertTermExistsByName($term_name, $vocabulary);
+    $parent_term = $this->taxonomyAssertTermExistsByName($parent_term_name, $vocabulary);
 
-    if (empty($entities)) {
-      throw new \Exception(sprintf('Unable to find %s that matches conditions: "%s"', $entity_type, print_r($conditions, TRUE)));
+    $parents = taxonomy_get_parents_all($term->tid);
+    if (!in_array($parent_term, $parents)) {
+      throw new \Exception(sprintf('Expected parent term "%s" is not found among parents of term "%s"', $parent_term_name, $term_name));
     }
 
-    $entity = current($entities);
-
-    return entity_metadata_wrapper($entity_type, $entity);
-  }
-
-  /**
-   * @Given :taxonomy_child has parent :taxonomy_parent with :level level in :vocab vocabulary
-   */
-  public function taxonomyTermHasNodeParent($taxonomy_child, $taxonomy_parent, $level, $vocabulary) {
-
-    $this->taxonomyAssertTermExistsByName($taxonomy_child, $vocabulary);
-
-    // Return if term has not parent.
-    if ($taxonomy_parent === '0') {
-      return;
+    if (!is_null($depth)) {
+      $vocab = taxonomy_vocabulary_machine_name_load($vocabulary);
+      $tree = taxonomy_get_tree($vocab->vid);
+      foreach ($tree as $leaf) {
+        if ($term->tid == $leaf->tid) {
+          $term = $leaf;
+          if ($term->depth != $depth) {
+            throw new \Exception(sprintf('Term "%s" has actual depth of "%s" but expected "%s"', $term_name, $term->depth, $depth));
+          }
+          break;
+        }
+      }
     }
-
-    // Get taxonomy by given title.
-    $target_terms = taxonomy_term_load_multiple(NULL, [
-      'name' => $taxonomy_child,
-    ]);
-
-    // Get parent of current taxonomy.
-    $parents = taxonomy_get_parents_all(key($target_terms));
-    $target = next($parents);
-
-    if ($target->name != $taxonomy_parent) {
-      throw new \Exception(sprintf('%s has not %s as parent. It should be %s', $taxonomy_child, $taxonomy_parent, $target->name));
-    }
-
   }
 
 }
