@@ -10,6 +10,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
 use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
+use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\D7\VariableTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -29,6 +30,7 @@ class FeatureContextD7 extends DrupalContext {
   use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
+  use TaxonomyTrait;
   use UserTrait;
   use VariableTrait;
 
