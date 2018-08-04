@@ -24,6 +24,9 @@ services:
   mariadb:
     ports:
       - 13309:3306
+  chrome:
+    volumes:
+      - .:/app:delegated
 networks:
   amazeeio-network:
     external: true
