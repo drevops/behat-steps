@@ -30,7 +30,11 @@ trait ParagraphsTrait {
       'type' => $node_type,
     ]);
 
-    $stub = $this->prepareFieldsfromScenario($fields);
+    // Get fields from scenario, parse them and expand values according to
+    // field tables.
+    $stub = (object) $fields->getRowsHash();
+    $this->parseEntityFields('paragraphs_item', $stub);
+    $this->paragraphsExpandEntityFields('paragraphs_item', $stub);
 
     // Attach paragraph from stub to node.
     $this->paragraphsAttachFromStubToNode($node, $paragraph_node_field_name, $paragraph_type, $stub);
@@ -138,76 +142,6 @@ trait ParagraphsTrait {
     }
 
     return $field;
-  }
-
-  /**
-   * Check existing paragraph fields of the given paragraph type.
-   *
-   * @When :node_title node of type :node_type has paragraph field :field_name with :paragraph_type type with paragraph:
-   */
-  public function nodeHasParagraphsFields($node_title, $node_type, $field_name, $paragraph_type, TableNode $fields) {
-
-    // Check if node type has a field.
-    $this->paragraphsCheckNodeFieldName($node_type, $field_name);
-
-    // Get correct paragraph from previous created node.
-    $paragraph = $this->paragraphSavedWithCorrectBundle($node_title, $node_type, $field_name, $paragraph_type);
-
-    if (!$paragraph) {
-      throw new \Exception(sprintf(' "%s" node has an empty value in "%s" field ', $node_title, $field_name));
-    }
-
-    $stub = $this->prepareFieldsfromScenario($fields);
-
-    foreach ($stub as $paragraph_field_name => $paragraph_field_value) {
-      foreach ($paragraph_field_value[LANGUAGE_NONE] as $delta => $item) {
-        $elements = array_intersect($item, $paragraph->{$paragraph_field_name}[LANGUAGE_NONE][$delta]);
-
-        // Check if paragraph has correct fields.
-        if (count($elements) != count($item)) {
-          throw new \Exception(sprintf('"%s" paragraph contain wrong fields values', $paragraph_field_name));
-        }
-      }
-    }
-
-  }
-
-  /**
-   * Parse fields from scenario and expand values according to field tables.
-   */
-  protected function prepareFieldsfromScenario(TableNode $fields) {
-    $stub = (object) $fields->getRowsHash();
-    $this->parseEntityFields('paragraphs_item', $stub);
-    $this->paragraphsExpandEntityFields('paragraphs_item', $stub);
-
-    return $stub;
-  }
-
-  /**
-   * Check correct paragraph bundle for a given node field.
-   *
-   * @When :node_title node of type :node_type has paragraph field :field_name with :paragraph_type bundle
-   */
-  public function paragraphSavedWithCorrectBundle($node_title, $node_type, $field_name, $paragraph_type) {
-
-    // Find previously created node by type and title.
-    $node = $this->paragraphsFindNode([
-      'title' => $node_title,
-      'type' => $node_type,
-    ]);
-
-    $paragraph = entity_load('paragraphs_item', [end($node->{$field_name}[LANGUAGE_NONE])['value']]);
-    $paragraph = end($paragraph);
-
-    if (!$paragraph) {
-      throw new \Exception(sprintf(' "%s" node has an empty value in "%s" field ', $node_title, $field_name));
-    }
-
-    if ($paragraph->bundle() != $paragraph_type) {
-      throw new \Exception(sprintf('  "%s" has incorect paragraph bundle, but should has a "%s"', $field_name, $paragraph_type));
-    }
-
-    return $paragraph;
   }
 
 }
