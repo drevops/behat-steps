@@ -12,7 +12,7 @@ trait TaxonomyTrait {
   /**
    * @Given no :vocabulary terms:
    */
-  public function removeTerms($vocabulary, TableNode $termsTable) {
+  public function taxonomyRemoveTerms($vocabulary, TableNode $termsTable) {
     $vocab = taxonomy_vocabulary_machine_name_load($vocabulary);
     foreach ($termsTable->getColumn(0) as $name) {
       $terms = taxonomy_term_load_multiple([], [
@@ -51,7 +51,7 @@ trait TaxonomyTrait {
   /**
    * @Given :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):
    */
-  public function nodeHasTaxonomyField($node_title, $field_name, $vocabulary, TableNode $table) {
+  public function taxonomyNodeHasTaxonomyField($node_title, $field_name, $vocabulary, TableNode $table) {
     $term_names = $table->getColumn(0);
 
     $node = node_load_multiple(NULL, [

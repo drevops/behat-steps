@@ -24,7 +24,7 @@ Feature: Check that TaxonomyTrait for D7 works
       | [TEST] Article1 | T1, T11    |
       | [TEST] Article2 | T1, T12    |
 
-  @api @wip
+  @api
   Scenario: Assert "Given taxonomy term :name from vocabulary :vocab exists"
   and "Given :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):"
     Given taxonomy term "T1" from vocabulary "tags" exists
