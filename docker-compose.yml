@@ -28,5 +28,7 @@ services:
       - "8080"
   mariadb:
     image: amazeeio/centos7-mariadb10-drupal
-  selenium:
+  chrome:
     image: selenium/standalone-chrome
+    volumes:
+      - .:/app
