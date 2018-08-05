@@ -109,6 +109,7 @@ site-install:
 	$(call exec,docker-compose exec cli composer --working-dir=$(APP)/$(BUILD) install --prefer-dist)
 	$(call exec,docker-compose exec cli drush -r $(APP)/$(WEBROOT) si standard -y --db-url=mysql://drupal:drupal@$(MYSQL_HOST)/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
 	$(call exec,docker-compose exec cli composer --working-dir=$(APP)/$(BUILD) drupal-post-install)
+	$(call exec,docker-compose exec cli cp -Rf $(APP)/$(FIXTURES)/$(EXAMPLE_FILES)/. $(APP)/$(WEBROOT)/$(EXAMPLE_FILES))
 
 ## Run all tests.
 test: test-behat
@@ -127,6 +128,7 @@ APP ?= /app
 WEBROOT ?= web
 BUILD ?= build
 FIXTURES ?= tests/behat/fixtures
+EXAMPLE_FILES ?= example_files
 URL ?= http://mysite.docker.amazee.io/
 
 DRUPAL_VERSION ?= 7

@@ -6,7 +6,9 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Drupal\DrupalExtension\Hook\Scope\EntityScope;
 use Symfony\Component\Filesystem\Filesystem;
+use ZipArchive;
 
 /**
  * Trait FileDownloadTrait.
@@ -49,7 +51,9 @@ trait FileDownloadTrait {
 
     /** @var Behat\Mink\Driver\BrowserKitDriver $driver */
     $driver = $this->getSession()->getDriver();
-    $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
+    $cookies = $driver->getClient()
+      ->getCookieJar()
+      ->allValues($driver->getCurrentUrl());
     $cookie_list = [];
     foreach ($cookies as $cookie_name => $cookie_value) {
       $cookie_list[] = $cookie_name . '=' . $cookie_value;
@@ -187,7 +191,7 @@ trait FileDownloadTrait {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
 
-    if ($this->fileDownloadDownloadedFileInfo['content_type'] != 'application/octet-stream') {
+    if ($this->fileDownloadDownloadedFileInfo['content_type'] == 'application/octet-stream') {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
 
@@ -316,6 +320,28 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadGetTempDir() {
     return '/tmp/behat_downloads';
+  }
+
+  /**
+   * Before nodeCreate set field value for file.
+   *
+   * Field should be in format 'file;__file_source__;__file_name_.
+   *
+   * @beforeNodeCreate
+   */
+  public function nodeCreateAlter(EntityScope $scope) {
+    $node = $scope->getEntity();
+    foreach ($node as $key => $value) {
+      if (strpos($value, 'file;') !== FALSE) {
+        $file_info = explode(';', $value);
+        $file_source = $file_info[1];
+        $file_name = $file_info[2];
+        $image = file_get_contents($file_source);
+        file_save_data($image, 'public://' . $file_name, FILE_EXISTS_RENAME);
+
+        $node->{$key} = $file_name;
+      }
+    }
   }
 
 }
