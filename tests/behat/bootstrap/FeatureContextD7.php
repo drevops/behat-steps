@@ -79,4 +79,15 @@ class FeatureContextD7 extends DrupalContext {
     variable_del($name);
   }
 
+  /**
+   * @Then :file_name file object exists
+   */
+  public function fileObjectExist($file_name) {
+    $file_name = basename($file_name);
+    $file_name_in_db = file_load_multiple([], ['filename' => $file_name]);
+    if ($file_name !== current($file_name_in_db)->filename) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
+  }
+
 }
