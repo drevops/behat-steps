@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
+use IntegratedExperts\BehatSteps\D7\FileTrait;
 use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
@@ -26,6 +27,7 @@ class FeatureContextD7 extends DrupalContext {
   use ContentTrait;
   use EmailTrait;
   use FieldTrait;
+  use FileTrait;
   use LinkTrait;
   use ParagraphsTrait;
   use PathTrait;
@@ -75,6 +77,17 @@ class FeatureContextD7 extends DrupalContext {
    */
   public function deleteTestVariable($name) {
     variable_del($name);
+  }
+
+  /**
+   * @Then :file_name file object exists
+   */
+  public function fileObjectExist($file_name) {
+    $file_name = basename($file_name);
+    $file_name_in_db = file_load_multiple([], ['filename' => $file_name]);
+    if ($file_name !== current($file_name_in_db)->filename) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
   }
 
 }
