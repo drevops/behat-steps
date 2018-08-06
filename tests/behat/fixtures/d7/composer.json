@@ -12,6 +12,7 @@
         "drupal/drupal_helpers": "^1.4",
         "drupal/entityreference": "^1.5",
         "drupal/features": "^2.10",
+        "drupal/field_collection": "^1.0",
         "drupal/libraries": "^2.3",
         "drupal/link": "^1.5",
         "drupal/media": "^2.19",
@@ -24,6 +25,7 @@
         "drupal/wysiwyg": "^2.5",
         "library/ckeditor": "^4.9"
     },
+    "minimum-stability": "dev",
     "config": {
         "platform": {
             "php": "7.1.16"
