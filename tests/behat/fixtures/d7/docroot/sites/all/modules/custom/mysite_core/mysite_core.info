@@ -30,6 +30,7 @@ dependencies[] = libraries
 dependencies[] = link
 dependencies[] = list
 dependencies[] = media
+dependencies[] = media_internet
 dependencies[] = menu
 dependencies[] = node
 dependencies[] = number
