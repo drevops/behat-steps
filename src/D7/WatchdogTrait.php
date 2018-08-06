@@ -52,8 +52,8 @@ trait WatchdogTrait {
         ->execute()
         ->fetchAll();
 
-      if (!defined(WATCHDOG_WARNING)) {
-        define(WATCHDOG_WARNING, 4);
+      if (!defined('WATCHDOG_WARNING')) {
+        define('WATCHDOG_WARNING', 4);
       }
 
       if (!empty($entries)) {
