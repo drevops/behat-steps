@@ -16,7 +16,7 @@ trait FileTrait {
    *
    * @var array
    */
-  static protected $fileFids = [];
+  static protected $fileIds = [];
 
   /**
    * @Given managed file:
@@ -58,7 +58,7 @@ trait FileTrait {
       if (!$file) {
         throw new \RuntimeException('Unable to save managed file ' . $path);
       }
-      array_push($fids::$fileFids, $file->fid);
+      array_push($fids::$fileIds, $file->fid);
     }
   }
 
@@ -66,7 +66,7 @@ trait FileTrait {
    * @AfterFeature
    */
   public static function fileRemoveFiles() {
-    $fids = self::$fileFids;
+    $fids = self::$fileIds;
     if (!empty($fids)) {
       foreach ($fids as $fid) {
         $file = file_load($fid);

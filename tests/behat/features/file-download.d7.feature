@@ -3,29 +3,34 @@ Feature: Check that FileDownloadTrait for D7 works
 
   Background:
     Given I am logged in as a user with the "administrator" role
+    Given managed file:
+      | path                 |
+      | example_document.pdf |
+      | example_image.png    |
+      | example_audio.mp3    |
+      | example_text.txt     |
+      | example_files.zip    |
     And article content:
-      | title                | field_file                                                   |
-      | [TEST] document page | file;example_files/example_document.txt;example_document.txt |
-    And article content:
-      | title           | field_file                                             |
-      | [TEST] zip page | file;example_files/example_files.zip;example_files.zip |
+      | title                | field_file        |
+      | [TEST] document page | example_text.txt  |
+      | [TEST] zip page      | example_files.zip |
 
   @api @download
-  Scenario: Assert that a file can be downloaded
-    And I download file from "/example_files/example_document.txt"
+  Scenario: Assert "Then I download file from :url"
+    And I download file from "/example_text.txt"
 
   @api
-  Scenario: Assert that a file can be downloaded by existing link
+  Scenario: Assert "Then I download file from link link:
     When I visit article "[TEST] document page"
-    Then I see download "Download example_document.txt" link "present"
-    Then I download file from link "Download example_document.txt"
+    Then I see download "Download example_text.txt" link "present"
+    Then I download file from link "Download example_text.txt"
     And downloaded file contains:
     """
     Some Text
     """
 
   @api
-  Scenario: Assert that an archive file can be downloaded
+  Scenario: Assert "Given downloaded file is zip archive that contains files:"
     When I visit article "[TEST] zip page"
     Then I see download "Download example_files.zip" link "present"
     Then I download file from link "Download example_files.zip"
@@ -34,3 +39,6 @@ Feature: Check that FileDownloadTrait for D7 works
       | example_audio.mp3    |
       | example_image.png    |
       | example_document.pdf |
+    Then downloaded file is zip archive that does not contain files:
+      | example_text.txt |
+      | not_existing.png |
