@@ -12,9 +12,17 @@ use Behat\Gherkin\Node\TableNode;
 trait FileTrait {
 
   /**
+   * Files ids.
+   *
+   * @var array
+   */
+  static protected $fileFids = [];
+
+  /**
    * @Given managed file:
    */
   public function fileCreateManaged(TableNode $nodesTable) {
+    $fids = new static();
     foreach ($nodesTable->getHash() as $nodeHash) {
       $node = (object) $nodeHash;
 
@@ -49,6 +57,22 @@ trait FileTrait {
 
       if (!$file) {
         throw new \RuntimeException('Unable to save managed file ' . $path);
+      }
+      array_push($fids::$fileFids, $file->fid);
+    }
+  }
+
+  /**
+   * @AfterFeature
+   */
+  public static function fileRemoveFiles() {
+    $fids = self::$fileFids;
+    if (!empty($fids)) {
+      foreach ($fids as $fid) {
+        $file = file_load($fid);
+        if ($file) {
+          file_delete($file, TRUE);
+        }
       }
     }
   }
