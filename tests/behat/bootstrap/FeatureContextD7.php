@@ -14,6 +14,7 @@ use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\D7\VariableTrait;
+use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -35,6 +36,7 @@ class FeatureContextD7 extends DrupalContext {
   use TaxonomyTrait;
   use UserTrait;
   use VariableTrait;
+  use WatchdogTrait;
 
   /**
    * @Then user :name does not exists

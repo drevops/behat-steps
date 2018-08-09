@@ -73,4 +73,11 @@ trait WatchdogTrait {
     }
   }
 
+  /**
+   * @Given set watchdog error
+   */
+  public function setWatchdogError() {
+    watchdog('php', 'test', [], 3);
+  }
+
 }
