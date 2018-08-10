@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
+use IntegratedExperts\BehatSteps\D7\FieldCollectionTrait;
 use IntegratedExperts\BehatSteps\D7\MediaTrait;
 use IntegratedExperts\BehatSteps\D7\FileTrait;
 use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
@@ -27,6 +28,7 @@ class FeatureContextD7 extends DrupalContext {
 
   use ContentTrait;
   use EmailTrait;
+  use FieldCollectionTrait;
   use FieldTrait;
   use FileTrait;
   use LinkTrait;
