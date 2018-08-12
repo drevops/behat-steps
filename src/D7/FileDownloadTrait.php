@@ -188,7 +188,7 @@ trait FileDownloadTrait {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
 
-    if ($this->fileDownloadDownloadedFileInfo['content_type'] == 'application/octet-stream') {
+    if (!in_array($this->fileDownloadDownloadedFileInfo['content_type'], ['application/octet-stream', 'application/zip'])) {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
 
