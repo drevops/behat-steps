@@ -54,7 +54,9 @@ trait FieldCollectionTrait {
       }
 
       list($field_name, $fc_field_name) = explode(':', $field, 2);
-      $node_field_types = self::$fieldCollectionCoreDriver->getCore()->getEntityFieldTypes('node', $field_name);
+      $fc_field_names = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_field_name);
+      $node_field_types = self::$fieldCollectionCoreDriver->getCore()
+        ->getEntityFieldTypes('node', $field_name);
       // Although node field parser may validate filed existence, we still need
       // to do it here before validating its type.
       if (!array_key_exists($field_name, $node_field_types)) {
@@ -69,10 +71,13 @@ trait FieldCollectionTrait {
 
       $fc_field_values = explode(self::fieldCollectionGetInstanceDelimiter(), $field_value);
 
+      if (count($fc_field_values) > count($fc_field_names)) {
+        throw new \Exception(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', count($fc_field_values), count($fc_field_names), $field_name));
+      }
+
       // Track fields for each found field collection.
       foreach ($fc_field_values as $fc_field_key => $fc_field_value) {
-        $fc_field_value = trim($fc_field_value);
-        $fc_fields[$field_name][$fc_field_key][$fc_field_name] = $fc_field_value;
+        $fc_fields[$field_name][0][$fc_field_names[$fc_field_key]] = trim($fc_field_values[$fc_field_key]);
       }
       unset($node->{$field});
     }

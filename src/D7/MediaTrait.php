@@ -35,7 +35,7 @@ trait MediaTrait {
       throw new \RuntimeException(sprintf('Unable to save file "%s"', $path));
     }
 
-    $this->getSession()->getPage()->fillField($field, $file->fid);
+    $this->getSession()->getPage()->find('css', 'input[name="' . $field . '"]')->setValue($file->fid);
   }
 
 }
