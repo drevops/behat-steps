@@ -94,4 +94,11 @@ class FeatureContextD7 extends DrupalContext {
     }
   }
 
+  /**
+   * @Given set watchdog error
+   */
+  public function setWatchdogError() {
+    watchdog('php', 'test', [], 3);
+  }
+
 }
