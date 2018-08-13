@@ -16,6 +16,7 @@ use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\D7\VariableTrait;
+use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -39,6 +40,7 @@ class FeatureContextD7 extends DrupalContext {
   use TaxonomyTrait;
   use UserTrait;
   use VariableTrait;
+  use WatchdogTrait;
 
   /**
    * @Then user :name does not exists
@@ -92,6 +94,13 @@ class FeatureContextD7 extends DrupalContext {
     if ($file_name !== current($file_name_in_db)->filename) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
+  }
+
+  /**
+   * @Given set watchdog error
+   */
+  public function setWatchdogError() {
+    watchdog('php', 'test', [], 3);
   }
 
 }

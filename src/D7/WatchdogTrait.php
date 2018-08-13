@@ -65,8 +65,15 @@ trait WatchdogTrait {
           $error->variables = unserialize($error->variables);
           print_r($error);
         }
-
+        $wids = [];
         if (!empty($entries)) {
+          foreach ($entries as $delta => $error) {
+            $wids[] = $error->wid;
+          }
+          db_delete('watchdog')
+            ->condition('wid', $wids, 'IN')
+            ->execute();
+
           throw new \Exception('PHP errors were logged to watchdog during this scenario.');
         }
       }
