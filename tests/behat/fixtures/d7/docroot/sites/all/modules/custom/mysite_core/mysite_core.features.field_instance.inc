@@ -437,7 +437,7 @@ function mysite_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_collection_2'.
+// Exported field_instance: 'node-article-field_collection_2'.
   $field_instances['node-article-field_collection_2'] = array(
     'bundle' => 'article',
     'deleted' => 0,
@@ -475,6 +475,50 @@ function mysite_core_field_default_field_instances() {
       'settings' => array(),
       'type' => 'field_collection_embed',
       'weight' => 32,
+    ),
+  );
+
+  // Exported field_instance: 'node-article-field_file'.
+  $field_instances['node-article-field_file'] = array(
+    'bundle' => 'article',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file_entity',
+        'settings' => array(
+          'text' => 'Download [file:name]',
+        ),
+        'type' => 'file_download_link',
+        'weight' => 11,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_file',
+    'label' => 'File',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'example_files',
+      'file_extensions' => 'txt png pdf mp3 zip',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 31,
     ),
   );
 
