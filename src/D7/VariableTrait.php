@@ -16,7 +16,7 @@ trait VariableTrait {
    */
   public function variableSet($name, $value) {
     $this->variableStoreOriginal($name);
-    variable_set($name, (string) $value);
+    variable_set($name, is_array($value) ? $value : (string) $value);
   }
 
   /**
@@ -46,7 +46,7 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if ($value == $variable_value) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have it.', $name, $variable_value));
+      throw new \Exception(sprintf('Variable %s has value "%s", but should not have it.', $name, print_r($variable_value, TRUE)));
     }
   }
 
@@ -57,7 +57,7 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if (!is_null($variable_value)) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have any value set.', $name, $variable_value));
+      throw new \Exception(sprintf('Variable %s has value "%s", but should not have any value set.', $name, print_r($variable_value, TRUE)));
     }
   }
 
