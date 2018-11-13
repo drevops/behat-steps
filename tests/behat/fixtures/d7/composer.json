@@ -8,7 +8,7 @@
         "drupal/admin_menu": "3.0-rc5",
         "drupal/coffee": "^2.3",
         "drupal/drafty": "^1.0-beta4",
-        "drupal/drupal": "^7.59",
+        "drupal/drupal": "^7.61",
         "drupal/drupal_helpers": "^1.4",
         "drupal/entityreference": "^1.5",
         "drupal/features": "^2.10",
