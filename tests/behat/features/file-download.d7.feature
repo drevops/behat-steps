@@ -19,6 +19,10 @@ Feature: Check that FileDownloadTrait for D7 works
   Scenario: Assert "Then I download file from :url"
     And I download file from "/example_text.txt"
 
+  @api @javascript @download
+  Scenario: Assert in browser "Then I download file from :url"
+    And I download file from "/example_text.txt"
+
   @api
   Scenario: Assert "Then I download file from link link:
     When I visit article "[TEST] document page"

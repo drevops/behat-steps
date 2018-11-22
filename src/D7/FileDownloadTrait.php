@@ -6,6 +6,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Driver\Selenium2Driver;
 use Symfony\Component\Filesystem\Filesystem;
 use ZipArchive;
 
@@ -48,12 +49,21 @@ trait FileDownloadTrait {
       $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
     }
 
+    $cookie_list = [];
+
     /** @var Behat\Mink\Driver\BrowserKitDriver $driver */
     $driver = $this->getSession()->getDriver();
-    $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
-    $cookie_list = [];
-    foreach ($cookies as $cookie_name => $cookie_value) {
-      $cookie_list[] = $cookie_name . '=' . $cookie_value;
+    if ($driver instanceof Selenium2Driver) {
+      $cookies = $driver->getWebDriverSession()->getAllCookies();
+      foreach ($cookies as $cookie) {
+        $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
+      }
+    }
+    else {
+      $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
+      foreach ($cookies as $cookie_name => $cookie_value) {
+        $cookie_list[] = $cookie_name . '=' . $cookie_value;
+      }
     }
 
     $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url, [
