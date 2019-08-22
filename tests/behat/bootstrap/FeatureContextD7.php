@@ -2,7 +2,13 @@
 
 /**
  * @file
- * MYSITE Drupal context for Behat testing.
+ * Feature context for testing Behat-steps traits for Drupal 7.
+ *
+ * This is a test for the test framework itself. Consumer project should not
+ * use any steps or functions from this file.
+ *
+ * However, consumer sites can use this file as an example of traits inclusion.
+ * The usage of these traits can be seen in *.feature files.
  */
 
 use Behat\Gherkin\Node\PyStringNode;

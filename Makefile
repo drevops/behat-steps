@@ -106,8 +106,8 @@ site-install:
 	$(call title,Installing a site)
 	$(call exec,docker-compose exec cli bash -c "chmod -Rf 777 $(APP)/$(BUILD) || true && rm -Rf $(APP)/$(BUILD) || true && mkdir -p $(APP)/$(WEBROOT)")
 	$(call exec,docker-compose exec cli cp -Rf $(APP)/$(FIXTURES)/d$(DRUPAL_VERSION)/. $(APP)/$(BUILD)/)
-	$(call exec,docker-compose exec cli composer --working-dir=$(APP)/$(BUILD) install --prefer-dist)
-	$(call exec,docker-compose exec cli drush -r $(APP)/$(WEBROOT) si standard -y --db-url=mysql://drupal:drupal@$(MYSQL_HOST)/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
+	$(call exec,docker-compose exec cli composer --working-dir=$(APP)/$(BUILD) install --prefer-dist --no-suggest)
+	$(call exec,docker-compose exec cli /usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' drush -r $(APP)/$(WEBROOT) si standard -y --db-url=mysql://drupal:drupal@$(MYSQL_HOST)/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL)
 	$(call exec,docker-compose exec cli composer --working-dir=$(APP)/$(BUILD) drupal-post-install)
 
 ## Run all tests.
