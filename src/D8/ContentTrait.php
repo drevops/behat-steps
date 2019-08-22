@@ -35,7 +35,7 @@ trait ContentTrait {
     ]);
 
     if (empty($nids)) {
-      throw new RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
+      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
     }
 
     ksort($nids);
@@ -55,7 +55,7 @@ trait ContentTrait {
     ]);
 
     if (empty($nids)) {
-      throw new RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
+      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
     }
 
     $nid = current($nids);
