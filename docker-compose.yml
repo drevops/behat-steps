@@ -1,13 +1,13 @@
 version: '2'
 services:
   cli:
-    image: amazeeio/php:7.1-cli-drupal
+    image: amazeeio/php:7.2-cli-drupal
     environment:
       - WEBROOT=build/docroot
     volumes:
       - .:/app
   php:
-    image: amazeeio/php:7.1-fpm
+    image: amazeeio/php:7.2-fpm
     environment:
       - WEBROOT=build/docroot
     volumes:
@@ -27,8 +27,8 @@ services:
     expose:
       - "8080"
   mariadb:
-    image: amazeeio/centos7-mariadb10-drupal
+    image: amazeeio/mariadb-drupal
   chrome:
-    image: selenium/standalone-chrome
+    image: selenium/standalone-chrome:3.141.59-oxygen
     volumes:
       - .:/app
