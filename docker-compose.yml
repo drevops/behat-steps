@@ -33,7 +33,7 @@ x-environment:
   PHP_LINT_EXTENSIONS: "php,inc,module,theme,install"
   PHP_LINT_TARGETS: "src tests"
   # Allow to override docker host used from the inside of the containers.
-  DOCKERHOST: ${DOCKERHOST:-}
+  DOCKERHOST: ${DOCKERHOST:-docker.for.mac.localhost}
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
 
 services:
