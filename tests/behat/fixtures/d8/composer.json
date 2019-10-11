@@ -60,6 +60,7 @@
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "drupal-post-install": [
+            "chmod 644 docroot/sites/default/settings.php; echo \"\\$config_directories = [CONFIG_SYNC_DIRECTORY => '../config/sync'];\" >> docroot/sites/default/settings.php; chmod 444 docroot/sites/default/settings.php",
             "drush -r docroot config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y",
             "drush -r docroot ev \"\\Drupal::entityManager()->getStorage('shortcut_set')->load('default')->delete();\"",
             "drush -r docroot cim --source=../config/sync -y",

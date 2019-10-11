@@ -1,0 +1,160 @@
+---
+ahoyapi: v2
+
+commands:
+
+  # Docker commands.
+  build:
+    usage: Build or rebuild project.
+    cmd: |
+      ahoy title "Building project for Drupal $DRUPAL_VERSION"
+      ahoy clean
+      (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
+      ahoy up -- --build --force-recreate
+      ahoy install-dev
+      ahoy install-site
+      ahoy title "Build complete"
+      ahoy info 1
+
+  info:
+    usage: Print information about this project.
+    cmd: |
+      ahoy line "Project                  : " $(ahoy cli echo \${PROJECT})
+      ahoy line "Drupal versiont          : " $(ahoy cli echo \$DRUPAL_VERSION)
+      ahoy line "Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
+      ahoy line "Path to project          : " $(ahoy cli echo \$APP)
+      ahoy line "Path to docroot          : " $(ahoy cli echo \$APP/\$WEBROOT)
+      ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
+      ahoy line "Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
+      if [ "$1" ]; then
+        ahoy line "One-time login           : " $(ahoy login -- --no-browser)
+      fi
+
+  up:
+    usage: Build and start Docker containers.
+    cmd: |
+      docker-compose up -d "$@"
+      sleep 10 # Wait for DB container to come up without using Dockerize.
+      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
+      docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME:-behat-steps}_
+
+  down:
+    usage: Stop Docker containers and remove container, images, volumes and networks.
+    cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
+
+  start:
+    usage: Start existing Docker containers.
+    cmd: docker-compose start "$@"
+
+  stop:
+    usage: Stop running Docker containers.
+    cmd: docker-compose stop "$@"
+
+  restart:
+    usage: Restart all stopped and running Docker containers.
+    cmd: docker-compose restart
+
+  logs:
+    usage: Show Docker logs.
+    cmd: docker-compose logs "$@"
+
+  pull:
+    usage: Pull latest docker images.
+    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
+
+  cli:
+    usage: Start a shell inside CLI container or run a command.
+    cmd: if \[ "${#}" -ne 0 \]; then docker exec -i $(docker-compose ps -q cli) bash -c "$*"; else docker exec -it $(docker-compose ps -q cli) bash; fi
+
+  drush:
+    usage: Run drush commands in the CLI service container.
+    cmd: docker exec -i $(docker-compose ps -q cli) drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
+
+  # Application commands.
+  login:
+    usage: Login to a website.
+    cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
+
+  install-site:
+    usage: Install a site.
+    cmd: |
+      ahoy title "Installing fixture Drupal $DRUPAL_VERSION site"
+      ahoy cli "chmod -Rf 777 \$APP/\$BUILD || true; rm -Rf \$APP/\$BUILD || true; mkdir -p \$APP/\$WEBROOT"
+      ahoy cli "cp -Rf \$APP/\$FIXTURES/d\$DRUPAL_VERSION/. \$APP/\$BUILD/"
+      ahoy cli "composer --working-dir=\$APP/\$BUILD install --prefer-dist --no-suggest"
+      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' drush -r \$APP/\$WEBROOT si standard -y --db-url=mysql://drupal:drupal@\$AMAZEEIO_DB_HOST/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+      ahoy cli "composer --working-dir=\$APP/\$BUILD drupal-post-install"
+
+  clean:
+    usage: Remove containers and all build files.
+    cmd: |
+      ahoy down
+      chmod -Rf 777 $BUILD || true
+      rm -rf \
+        ./vendor \
+        ./$BUILD
+
+  reset:
+    usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
+    cmd: |
+      ahoy clean
+      rm -rf ./screenshots \
+        ./composer.lock
+
+  install-dev:
+    usage: Install dependencies.
+    cmd: |
+      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
+      docker cp -L behat.yml $(docker-compose ps -q cli):/app/
+      docker cp -L tests $(docker-compose ps -q cli):/app/
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+    hide: true
+
+  update-fixtures:
+    usage: Update fixture files for Drupal
+    cmd: rsync -av --delete --no-progress --exclude-from=$FIXTURES/d$DRUPAL_VERSION/.rsync-exclude $BUILD/ $FIXTURES/d$DRUPAL_VERSION/
+
+  lint:
+    usage: Lint all code.
+    cmd: |
+      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e \$PHP_LINT_EXTENSIONS \${PHP_LINT_TARGETS//,/ }" && \
+      ahoy cli "vendor/bin/phpcs -v \${PHPCS_TARGETS//,/ }"
+
+  test-bdd:
+    usage: Run BDD tests.
+    cmd: ahoy cli "./vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
+
+  debug:
+    usage: Enable debug configuration.
+    cmd: |
+      { ahoy cli php -v|grep -q Xdebug && ahoy title "Debug is already enabled"; } \
+      || { export XDEBUG_ENABLE="true" && ahoy up && ahoy cli php -v|grep -q Xdebug && ahoy title "Enabled debug configuration. Use 'ahoy up' to disable."; }
+
+  # Utilities.
+  confirm:
+    cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
+    hide: true
+
+  title:
+    cmd: printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"
+    hide: true
+
+  line:
+    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
+    hide: true
+
+entrypoint:
+  - bash
+  - "-c"
+  - "-e"
+  - |
+    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
+    export APP=${APP:-/app}
+    export BUILD=${BUILD:-build}
+    export WEBROOT=$BUILD/docroot
+    export FIXTURES=tests/behat/fixtures
+    export DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+    bash -e -c "$0" "$@"
+  - '{{cmd}}'
+  - '{{name}}'
