@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mysite_core.features.field_instance.inc
@@ -180,6 +181,40 @@ function mysite_core_field_default_field_instances() {
   );
 
   // Exported field_instance:
+  // 'field_collection_item-field_collection_2-field_fc_text_fourth'.
+  $field_instances['field_collection_item-field_collection_2-field_fc_text_fourth'] = array(
+    'bundle' => 'field_collection_2',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_fc_text_fourth',
+    'label' => 'Text 4',
+    'required' => FALSE,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance:
   // 'field_collection_item-field_collection_2-field_fc_text_third'.
   $field_instances['field_collection_item-field_collection_2-field_fc_text_third'] = array(
     'bundle' => 'field_collection_2',
@@ -211,40 +246,6 @@ function mysite_core_field_default_field_instances() {
       ),
       'type' => 'text_textfield',
       'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'field_collection_item-field_collection_2-field_fc_text_fourth'.
-  $field_instances['field_collection_item-field_collection_2-field_fc_text_fourth'] = array(
-    'bundle' => 'field_collection_2',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 1,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_fc_text_fourth',
-    'label' => 'Text 4',
-    'required' => FALSE,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 2,
     ),
   );
 
@@ -409,6 +410,7 @@ function mysite_core_field_default_field_instances() {
           'delete' => 'Delete',
           'description' => TRUE,
           'edit' => 'Edit',
+          'translate' => 'Translate',
           'view_mode' => 'full',
         ),
         'type' => 'field_collection_view',
@@ -437,7 +439,7 @@ function mysite_core_field_default_field_instances() {
     ),
   );
 
-// Exported field_instance: 'node-article-field_collection_2'.
+  // Exported field_instance: 'node-article-field_collection_2'.
   $field_instances['node-article-field_collection_2'] = array(
     'bundle' => 'article',
     'deleted' => 0,
@@ -451,6 +453,7 @@ function mysite_core_field_default_field_instances() {
           'delete' => 'Delete',
           'description' => TRUE,
           'edit' => 'Edit',
+          'translate' => 'Translate',
           'view_mode' => 'full',
         ),
         'type' => 'field_collection_view',
@@ -948,13 +951,20 @@ function mysite_core_field_default_field_instances() {
   t('Alt Text');
   t('Alternative text is used by screen readers, search engines, and when the image cannot be loaded. By adding alt text you improve accessibility and search engine optimization.');
   t('Body');
+  t('Collection');
+  t('Collection 2');
   t('Comment');
   t('Enter a comma-separated list of words to describe your content.');
+  t('File');
   t('Image');
   t('Link');
   t('Media');
   t('Paragraph');
   t('Tags');
+  t('Text');
+  t('Text 2');
+  t('Text 3');
+  t('Text 4');
   t('Title');
   t('Title Text');
   t('Title text is used in the tool tip when a user hovers their mouse over the image. Adding title text makes it easier to understand the context of an image and improves usability.');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mysite_core.strongarm.inc
@@ -144,6 +145,10 @@ function mysite_core_strongarm() {
     'comment' => array(
       0 => 'comment',
       1 => 'cid',
+    ),
+    'field_collection_item' => array(
+      0 => 'field_collection_item',
+      1 => 'item_id',
     ),
     'node' => array(
       0 => 'node',
@@ -360,19 +365,20 @@ function mysite_core_strongarm() {
     27 => 30,
     28 => 29,
     29 => 28,
-    30 => 24,
-    31 => 21,
-    32 => 15,
-    33 => 14,
-    34 => 13,
-    35 => 11,
-    36 => 10,
-    37 => 7,
-    38 => 6,
-    39 => 5,
-    40 => 3,
-    41 => 2,
-    42 => 1,
+    30 => 26,
+    31 => 24,
+    32 => 21,
+    33 => 15,
+    34 => 14,
+    35 => 13,
+    36 => 11,
+    37 => 10,
+    38 => 7,
+    39 => 6,
+    40 => 5,
+    41 => 3,
+    42 => 2,
+    43 => 1,
   );
   $export['menu_masks'] = $strongarm;
 
