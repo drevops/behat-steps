@@ -15,13 +15,13 @@
     },
     "require-dev": {
         "cweagans/composer-patches": "^1.6.0",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
         "drupal/coder": "^8.2.12",
         "drupal/drupal-extension": "^v3.4",
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "jakub-onderka/php-parallel-lint": "^1.0",
-        "wimg/php-compatibility": "^8.1"
+        "phpcompatibility/php-compatibility": "^9.0"
     },
     "extra": {
         "branch-alias": {
