@@ -20,7 +20,7 @@ commands:
     usage: Print information about this project.
     cmd: |
       ahoy line "Project                  : " $(ahoy cli echo \${PROJECT})
-      ahoy line "Drupal versiont          : " $(ahoy cli echo \$DRUPAL_VERSION)
+      ahoy line "Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
       ahoy line "Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
       ahoy line "Path to project          : " $(ahoy cli echo \$APP)
       ahoy line "Path to docroot          : " $(ahoy cli echo \$APP/\$WEBROOT)

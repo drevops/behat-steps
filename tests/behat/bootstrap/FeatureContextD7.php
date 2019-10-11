@@ -11,12 +11,13 @@
  * The usage of these traits can be seen in *.feature files.
  */
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
-use IntegratedExperts\BehatSteps\D7\FileDownloadTrait;
 use IntegratedExperts\BehatSteps\D7\FieldCollectionTrait;
+use IntegratedExperts\BehatSteps\D7\FileDownloadTrait;
 use IntegratedExperts\BehatSteps\D7\FileTrait;
 use IntegratedExperts\BehatSteps\D7\MediaTrait;
 use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
@@ -109,6 +110,15 @@ class FeatureContextD7 extends DrupalContext {
    */
   public function setWatchdogError() {
     watchdog('php', 'test', [], 3);
+  }
+
+  /**
+   * Clean watchdog after scenario with an error.
+   *
+   * @AfterScenario @error
+   */
+  public function checkWatchdog(AfterScenarioScope $scope) {
+    db_truncate('watchdog')->execute();
   }
 
 }

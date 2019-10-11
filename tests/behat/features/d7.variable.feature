@@ -1,5 +1,5 @@
 @d7
-Feature: Check that variable assertions work
+Feature: Check that variable assertions work for D7
 
   @api
   Scenario: Setting and asserting variable value equals.

@@ -12,7 +12,9 @@
  */
 
 use Drupal\DrupalExtension\Context\DrupalContext;
-use IntegratedExperts\BehatSteps\Field;
+use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
+use IntegratedExperts\BehatSteps\FieldTrait;
+use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
 use IntegratedExperts\BehatSteps\ResponseTrait;
 
@@ -21,7 +23,17 @@ use IntegratedExperts\BehatSteps\ResponseTrait;
  */
 class FeatureContextD8 extends DrupalContext {
 
+  use FieldTrait;
+  use LinkTrait;
   use PathTrait;
   use ResponseTrait;
+  use WatchdogTrait;
+
+  /**
+   * @Given set watchdog error
+   */
+  public function setWatchdogError() {
+    \Drupal::logger('behat_test')->error('test');
+  }
 
 }

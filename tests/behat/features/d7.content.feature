@@ -1,5 +1,5 @@
 @d7
-Feature: Check that ContentTrait for D7 works
+Feature: Check that ContentTrait works for D7
 
   @api
   Scenario: Assert visiting page with title of specified content type

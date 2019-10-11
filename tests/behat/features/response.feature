@@ -1,7 +1,6 @@
 @d7 @d8
-Feature: Check that ResponseTrait for D7 works
+Feature: Check that ResponseTrait works
 
-  @api
   Scenario: Assert header response
     Given I go to "/"
     And response contains header "Content-Type"
