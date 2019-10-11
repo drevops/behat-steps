@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * mysite_core.features.user_permission.inc
