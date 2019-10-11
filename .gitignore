@@ -3,3 +3,4 @@ vendor
 build
 screenshots
 .env.local
+docker-compose.override.yml

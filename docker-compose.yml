@@ -1,34 +1,93 @@
-version: '2'
+# For reference, @see https://github.com/integratedexperts/drupal-dev/blob/8.x/docker-compose.yml
+version: '2.3'
+
+x-project:
+  &project ${PROJECT:-behat-steps}
+
+x-url:
+  &url ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io}
+
+x-volumes:
+  &default-volumes
+  volumes:
+    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - ./docroot/sites/default/files:/app/docroot/sites/default/files:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
+    ##- files:/app/docroot/sites/default/files # Override for environment without host mounts. Automatically uncommented in CI.
+
+x-user:
+  &default-user
+  user: '1000'
+
+x-environment:
+  &default-environment
+  PROJECT: *project
+  APP: ${APP:-/app}
+  BUILD: ${BUILD:-build}
+  WEBROOT: ${WEBROOT:-build/docroot}
+  FIXTURES: ${FIXTURES:-tests/behat/fixtures}
+  LOCALDEV_URL: *url
+  LAGOON_LOCALDEV_URL: *url
+  DRUPAL_VERSION: ${DRUPAL_VERSION:-8}
+  CI: ${CI:-}
+  PHP_LINT_EXTENSIONS: "php,inc,module,theme,install"
+  PHP_LINT_TARGETS: "src tests"
+  # Allow to override docker host used from the inside of the containers.
+  DOCKERHOST: ${DOCKERHOST:-}
+  XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
+
 services:
+
   cli:
-    image: amazeeio/php:7.2-cli-drupal
+    image: amazeeio/php:7.2-cli-drupal-v1.0.2
+    <<: *default-volumes
+    user: root
     environment:
-      - WEBROOT=build/docroot
-    volumes:
-      - .:/app
+      <<: *default-environment
+    volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
+      - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
+
   php:
-    image: amazeeio/php:7.2-fpm
+    image: amazeeio/php:7.2-fpm-v1.0.2
+    <<: *default-volumes
+    <<: *default-user
     environment:
-      - WEBROOT=build/docroot
-    volumes:
-      - .:/app
+      <<: *default-environment
     depends_on:
       - cli
+
   nginx:
-    image: amazeeio/nginx-drupal
+    image: amazeeio/nginx-drupal:v1.0.2
+    <<: *default-volumes
+    <<: *default-user
     environment:
-      - WEBROOT=build/docroot
-    volumes:
-      - .:/app
-    networks:
-      - default
+      <<: *default-environment
     depends_on:
       - cli
-    expose:
-      - "8080"
+    networks:
+      - amazeeio-network
+      - default
+
   mariadb:
-    image: amazeeio/mariadb-drupal
+    image: amazeeio/mariadb-drupal:v1.0.2
+    environment:
+      <<: *default-environment
+    ports:
+      - "3306"
+
   chrome:
     image: selenium/standalone-chrome:3.141.59-oxygen
-    volumes:
-      - .:/app
+    shm_size: '1gb'
+    <<: *default-volumes
+    environment:
+      <<: *default-environment
+    depends_on:
+      - cli
+
+networks:
+  amazeeio-network:
+    external: true
+
+volumes:
+  app: {}
+  files: {}

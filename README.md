@@ -1,5 +1,5 @@
 # Behat Steps
-Collection of Behat steps for Drupal development.
+Collection of Behat steps for Drupal 8 and Drupal 7 development.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/behat-steps.svg?style=shield)](https://circleci.com/gh/integratedexperts/behat-steps)
 [![Latest Stable Version](https://poser.pugx.org/integratedexperts/behat-steps/v/stable)](https://packagist.org/packages/integratedexperts/behat-steps)
@@ -64,27 +64,37 @@ class FeatureContext extends DrupalContext {
 ## Development
 
 ### Local environment setup
-1. Make sure that you have `make`, [composer](https://getcomposer.org/), [Docker](https://www.docker.com/) and [Pygmy](https://docs.amazee.io/local_docker_development/pygmy.html) installed.
-2. Checkout project repo
-3. Set the version of Drupal to run test against in `.env.local` file: `DRUPAL_VERSION = 7`
-4. `pygmy up`
-5. `make build`
+- Make sure that you have latest versions of all required software installed:
+  - [Docker](https://www.docker.com/)
+  - [Pygmy](https://pygmy.readthedocs.io/)
+  - [Ahoy](https://github.com/ahoy-cli/ahoy)
+- Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
+- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
+- `pygmy up`
+- `ahoy build` for Drupal 8 build or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
+- Access built site at http://behat-steps.docker.amazee.io/  
+
+Please note that you will need to rebuild to develop a different version.
+
+Use `ahoy --help` to see the list ov available commands.   
 
 ### Behat tests
-- Run all tests: `make test-behat`
-- Run all scenarios in specific feature file: `make test-behat -- path/to/file`
-- Run all scenarios tagged with `@wip` tag: `make test-behat -- --tags=wip`
+After every `ahoy build`, a new installation of Drupal is created in `build` directory.
+This project uses fixture Drupal sites (sites with pre-defined configuration)
+in order to simplify testing (i.e., the test does not create a content type
+but rather uses a content type created from configuration during site installation).
+
+- Run all tests: `ahoy test-bdd`
+- Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
+- Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
+- Tests tagged with `@d7` or `@d8` will be ran for Drupal 7 and Drupal 8 respectively.
+- Tests tagged with both `@d7` and `@d8` are agnostic to Drupal version and will run for both versions. 
 
 To debug tests from CLI:
-1. SSH into CLI container: `docker-compose -p behatsteps exec cli sh`
-2. `./xdebug.sh vendor/bin/behat -p d7 path/to/file`
-   
-   IMPORTANT: When running tests directly, always specify profile for the 
-   version of Drupal your are running:
-      ```
-      vendor/bin/behat -p d7
-      ```      
-      or
-      ```
-      vendor/bin/behat -p d8
-      ```
+- `ahoy debug`
+- Set breakpoint and run tests - your IDE will pickup incoming debug connection.
+
+To update fixtures:
+- Make required changes in the install fixture site
+- Run `ahoy cli drush cex -y` for Drupal 8 or `ahoy cli drush fua -y` for Drupal 7
+- Run `ahoy update-fixtures` for Drupal 8 or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 

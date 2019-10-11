@@ -1,5 +1,14 @@
+[*.js]
+indent_size = 2
+
 [composer.{json,lock}]
 indent_size = 4
 
-[composer.*.{json,lock}]
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{sh,bash,bats}]
+indent_size = 2
+
+[*.{xml}]
 indent_size = 4
