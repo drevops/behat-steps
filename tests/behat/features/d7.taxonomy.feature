@@ -1,5 +1,5 @@
 @d7
-Feature: Check that TaxonomyTrait for D7 works
+Feature: Check that TaxonomyTrait works for D7
 
   Background:
     Given no "tags" terms:

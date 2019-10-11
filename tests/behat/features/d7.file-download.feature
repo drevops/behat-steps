@@ -1,5 +1,5 @@
 @d7
-Feature: Check that FileDownloadTrait for D7 works
+Feature: Check that FileDownloadTrait works for D7
 
   Background:
     Given I am logged in as a user with the "administrator" role

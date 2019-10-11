@@ -1,5 +1,5 @@
 @d7
-Feature: Check that MediaTrait works
+Feature: Check that MediaTrait works for D7
 
   @api
   Scenario: Assert "When I attach the file :file to :field_name media field"

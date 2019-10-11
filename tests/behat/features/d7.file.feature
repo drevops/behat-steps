@@ -1,5 +1,5 @@
 @d7
-Feature: Check that FileTrait works
+Feature: Check that FileTrait works for D7
 
   @api
   Scenario: Assert "Given managed file:"

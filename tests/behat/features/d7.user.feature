@@ -1,5 +1,5 @@
 @d7
-Feature: Check that UserTrait for D7 works
+Feature: Check that UserTrait works for D7
 
   Background:
     Given users:

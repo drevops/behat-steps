@@ -1,5 +1,5 @@
 @d7
-Feature: Check that email assertions work
+Feature: Check that email assertions work for D7
 
   @api
   Scenario: As a developer, I want to know that email step definitions work as
