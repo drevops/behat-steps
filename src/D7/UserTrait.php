@@ -12,6 +12,12 @@ use Behat\Gherkin\Node\TableNode;
 trait UserTrait {
 
   /**
+   * Visit profile page of the user with provided name.
+   *
+   * @code
+   * When I visit user "johndoe" profile
+   * @endcode
+   *
    * @When I visit user :name profile
    */
   public function userVisitProfile($name) {
@@ -27,6 +33,20 @@ trait UserTrait {
   }
 
   /**
+   * Remove users with provided fields.
+   *
+   * @code
+   * Given no users:
+   * | mail                |
+   * | johndoe@example.com |
+   * | janedoe@example.com |
+   *
+   * Given no users:
+   * | name    |
+   * | johndoe |
+   * | janedoe |
+   * @endcode
+   *
    * @Given no users:
    */
   public function userDelete(TableNode $usersTable) {
@@ -47,6 +67,14 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user with provided name has all specified roles assigned.
+   *
+   * @code
+   * Then user "johndoe" has "administrator" role assigned
+   *
+   * Then user "johndoe" has "administrator, editor" roles assigned
+   * @endcode
+   *
    * @Then user :name has :roles role(s) assigned
    */
   public function userAssertHasRoles($name, $roles) {
@@ -63,6 +91,14 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user with provided name has none of specified roles assigned.
+   *
+   * @code
+   * Then user "johndoe" does not have "administrator" role assigned
+   *
+   * Then user "johndoe" does not have "administrator, editor" roles assigned
+   * @endcode
+   *
    * @Then user :name does not have :roles role(s) assigned
    */
   public function userAssertHasNoRoles($name, $roles) {
@@ -79,6 +115,12 @@ trait UserTrait {
   }
 
   /**
+   * Assert that user with specified account has status.
+   *
+   * @code
+   * Then user "johndoe" has "active" status
+   * @endcode
+   *
    * @Then user :name has :status status
    */
   public function userAssertHasStatus($name, $status) {
@@ -86,7 +128,7 @@ trait UserTrait {
 
     $user = user_load_by_name($name);
     if (!$user) {
-      throw new \Exception(sprintf('Unable to find user with name %s', $name));
+      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
     }
 
     if ($user->status != $status) {

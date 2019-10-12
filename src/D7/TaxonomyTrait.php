@@ -6,10 +6,21 @@ use Behat\Gherkin\Node\TableNode;
 
 /**
  * Trait TaxonomyTrait.
+ *
+ * @package IntegratedExperts\BehatSteps\D7
  */
 trait TaxonomyTrait {
 
   /**
+   * Remove terms with criteria.
+   *
+   * @code
+   * Given no "tags" terms:
+   * | name      |
+   * | some tag  |
+   * | other tag |
+   * @endcode
+   *
    * @Given no :vocabulary terms:
    */
   public function taxonomyRemoveTerms($vocabulary, TableNode $termsTable) {
@@ -27,12 +38,18 @@ trait TaxonomyTrait {
   }
 
   /**
+   * Check that the term with name exists in the vocabulary.
+   *
+   * @code
+   * Given taxonomy term "some tag" from vocabulary "tags" exists
+   * @endcode
+   *
    * @Given taxonomy term :name from vocabulary :vocab exists
    */
   public function taxonomyAssertTermExistsByName($name, $vocabulary) {
     $vocab = taxonomy_vocabulary_machine_name_load($vocabulary);
     if (!$vocab) {
-      throw new RuntimeException(sprintf('"%s" vocabulary does not exist', $vocabulary));
+      throw new \RuntimeException(sprintf('"%s" vocabulary does not exist', $vocabulary));
     }
     $found = taxonomy_term_load_multiple(NULL, [
       'name' => $name,
@@ -49,14 +66,25 @@ trait TaxonomyTrait {
   }
 
   /**
-   * @Given :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):
+   * Check if node with title has terms from vocabulary.
+   *
+   * @code
+   * Then "Test article" has "field_tags" field populated with the following terms from "tags" vocabulary:
+   * | first tag |
+   * | second tag|
+   * @endcode
+   *
+   * @Then :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):
    */
-  public function taxonomyNodeHasTaxonomyField($node_title, $field_name, $vocabulary, TableNode $table) {
+  public function taxonomyNodeHasTermsInField($node_title, $field_name, $vocabulary, TableNode $table) {
     $term_names = $table->getColumn(0);
 
     $node = node_load_multiple(NULL, [
       'title' => $node_title,
     ]);
+    if (empty($node)) {
+      throw new \RuntimeException(sprintf('Unable to find a node with title "%s"', $node_title));
+    }
     $node = reset($node);
 
     $field_terms = [];
@@ -68,22 +96,32 @@ trait TaxonomyTrait {
     $diff_provided = array_diff($term_names, $field_terms);
     $diff_actual = array_diff($field_terms, $term_names);
 
+    $errors = [];
     if (count($diff_provided) > 0 || count($diff_actual) > 0) {
-      $message = '';
       if (count($diff_provided) > 0) {
-        $message .= sprintf('Missing expected terms: %s', implode(', ', $diff_provided));
+        $errors[] = sprintf('Missing expected terms: %s', implode(', ', $diff_provided));
       }
       if (count($diff_provided) > 0) {
-        $message .= (strlen($message) > 0 ? ' ' : '') . sprintf('More terms exist then expected: %s', implode(', ', $diff_actual));
+        $errors[] = sprintf('More terms exist then expected: %s', implode(', ', $diff_actual));
       }
-      throw new \Exception($message);
+    }
+
+    if (!empty($errors)) {
+      throw new \Exception(implode("\n", $errors));
     }
   }
 
   /**
-   * @Given /^"(?P<term_name>[^"]*)" in "(?P<vocabulary>[^"]*)" vocabulary has parent "(?P<parent_term_name>[^"]*)"( and depth "(?P<depth>[^"]*)")?$/
+   * Check if term has a parent with name and at optional depth.
+   *
+   * @code
+   * @Then "apple" in "classification" vocabulary has parent "fruit"
+   * @Then "apple" in "classification" vocabulary has parent "fruit" and depth "1"
+   * @endcode
+   *
+   * @Then /^"(?P<term_name>[^"]*)" in "(?P<vocabulary>[^"]*)" vocabulary has parent "(?P<parent_term_name>[^"]*)"( and depth "(?P<depth>[^"]*)")?$/
    */
-  public function taxonomyTermHasNodeParent($term_name, $vocabulary, $parent_term_name, $depth = NULL) {
+  public function taxonomyTermHasParent($term_name, $vocabulary, $parent_term_name, $depth = NULL) {
     $term = $this->taxonomyAssertTermExistsByName($term_name, $vocabulary);
     $parent_term = $this->taxonomyAssertTermExistsByName($parent_term_name, $vocabulary);
 

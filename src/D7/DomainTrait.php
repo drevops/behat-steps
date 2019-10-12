@@ -7,6 +7,8 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeUserCreateScope;
 
 /**
  * Trait DomainTrait.
+ *
+ * @package IntegratedExperts\BehatSteps\D7
  */
 trait DomainTrait {
 

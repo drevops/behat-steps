@@ -11,6 +11,7 @@ default:
       paths: [ '%paths.base%/tests/behat/features' ]
       contexts:
         - FeatureContextD8
+        - BehatCliContext
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
@@ -63,6 +64,7 @@ d7:
     default:
       contexts:
         - FeatureContextD7
+        - BehatCliContext
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext

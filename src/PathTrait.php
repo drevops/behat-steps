@@ -56,7 +56,7 @@ trait PathTrait {
   /**
    * @When I visit :path then the final URL should be :alias
    */
-  public function assertAtPathRedirect($path, $alias) {
+  public function pathAssertWithRedirect($path, $alias) {
     $this->getSession()->visit($this->locatePath($path));
     $this->pathAssertCurrent($alias);
   }

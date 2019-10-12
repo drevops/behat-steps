@@ -23,6 +23,7 @@ trait FileTrait {
    */
   public function fileCreateManaged(TableNode $nodesTable) {
     $fids = new static();
+
     foreach ($nodesTable->getHash() as $nodeHash) {
       $node = (object) $nodeHash;
 
@@ -48,7 +49,7 @@ trait FileTrait {
         }
 
         if (!is_readable($path)) {
-          throw new \RuntimeException('Unable to find file ' . $path);
+          throw new \RuntimeException(sprintf('Unable to find file "%s"', $path));
         }
 
         $destination = 'public://' . basename($path);
@@ -56,8 +57,9 @@ trait FileTrait {
       }
 
       if (!$file) {
-        throw new \RuntimeException('Unable to save managed file ' . $path);
+        throw new \RuntimeException(sprintf('Unable to save managed file "%s"', $path));
       }
+
       array_push($fids::$fileIds, $file->fid);
     }
   }
@@ -65,7 +67,7 @@ trait FileTrait {
   /**
    * @AfterFeature
    */
-  public static function fileRemoveFiles() {
+  public static function fileRemoveAll() {
     $fids = self::$fileIds;
     if (!empty($fids)) {
       foreach ($fids as $fid) {

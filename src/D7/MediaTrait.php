@@ -4,6 +4,8 @@ namespace IntegratedExperts\BehatSteps\D7;
 
 /**
  * Trait MediaTrait.
+ *
+ * @package IntegratedExperts\BehatSteps\D7
  */
 trait MediaTrait {
 
@@ -11,7 +13,7 @@ trait MediaTrait {
    * Attaches file to media field with specified id|name|label|value.
    *
    * @code
-   * Example: When I attach "bwayne_profile.png" to "Featured image" media field
+   * When I attach "myphoto.jpg" to "Featured image" media field
    * @endcode
    *
    * @When /^(?:|I )attach the file "(?P<path>[^"]*)" to "(?P<field>(?:[^"]|\\")*)" media field$/
@@ -26,6 +28,7 @@ trait MediaTrait {
       }
     }
 
+    // @todo: Review why we need global here.
     global $user;
     $user = $this->getUserManager()->getCurrentUser();
     $data = file_get_contents($path);
