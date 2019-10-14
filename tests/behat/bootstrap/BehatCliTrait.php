@@ -58,7 +58,9 @@ trait BehatCliTrait {
     ];
     foreach ($traits as $trait) {
       $tokens['{{USE_DECLARATION}}'] .= sprintf('use IntegratedExperts\\BehatSteps\\%s;' . PHP_EOL, $trait);
-      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait);
+      $trait_name__parts = explode('\\', $trait);
+      $trait_name = end($trait_name__parts);
+      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);
     }
 
     $content = <<<'EOL'
@@ -76,6 +78,13 @@ class FeatureContext extends DrupalContext {
   public function throwTestException($message) {
     throw new \RuntimeException($message);
   }
+  
+  /**
+   * @Given set watchdog error level :level
+   */
+  public function setWatchdogError($level) {
+    watchdog('php', 'test', [], $level);
+  }  
       
 }
 EOL;
@@ -164,9 +173,11 @@ EOL;
    */
   public function behatCliAssertFailWithError(PyStringNode $message) {
     $this->itShouldFail('fail');
+    Assert::assertContains(trim((string) $message), $this->getOutput());
     // Enforce \Exception for all assertion exceptions. Non-assertion
     // exceptions should be thrown as \RuntimeException.
-    Assert::assertContains(trim((string) $message) . ' (Exception)', $this->getOutput());
+    Assert::assertContains(' (Exception)', $this->getOutput());
+    Assert::assertNotContains(' (RuntimeException)', $this->getOutput());
   }
 
   /**
@@ -174,9 +185,11 @@ EOL;
    */
   public function behatCliAssertFailWithException(PyStringNode $message) {
     $this->itShouldFail('fail');
+    Assert::assertContains(trim((string) $message), $this->getOutput());
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
-    Assert::assertContains(trim((string) $message) . ' (RuntimeException)', $this->getOutput());
+    Assert::assertContains(' (RuntimeException)', $this->getOutput());
+    Assert::assertNotContains(' (Exception)', $this->getOutput());
   }
 
   /**
