@@ -6,17 +6,23 @@ use Behat\Gherkin\Node\TableNode;
 
 /**
  * Trait ParagraphsTrait.
+ *
+ * @package IntegratedExperts\BehatSteps\D7
  */
 trait ParagraphsTrait {
 
   /**
    * Creates paragraphs of the given type with fields for existing node.
    *
-   * Paragraph fields are specified in the same way as for nodeCreate():
+   * Paragraph fields are specified in the same way as for nodeCreate().
+   *
+   * @code
+   * When "field_row" in "Test article" node of type "article" has "wysiwyg" paragraph:
    * | field_paragraph_title           | My paragraph title   |
    * | field_paragraph_longtext:value  | My paragraph message |
    * | field_paragraph_longtext:format | full_html            |
    * | ...                             | ...                  |
+   * @endcode
    *
    * @When :field_name in :node_title node of type :node_type has :paragraph_type paragraph:
    */

@@ -11,7 +11,7 @@
  * The usage of these traits can be seen in *.feature files.
  */
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D7\ContentTrait;
@@ -106,19 +106,21 @@ class FeatureContextD7 extends DrupalContext {
   }
 
   /**
-   * @Given set watchdog error
+   * @Given set watchdog error level :level
    */
-  public function setWatchdogError() {
-    watchdog('php', 'test', [], 3);
+  public function setWatchdogError($level) {
+    watchdog('php', 'test', [], $level);
   }
 
   /**
-   * Clean watchdog after scenario with an error.
+   * Clean watchdog after feature with an error.
    *
-   * @AfterScenario @error
+   * @AfterFeature @errorcleanup
    */
-  public function checkWatchdog(AfterScenarioScope $scope) {
-    db_truncate('watchdog')->execute();
+  public static function cleanWatchdog(AfterFeatureScope $scope) {
+    if (db_table_exists('watchdog')) {
+      db_truncate('watchdog')->execute();
+    }
   }
 
 }

@@ -15,6 +15,7 @@
     <config name="testVersion" value="7.2"/>
 
     <file>src</file>
+    <file>tests/behat/bootstrap</file>
 
     <!-- Exclude circleci config files. -->
     <exclude-pattern>circle\.yml</exclude-pattern>
@@ -30,7 +31,8 @@
     </rule>
 
     <rule ref="Drupal.Commenting.DocComment.MissingShort">
-        <exclude-pattern>src/*</exclude-pattern>
+        <exclude-pattern>src/*Trait.php</exclude-pattern>
+        <exclude-pattern>tests/behat/bootstrap/*.php</exclude-pattern>
     </rule>
 
     <rule ref="Generic.Files.LineLength.MaxExceeded">

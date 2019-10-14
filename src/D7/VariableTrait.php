@@ -6,7 +6,9 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
- * Class VariableTrait.
+ * Trait VariableTrait.
+ *
+ * @package IntegratedExperts\BehatSteps\D7
  */
 trait VariableTrait {
 
@@ -35,18 +37,18 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if ($value != $variable_value) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should have value "%s".', $name, $variable_value, $value));
+      throw new \Exception(sprintf('Variable "%s" has value "%s", but should have value "%s".', $name, print_r($variable_value, TRUE), print_r($value, TRUE)));
     }
   }
 
   /**
    * @Then variable :name does not have value :value
    */
-  public function variableAssertNoValue($name, $value) {
+  public function variableAssertNotValue($name, $value) {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if ($value == $variable_value) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have it.', $name, print_r($variable_value, TRUE)));
+      throw new \Exception(sprintf('Variable "%s" has value "%s", but should not have it.', $name, print_r($variable_value, TRUE)));
     }
   }
 
@@ -57,14 +59,15 @@ trait VariableTrait {
     $this->variableRefresh();
     $variable_value = variable_get($name);
     if (!is_null($variable_value)) {
-      throw new \Exception(sprintf('Variable %s has value "%s", but should not have any value set.', $name, print_r($variable_value, TRUE)));
+      throw new \Exception(sprintf('Variable "%s" has value "%s", but should not have a value set.', $name, print_r($variable_value, TRUE)));
     }
   }
 
   /**
-   * Allows to store variable values until test is complete.
+   * Store variable values until test is complete.
    *
-   * It also supports automatic variable restore.
+   * Supports automatic variable restore.
+   * Values will be cleaned up after end of the scenario.
    *
    * @Given I store original variable :name
    */
@@ -98,9 +101,9 @@ trait VariableTrait {
   }
 
   /**
-   * Cleanup temporary behat variables.
+   * Cleanup temporary variables.
    *
-   * @beforeScenario
+   * @BeforeScenario
    */
   public function variableBeforeScenarioRemoveTestVariables(BeforeScenarioScope $scope) {
     $this->variableCleanupTestVariables();
@@ -109,7 +112,7 @@ trait VariableTrait {
   /**
    * Restore original variables, if any.
    *
-   * @afterScenario
+   * @AfterScenario
    */
   public function variableBeforeScenarioRestoreOriginalVariables(AfterScenarioScope $scope) {
     $this->variableRestoreOriginal();

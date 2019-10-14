@@ -14,16 +14,16 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 trait FieldCollectionTrait {
 
   /**
-   * @var Drupal\Driver\DrupalDriver
-   *
    * Drupal core driver.
+   *
+   * @var Drupal\Driver\DrupalDriver
    */
   protected static $fieldCollectionCoreDriver;
 
   /**
-   * @var array
-   *
    * Field collection item fields extracted from the step definition.
+   *
+   * @var array
    */
   protected static $fieldCollectionItemsFields;
 
@@ -50,7 +50,7 @@ trait FieldCollectionTrait {
         continue;
       }
       elseif (strpos($field, ':') === 0) {
-        throw new \Exception('Field name missing for ' . $field);
+        throw new \RuntimeException(sprintf('Field name missing for "%s"', $field));
       }
 
       list($field_name, $fc_field_name) = explode(':', $field, 2);
@@ -60,7 +60,7 @@ trait FieldCollectionTrait {
       // Although node field parser may validate filed existence, we still need
       // to do it here before validating its type.
       if (!array_key_exists($field_name, $node_field_types)) {
-        throw new \Exception(sprintf('Field "%s" does not exist in "node" entity.', $field_name));
+        throw new \RuntimeException(sprintf('Field "%s" does not exist in "node" entity.', $field_name));
       }
 
       if ($node_field_types[$field_name] !== 'field_collection') {
@@ -72,7 +72,7 @@ trait FieldCollectionTrait {
       $fc_field_values = explode(self::fieldCollectionGetInstanceDelimiter(), $field_value);
 
       if (count($fc_field_values) > count($fc_field_names)) {
-        throw new \Exception(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', count($fc_field_values), count($fc_field_names), $field_name));
+        throw new \RuntimeException(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', count($fc_field_values), count($fc_field_names), $field_name));
       }
 
       // Track fields for each found field collection.
@@ -97,7 +97,7 @@ trait FieldCollectionTrait {
 
     $node = $scope->getEntity();
     if (!$node) {
-      throw new \Exception('Failed to find a node in @afterNodeCreate hook.');
+      throw new \RuntimeException('Failed to find a node in @AfterNodeCreate hook.');
     }
 
     foreach (self::$fieldCollectionItemsFields as $field_name => $fc_fields) {
@@ -174,7 +174,7 @@ trait FieldCollectionTrait {
       // If a field name starts with a ':' but we are not yet tracking a
       // multicolumn field we don't know to which field this belongs.
       elseif (empty($multicolumn_field)) {
-        throw new \Exception('Field name missing for ' . $field);
+        throw new \RuntimeException(sprintf('Field name missing for "%s"', $field));
       }
       // Update the column name if the field name starts with a ':' and we are
       // already tracking a multicolumn field.

@@ -56,7 +56,8 @@ trait EmailTrait {
     variable_del('mail_system_original');
     // Restore the original system to after the scenario.
     variable_set('mail_system', $original_test_system);
-
+    // Flush the email buffer, allowing us to reuse this step definition
+    // to clear existing mail.
     $this->emailClearTestEmailSystemQueue(TRUE);
   }
 
@@ -74,7 +75,7 @@ trait EmailTrait {
   /**
    * @Then an email is sent to :address
    */
-  public function emailAssertEmailIsSentTo($address) {
+  public function emailAssertIsSentTo($address) {
     foreach ($this->emailGetCollectedEmails() as $email) {
       if ($email['to'] == $address) {
         return;
@@ -87,27 +88,28 @@ trait EmailTrait {
   /**
    * @Then no emails were sent
    */
-  public function emailAssertNoEmailsWereSent() {
-    if (count($this->emailGetCollectedEmails()) > 0) {
-      throw new \Exception('No emails were supposed to be sent');
+  public function emailAssertNoneWereSent() {
+    $count = count($this->emailGetCollectedEmails());
+    if ($count > 0) {
+      throw new \Exception(sprintf('Expected no emails to be sent, but sent "%s" emails', $count));
     }
   }
 
   /**
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
-  public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
+  public function emailAssertToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
     $user = $name == 'current' && !empty($this->user) ? $this->user : user_load_by_name($name);
     if (!$user) {
       throw new \RuntimeException(sprintf('Unable to find a user "%s"', $name));
     }
 
     if ($action == 'sent') {
-      $this->emailAssertEmailContains('to', new PyStringNode([$user->mail], 0), TRUE);
-      $this->emailAssertEmailContains($field, $string);
+      $this->emailAssertFieldContains('to', new PyStringNode([$user->mail], 0), TRUE);
+      $this->emailAssertFieldContains($field, $string);
     }
     elseif ($action == 'not sent') {
-      $this->emailAssertEmailNotContains($field, $string);
+      $this->emailAssertFieldNotContains($field, $string);
     }
     else {
       throw new \RuntimeException(sprintf('Provided action "%s" is not from a list of allowed actions', $action));
@@ -118,7 +120,7 @@ trait EmailTrait {
    * @Then an email :field contains
    * @Then an email :field contains:
    */
-  public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertFieldContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
@@ -139,15 +141,15 @@ trait EmailTrait {
    * @Then an email :field contains exact
    * @Then an email :field contains exact:
    */
-  public function emailAssertEmailContainsExact($field, PyStringNode $string) {
-    $this->emailAssertEmailContains($field, $string, TRUE);
+  public function emailAssertFieldContainsExact($field, PyStringNode $string) {
+    $this->emailAssertFieldContains($field, $string, TRUE);
   }
 
   /**
    * @Then an email :field does not contain
    * @Then an email :field does not contain:
    */
-  public function emailAssertEmailNotContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertFieldNotContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
@@ -166,8 +168,8 @@ trait EmailTrait {
    * @Then an email :field does not contain exact
    * @Then an email :field does not contain exact:
    */
-  public function emailAssertEmailNotContainsExact($field, PyStringNode $string) {
-    $this->emailAssertEmailNotContains($field, $string, TRUE);
+  public function emailAssertNotContainsExact($field, PyStringNode $string) {
+    $this->emailAssertFieldNotContains($field, $string, TRUE);
   }
 
   /**
@@ -175,7 +177,7 @@ trait EmailTrait {
    * @When I follow the link number :number in the email with the subject:
    */
   public function emailFollowLinkNumber($number, PyStringNode $subject) {
-    $email = $this->emailAssertEmailContains('subject', $subject);
+    $email = $this->emailAssertFieldContains('subject', $subject);
     $links = $this->emailExtractLinks($email['body']);
     if (empty($links)) {
       throw new \Exception(sprintf('No links were found in the email with subject %s', $subject));
@@ -193,8 +195,8 @@ trait EmailTrait {
    * @Then file :name attached to the email with the subject
    * @Then file :name attached to the email with the subject:
    */
-  public function emailAssertEmailContainsAttachmentWithName($name, PyStringNode $subject) {
-    $email = $this->emailAssertEmailContains('subject', $subject);
+  public function emailAssertContainsAttachmentWithName($name, PyStringNode $subject) {
+    $email = $this->emailAssertFieldContains('subject', $subject);
 
     foreach ($email['params']['attachments'] as $attachment) {
       if ($attachment['filename'] == $name) {

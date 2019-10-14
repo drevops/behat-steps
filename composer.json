@@ -21,7 +21,8 @@
         "integratedexperts/behat-format-progress-fail": "^0.2",
         "integratedexperts/behat-screenshot": "^0.7",
         "jakub-onderka/php-parallel-lint": "^1.0",
-        "phpcompatibility/php-compatibility": "^9.0"
+        "phpcompatibility/php-compatibility": "^9.0",
+        "phpunit/phpunit": "^4.8.36"
     },
     "extra": {
         "branch-alias": {
