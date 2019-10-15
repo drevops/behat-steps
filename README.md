@@ -74,9 +74,9 @@ class FeatureContext extends DrupalContext {
 - `ahoy build` for Drupal 8 build or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
 - Access built site at http://behat-steps.docker.amazee.io/  
 
-Please note that you will need to rebuild to develop a different version.
+Please note that you will need to rebuild to work on a different Drupal version.
 
-Use `ahoy --help` to see the list ov available commands.   
+Use `ahoy --help` to see the list of available commands.   
 
 ### Behat tests
 After every `ahoy build`, a new installation of Drupal is created in `build` directory.
