@@ -10,6 +10,12 @@ namespace IntegratedExperts\BehatSteps;
 trait JsTrait {
 
   /**
+   * Accept confirmation dialogs appearing on the page.
+   *
+   * @code
+   * When I accept confirmation dialogs
+   * @endcode
+   *
    * @When I accept confirmation dialogs
    *
    * @javascript
@@ -21,6 +27,12 @@ trait JsTrait {
   }
 
   /**
+   * Do not accept confirmation dialogs appearing on the page.
+   *
+   * @code
+   * When I do not accept confirmation dialogs
+   * @endcode
+   *
    * @When I do not accept confirmation dialogs
    *
    * @javascript
@@ -32,6 +44,14 @@ trait JsTrait {
   }
 
   /**
+   * Click on the element defined by the selector.
+   *
+   * @code
+   * When I click on ".button" element
+   * When I click ".button" element
+   * When click ".button" element
+   * @endcode
+   *
    * @When /^(?:|I )click (an?|on) "(?P<element>[^"]*)" element$/
    *
    * @javascript

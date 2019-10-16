@@ -10,12 +10,23 @@ namespace IntegratedExperts\BehatSteps;
 trait LinkTrait {
 
   /**
+   * Assert presence of a link with a href.
+   *
+   * Note that simplified wildcard is supported in "href".
+   *
+   * @code
+   * Then I should see the link "About us" with "/about-us"
+   * Then I should see the link "About us" with "/about-us" in ".main-nav"
+   * Then I should see the link "About us" with "/about*" in ".main-nav"
+   * @endcode
+   *
    * @Then I should see the link :text with :href
    * @Then I should see the link :text with :href in :locator
    */
   public function linkAssertTextHref($text, $href, $locator = NULL) {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
+
     if ($locator) {
       $element = $page->find('css', $locator);
       if (!$element) {

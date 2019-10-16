@@ -12,6 +12,13 @@ use Behat\Mink\Exception\ElementNotFoundException;
 trait FieldTrait {
 
   /**
+   * Assert that field exists on the page using id,name,label or value.
+   *
+   * @code
+   * Then I see field "Body"
+   * Then I see field "field_body"
+   * @endcode
+   *
    * @Then I see field :name
    */
   public function fieldAssertExists($field_name) {
@@ -29,6 +36,13 @@ trait FieldTrait {
   }
 
   /**
+   * Assert that field does not exist on the page using id,name,label or value.
+   *
+   * @code
+   * Then I don't see field "Body"
+   * Then I don't see field "field_body"
+   * @endcode
+   *
    * @Then I don't see field :name
    */
   public function fieldAssertNotExists($field_name) {
@@ -44,6 +58,17 @@ trait FieldTrait {
   }
 
   /**
+   * Assert whether the field exists on the page using id,name,label or value.
+   *
+   * Shorthand helper to use in Scenario Outline.
+   *
+   * @code
+   * Then field "Body" "exists" on the page
+   * Then field "field_body" "exists" on the page
+   * Then field "Tags" "does not exist" on the page
+   * Then field "field_tags" "does not exist" on the page
+   * @endcode
+   *
    * @Then field :name :exists on the page
    */
   public function fieldAssertExistence($field_name, $exists) {
@@ -56,6 +81,15 @@ trait FieldTrait {
   }
 
   /**
+   * Assert whether the field has a state.
+   *
+   * @code
+   * Then field "Body" is "disabled" on the page
+   * Then field "field_body" is "disabled" on the page
+   * Then field "Tags" is "enabled" on the page
+   * Then field "field_tags" is "not enabled" on the page
+   * @endcode
+   *
    * @Then field :name is :disabled on the page
    */
   public function fieldAssertState($field_name, $disabled) {
@@ -72,6 +106,15 @@ trait FieldTrait {
   }
 
   /**
+   * Assert whether the field exists on the page and has a state.
+   *
+   * Shorthand helper to use in Scenario Outline.
+   *
+   * @code
+   * Then field "Body" should be "present" on the page and have state "enabled"
+   * Then field "Tags" should be "absent" on the page and have state "n/a"
+   * @endcode
+   *
    * @Then field :name should be :presence on the page and have state :state
    */
   public function fieldAssertExistsState($field_name, $presence, $state = 'enabled') {
