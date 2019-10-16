@@ -32,6 +32,8 @@ trait EmailTrait {
   }
 
   /**
+   * Enable test email system.
+   *
    * @Given I enable the test email system
    */
   public function emailEnableTestEmailSystem() {
@@ -49,6 +51,8 @@ trait EmailTrait {
   }
 
   /**
+   * Disable test email system.
+   *
    * @Given I disable the test email system
    */
   public function emailDisableTestEmailSystem() {
@@ -62,6 +66,8 @@ trait EmailTrait {
   }
 
   /**
+   * Clear the test email system queue.
+   *
    * @When I clear the test email system queue
    */
   public function emailClearTestEmailSystemQueue($force = FALSE) {
@@ -73,6 +79,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that at least one email sent to an address.
+   *
    * @Then an email is sent to :address
    */
   public function emailAssertIsSentTo($address) {
@@ -86,6 +94,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that no emails were sent.
+   *
    * @Then no emails were sent
    */
   public function emailAssertNoneWereSent() {
@@ -96,6 +106,15 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email to a user was sent or not with content.
+   *
+   * @code
+   * Then an email to "client1" user is "sent" with "body" content:
+   * """
+   * Test email content
+   * """
+   * @endcode
+   *
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
   public function emailAssertToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
@@ -117,7 +136,15 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains
+   * Assert that an email field contains a value.
+   *
+   * @code
+   * Then an email "body" contains:
+   * """
+   * Test email content
+   * """
+   * @endcode
+   *
    * @Then an email :field contains:
    */
   public function emailAssertFieldContains($field, PyStringNode $string, $exact = FALSE) {
@@ -138,7 +165,15 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field contains exact
+   * Assert that an email field contains an exact value.
+   *
+   * @code
+   * Then an email "body" contains exact:
+   * """
+   * Test email content
+   * """
+   * @endcode
+   *
    * @Then an email :field contains exact:
    */
   public function emailAssertFieldContainsExact($field, PyStringNode $string) {
@@ -146,7 +181,15 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field does not contain
+   * Assert that an email field does not contain a value.
+   *
+   * @code
+   * Then an email "body" does not contain:
+   * """
+   * Test email content
+   * """
+   * @endcode
+   *
    * @Then an email :field does not contain:
    */
   public function emailAssertFieldNotContains($field, PyStringNode $string, $exact = FALSE) {
@@ -165,7 +208,15 @@ trait EmailTrait {
   }
 
   /**
-   * @Then an email :field does not contain exact
+   * Assert that an email field does not contain an exact value.
+   *
+   * @code
+   * Then an email "body" does not contain exact:
+   * """
+   * Test email content
+   * """
+   * @endcode
+   *
    * @Then an email :field does not contain exact:
    */
   public function emailAssertNotContainsExact($field, PyStringNode $string) {
@@ -173,7 +224,15 @@ trait EmailTrait {
   }
 
   /**
-   * @When I follow the link number :number in the email with the subject
+   * Follow the specified link number in the email with subject.
+   *
+   * @code
+   * When I follow the link number "2" in the email with the subject:
+   * """
+   * Test email subject
+   * """
+   * @endcode
+   *
    * @When I follow the link number :number in the email with the subject:
    */
   public function emailFollowLinkNumber($number, PyStringNode $subject) {
@@ -192,7 +251,15 @@ trait EmailTrait {
   }
 
   /**
-   * @Then file :name attached to the email with the subject
+   * Assert that a file with a specified file name is attached to an email.
+   *
+   * @code
+   * Then file "myfile.pdg" attached to the email with the subject:
+   * """
+   * Test email subject
+   * """
+   * @endcode
+   *
    * @Then file :name attached to the email with the subject:
    */
   public function emailAssertContainsAttachmentWithName($name, PyStringNode $subject) {

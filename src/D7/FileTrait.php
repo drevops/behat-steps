@@ -19,6 +19,14 @@ trait FileTrait {
   static protected $fileIds = [];
 
   /**
+   * Create managed file.
+   *
+   * @code
+   * Given managed file:
+   * | path      |
+   * | file1.txt |
+   * @endcode
+   *
    * @Given managed file:
    */
   public function fileCreateManaged(TableNode $nodesTable) {

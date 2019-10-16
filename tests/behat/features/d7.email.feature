@@ -12,27 +12,27 @@ Feature: Check that email assertions work for D7
       Line three   with   tabs and    spaces
       """
     Then an email is sent to "test@example.com"
-    And an email body contains
+    And an email body contains:
       """
       Line two of the test email content
       """
-    And an email body does not contain
+    And an email body does not contain:
       """
       Line four of the test email content
       """
-    And an email body contains exact
+    And an email body contains exact:
       """
       Line three   with   tabs and    spaces
       """
-    And an email body does not contain exact
+    And an email body does not contain exact:
       """
       Line three with tabs and spaces
       """
-    But an email body contains
+    But an email body contains:
       """
       Line three with tabs and spaces
       """
-    And an email body contains
+    And an email body contains:
       """
       Line   three   with  tabs and spaces
       """
@@ -48,11 +48,11 @@ Feature: Check that email assertions work for D7
       Line three of the test email content
       """
     Then an email is sent to "test@example.com"
-    And an email "body" contains
+    And an email "body" contains:
       """
       Line two of the test email content
       """
-    And an email body does not contain
+    And an email body does not contain:
       """
       Line four of the test email content
       """
@@ -68,16 +68,16 @@ Feature: Check that email assertions work for D7
       Line three of the test email content
       """
     Then an email is sent to "test@example.com"
-    And an email body contains
+    And an email body contains:
       """
       Line two of the test email content
       """
-    And an email body does not contain
+    And an email body does not contain:
       """
       Line four of the test email content
       """
     When I clear the test email system queue
-    And an email body does not contain
+    And an email body does not contain:
       """
       Line two of the test email content
       """
@@ -93,7 +93,7 @@ Feature: Check that email assertions work for D7
       Line three of the test email content
       """
     Then an email is sent to "test@example.com"
-    And an email body contains
+    And an email body contains:
       """
       Line two of the test email content
       """
@@ -109,7 +109,7 @@ Feature: Check that email assertions work for D7
       """
     Then an email is sent to "test@example.com"
 
-    And I follow the link number "<number>" in the email with the subject
+    And I follow the link number "<number>" in the email with the subject:
       """
       Test Email
       """
@@ -137,4 +137,3 @@ Feature: Check that email assertions work for D7
 
     When I clear the test email system queue
     Then no emails were sent
-

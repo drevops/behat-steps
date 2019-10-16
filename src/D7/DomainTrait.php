@@ -44,12 +44,19 @@ trait DomainTrait {
   }
 
   /**
+   * Visit a path within a domain.
+   *
+   * @code
+   * Given I am on "article" page of "mysubdomain" subdomain
+   * When  I go to "article" page of "mysubdomain" subdomain
+   * @endcode
+   *
    * @Given /^(?:|I )am on "(?P<page>[^"]+)" page of "(?P<subdomain>[^"]+)" subdomain$/
    * @When /^(?:|I )go to "(?P<page>[^"]+)" page of "(?P<subdomain>[^"]+)" subdomain$$/
    */
   public function domainVisitPath($page, $subdomain) {
     if (!domain_machine_name_load($subdomain)) {
-      throw new \RuntimeException(sprintf('Invalida subdomain specified %s', $subdomain));
+      throw new \RuntimeException(sprintf('Invalid subdomain specified %s', $subdomain));
     }
 
     $parsed = parse_url(rtrim($this->getMinkParameter('base_url'), '/') . '/');
@@ -60,6 +67,13 @@ trait DomainTrait {
   }
 
   /**
+   * Visit a homepage on subdomain.
+   *
+   * @code
+   * Given I am on the homepage of "mysubdomain" subdomain
+   * When I go to the homepage of "mysubdomain" subdomain
+   * @endcode
+   *
    * @Given /^(?:|I )am on (?:|the )homepage of "(?P<subdomain>[^"]+)" subdomain$/
    * @When /^(?:|I )go to (?:|the )homepage of "(?P<subdomain>[^"]+)" subdomain$/
    */
@@ -68,7 +82,7 @@ trait DomainTrait {
   }
 
   /**
-   * Helper to build URL from result of parse_url().
+   * Helper to build URL from the result of parse_url().
    */
   protected function domainBuildUrl(array $parts) {
     return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
