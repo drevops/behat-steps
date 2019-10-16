@@ -10,6 +10,12 @@ namespace IntegratedExperts\BehatSteps;
 trait ResponseTrait {
 
   /**
+   * Assert that a response contains a header with specified name.
+   *
+   * @code
+   * Then response contains header "Connection"
+   * @endcode
+   *
    * @Then response contains header :name
    */
   public function responseAssertContainsHeader($name) {
@@ -21,6 +27,12 @@ trait ResponseTrait {
   }
 
   /**
+   * Assert that a response does not contain a header with specified name.
+   *
+   * @code
+   * Then response does not contain header "Connection"
+   * @endcode
+   *
    * @Then response does not contain header :name
    */
   public function responseAssertNotContainsHeader($name) {
@@ -32,6 +44,12 @@ trait ResponseTrait {
   }
 
   /**
+   * Assert that a response contains a header with specified name and value.
+   *
+   * @code
+   * Then response header "Connection" contains "Keep-Alive"
+   * @endcode
+   *
    * @Then response header :name contains :value
    */
   public function responseAssertHeaderContains($name, $value) {
@@ -40,6 +58,12 @@ trait ResponseTrait {
   }
 
   /**
+   * Assert a response does not contain a header with specified name and value.
+   *
+   * @code
+   * Then response header "Connection" does not contain "Keep-Alive"
+   * @endcode
+   *
    * @Then response header :name does not contain :value
    */
   public function responseAssertHeaderNotContains($name, $value) {

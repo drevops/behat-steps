@@ -13,24 +13,30 @@ use Behat\Gherkin\Node\TableNode;
 trait ContentTrait {
 
   /**
+   * The mink context.
+   *
    * @var \Drupal\DrupalExtension\Context\MinkContext
    */
-  protected $minkContext;
+  protected $contentMinkContext;
 
   /**
    * @BeforeScenario
    */
   public function contentGetMinkContext(BeforeScenarioScope $scope) {
-    /** @var \Behat\Behat\Context\Environment\InitializedContextEnvironment $environment */
-    $environment = $scope->getEnvironment();
-    $this->minkContext = $environment->getContext('Drupal\DrupalExtension\Context\MinkContext');
+    $this->contentMinkContext = $scope->getEnvironment()->getContext('Drupal\DrupalExtension\Context\MinkContext');
   }
 
   /**
+   * Navigate to page with specified type and title.
+   *
+   * @code
+   * When I visit "article" "Test article"
+   * @endcode
+   *
    * @When I visit :type :title
    */
   public function contentVisitPageWithTitle($type, $title) {
-    $nids = $this->nodeLoadMultiple($type, [
+    $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -47,10 +53,16 @@ trait ContentTrait {
   }
 
   /**
+   * Navigate to edit page with specified type and title.
+   *
+   * @code
+   * When I edit "article" "Test article"
+   * @endcode
+   *
    * @When I edit :type :title
    */
   public function contentEditPageWithTitle($type, $title) {
-    $nids = $this->nodeLoadMultiple($type, [
+    $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -65,11 +77,20 @@ trait ContentTrait {
   }
 
   /**
+   * Remove content defined by provided properties.
+   *
+   * @code
+   * Given no "article" content:
+   * | title                |
+   * | Test article         |
+   * | Another test article |
+   * @endcode
+   *
    * @Given /^no ([a-zA-z0-9_-]+) content:$/
    */
   public function contentDelete($type, TableNode $nodesTable) {
     foreach ($nodesTable->getHash() as $nodeHash) {
-      $nids = $this->nodeLoadMultiple($type, $nodeHash);
+      $nids = $this->contentNodeLoadMultiple($type, $nodeHash);
 
       $controller = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $controller->loadMultiple($nids);
@@ -78,6 +99,15 @@ trait ContentTrait {
   }
 
   /**
+   * Delete managed files defined by provided properties.
+   *
+   * @code
+   * Given no managed files:
+   * | filename      |
+   * | myfile.jpg    |
+   * | otherfile.jpg |
+   * @endcode
+   *
    * @Given no managed files:
    */
   public function contentDeleteManagedFiles(TableNode $nodesTable) {
@@ -89,6 +119,10 @@ trait ContentTrait {
 
   /**
    * Change moderation state of a content with specified title.
+   *
+   * @code
+   * When the moderation state of "article" "Test article" changes from "draft" to "published"
+   * @endcode
    *
    * @When the moderation state of :type :title changes from :old_state to :new_state
    */
@@ -118,19 +152,29 @@ trait ContentTrait {
   /**
    * Fills in form CKEditor field with specified id.
    *
-   * Example: When I fill in CKEditor on field "edit-body-0-value" with "Test"
-   * Example: And I fill in CKEditor on field "edit-body-0-value" with "Test"
+   * @code
+   * When I fill in CKEditor on field "edit-body-0-value" with "Test"
+   * And I fill in CKEditor on field "edit-body-0-value" with "Test"
+   * @endcode
    *
    * @When /^I fill in CKEditor on field "([^"]*)" with "([^"]*)"$/
    */
   public function contentFillCkeditorField($field, $value) {
-    $this->minkContext->getSession()->executeScript("CKEDITOR.instances[\"$field\"].setData(\"$value\");");
+    $this->contentMinkContext->getSession()->executeScript("CKEDITOR.instances[\"$field\"].setData(\"$value\");");
   }
 
   /**
    * Helper to load multiple nodes with specified type and conditions.
+   *
+   * @param string $type
+   *   The node type.
+   * @param array $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array
+   *   Array of node ids.
    */
-  protected function nodeLoadMultiple($type, $conditions = []) {
+  protected function contentNodeLoadMultiple($type, array $conditions = []) {
     $query = \Drupal::entityQuery('node')
       ->condition('type', $type);
     foreach ($conditions as $k => $v) {

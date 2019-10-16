@@ -18,9 +18,15 @@ trait DateTrait {
    * - OFFSET: any format that can be parsed by strtotime()
    * - FORMAT: date() format for additional processing.
    *
-   * Examples (synthetic):
+   * Examples:
    * [relative:-1 day] would be converted to 1893456000
    * [relative:-1 day#Y-m-d] would be converted to 2017-11-5
+   *
+   * @code
+   * Give content "article" exists:
+   * | title        | created           |
+   * | test article | [relative:-1 day] |
+   * @endcode
    *
    * @note: Since return value can be a date string, it is possible that
    * asserted result may span across multiple days (i.e. if set as -14 hours).

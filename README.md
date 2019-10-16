@@ -61,6 +61,10 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
+## Exceptions
+- `\Exception` is thrown for all assertions.
+- `\RuntimeException` is thrown for any unfulfilled requirements within a step. 
+
 ## Development
 
 ### Local environment setup

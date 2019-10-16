@@ -56,29 +56,31 @@ trait WatchdogTrait {
       ->execute()
       ->fetchAll();
 
+    if (empty($entries)) {
+      return;
+    }
+
     $errors = [];
-    if (!empty($entries)) {
-      if (!defined('WATCHDOG_WARNING')) {
-        define('WATCHDOG_WARNING', 4);
-      }
+    if (!defined('WATCHDOG_WARNING')) {
+      define('WATCHDOG_WARNING', 4);
+    }
 
-      // Remove entries below severity threshold.
-      foreach ($entries as $k => $error) {
-        if ($error->severity > WATCHDOG_WARNING) {
-          unset($entries[$k]);
-          continue;
-        }
-        $error->variables = unserialize($error->variables);
-        $errors[$error->wid] = print_r($error, TRUE);
+    // Remove entries below severity threshold.
+    foreach ($entries as $k => $error) {
+      if ($error->severity > WATCHDOG_WARNING) {
+        unset($entries[$k]);
+        continue;
       }
+      $error->variables = unserialize($error->variables);
+      $errors[$error->wid] = print_r($error, TRUE);
+    }
 
-      if (!empty($errors)) {
-        db_delete('watchdog')
-          ->condition('wid', array_keys($errors), 'IN')
-          ->execute();
+    if (!empty($errors)) {
+      db_delete('watchdog')
+        ->condition('wid', array_keys($errors), 'IN')
+        ->execute();
 
-        throw new \Exception(sprintf('PHP errors were logged to watchdog during this scenario: %s', PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)));
-      }
+      throw new \Exception(sprintf('PHP errors were logged to watchdog during this scenario: %s', PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)));
     }
   }
 

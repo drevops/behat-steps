@@ -11,6 +11,7 @@
  * The usage of these traits can be seen in *.feature files.
  */
 
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -30,10 +31,21 @@ class FeatureContextD8 extends DrupalContext {
   use WatchdogTrait;
 
   /**
-   * @Given set watchdog error
+   * @Given set Drupal8 watchdog error level :level
    */
-  public function setWatchdogError() {
-    \Drupal::logger('behat_test')->error('test');
+  public function setWatchdogErrorDrupal8($level) {
+    \Drupal::logger('php')->log($level, 'test');
+  }
+
+  /**
+   * Clean watchdog after feature with an error.
+   *
+   * @AfterFeature @errorcleanup
+   */
+  public static function cleanWatchdog(AfterFeatureScope $scope) {
+    if (db_table_exists('watchdog')) {
+      db_truncate('watchdog')->execute();
+    }
   }
 
 }
