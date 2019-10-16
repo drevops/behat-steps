@@ -106,9 +106,9 @@ class FeatureContextD7 extends DrupalContext {
   }
 
   /**
-   * @Given set watchdog error level :level
+   * @Given set Drupal7 watchdog error level :level
    */
-  public function setWatchdogError($level) {
+  public function setWatchdogErrorDrupal7($level) {
     watchdog('php', 'test', [], $level);
   }
 

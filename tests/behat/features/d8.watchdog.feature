@@ -6,7 +6,7 @@ Feature: Check that WatchdogTrait works for D8
     Given some behat configuration
     And scenario steps:
       """
-      Given set watchdog error level 4
+      Given set Drupal8 watchdog error level "warning"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -16,8 +16,8 @@ Feature: Check that WatchdogTrait works for D8
 
   @api
   Scenario: Assert that watchdog does not track errors with level below threshold
-    Given set watchdog error level 5
+    Given set Drupal8 watchdog error level "notice"
 
   @api @error
   Scenario: Assert that watchdog track errors with level above threshold
-    Given set watchdog error level 4
+    Given set Drupal8 watchdog error level "warning"
