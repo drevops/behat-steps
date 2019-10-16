@@ -49,6 +49,14 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Download a file from the url.
+   *
+   * @code
+   * Then I download file from "/my/path"
+   * Then I download file from "http://external.com/path"
+   * Then I download file from "http://currentsite.com/path"
+   * @endcode
+   *
    * @Then I download file from :url
    */
   public function fileDownloadFrom($url) {
@@ -90,6 +98,14 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Download the file from the specified link.
+   *
+   * Note tha this is a multistep action.
+   *
+   * @code
+   * Then I download file from link "My link title"
+   * @endcode
+   *
    * @Then I download file from link :link
    */
   public function fileDownloadFromLink($link) {
@@ -100,6 +116,12 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert the presence/absence of the download link.
+   *
+   * @code
+   * Then I see download "/path/to/file.pdf" link "present: on the page
+   * @endcode
+   *
    * @Then I see download :link link :presence(on the page)
    */
   public function fileDownloadAssertLinkPresence($link, $presense) {
@@ -119,6 +141,15 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert the contents of the downloaded file.
+   *
+   * @code
+   * Then downloaded file contains:
+   * """
+   * Test content within downloaded file.
+   * """
+   * @endcode
+   *
    * @Then downloaded file contains:
    */
   public function fileDownloadAssertFileContains(PyStringNode $string) {
@@ -144,6 +175,12 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert the name of the downloaded file.
+   *
+   * @code
+   * Then downloaded file name is "myfile.pdf"
+   * @endcode
+   *
    * @Then downloaded file name is :name
    */
   public function fileDownloadAssertFileName($name) {
@@ -157,6 +194,14 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert file presence of the files within downloaded ZIP archive.
+   *
+   * @code
+   * Then downloaded file is zip archive that contains files:
+   * | file1.txt     |
+   * | dir/file2.txt |
+   * @endcode
+   *
    * @Then downloaded file is zip archive that contains files:
    */
   public function fileDownloadAssertZipContains(TableNode $files) {
@@ -175,6 +220,14 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert file absence of the files within downloaded ZIP archive.
+   *
+   * @code
+   * Then downloaded file is zip archive that does not contain files:
+   * | file1.txt     |
+   * | dir/file2.txt |
+   * @endcode
+   *
    * @Then downloaded file is zip archive that does not contain files:
    */
   public function fileDownloadAssertNoZipContains(TableNode $files) {

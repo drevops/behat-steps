@@ -12,6 +12,12 @@ use Behat\Gherkin\Node\TableNode;
 trait ContentTrait {
 
   /**
+   * Navigate to page with specified type and title.
+   *
+   * @code
+   * When I visit "article" "Test article"
+   * @endcode
+   *
    * @When I visit :type :title
    */
   public function contentVisitPageWithTitle($type, $title) {
@@ -33,6 +39,12 @@ trait ContentTrait {
   }
 
   /**
+   * Navigate to edit page with specified type and title.
+   *
+   * @code
+   * When I edit "article" "Test article"
+   * @endcode
+   *
    * @When I edit :type :title
    */
   public function contentEditPageWithTitle($type, $title) {
@@ -52,7 +64,16 @@ trait ContentTrait {
   }
 
   /**
-   * @Given no :type content:
+   * Remove content defined by provided properties.
+   *
+   * @code
+   * Given no "article" content:
+   * | title                |
+   * | Test article         |
+   * | Another test article |
+   * @endcode
+   *
+   * @Given /^no ([a-zA-z0-9_-]+) content:$/
    */
   public function contentDelete($type, TableNode $nodesTable) {
     foreach ($nodesTable->getHash() as $nodeHash) {
@@ -62,6 +83,15 @@ trait ContentTrait {
   }
 
   /**
+   * Delete managed files defined by provided properties.
+   *
+   * @code
+   * Given no managed files:
+   * | filename      |
+   * | myfile.jpg    |
+   * | otherfile.jpg |
+   * @endcode
+   *
    * @Given no managed files:
    */
   public function contentDeleteManagedFiles(TableNode $nodesTable) {
