@@ -72,7 +72,7 @@ trait FieldCollectionTrait {
       $fc_field_values = explode(self::fieldCollectionGetInstanceDelimiter(), $field_value);
 
       if (count($fc_field_values) > count($fc_field_names)) {
-        throw new \RuntimeException(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', count($fc_field_values), count($fc_field_names), $field_name));
+        throw new \RuntimeException(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', $field_name, count($fc_field_values), count($fc_field_names)));
       }
 
       // Track fields for each found field collection.
