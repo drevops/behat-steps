@@ -65,6 +65,122 @@ class FeatureContext extends DrupalContext {
 - `\Exception` is thrown for all assertions.
 - `\RuntimeException` is thrown for any unfulfilled requirements within a step. 
 
+## Available steps
+
+### Common
+
+```
+FieldTrait.php
+    Then I see field :name
+    Then I don't see field :name
+    Then field :name :exists on the page
+    Then field :name is :disabled on the page
+    Then field :name should be :presence on the page and have state :state
+LinkTrait.php
+    Then I should see the link :text with :href
+    Then I should see the link :text with :href in :locator
+PathTrait.php
+    Then I should be in the :path path
+    Then I should not be in the :path path
+    Then I :can visit :path with HTTP credentials :user :pass
+ResponseTrait.php
+    Then response contains header :name
+    Then response does not contain header :name
+    Then response header :name contains :value
+    Then response header :name does not contain :value    
+JsTrait.php
+    When I accept confirmation dialogs
+    When I do not accept confirmation dialogs
+    When /^(?:|I )click (an?|on) "(?P<element>[^"]*)" element$/
+PathTrait.php
+    When I visit :path then the final URL should be :alias
+```    
+   
+### Drupal 7
+
+```
+ContentTrait.php
+    Given /^no ([a-zA-z0-9_-]+) content:$/
+    Given no managed files:
+    When I visit :type :title
+    When I edit :type :title
+DomainTrait.php
+    Given /^(?:|I )am on "(?P<page>[^"]+)" page of "(?P<subdomain>[^"]+)" subdomain$/
+    Given /^(?:|I )am on (?:|the )homepage of "(?P<subdomain>[^"]+)" subdomain$/
+    When /^(?:|I )go to "(?P<page>[^"]+)" page of "(?P<subdomain>[^"]+)" subdomain$$/
+    When /^(?:|I )go to (?:|the )homepage of "(?P<subdomain>[^"]+)" subdomain$/   
+EmailTrait.php
+    Given I enable the test email system
+    Given I disable the test email system
+    When I clear the test email system queue
+    When I follow the link number :number in the email with the subject:
+    Then an email is sent to :address
+    Then no emails were sent
+    Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
+    Then an email :field contains:
+    Then an email :field contains exact:
+    Then an email :field does not contain:
+    Then an email :field does not contain exact:
+    Then file :name attached to the email with the subject:      
+FileTrait.php
+    Given managed file:
+FileDownloadTrait.php
+    Then I download file from :url
+    Then I download file from link :link
+    Then I see download :link link :presence(on the page)
+    Then downloaded file contains:
+    Then downloaded file name is :name
+    Then downloaded file is zip archive that contains files:
+    Then downloaded file is zip archive that does not contain files:   
+MediaTrait.php   
+    When /^(?:|I )attach the file "(?P<path>[^"]*)" to "(?P<field>(?:[^"]|\\")*)" media field$/
+OverrideTrait.php
+    Given I am logged in as a user with the :role role(s)
+    Given I am logged in as a/an :role
+ParagraphsTrait.php
+    When :field_name in :node_title node of type :node_type has :paragraph_type paragraph:   
+TaxonomyTrait.php
+    Given no :vocabulary terms:
+    Given taxonomy term :name from vocabulary :vocab exists
+    Then :node_title has :field_name field populated with( the following) terms from :vocabulary( vocabulary):
+    Then "apple" in "classification" vocabulary has parent "fruit"
+    Then "apple" in "classification" vocabulary has parent "fruit" and depth "1"
+    Then /^"(?P<term_name>[^"]*)" in "(?P<vocabulary>[^"]*)" vocabulary has parent "(?P<parent_term_name>[^"]*)"( and depth "(?P<depth>[^"]*)")?$/   
+UserTrait.php
+    Given no users:
+    When I visit user :name profile     
+    Then user :name has :roles role(s) assigned
+    Then user :name does not have :roles role(s) assigned
+    Then user :name has :status status   
+VariableTrait.php
+    Then variable :name has value :value
+    Then variable :name has value:
+    Then variable :name does not have value :value
+    Then variable :name does not have a value      
+```    
+   
+### Drupal 8
+
+```
+ContentTrait.php
+    Given /^no ([a-zA-z0-9_-]+) content:$/
+    Given no managed files:
+    When I visit :type :title
+    When I edit :type :title
+    When the moderation state of :type :title changes from :old_state to :new_state
+    When /^I fill in CKEditor on field "([^"]*)" with "([^"]*)"$/   
+MediaTrait.php
+    Given no "video" media type
+    Given no :type media type     
+MenuTrait.php
+    Given no menus:
+    Given no menus:
+TaxonomyTrait.php
+    Given vocabulary :vid with name :name exists
+    Given taxonomy term :name from vocabulary :vocabulary_id exists
+    Given no :vocabulary terms:
+```    
+
 ## Development
 
 ### Local environment setup
