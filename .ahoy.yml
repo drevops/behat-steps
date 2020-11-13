@@ -68,7 +68,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
+    cmd: docker exec -i $(docker-compose ps -q cli) \$APP/\$BUILD/vendor/bin/drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
 
   # Application commands.
   login:
@@ -82,7 +82,7 @@ commands:
       ahoy cli "chmod -Rf 777 \$APP/\$BUILD || true; rm -Rf \$APP/\$BUILD || true; mkdir -p \$APP/\$WEBROOT"
       ahoy cli "cp -Rf \$APP/\$FIXTURES/d\$DRUPAL_VERSION/. \$APP/\$BUILD/"
       ahoy cli "composer --working-dir=\$APP/\$BUILD install --prefer-dist --no-suggest"
-      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' drush -r \$APP/\$WEBROOT si standard -y --db-url=mysql://drupal:drupal@\$AMAZEEIO_DB_HOST/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' \$APP/\$BUILD/vendor/bin/drush -r \$APP/\$WEBROOT si standard -y --db-url=mysql://drupal:drupal@\$AMAZEEIO_DB_HOST/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
       ahoy cli "composer --working-dir=\$APP/\$BUILD drupal-post-install"
 
   clean:
