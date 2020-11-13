@@ -74,7 +74,10 @@ trait TaxonomyTrait {
    */
   public function taxonomyDeleteTerms($vocabulary, TableNode $termsTable) {
     foreach ($termsTable->getColumn(0) as $name) {
-      $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties(['name' => $name, 'vid' => $vocabulary]);
+      $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties([
+        'name' => $name,
+        'vid' => $vocabulary,
+      ]);
       /** @var \Drupal\taxonomy\Entity\Term $term */
       foreach ($terms as $term) {
         $term->delete();
