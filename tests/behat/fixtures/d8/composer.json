@@ -4,16 +4,17 @@
     "license": "proprietary",
     "require": {
         "composer/installers": "^1.2.0",
-        "drupal-composer/drupal-scaffold": "^2.3",
-        "drupal/coffee": "^1.0-beta2",
-        "drupal/core": "^8",
+        "drupal/coffee": "^1",
+        "drupal/core-composer-scaffold": "^8",
+        "drupal/core-recommended": "^8",
         "drupal/paragraphs": "^1.9",
-        "webflo/drupal-finder": "^1.0",
+        "drush/drush": "^10",
+        "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
     "config": {
         "platform": {
-            "php": "7.1.16"
+            "php": "7.3"
         },
         "process-timeout": 0,
         "sort-packages": true
@@ -33,26 +34,48 @@
         }
     },
     "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "./docroot"
+            },
+            "file-mapping": {
+                "[project-root]/.gitattributes": false,
+                "[web-root]/.htaccess": false,
+                "[web-root]/.ht.router.php": false,
+                "[web-root]/example.gitignore": false,
+                "[web-root]/INSTALL.txt": false,
+                "[web-root]/README.txt": false,
+                "[web-root]/sites/example.settings.local.php": false,
+                "[web-root]/sites/example.sites.php": false,
+                "[web-root]/web.config": false
+            }
+        },
         "installer-paths": {
             "docroot/core": [
                 "type:drupal-core"
             ],
+            "docroot/libraries/{$name}": [
+                "type:drupal-library",
+                "type:bower-asset",
+                "type:npm-asset"
+            ],
             "docroot/modules/contrib/{$name}": [
                 "type:drupal-module"
-            ],
-            "docroot/themes/contrib/{$name}": [
-                "type:drupal-theme"
             ],
             "docroot/profiles/contrib/{$name}": [
                 "type:drupal-profile"
             ],
-            "docroot/libraries/{$name}": [
-                "type:drupal-library"
+            "docroot/themes/contrib/{$name}": [
+                "type:drupal-theme"
             ],
-            "drush/contrib/{$name}": [
+            "drush/Commands/contrib/{$name}": [
                 "type:drupal-drush"
             ]
-        }
+        },
+        "installer-types": [
+            "bower-asset",
+            "npm-asset"
+        ]
     },
     "scripts": {
         "post-install-cmd": [
@@ -61,10 +84,10 @@
         ],
         "drupal-post-install": [
             "chmod 644 docroot/sites/default/settings.php; echo \"\\$config_directories = [CONFIG_SYNC_DIRECTORY => '../config/sync'];\" >> docroot/sites/default/settings.php; chmod 444 docroot/sites/default/settings.php",
-            "drush -r docroot config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y",
-            "drush -r docroot ev \"\\Drupal::entityManager()->getStorage('shortcut_set')->load('default')->delete();\"",
-            "drush -r docroot cim --source=../config/sync -y",
-            "drush -r docroot en mysite_core -y"
+            "drush -r docroot config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y --uri=http://nginx",
+            "drush -r docroot ev \"\\Drupal::entityManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
+            "drush -r docroot cim --source=../config/sync -y --uri=http://nginx",
+            "drush -r docroot pm:enable mysite_core -y --uri=http://nginx"
         ]
     }
 }
