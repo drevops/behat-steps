@@ -26,6 +26,7 @@ use IntegratedExperts\BehatSteps\D7\DomainTrait;
 use IntegratedExperts\BehatSteps\D7\EmailTrait;
 use IntegratedExperts\BehatSteps\D7\OverrideTrait;
 use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
+use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\D7\VariableTrait;
 use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
 use IntegratedExperts\BehatSteps\D8\MediaTrait;
