@@ -28,7 +28,7 @@ trait MediaTrait {
       }
     }
 
-    // @todo: Review why we need global here.
+    // @todo Review why we need global here.
     global $user;
     $user = $this->getUserManager()->getCurrentUser();
     $data = file_get_contents($path);

@@ -8,7 +8,6 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Symfony\Component\Filesystem\Filesystem;
-use ZipArchive;
 
 /**
  * Trait FileDownloadTrait.
@@ -249,7 +248,7 @@ trait FileDownloadTrait {
    * Open downloaded ZIP archive and validate contents.
    */
   protected function fileDownloadOpenZip() {
-    if (!class_exists('ZipArchive')) {
+    if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP');
     }
 
@@ -261,14 +260,16 @@ trait FileDownloadTrait {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
 
-    if (!in_array($this->fileDownloadFileInfo['content_type'], ['application/octet-stream', 'application/zip'])) {
+    if (!in_array($this->fileDownloadFileInfo['content_type'], [
+      'application/octet-stream', 'application/zip',
+    ])) {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
 
-    $zip = new ZipArchive();
+    $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadFileInfo['file_path']);
     if ($result !== TRUE) {
-      if ($result == ZipArchive::ER_NOZIP) {
+      if ($result == \ZipArchive::ER_NOZIP) {
         throw new \Exception('Downloaded file is not a valid ZIP file.');
       }
       else {

@@ -23,6 +23,7 @@
         "drupal/workbench": "^1.2",
         "drupal/workbench_moderation": "^3.0",
         "drupal/wysiwyg": "^2.6",
+        "drush/drush": "^8",
         "library/ckeditor": "^4.9"
     },
     "minimum-stability": "dev",

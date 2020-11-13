@@ -215,6 +215,6 @@ To debug tests from CLI:
 - Set breakpoint and run tests - your IDE will pickup incoming debug connection.
 
 To update fixtures:
-- Make required changes in the install fixture site
+- Make required changes in the installed fixture site
 - Run `ahoy cli drush cex -y` for Drupal 8 or `ahoy cli drush fua -y` for Drupal 7
 - Run `ahoy update-fixtures` for Drupal 8 or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 
