@@ -30,6 +30,7 @@ use IntegratedExperts\BehatSteps\D7\UserTrait;
 use IntegratedExperts\BehatSteps\D7\VariableTrait;
 use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
 use IntegratedExperts\BehatSteps\D8\MediaTrait;
+use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\DateTrait;
 use IntegratedExperts\BehatSteps\Field;
 use IntegratedExperts\BehatSteps\FieldTrait;
