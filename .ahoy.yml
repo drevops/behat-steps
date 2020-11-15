@@ -68,7 +68,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) \$APP/\$BUILD/vendor/bin/drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
+    cmd: docker exec -i $(docker-compose ps -q cli) $APP/$BUILD/vendor/bin/drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
 
   # Application commands.
   login:
