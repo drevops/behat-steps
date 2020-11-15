@@ -8,6 +8,7 @@
         "drupal/core-composer-scaffold": "^8",
         "drupal/core-recommended": "^8",
         "drupal/paragraphs": "^1.9",
+        "drupal/pathauto": "^1.8",
         "drush/drush": "^10",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
@@ -83,7 +84,7 @@
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "drupal-post-install": [
-            "chmod 644 docroot/sites/default/settings.php; echo \"\\$config_directories = [CONFIG_SYNC_DIRECTORY => '../config/sync'];\" >> docroot/sites/default/settings.php; chmod 444 docroot/sites/default/settings.php",
+            "chmod 644 docroot/sites/default/settings.php; echo \"\\$settings['config_sync_directory'] = '../config/sync';\" >> docroot/sites/default/settings.php; chmod 444 docroot/sites/default/settings.php",
             "drush -r docroot config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y --uri=http://nginx",
             "drush -r docroot ev \"\\Drupal::entityManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
             "drush -r docroot cim --source=../config/sync -y --uri=http://nginx",
