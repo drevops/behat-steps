@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Drupal\user\Entity\User;
 
 /**
  * Trait ContentTrait.
@@ -177,6 +178,7 @@ trait ContentTrait {
   protected function contentNodeLoadMultiple($type, array $conditions = []) {
     $query = \Drupal::entityQuery('node')
       ->condition('type', $type);
+    $query->addMetaData('account', User::load(1));
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);
