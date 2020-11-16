@@ -182,6 +182,13 @@ TaxonomyTrait.php
     Given no :vocabulary terms:
 ```    
 
+### Skipping before scenario hooks
+Some traits provide beforeScenario hook implementations. These can be disabled
+by adding `behat-steps-skip:METHOD_NAME` tag to your test. 
+
+For example, to skip beforeScenario hook from JsTrait, add 
+`@behat-steps-skip:jsBeforeScenarioInit` tag to the feature.
+
 ## Development
 
 ### Local environment setup

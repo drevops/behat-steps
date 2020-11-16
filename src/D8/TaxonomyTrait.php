@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\user\Entity\User;
 
 /**
  * Trait TaxonomyTrait.
@@ -83,6 +84,51 @@ trait TaxonomyTrait {
         $term->delete();
       }
     }
+  }
+
+  /**
+   * @When I visit :vocabulary vocabulary term :name
+   */
+  public function taxonomyVisitTermPageWithName($vocabulary, $name) {
+    $tids = $this->taxonomyLoadMultiple($vocabulary, [
+      'name' => $name,
+    ]);
+
+    if (empty($tids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $vocabulary, $name));
+    }
+
+    ksort($tids);
+
+    $tid = end($tids);
+    $path = $this->locatePath('/term/' . $tid);
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Helper to load multiple terms with specified vocabulary and conditions.
+   *
+   * @param string $vocabulary
+   *   The term vocabulary.
+   * @param array $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array
+   *   Array of term ids.
+   */
+  protected function taxonomyLoadMultiple($vocabulary, array $conditions = []) {
+    $query = \Drupal::entityQuery('taxonomy_term')
+      ->condition('vid', $vocabulary)
+      ->addMetaData('account', User::load(1));
+
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }

@@ -3,6 +3,7 @@
 namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
  * Trait WatchdogTrait.
@@ -23,7 +24,12 @@ trait WatchdogTrait {
    *
    * @BeforeScenario
    */
-  public function watchdogSetScenarioStartTime() {
+  public function watchdogSetScenarioStartTime(BeforeScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+      return;
+    }
+
     $this->watchdogScenarioStartTime = time();
   }
 
@@ -36,6 +42,11 @@ trait WatchdogTrait {
    * @AfterScenario
    */
   public function watchdogAssertErrors(AfterScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+      return;
+    }
+
     // Bypass the error checking if the scenario is expected to trigger an
     // error. Such scenarios should be tagged with "@error".
     if (in_array('error', $scope->getScenario()->getTags())) {

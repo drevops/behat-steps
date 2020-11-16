@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -11,13 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Trait FileDownloadTrait.
- *
- * To support unzipping of attachments, we are using ZipArchive class from PHP
- * zip extension.
- *
- * @see https://www.php.net/manual/en/zip.installation.php
- *
- * @package IntegratedExperts\BehatSteps\D7
  */
 trait FileDownloadTrait {
 
@@ -26,7 +19,7 @@ trait FileDownloadTrait {
    *
    * @var array
    */
-  protected $fileDownloadFileInfo;
+  protected $fileDownloadDownloadedFileInfo;
 
   /**
    * @BeforeScenario
@@ -58,14 +51,6 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Download a file from the url.
-   *
-   * @code
-   * Then I download file from "/my/path"
-   * Then I download file from "http://external.com/path"
-   * Then I download file from "http://currentsite.com/path"
-   * @endcode
-   *
    * @Then I download file from :url
    */
   public function fileDownloadFrom($url) {
@@ -90,31 +75,22 @@ trait FileDownloadTrait {
       }
     }
 
-    $this->fileDownloadFileInfo = $this->fileDownloadProcess($url, [
+    $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url, [
       CURLOPT_COOKIE => implode('; ', $cookie_list),
     ]);
 
-    if (!$this->fileDownloadFileInfo['file_path']) {
-      throw new \Exception(sprintf('Unable to download file from URL "%s"', $url));
+    if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
+      throw new \RuntimeException('Unable to download file from URL ' . $url);
     }
-
-    $file_data = file_get_contents($this->fileDownloadFileInfo['file_path']);
+    $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($file_data === FALSE) {
-      throw new \Exception('Unable to load content for downloaded file from temporary local file');
+      throw new \RuntimeException('Unable to load content for downloaded file from temporary local file');
     }
 
-    $this->fileDownloadFileInfo['content'] = $file_data;
+    $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
   }
 
   /**
-   * Download the file from the specified link.
-   *
-   * Note tha this is a multistep action.
-   *
-   * @code
-   * Then I download file from link "My link title"
-   * @endcode
-   *
    * @Then I download file from link :link
    */
   public function fileDownloadFromLink($link) {
@@ -125,12 +101,6 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert the presence/absence of the download link.
-   *
-   * @code
-   * Then I see download "/path/to/file.pdf" link "present: on the page
-   * @endcode
-   *
    * @Then I see download :link link :presence(on the page)
    */
   public function fileDownloadAssertLinkPresence($link, $presense) {
@@ -150,25 +120,14 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert the contents of the downloaded file.
-   *
-   * @code
-   * Then downloaded file contains:
-   * """
-   * Test content within downloaded file.
-   * """
-   * @endcode
-   *
    * @Then downloaded file contains:
    */
   public function fileDownloadAssertFileContains(PyStringNode $string) {
     $string = strval($string);
-
-    if (!$this->fileDownloadFileInfo) {
+    if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
     }
-
-    $lines = preg_split('/\R/', $this->fileDownloadFileInfo['content']);
+    $lines = preg_split('/\R/', $this->fileDownloadDownloadedFileInfo['content']);
     foreach ($lines as $line) {
       if (preg_match('/^\/.+\/[a-z]*$/i', $string)) {
         if (preg_match($string, $line)) {
@@ -180,37 +139,23 @@ trait FileDownloadTrait {
       }
     }
 
-    throw new \Exception(sprintf('Unable to find a content line with searched string "%s"', $string));
+    throw new \Exception('Unable to find a content line with searched string.');
   }
 
   /**
-   * Assert the name of the downloaded file.
-   *
-   * @code
-   * Then downloaded file name is "myfile.pdf"
-   * @endcode
-   *
    * @Then downloaded file name is :name
    */
   public function fileDownloadAssertFileName($name) {
-    if (!$this->fileDownloadFileInfo || empty($this->fileDownloadFileInfo['file_name'])) {
+    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
     }
 
-    if ($name != $this->fileDownloadFileInfo['file_name']) {
-      throw new \Exception(sprintf('Downloaded file name is %s, but expected %s', $this->fileDownloadFileInfo['file_name'], $name));
+    if ($name != $this->fileDownloadDownloadedFileInfo['file_name']) {
+      throw new \Exception(sprintf('Downloaded file %s, but expected %s', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
     }
   }
 
   /**
-   * Assert file presence of the files within downloaded ZIP archive.
-   *
-   * @code
-   * Then downloaded file is zip archive that contains files:
-   * | file1.txt     |
-   * | dir/file2.txt |
-   * @endcode
-   *
    * @Then downloaded file is zip archive that contains files:
    */
   public function fileDownloadAssertZipContains(TableNode $files) {
@@ -229,14 +174,6 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert file absence of the files within downloaded ZIP archive.
-   *
-   * @code
-   * Then downloaded file is zip archive that does not contain files:
-   * | file1.txt     |
-   * | dir/file2.txt |
-   * @endcode
-   *
    * @Then downloaded file is zip archive that does not contain files:
    */
   public function fileDownloadAssertNoZipContains(TableNode $files) {
@@ -258,29 +195,29 @@ trait FileDownloadTrait {
    * Open downloaded ZIP archive and validate contents.
    */
   protected function fileDownloadOpenZip() {
-    if (!class_exists('\ZipArchive')) {
+    if (!class_exists('ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP');
     }
 
-    if (!$this->fileDownloadFileInfo || empty($this->fileDownloadFileInfo['file_path'])) {
+    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
       throw new \RuntimeException('Downloaded file path data is not available.');
     }
 
-    if (!$this->fileDownloadFileInfo || empty($this->fileDownloadFileInfo['content_type'])) {
+    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
 
-    if (!in_array($this->fileDownloadFileInfo['content_type'], [
+    if (!in_array($this->fileDownloadDownloadedFileInfo['content_type'], [
       'application/octet-stream', 'application/zip',
     ])) {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
 
-    $zip = new \ZipArchive();
-    $result = $zip->open($this->fileDownloadFileInfo['file_path']);
+    $zip = new ZipArchive();
+    $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
-      if ($result == \ZipArchive::ER_NOZIP) {
-        throw new \Exception('Downloaded file is not a valid ZIP file.');
+      if ($result == ZipArchive::ER_NOZIP) {
+        throw new \Exception('Downloaded file is not valid ZIP file.');
       }
       else {
         throw new \Exception('Downloaded file cannot be read.');
@@ -291,7 +228,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Download a file from URL.
+   * Download file.
    */
   protected function fileDownloadProcess($url, $options = []) {
     $response_headers = [];
@@ -314,7 +251,7 @@ trait FileDownloadTrait {
     ];
 
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
-      throw new \RuntimeException(sprintf('Invalid download URL provided "%s"', $url));
+      throw new \RuntimeException('Invalid download URL provided: ' . $url);
     }
 
     $ch = curl_init($url);
@@ -324,7 +261,7 @@ trait FileDownloadTrait {
     curl_close($ch);
 
     if (!$content) {
-      throw new \RuntimeException(sprintf('Unable to save temp file from URL "%s" ', $url));
+      throw new \RuntimeException('Unable to save temp file from URL ' . $url);
     }
 
     // Extract meta information from headers.
@@ -342,8 +279,10 @@ trait FileDownloadTrait {
     // Write file contents.
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to write downloaded content into file "%s"', $file_path));
+      throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path);
     }
+
+    print $file_path;
 
     return ['file_name' => $file_name, 'file_path' => $file_path] + $headers;
   }
@@ -359,7 +298,6 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadParseHeaders(array $headers) {
     $parsed_headers = [];
-
     foreach ($headers as $header) {
       if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', $header, $matches) && isset($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);

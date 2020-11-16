@@ -36,6 +36,11 @@ trait DomainTrait {
    * @beforeUserCreate
    */
   public static function domainBeforeUserCreateAssignDomains(BeforeUserCreateScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+      return;
+    }
+
     $user = $scope->getEntity();
     $all_domains = domain_domains();
     $user->domain_user = isset($user->domain_user)

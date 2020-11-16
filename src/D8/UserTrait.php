@@ -27,6 +27,18 @@ trait UserTrait {
   }
 
   /**
+   * @When I go to my edit profile page
+   */
+  public function userVisitOwnProfilePage() {
+    $user = $this->getUserManager()->getCurrentUser();
+    if ($user === FALSE) {
+      throw new \RuntimeException('Require user to login before visiting profile page.');
+    }
+    $page = '/user/' . $user->uid . '/edit';
+    $this->visitPath($page);
+  }
+
+  /**
    * @Given no users:
    */
   public function userDelete(TableNode $usersTable) {

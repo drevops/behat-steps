@@ -1,10 +1,15 @@
 <?php
 
+namespace IntegratedExperts\BehatSteps\D8;
+
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\media\Entity\Media;
 
 /**
  * Trait MediaTrait.
+ *
+ * Trait to handle media entities.
  */
 trait MediaTrait {
 
@@ -20,7 +25,12 @@ trait MediaTrait {
    *
    * @AfterScenario
    */
-  public function mediaClean() {
+  public function mediaClean(AfterScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+      return;
+    }
+
     foreach ($this->media as $media) {
       $media->delete();
     }
@@ -88,6 +98,8 @@ trait MediaTrait {
       throw new \Exception("Cannot create media because provided bundle '$stub->bundle' does not exist.");
     }
 
+    $this->mediaExpandEntityFieldsFixtures($stub);
+
     $this->mediaExpandEntityFields('media', $stub);
 
     $entity = Media::create((array) $stub);
@@ -117,6 +129,30 @@ trait MediaTrait {
     $method->setAccessible(TRUE);
 
     return $method->invokeArgs($core, func_get_args());
+  }
+
+  /**
+   * Expand entity fields with fixture values.
+   */
+  protected function mediaExpandEntityFieldsFixtures($stub) {
+    $fixture_path = $this->getMinkParameter('files_path') ? rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : NULL;
+
+    foreach (get_object_vars($stub) as $name => $value) {
+      if (strpos($name, 'field_') === FALSE) {
+        continue;
+      }
+
+      if (is_array($value)) {
+        if (!empty($value[0])) {
+          if (is_file($fixture_path . $value[0])) {
+            $stub->{$name}[0] = $fixture_path . $value[0];
+          }
+        }
+      }
+      elseif (is_file($fixture_path . $value)) {
+        $stub->{$name} = $fixture_path . $value;
+      }
+    }
   }
 
 }
