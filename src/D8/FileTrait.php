@@ -76,7 +76,7 @@ trait FileTrait {
    */
   public function fileCleanAll(AfterScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 

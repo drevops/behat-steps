@@ -107,7 +107,7 @@ trait VariableTrait {
    */
   public function variableBeforeScenarioRemoveTestVariables(BeforeScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
@@ -121,7 +121,7 @@ trait VariableTrait {
    */
   public function variableBeforeScenarioRestoreOriginalVariables(AfterScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 

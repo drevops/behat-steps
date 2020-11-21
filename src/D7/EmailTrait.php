@@ -18,7 +18,7 @@ trait EmailTrait {
    */
   public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
@@ -32,7 +32,7 @@ trait EmailTrait {
    */
   public function emailAfterScenarioDisableTestEmailSystem(AfterScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 

@@ -21,7 +21,7 @@ trait BigPipeTrait {
    */
   public function bigPipeBeforeScenarioInit(BeforeScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
@@ -38,7 +38,8 @@ trait BigPipeTrait {
     }
 
     try {
-      // Check if JavaScript can be executed by Driver.
+      // Check if JavaScript can be executed by the driver and add a cookie
+      // if it cannot.
       $this->getSession()->getDriver()->executeScript('true');
     }
     catch (UnsupportedDriverActionException $e) {

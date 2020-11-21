@@ -26,7 +26,7 @@ trait FileDownloadTrait {
    */
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
@@ -41,7 +41,7 @@ trait FileDownloadTrait {
    */
   public function fileDownloadAfterScenario(AfterScenarioScope $scope) {
     // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __METHOD__)) {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
