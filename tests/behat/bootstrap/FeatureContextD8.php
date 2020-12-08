@@ -20,13 +20,21 @@ use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
 use IntegratedExperts\BehatSteps\D8\BigPipeTrait;
 use IntegratedExperts\BehatSteps\D8\ContentTrait;
+use IntegratedExperts\BehatSteps\D8\DraggableViewsTrait;
 use IntegratedExperts\BehatSteps\D8\EmailTrait;
 use IntegratedExperts\BehatSteps\D8\FileDownloadTrait;
 use IntegratedExperts\BehatSteps\D8\FileTrait;
 use IntegratedExperts\BehatSteps\D8\MediaTrait;
+use IntegratedExperts\BehatSteps\D8\MenuTrait;
 use IntegratedExperts\BehatSteps\D8\OverrideTrait;
+use IntegratedExperts\BehatSteps\D8\ParagraphsTrait;
+use IntegratedExperts\BehatSteps\D8\RoleTrait;
+use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
+use IntegratedExperts\BehatSteps\D8\TestmodeTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
+use IntegratedExperts\BehatSteps\D8\WebformTrait;
+use IntegratedExperts\BehatSteps\D8\WysiwygTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -39,17 +47,25 @@ class FeatureContextD8 extends DrupalContext {
 
   use BigPipeTrait;
   use ContentTrait;
+  use DraggableViewsTrait;
   use EmailTrait;
   use FieldTrait;
-  use FileTrait;
   use FileDownloadTrait;
+  use FileTrait;
   use LinkTrait;
   use MediaTrait;
+  use MenuTrait;
   use OverrideTrait;
+  use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
+  use RoleTrait;
+  use TaxonomyTrait;
+  use TestmodeTrait;
   use UserTrait;
   use WatchdogTrait;
+  use WebformTrait;
+  use WysiwygTrait;
 
   /**
    * @Then user :name does not exists

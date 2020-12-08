@@ -14,7 +14,17 @@ use Behat\Gherkin\Node\TableNode;
 trait OverrideTrait {
 
   /**
-   * {@inheritdoc}
+   * Creates one or more terms on an existing vocabulary.
+   *
+   * Provide term data in the following format:
+   *
+   * | name  | parent | description | weight | taxonomy_field_image |
+   * | Snook | Fish   | Marine fish | 10     | snook-123.jpg        |
+   * | ...   | ...    | ...         | ...    | ...                  |
+   *
+   * Only the 'name' field is required.
+   *
+   * @Given :vocabulary terms:
    */
   public function createTerms($vocabulary, TableNode $table) {
     // Delete entities before creating them.
@@ -23,7 +33,7 @@ trait OverrideTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * @Given :type content:
    */
   public function createNodes($type, TableNode $table) {
     $filtered_table = TableNode::fromList($table->getColumn(0));
@@ -33,7 +43,9 @@ trait OverrideTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Creates multiple users.
+   *
+   * @Given users:
    */
   public function createUsers(TableNode $table) {
     // Delete entities before creating them.
