@@ -43,8 +43,6 @@ trait OverrideTrait {
   }
 
   /**
-   * Creates multiple users.
-   *
    * @Given users:
    */
   public function createUsers(TableNode $table) {
