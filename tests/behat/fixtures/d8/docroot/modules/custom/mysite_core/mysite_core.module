@@ -13,3 +13,15 @@ function mysite_core_form_alter() {
     setcookie('testcookiename', 'testcookievalue');
   }
 }
+
+/**
+ * Implements hook_mail().
+ */
+function mysite_core_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'test_email':
+      // Add test subject to all test emails.
+      $message['subject'] = t('Test Email');
+      break;
+  }
+}

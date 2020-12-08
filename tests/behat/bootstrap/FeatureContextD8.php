@@ -12,11 +12,13 @@
  */
 
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use IntegratedExperts\BehatSteps\D8\BigPipeTrait;
 use IntegratedExperts\BehatSteps\D8\ContentTrait;
+use IntegratedExperts\BehatSteps\D8\EmailTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -31,6 +33,7 @@ class FeatureContextD8 extends DrupalContext {
 
   use BigPipeTrait;
   use ContentTrait;
+  use EmailTrait;
   use FieldTrait;
   use LinkTrait;
   use PathTrait;
@@ -163,6 +166,21 @@ class FeatureContextD8 extends DrupalContext {
     if (!$result) {
       throw new \Exception(sprintf('Unable to uninstall a module "%s".', $name));
     }
+  }
+
+  /**
+   * @When I send test email to :email with
+   * @When I send test email to :email with:
+   */
+  public function sendTestEmail($email, PyStringNode $string) {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email',
+      $email,
+      \Drupal::languageManager()->getDefaultLanguage(),
+      ['body' => strval($string)],
+      FALSE
+    );
   }
 
 }
