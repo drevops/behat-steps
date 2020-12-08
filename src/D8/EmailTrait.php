@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\PyStringNode;
 /**
  * Trait EmailTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * Behat trait for email interactions.
  */
 trait EmailTrait {
 
@@ -23,7 +23,7 @@ trait EmailTrait {
     }
 
     if ($scope->getScenario()->hasTag('email')) {
-      $this->emailEnableTestEmailSystem();
+      self::emailEnableTestEmailSystem();
     }
   }
 
@@ -37,64 +37,55 @@ trait EmailTrait {
     }
 
     if ($scope->getScenario()->hasTag('email')) {
-      $this->emailDisableTestEmailSystem();
+      self::emailDisableTestEmailSystem();
     }
   }
 
   /**
-   * Enable test email system.
-   *
    * @Given I enable the test email system
    */
   public function emailEnableTestEmailSystem() {
     // Store the original system to restore after the scenario.
-    $original_test_system = variable_get('mail_system', ['default-system' => 'DefaultMailSystem']);
+    $original_test_system = self::emailGetMailSystemDefault();
     // But store only if previous has not been stored yet.
-    if (!variable_get('mail_system_original')) {
-      variable_set('mail_system_original', $original_test_system);
+    if (!self::emailGetMailSystemOriginal()) {
+      self::emailSetMailSystemOriginal($original_test_system);
     }
     // Set the test system.
-    variable_set('mail_system', ['default-system' => 'TestingMailSystem']);
+    self::emailSetMailSystemDefault('test_mail_collector');
     // Flush the email buffer, allowing us to reuse this step definition
     // to clear existing mail.
-    $this->emailClearTestEmailSystemQueue();
+    self::emailClearTestEmailSystemQueue();
   }
 
   /**
-   * Disable test email system.
-   *
    * @Given I disable the test email system
    */
   public function emailDisableTestEmailSystem() {
-    $original_test_system = variable_get('mail_system_original', ['default-system' => 'DefaultMailSystem']);
-    variable_del('mail_system_original');
+    $original_test_system = self::emailGetMailSystemOriginal();
+    self::emailDeleteMailSystemOriginal();
     // Restore the original system to after the scenario.
-    variable_set('mail_system', $original_test_system);
-    // Flush the email buffer, allowing us to reuse this step definition
-    // to clear existing mail.
-    $this->emailClearTestEmailSystemQueue(TRUE);
+    self::emailSetMailSystemDefault($original_test_system);
+
+    self::emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
-   * Clear the test email system queue.
-   *
    * @When I clear the test email system queue
    */
   public function emailClearTestEmailSystemQueue($force = FALSE) {
-    if (!$force && !variable_get('mail_system_original')) {
+    if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
 
-    variable_set('drupal_test_email_collector', []);
+    \Drupal::state()->set('system.test_mail_collector', []);
   }
 
   /**
-   * Assert that at least one email sent to an address.
-   *
    * @Then an email is sent to :address
    */
-  public function emailAssertIsSentTo($address) {
-    foreach ($this->emailGetCollectedEmails() as $email) {
+  public function emailAssertEmailIsSentTo($address) {
+    foreach (self::emailGetCollectedEmails() as $email) {
       if ($email['to'] == $address) {
         return;
       }
@@ -104,41 +95,29 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that no emails were sent.
-   *
    * @Then no emails were sent
    */
-  public function emailAssertNoneWereSent() {
-    $count = count($this->emailGetCollectedEmails());
-    if ($count > 0) {
-      throw new \Exception(sprintf('Expected no emails to be sent, but sent "%s" emails', $count));
+  public function emailAssertNoEmailsWereSent() {
+    if (count(self::emailGetCollectedEmails()) > 0) {
+      throw new \Exception('No emails were supposed to be sent');
     }
   }
 
   /**
-   * Assert that an email to a user was sent or not with content.
-   *
-   * @code
-   * Then an email to "client1" user is "sent" with "body" content:
-   * """
-   * Test email content
-   * """
-   * @endcode
-   *
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
-  public function emailAssertToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
-    $user = $name == 'current' && !empty($this->user) ? $this->user : user_load_by_name($name);
+  public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
+    $user = $name == 'current' && !empty(self::user) ? self::user : user_load_by_name($name);
     if (!$user) {
       throw new \RuntimeException(sprintf('Unable to find a user "%s"', $name));
     }
 
     if ($action == 'sent') {
-      $this->emailAssertFieldContains('to', new PyStringNode([$user->mail], 0), TRUE);
-      $this->emailAssertFieldContains($field, $string);
+      $this->emailAssertEmailContains('to', new PyStringNode([$user->mail], 0), TRUE);
+      $this->emailAssertEmailContains($field, $string);
     }
     elseif ($action == 'not sent') {
-      $this->emailAssertFieldNotContains($field, $string);
+      $this->emailAssertEmailNotContains($field, $string);
     }
     else {
       throw new \RuntimeException(sprintf('Provided action "%s" is not from a list of allowed actions', $action));
@@ -146,26 +125,18 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that an email field contains a value.
-   *
-   * @code
-   * Then an email "body" contains:
-   * """
-   * Test email content
-   * """
-   * @endcode
-   *
+   * @Then an email :field contains
    * @Then an email :field contains:
    */
-  public function emailAssertFieldContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
 
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
-    foreach ($this->emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
+    foreach (self::emailGetCollectedEmails() as $email) {
+      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
       if (strpos($field_string, $string) !== FALSE) {
         return $email;
       }
@@ -175,42 +146,26 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that an email field contains an exact value.
-   *
-   * @code
-   * Then an email "body" contains exact:
-   * """
-   * Test email content
-   * """
-   * @endcode
-   *
+   * @Then an email :field contains exact
    * @Then an email :field contains exact:
    */
-  public function emailAssertFieldContainsExact($field, PyStringNode $string) {
-    $this->emailAssertFieldContains($field, $string, TRUE);
+  public function emailAssertEmailContainsExact($field, PyStringNode $string) {
+    $this->emailAssertEmailContains($field, $string, TRUE);
   }
 
   /**
-   * Assert that an email field does not contain a value.
-   *
-   * @code
-   * Then an email "body" does not contain:
-   * """
-   * Test email content
-   * """
-   * @endcode
-   *
+   * @Then an email :field does not contain
    * @Then an email :field does not contain:
    */
-  public function emailAssertFieldNotContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertEmailNotContains($field, PyStringNode $string, $exact = FALSE) {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
 
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
-    foreach ($this->emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
+    foreach (self::emailGetCollectedEmails() as $email) {
+      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
       if (strpos($field_string, $string) !== FALSE) {
         throw new \Exception(sprintf('Found email with%s text "%s" in field "%s" retrieved from test email collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
       }
@@ -218,36 +173,20 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that an email field does not contain an exact value.
-   *
-   * @code
-   * Then an email "body" does not contain exact:
-   * """
-   * Test email content
-   * """
-   * @endcode
-   *
+   * @Then an email :field does not contain exact
    * @Then an email :field does not contain exact:
    */
-  public function emailAssertNotContainsExact($field, PyStringNode $string) {
-    $this->emailAssertFieldNotContains($field, $string, TRUE);
+  public function emailAssertEmailNotContainsExact($field, PyStringNode $string) {
+    $this->emailAssertEmailNotContains($field, $string, TRUE);
   }
 
   /**
-   * Follow the specified link number in the email with subject.
-   *
-   * @code
-   * When I follow the link number "2" in the email with the subject:
-   * """
-   * Test email subject
-   * """
-   * @endcode
-   *
+   * @When I follow the link number :number in the email with the subject
    * @When I follow the link number :number in the email with the subject:
    */
   public function emailFollowLinkNumber($number, PyStringNode $subject) {
-    $email = $this->emailAssertFieldContains('subject', $subject);
-    $links = $this->emailExtractLinks($email['body']);
+    $email = $this->emailAssertEmailContains('subject', $subject);
+    $links = self::emailExtractLinks($email['body']);
     if (empty($links)) {
       throw new \Exception(sprintf('No links were found in the email with subject %s', $subject));
     }
@@ -257,23 +196,15 @@ trait EmailTrait {
 
     $link = $links[$number - 1];
     print $link;
-    $this->getSession()->visit($link);
+    self::getSession()->visit($link);
   }
 
   /**
-   * Assert that a file with a specified file name is attached to an email.
-   *
-   * @code
-   * Then file "myfile.pdg" attached to the email with the subject:
-   * """
-   * Test email subject
-   * """
-   * @endcode
-   *
+   * @Then file :name attached to the email with the subject
    * @Then file :name attached to the email with the subject:
    */
-  public function emailAssertContainsAttachmentWithName($name, PyStringNode $subject) {
-    $email = $this->emailAssertFieldContains('subject', $subject);
+  public function emailAssertEmailContainsAttachmentWithName($name, PyStringNode $subject) {
+    $email = $this->emailAssertEmailContains('subject', $subject);
 
     foreach ($email['params']['attachments'] as $attachment) {
       if ($attachment['filename'] == $name) {
@@ -285,12 +216,61 @@ trait EmailTrait {
   }
 
   /**
+   * Get default mail system value.
+   */
+  protected static function emailGetMailSystemDefault() {
+    return \Drupal::config('system.mail')->get('interface.default');
+  }
+
+  /**
+   * Set default mail system value.
+   */
+  protected static function emailSetMailSystemDefault($value) {
+    \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', $value)->save();
+
+    // Maisystem module completely takes over default interface, so we need to
+    // update it as well if the module is installed.
+    // @note: For some unknown reasons, we do not need to reset this back to
+    // the original values after the test. The values in the configuration
+    // will not be overridden.
+    if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
+      \Drupal::configFactory()->getEditable('mailsystem.settings')
+        ->set('defaults.sender', $value)
+        ->set('defaults.formatter', $value)
+        ->save();
+    }
+  }
+
+  /**
+   * Get original mail system value.
+   */
+  protected static function emailGetMailSystemOriginal() {
+    return \Drupal::config('system.mail_original')->get('interface.default');
+  }
+
+  /**
+   * Set original mail system value.
+   */
+  protected static function emailSetMailSystemOriginal($value) {
+    return \Drupal::configFactory()->getEditable('system.mail_original')->set('interface.default', $value)->save();
+  }
+
+  /**
+   * Remove original mail system value.
+   */
+  protected static function emailDeleteMailSystemOriginal() {
+    return \Drupal::configFactory()->getEditable('system.mail_original')->delete();
+  }
+
+  /**
    * Get emails collected during the test.
    */
-  protected function emailGetCollectedEmails() {
-    $emails = array_map('unserialize', db_query("SELECT name, value FROM {variable} WHERE name = 'drupal_test_email_collector'")->fetchAllKeyed());
+  protected static function emailGetCollectedEmails() {
+    // Directly read data from the database to avoid cache invalidation that
+    // may corrupt the system under test.
+    $emails = array_map('unserialize', db_query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
 
-    return !empty($emails['drupal_test_email_collector']) ? $emails['drupal_test_email_collector'] : [];
+    return !empty($emails['system.test_mail_collector']) ? $emails['system.test_mail_collector'] : [];
   }
 
   /**
@@ -302,7 +282,7 @@ trait EmailTrait {
    * @return array
    *   Array of extracted links.
    */
-  protected function emailExtractLinks($string) {
+  protected static function emailExtractLinks($string) {
     // Correct links before extraction.
     $pattern = '(?xi)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
     $string = preg_replace_callback("#$pattern#i", function ($matches) {

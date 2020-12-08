@@ -2,7 +2,6 @@
 
 namespace IntegratedExperts\BehatSteps\D8;
 
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
 
@@ -14,17 +13,19 @@ use Drupal\user\Entity\User;
 trait ContentTrait {
 
   /**
-   * The mink context.
+   * Delete content type.
    *
-   * @var \Drupal\DrupalExtension\Context\MinkContext
+   * @code
+   * Given no "article" content type
+   * @endcode
+   *
+   * @Given no :type content type
    */
-  protected $contentMinkContext;
-
-  /**
-   * @BeforeScenario
-   */
-  public function contentGetMinkContext(BeforeScenarioScope $scope) {
-    $this->contentMinkContext = $scope->getEnvironment()->getContext('Drupal\DrupalExtension\Context\MinkContext');
+  public function contentRemoveContentType($type) {
+    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($type);
+    if ($content_type_entity) {
+      $content_type_entity->delete();
+    }
   }
 
   /**
@@ -100,25 +101,6 @@ trait ContentTrait {
   }
 
   /**
-   * Delete managed files defined by provided properties.
-   *
-   * @code
-   * Given no managed files:
-   * | filename      |
-   * | myfile.jpg    |
-   * | otherfile.jpg |
-   * @endcode
-   *
-   * @Given no managed files:
-   */
-  public function contentDeleteManagedFiles(TableNode $nodesTable) {
-    foreach ($nodesTable->getHash() as $hash) {
-      $files = file_load_multiple([], $hash);
-      file_delete_multiple(array_keys($files));
-    }
-  }
-
-  /**
    * Change moderation state of a content with specified title.
    *
    * @code
@@ -151,20 +133,6 @@ trait ContentTrait {
   }
 
   /**
-   * Fills in form CKEditor field with specified id.
-   *
-   * @code
-   * When I fill in CKEditor on field "edit-body-0-value" with "Test"
-   * And I fill in CKEditor on field "edit-body-0-value" with "Test"
-   * @endcode
-   *
-   * @When /^I fill in CKEditor on field "([^"]*)" with "([^"]*)"$/
-   */
-  public function contentFillCkeditorField($field, $value) {
-    $this->contentMinkContext->getSession()->executeScript("CKEDITOR.instances[\"$field\"].setData(\"$value\");");
-  }
-
-  /**
    * Helper to load multiple nodes with specified type and conditions.
    *
    * @param string $type
@@ -177,8 +145,9 @@ trait ContentTrait {
    */
   protected function contentNodeLoadMultiple($type, array $conditions = []) {
     $query = \Drupal::entityQuery('node')
-      ->condition('type', $type);
-    $query->addMetaData('account', User::load(1));
+      ->condition('type', $type)
+      ->addMetaData('account', User::load(1));
+
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);

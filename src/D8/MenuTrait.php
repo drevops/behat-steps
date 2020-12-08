@@ -23,9 +23,8 @@ trait MenuTrait {
    *
    * @Given no menus:
    */
-  public function menuDelete(TableNode $menusTable) {
-    foreach ($menusTable->getColumn(0) as $name) {
-
+  public function menuDelete(TableNode $table) {
+    foreach ($table->getColumn(0) as $name) {
       $menu = Menu::load($name);
       if ($menu) {
         $menu->delete();

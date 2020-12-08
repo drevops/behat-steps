@@ -3,3 +3,13 @@
  * @file
  * Code for the mysite core feature.
  */
+
+/**
+ * Implements hook_form_alter().
+ */
+function mysite_core_form_alter() {
+  if (\Drupal::currentUser()->isAuthenticated()) {
+    // Set test cookie to retrieve from tests, but only for authenticated user.
+    setcookie('testcookiename', 'testcookievalue');
+  }
+}

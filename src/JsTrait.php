@@ -2,12 +2,44 @@
 
 namespace IntegratedExperts\BehatSteps;
 
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Mink\Driver\Selenium2Driver;
+
 /**
  * Trait JsTrait.
  *
  * @package IntegratedExperts\BehatSteps
  */
 trait JsTrait {
+
+  /**
+   * Init values required for javascript tagged scenarios.
+   *
+   * @param Behat\Behat\Hook\Scope\BeforeScenarioScope $scope
+   *   Scenario scope.
+   *
+   * @BeforeScenario
+   */
+  public function jsBeforeScenarioInit(BeforeScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    if ($scope->getScenario()->hasTag('javascript')) {
+      $driver = $this->getSession()->getDriver();
+      if ($driver instanceof Selenium2Driver) {
+        // Start driver's session manually if it is not already started.
+        if (!$driver->isStarted()) {
+          $driver->start();
+        }
+        $this->getSession()->resizeWindow(1440, 900, 'current');
+      }
+      else {
+        throw new \RuntimeException('Unable to load Selenium driver.');
+      }
+    }
+  }
 
   /**
    * Accept confirmation dialogs appearing on the page.
@@ -57,10 +89,63 @@ trait JsTrait {
    * @javascript
    */
   public function jsClickOnElement($element) {
-    $session = $this->getSession();
-    $xpath = $session->getSelectorsHandler()->selectorToXpath('css', $element);
+    $xpath = $this
+      ->getSession()
+      ->getSelectorsHandler()
+      ->selectorToXpath('css', $element);
 
-    $this->getSession()->getDriver()->click($xpath);
+    $this
+      ->getSession()
+      ->getDriver()
+      ->click($xpath);
+  }
+
+  /**
+   * @When I trigger JS :event event on :selector element
+   */
+  public function jsTriggerElementEvent($event, $selector) {
+    $script = "return (function(el) {
+            if (el) {
+              el.$event();
+              return true;
+            }            
+            return false;              
+        })({{ELEMENT}});";
+
+    $result = $this->jsExecute($selector, $script);
+
+    if (!$result) {
+      throw new \RuntimeException(sprintf('Unable to trigger "%s" event on an element "%s" with JavaScript', $event, $selector));
+    }
+  }
+
+  /**
+   * Execute JS on an element provided by the selector.
+   *
+   * @param string $selector
+   *   The CSS selector for an element.
+   * @param string $script
+   *   The script to execute. Note that '{{ELEMENT}}' is a token to use in
+   *   the script to reference the element.
+   *
+   * @return mixed
+   *   The result of script evaluation. Script has to explicitly return a value.
+   */
+  protected function jsExecute($selector, $script) {
+    $driver = $this->getSession()->getDriver();
+
+    if (!($driver instanceof Selenium2Driver)) {
+      throw new \RuntimeException('JavaScript commands can only be used with Selenium driver.');
+    }
+
+    // Inject style to disable browser scrollbars.
+    $scriptWrapper = "return (function() {
+            {{SCRIPT}}
+          }());";
+    $script = str_replace('{{ELEMENT}}', "document.querySelector('$selector')", $script);
+    $script = str_replace('{{SCRIPT}}', $script, $scriptWrapper);
+
+    return $driver->evaluateScript($script);
   }
 
 }
