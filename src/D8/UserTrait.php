@@ -44,11 +44,16 @@ trait UserTrait {
   public function userDelete(TableNode $usersTable) {
     foreach ($usersTable->getHash() as $userHash) {
       $user = NULL;
-      if (isset($userHash['mail'])) {
-        $user = $this->userGetByMail($userHash['mail']);
+      try {
+        if (isset($userHash['mail'])) {
+          $user = $this->userGetByMail($userHash['mail']);
+        }
+        elseif (isset($userHash['name'])) {
+          $user = $this->userGetByMail($userHash['name']);
+        }
       }
-      elseif (isset($userHash['name'])) {
-        $user = $this->userGetByMail($userHash['name']);
+      catch (\Exception $exception) {
+        // User may not exist - do nothing.
       }
 
       if ($user) {

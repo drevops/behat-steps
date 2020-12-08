@@ -136,7 +136,8 @@ trait EmailTrait {
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
     foreach (self::emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
+      $field_string = $email['params'][$field] ?? $email[$field];
+      $field_string = $exact ? $field_string : trim(preg_replace('/\s+/', ' ', $field_string));
       if (strpos($field_string, $string) !== FALSE) {
         return $email;
       }
@@ -186,7 +187,7 @@ trait EmailTrait {
    */
   public function emailFollowLinkNumber($number, PyStringNode $subject) {
     $email = $this->emailAssertEmailContains('subject', $subject);
-    $links = self::emailExtractLinks($email['body']);
+    $links = self::emailExtractLinks($email['params']['body'] ?? $email['body']);
     if (empty($links)) {
       throw new \Exception(sprintf('No links were found in the email with subject %s', $subject));
     }

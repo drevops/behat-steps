@@ -12,13 +12,29 @@
  */
 
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
+use Drupal\file\Entity\File;
+use Drupal\user\Entity\User;
 use IntegratedExperts\BehatSteps\D8\BigPipeTrait;
 use IntegratedExperts\BehatSteps\D8\ContentTrait;
+use IntegratedExperts\BehatSteps\D8\DraggableViewsTrait;
+use IntegratedExperts\BehatSteps\D8\EmailTrait;
+use IntegratedExperts\BehatSteps\D8\FileDownloadTrait;
+use IntegratedExperts\BehatSteps\D8\FileTrait;
+use IntegratedExperts\BehatSteps\D8\MediaTrait;
+use IntegratedExperts\BehatSteps\D8\MenuTrait;
+use IntegratedExperts\BehatSteps\D8\OverrideTrait;
+use IntegratedExperts\BehatSteps\D8\ParagraphsTrait;
+use IntegratedExperts\BehatSteps\D8\RoleTrait;
+use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
+use IntegratedExperts\BehatSteps\D8\TestmodeTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
+use IntegratedExperts\BehatSteps\D8\WebformTrait;
+use IntegratedExperts\BehatSteps\D8\WysiwygTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -31,12 +47,25 @@ class FeatureContextD8 extends DrupalContext {
 
   use BigPipeTrait;
   use ContentTrait;
+  use DraggableViewsTrait;
+  use EmailTrait;
   use FieldTrait;
+  use FileDownloadTrait;
+  use FileTrait;
   use LinkTrait;
+  use MediaTrait;
+  use MenuTrait;
+  use OverrideTrait;
+  use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
+  use RoleTrait;
+  use TaxonomyTrait;
+  use TestmodeTrait;
   use UserTrait;
   use WatchdogTrait;
+  use WebformTrait;
+  use WysiwygTrait;
 
   /**
    * @Then user :name does not exists
@@ -163,6 +192,60 @@ class FeatureContextD8 extends DrupalContext {
     if (!$result) {
       throw new \Exception(sprintf('Unable to uninstall a module "%s".', $name));
     }
+  }
+
+  /**
+   * @When I send test email to :email with
+   * @When I send test email to :email with:
+   */
+  public function sendTestEmail($email, PyStringNode $string) {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email',
+      $email,
+      \Drupal::languageManager()->getDefaultLanguage(),
+      ['body' => strval($string)],
+      FALSE
+    );
+  }
+
+  /**
+   * @Then :file_name file object exists
+   */
+  public function fileObjectExist($file_name) {
+    $file_name = basename($file_name);
+    $fids = $this->fileLoadMultiple(['filename' => $file_name]);
+    if (empty($fids)) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
+
+    $fid = reset($fids);
+    $file = File::load($fid);
+
+    if ($file_name !== $file->label()) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
+  }
+
+  /**
+   * Helper to load multiple files with specified conditions.
+   *
+   * @param array $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array
+   *   Array of file ids.
+   */
+  protected function fileLoadMultiple(array $conditions = []) {
+    $query = \Drupal::entityQuery('file');
+    $query->addMetaData('account', User::load(1));
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }

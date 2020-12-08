@@ -7,9 +7,21 @@
 /**
  * Implements hook_form_alter().
  */
-function mysite_core_form_alter() {
-  if (\Drupal::currentUser()->isAuthenticated()) {
+function mysite_core_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'search_block_form' && \Drupal::currentUser()->isAuthenticated()) {
     // Set test cookie to retrieve from tests, but only for authenticated user.
     setcookie('testcookiename', 'testcookievalue');
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function mysite_core_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'test_email':
+      // Add test subject to all test emails.
+      $message['subject'] = t('Test Email');
+      break;
   }
 }

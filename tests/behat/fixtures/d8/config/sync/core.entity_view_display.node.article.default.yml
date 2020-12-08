@@ -6,12 +6,14 @@ dependencies:
     - core.entity_view_display.comment.comment.default
     - field.field.node.article.body
     - field.field.node.article.comment
+    - field.field.node.article.field_file
     - field.field.node.article.field_image
     - field.field.node.article.field_tags
     - image.style.large
     - node.type.article
   module:
     - comment
+    - file
     - image
     - text
     - user
@@ -38,6 +40,14 @@ content:
       view_mode: default
       pager_id: 0
     third_party_settings: {  }
+  field_file:
+    weight: 111
+    label: above
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    type: file_default
+    region: content
   field_image:
     type: image
     weight: -1

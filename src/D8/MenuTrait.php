@@ -15,12 +15,6 @@ trait MenuTrait {
   /**
    * Remove menu.
    *
-   * @code
-   * @Given no menus:
-   * | main_menu   |
-   * | footer_menu |
-   * @endcode
-   *
    * @Given no menus:
    */
   public function menuDelete(TableNode $table) {
