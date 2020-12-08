@@ -5,12 +5,14 @@ dependencies:
   config:
     - field.field.node.article.body
     - field.field.node.article.comment
+    - field.field.node.article.field_file
     - field.field.node.article.field_image
     - field.field.node.article.field_tags
     - image.style.thumbnail
     - node.type.article
   module:
     - comment
+    - file
     - image
     - path
     - text
@@ -42,6 +44,13 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_file:
+    weight: 121
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: file_generic
+    region: content
   field_image:
     type: image_image
     weight: 4

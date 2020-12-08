@@ -16,9 +16,13 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
+use Drupal\file\Entity\File;
+use Drupal\user\Entity\User;
 use IntegratedExperts\BehatSteps\D8\BigPipeTrait;
 use IntegratedExperts\BehatSteps\D8\ContentTrait;
 use IntegratedExperts\BehatSteps\D8\EmailTrait;
+use IntegratedExperts\BehatSteps\D8\FileDownloadTrait;
+use IntegratedExperts\BehatSteps\D8\FileTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -35,6 +39,8 @@ class FeatureContextD8 extends DrupalContext {
   use ContentTrait;
   use EmailTrait;
   use FieldTrait;
+  use FileTrait;
+  use FileDownloadTrait;
   use LinkTrait;
   use PathTrait;
   use ResponseTrait;
@@ -181,6 +187,45 @@ class FeatureContextD8 extends DrupalContext {
       ['body' => strval($string)],
       FALSE
     );
+  }
+
+  /**
+   * @Then :file_name file object exists
+   */
+  public function fileObjectExist($file_name) {
+    $file_name = basename($file_name);
+    $fids = $this->fileLoadMultiple(['filename' => $file_name]);
+    if (empty($fids)) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
+
+    $fid = reset($fids);
+    $file = File::load($fid);
+
+    if ($file_name !== $file->label()) {
+      throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
+    }
+  }
+
+  /**
+   * Helper to load multiple files with specified conditions.
+   *
+   * @param array $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array
+   *   Array of file ids.
+   */
+  protected function fileLoadMultiple(array $conditions = []) {
+    $query = \Drupal::entityQuery('file');
+    $query->addMetaData('account', User::load(1));
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }

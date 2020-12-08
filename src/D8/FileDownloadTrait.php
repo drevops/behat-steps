@@ -195,7 +195,7 @@ trait FileDownloadTrait {
    * Open downloaded ZIP archive and validate contents.
    */
   protected function fileDownloadOpenZip() {
-    if (!class_exists('ZipArchive')) {
+    if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP');
     }
 
@@ -213,7 +213,7 @@ trait FileDownloadTrait {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
 
-    $zip = new ZipArchive();
+    $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
       if ($result == ZipArchive::ER_NOZIP) {
