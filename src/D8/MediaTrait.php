@@ -93,7 +93,7 @@ trait MediaTrait {
       throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
     }
 
-    $bundles = \Drupal::entityTypeManager()->getBundleInfo('media');
+    $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
     if (!in_array($stub->bundle, array_keys($bundles))) {
       throw new \Exception("Cannot create media because provided bundle '$stub->bundle' does not exist.");
     }

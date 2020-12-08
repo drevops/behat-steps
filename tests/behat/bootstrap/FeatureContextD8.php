@@ -23,6 +23,7 @@ use IntegratedExperts\BehatSteps\D8\ContentTrait;
 use IntegratedExperts\BehatSteps\D8\EmailTrait;
 use IntegratedExperts\BehatSteps\D8\FileDownloadTrait;
 use IntegratedExperts\BehatSteps\D8\FileTrait;
+use IntegratedExperts\BehatSteps\D8\MediaTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -42,6 +43,7 @@ class FeatureContextD8 extends DrupalContext {
   use FileTrait;
   use FileDownloadTrait;
   use LinkTrait;
+  use MediaTrait;
   use PathTrait;
   use ResponseTrait;
   use UserTrait;
