@@ -24,4 +24,5 @@ function mysite_core_mail($key, &$message, $params) {
       $message['subject'] = t('Test Email');
       break;
   }
+  $message['body'][] = strval($params['body']) ?? '';
 }
