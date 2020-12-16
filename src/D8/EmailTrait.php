@@ -136,7 +136,7 @@ trait EmailTrait {
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
     foreach (self::emailGetCollectedEmails() as $email) {
-      $field_string = $email['params'][$field] ?? $email[$field];
+      $field_string = $email[$field] ?? '';
       $field_string = $exact ? $field_string : trim(preg_replace('/\s+/', ' ', $field_string));
       if (strpos($field_string, $string) !== FALSE) {
         return $email;
