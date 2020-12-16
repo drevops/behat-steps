@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
+use IntegratedExperts\BehatSteps\KeyboardTrait;
 
 /**
  * Trait WysiwygTrait.
@@ -11,6 +12,8 @@ use Behat\Mink\Exception\ElementNotFoundException;
  * Trait to handle WYSIWYG fields.
  */
 trait WysiwygTrait {
+
+  use KeyboardTrait;
 
   /**
    * Set value for WYSIWYG field.
@@ -77,7 +80,7 @@ trait WysiwygTrait {
 
     // Type value as keys into 'body' of iframe.
     foreach (str_split($value) as $char) {
-      $this->triggerKey('//body', $char);
+      $this->keyboardTriggerKey('//body', $char);
     }
 
     // Reset frame to the default window.
