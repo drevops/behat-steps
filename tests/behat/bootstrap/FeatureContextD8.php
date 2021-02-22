@@ -26,7 +26,6 @@ use IntegratedExperts\BehatSteps\D8\FileDownloadTrait;
 use IntegratedExperts\BehatSteps\D8\FileTrait;
 use IntegratedExperts\BehatSteps\D8\MediaTrait;
 use IntegratedExperts\BehatSteps\D8\MenuTrait;
-use IntegratedExperts\BehatSteps\D8\MenuLinkContentTrait;
 use IntegratedExperts\BehatSteps\D8\OverrideTrait;
 use IntegratedExperts\BehatSteps\D8\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D8\RoleTrait;
@@ -57,7 +56,6 @@ class FeatureContextD8 extends DrupalContext {
   use LinkTrait;
   use MediaTrait;
   use MenuTrait;
-  use MenuLinkContentTrait;
   use OverrideTrait;
   use ParagraphsTrait;
   use PathTrait;

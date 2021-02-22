@@ -4,9 +4,9 @@ Feature: Check that MenuTrait works for D8
   @api
   Scenario: Assert "Given menus:"
     Given menus:
-      | id          | label               | description             |
-      | test_menu_1 | [TEST] menu 1 title | Test menu 1 description |
-      | test_menu_2 | [TEST] menu 2 title | Test menu 2 description |
+      | label               | description             |
+      | [TEST] menu 1 title | Test menu 1 description |
+      | [TEST] menu 2 title | Test menu 2 description |
     And I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/menu"
     Then I should see the text "[TEST] menu 1 title"
@@ -16,10 +16,13 @@ Feature: Check that MenuTrait works for D8
 
   @api
   Scenario: Assert "Given no menus:"
+    Given menus:
+      | label               | description             |
+      | [TEST] menu 1 title | Test menu 1 description |
+      | [TEST] menu 2 title | Test menu 2 description |
     Given no menus:
-      | id          |
-      | test_menu_1 |
-      | test_menu_2 |
+      | [TEST] menu 1 title |
+      | [TEST] menu 2 title |
     And I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/menu"
     Then I should not see the text "[TEST] menu 1 title"
@@ -27,18 +30,16 @@ Feature: Check that MenuTrait works for D8
     And I should not see the text "Test menu 1 description"
     And I should not see the text "Test menu 2 description"
 
-  @api @wip
+  @api
   Scenario: Assert "Given menu_links:"
     Given menus:
-      | id          | label               | description             |
-      | test_menu_1 | [TEST] menu 1 title | Test menu 1 description |
-    Given menu_links:
-      | id    | uuid                                  | title             | menu_name   | enabled | link__uri               | parent                                                  |
-      | 99991 | aaaaaaaa-bbbb-ccccc-dddd-999999999991 | Parent Link Title | test_menu_1 | 1       | https://www.example.com |                                                         |
-      | 99992 | aaaaaaaa-bbbb-ccccc-dddd-999999999992 | Child Link Title  | test_menu_1 | 1       | https://www.example.com | menu_link_content:aaaaaaaa-bbbb-ccccc-dddd-999999999991 |
+      | label               | description             |
+      | [TEST] menu 1 title | Test menu 1 description |
+    Given "[TEST] menu 1 title" menu_links:
+      | title             | enabled | uri                     | parent            |
+      | Parent Link Title | 1       | https://www.example.com |                   |
+      | Child Link Title  | 1       | https://www.example.com | Parent Link Title |
     And I am logged in as a user with the "administrator" role
-    When I visit "/admin/structure/menu/manage/test_menu_1"
+    When I visit "/admin/structure/menu/manage/_test_menu_1_title"
     And I should see "Parent Link Title"
     And I should see "Child Link Title"
-    And I visit "/admin/structure/menu/item/99992/edit"
-    And select "menu_parent" should have option "test_menu_1:menu_link_content:aaaaaaaa-bbbb-ccccc-dddd-999999999991" selected
