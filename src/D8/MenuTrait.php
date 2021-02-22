@@ -27,9 +27,9 @@ trait MenuTrait {
   protected $menuLinks = [];
 
   /**
-   * Remove menu.
+   * Remove menu by menu name.
    *
-   * Provide menu data in the following format:
+   * Provide menu labels in the following format:
    * | Fish Menu    |
    * | ...          |
    *
@@ -58,6 +58,7 @@ trait MenuTrait {
   public function menuCreate(TableNode $table) {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
+        // Create menu id if one not provided.
         $menu_id = strtolower($menu_hash['label']);
         $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
         $menu_id = preg_replace('/_+/', '_', $menu_id);
@@ -70,13 +71,13 @@ trait MenuTrait {
   }
 
   /**
-   * Remove menu.
+   * Remove menu links by title.
    *
-   * Provide menu data in the following format:
+   * Provide menu link titles in the following format:
    * | Test Menu    |
    * | ...          |
    *
-   * @Given no <menu> menu_links:
+   * @Given no :menu_name menu_links:
    */
   public function menuLinksDelete($menu_name, TableNode $table) {
     foreach ($table->getColumn(0) as $title) {
@@ -88,11 +89,11 @@ trait MenuTrait {
   }
 
   /**
-   * Create a menu if one does not exist.
+   * Create menu links.
    *
-   * Provide menu data in the following format:
+   * Provide menu link data in the following format:
    *
-   * | title         | enabled | uri               | parent                   |
+   * | title         | enabled | uri                     | parent             |
    * | Parent Link   | 1       | https://www.example.com |                    |
    * | Child Link    | 1       | https://www.example.com | Parent Link        |
    * | ...           | ...     | ...                     | ...                |
@@ -106,7 +107,7 @@ trait MenuTrait {
       // Add uri to correct property.
       $menu_link_hash['link']['uri'] = $menu_link_hash['uri'];
       unset($menu_link_hash['uri']);
-      // Create parent property.
+      // Create parent property in format required.
       if (!empty($menu_link_hash['parent'])) {
         $parent_link = $this->loadMenuLinkByTitle($menu_link_hash['parent'], $menu_name);
         $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
@@ -172,7 +173,7 @@ trait MenuTrait {
   }
 
   /**
-   * Gets a menu link by title and menu.
+   * Gets a menu link by title and menu name.
    */
   protected function loadMenuLinkByTitle($title, $menu_name) {
     $menu = $this->loadMenuByLabel($menu_name);
