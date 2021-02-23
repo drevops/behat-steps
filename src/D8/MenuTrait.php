@@ -15,6 +15,8 @@ use Drupal\system\Entity\Menu;
 trait MenuTrait {
 
   /**
+   * Menus.
+   * 
    * @var \Drupal\system\Entity\Menu[]
    */
   protected $menus = [];
