@@ -16,7 +16,7 @@ trait MenuTrait {
 
   /**
    * Menus.
-   * 
+   *
    * @var \Drupal\system\Entity\Menu[]
    */
   protected $menus = [];
