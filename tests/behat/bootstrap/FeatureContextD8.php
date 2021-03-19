@@ -39,6 +39,7 @@ use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
 use IntegratedExperts\BehatSteps\ResponseTrait;
+use IntegratedExperts\BehatSteps\SelectTrait;
 
 /**
  * Defines application features from the specific context.
@@ -60,6 +61,7 @@ class FeatureContextD8 extends DrupalContext {
   use PathTrait;
   use ResponseTrait;
   use RoleTrait;
+  use SelectTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;

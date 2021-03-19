@@ -22,6 +22,8 @@ trait SelectTrait {
     if (is_null($optionElement)) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $select));
     }
+
+    return $optionElement;
   }
 
   /**
@@ -36,6 +38,26 @@ trait SelectTrait {
     $optionElement = $selectElement->find('named', ['option', $option]);
     if (!is_null($optionElement)) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $select));
+    }
+  }
+
+  /**
+   * @Then select :select should have option :option selected
+   */
+  public function selectShouldHaveOptionSelected($select, $option) {
+    $optionElement = $this->selectShouldHaveOption($select, $option);
+    if ($optionElement->getAttribute('selected') !== 'selected') {
+      throw new \InvalidArgumentException(sprintf('Option "%s" in select "%s" is not selected.', $option, $select));
+    }
+  }
+
+  /**
+   * @Then select :select should not have option :option selected
+   */
+  public function selectShouldHaveNotOptionSelected($select, $option) {
+    $optionElement = $this->selectShouldHaveOption($select, $option);
+    if ($optionElement->getAttribute('selected') === 'selected') {
+      throw new \InvalidArgumentException(sprintf('Option "%s" in select "%s" is selected, but should not.', $option, $select));
     }
   }
 
