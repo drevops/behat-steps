@@ -29,6 +29,7 @@ use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
 use IntegratedExperts\BehatSteps\ResponseTrait;
+use IntegratedExperts\BehatSteps\WaitTrait;
 
 /**
  * Defines application features from the specific context.
@@ -49,6 +50,7 @@ class FeatureContextD7 extends DrupalContext {
   use TaxonomyTrait;
   use UserTrait;
   use VariableTrait;
+  use WaitTrait;
   use WatchdogTrait;
 
   /**

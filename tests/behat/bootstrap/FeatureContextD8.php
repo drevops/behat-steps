@@ -40,6 +40,7 @@ use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
 use IntegratedExperts\BehatSteps\ResponseTrait;
 use IntegratedExperts\BehatSteps\SelectTrait;
+use IntegratedExperts\BehatSteps\WaitTrait;
 
 /**
  * Defines application features from the specific context.
@@ -67,6 +68,7 @@ class FeatureContextD8 extends DrupalContext {
   use UserTrait;
   use WatchdogTrait;
   use WebformTrait;
+  use WaitTrait;
   use WysiwygTrait;
 
   /**

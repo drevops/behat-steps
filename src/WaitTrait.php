@@ -13,7 +13,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 trait WaitTrait {
 
   /**
-   * @Then /^^(?:|I )wait (\d+) seconds$/
+   * @Then /^(?:|I )wait (\d+) second(s?)$/
    */
   public function waitSeconds($seconds) {
     sleep($seconds);
