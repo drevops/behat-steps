@@ -53,13 +53,13 @@ trait WatchdogTrait {
       return;
     }
 
-    if (!db_table_exists('watchdog')) {
+    if (!$this->getDatabase()->schema()->tableExists('watchdog')) {
       return;
     }
 
     // Select all logged entries for PHP channel that appeared from the start
     // of the scenario.
-    $entries = db_select('watchdog', 'w')
+    $entries = $this->getDatabase()->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', 'php', '=')
       ->condition('w.timestamp', $this->watchdogScenarioStartTime, '>=')
@@ -86,7 +86,7 @@ trait WatchdogTrait {
     }
 
     if (!empty($errors)) {
-      db_delete('watchdog')
+      $this->getDatabase()->delete('watchdog')
         ->condition('wid', array_keys($errors), 'IN')
         ->execute();
 

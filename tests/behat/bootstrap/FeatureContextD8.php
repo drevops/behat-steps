@@ -14,6 +14,7 @@
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\file\Entity\File;
@@ -72,11 +73,18 @@ class FeatureContextD8 extends DrupalContext {
   use WysiwygTrait;
 
   /**
+   * Default database connection object.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  private $database;
+
+  /**
    * @Then user :name does not exists
    */
   public function userDoesNotExist($name) {
     // We need to check that user was removed from both DB and test variables.
-    $user = user_load($name);
+    $user = $this->userGetByName($name);
 
     if ($user) {
       throw new \Exception(sprintf('User "%s" exists in DB but should not', $name));
@@ -105,8 +113,9 @@ class FeatureContextD8 extends DrupalContext {
    * @AfterFeature @errorcleanup
    */
   public static function cleanWatchdog(AfterFeatureScope $scope) {
-    if (db_table_exists('watchdog')) {
-      db_truncate('watchdog')->execute();
+    $database = Drupal\Core\Database\Database::getConnection();
+    if ($database->schema()->table('watchdog')) {
+      $database->truncate('watchdog')->execute();
     }
   }
 
@@ -250,6 +259,18 @@ class FeatureContextD8 extends DrupalContext {
     }
 
     return $query->execute();
+  }
+
+  /**
+   * Gets default instance of database connection.
+   *
+   * @return \Drupal\Core\Database\Connection
+   *   Connection object.
+   */
+  protected function getDatabase(): \Drupal\Core\Database\Connection {
+    $this->database = (isset($this->database)) ? $this->database : Database::getConnection();
+
+    return $this->database;
   }
 
 }
