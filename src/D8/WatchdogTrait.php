@@ -61,7 +61,7 @@ trait WatchdogTrait {
 
     // Select all logged entries for PHP channel that appeared from the start
     // of the scenario.
-    $entries = $$database->select('watchdog', 'w')
+    $entries = $database->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', 'php', '=')
       ->condition('w.timestamp', $this->watchdogScenarioStartTime, '>=')
