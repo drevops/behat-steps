@@ -14,6 +14,7 @@
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\file\Entity\File;
@@ -76,7 +77,8 @@ class FeatureContextD8 extends DrupalContext {
    */
   public function userDoesNotExist($name) {
     // We need to check that user was removed from both DB and test variables.
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+    $user = reset($users);
 
     if ($user) {
       throw new \Exception(sprintf('User "%s" exists in DB but should not', $name));
@@ -105,8 +107,8 @@ class FeatureContextD8 extends DrupalContext {
    * @AfterFeature @errorcleanup
    */
   public static function cleanWatchdog(AfterFeatureScope $scope) {
-    $database = Drupal\Core\Database\Database::getConnection();
-    if ($database->schema()->table('watchdog')) {
+    $database = Database::getConnection();
+    if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
     }
   }
