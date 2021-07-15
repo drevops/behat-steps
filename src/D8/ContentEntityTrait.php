@@ -15,17 +15,18 @@ trait ContentEntityTrait {
 
   /**
    * Custom content entities organised by entity type.
+   *
    * @var array
    */
   protected $contentEntities = [];
 
   /**
-   * Create custom entities
+   * Create custom entities.
    *
    * Provide entity data in the following format:
-   * | title  | parent | field_a     | field_b | ... |
-   * | Snook  | Fish   | Marine fish | 10      | ... |
-   * | ...    | ...    | ...         | ...     | ... |
+   * | title  | field_a     | field_b | ... |
+   * | Snook  | Marine fish | 10      | ... |
+   * | ...    | ...         | ...     | ... |
    *
    * @Given :bundle :entity_type entities:
    */
@@ -37,7 +38,7 @@ trait ContentEntityTrait {
   }
 
   /**
-   * Remove custom entities by field
+   * Remove custom entities by field.
    *
    * Provide custom entity data in the following format:
    *
@@ -82,15 +83,17 @@ trait ContentEntityTrait {
   }
 
   /**
-   * Helper to load multiple nodes with specified type and conditions.
+   * Helper to load multiple entities with specified type, bundle, conditions.
    *
-   * @param string $type
-   *   The node type.
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The entity bundle.
    * @param array $conditions
    *   Conditions keyed by field names.
    *
    * @return array
-   *   Array of node ids.
+   *   Array of entity ids.
    */
   protected function contentEntityLoadMultiple($entity_type, $bundle, array $conditions = []) {
     $query = \Drupal::entityQuery($entity_type)
@@ -109,9 +112,9 @@ trait ContentEntityTrait {
   /**
    * Helper to create custom content entities.
    *
-   * @param $entity_type
+   * @param string $entity_type
    *   The content entity type.
-   * @param $bundle
+   * @param string $bundle
    *   The content entity bundle.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
@@ -127,9 +130,9 @@ trait ContentEntityTrait {
   /**
    * Helper to create a single content entity.
    *
-   * @param $entity_type
+   * @param string $entity_type
    *   The content entity type.
-   * @param $entity
+   * @param object $entity
    *   The entity object.
    */
   protected function contentEntityCreate($entity_type, $entity) {
@@ -137,4 +140,5 @@ trait ContentEntityTrait {
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
     $this->contentEntities[$entity_type][] = $saved;
   }
+
 }
