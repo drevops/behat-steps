@@ -32,9 +32,11 @@ trait EmailTrait {
 
     $this->emailTypes = self::emailExtractTypes($scope->getScenario()->getTags());
 
-    if (!empty($this->emailTypes)) {
-      self::emailEnableTestEmailSystem();
+    if (empty($this->emailTypes)) {
+      $this->emailTypes[] = 'default';
     }
+
+    self::emailEnableTestEmailSystem();
   }
 
   /**
