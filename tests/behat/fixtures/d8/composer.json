@@ -11,6 +11,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/scheduled_transitions": "^2.1",
         "drupal/search_api": "^1.16",
+        "drupal/testmode": "^1@alpha",
         "drush/drush": "^10",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
