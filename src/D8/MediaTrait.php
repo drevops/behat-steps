@@ -5,6 +5,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\media\Entity\Media;
+use Drupal\user\Entity\User;
 
 /**
  * Trait MediaTrait.
@@ -153,6 +154,55 @@ trait MediaTrait {
         $stub->{$name} = $fixture_path . $value;
       }
     }
+  }
+
+  /**
+   * Navigate to edit media with specified type and name.
+   *
+   * @code
+   * When I edit "document" media "Test document"
+   * @endcode
+   *
+   * @When I edit :type media :name
+   */
+  public function mediaEditWithName($type, $name) {
+    $mids = $this->mediaLoadMultiple($type, [
+      'name' => $name,
+    ]);
+
+    if (empty($mids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s media "%s"', $type, $name));
+    }
+
+    $mid = current($mids);
+    $path = $this->locatePath('/media/' . $mid) . '/edit';
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Helper to load multiple media entities with specified type and conditions.
+   *
+   * @param string $type
+   *   The node type.
+   * @param array $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array
+   *   Array of node ids.
+   */
+  protected function mediaLoadMultiple($type, array $conditions = []) {
+    $query = \Drupal::entityQuery('media')
+      ->condition('bundle', $type)
+      ->addMetaData('account', User::load(1));
+
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }
