@@ -133,6 +133,24 @@ trait ContentTrait {
   }
 
   /**
+   * @When I visit :type :title scheduled transitions
+   */
+  public function contentVisitScheduledTransitionsPageWithTitle($type, $title) {
+    $nids = $this->contentNodeLoadMultiple($type, [
+      'title' => $title,
+    ]);
+
+    if (empty($nids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
+    }
+
+    $nid = current($nids);
+    $path = $this->locatePath('/node/' . $nid) . '/scheduled-transitions';
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
    * Helper to load multiple nodes with specified type and conditions.
    *
    * @param string $type

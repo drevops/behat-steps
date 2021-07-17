@@ -9,6 +9,7 @@
         "drupal/core-recommended": "^8",
         "drupal/paragraphs": "^1.9",
         "drupal/pathauto": "^1.8",
+        "drupal/scheduled_transitions": "^2.1",
         "drush/drush": "^10",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
