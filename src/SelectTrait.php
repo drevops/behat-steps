@@ -42,7 +42,7 @@ trait SelectTrait {
   /**
    * @Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
    */
-  public function theOptionFromSelectIsSelected($optionValue, $select) {
+  public function selectOptionSelected($optionValue, $select) {
     $selectField = $this->getSession()->getPage()->findField($select);
     $currentUrl = $this->getSession()->getCurrentUrl();
 
