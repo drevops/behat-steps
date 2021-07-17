@@ -15,6 +15,13 @@ use Drupal\Core\Database\Database;
 trait EmailTrait {
 
   /**
+   * List of email service types.
+   *
+   * @var array
+   */
+  protected $emailTypes = [];
+
+  /**
    * @BeforeScenario
    */
   public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
@@ -23,7 +30,9 @@ trait EmailTrait {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('email')) {
+    $this->emailTypes = self::emailExtractTypes($scope->getScenario()->getTags());
+
+    if (!empty($this->emailTypes)) {
       self::emailEnableTestEmailSystem();
     }
   }
@@ -46,27 +55,32 @@ trait EmailTrait {
    * @Given I enable the test email system
    */
   public function emailEnableTestEmailSystem() {
-    // Store the original system to restore after the scenario.
-    $original_test_system = self::emailGetMailSystemDefault();
-    // But store only if previous has not been stored yet.
-    if (!self::emailGetMailSystemOriginal()) {
-      self::emailSetMailSystemOriginal($original_test_system);
+    foreach ($this->emailTypes as $type) {
+      // Store the original system to restore after the scenario.
+      $original_test_system = self::emailGetMailSystemDefault($type);
+      // But store only if previous has not been stored yet.
+      if (!self::emailGetMailSystemOriginal($type)) {
+        self::emailSetMailSystemOriginal($type, $original_test_system);
+      }
+      // Set the test system.
+      self::emailSetMailSystemDefault($type, 'test_mail_collector');
     }
-    // Set the test system.
-    self::emailSetMailSystemDefault('test_mail_collector');
+
     // Flush the email buffer, allowing us to reuse this step definition
     // to clear existing mail.
-    self::emailClearTestEmailSystemQueue();
+    self::emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
    * @Given I disable the test email system
    */
   public function emailDisableTestEmailSystem() {
-    $original_test_system = self::emailGetMailSystemOriginal();
-    self::emailDeleteMailSystemOriginal();
-    // Restore the original system to after the scenario.
-    self::emailSetMailSystemDefault($original_test_system);
+    foreach ($this->emailTypes as $type) {
+      $original_test_system = self::emailGetMailSystemOriginal($type);
+      self::emailDeleteMailSystemOriginal();
+      // Restore the original system to after the scenario.
+      self::emailSetMailSystemDefault($type, $original_test_system);
+    }
 
     self::emailClearTestEmailSystemQueue(TRUE);
   }
@@ -220,15 +234,15 @@ trait EmailTrait {
   /**
    * Get default mail system value.
    */
-  protected static function emailGetMailSystemDefault() {
-    return \Drupal::config('system.mail')->get('interface.default');
+  protected static function emailGetMailSystemDefault($type = 'default') {
+    return \Drupal::config('system.mail')->get("interface.$type");
   }
 
   /**
    * Set default mail system value.
    */
-  protected static function emailSetMailSystemDefault($value) {
-    \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', $value)->save();
+  protected static function emailSetMailSystemDefault($type, $value) {
+    \Drupal::configFactory()->getEditable('system.mail')->set("interface.$type", $value)->save();
 
     // Maisystem module completely takes over default interface, so we need to
     // update it as well if the module is installed.
@@ -246,15 +260,15 @@ trait EmailTrait {
   /**
    * Get original mail system value.
    */
-  protected static function emailGetMailSystemOriginal() {
-    return \Drupal::config('system.mail_original')->get('interface.default');
+  protected static function emailGetMailSystemOriginal($type = 'default') {
+    return \Drupal::config('system.mail_original')->get("interface.$type");
   }
 
   /**
    * Set original mail system value.
    */
-  protected static function emailSetMailSystemOriginal($value) {
-    return \Drupal::configFactory()->getEditable('system.mail_original')->set('interface.default', $value)->save();
+  protected static function emailSetMailSystemOriginal($type, $value) {
+    return \Drupal::configFactory()->getEditable('system.mail_original')->set("interface.$type", $value)->save();
   }
 
   /**
@@ -294,6 +308,27 @@ trait EmailTrait {
     preg_match_all("#$pattern#i", $string, $matches);
 
     return !empty($matches[0]) ? $matches[0] : [];
+  }
+
+  /**
+   * Extract email types from tags.
+   */
+  protected static function emailExtractTypes($tags) {
+    $types = [];
+
+    foreach ($tags as $tag) {
+      if (strpos($tag, 'email') === 0) {
+        $parts = explode(':', $tag);
+        if (count($parts) > 1) {
+          $types[] = implode(':', array_slice($parts, 1));
+        }
+        else {
+          $types[] = 'default';
+        }
+      }
+    }
+
+    return $types;
   }
 
 }
