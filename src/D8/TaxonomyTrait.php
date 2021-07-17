@@ -101,7 +101,7 @@ trait TaxonomyTrait {
     ksort($tids);
 
     $tid = end($tids);
-    $path = $this->locatePath('/term/' . $tid);
+    $path = $this->locatePath('/taxonomy/term/' . $tid);
     print $path;
     $this->getSession()->visit($path);
   }
@@ -121,7 +121,7 @@ trait TaxonomyTrait {
     ksort($tids);
 
     $tid = end($tids);
-    $path = $this->locatePath('/term/' . $tid . '/edit');
+    $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
     print $path;
     $this->getSession()->visit($path);
   }
