@@ -88,6 +88,14 @@ trait FileTrait {
     }
 
     $destination = 'public://' . basename($path);
+    if (!empty($stub->uri)) {
+      $destination = $stub->uri;
+      $directory = dirname($destination);
+      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      if (!$dir) {
+        throw new \RuntimeException('Unable to prepare directory ' . $directory);
+      }
+    }
     $entity = file_save_data(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
 
     if (!$entity) {
