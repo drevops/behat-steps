@@ -50,9 +50,6 @@ trait ParagraphsTrait {
    * | ...                             | ...                  |
    *
    * @When :field_name in :bundle :entity_type with :entity_field_name of :entity_field_identifer has :paragraph_type paragraph:
-   *
-   * @usage "field_components" in "page_builder" "node" with "title" of "[TEST] Page Build node" has "basic_text"
-   *   paragraph
    */
   public function paragraphsAddToEntityWithFields($field_name, $bundle, $entity_type, $entity_field_name, $entity_field_identifer, $paragraph_type, TableNode $fields) {
     // Get paragraph field name for this entity type.
