@@ -127,9 +127,7 @@ commands:
 
   debug:
     usage: Enable debug configuration.
-    cmd: |
-      { ahoy cli php -v|grep -q Xdebug && ahoy title "Debug is already enabled"; } \
-      || { export XDEBUG_ENABLE="true" && ahoy up && ahoy cli php -v|grep -q Xdebug && ahoy title "Enabled debug configuration. Use 'ahoy up' to disable."; }
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
   # Utilities.
   confirm:
