@@ -27,6 +27,12 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev"
+        },
+        "enable-patching": true,
+        "patches": {
+            "drupal/drupal-driver": {
+                "Prevent PHP warning when creating a node with Drupal 7.79 and it's new field storage optimization": "https://patch-diff.githubusercontent.com/raw/jhedstrom/DrupalDriver/pull/233.patch"
+            }
         }
     },
     "config": {
