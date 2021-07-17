@@ -35,7 +35,6 @@ use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D8\TestmodeTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
-use IntegratedExperts\BehatSteps\D8\WebformTrait;
 use IntegratedExperts\BehatSteps\D8\WysiwygTrait;
 use IntegratedExperts\BehatSteps\ElementTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
@@ -72,7 +71,6 @@ class FeatureContextD8 extends DrupalContext {
   use TestmodeTrait;
   use UserTrait;
   use WatchdogTrait;
-  use WebformTrait;
   use WaitTrait;
   use WysiwygTrait;
 

@@ -1,0 +1,12 @@
+views_node:
+  - content
+  - content_test
+views_term: {  }
+views_user:
+  - user_admin_people
+pattern_node: '[MYTEST%'
+pattern_term: '[MYTEST%'
+pattern_user: '%example%'
+list_term: true
+_core:
+  default_config_hash: 54JWmARxlmi_PaC_VS5f2wtibDJGF67PlaUEoDA97Zg
