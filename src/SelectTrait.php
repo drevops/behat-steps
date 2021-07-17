@@ -22,8 +22,6 @@ trait SelectTrait {
     if (is_null($optionElement)) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $select));
     }
-
-    return $optionElement;
   }
 
   /**
@@ -42,22 +40,27 @@ trait SelectTrait {
   }
 
   /**
-   * @Then select :select should have option :option selected
+   * @Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
    */
-  public function selectShouldHaveOptionSelected($select, $option) {
-    $optionElement = $this->selectShouldHaveOption($select, $option);
-    if ($optionElement->getAttribute('selected') !== 'selected') {
-      throw new \InvalidArgumentException(sprintf('Option "%s" in select "%s" is not selected.', $option, $select));
-    }
-  }
+  public function theOptionFromSelectIsSelected($optionValue, $select) {
+    $selectField = $this->getSession()->getPage()->findField($select);
+    $currentUrl = $this->getSession()->getCurrentUrl();
 
-  /**
-   * @Then select :select should not have option :option selected
-   */
-  public function selectShouldHaveNotOptionSelected($select, $option) {
-    $optionElement = $this->selectShouldHaveOption($select, $option);
-    if ($optionElement->getAttribute('selected') === 'selected') {
-      throw new \InvalidArgumentException(sprintf('Option "%s" in select "%s" is selected, but should not.', $option, $select));
+    if (!$selectField) {
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $select, $currentUrl));
+    }
+
+    $optionField = $selectField->find('named', [
+      'option',
+      $optionValue,
+    ]);
+
+    if (!$optionField) {
+      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $select, $currentUrl));
+    }
+
+    if (!$optionField->isSelected()) {
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $optionValue, $currentUrl));
     }
   }
 
