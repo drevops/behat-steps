@@ -5,6 +5,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
+use Drupal\Core\Database\Database;
 
 /**
  * Trait EmailTrait.
@@ -269,7 +270,7 @@ trait EmailTrait {
   protected static function emailGetCollectedEmails() {
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
-    $emails = array_map('unserialize', db_query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
+    $emails = array_map('unserialize', Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
 
     return !empty($emails['system.test_mail_collector']) ? $emails['system.test_mail_collector'] : [];
   }

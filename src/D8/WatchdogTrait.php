@@ -4,6 +4,7 @@ namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Drupal\Core\Database\Database;
 
 /**
  * Trait WatchdogTrait.
@@ -42,6 +43,7 @@ trait WatchdogTrait {
    * @AfterScenario
    */
   public function watchdogAssertErrors(AfterScenarioScope $scope) {
+    $database = Database::getConnection();
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -53,13 +55,13 @@ trait WatchdogTrait {
       return;
     }
 
-    if (!db_table_exists('watchdog')) {
+    if (!$database->schema()->tableExists('watchdog')) {
       return;
     }
 
     // Select all logged entries for PHP channel that appeared from the start
     // of the scenario.
-    $entries = db_select('watchdog', 'w')
+    $entries = $database->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', 'php', '=')
       ->condition('w.timestamp', $this->watchdogScenarioStartTime, '>=')
@@ -86,7 +88,7 @@ trait WatchdogTrait {
     }
 
     if (!empty($errors)) {
-      db_delete('watchdog')
+      $database->delete('watchdog')
         ->condition('wid', array_keys($errors), 'IN')
         ->execute();
 
