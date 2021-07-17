@@ -3,9 +3,11 @@
 namespace IntegratedExperts\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\user\Entity\User;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Trait FileTrait.
@@ -18,6 +20,30 @@ trait FileTrait {
    * @var array
    */
   protected $files = [];
+
+  /**
+   * Ensures private and temp directories exist.
+   *
+   * @BeforeScenario
+   */
+  public function fileBeforeScenarioInit(BeforeScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    $fs = new Filesystem();
+
+    $dir = \Drupal::service('file_system')->realpath('private://');
+    if ($dir && !$fs->exists($dir)) {
+      $fs->mkdir($dir);
+    }
+
+    $dir = \Drupal::service('file_system')->realpath('temporary://');
+    if ($dir && !$fs->exists($dir)) {
+      $fs->mkdir($dir);
+    }
+  }
 
   /**
    * @Given managed file:
