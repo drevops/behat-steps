@@ -30,6 +30,7 @@ use IntegratedExperts\BehatSteps\D8\MenuTrait;
 use IntegratedExperts\BehatSteps\D8\OverrideTrait;
 use IntegratedExperts\BehatSteps\D8\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D8\RoleTrait;
+use IntegratedExperts\BehatSteps\D8\SearchApiTrait;
 use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D8\TestmodeTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
@@ -66,6 +67,7 @@ class FeatureContextD8 extends DrupalContext {
   use ResponseTrait;
   use RoleTrait;
   use SelectTrait;
+  use SearchApiTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
