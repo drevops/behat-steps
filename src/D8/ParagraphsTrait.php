@@ -2,6 +2,7 @@
 
 namespace IntegratedExperts\BehatSteps\D8;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
@@ -10,6 +11,36 @@ use Drupal\paragraphs\Entity\Paragraph;
  * Trait ParagraphsTrait.
  */
 trait ParagraphsTrait {
+
+  /**
+   * Array of created paragraph entities.
+   *
+   * @var array
+   */
+  protected $paragraph = [];
+
+  /**
+   * Remove any created paragraph items.
+   *
+   * @AfterScenario
+   */
+  public function paragraphCleanAll(AfterScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    foreach ($this->paragraph as $paragraph) {
+      try {
+        $paragraph->delete();
+      }
+      catch (\Exception $exception) {
+        // Ignore the exception and move on.
+        continue;
+      }
+    }
+    $this->paragraph = [];
+  }
 
   /**
    * Creates paragraphs of the given type with fields for existing entity.
@@ -80,6 +111,7 @@ trait ParagraphsTrait {
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
     $entity->set($entity_field_name, $new_value)->save();
+    $this->paragraph[] = $paragraph;
     return $paragraph;
   }
 
