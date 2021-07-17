@@ -17,20 +17,18 @@ trait ParagraphsTrait {
    *
    * @var array
    */
-  protected $paragraph = [];
+  protected static $paragraphs = [];
 
   /**
-   * Remove any created paragraph items.
-   *
    * @AfterScenario
    */
-  public function paragraphCleanAll(AfterScenarioScope $scope) {
+  public function paragraphsCleanAll(AfterScenarioScope $scope) {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
-    foreach ($this->paragraph as $paragraph) {
+    foreach (static::$paragraphs as $paragraph) {
       try {
         $paragraph->delete();
       }
@@ -39,7 +37,7 @@ trait ParagraphsTrait {
         continue;
       }
     }
-    $this->paragraph = [];
+    static::$paragraphs = [];
   }
 
   /**
@@ -111,7 +109,9 @@ trait ParagraphsTrait {
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
     $entity->set($entity_field_name, $new_value)->save();
-    $this->paragraph[] = $paragraph;
+
+    static::$paragraphs[] = $paragraph;
+
     return $paragraph;
   }
 
@@ -131,6 +131,7 @@ trait ParagraphsTrait {
     }
 
     $entity_id = array_pop($entity_ids);
+
     return \Drupal::entityTypeManager()->getStorage($conditions['entity_type'])->load($entity_id);
   }
 
