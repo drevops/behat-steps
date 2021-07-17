@@ -107,6 +107,26 @@ trait TaxonomyTrait {
   }
 
   /**
+   * @When I edit :vocabulary vocabulary term :name
+   */
+  public function taxonomyEditTermPageWithName($vocabulary, $name) {
+    $tids = $this->taxonomyLoadMultiple($vocabulary, [
+      'name' => $name,
+    ]);
+
+    if (empty($tids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $vocabulary, $name));
+    }
+
+    ksort($tids);
+
+    $tid = end($tids);
+    $path = $this->locatePath('/term/' . $tid . '/edit');
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
    * Helper to load multiple terms with specified vocabulary and conditions.
    *
    * @param string $vocabulary
