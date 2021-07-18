@@ -32,3 +32,13 @@ Feature: Check that ContentTrait works for D8
       | [TEST] Page title |
     And I go to "content/test-page-title"
     Then I should get a 404 HTTP response
+
+  @api
+  Scenario: Assert visiting scheduled transition page with title of specified content type
+    Given page content:
+      | title             |
+      | [TEST] Page title |
+    And I am logged in as a user with the "administrator" role
+    When I visit page "[TEST] Page title" scheduled transitions
+    Then I should see "[TEST] Page title"
+    And save screenshot

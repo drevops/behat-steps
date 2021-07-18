@@ -30,12 +30,13 @@ use IntegratedExperts\BehatSteps\D8\MenuTrait;
 use IntegratedExperts\BehatSteps\D8\OverrideTrait;
 use IntegratedExperts\BehatSteps\D8\ParagraphsTrait;
 use IntegratedExperts\BehatSteps\D8\RoleTrait;
+use IntegratedExperts\BehatSteps\D8\SearchApiTrait;
 use IntegratedExperts\BehatSteps\D8\TaxonomyTrait;
 use IntegratedExperts\BehatSteps\D8\TestmodeTrait;
 use IntegratedExperts\BehatSteps\D8\UserTrait;
 use IntegratedExperts\BehatSteps\D8\WatchdogTrait;
-use IntegratedExperts\BehatSteps\D8\WebformTrait;
 use IntegratedExperts\BehatSteps\D8\WysiwygTrait;
+use IntegratedExperts\BehatSteps\ElementTrait;
 use IntegratedExperts\BehatSteps\FieldTrait;
 use IntegratedExperts\BehatSteps\LinkTrait;
 use IntegratedExperts\BehatSteps\PathTrait;
@@ -52,6 +53,7 @@ class FeatureContextD8 extends DrupalContext {
   use ContentTrait;
   use DraggableViewsTrait;
   use EmailTrait;
+  use ElementTrait;
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
@@ -64,11 +66,11 @@ class FeatureContextD8 extends DrupalContext {
   use ResponseTrait;
   use RoleTrait;
   use SelectTrait;
+  use SearchApiTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
   use WatchdogTrait;
-  use WebformTrait;
   use WaitTrait;
   use WysiwygTrait;
 

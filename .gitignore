@@ -4,3 +4,4 @@ build
 screenshots
 .env.local
 docker-compose.override.yml
+todo.txt

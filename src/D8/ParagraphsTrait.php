@@ -2,6 +2,7 @@
 
 namespace IntegratedExperts\BehatSteps\D8;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
@@ -10,6 +11,34 @@ use Drupal\paragraphs\Entity\Paragraph;
  * Trait ParagraphsTrait.
  */
 trait ParagraphsTrait {
+
+  /**
+   * Array of created paragraph entities.
+   *
+   * @var array
+   */
+  protected static $paragraphs = [];
+
+  /**
+   * @AfterScenario
+   */
+  public function paragraphsCleanAll(AfterScenarioScope $scope) {
+    // Allow to skip this by adding a tag.
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    foreach (static::$paragraphs as $paragraph) {
+      try {
+        $paragraph->delete();
+      }
+      catch (\Exception $exception) {
+        // Ignore the exception and move on.
+        continue;
+      }
+    }
+    static::$paragraphs = [];
+  }
 
   /**
    * Creates paragraphs of the given type with fields for existing entity.
@@ -21,9 +50,6 @@ trait ParagraphsTrait {
    * | ...                             | ...                  |
    *
    * @When :field_name in :bundle :entity_type with :entity_field_name of :entity_field_identifer has :paragraph_type paragraph:
-   *
-   * @usage "field_components" in "page_builder" "node" with "title" of "[TEST] Page Build node" has "basic_text"
-   *   paragraph
    */
   public function paragraphsAddToEntityWithFields($field_name, $bundle, $entity_type, $entity_field_name, $entity_field_identifer, $paragraph_type, TableNode $fields) {
     // Get paragraph field name for this entity type.
@@ -80,6 +106,9 @@ trait ParagraphsTrait {
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
     $entity->set($entity_field_name, $new_value)->save();
+
+    static::$paragraphs[] = $paragraph;
+
     return $paragraph;
   }
 
@@ -99,6 +128,7 @@ trait ParagraphsTrait {
     }
 
     $entity_id = array_pop($entity_ids);
+
     return \Drupal::entityTypeManager()->getStorage($conditions['entity_type'])->load($entity_id);
   }
 

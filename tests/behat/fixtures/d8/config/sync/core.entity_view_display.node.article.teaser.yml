@@ -30,6 +30,11 @@ content:
       trim_length: 600
     third_party_settings: {  }
     label: hidden
+  content_moderation_control:
+    weight: -20
+    settings: {  }
+    third_party_settings: {  }
+    region: content
   field_image:
     type: image
     weight: -1
@@ -55,3 +60,5 @@ hidden:
   field_file: true
   field_image: true
   field_tags: true
+  langcode: true
+  search_api_excerpt: true

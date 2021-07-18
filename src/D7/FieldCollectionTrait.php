@@ -53,7 +53,7 @@ trait FieldCollectionTrait {
         throw new \RuntimeException(sprintf('Field name missing for "%s"', $field));
       }
 
-      list($field_name, $fc_field_name) = explode(':', $field, 2);
+      [$field_name, $fc_field_name] = explode(':', $field, 2);
       $fc_field_names = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_field_name);
       $node_field_types = self::$fieldCollectionCoreDriver->getCore()
         ->getEntityFieldTypes('node', $field_name);
@@ -169,7 +169,7 @@ trait FieldCollectionTrait {
       // Start tracking a new multicolumn field if the field name contains a ':'
       // which is preceded by at least 1 character.
       elseif (strpos($field, ':', 1) !== FALSE) {
-        list($multicolumn_field, $multicolumn_column) = explode(':', $field);
+        [$multicolumn_field, $multicolumn_column] = explode(':', $field);
       }
       // If a field name starts with a ':' but we are not yet tracking a
       // multicolumn field we don't know to which field this belongs.
@@ -195,7 +195,7 @@ trait FieldCollectionTrait {
             foreach (explode(' - ', $value) as $column) {
               // Check if it is an inline named column.
               if (!$is_multicolumn && strpos($column, ': ', 1) !== FALSE) {
-                list ($key, $column) = explode(': ', $column);
+                [$key, $column] = explode(': ', $column);
                 $columns[$key] = $column;
               }
               else {

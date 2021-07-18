@@ -101,7 +101,27 @@ trait TaxonomyTrait {
     ksort($tids);
 
     $tid = end($tids);
-    $path = $this->locatePath('/term/' . $tid);
+    $path = $this->locatePath('/taxonomy/term/' . $tid);
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * @When I edit :vocabulary vocabulary term :name
+   */
+  public function taxonomyEditTermPageWithName($vocabulary, $name) {
+    $tids = $this->taxonomyLoadMultiple($vocabulary, [
+      'name' => $name,
+    ]);
+
+    if (empty($tids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $vocabulary, $name));
+    }
+
+    ksort($tids);
+
+    $tid = end($tids);
+    $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
     print $path;
     $this->getSession()->visit($path);
   }
