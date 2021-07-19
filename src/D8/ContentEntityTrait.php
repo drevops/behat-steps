@@ -15,30 +15,29 @@ trait ContentEntityTrait {
 
   /**
    * Custom content entities organised by entity type.
-   *
    * @var array
    */
   protected $contentEntities = [];
 
   /**
-   * Create custom entities.
+   * Create custom entities
    *
    * Provide entity data in the following format:
-   * | title  | field_a     | field_b | ... |
-   * | Snook  | Marine fish | 10      | ... |
-   * | ...    | ...         | ...     | ... |
+   * | title  | parent | field_a     | field_b | ... |
+   * | Snook  | Fish   | Marine fish | 10      | ... |
+   * | ...    | ...    | ...         | ...     | ... |
    *
    * @Given :bundle :entity_type entities:
    */
   public function contentEntitiesCreate($bundle, $entity_type, TableNode $table) {
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // Delete entities before creating them.
-    $this->contentEntitiesDelete($bundle, $entity_type, $table);
+    $this->contentEntitiesDelete($bundle, $entity_type, $filtered_table);
     $this->createContentEntities($entity_type, $bundle, $table);
   }
 
   /**
-   * Remove custom entities by field.
+   * Remove custom entities by field
    *
    * Provide custom entity data in the following format:
    *
@@ -53,7 +52,9 @@ trait ContentEntityTrait {
 
       $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
       $entities = $controller->loadMultiple($entity_ids);
-      $controller->delete($entities);
+      foreach ($entities as $entity) {
+        $entity->delete();
+      }
     }
   }
 
@@ -83,7 +84,7 @@ trait ContentEntityTrait {
   }
 
   /**
-   * Helper to load multiple entities with specified type, bundle, conditions.
+   * Helper to load multiple entities with specified type and conditions.
    *
    * @param string $entity_type
    *   The entity type.
@@ -112,9 +113,9 @@ trait ContentEntityTrait {
   /**
    * Helper to create custom content entities.
    *
-   * @param string $entity_type
+   * @param $entity_type
    *   The content entity type.
-   * @param string $bundle
+   * @param $bundle
    *   The content entity bundle.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
@@ -130,15 +131,43 @@ trait ContentEntityTrait {
   /**
    * Helper to create a single content entity.
    *
-   * @param string $entity_type
+   * @param $entity_type
    *   The content entity type.
-   * @param object $entity
+   * @param $entity
    *   The entity object.
    */
   protected function contentEntityCreate($entity_type, $entity) {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
     $this->contentEntities[$entity_type][] = $saved;
+  }
+
+  /**
+   * Navigate to edit content entity with specified type and label(title).
+   *
+   * @code
+   * When I edit "contact" "contact" "Test contact"
+   * @endcode
+   *
+   * @When I edit :entity_type :entity_bundle :label
+   */
+  public function contentEditEntityWithTitle($entity_type, $entity_bundle, $label) {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_type_definition = $entity_type_manager->getDefinition($entity_bundle);
+    $label_key = $entity_type_definition->getKey('label');
+    $entity_ids = $this->contentEntityLoadMultiple($entity_type, $entity_bundle, [
+      $label_key => $label,
+    ]);
+
+    if (empty($entity_ids)) {
+      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $entity_type, $label));
+    }
+
+    $entity_id = current($entity_ids);
+    $entity = $entity_type_manager->getStorage($entity_bundle)->load($entity_id);
+    $path = $entity->toUrl('edit-form')->toString();
+    print $path;
+    $this->getSession()->visit($path);
   }
 
 }
