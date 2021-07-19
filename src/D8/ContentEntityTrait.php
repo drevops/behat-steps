@@ -15,12 +15,13 @@ trait ContentEntityTrait {
 
   /**
    * Custom content entities organised by entity type.
+   *
    * @var array
    */
   protected $contentEntities = [];
 
   /**
-   * Create custom entities
+   * Create custom entities.
    *
    * Provide entity data in the following format:
    * | title  | parent | field_a     | field_b | ... |
@@ -37,7 +38,7 @@ trait ContentEntityTrait {
   }
 
   /**
-   * Remove custom entities by field
+   * Remove custom entities by field.
    *
    * Provide custom entity data in the following format:
    *
@@ -113,9 +114,9 @@ trait ContentEntityTrait {
   /**
    * Helper to create custom content entities.
    *
-   * @param $entity_type
+   * @param string $entity_type
    *   The content entity type.
-   * @param $bundle
+   * @param string $bundle
    *   The content entity bundle.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
@@ -131,9 +132,9 @@ trait ContentEntityTrait {
   /**
    * Helper to create a single content entity.
    *
-   * @param $entity_type
+   * @param string $entity_type
    *   The content entity type.
-   * @param $entity
+   * @param object $entity
    *   The entity object.
    */
   protected function contentEntityCreate($entity_type, $entity) {
