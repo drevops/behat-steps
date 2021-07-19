@@ -39,9 +39,11 @@ trait MenuTrait {
    */
   public function menuDelete(TableNode $table) {
     foreach ($table->getColumn(0) as $label) {
-      $menu = $this->loadMenuByLabel($label);
-      if ($menu) {
+      try {
+        $menu = $this->loadMenuByLabel($label);
         $menu->delete();
+      }
+      catch (\Exception $e) {
       }
     }
   }
