@@ -21,8 +21,9 @@ Feature: Check that MenuTrait works for D8
       | [TEST] menu 1 title | Test menu 1 description |
       | [TEST] menu 2 title | Test menu 2 description |
     Given no menus:
-      | [TEST] menu 1 title |
-      | [TEST] menu 2 title |
+      | [TEST] menu 1 title      |
+      | [TEST] menu 2 title      |
+      | [TEST] non-existent menu |
     And I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/menu"
     Then I should not see the text "[TEST] menu 1 title"
