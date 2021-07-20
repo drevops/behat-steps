@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use Drupal\DrupalExtension\Hook\Scope\BeforeUserCreateScope;
@@ -8,7 +8,7 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeUserCreateScope;
 /**
  * Trait DomainTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait DomainTrait {
 

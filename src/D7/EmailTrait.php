@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\PyStringNode;
 /**
  * Trait EmailTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait EmailTrait {
 

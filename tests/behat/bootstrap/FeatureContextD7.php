@@ -14,22 +14,22 @@
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Drupal\DrupalExtension\Context\DrupalContext;
-use IntegratedExperts\BehatSteps\D7\ContentTrait;
-use IntegratedExperts\BehatSteps\D7\EmailTrait;
-use IntegratedExperts\BehatSteps\D7\FieldCollectionTrait;
-use IntegratedExperts\BehatSteps\D7\FileDownloadTrait;
-use IntegratedExperts\BehatSteps\D7\FileTrait;
-use IntegratedExperts\BehatSteps\D7\MediaTrait;
-use IntegratedExperts\BehatSteps\D7\ParagraphsTrait;
-use IntegratedExperts\BehatSteps\D7\TaxonomyTrait;
-use IntegratedExperts\BehatSteps\D7\UserTrait;
-use IntegratedExperts\BehatSteps\D7\VariableTrait;
-use IntegratedExperts\BehatSteps\D7\WatchdogTrait;
-use IntegratedExperts\BehatSteps\FieldTrait;
-use IntegratedExperts\BehatSteps\LinkTrait;
-use IntegratedExperts\BehatSteps\PathTrait;
-use IntegratedExperts\BehatSteps\ResponseTrait;
-use IntegratedExperts\BehatSteps\WaitTrait;
+use DrevOps\BehatSteps\D7\ContentTrait;
+use DrevOps\BehatSteps\D7\EmailTrait;
+use DrevOps\BehatSteps\D7\FieldCollectionTrait;
+use DrevOps\BehatSteps\D7\FileDownloadTrait;
+use DrevOps\BehatSteps\D7\FileTrait;
+use DrevOps\BehatSteps\D7\MediaTrait;
+use DrevOps\BehatSteps\D7\ParagraphsTrait;
+use DrevOps\BehatSteps\D7\TaxonomyTrait;
+use DrevOps\BehatSteps\D7\UserTrait;
+use DrevOps\BehatSteps\D7\VariableTrait;
+use DrevOps\BehatSteps\D7\WatchdogTrait;
+use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\LinkTrait;
+use DrevOps\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\WaitTrait;
 
 /**
  * Defines application features from the specific context.

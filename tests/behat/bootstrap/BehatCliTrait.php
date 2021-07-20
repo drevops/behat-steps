@@ -57,7 +57,7 @@ trait BehatCliTrait {
       '{{USE_IN_CLASS}}' => '',
     ];
     foreach ($traits as $trait) {
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use IntegratedExperts\\BehatSteps\\%s;' . PHP_EOL, $trait);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s;' . PHP_EOL, $trait);
       $trait_name__parts = explode('\\', $trait);
       $trait_name = end($trait_name__parts);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);

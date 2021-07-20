@@ -3,7 +3,7 @@ aliases:
   - &container_config
     working_directory: /app
     docker:
-      - image: integratedexperts/circleci2-builder
+      - image: drevops/ci-builder
         environment:
           DRUPAL_VERSION: 8
 
@@ -26,7 +26,7 @@ jobs:
   build_d7:
     <<: *build
     docker:
-      - image: integratedexperts/circleci2-builder
+      - image: drevops/ci-builder
         environment:
           DRUPAL_VERSION: 7
 

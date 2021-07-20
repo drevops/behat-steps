@@ -1,13 +1,13 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 /**
  * Trait OverrideTrait.
  *
  * Used to override standard Drupal Extension methods.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait OverrideTrait {
 
