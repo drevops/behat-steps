@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D8;
+namespace DrevOps\BehatSteps\D8;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Cache\Cache;

@@ -1,13 +1,13 @@
 {
-    "name": "integratedexperts/behat-steps",
+    "name": "drevops/behat-steps",
     "type": "library",
     "description": "Collection of Behat traits",
     "license": "GPL-2.0-or-later",
     "autoload": {
         "psr-4": {
-            "IntegratedExperts\\BehatSteps\\": "src/",
-            "IntegratedExperts\\BehatSteps\\D7\\": "src/D7/",
-            "IntegratedExperts\\BehatSteps\\D8\\": "src/D8/"
+            "DrevOps\\BehatSteps\\": "src/",
+            "DrevOps\\BehatSteps\\D7\\": "src/D7/",
+            "DrevOps\\BehatSteps\\D8\\": "src/D8/"
         }
     },
     "require": {

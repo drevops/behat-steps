@@ -1,10 +1,10 @@
 # Behat Steps
 Collection of Behat steps for Drupal 8 and Drupal 7 development.
 
-[![CircleCI](https://circleci.com/gh/integratedexperts/behat-steps.svg?style=shield)](https://circleci.com/gh/integratedexperts/behat-steps)
-[![Latest Stable Version](https://poser.pugx.org/integratedexperts/behat-steps/v/stable)](https://packagist.org/packages/integratedexperts/behat-steps)
-[![Total Downloads](https://poser.pugx.org/integratedexperts/behat-steps/downloads)](https://packagist.org/packages/integratedexperts/behat-steps)
-[![License](https://poser.pugx.org/integratedexperts/behat-steps/license)](https://packagist.org/packages/integratedexperts/behat-steps)
+[![CircleCI](https://circleci.com/gh/drevops/behat-steps.svg?style=shield)](https://circleci.com/gh/drevops/behat-steps)
+[![Latest Stable Version](https://poser.pugx.org/drevops/behat-steps/v/stable)](https://packagist.org/packages/drevops/behat-steps)
+[![Total Downloads](https://poser.pugx.org/drevops/behat-steps/downloads)](https://packagist.org/packages/drevops/behat-steps)
+[![License](https://poser.pugx.org/drevops/behat-steps/license)](https://packagist.org/packages/drevops/behat-steps)
 
 # Why traits?
 Usually, such packages implement own Drupal driver with several contexts, service containers and a lot of other useful architectural structures.
@@ -12,7 +12,7 @@ But for this simple library, using traits helps to lower entry barrier for usage
 This package may later be refactored to use proper architecture. 
 
 # Installation
-`composer require --dev integratedexperts/behat-steps`
+`composer require --dev drevops/behat-steps`
 
 # Usage
 Add required traits to `FeatureContext.php`:
@@ -21,7 +21,7 @@ Add required traits to `FeatureContext.php`:
 <?php
 
 use Drupal\DrupalExtension\Context\DrupalContext;
-use IntegratedExperts\BehatSteps\D7\ContentTrait;
+use DrevOps\BehatSteps\D7\ContentTrait;
 
 /**
  * Defines application features from the specific context.

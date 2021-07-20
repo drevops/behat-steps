@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -8,7 +8,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 /**
  * Trait WaitTrait.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait WaitTrait {
 

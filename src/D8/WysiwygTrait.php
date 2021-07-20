@@ -1,10 +1,10 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D8;
+namespace DrevOps\BehatSteps\D8;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
-use IntegratedExperts\BehatSteps\KeyboardTrait;
+use DrevOps\BehatSteps\KeyboardTrait;
 
 /**
  * Trait WysiwygTrait.

@@ -1,13 +1,13 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 
 /**
  * Trait Field.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait FieldTrait {
 

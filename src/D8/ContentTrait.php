@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D8;
+namespace DrevOps\BehatSteps\D8;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
@@ -8,7 +8,7 @@ use Drupal\user\Entity\User;
 /**
  * Trait ContentTrait.
  *
- * @package IntegratedExperts\BehatSteps\D8
+ * @package DrevOps\BehatSteps\D8
  */
 trait ContentTrait {
 
