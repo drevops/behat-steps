@@ -1,13 +1,13 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 use Behat\Gherkin\Node\TableNode;
 
 /**
  * Trait ParagraphsTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait ParagraphsTrait {
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 /**
  * Trait MediaTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait MediaTrait {
 

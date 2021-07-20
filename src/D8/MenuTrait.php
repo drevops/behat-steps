@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D8;
+namespace DrevOps\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
@@ -10,7 +10,7 @@ use Drupal\system\Entity\Menu;
 /**
  * Trait MenuTrait.
  *
- * @package IntegratedExperts\BehatSteps\D8
+ * @package DrevOps\BehatSteps\D8
  */
 trait MenuTrait {
 
@@ -39,9 +39,11 @@ trait MenuTrait {
    */
   public function menuDelete(TableNode $table) {
     foreach ($table->getColumn(0) as $label) {
-      $menu = $this->loadMenuByLabel($label);
-      if ($menu) {
+      try {
+        $menu = $this->loadMenuByLabel($label);
         $menu->delete();
+      }
+      catch (\Exception $e) {
       }
     }
   }

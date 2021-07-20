@@ -1,11 +1,11 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 /**
  * Trait PathTrait.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait PathTrait {
 

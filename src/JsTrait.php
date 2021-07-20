@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Driver\Selenium2Driver;
@@ -8,7 +8,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 /**
  * Trait JsTrait.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait JsTrait {
 

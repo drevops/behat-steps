@@ -1,11 +1,11 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 /**
  * Trait VisibilityTrait.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait VisibilityTrait {
 

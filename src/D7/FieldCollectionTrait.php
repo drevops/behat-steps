@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D7;
+namespace DrevOps\BehatSteps\D7;
 
 use Drupal\Driver\DrupalDriver;
 use Drupal\DrupalExtension\Hook\Scope\AfterNodeCreateScope;
@@ -9,7 +9,7 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 /**
  * Trait FieldCollectionTrait.
  *
- * @package IntegratedExperts\BehatSteps\D7
+ * @package DrevOps\BehatSteps\D7
  */
 trait FieldCollectionTrait {
 

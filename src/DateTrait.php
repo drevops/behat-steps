@@ -1,11 +1,11 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps;
+namespace DrevOps\BehatSteps;
 
 /**
  * Trait DateTrait.
  *
- * @package IntegratedExperts\BehatSteps
+ * @package DrevOps\BehatSteps
  */
 trait DateTrait {
 

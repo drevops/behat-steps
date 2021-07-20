@@ -1,6 +1,6 @@
 <?php
 
-namespace IntegratedExperts\BehatSteps\D8;
+namespace DrevOps\BehatSteps\D8;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -9,7 +9,7 @@ use Drupal\Core\Database\Database;
 /**
  * Trait WatchdogTrait.
  *
- * @package IntegratedExperts\BehatSteps\D8
+ * @package DrevOps\BehatSteps\D8
  */
 trait WatchdogTrait {
 
