@@ -150,7 +150,7 @@ trait ContentEntityTrait {
    * When I edit "contact" "contact" with title "Test contact"
    * @endcode
    *
-   * @When I edit :entity_type :entity_bundle :label
+   * @When I edit :entity_type :entity_bundle with title :label
    */
   public function contentEditEntityWithTitle($entity_type, $entity_bundle, $label) {
     $entity_type_manager = \Drupal::entityTypeManager();
