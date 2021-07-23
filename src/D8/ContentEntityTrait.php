@@ -147,7 +147,7 @@ trait ContentEntityTrait {
    * Navigate to edit content entity with specified type and label(title).
    *
    * @code
-   * When I edit "contact" "contact" "Test contact"
+   * When I edit "contact" "contact" with title "Test contact"
    * @endcode
    *
    * @When I edit :entity_type :entity_bundle :label
