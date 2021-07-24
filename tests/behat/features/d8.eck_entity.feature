@@ -1,4 +1,4 @@
-@d8 @wip
+@d8
 Feature: Check that EckEntityTrait works for D8
 
   Background:
