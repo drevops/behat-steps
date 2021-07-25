@@ -18,7 +18,7 @@ default:
         - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
 
   extensions:
-    Behat\MinkExtension:
+    Drupal\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
