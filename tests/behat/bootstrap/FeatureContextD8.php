@@ -14,7 +14,7 @@
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
-use DrevOps\BehatSteps\D8\EckEntityTrait;
+use DrevOps\BehatSteps\D8\EckTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -52,7 +52,7 @@ class FeatureContextD8 extends DrupalContext {
 
   use BigPipeTrait;
   use ContentTrait;
-  use EckEntityTrait;
+  use EckTrait;
   use DraggableViewsTrait;
   use EmailTrait;
   use ElementTrait;

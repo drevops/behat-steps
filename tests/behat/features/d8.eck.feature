@@ -1,5 +1,5 @@
 @d8
-Feature: Check that EckEntityTrait works for D8
+Feature: Check that EckTrait works for D8
 
   Background:
     Given I am logged in as a user with the "administrator" role

@@ -7,11 +7,11 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
 
 /**
- * Trait ContentEntityTrait.
+ * Trait EckTrait.
  *
  * @package IntegratedExperts\BehatSteps\D8
  */
-trait EckEntityTrait {
+trait EckTrait {
 
   /**
    * Custom eck content entities organised by entity type.
@@ -33,8 +33,8 @@ trait EckEntityTrait {
   public function eckEntitiesCreate($bundle, $entity_type, TableNode $table) {
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // Delete entities before creating them.
-    $this->eckEntitiesDelete($bundle, $entity_type, $filtered_table);
-    $this->createContentEntities($entity_type, $bundle, $table);
+    $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
+    $this->eckCreateEntities($entity_type, $bundle, $table);
   }
 
   /**
@@ -47,7 +47,7 @@ trait EckEntityTrait {
    *
    * @Given no :bundle :entity_type entities:
    */
-  public function eckEntitiesDelete($bundle, $entity_type, TableNode $table) {
+  public function eckDeleteEntities($bundle, $entity_type, TableNode $table) {
     foreach ($table->getHash() as $nodeHash) {
       $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, $nodeHash);
 
@@ -121,11 +121,11 @@ trait EckEntityTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
    */
-  protected function createContentEntities($entity_type, $bundle, TableNode $table) {
+  protected function eckCreateEntities($entity_type, $bundle, TableNode $table) {
     foreach ($table->getHash() as $entity_hash) {
       $entity = (object) $entity_hash;
       $entity->type = $bundle;
-      $this->eckEntityCreate($entity_type, $entity);
+      $this->eckCreateEntity($entity_type, $entity);
     }
   }
 
@@ -137,7 +137,7 @@ trait EckEntityTrait {
    * @param object $entity
    *   The entity object.
    */
-  protected function eckEntityCreate($entity_type, $entity) {
+  protected function eckCreateEntity($entity_type, $entity) {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
     $this->eckEntities[$entity_type][] = $saved;
@@ -152,7 +152,7 @@ trait EckEntityTrait {
    *
    * @When I edit :bundle :entity_type with title :label
    */
-  public function contentEditEckEntityWithTitle($bundle, $entity_type, $label) {
+  public function eckEditEntityWithTitle($bundle, $entity_type, $label) {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
       'title' => $label,
@@ -177,7 +177,7 @@ trait EckEntityTrait {
    *
    * @When I visit :bundle :entity_type with title :label
    */
-  public function contentVisitEckEntityPageWithTitle($bundle, $entity_type, $label) {
+  public function eckVisitEntityPageWithTitle($bundle, $entity_type, $label) {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
       'title' => $label,
