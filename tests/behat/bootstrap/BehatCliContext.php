@@ -336,7 +336,7 @@ EOL;
      */
     public function theOutputShouldContain(PyStringNode $text)
     {
-        Assert::assertContains($this->getExpectedOutput($text), $this->getOutput());
+        Assert::assertStringContainsString($this->getExpectedOutput($text), $this->getOutput());
     }
 
     private function getExpectedOutput(PyStringNode $expectedText)

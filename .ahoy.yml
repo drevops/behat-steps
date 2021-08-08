@@ -92,6 +92,7 @@ commands:
       chmod -Rf 777 $BUILD || true
       rm -rf \
         ./vendor \
+        ./composer.lock \
         ./$BUILD
 
   reset:
