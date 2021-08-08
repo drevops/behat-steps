@@ -12,7 +12,10 @@ aliases:
     steps:
       - checkout
       - setup_remote_docker
-      - run: .circleci/build.sh
+      - run:
+          name: Build
+          command: .circleci/build.sh
+          no_output_timeout: 30m
       - run: .circleci/test.sh
       - run:
           name: Process artifacts
@@ -20,7 +23,6 @@ aliases:
           when: always
       - store_artifacts:
           path: /tmp/artifacts
-          when: always
 
 jobs:
   build_d7:
