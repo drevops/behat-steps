@@ -18,7 +18,7 @@ default:
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
 
   extensions:
-    Behat\MinkExtension:
+    Drupal\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
@@ -33,9 +33,11 @@ default:
       api_driver: drupal
       drush_driver: drush
       drupal:
-        drupal_root: build/docroot
+        # Behat would run from within "build" dir.
+        drupal_root: docroot
       drush:
-        root: build/docroot
+        # Behat would run from within "build" dir.
+        root: docroot
       selectors:
         message_selector: '.messages'
         error_message_selector: '.messages.error'
