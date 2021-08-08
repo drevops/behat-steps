@@ -81,7 +81,11 @@ commands:
       ahoy title "Installing fixture Drupal $DRUPAL_VERSION site"
       ahoy cli "chmod -Rf 777 \$APP/\$BUILD || true; rm -Rf \$APP/\$BUILD || true; mkdir -p \$APP/\$WEBROOT"
       ahoy cli "cp -Rf \$APP/\$FIXTURES/d\$DRUPAL_VERSION/. \$APP/\$BUILD/"
-      ahoy cli "composer --working-dir=\$APP/\$BUILD install --prefer-dist --no-suggest"
+      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):$APP/ || true
+      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD
+      docker cp -L tests $(docker-compose ps -q cli):$APP/$BUILD
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):$APP/$BUILD
+      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=\$APP/\$BUILD install --prefer-dist --no-suggest"
       ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' \$APP/\$BUILD/vendor/bin/drush -r \$APP/\$WEBROOT si standard -y --db-url=mysql://drupal:drupal@\$AMAZEEIO_DB_HOST/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
       ahoy cli "composer --working-dir=\$APP/\$BUILD drupal-post-install"
 
@@ -105,11 +109,13 @@ commands:
   install-dev:
     usage: Install dependencies.
     cmd: |
-      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
-      docker cp -L behat.yml $(docker-compose ps -q cli):/app/
-      docker cp -L tests $(docker-compose ps -q cli):/app/
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-      ahoy cli "composer install -n --ansi --prefer-dist --no-suggest"
+      ahoy cli "mkdir -p \$APP/\$BUILD"
+      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):$APP/ || true
+      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD/
+      docker cp -L tests $(docker-compose ps -q cli):$APP/$BUILD/
+      docker cp -L tests $(docker-compose ps -q cli):$APP/
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):$APP/
+      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
     hide: true
 
   update-fixtures:
@@ -124,7 +130,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "./vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
+    cmd: ahoy cli "cd $APP/$BUILD && vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
 
   debug:
     usage: Enable debug configuration.

@@ -26,12 +26,12 @@
         "drush/drush": "^8",
         "library/ckeditor": "^4.9"
     },
+    "require-dev": {
+        "wikimedia/composer-merge-plugin": "^2"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "platform": {
-            "php": "7.1.16"
-        },
         "process-timeout": 0,
         "sort-packages": true
     },
@@ -57,6 +57,11 @@
         }
     },
     "extra": {
+        "merge-plugin": {
+            "include": [
+                "../composer.json"
+            ]
+        },
         "installer-paths": {
             "docroot": [
                 "type:drupal-core"
