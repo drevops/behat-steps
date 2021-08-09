@@ -61,7 +61,7 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 - `pygmy up`
-- `ahoy build` for Drupal 8 build or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
+- `ahoy build` for Drupal 8 build, or `DRUPAL_VERSION=9 ahoy build` for Drupal 9, or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
 - Access built site at http://behat-steps.docker.amazee.io/  
 
 Please note that you will need to rebuild to work on a different Drupal version.
@@ -86,5 +86,5 @@ To debug tests from CLI:
 
 To update fixtures:
 - Make required changes in the installed fixture site
-- Run `ahoy drush cex -y` for Drupal 8 or `ahoy drush fua -y` for Drupal 7
-- Run `ahoy update-fixtures` for Drupal 8 or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 
+- Run `ahoy drush cex -y` for Drupal 8/9 or `ahoy drush fua -y` for Drupal 7
+- Run `ahoy update-fixtures` for Drupal 8, or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9, or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 

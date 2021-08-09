@@ -21,7 +21,8 @@ default:
     Drupal\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
-      files_path: '%paths.base%/tests/behat/fixtures'
+      # This file is copied into "build" directory, but runs tests from the root of the project.
+      files_path: '%paths.base%/../tests/behat/fixtures'
       browser_name: chrome
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
@@ -53,6 +54,12 @@ d8:
     cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: "@d8&&~@skipped"
+
+d9:
+  gherkin:
+    cache: '/tmp/behat_gherkin_cache'
+    filters:
+      tags: "@d9&&~@skipped"
 
 d7:
   gherkin:

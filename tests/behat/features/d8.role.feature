@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that RoleTrait works for D8
 
   @api

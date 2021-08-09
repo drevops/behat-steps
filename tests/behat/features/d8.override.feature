@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that OverrideTrait works for D8
 
   @api

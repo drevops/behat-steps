@@ -111,10 +111,10 @@ commands:
     cmd: |
       ahoy cli "mkdir -p \$APP/\$BUILD"
       [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):$APP/ || true
-      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD/
-      docker cp -L tests $(docker-compose ps -q cli):$APP/$BUILD/
       docker cp -L tests $(docker-compose ps -q cli):$APP/
       docker cp -L phpcs.xml $(docker-compose ps -q cli):$APP/
+      # Copy file to the $BUILD to run Behat from within the $BUILD fixture directory.
+      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD/
       ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
     hide: true
 

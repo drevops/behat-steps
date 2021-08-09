@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that FileDownloadTrait works for D8
 
   Background:
