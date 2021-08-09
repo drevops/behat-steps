@@ -24,7 +24,6 @@
  */
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Output\Node\EventListener\JUnit\JUnitDurationListener;
 use Behat\Gherkin\Node\PyStringNode;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Process\PhpExecutableFinder;

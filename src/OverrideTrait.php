@@ -1,6 +1,6 @@
 <?php
 
-namespace DrevOps\BehatSteps\D8;
+namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 
@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\TableNode;
  *
  * Used to override standard Drupal Extension methods.
  *
- * @package DrevOps\BehatSteps\D8
+ * @package DrevOps\BehatSteps
  */
 trait OverrideTrait {
 

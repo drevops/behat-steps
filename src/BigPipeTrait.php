@@ -1,6 +1,6 @@
 <?php
 
-namespace DrevOps\BehatSteps\D8;
+namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Driver\Selenium2Driver;

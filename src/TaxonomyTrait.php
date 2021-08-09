@@ -1,6 +1,6 @@
 <?php
 
-namespace DrevOps\BehatSteps\D8;
+namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -9,7 +9,7 @@ use Drupal\user\Entity\User;
 /**
  * Trait TaxonomyTrait.
  *
- * @package DrevOps\BehatSteps\D8
+ * @package DrevOps\BehatSteps
  */
 trait TaxonomyTrait {
 

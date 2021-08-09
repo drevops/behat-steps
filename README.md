@@ -21,7 +21,7 @@ Add required traits to `FeatureContext.php`:
 <?php
 
 use Drupal\DrupalExtension\Context\DrupalContext;
-use DrevOps\BehatSteps\D7\ContentTrait;
+use DrevOps\BehatSteps\ContentTrait;
 
 /**
  * Defines application features from the specific context.
