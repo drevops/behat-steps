@@ -20,4 +20,4 @@ Feature: Check that WatchdogTrait works for D7
 
   @api @error
   Scenario: Assert that watchdog track errors with level above threshold
-   Given set Drupal7 watchdog error level 4
+    Given set Drupal7 watchdog error level 4

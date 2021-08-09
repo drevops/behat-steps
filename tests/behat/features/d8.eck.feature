@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that EckTrait works for D8
 
   Background:
@@ -11,8 +11,9 @@ Feature: Check that EckTrait works for D8
       | name |
       | T2   |
     And test_bundle test_entity_type entities:
-    | title | field_test_text | field_test_reference |
-    | [TEST] ECK Entity    | Test text field | T2                   |
+      | title             | field_test_text | field_test_reference |
+      | [TEST] ECK Entity | Test text field | T2                   |
+
   @api
   Scenario: Assert "When I edit :bundle :entity_type with title :label"
     When I edit test_bundle test_entity_type with title "[TEST] ECK Entity"

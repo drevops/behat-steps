@@ -5,9 +5,9 @@ Feature: Behat CLI context
   by running Behat through CLI.
 
   - Assert that BehatCliContext context itself can be bootstrapped by Behat,
-    including failed runs assertions.
+  including failed runs assertions.
   - Assert that DrupalContext can be autoloaded by Behat and that DrupalContext
-    can bootstrap Drupal site.
+  can bootstrap Drupal site.
   - Assert that DrupalSteps trait can be autoloaded by Behat
 
   Background:
