@@ -55,6 +55,12 @@ d8:
     filters:
       tags: "@d8&&~@skipped"
 
+d9:
+  gherkin:
+    cache: '/tmp/behat_gherkin_cache'
+    filters:
+      tags: "@d9&&~@skipped"
+
 d7:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
