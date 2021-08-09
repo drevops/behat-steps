@@ -13,7 +13,6 @@
 
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
-use Drupal\DrupalExtension\Context\DrupalContext;
 use DrevOps\BehatSteps\D7\ContentTrait;
 use DrevOps\BehatSteps\D7\EmailTrait;
 use DrevOps\BehatSteps\D7\FieldCollectionTrait;
@@ -30,6 +29,7 @@ use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
 use DrevOps\BehatSteps\WaitTrait;
+use Drupal\DrupalExtension\Context\DrupalContext;
 
 /**
  * Defines application features from the specific context.

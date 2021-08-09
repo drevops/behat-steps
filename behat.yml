@@ -10,7 +10,7 @@ default:
     default:
       paths: [ '%paths.base%/tests/behat/features' ]
       contexts:
-        - FeatureContextD8
+        - FeatureContext
         - BehatCliContext
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext

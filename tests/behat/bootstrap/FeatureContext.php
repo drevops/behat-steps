@@ -14,41 +14,41 @@
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
-use DrevOps\BehatSteps\D8\EckTrait;
+use DrevOps\BehatSteps\BigPipeTrait;
+use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\DraggableViewsTrait;
+use DrevOps\BehatSteps\EckTrait;
+use DrevOps\BehatSteps\ElementTrait;
+use DrevOps\BehatSteps\EmailTrait;
+use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\FileDownloadTrait;
+use DrevOps\BehatSteps\FileTrait;
+use DrevOps\BehatSteps\LinkTrait;
+use DrevOps\BehatSteps\MediaTrait;
+use DrevOps\BehatSteps\MenuTrait;
+use DrevOps\BehatSteps\OverrideTrait;
+use DrevOps\BehatSteps\ParagraphsTrait;
+use DrevOps\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\RoleTrait;
+use DrevOps\BehatSteps\SearchApiTrait;
+use DrevOps\BehatSteps\SelectTrait;
+use DrevOps\BehatSteps\TaxonomyTrait;
+use DrevOps\BehatSteps\TestmodeTrait;
+use DrevOps\BehatSteps\UserTrait;
+use DrevOps\BehatSteps\WaitTrait;
+use DrevOps\BehatSteps\WatchdogTrait;
+use DrevOps\BehatSteps\WysiwygTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\file\Entity\File;
 use Drupal\user\Entity\User;
-use DrevOps\BehatSteps\D8\BigPipeTrait;
-use DrevOps\BehatSteps\D8\ContentTrait;
-use DrevOps\BehatSteps\D8\DraggableViewsTrait;
-use DrevOps\BehatSteps\D8\EmailTrait;
-use DrevOps\BehatSteps\D8\FileDownloadTrait;
-use DrevOps\BehatSteps\D8\FileTrait;
-use DrevOps\BehatSteps\D8\MediaTrait;
-use DrevOps\BehatSteps\D8\MenuTrait;
-use DrevOps\BehatSteps\D8\OverrideTrait;
-use DrevOps\BehatSteps\D8\ParagraphsTrait;
-use DrevOps\BehatSteps\D8\RoleTrait;
-use DrevOps\BehatSteps\D8\SearchApiTrait;
-use DrevOps\BehatSteps\D8\TaxonomyTrait;
-use DrevOps\BehatSteps\D8\TestmodeTrait;
-use DrevOps\BehatSteps\D8\UserTrait;
-use DrevOps\BehatSteps\D8\WatchdogTrait;
-use DrevOps\BehatSteps\D8\WysiwygTrait;
-use DrevOps\BehatSteps\ElementTrait;
-use DrevOps\BehatSteps\FieldTrait;
-use DrevOps\BehatSteps\LinkTrait;
-use DrevOps\BehatSteps\PathTrait;
-use DrevOps\BehatSteps\ResponseTrait;
-use DrevOps\BehatSteps\SelectTrait;
-use DrevOps\BehatSteps\WaitTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContextD8 extends DrupalContext {
+class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
   use ContentTrait;
@@ -77,6 +77,18 @@ class FeatureContextD8 extends DrupalContext {
   use WysiwygTrait;
 
   /**
+   * Clean watchdog after feature with an error.
+   *
+   * @AfterFeature @errorcleanup
+   */
+  public static function cleanWatchdog(AfterFeatureScope $scope) {
+    $database = Database::getConnection();
+    if ($database->schema()->tableExists('watchdog')) {
+      $database->truncate('watchdog')->execute();
+    }
+  }
+
+  /**
    * @Then user :name does not exists
    */
   public function userDoesNotExist($name) {
@@ -99,22 +111,10 @@ class FeatureContextD8 extends DrupalContext {
   }
 
   /**
-   * @Given set Drupal8 watchdog error level :level
+   * @Given set watchdog error level :level
    */
   public function setWatchdogErrorDrupal8($level) {
     \Drupal::logger('php')->log($level, 'test');
-  }
-
-  /**
-   * Clean watchdog after feature with an error.
-   *
-   * @AfterFeature @errorcleanup
-   */
-  public static function cleanWatchdog(AfterFeatureScope $scope) {
-    $database = Database::getConnection();
-    if ($database->schema()->tableExists('watchdog')) {
-      $database->truncate('watchdog')->execute();
-    }
   }
 
   /**
@@ -125,17 +125,6 @@ class FeatureContextD8 extends DrupalContext {
 
     if (!isset($cookies[$name])) {
       throw new \Exception(sprintf('Cookie "%s" does not exist.', $name));
-    }
-  }
-
-  /**
-   * @Given cookie :name does not exist
-   */
-  public function assertCookieNotExists($name) {
-    $cookies = $this->getCookies();
-
-    if (isset($cookies[$name])) {
-      throw new \Exception(sprintf('Cookie "%s" exists but should not.', $name));
     }
   }
 
@@ -158,6 +147,17 @@ class FeatureContextD8 extends DrupalContext {
     }
 
     return $cookie_list;
+  }
+
+  /**
+   * @Given cookie :name does not exist
+   */
+  public function assertCookieNotExists($name) {
+    $cookies = $this->getCookies();
+
+    if (isset($cookies[$name])) {
+      throw new \Exception(sprintf('Cookie "%s" exists but should not.', $name));
+    }
   }
 
   /**

@@ -6,8 +6,7 @@
     "autoload": {
         "psr-4": {
             "DrevOps\\BehatSteps\\": "src/",
-            "DrevOps\\BehatSteps\\D7\\": "src/D7/",
-            "DrevOps\\BehatSteps\\D8\\": "src/D8/"
+            "DrevOps\\BehatSteps\\D7\\": "src/D7/"
         }
     },
     "require": {

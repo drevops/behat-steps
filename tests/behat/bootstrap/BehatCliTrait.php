@@ -87,7 +87,7 @@ class FeatureContext extends DrupalContext {
   }  
 
   /**
-   * @Given set Drupal8 watchdog error level :level
+   * @Given set watchdog error level :level
    */
   public function setWatchdogErrorDrupal8($level) {
     \Drupal::logger('php')->log($level, 'test');

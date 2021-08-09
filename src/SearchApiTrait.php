@@ -1,13 +1,13 @@
 <?php
 
-namespace DrevOps\BehatSteps\D8;
+namespace DrevOps\BehatSteps;
 
 use Drupal\node\Entity\Node;
 
 /**
  * Trait SearchApiTrait.
  *
- * @package DrevOps\BehatSteps\D8
+ * @package DrevOps\BehatSteps
  */
 trait SearchApiTrait {
 
