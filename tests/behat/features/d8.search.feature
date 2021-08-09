@@ -1,4 +1,4 @@
-@d8 @search
+@d8 @d9 @search
 Feature: Ensure Search work.
 
   Background:

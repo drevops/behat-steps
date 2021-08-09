@@ -17,10 +17,10 @@
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
+    "require-dev": {
+        "wikimedia/composer-merge-plugin": "^2"
+    },
     "config": {
-        "platform": {
-            "php": "7.3"
-        },
         "process-timeout": 0,
         "sort-packages": true
     },
@@ -39,6 +39,11 @@
         }
     },
     "extra": {
+        "merge-plugin": {
+            "include": [
+                "../composer.json"
+            ]
+        },
         "drupal-scaffold": {
             "locations": {
                 "web-root": "./docroot"

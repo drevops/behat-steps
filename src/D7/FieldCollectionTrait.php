@@ -56,7 +56,7 @@ trait FieldCollectionTrait {
       [$field_name, $fc_field_name] = explode(':', $field, 2);
       $fc_field_names = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_field_name);
       $node_field_types = self::$fieldCollectionCoreDriver->getCore()
-        ->getEntityFieldTypes('node', $field_name);
+        ->getEntityFieldTypes('node', [$field_name]);
       // Although node field parser may validate filed existence, we still need
       // to do it here before validating its type.
       if (!array_key_exists($field_name, $node_field_types)) {

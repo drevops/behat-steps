@@ -15,13 +15,14 @@ default:
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
-        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
 
   extensions:
-    Behat\MinkExtension:
+    Drupal\MinkExtension:
       goutte: ~
       base_url: http://nginx:8080
-      files_path: '%paths.base%/tests/behat/fixtures'
+      # This file is copied into "build" directory, but runs tests from the root of the project.
+      files_path: '%paths.base%/../tests/behat/fixtures'
       browser_name: chrome
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
@@ -33,27 +34,32 @@ default:
       api_driver: drupal
       drush_driver: drush
       drupal:
-        drupal_root: build/docroot
+        # Behat would run from within "build" dir.
+        drupal_root: docroot
       drush:
-        root: build/docroot
+        # Behat would run from within "build" dir.
+        root: docroot
       selectors:
         message_selector: '.messages'
         error_message_selector: '.messages.error'
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
     # Allows to capture HTML and JPG screenshots (based on the driver used).
-    IntegratedExperts\BehatScreenshotExtension:
-      dir: %paths.base%/screenshots
-      fail: true
-      purge: false
+    DrevOps\BehatScreenshotExtension: ~
     # Show explicit fail information and continue the test run.
-    IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+    DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 d8:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: "@d8&&~@skipped"
+
+d9:
+  gherkin:
+    cache: '/tmp/behat_gherkin_cache'
+    filters:
+      tags: "@d9&&~@skipped"
 
 d7:
   gherkin:
@@ -68,4 +74,4 @@ d7:
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
-        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext

@@ -1,4 +1,4 @@
-@d8 @errorcleanup
+@d8 @d9 @errorcleanup
 Feature: Check that WatchdogTrait works for D8
 
   @trait:D8\WatchdogTrait
