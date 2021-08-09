@@ -1,4 +1,4 @@
-@d8 @wip11
+@d8
 Feature: Ensure TestmodeTrait works.
 
   Background:

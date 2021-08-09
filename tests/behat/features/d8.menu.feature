@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that MenuTrait works for D8
 
   @api

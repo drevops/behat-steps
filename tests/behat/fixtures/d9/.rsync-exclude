@@ -1,0 +1,13 @@
+- .rsync-exclude
+- vendor/
+- node_modules/
+- composer.lock
+- README.txt
+- example*
++ config
++ docroot
++ docroot/modules
++ docroot/modules/custom
+- docroot/modules/contrib
+- docroot/modules/*
+- docroot/*

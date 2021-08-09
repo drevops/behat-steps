@@ -1,4 +1,4 @@
-@d8
+@d8 @d9
 Feature: Check that email assertions work for D8
 
   @api
