@@ -66,7 +66,7 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 
 Please note that you will need to rebuild to work on a different Drupal version.
 
-Use `ahoy --help` to see the list of available commands.   
+Use `ahoy --help` to see the list of available commands.
 
 ### Behat tests
 After every `ahoy build`, a new installation of Drupal is created in `build` directory.
@@ -74,7 +74,9 @@ This project uses fixture Drupal sites (sites with pre-defined configuration)
 in order to simplify testing (i.e., the test does not create a content type
 but rather uses a content type created from configuration during site installation).
 
-- Run all tests: `ahoy test-bdd`
+- Run all tests for Drupal 8: `ahoy test-bdd`
+- Run all tests for Drupal 7: `DRUPAL_VERSION=7 ahoy test-bdd`
+- Run all tests for Drupal 9: `DRUPAL_VERSION=9 ahoy test-bdd`
 - Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
 - Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
 - Tests tagged with `@d7` or `@d8` will be ran for Drupal 7 and Drupal 8 respectively.
@@ -87,4 +89,12 @@ To debug tests from CLI:
 To update fixtures:
 - Make required changes in the installed fixture site
 - Run `ahoy drush cex -y` for Drupal 8/9 or `ahoy drush fua -y` for Drupal 7
-- Run `ahoy update-fixtures` for Drupal 8, or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9, or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 
+- Run `ahoy update-fixtures` for Drupal 8, or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9, or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory.
+
+#### Writing / Updating tests
+
+When developing new test features that to commit new tests, test features must be updated in the
+tests directory in `build/tests/behat/features` directory in order to run the tests locally.
+
+Importantly remember that the build directory gets deleted / rebuilt on build and so to copy back 
+any test feature changes to the `/tests/behat/features` directory to commit these changes to the repository.

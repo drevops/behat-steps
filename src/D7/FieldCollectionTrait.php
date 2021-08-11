@@ -53,8 +53,8 @@ trait FieldCollectionTrait {
         throw new \RuntimeException(sprintf('Field name missing for "%s"', $field));
       }
 
-      [$field_name, $fc_field_name] = explode(':', $field, 2);
-      $fc_field_names = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_field_name);
+      [$field_name, $fc_field_names] = explode(':', $field, 2);
+      $fc_field_names = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_field_names);
       $node_field_types = self::$fieldCollectionCoreDriver->getCore()
         ->getEntityFieldTypes('node', [$field_name]);
       // Although node field parser may validate filed existence, we still need
@@ -68,16 +68,25 @@ trait FieldCollectionTrait {
         // that is handled by the drupal raw context, so we just let it through.
         continue;
       }
-
-      $fc_field_values = explode(self::fieldCollectionGetInstanceDelimiter(), $field_value);
-
-      if (count($fc_field_values) > count($fc_field_names)) {
-        throw new \RuntimeException(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', $field_name, count($fc_field_values), count($fc_field_names)));
+      $fc_values = explode(self::fieldCollectionGetMultiValueDelimiter(), $field_value);
+      $value_cardinality = count($fc_values);
+      if ($value_cardinality > 1) {
+        $field_info = field_info_field($field_name);
+        $field_cardinality = (int) $field_info['cardinality'];
+        if ($field_cardinality !== FIELD_CARDINALITY_UNLIMITED && $value_cardinality > $field_cardinality) {
+          throw new \RuntimeException(sprintf('Field `%s` allows only %s but received %s', $field_name, $field_cardinality, $value_cardinality));
+        }
       }
+      foreach ($fc_values as $element => $fc_value) {
+        $fc_field_values = explode(self::fieldCollectionGetInstanceDelimiter(), $fc_value);
 
-      // Track fields for each found field collection.
-      foreach ($fc_field_values as $fc_field_key => $fc_field_value) {
-        $fc_fields[$field_name][0][$fc_field_names[$fc_field_key]] = trim($fc_field_values[$fc_field_key]);
+        if (count($fc_field_values) > count($fc_field_names)) {
+          throw new \RuntimeException(sprintf('Provided more field collection values for field "%s" then expected: provided %s, but expected %s', $field_name, count($fc_field_values), count($fc_field_names)));
+        }
+        // Track fields for each found field collection.
+        foreach ($fc_field_values as $fc_field_key => $fc_field_value) {
+          $fc_fields[$field_name][$element][$fc_field_names[$fc_field_key]] = trim($fc_field_values[$fc_field_key]);
+        }
       }
       unset($node->{$field});
     }
@@ -240,6 +249,13 @@ trait FieldCollectionTrait {
    */
   protected static function fieldCollectionGetInstanceDelimiter() {
     return ';';
+  }
+
+  /**
+   * Get the multi-value delimeter for field collection instances values.
+   */
+  protected static function fieldCollectionGetMultiValueDelimiter() {
+    return ',';
   }
 
   /**
