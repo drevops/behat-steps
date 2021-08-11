@@ -74,7 +74,7 @@ trait FieldCollectionTrait {
         $field_info = field_info_field($field_name);
         $field_cardinality = (int) $field_info['cardinality'];
         if ($field_cardinality !== FIELD_CARDINALITY_UNLIMITED && $value_cardinality > $field_cardinality) {
-          throw new \RuntimeException(sprintf('Field `%s` allows only %s but received %s', $field_name, $field_cardinality, $value_cardinality));
+          throw new \RuntimeException(sprintf('Field `%s` allows only %s values but received %s', $field_name, $field_cardinality, $value_cardinality));
         }
       }
       foreach ($fc_values as $element => $fc_value) {
