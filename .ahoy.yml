@@ -100,11 +100,13 @@ commands:
     usage: Remove containers and all build files.
     cmd: |
       ahoy down
-      chmod -Rf 777 build || true
+      sleep 5
+      chmod -Rf 777 build 2>&1 > /dev/null || true
       rm -rf \
         ./vendor \
         ./composer.lock \
-        ./build || true
+        ./build \
+        2>&1 > /dev/null || true
 
   reset:
     usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
