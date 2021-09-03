@@ -22,8 +22,8 @@ commands:
       ahoy line "Project                  : " $(ahoy cli echo \${PROJECT})
       ahoy line "Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
       ahoy line "Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
-      ahoy line "Path to project          : " $(ahoy cli echo \$APP)
-      ahoy line "Path to docroot          : " $(ahoy cli echo \$APP/\$WEBROOT)
+      ahoy line "Path to project          : " $(ahoy cli echo /app)
+      ahoy line "Path to docroot          : " $(ahoy cli echo /app/build/docroot)
       ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
       ahoy line "Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
       if [ "$1" ]; then
@@ -68,7 +68,7 @@ commands:
 
   drush:
     usage: Run drush commands in the CLI service container.
-    cmd: docker exec -i $(docker-compose ps -q cli) $APP/$BUILD/vendor/bin/drush -r $APP/$WEBROOT -l ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io} "$@"
+    cmd: docker-compose exec -T cli bash -c "drush -l ${LOCALDEV_URL} $*"
 
   # Application commands.
   login:
@@ -76,28 +76,35 @@ commands:
     cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
 
   install-site:
-    usage: Install a site.
+    usage: Install a fixture test site.
     cmd: |
       ahoy title "Installing fixture Drupal $DRUPAL_VERSION site"
-      ahoy cli "chmod -Rf 777 \$APP/\$BUILD || true; rm -Rf \$APP/\$BUILD || true; mkdir -p \$APP/\$WEBROOT"
-      ahoy cli "cp -Rf \$APP/\$FIXTURES/d\$DRUPAL_VERSION/. \$APP/\$BUILD/"
-      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):$APP/ || true
-      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD
-      docker cp -L tests $(docker-compose ps -q cli):$APP/$BUILD
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):$APP/$BUILD
-      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=\$APP/\$BUILD install --prefer-dist --no-suggest"
-      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' \$APP/\$BUILD/vendor/bin/drush -r \$APP/\$WEBROOT si standard -y --db-url=mysql://drupal:drupal@\$AMAZEEIO_DB_HOST/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
-      ahoy cli "composer --working-dir=\$APP/\$BUILD drupal-post-install"
+      # Remove exiting build assets.
+      ahoy cli "chmod -Rf 777 /app/build/docroot || true; rm -Rf /app/build/docroot || true; rm -Rf /app/build/vendor || true; mkdir -p /app/build/docroot"
+      # Copy fixture files to the build dir.
+      ahoy cli "cp -Rf /app/tests/behat/fixtures/d\$DRUPAL_VERSION/. /app/build/"
+      # In CI, where volume mounting into container is not supported, copy all files into container.
+      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
+      # Copy tool configs and tests into build dir.
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/build
+      docker cp -L behat.yml $(docker-compose ps -q cli):/app/build
+      docker cp -L tests $(docker-compose ps -q cli):/app/build
+      # Install Composer dependencies inside of the build dir.
+      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app/build install --prefer-dist --no-suggest"
+      # Install Drupal site.
+      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/docroot si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
+      # Run post-install commands defined in the composer.json for each sepecific fixture.
+      ahoy cli "composer --working-dir=/app/build drupal-post-install"
 
   clean:
     usage: Remove containers and all build files.
     cmd: |
       ahoy down
-      chmod -Rf 777 $BUILD || true
+      chmod -Rf 777 build || true
       rm -rf \
         ./vendor \
         ./composer.lock \
-        ./$BUILD
+        ./build || true
 
   reset:
     usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
@@ -107,20 +114,19 @@ commands:
         ./composer.lock
 
   install-dev:
-    usage: Install dependencies.
+    usage: Install dependencies for this package.
     cmd: |
-      ahoy cli "mkdir -p \$APP/\$BUILD"
-      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):$APP/ || true
-      docker cp -L tests $(docker-compose ps -q cli):$APP/
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):$APP/
-      # Copy file to the $BUILD to run Behat from within the $BUILD fixture directory.
-      docker cp -L behat.yml $(docker-compose ps -q cli):$APP/$BUILD/
-      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist --no-suggest"
+      ahoy cli "mkdir -p /app/build"
+      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
+      docker cp -L tests $(docker-compose ps -q cli):/app/
+      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+      docker cp -L behat.yml $(docker-compose ps -q cli):/app/build/
+      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist"
     hide: true
 
   update-fixtures:
     usage: Update fixture files for Drupal
-    cmd: rsync -av --delete --no-progress --exclude-from=$FIXTURES/d$DRUPAL_VERSION/.rsync-exclude $BUILD/ $FIXTURES/d$DRUPAL_VERSION/
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d$DRUPAL_VERSION/.rsync-exclude build/ tests/behat/fixtures/d$DRUPAL_VERSION/
 
   lint:
     usage: Lint all code.
@@ -130,11 +136,11 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd $APP/$BUILD && BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
+    cmd: ahoy cli "cd /app/build && BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
 
   debug:
     usage: Enable debug configuration.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=1 ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
   # Utilities.
   confirm:
@@ -155,10 +161,6 @@ entrypoint:
   - "-e"
   - |
     [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
-    export APP=${APP:-/app}
-    export BUILD=${BUILD:-build}
-    export WEBROOT=$BUILD/docroot
-    export FIXTURES=tests/behat/fixtures
     export DRUPAL_VERSION=${DRUPAL_VERSION:-8}
     bash -e -c "$0" "$@"
   - '{{cmd}}'

@@ -21,24 +21,18 @@ x-user:
 x-environment:
   &default-environment
   PROJECT: *project
-  APP: ${APP:-/app}
-  BUILD: ${BUILD:-build}
-  WEBROOT: ${WEBROOT:-build/docroot}
-  FIXTURES: ${FIXTURES:-tests/behat/fixtures}
   LOCALDEV_URL: *url
   LAGOON_LOCALDEV_URL: *url
-  DRUPAL_VERSION: ${DRUPAL_VERSION:-8}
   CI: ${CI:-}
   PHP_LINT_EXTENSIONS: "php,inc,module,theme,install"
   PHP_LINT_TARGETS: "src tests"
-  # Allow to override docker host used from the inside of the containers.
-  DOCKERHOST: ${DOCKERHOST:-docker.for.mac.localhost}
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
+  DRUPAL_VERSION: ${DRUPAL_VERSION:-8}
 
 services:
 
   cli:
-    image: amazeeio/php:7.3-cli-drupal-20.10.0
+    image: amazeeio/php:7.4-cli-drupal-21.7.0
     <<: *default-volumes
     user: root
     environment:
@@ -47,7 +41,7 @@ services:
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
 
   php:
-    image: amazeeio/php:7.3-fpm-20.10.0
+    image: amazeeio/php:7.4-fpm-21.7.0
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -56,7 +50,7 @@ services:
       - cli
 
   nginx:
-    image: amazeeio/nginx-drupal:20.10.0
+    image: amazeeio/nginx-drupal:21.7.0
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -68,7 +62,7 @@ services:
       - default
 
   mariadb:
-    image: amazeeio/mariadb-drupal:20.10.0
+    image: amazeeio/mariadb-drupal:21.7.0
     environment:
       <<: *default-environment
     ports:
@@ -89,4 +83,3 @@ networks:
 
 volumes:
   app: {}
-  files: {}
