@@ -138,7 +138,7 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd /app/build && BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
+    cmd: ahoy cli "cd /app/build && BEHAT_SCREENSHOT_DIR=/app/screenshots BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
 
   debug:
     usage: Enable debug configuration.
