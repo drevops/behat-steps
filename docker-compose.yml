@@ -10,7 +10,8 @@ x-url:
 x-volumes:
   &default-volumes
   volumes:
-    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+    - .:/app:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host filesystem. Automatically removed in CI.
+    - ./tests:/app/build/tests:${VOLUME_FLAGS:-delegated} ### Local overrides to mount host test dir into filesystem for development. Automatically removed in CI.
     ##- app:/app # Override for environment without host mounts. Automatically uncommented in CI.
 
 x-user:
