@@ -1,5 +1,5 @@
 # Behat Steps
-Collection of Behat steps for Drupal 8 and Drupal 7 development.
+Collection of Behat steps for Drupal 9, Drupal 8 and Drupal 7.
 
 [![CircleCI](https://circleci.com/gh/drevops/behat-steps.svg?style=shield)](https://circleci.com/gh/drevops/behat-steps)
 [![Latest Stable Version](https://poser.pugx.org/drevops/behat-steps/v/stable)](https://packagist.org/packages/drevops/behat-steps)
@@ -61,7 +61,7 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 - `pygmy up`
-- `ahoy build` for Drupal 8 build, or `DRUPAL_VERSION=9 ahoy build` for Drupal 9, or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
+- `ahoy build` for Drupal 9 build, or `DRUPAL_VERSION=8 ahoy build` for Drupal 8, or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
 - Access built site at http://behat-steps.docker.amazee.io/  
 
 Please note that you will need to rebuild to work on a different Drupal version.
@@ -77,8 +77,8 @@ but rather uses a content type created from configuration during site installati
 - Run all tests: `ahoy test-bdd`
 - Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
 - Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
-- Tests tagged with `@d7` or `@d8` will be ran for Drupal 7 and Drupal 8 respectively.
-- Tests tagged with both `@d7` and `@d8` are agnostic to Drupal version and will run for both versions. 
+- Tests tagged with `@d7` or `@d8` or `@d9` will be run for Drupal 7, Drupal 8 and Drupal 9 respectively.
+- Tests tagged with `@d7`, `@d8` and `@d9` are agnostic to Drupal version and will run for all versions. 
 
 To debug tests from CLI:
 - `ahoy debug`
@@ -87,4 +87,4 @@ To debug tests from CLI:
 To update fixtures:
 - Make required changes in the installed fixture site
 - Run `ahoy drush cex -y` for Drupal 8/9 or `ahoy drush fua -y` for Drupal 7
-- Run `ahoy update-fixtures` for Drupal 8, or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9, or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 
+- Run `ahoy update-fixtures` for Drupal 9, or `DRUPAL_VERSION=8 ahoy update-fixtures` for Drupal 8, or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 

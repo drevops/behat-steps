@@ -163,7 +163,7 @@ entrypoint:
   - "-e"
   - |
     [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
-    export DRUPAL_VERSION=${DRUPAL_VERSION:-8}
+    export DRUPAL_VERSION=${DRUPAL_VERSION:-9}
     bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'
