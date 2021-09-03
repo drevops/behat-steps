@@ -23,7 +23,7 @@ commands:
       ahoy line "Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
       ahoy line "Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
       ahoy line "Path to project          : " $(ahoy cli echo /app)
-      ahoy line "Path to docroot          : " $(ahoy cli echo /app/build/docroot)
+      ahoy line "Path to web root         : " $(ahoy cli echo /app/build/web)
       ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
       ahoy line "Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
       if [ "$1" ]; then
@@ -80,7 +80,7 @@ commands:
     cmd: |
       ahoy title "Installing fixture Drupal $DRUPAL_VERSION site"
       # Remove exiting build assets.
-      ahoy cli "chmod -Rf 777 /app/build/docroot || true; rm -Rf /app/build/docroot || true; rm -Rf /app/build/vendor || true; mkdir -p /app/build/docroot"
+      ahoy cli "chmod -Rf 777 /app/build/web || true; rm -Rf /app/build/web || true; rm -Rf /app/build/vendor || true; mkdir -p /app/build/web"
       # Copy fixture files to the build dir.
       ahoy cli "cp -Rf /app/tests/behat/fixtures/d\$DRUPAL_VERSION/. /app/build/"
       # In CI, where volume mounting into container is not supported, copy all files into container.
@@ -92,7 +92,7 @@ commands:
       # Install Composer dependencies inside of the build dir.
       ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app/build install --prefer-dist --no-suggest"
       # Install Drupal site.
-      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/docroot si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
+      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/web si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
       # Run post-install commands defined in the composer.json for each sepecific fixture.
       ahoy cli "composer --working-dir=/app/build drupal-post-install"
 
