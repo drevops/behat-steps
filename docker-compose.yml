@@ -32,7 +32,7 @@ x-environment:
 services:
 
   cli:
-    image: amazeeio/php:7.4-cli-drupal-21.7.0
+    image: amazeeio/php:7.4-cli-drupal-21.8.0
     <<: *default-volumes
     user: root
     environment:
@@ -41,7 +41,7 @@ services:
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
 
   php:
-    image: amazeeio/php:7.4-fpm-21.7.0
+    image: amazeeio/php:7.4-fpm-21.8.0
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -50,7 +50,7 @@ services:
       - cli
 
   nginx:
-    image: amazeeio/nginx-drupal:21.7.0
+    image: amazeeio/nginx-drupal:21.8.0
     <<: *default-volumes
     <<: *default-user
     environment:
@@ -62,7 +62,7 @@ services:
       - default
 
   mariadb:
-    image: amazeeio/mariadb-drupal:21.7.0
+    image: amazeeio/mariadb-drupal:21.8.0
     environment:
       <<: *default-environment
     ports:
