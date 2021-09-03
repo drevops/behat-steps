@@ -5,9 +5,9 @@
 - README.txt
 - example*
 + config
-+ docroot
-+ docroot/modules
-+ docroot/modules/custom
-- docroot/modules/contrib
-- docroot/modules/*
-- docroot/*
++ web
++ web/modules
++ web/modules/custom
+- web/modules/contrib
+- web/modules/*
+- web/*

@@ -164,7 +164,7 @@ default:
     Drupal\DrupalExtension:
       api_driver: drupal
       drupal:
-        drupal_root: /app/build/docroot
+        drupal_root: /app/build/web
 EOL;
 
     $filename = $this->workingDir . DIRECTORY_SEPARATOR . 'behat.yml';

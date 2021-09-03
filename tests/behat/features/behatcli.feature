@@ -43,7 +43,7 @@ Feature: Behat CLI context
           Drupal\DrupalExtension:
             api_driver: drupal
             drupal:
-              drupal_root: /app/build/docroot
+              drupal_root: /app/build/web
       """
 
   Scenario: Test passes

@@ -35,10 +35,10 @@ default:
       drush_driver: drush
       drupal:
         # Behat would run from within "build" dir.
-        drupal_root: docroot
+        drupal_root: web
       drush:
         # Behat would run from within "build" dir.
-        root: docroot
+        root: web
       selectors:
         message_selector: '.messages'
         error_message_selector: '.messages.error'
