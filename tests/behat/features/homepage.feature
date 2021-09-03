@@ -1,4 +1,4 @@
-@d7 @d8 @d9 @homepage
+@d7 @d8 @d9 @smoke @homepage
 Feature: Homepage
 
   Ensure that homepage is displayed as expected.
