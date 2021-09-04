@@ -19,12 +19,12 @@ trait VisibilityTrait {
     $nodes = $element->findAll('css', $selector);
 
     if (empty($nodes)) {
-      throw new \RuntimeException(sprintf('Element defined by "%s" selector is not present on the page.', $selector));
+      throw new \Exception(sprintf('Element defined by "%s" selector is not present on the page.', $selector));
     }
 
     foreach ($nodes as $node) {
       if (!$node->isVisible()) {
-        throw new \RuntimeException(sprintf('Element defined by "%s" selector is not visible on the page.', $selector));
+        throw new \Exception(sprintf('Element defined by "%s" selector is not visible on the page.', $selector));
       }
     }
   }
@@ -40,7 +40,7 @@ trait VisibilityTrait {
 
     foreach ($nodes as $node) {
       if ($node->isVisible()) {
-        throw new \RuntimeException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector));
+        throw new \Exception(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector));
       }
     }
   }
