@@ -21,6 +21,7 @@ x-user:
 x-environment:
   &default-environment
   PROJECT: *project
+  WEBROOT: build/web
   LOCALDEV_URL: *url
   LAGOON_LOCALDEV_URL: *url
   CI: ${CI:-}
