@@ -1,8 +1,18 @@
+<!--
+This is a fixture document used to test assertions in Behat Steps.
+
+It has page elements with different geometry and positioning to accurately test
+JS-based assertions.
+
+It also has a JS code used in VisibilityTrait to test visibility of an element.
+And it also has tests for this JS code.
+Scroll to the bottom of the document to `isElemVisible()` function.
+-->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Behat Steps fixture</title>
 
   <style>
     body {
@@ -28,7 +38,7 @@
 
     #main-inner {
       background: darkgray;
-      margin: 20px;
+      margin: 200px 20px;
     }
 
     #main-inner-custom {
@@ -140,15 +150,6 @@
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
       border: 0;
-    }
-
-    #sr-only-shown {
-      position: static;
-      width: auto;
-      height: auto;
-      margin: 0;
-      overflow: visible;
-      clip: auto;
     }
 
     #sr-only-focusable {
@@ -330,7 +331,17 @@
     #hover:hover #hover-content {
       display: inline;
     }
+
+    #log {
+      position: fixed;
+      padding: 20px;
+      background: #ccc;
+      top: 0;
+      right: 0;
+    }
   </style>
+
+
 </head>
 <body>
 <div id="top">
@@ -394,11 +405,6 @@
 
 <div id="sr-only">
   Hidden content, but accessible for screen readers
-</div>
-
-<div id="sr-only-shown">
-  Hidden content that is accessible for screen readers, but shown after being
-  hidden
 </div>
 
 <a href="#" id="sr-only-focusable">
@@ -466,5 +472,102 @@
   Visible hover content
   <span id="hover-content">Revealed hover content</span>
 </div>
+
+<div id="log">
+  <div>
+    <strong>TEST LOG</strong>
+    <hr/>
+    ALL SHOULD PASS<br/>
+    Press <kbd>tab</kbd> to reveal hidden element
+    <hr/>
+  </div>
+</div>
+
+<script>
+  /**
+   * Check if an element is visible on the page.
+   *
+   * Copy the contents of this function as-is to VisibilityTrait.php
+   *
+   * @param {string} selector
+   *   CSS Query selector.
+   * @param {int} offset
+   *   Vertical offset to scroll to element before performing an assertion.
+   *   Defaults to 0.
+   */
+  function isElemVisible(selector, offset = 0) {
+    selector = selector.startsWith('#') ? selector : selector + ':nth-child(1)';
+
+    el = document.querySelectorAll(selector)[0];
+    if (!el) {
+      return false;
+    }
+
+    // Inject a style to disable scrollbars for more consistent results.
+    if (document.querySelectorAll('head #relative_style').length === 0) {
+      document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="relative_style" type="text/css">::-webkit-scrollbar{display: none;}</style>');
+    }
+
+    // Scroll to the element top, accounting for an offset.
+    window.scroll({top: el.offsetTop - offset});
+
+    // Gather visibility constraints.
+    isVisible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    hasHeight = el.clientHeight > 1 || el.offsetHeight > 1;
+    notClipped = !(getComputedStyle(el).clip === 'rect(0px 0px 0px 0px)' && getComputedStyle(el).position === 'absolute');
+    rect = el.getBoundingClientRect();
+    onScreen = !(
+      rect.left + rect.width <= 0
+      || rect.top + rect.height <= 0
+      || rect.left >= window.innerWidth
+      || rect.top >= window.innerHeight
+    );
+
+    // Uncomment below to debug specific failure.
+    // console.log(selector, 'isVisible =>', isVisible, 'hasHeight =>', hasHeight, 'notClipped =>', notClipped, 'onScreen =>', onScreen);
+
+    return isVisible && hasHeight && notClipped && onScreen;
+  }
+
+  /**
+   * Assertion helper to record test assertions to the log.
+   */
+  function assert(name, actual, expected = true) {
+    document.getElementById('log').innerHTML += (actual === expected ? '<span style="color: green;">PASS</span>' : '<span style="color: red;">FAIL</span>') + ': ' + name + '<br/>';
+  }
+
+  // Event handler for TAB.
+  document.querySelector('body').addEventListener('keyup', function (e) {
+    if (e.keyCode == 9) {
+      activeElement = document.activeElement;
+      if (activeElement.matches('#sr-only-focusable')) {
+        assert('SR ONLY FOCUSABLE - REVEALED', isElemVisible('#sr-only-focusable'));
+      }
+    }
+  });
+
+  // Wait for document to load.
+  document.addEventListener("DOMContentLoaded", function (event) {
+    assert('TOP', isElemVisible('#top'));
+    assert('TOP INNER', isElemVisible('#top-inner'));
+
+    assert('LEFT', isElemVisible('#left'));
+    assert('LEFT INNER', isElemVisible('#left-inner'));
+
+    assert('TOP - OFFSET - HIDDEN', isElemVisible('#top', -300), false);
+
+    assert('SR ONLY', isElemVisible('#sr-only'), false);
+    assert('SR ONLY FOCUSABLE - HIDDEN', isElemVisible('#sr-only-focusable'), false);
+
+    // To test revealing of the '#sr-only-focusable' element, manually press
+    // 'TAB' keyboard key. This is due to the fact that triggering keyboard
+    // 'tab' events on the document does not trigger 'focus' event. And
+    // triggering 'focus' event programmatically defeats the purpose of the test.
+    // It is possible to use Syn lib to trigger this event, but this is beyond
+    // the scope of the required testing framework (for now).
+  });
+
+</script>
+
 </body>
 </html>
