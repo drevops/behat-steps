@@ -523,9 +523,6 @@ Scroll to the bottom of the document to `isElemVisible()` function.
       || rect.top >= window.innerHeight
     );
 
-    // Uncomment below to debug specific failure.
-    // console.log(selector, 'isVisible =>', isVisible, 'hasHeight =>', hasHeight, 'notClipped =>', notClipped, 'onScreen =>', onScreen);
-
     return isVisible && hasHeight && notClipped && onScreen;
   }
 
