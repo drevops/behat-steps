@@ -91,16 +91,23 @@ trait KeyboardTrait {
         // Note that injecting element and triggering key press on it does not
         // make it focused itself.
         if (is_null($selector) && $char == 'tab') {
-          $hiddenFocusableElement = '<a id="injected-focusable" style="position: absolute;width: 1px;height: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0,0,0,0);border: 0;"></a>';
-          $this->keyboardInjectHtml($hiddenFocusableElement, 'body', 'prepend');
           $selector = '#injected-focusable';
+
+          $script = <<<JS
+            (function() {
+              if (document.querySelectorAll('body #injected-focusable').length === 0) {
+                document.querySelector('body').insertAdjacentHTML('afterbegin', '<a id="injected-focusable" style="position: absolute;width: 1px;height: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0,0,0,0);border: 0;"></a>');
+              }
+            })();
+          JS;
+          $this->getSession()->getDriver()->evaluateScript($script);
         }
 
         $char = $keys[strtolower($char)];
       }
     }
 
-    $selector = $selector ? $selector : 'html';
+    $selector = $selector ?: 'html';
 
     // Element to trigger key press on.
     $element = $this->getSession()->getPage()->find('css', $selector);
@@ -146,43 +153,6 @@ trait KeyboardTrait {
       $xpath,
       "Syn.key({{ELEMENT}}, '$key');",
     ]);
-  }
-
-  /**
-   * Inject HTML into page.
-   *
-   * @param string $html
-   *   HTML string to inject.
-   * @param string $selector
-   *   CSS selector to use as a reference for injection position.
-   * @param string $position
-   *   Injection position: before, after, prepend, append.
-   *
-   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
-   *   If method is used for invalid driver.
-   * @throws RuntimeException
-   *   If invalid position specified.
-   */
-  protected function keyboardInjectHtml($html, $selector, $position) {
-    $allowedPositions = [
-      'before',
-      'after',
-      'prepend',
-      'append',
-    ];
-
-    $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
-    }
-
-    if (!in_array($position, $allowedPositions)) {
-      throw new \RuntimeException('Invalid position specified');
-    }
-
-    // Ensure jQuery has loaded.
-    $this->getSession()->wait(5000, 'typeof window.jQuery === "function"');
-    $driver->evaluateScript("jQuery('$selector').$position('$html');");
   }
 
 }

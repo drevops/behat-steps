@@ -141,7 +141,8 @@ Scroll to the bottom of the document to `isElemVisible()` function.
       display: none;
     }
 
-    #sr-only {
+    #sr-only,
+    .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -163,7 +164,7 @@ Scroll to the bottom of the document to `isElemVisible()` function.
       border: 0;
     }
 
-    #sr-only-focusable:active, #sr-only-focusable:focus {
+    #sr-only-focusable:active, #sr-only-focusable:focus, .sr-only-focused {
       position: static !important;
       overflow: visible;
       clip: auto;
@@ -344,6 +345,22 @@ Scroll to the bottom of the document to `isElemVisible()` function.
 
 </head>
 <body>
+<a href="#" id="sr-only-focusable">
+  Hidden content, but accessible for screen readers and focusable
+</a>
+
+<div id="sr-only">
+  Hidden content, but accessible for screen readers
+</div>
+
+<div class="sr-only">
+  Hidden content, but accessible for screen readers. Testing multiple classes.
+</div>
+
+<div class="sr-only sr-only-focused">
+  Hidden content, but accessible for screen readers. Testing multiple classes. This is revealed as if it is focused.
+</div>
+
 <div id="top">
   Top content
   <div id="top-inner">
@@ -357,6 +374,7 @@ Scroll to the bottom of the document to `isElemVisible()` function.
     inner Main content
     <div id="main-inner-custom">
       inner Main content custom
+      <input type="text" name="input1" id="input1" />
     </div>
   </div>
 </div>
@@ -402,14 +420,6 @@ Scroll to the bottom of the document to `isElemVisible()` function.
 <div id="hidden">
   Hidden content
 </div>
-
-<div id="sr-only">
-  Hidden content, but accessible for screen readers
-</div>
-
-<a href="#" id="sr-only-focusable">
-  Hidden content, but accessible for screen readers and focusable
-</a>
 
 <button id="overlay-trigger" onclick="document.getElementById('overlay').classList.add('overlay-visible')">
   Show overlay
@@ -496,34 +506,34 @@ Scroll to the bottom of the document to `isElemVisible()` function.
    *   Defaults to 0.
    */
   function isElemVisible(selector, offset = 0) {
-    selector = selector.startsWith('#') ? selector : selector + ':nth-child(1)';
+    var failures = [];
+    document.querySelectorAll(selector).forEach(function (el) {
+      // Inject a style to disable scrollbars for more consistent results.
+      if (document.querySelectorAll('head #relative_style').length === 0) {
+        document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="relative_style" type="text/css">::-webkit-scrollbar{display: none;}</style>');
+      }
 
-    el = document.querySelectorAll(selector)[0];
-    if (!el) {
-      return false;
-    }
+      // Scroll to the element top, accounting for an offset.
+      window.scroll({top: el.offsetTop - offset});
 
-    // Inject a style to disable scrollbars for more consistent results.
-    if (document.querySelectorAll('head #relative_style').length === 0) {
-      document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="relative_style" type="text/css">::-webkit-scrollbar{display: none;}</style>');
-    }
+      // Gather visibility constraints.
+      isVisible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+      hasHeight = el.clientHeight > 1 || el.offsetHeight > 1;
+      notClipped = !(getComputedStyle(el).clip === 'rect(0px 0px 0px 0px)' && getComputedStyle(el).position === 'absolute');
+      rect = el.getBoundingClientRect();
+      onScreen = !(
+        rect.left + rect.width <= 0
+        || rect.top + rect.height <= 0
+        || rect.left >= window.innerWidth
+        || rect.top >= window.innerHeight
+      );
 
-    // Scroll to the element top, accounting for an offset.
-    window.scroll({top: el.offsetTop - offset});
+      if (!isVisible || !hasHeight || !notClipped || !onScreen) {
+        failures.push(el);
+      }
+    });
 
-    // Gather visibility constraints.
-    isVisible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-    hasHeight = el.clientHeight > 1 || el.offsetHeight > 1;
-    notClipped = !(getComputedStyle(el).clip === 'rect(0px 0px 0px 0px)' && getComputedStyle(el).position === 'absolute');
-    rect = el.getBoundingClientRect();
-    onScreen = !(
-      rect.left + rect.width <= 0
-      || rect.top + rect.height <= 0
-      || rect.left >= window.innerWidth
-      || rect.top >= window.innerHeight
-    );
-
-    return isVisible && hasHeight && notClipped && onScreen;
+    return failures.length === 0;
   }
 
   /**
@@ -555,6 +565,8 @@ Scroll to the bottom of the document to `isElemVisible()` function.
 
     assert('SR ONLY', isElemVisible('#sr-only'), false);
     assert('SR ONLY FOCUSABLE - HIDDEN', isElemVisible('#sr-only-focusable'), false);
+
+    assert('SR ONLY MULTIPLE CLASSES', isElemVisible('.sr-only'), false);
 
     // To test revealing of the '#sr-only-focusable' element, manually press
     // 'TAB' keyboard key. This is due to the fact that triggering keyboard

@@ -23,6 +23,7 @@ use DrevOps\BehatSteps\EmailTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
 use DrevOps\BehatSteps\FileTrait;
+use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\MediaTrait;
 use DrevOps\BehatSteps\MenuTrait;
@@ -60,6 +61,7 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
+  use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
   use MenuTrait;

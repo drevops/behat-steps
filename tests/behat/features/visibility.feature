@@ -1,4 +1,4 @@
-@d7 @d8 @d9
+@d7 @d8 @d9 @visibility
 Feature: Check that VisibilityTrait works
 
   @api @javascript
@@ -66,7 +66,7 @@ Feature: Check that VisibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#sr-only:nth-child(1)" selector with index "1" is not visually visible on the page.
+      Element(s) defined by "#sr-only" selector is not visually visible on the page.
       """
   @trait:VisibilityTrait
   Scenario: Assert step definition "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" fails as expected
@@ -80,5 +80,5 @@ Feature: Check that VisibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#top:nth-child(1)" selector with index "1" is visually visible on the page, but should not be.
+      Element(s) defined by "#top" selector is visually visible on the page, but should not be.
       """

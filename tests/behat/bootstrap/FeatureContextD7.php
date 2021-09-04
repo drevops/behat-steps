@@ -25,9 +25,11 @@ use DrevOps\BehatSteps\D7\UserTrait;
 use DrevOps\BehatSteps\D7\VariableTrait;
 use DrevOps\BehatSteps\D7\WatchdogTrait;
 use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\VisibilityTrait;
 use DrevOps\BehatSteps\WaitTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 
@@ -42,6 +44,7 @@ class FeatureContextD7 extends DrupalContext {
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
+  use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
   use ParagraphsTrait;
@@ -50,6 +53,7 @@ class FeatureContextD7 extends DrupalContext {
   use TaxonomyTrait;
   use UserTrait;
   use VariableTrait;
+  use VisibilityTrait;
   use WaitTrait;
   use WatchdogTrait;
 
