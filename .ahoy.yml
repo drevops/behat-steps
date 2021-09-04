@@ -95,6 +95,8 @@ commands:
       ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/web si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
       # Run post-install commands defined in the composer.json for each sepecific fixture.
       ahoy cli "composer --working-dir=/app/build drupal-post-install"
+      # Copy test fixture.
+      ahoy cli "cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/relative.html"
 
   clean:
     usage: Remove containers and all build files.

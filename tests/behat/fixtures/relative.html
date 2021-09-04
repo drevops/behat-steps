@@ -1,0 +1,582 @@
+<!--
+This is a fixture document used to test assertions in Behat Steps.
+
+It has page elements with different geometry and positioning to accurately test
+JS-based assertions.
+
+It also has a JS code used in VisibilityTrait to test visibility of an element.
+And it also has tests for this JS code.
+Scroll to the bottom of the document to `isElemVisible()` function.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Behat Steps fixture</title>
+
+  <style>
+    body {
+      position: relative;
+      margin: 0;
+    }
+
+    #top {
+      clear: both;
+      background: yellow;
+    }
+
+    #top-inner {
+      background: orange;
+      margin: 20px;
+    }
+
+    #main {
+      background: gray;
+      display: inline-block;
+      width: 50%;
+    }
+
+    #main-inner {
+      background: darkgray;
+      margin: 200px 20px;
+    }
+
+    #main-inner-custom {
+      background: orange;
+      margin: 20px;
+    }
+
+    #left {
+      float: left;
+      background: blue;
+      width: 25%;
+    }
+
+    #left-inner {
+      background: darkblue;
+      margin: 20px;
+    }
+
+    #right {
+      float: right;
+      background: green;
+      width: 25%;
+    }
+
+    #right-inner {
+      background: darkgreen;
+      margin: 20px;
+    }
+
+    #bottom {
+      clear: both;
+      background: red;
+    }
+
+    #bottom-inner {
+      clear: both;
+      background: darkred;
+      margin: 20px;
+    }
+
+    #off-canvas-left {
+      position: fixed;
+      width: 200px;
+      height: 100%;
+      left: -200px;
+      top: 0;
+      background: #00a9ec;
+    }
+
+    #off-canvas-right {
+      position: fixed;
+      width: 200px;
+      height: 100%;
+      right: -200px;
+      top: 0;
+      background: #1b405b;
+    }
+
+    #off-canvas-top {
+      position: fixed;
+      width: 100%;
+      height: 200px;
+      left: 0;
+      top: -200px;
+      background: #00a9ec;
+    }
+
+    #off-canvas-bottom {
+      position: fixed;
+      width: 100%;
+      height: 200px;
+      left: 0;
+      bottom: -200px;
+      background: #1b405b;
+    }
+
+    #top-inner,
+    #bottom-inner,
+    #left-inner,
+    #right-inner,
+    #main-inner,
+    #main-inner-custom {
+      padding: 20px 100px;
+      color: white;
+      overflow: hidden;
+    }
+
+    @media (max-width: 600px) {
+      #main,
+      #top,
+      #bottom,
+      #left,
+      #right {
+        float: none;
+        width: 100%;
+      }
+    }
+
+    #hidden {
+      display: none;
+    }
+
+    #sr-only,
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    #sr-only-focusable {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    #sr-only-focusable:active, #sr-only-focusable:focus, .sr-only-focused {
+      position: static !important;
+      overflow: visible;
+      clip: auto;
+      width: auto;
+      height: auto;
+      margin: auto;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.25;
+      z-index: 9998;
+      background-color: rgb(51, 51, 51);
+      display: none;
+    }
+
+    #overlay.overlay-visible {
+      display: block;
+    }
+
+    #overlay-off-canvas {
+      position: absolute;
+      top: 0;
+      left: -300px;
+      width: 100%;
+      height: 100%;
+      opacity: 0.25;
+      z-index: 9998;
+      background-color: rgb(51, 51, 51);
+      display: none;
+    }
+
+    #overlay-off-canvas.overlay-visible {
+      display: block;
+    }
+
+    #over-container {
+      position: relative;
+      border: solid 1px black;
+    }
+
+    #over-bottom {
+      display: block;
+      width: 300px;
+      padding: 100px;
+      background: rgba(128, 192, 128, 0.2);
+      margin: 100px auto;
+    }
+
+    #over-inside,
+    #over-outside,
+    #over-intersect,
+    #over-cover,
+    #over-under {
+      position: absolute;
+    }
+
+    #over-inside,
+    #over-inside-inner,
+    #over-outside,
+    #over-outside-inner,
+    #over-intersect,
+    #over-cover,
+    #over-cover-inner,
+    #over-under,
+    #over-under-inner {
+      padding: 10px;
+      max-width: 100px;
+    }
+
+    #over-cover {
+      width: 550px;
+      padding: 100px;
+      margin: 75px auto 75px -375px;
+      background: rgba(192, 192, 192, 0.6);
+      top: 0;
+      left: 50%;
+      max-width: none;
+    }
+
+    #over-cover-inner {
+      background: lightblue;
+    }
+
+    #over-inside {
+      background: red;
+      top: 150px;
+      left: 50%;
+    }
+
+    #over-inside-inner {
+      background: orange;
+    }
+
+    #over-outside {
+      background: blue;
+      top: 0;
+      left: 0;
+    }
+
+    #over-outside-inner {
+      background: lightblue;
+    }
+
+    #over-intersect {
+      background: green;
+      top: 50px;
+      left: 60%;
+    }
+
+    #over-intersect-inner {
+      background: lightgreen;
+    }
+
+    #over-fixed {
+      position: fixed;
+      padding: 10px;
+      max-width: 100px;
+      background: lime;
+
+      top: 60%;
+      left: 30%;
+    }
+
+    #over-fixed-inner {
+      background: limegreen;
+    }
+
+    #over-under {
+      padding: 10px;
+      max-width: 100px;
+
+      background: brown;
+      top: 40%;
+      left: 40%;
+      z-index: -1;
+    }
+
+    #over-under-inner {
+      background: lightpink;
+    }
+
+    #viewport-custom {
+      padding: 10px;
+      background: orange;
+      display: none;
+      left: 50px;
+      top: 100px;
+    }
+
+    @media (min-width: 922px) {
+      #viewport-custom {
+        display: block;
+      }
+    }
+
+    #hover #hover-content {
+      display: none;
+    }
+
+    #hover:hover #hover-content {
+      display: inline;
+    }
+
+    #log {
+      position: fixed;
+      padding: 20px;
+      background: #ccc;
+      top: 0;
+      right: 0;
+    }
+  </style>
+
+
+</head>
+<body>
+<a href="#" id="sr-only-focusable">
+  Hidden content, but accessible for screen readers and focusable
+</a>
+
+<div id="sr-only">
+  Hidden content, but accessible for screen readers
+</div>
+
+<div class="sr-only">
+  Hidden content, but accessible for screen readers. Testing multiple classes.
+</div>
+
+<div class="sr-only sr-only-focused">
+  Hidden content, but accessible for screen readers. Testing multiple classes. This is revealed as if it is focused.
+</div>
+
+<div id="top">
+  Top content
+  <div id="top-inner">
+    inner Top content
+  </div>
+</div>
+
+<div id="main">
+  Main content
+  <div id="main-inner">
+    inner Main content
+    <div id="main-inner-custom">
+      inner Main content custom
+      <input type="text" name="input1" id="input1" />
+    </div>
+  </div>
+</div>
+<div id="left">
+  Left content
+  <div id="left-inner">
+    inner Left content
+  </div>
+</div>
+
+<div id="right">
+  Right content
+  <div id="right-inner">
+    inner Right content
+  </div>
+</div>
+
+<div id="bottom">
+  Bottom content
+  <div id="bottom-inner">
+    inner Bottom content
+  </div>
+</div>
+
+<div id="viewport-custom">Text for custom viewport</div>
+
+<div id="off-canvas-left">
+  Off-canvas left content
+</div>
+
+<div id="off-canvas-right">
+  Off-canvas right content
+</div>
+
+<div id="off-canvas-top">
+  Off-canvas top content
+</div>
+
+<div id="off-canvas-bottom">
+  Off-canvas bottom content
+</div>
+
+<div id="hidden">
+  Hidden content
+</div>
+
+<button id="overlay-trigger" onclick="document.getElementById('overlay').classList.add('overlay-visible')">
+  Show overlay
+</button>
+<div id="overlay"></div>
+
+<button id="overlay-off-canvas-trigger" onclick="document.getElementById('overlay-off-canvas').classList.add('overlay-visible')">
+  Show
+  off-canvas overlay
+</button>
+<div id="overlay-off-canvas"></div>
+
+<div id="over-container">
+  <div id="over-cover">
+    Text COVER over
+    <div id="over-cover-inner">
+      Text inner COVER over
+    </div>
+  </div>
+
+  <div id="over-inside">
+    Text INSIDE over
+    <div id="over-inside-inner">
+      Text inner INSIDE over
+    </div>
+  </div>
+
+  <div id="over-outside">
+    Text OUTSIDE over
+    <div id="over-outside-inner">
+      Text inner OUTSIDE over
+    </div>
+  </div>
+
+  <div id="over-intersect">
+    Text INTERSECT over
+    <div id="over-intersect-inner">
+      Text inner INTERSECT over
+    </div>
+  </div>
+
+  <div id="over-fixed">
+    Text FIXED over
+    <div id="over-fixed-inner">
+      Text inner FIXED over
+    </div>
+  </div>
+
+  <div id="over-under">
+    Text UNDER over
+    <div id="over-under-inner">
+      Text inner UNDER over
+    </div>
+  </div>
+
+  <div id="over-bottom">Text for over bottom</div>
+</div>
+
+<div id="hover">
+  Visible hover content
+  <span id="hover-content">Revealed hover content</span>
+</div>
+
+<div id="log">
+  <div>
+    <strong>TEST LOG</strong>
+    <hr/>
+    ALL SHOULD PASS<br/>
+    Press <kbd>tab</kbd> to reveal hidden element
+    <hr/>
+  </div>
+</div>
+
+<script>
+  /**
+   * Check if an element is visible on the page.
+   *
+   * Copy the contents of this function as-is to VisibilityTrait.php
+   *
+   * @param {string} selector
+   *   CSS Query selector.
+   * @param {int} offset
+   *   Vertical offset to scroll to element before performing an assertion.
+   *   Defaults to 0.
+   */
+  function isElemVisible(selector, offset = 0) {
+    var failures = [];
+    document.querySelectorAll(selector).forEach(function (el) {
+      // Inject a style to disable scrollbars for more consistent results.
+      if (document.querySelectorAll('head #relative_style').length === 0) {
+        document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="relative_style" type="text/css">::-webkit-scrollbar{display: none;}</style>');
+      }
+
+      // Scroll to the element top, accounting for an offset.
+      window.scroll({top: el.offsetTop - offset});
+
+      // Gather visibility constraints.
+      isVisible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+      hasHeight = el.clientHeight > 1 || el.offsetHeight > 1;
+      notClipped = !(getComputedStyle(el).clip === 'rect(0px 0px 0px 0px)' && getComputedStyle(el).position === 'absolute');
+      rect = el.getBoundingClientRect();
+      onScreen = !(
+        rect.left + rect.width <= 0
+        || rect.top + rect.height <= 0
+        || rect.left >= window.innerWidth
+        || rect.top >= window.innerHeight
+      );
+
+      if (!isVisible || !hasHeight || !notClipped || !onScreen) {
+        failures.push(el);
+      }
+    });
+
+    return failures.length === 0;
+  }
+
+  /**
+   * Assertion helper to record test assertions to the log.
+   */
+  function assert(name, actual, expected = true) {
+    document.getElementById('log').innerHTML += (actual === expected ? '<span style="color: green;">PASS</span>' : '<span style="color: red;">FAIL</span>') + ': ' + name + '<br/>';
+  }
+
+  // Event handler for TAB.
+  document.querySelector('body').addEventListener('keyup', function (e) {
+    if (e.keyCode == 9) {
+      activeElement = document.activeElement;
+      if (activeElement.matches('#sr-only-focusable')) {
+        assert('SR ONLY FOCUSABLE - REVEALED', isElemVisible('#sr-only-focusable'));
+      }
+    }
+  });
+
+  // Wait for document to load.
+  document.addEventListener("DOMContentLoaded", function (event) {
+    assert('TOP', isElemVisible('#top'));
+    assert('TOP INNER', isElemVisible('#top-inner'));
+
+    assert('LEFT', isElemVisible('#left'));
+    assert('LEFT INNER', isElemVisible('#left-inner'));
+
+    assert('TOP - OFFSET - HIDDEN', isElemVisible('#top', -300), false);
+
+    assert('SR ONLY', isElemVisible('#sr-only'), false);
+    assert('SR ONLY FOCUSABLE - HIDDEN', isElemVisible('#sr-only-focusable'), false);
+
+    assert('SR ONLY MULTIPLE CLASSES', isElemVisible('.sr-only'), false);
+
+    // To test revealing of the '#sr-only-focusable' element, manually press
+    // 'TAB' keyboard key. This is due to the fact that triggering keyboard
+    // 'tab' events on the document does not trigger 'focus' event. And
+    // triggering 'focus' event programmatically defeats the purpose of the test.
+    // It is possible to use Syn lib to trigger this event, but this is beyond
+    // the scope of the required testing framework (for now).
+  });
+
+</script>
+
+</body>
+</html>
