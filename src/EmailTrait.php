@@ -213,7 +213,6 @@ trait EmailTrait {
     }
 
     $link = $links[$number - 1];
-    print $link;
     self::getSession()->visit($link);
   }
 

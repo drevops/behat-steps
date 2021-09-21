@@ -34,7 +34,6 @@ trait ContentTrait {
 
     $node = end($nodes);
     $path = $this->locatePath('/node/' . $node->nid);
-    print $path;
     $this->getSession()->visit($path);
   }
 
@@ -59,7 +58,6 @@ trait ContentTrait {
 
     $node = current($nodes);
     $path = $this->locatePath('/node/' . $node->nid) . '/edit';
-    print $path;
     $this->getSession()->visit($path);
   }
 

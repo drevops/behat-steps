@@ -164,7 +164,6 @@ trait EckTrait {
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('edit-form')->toString();
-    print $path;
     $this->getSession()->visit($path);
   }
 
@@ -189,7 +188,6 @@ trait EckTrait {
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('canonical')->toString();
-    print $path;
     $this->getSession()->visit($path);
   }
 

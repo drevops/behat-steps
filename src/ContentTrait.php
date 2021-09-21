@@ -50,7 +50,6 @@ trait ContentTrait {
 
     $nid = end($nids);
     $path = $this->locatePath('/node/' . $nid);
-    print $path;
     $this->getSession()->visit($path);
   }
 
@@ -74,7 +73,6 @@ trait ContentTrait {
 
     $nid = current($nids);
     $path = $this->locatePath('/node/' . $nid) . '/edit';
-    print $path;
     $this->getSession()->visit($path);
   }
 
@@ -146,7 +144,6 @@ trait ContentTrait {
 
     $nid = current($nids);
     $path = $this->locatePath('/node/' . $nid) . '/scheduled-transitions';
-    print $path;
     $this->getSession()->visit($path);
   }
 

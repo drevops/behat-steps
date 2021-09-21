@@ -256,7 +256,6 @@ trait EmailTrait {
     }
 
     $link = $links[$number - 1];
-    print $link;
     $this->getSession()->visit($link);
   }
 

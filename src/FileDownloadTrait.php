@@ -282,8 +282,6 @@ trait FileDownloadTrait {
       throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path);
     }
 
-    print $file_path;
-
     return ['file_name' => $file_name, 'file_path' => $file_path] + $headers;
   }
 

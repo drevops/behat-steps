@@ -28,7 +28,6 @@ trait UserTrait {
     }
 
     $path = $this->locatePath('/user/' . $user->uid);
-    print $path;
     $this->getSession()->visit($path);
   }
 

@@ -176,7 +176,6 @@ trait MediaTrait {
 
     $mid = current($mids);
     $path = $this->locatePath('/media/' . $mid) . '/edit';
-    print $path;
     $this->getSession()->visit($path);
   }
 
