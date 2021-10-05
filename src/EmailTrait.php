@@ -5,6 +5,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
+
 use Drupal\Core\Database\Database;
 
 /**
@@ -34,6 +35,9 @@ trait EmailTrait {
 
     if (empty($this->emailTypes)) {
       $this->emailTypes[] = 'default';
+      if (\Drupal::service('module_handler')->moduleExists('webform')) {
+        $this->emailTypes[] = 'webform';
+      }
     }
 
     self::emailEnableTestEmailSystem();
@@ -95,7 +99,7 @@ trait EmailTrait {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
 
-    \Drupal::state()->set('system.test_mail_collector', []);
+    Drupal::state()->set('system.test_mail_collector', []);
   }
 
   /**
@@ -238,22 +242,22 @@ trait EmailTrait {
    * Get default mail system value.
    */
   protected static function emailGetMailSystemDefault($type = 'default') {
-    return \Drupal::config('system.mail')->get("interface.$type");
+    return Drupal::config('system.mail')->get("interface.$type");
   }
 
   /**
    * Set default mail system value.
    */
   protected static function emailSetMailSystemDefault($type, $value) {
-    \Drupal::configFactory()->getEditable('system.mail')->set("interface.$type", $value)->save();
+    Drupal::configFactory()->getEditable('system.mail')->set("interface.$type", $value)->save();
 
     // Maisystem module completely takes over default interface, so we need to
     // update it as well if the module is installed.
     // @note: For some unknown reasons, we do not need to reset this back to
     // the original values after the test. The values in the configuration
     // will not be overridden.
-    if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
-      \Drupal::configFactory()->getEditable('mailsystem.settings')
+    if (Drupal::service('module_handler')->moduleExists('mailsystem')) {
+      Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
         ->set('defaults.formatter', $value)
         ->save();
@@ -264,21 +268,21 @@ trait EmailTrait {
    * Get original mail system value.
    */
   protected static function emailGetMailSystemOriginal($type = 'default') {
-    return \Drupal::config('system.mail_original')->get("interface.$type");
+    return Drupal::config('system.mail_original')->get("interface.$type");
   }
 
   /**
    * Set original mail system value.
    */
   protected static function emailSetMailSystemOriginal($type, $value) {
-    return \Drupal::configFactory()->getEditable('system.mail_original')->set("interface.$type", $value)->save();
+    return Drupal::configFactory()->getEditable('system.mail_original')->set("interface.$type", $value)->save();
   }
 
   /**
    * Remove original mail system value.
    */
   protected static function emailDeleteMailSystemOriginal() {
-    return \Drupal::configFactory()->getEditable('system.mail_original')->delete();
+    return Drupal::configFactory()->getEditable('system.mail_original')->delete();
   }
 
   /**
