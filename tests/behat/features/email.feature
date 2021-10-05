@@ -40,8 +40,8 @@ Feature: Check that email assertions work for D8
     And I disable the test email system
 
   @api
-  Scenario: As a developer, I want to know that  email step defintion can handle
-  emails sent to multiple email addresses.
+  Scenario: As a developer, I want to know that an email is sent to step defintion can correctly assert
+  emails sent to multiple recipients.
     Given I enable the test email system
     When I send test email to "test@example.com,test2@example.com" with
       """
