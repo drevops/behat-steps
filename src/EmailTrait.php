@@ -34,6 +34,10 @@ trait EmailTrait {
 
     if (empty($this->emailTypes)) {
       $this->emailTypes[] = 'default';
+      $module_handler = \Drupal::service('module_handler');
+      if ($module_handler->moduleExists('webform')) {
+        $this->emailTypes[] = 'webform';
+      }
     }
 
     self::emailEnableTestEmailSystem();
@@ -103,7 +107,8 @@ trait EmailTrait {
    */
   public function emailAssertEmailIsSentTo($address) {
     foreach (self::emailGetCollectedEmails() as $email) {
-      if ($email['to'] == $address) {
+      $email_to = explode(',', $email['to']);
+      if (in_array($address, $email_to)) {
         return;
       }
     }
