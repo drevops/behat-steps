@@ -66,7 +66,27 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 
 Please note that you will need to rebuild to work on a different Drupal version.
 
-Use `ahoy --help` to see the list of available commands.   
+Use `ahoy --help` to see the list of available commands.
+
+### Apple M1 adjustments
+
+The AIO supported version of Pygmy does not appear to receive updates any longer,
+appears pygmy-go is the de-facto standard going forward. There is not a stable
+release with Apple Silicon support yet, however the following dev branch is
+entirely functional, so we need to build from sources.
+
+```
+pygmy down && pygmy-go down
+git clone --branch arm_testing git@github.com:tobybellwood/pygmy-go.git ./pygmy-go-dev
+cd ./pygmy-go-dev
+make build
+cd builds
+cp pygmy-go-darwin-arm64 $(which pygmy)
+pygmy version # should output 'Pygmy version unidentifiable.'
+pygmy up
+```
+
+Copy `default.docker-compose.override.yml` to `docker-compose.override.yml`.
 
 ### Behat tests
 After every `ahoy build`, a new installation of Drupal is created in `build` directory.
