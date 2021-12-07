@@ -22,12 +22,23 @@ trait EmailTrait {
   protected $emailTypes = [];
 
   /**
+   * Enable email debug.
+   *
+   * @var bool
+   */
+  protected $emailDebug = FALSE;
+
+  /**
    * @BeforeScenario
    */
   public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
+    }
+
+    if ($scope->getScenario()->hasTag('debug')) {
+      $this->emailDebug = TRUE;
     }
 
     $this->emailTypes = self::emailExtractTypes($scope->getScenario()->getTags());
@@ -288,12 +299,28 @@ trait EmailTrait {
   /**
    * Get emails collected during the test.
    */
-  protected static function emailGetCollectedEmails() {
+  protected function emailGetCollectedEmails() {
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
     $emails = array_map('unserialize', Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
 
-    return !empty($emails['system.test_mail_collector']) ? $emails['system.test_mail_collector'] : [];
+    $emails = !empty($emails['system.test_mail_collector']) ? $emails['system.test_mail_collector'] : [];
+
+    if ($this->emailDebug) {
+      $fields = ['to', 'from', 'subject', 'body'];
+      foreach ($emails as $idx => $email) {
+        printf("----------------------------------------\n");
+        printf("Email number: %s\n", $idx);
+        printf("----------------------------------------\n");
+        foreach ($fields as $field) {
+          printf("Field: %s\n", $field);
+          printf("Value: %s\n", $email[$field] ?? '<EMPTY>');
+          print PHP_EOL;
+        }
+      }
+    }
+
+    return $emails;
   }
 
   /**
