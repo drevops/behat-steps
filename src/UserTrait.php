@@ -49,7 +49,7 @@ trait UserTrait {
           $user = $this->userGetByMail($userHash['mail']);
         }
         elseif (isset($userHash['name'])) {
-          $user = $this->userGetByMail($userHash['name']);
+          $user = $this->userGetByName($userHash['name']);
         }
       }
       catch (\Exception $exception) {

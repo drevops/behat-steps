@@ -15,7 +15,7 @@ Feature: Check that UserTrait works for D8
     Then I should get a 200 HTTP response
 
   @api
-  Scenario: Assert "Given no users:"
+  Scenario: Assert "Given no users:" by name
     Given I am logged in as a user with the "administrator" role
     When I visit user "authenticated_user" profile
     Then I should get a 200 HTTP response
@@ -23,6 +23,18 @@ Feature: Check that UserTrait works for D8
     When no users:
       | name               |
       | authenticated_user |
+
+    Then user "authenticated_user" does not exists
+
+  @api
+  Scenario: Assert "Given no users:" by email
+    Given I am logged in as a user with the "administrator" role
+    When I visit user "authenticated_user" profile
+    Then I should get a 200 HTTP response
+
+    When no users:
+      | mail                             |
+      | authenticated_user@myexample.com |
 
     Then user "authenticated_user" does not exists
 
