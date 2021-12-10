@@ -137,7 +137,7 @@ trait UserTrait {
       return $mail;
     }
 
-    $users = $this->userLoadMultiple(['name' => $mail]);
+    $users = $this->userLoadMultiple(['mail' => $mail]);
     $user = reset($users);
 
     if (!$user) {
