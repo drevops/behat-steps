@@ -88,6 +88,7 @@
     },
     "scripts": {
         "drupal-post-install": [
+            "chmod 644 web/sites/default/settings.php; echo '$conf[\"test_var\"]=123;' >> web/sites/default/settings.php; chmod 444 web/sites/default/settings.php",
             "drush -r web en mysite_core -y"
         ]
     }
