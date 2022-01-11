@@ -158,7 +158,7 @@ trait VariableTrait {
   protected function variableRefresh() {
     global $conf;
     cache_clear_all('variables', 'cache_bootstrap');
-    $conf = variable_initialize();
+    $conf = variable_initialize($conf);
   }
 
 }

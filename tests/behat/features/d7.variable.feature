@@ -60,3 +60,19 @@ Feature: Check that variable assertions work for D7
     Line3
     """
     And I delete test variable "random_test_var6"
+
+  @api
+  Scenario: Preserving variables set in settings
+    Given variable "test_var" has value "123"
+    When I set test variable "random_test_var4" to value "init"
+    Then variable "random_test_var4" has value "init"
+    And variable "test_var" has value "123"
+
+  @api
+  Scenario: Overriding variables set in settings
+    Given variable "test_var" has value "123"
+    When I set test variable "random_test_var4" to value "init"
+    Then variable "random_test_var4" has value "init"
+    And variable "test_var" has value "123"
+    When I set variable "test_var" to value "456"
+    Then variable "test_var" has value "456"
