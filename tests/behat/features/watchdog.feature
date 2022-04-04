@@ -1,5 +1,5 @@
 @d8 @d9 @errorcleanup
-Feature: Check that WatchdogTrait works for D8
+Feature: Check that WatchdogTrait works for D8 or D9
 
   @trait:WatchdogTrait
   Scenario: Assert that watchdog fails with an error

@@ -1,6 +1,6 @@
 @d7
 Feature: Check that FieldTrait works
-  # @todo: Implement controller with a form for D8 and add this test.
+  # @todo: Implement controller with a form for D8 or D9 and add this test.
 
   Scenario: Assert field exists
     Given I go to "test-form"
