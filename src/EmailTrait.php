@@ -166,9 +166,9 @@ trait EmailTrait {
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
   public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
-    $user = $name == 'current' && !empty(self::user) ? self::user : user_load_by_name($name);
+    $user = $name == 'current' && !empty($this->getUserManager()->getCurrentUser()) ? $this->getUserManager()->getCurrentUser() : user_load_by_name($name);
     if (!$user) {
-      throw new \RuntimeException(sprintf('Unable to find a user "%s"', $name));
+      throw new \Exception(sprintf('Unable to find a user "%s"', $name));
     }
 
     if ($action == 'sent') {
