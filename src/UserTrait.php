@@ -112,6 +112,30 @@ trait UserTrait {
   }
 
   /**
+   * @Then I set user :user password to :password
+   */
+  public function userSetPassword($name, $password) {
+    if (empty($password)) {
+      throw new \RuntimeException('Password must be not empty.');
+    }
+
+    try {
+      /** @var \Drupal\user\UserInterface $user */
+      $user = $this->userGetByName($name);
+    }
+    catch (\Exception $e1) {
+      try {
+        $user = $this->userGetByMail($name);
+      }
+      catch (\Exception $e2) {
+        throw new \Exception(sprintf('Unable to find a user with name or email "%s".', $name));
+      }
+    }
+
+    $user->setPassword($password)->save();
+  }
+
+  /**
    * Get user by name.
    */
   protected function userGetByName($name) {
