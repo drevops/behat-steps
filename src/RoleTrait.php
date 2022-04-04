@@ -59,7 +59,7 @@ trait RoleTrait {
         throw new \RuntimeException('Missing required column "name"');
       }
 
-      $permissions = isset($hash['permissions']) ? $hash['permissions'] : '';
+      $permissions = $hash['permissions'] ?: '';
       $role = $this->roleCreateSingle($hash['name'], $permissions);
       $this->roles[] = $role->id();
     }
