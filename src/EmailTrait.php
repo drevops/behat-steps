@@ -163,6 +163,31 @@ trait EmailTrait {
   }
 
   /**
+   * @Then an email header :header contains:
+   */
+  public function emailAssertEmailHeadersContains($header, PyStringNode $string, $exact = FALSE) {
+    $string_value = (string) $string;
+    $string_value = $exact ? $string_value : trim(preg_replace('/\s+/', ' ', $string_value));
+
+    foreach ($this->emailGetCollectedEmails() as $email) {
+      $header_value = $email['headers'][$header] ?? '';
+      $header_value = $exact ? $header_value : trim(preg_replace('/\s+/', ' ', $header_value));
+      if (strpos($header_value, $string_value) !== FALSE) {
+        return $email;
+      }
+    }
+
+    throw new \Exception(sprintf('Unable to find email with%s text "%s" in the header "%s" retrieved from test email collector.', ($exact ? ' exact' : ''), $string, $header));
+  }
+
+  /**
+   * @Then an email header :header contains exact:
+   */
+  public function emailAssertEmailHeadersContainsExact($header, PyStringNode $string) {
+    $this->emailAssertEmailHeadersContains($header, $string, TRUE);
+  }
+
+  /**
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
   public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
