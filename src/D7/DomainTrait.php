@@ -43,9 +43,7 @@ trait DomainTrait {
 
     $user = $scope->getEntity();
     $all_domains = domain_domains();
-    $user->domain_user = isset($user->domain_user)
-      ? $user->domain_user
-      : array_combine(array_keys($all_domains), array_keys($all_domains));
+    $user->domain_user = $user->domain_user ?: array_combine(array_keys($all_domains), array_keys($all_domains));
   }
 
   /**
