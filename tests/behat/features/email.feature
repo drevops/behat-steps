@@ -52,6 +52,14 @@ Feature: Check that email assertions work for D8 or D9
     Then an email is sent to "test@example.com"
     And an email is sent to "test2@example.com"
     And no emails were sent to "test3@example.com"
+    And an email header "Content-Type" contains:
+    """
+    text/plain
+    """
+    And an email header "X-Mailer" contains:
+    """
+    Drupal
+    """
 
   @api
   Scenario: As a developer, I want to know that test email system is activated
