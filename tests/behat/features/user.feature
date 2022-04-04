@@ -56,3 +56,21 @@ Feature: Check that UserTrait works for D8 or D9
 
     Given user "authenticated_user_disabled" has "not active" status
     And user "authenticated_user_disabled" has "disabled" status
+
+  @api
+  Scenario: Assert "Then user :name has :status status"
+    Given I set user "administrator_user" password to "password123"
+    Given I set user "administrator_user@myexample.com" password to "password123"
+
+  @trait:UserTrait @api
+  Scenario: Assert that negative assertions fail with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I set user "non_existing_user" password to "password123"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find a user with name or email "non_existing_user".
+      """
