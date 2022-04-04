@@ -137,6 +137,32 @@ trait EmailTrait {
   }
 
   /**
+   * @Then no emails were sent to :address
+   */
+  public function emailAssertNoEmailsWereSentToAddress($address) {
+    foreach ($this->emailGetCollectedEmails() as $email) {
+      $email_to = explode(',', $email['to']);
+      if (in_array($address, $email_to)) {
+        throw new \Exception(sprintf('An email sent to "%s" retrieved from test email collector.', $address));
+      }
+
+      if (!empty($email['headers']['Cc'])) {
+        $email_cc = explode(',', $email['headers']['Cc']);
+        if (in_array($address, $email_cc)) {
+          throw new \Exception(sprintf('An email cc\'ed to "%s" retrieved from test email collector.', $address));
+        }
+      }
+
+      if (!empty($email['headers']['Bcc'])) {
+        $email_bcc = explode(',', $email['headers']['Bcc']);
+        if (in_array($address, $email_bcc)) {
+          throw new \Exception(sprintf('An email bcc\'ed to "%s" retrieved from test email collector.', $address));
+        }
+      }
+    }
+  }
+
+  /**
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
   public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
