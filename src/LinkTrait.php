@@ -54,4 +54,47 @@ trait LinkTrait {
     }
   }
 
+  /**
+   * @Then the link with title :title exists
+   */
+  public function linkAssertWithTitle($title) {
+    $title = $this->linkFixStepArgument($title);
+
+    $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
+
+    if (!$item) {
+      throw new \Exception(sprintf('The link with title "%s" does not exist.', $title));
+    }
+
+    return $item;
+  }
+
+  /**
+   * @Then the link with title :title does not exist
+   */
+  public function linkAssertWithNoTitle($title) {
+    $title = $this->linkFixStepArgument($title);
+
+    $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
+
+    if ($item) {
+      throw new \Exception(sprintf('The link with title "%s" exists, but should not.', $title));
+    }
+  }
+
+  /**
+   * @Then I click the link with title :title
+   */
+  public function linkClickWithTitle($title) {
+    $link = $this->linkAssertWithTitle($title);
+    $link->click();
+  }
+
+  /**
+   * Returns fixed step argument (with \\" replaced back to ").
+   */
+  protected function linkFixStepArgument($argument) {
+    return str_replace('\\"', '"', $argument);
+  }
+
 }

@@ -12,3 +12,41 @@ Feature: Check that LinkTrait works
   Scenario: Assert link with wildcard in href without locator
     Given I go to "/"
     Then I should see the link "Drupal" with "https://www.drupal*"
+
+  @api
+  Scenario: Assert link with wildcard in href without locator
+    Given I am logged in as a user with the "administrator" role
+    When I go to "/"
+    Then the link with title "Return to site content" exists
+    And the link with title "Some non-existing title" does not exist
+    And I click the link with title "Return to site content"
+
+  @trait:LinkTrait
+  Scenario: Assert that negative assertions fail with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I go to "/"
+      Then I click the link with title "Some non-existing title"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link with title "Some non-existing title" does not exist.
+      """
+
+  @trait:LinkTrait
+  Scenario: Assert that negative assertions fail with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I go to "/"
+      Then the link with title "Return to site content" does not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link with title "Return to site content" exists, but should not.
+      """
