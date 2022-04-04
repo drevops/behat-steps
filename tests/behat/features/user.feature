@@ -1,5 +1,5 @@
 @d8 @d9
-Feature: Check that UserTrait works for D8
+Feature: Check that UserTrait works for D8 or D9
 
   Background:
     Given users:
