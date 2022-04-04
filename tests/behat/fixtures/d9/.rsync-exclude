@@ -4,6 +4,8 @@
 - composer.lock
 - README.txt
 - example*
+- behat.yml
+- phpcs.xml
 + config
 + web
 + web/modules
