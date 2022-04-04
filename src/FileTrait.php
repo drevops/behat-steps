@@ -22,6 +22,13 @@ trait FileTrait {
   protected $files = [];
 
   /**
+   * Unmanaged file URIs.
+   *
+   * @var array
+   */
+  protected $filesUnmanagedUris = [];
+
+  /**
    * Ensures private and temp directories exist.
    *
    * @BeforeScenario
@@ -118,6 +125,10 @@ trait FileTrait {
       $file->delete();
     }
 
+    foreach ($this->filesUnmanagedUris as $uri) {
+      @unlink($uri);
+    }
+
     $this->files = [];
   }
 
@@ -161,6 +172,71 @@ trait FileTrait {
     }
 
     return $query->execute();
+  }
+
+  /**
+   * @Given unmanaged file :uri created
+   */
+  public function fileCreateUnmanaged($uri, $content = 'test') {
+    $dir = dirname($uri);
+    if (!file_exists($dir)) {
+      mkdir($dir, 0770, TRUE);
+    }
+
+    file_put_contents($uri, $content);
+
+    $this->filesUnmanagedUris[] = $uri;
+  }
+
+  /**
+   * @Given unmanaged file :uri created with content :content
+   */
+  public function fileCreateUnmanagedWithContent($uri, $content) {
+    $this->fileCreateUnmanaged($uri, $content);
+  }
+
+  /**
+   * @Then unmanaged file :uri exists
+   */
+  public function fileAssertUnmanagedExists($uri) {
+    if (!@file_exists($uri)) {
+      throw new \Exception(sprintf('The file %s does not exists.', $uri));
+    }
+  }
+
+  /**
+   * @Then unmanaged file :uri does not exist
+   */
+  public function fileAssertUnmanagedNotExists($uri) {
+    if (@file_exists($uri)) {
+      throw new \Exception(sprintf('The file %s exists but it should not.', $uri));
+    }
+  }
+
+  /**
+   * @Then unmanaged file :uri has content :content
+   */
+  public function fileAssertUnmanagedHasContent($uri, $content) {
+    $this->fileAssertUnmanagedExists($uri);
+
+    $file_content = @file_get_contents($uri);
+
+    if (strpos($file_content, $content) === FALSE) {
+      throw new \Exception(sprintf('File contents "%s" does not contain "%s".', $file_content, $content));
+    }
+  }
+
+  /**
+   * @Then unmanaged file :uri does not have content :content
+   */
+  public function fileAssertUnmanagedHasNoContent($uri, $content) {
+    $this->fileAssertUnmanagedExists($uri);
+
+    $file_content = @file_get_contents($uri);
+
+    if (strpos($file_content, $content) !== FALSE) {
+      throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));
+    }
   }
 
 }
