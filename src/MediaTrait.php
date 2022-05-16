@@ -138,20 +138,26 @@ trait MediaTrait {
   protected function mediaExpandEntityFieldsFixtures($stub) {
     $fixture_path = $this->getMinkParameter('files_path') ? rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : NULL;
 
-    foreach (get_object_vars($stub) as $name => $value) {
+    $fields = get_object_vars($stub);
+
+    $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
+
+    foreach ($fields as $name => $value) {
       if (strpos($name, 'field_') === FALSE) {
         continue;
       }
 
-      if (is_array($value)) {
-        if (!empty($value[0])) {
-          if (is_file($fixture_path . $value[0])) {
-            $stub->{$name}[0] = $fixture_path . $value[0];
+      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
+        if (is_array($value)) {
+          if (!empty($value[0])) {
+            if (is_file($fixture_path . $value[0])) {
+              $stub->{$name}[0] = $fixture_path . $value[0];
+            }
           }
         }
-      }
-      elseif (is_file($fixture_path . $value)) {
-        $stub->{$name} = $fixture_path . $value;
+        elseif (is_file($fixture_path . $value)) {
+          $stub->{$name} = $fixture_path . $value;
+        }
       }
     }
   }
