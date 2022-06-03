@@ -2,9 +2,9 @@
 Collection of Behat steps for Drupal 9, Drupal 8 and Drupal 7.
 
 [![CircleCI](https://circleci.com/gh/drevops/behat-steps.svg?style=shield)](https://circleci.com/gh/drevops/behat-steps)
-[![Latest Stable Version](https://poser.pugx.org/drevops/behat-steps/v/stable)](https://packagist.org/packages/drevops/behat-steps)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/behat-steps)
 [![Total Downloads](https://poser.pugx.org/drevops/behat-steps/downloads)](https://packagist.org/packages/drevops/behat-steps)
-[![License](https://poser.pugx.org/drevops/behat-steps/license)](https://packagist.org/packages/drevops/behat-steps)
+![LICENSE](https://img.shields.io/github/license/drevops/behat-steps)
 
 # Why traits?
 Usually, such packages implement own Drupal driver with several contexts, service containers and a lot of other useful architectural structures.
