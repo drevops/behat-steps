@@ -33,6 +33,27 @@ trait UserTrait {
   }
 
   /**
+   * Edit profile page of the user with provided name.
+   *
+   * @code
+   * When I edit user "johndoe" profile
+   * @endcode
+   *
+   * @When I edit user :name profile
+   */
+  public function userEditProfile($name) {
+    $user = user_load_by_name($name);
+
+    if (empty($user)) {
+      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+    }
+
+    $path = $this->locatePath('/user/' . $user->uid . '/edit');
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
    * Remove users with provided fields.
    *
    * @code

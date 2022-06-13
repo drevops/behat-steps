@@ -15,6 +15,12 @@ Feature: Check that UserTrait works for D7
     Then I should get a 200 HTTP response
 
   @api
+  Scenario: Assert "When I edit user :name profile"
+    Given I am logged in as a user with the "administrator" role
+    When I edit user "authenticated_user" profile
+    Then I should get a 200 HTTP response
+
+  @api
   Scenario: Assert "Given no users:"
     Given I am logged in as a user with the "administrator" role
     When I visit user "authenticated_user" profile

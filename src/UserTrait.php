@@ -39,6 +39,20 @@ trait UserTrait {
   }
 
   /**
+   * @When I edit user :name profile
+   */
+  public function userEditProfile($name) {
+    $user = $this->userGetByName($name);
+
+    if (empty($user)) {
+      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+    }
+
+    $path = $this->locatePath('/user/' . $user->id() . '/edit');
+    $this->getSession()->visit($path);
+  }
+
+  /**
    * @Given no users:
    */
   public function userDelete(TableNode $usersTable) {
