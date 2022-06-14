@@ -72,6 +72,7 @@ trait FileDownloadTrait {
 
     /** @var Behat\Mink\Driver\BrowserKitDriver $driver */
     $driver = $this->getSession()->getDriver();
+    // @todo: Check if $driver->getWebDriverSession() has getAllCookies() instead.
     if ($driver instanceof Selenium2Driver) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
       foreach ($cookies as $cookie) {

@@ -41,7 +41,7 @@ trait KeyboardTrait {
    */
   public function keyboardPressKeyOnElement($char, $selector = NULL) {
     $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
+    if (!$driver->supportsJavascript()) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
     }
 
@@ -138,6 +138,7 @@ trait KeyboardTrait {
    */
   protected function keyboardTriggerKey($xpath, $key) {
     $driver = $this->getSession()->getDriver();
+    // @todo: This looks like it actually uses Selenium2 :)
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
     }

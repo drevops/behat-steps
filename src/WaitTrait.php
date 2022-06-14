@@ -32,7 +32,7 @@ trait WaitTrait {
    */
   public function waitForAjaxToFinish($timeout) {
     $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
+    if (!($driver->supportsJavascript())) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
     }
 

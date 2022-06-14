@@ -30,7 +30,7 @@ trait BigPipeTrait {
     }
 
     $driver = $this->getSession()->getDriver();
-    if ($driver instanceof Selenium2Driver) {
+    if (!$driver->supportsJavascript()) {
       // Start driver's session manually if it is not already started.
       if (!$driver->isStarted()) {
         $driver->start();

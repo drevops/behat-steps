@@ -35,14 +35,14 @@ trait WysiwygTrait {
     }
 
     $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
-      // For non-Selenium driver process field in a standard way.
+    if (!$driver->supportsJavascript()) {
+      // For non-JS drivers process field in a standard way.
       $field->setValue($value);
 
       return;
     }
 
-    // For Selenium driver, try to find WYSIWYG iframe as a child of the
+    // For JS-capable drivers, try to find WYSIWYG iframe as a child of the
     // following sibling.
     $iframe_xpath = $field->getXpath() . "/following-sibling::div[contains(@class, 'cke')]//iframe";
     $page_iframe_elements = $driver->find($iframe_xpath);

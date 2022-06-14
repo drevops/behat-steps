@@ -30,7 +30,7 @@ trait JsTrait {
 
     if ($scope->getScenario()->hasTag('javascript')) {
       $driver = $this->getSession()->getDriver();
-      if ($driver instanceof Selenium2Driver) {
+      if ($driver->supportsJavascript()) {
         // Start driver's session manually if it is not already started.
         if (!$driver->isStarted()) {
           $driver->start();
@@ -38,7 +38,7 @@ trait JsTrait {
         $this->getSession()->resizeWindow(1440, 900, 'current');
       }
       else {
-        throw new \RuntimeException('Unable to load Selenium driver.');
+        throw new \RuntimeException('Unable to load JS-capable driver.');
       }
     }
   }
@@ -138,8 +138,8 @@ trait JsTrait {
   protected function jsExecute($selector, $script) {
     $driver = $this->getSession()->getDriver();
 
-    if (!($driver instanceof Selenium2Driver)) {
-      throw new \RuntimeException('JavaScript commands can only be used with Selenium driver.');
+    if (!$driver->supportsJavascript()) {
+      throw new \RuntimeException('JavaScript commands can only be used with a driver which supports JavaScript.');
     }
 
     // Inject style to disable browser scrollbars.
