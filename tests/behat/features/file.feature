@@ -1,5 +1,5 @@
-@d8 @d9
-Feature: Check that FileTrait works for D8 or D9
+@d9
+Feature: Check that FileTrait works for or D9
 
   @api
   Scenario: Assert "Given managed file:"
@@ -37,7 +37,7 @@ Feature: Check that FileTrait works for D8 or D9
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The file public://test4.txt does not exists.
+      The file public://test4.txt does not exist.
       """
 
   @trait:FileTrait

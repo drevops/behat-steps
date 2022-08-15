@@ -54,6 +54,14 @@ class BehatCliContext implements Context
      * @var string
      */
     private $options = '--format-settings=\'{"timer": false}\' --no-interaction';
+    /**
+     * @var array
+     */
+    private $env = array();
+    /**
+     * @var string
+     */
+    private $answerString;
 
     /**
      * Cleans test folders in the temporary directory.
@@ -87,8 +95,6 @@ class BehatCliContext implements Context
         }
         $this->workingDir = $dir;
         $this->phpBin = $php;
-        $this->process = new Process(null);
-        $this->process->setTimeout(20);
     }
 
     /**
@@ -180,13 +186,23 @@ EOL;
     /**
      * Sets specified ENV variable
      *
+     * @When /^the "([^"]*)" environment variable is set to "([^"]*)"$/
+     */
+    public function iSetEnvironmentVariable($name, $value)
+    {
+        $this->env = array($name => (string) $value);
+    }
+
+    /**
+     * Sets the BEHAT_PARAMS env variable
+     *
      * @When /^"BEHAT_PARAMS" environment variable is set to:$/
      *
      * @param PyStringNode $value
      */
-    public function iSetEnvironmentVariable(PyStringNode $value)
+    public function iSetBehatParamsEnvironmentVariable(PyStringNode $value)
     {
-        $this->process->setEnv(array('BEHAT_PARAMS' => (string) $value));
+        $this->env = array('BEHAT_PARAMS' => (string) $value);
     }
 
     /**
@@ -200,16 +216,24 @@ EOL;
     {
         $argumentsString = strtr($argumentsString, array('\'' => '"'));
 
-        $this->process->setWorkingDirectory($this->workingDir);
-        $this->process->setCommandLine(
-            sprintf(
-                '%s %s %s %s',
-                $this->phpBin,
-                escapeshellarg(BEHAT_BIN_PATH),
-                $argumentsString,
-                strtr($this->options, array('\'' => '"', '"' => '\"'))
-            )
+        $cmd = sprintf(
+            '%s %s %s %s',
+            $this->phpBin,
+            escapeshellarg(BEHAT_BIN_PATH),
+            $argumentsString,
+            strtr($this->options, array('\'' => '"', '"' => '\"'))
         );
+
+        $this->process = Process::fromShellCommandline($cmd);
+
+        // Prepare the process parameters.
+        $this->process->setTimeout(20);
+        $this->process->setEnv($this->env);
+        $this->process->setWorkingDirectory($this->workingDir);
+
+        if (!empty($this->answerString)) {
+            $this->process->setInput($this->answerString);
+        }
 
         // Don't reset the LANG variable on HHVM, because it breaks HHVM itself
         if (!defined('HHVM_VERSION')) {
@@ -231,11 +255,9 @@ EOL;
      */
     public function iRunBehatInteractively($answerString, $argumentsString)
     {
-        $env = $this->process->getEnv();
-        $env['SHELL_INTERACTIVE'] = true;
+        $this->env['SHELL_INTERACTIVE'] = true;
 
-        $this->process->setEnv($env);
-        $this->process->setInput($answerString);
+        $this->answerString = $answerString;
 
         $this->options = '--format-settings=\'{"timer": false}\'';
         $this->iRunBehat($argumentsString);
@@ -316,7 +338,10 @@ EOL;
 
         $fileContent = trim(file_get_contents($path));
 
-        $fileContent = preg_replace('/time="(.*)"/', 'time="-IGNORE-VALUE-"', $fileContent);
+        $fileContent = preg_replace('/time="(.*)"/U', 'time="-IGNORE-VALUE-"', $fileContent);
+
+        // The placeholder is necessary because of different separators on Unix and Windows environments
+        $text = str_replace('-DIRECTORY-SEPARATOR-', DIRECTORY_SEPARATOR, $text);
 
         $dom = new DOMDocument();
         $dom->loadXML($text);
@@ -361,6 +386,13 @@ EOL;
             );
             $text = preg_replace_callback(
                 '/\+[fd] [^ ]+/', function ($matches) {
+                    return str_replace('/', DIRECTORY_SEPARATOR, $matches[0]);
+                }, $text
+            );
+
+            // error stacktrace
+            $text = preg_replace_callback(
+                '/#\d+ [^:]+:/', function ($matches) {
                     return str_replace('/', DIRECTORY_SEPARATOR, $matches[0]);
                 }, $text
             );
@@ -418,13 +450,20 @@ EOL;
     {
         $output = $this->process->getErrorOutput() . $this->process->getOutput();
 
-        // Normalize the line endings in the output
+        // Normalize the line endings and directory separators in the output
         if ("\n" !== PHP_EOL) {
             $output = str_replace(PHP_EOL, "\n", $output);
         }
 
+        // Remove location of the project
+        $output = str_replace(realpath(dirname(dirname(__DIR__))).DIRECTORY_SEPARATOR, '', $output);
+
         // Replace wrong warning message of HHVM
         $output = str_replace('Notice: Undefined index: ', 'Notice: Undefined offset: ', $output);
+
+        // replace error messages that changed in PHP8
+        $output = str_replace('Warning: Undefined array key','Notice: Undefined offset:', $output);
+        $output = preg_replace('/Class "([^"]+)" not found/', 'Class \'$1\' not found', $output);
 
         return trim(preg_replace("/ +$/m", '', $output));
     }

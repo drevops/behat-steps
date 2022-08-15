@@ -13,14 +13,27 @@ aliases:
       - checkout
       - setup_remote_docker
       - run:
+          name: Adjust codebase for CI
+          command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+      - run:
           name: Build
-          command: .circleci/build.sh
+          command: ahoy build
           no_output_timeout: 30m
-      - run: .circleci/test.sh
+      - run:
+          name: Lint code
+          command: ahoy lint
+      - run:
+          name: Run tests
+          command: ahoy test-bdd
       - run:
           name: Process artifacts
-          command: .circleci/process-artifacts.sh
+          command: |
+            ahoy cli "mkdir -p /app/screenshots"
+            mkdir -p /tmp/artifacts/behat
+            docker cp "$(docker-compose ps -q cli)":/app/screenshots /tmp/artifacts/behat
           when: always
+      - store_test_results:
+          path: /tmp/test_results
       - store_artifacts:
           path: /tmp/artifacts
 

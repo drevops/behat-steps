@@ -187,7 +187,7 @@ trait MediaTrait {
   }
 
   /**
-   * Helper to load multiple media entities with specified type and conditions.
+   * Load multiple media entities with specified type and conditions.
    *
    * @param string $type
    *   The node type.

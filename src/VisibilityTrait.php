@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait VisibilityTrait.
  *
+ * Visibility-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait VisibilityTrait {

@@ -8,11 +8,15 @@ use Drupal\user\Entity\User;
 /**
  * Trait UserTrait.
  *
+ * User-related steps.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait UserTrait {
 
   /**
+   * Visit profile page of the specified user.
+   *
    * @When I visit user :name profile
    */
   public function userVisitProfile($name) {
@@ -27,6 +31,8 @@ trait UserTrait {
   }
 
   /**
+   * Visit edit page of the specified user.
+   *
    * @When I go to my edit profile page
    */
   public function userVisitOwnProfilePage() {
@@ -39,6 +45,8 @@ trait UserTrait {
   }
 
   /**
+   * Remove users specified in the table.
+   *
    * @Given no users:
    */
   public function userDelete(TableNode $usersTable) {
@@ -64,6 +72,8 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user has roles assigned.
+   *
    * @Then user :name has :roles role(s) assigned
    */
   public function userAssertHasRoles($name, $roles) {
@@ -80,6 +90,8 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user does not have roles assigned.
+   *
    * @Then user :name does not have :roles role(s) assigned
    */
   public function userAssertHasNoRoles($name, $roles) {
@@ -96,6 +108,8 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user is active or not.
+   *
    * @Then user :name has :status status
    */
   public function userAssertHasStatus($name, $status) {
@@ -112,6 +126,8 @@ trait UserTrait {
   }
 
   /**
+   * Set a password for a user.
+   *
    * @Then I set user :user password to :password
    */
   public function userSetPassword($name, $password) {
@@ -172,7 +188,7 @@ trait UserTrait {
   }
 
   /**
-   * Helper to load multiple users with specified conditions.
+   * Load multiple users with specified conditions.
    *
    * @param array $conditions
    *   Conditions keyed by field names.

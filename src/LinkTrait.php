@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait LinkTrait.
  *
+ * Link-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait LinkTrait {
@@ -55,6 +57,8 @@ trait LinkTrait {
   }
 
   /**
+   * Assert that a link with a title exists.
+   *
    * @Then the link with title :title exists
    */
   public function linkAssertWithTitle($title) {
@@ -70,6 +74,8 @@ trait LinkTrait {
   }
 
   /**
+   * Assert that a link with a title does not exist.
+   *
    * @Then the link with title :title does not exist
    */
   public function linkAssertWithNoTitle($title) {
@@ -83,6 +89,8 @@ trait LinkTrait {
   }
 
   /**
+   * Click on the link with a title.
+   *
    * @Then I click the link with title :title
    */
   public function linkClickWithTitle($title) {

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file
+ * Trait to test Behat script by using Behat cli.
+ *
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
+ */
+
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use PHPUnit\Framework\Assert;
@@ -89,7 +96,7 @@ class FeatureContext extends DrupalContext {
   /**
    * @Given set watchdog error level :level
    */
-  public function setWatchdogErrorDrupal8($level) {
+  public function setWatchdogErrorDrupal9($level) {
     \Drupal::logger('php')->log($level, 'test');
   }  
       

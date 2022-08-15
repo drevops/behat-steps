@@ -8,6 +8,8 @@ use Drupal\user\Entity\User;
 /**
  * Trait ContentTrait.
  *
+ * Content-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait ContentTrait {
@@ -133,6 +135,8 @@ trait ContentTrait {
   }
 
   /**
+   * Visit scheduled-transition page for node with title.
+   *
    * @When I visit :type :title scheduled transitions
    */
   public function contentVisitScheduledTransitionsPageWithTitle($type, $title) {
@@ -151,7 +155,7 @@ trait ContentTrait {
   }
 
   /**
-   * Helper to load multiple nodes with specified type and conditions.
+   * Load multiple nodes with specified type and conditions.
    *
    * @param string $type
    *   The node type.

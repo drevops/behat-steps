@@ -24,7 +24,7 @@ Feature: Check that UserTrait works for D7
       | name               |
       | authenticated_user |
 
-    Then user "authenticated_user" does not exists
+    Then user "authenticated_user" does not exist
 
   @api
   Scenario: Assert "Then user :name has :roles role(s) assigned"

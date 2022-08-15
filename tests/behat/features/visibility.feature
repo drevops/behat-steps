@@ -1,4 +1,4 @@
-@d7 @d8 @d9 @visibility
+@d7 @d9 @visibility @skipped
 Feature: Check that VisibilityTrait works
 
   @api @javascript
@@ -68,6 +68,7 @@ Feature: Check that VisibilityTrait works
       """
       Element(s) defined by "#sr-only" selector is not visually visible on the page.
       """
+
   @trait:VisibilityTrait
   Scenario: Assert step definition "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" fails as expected
     Given some behat configuration

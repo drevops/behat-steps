@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps\D7;
 /**
  * Trait MediaTrait.
  *
+ * Steps to work with media for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait MediaTrait {

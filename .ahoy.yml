@@ -3,44 +3,49 @@ ahoyapi: v2
 
 commands:
 
-  # Docker commands.
   build:
     usage: Build or rebuild project.
     cmd: |
-      ahoy title "Building project for Drupal $DRUPAL_VERSION"
       ahoy clean
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
-      ahoy up -- --build --force-recreate
-      ahoy install-dev
+      ahoy up -- --build --force-recreate   
+      docker cp -L . "$(docker-compose ps -q cli)":/app/
       ahoy install-site
-      ahoy title "Build complete"
       ahoy info 1
 
   info:
     usage: Print information about this project.
     cmd: |
-      ahoy line "Project                  : " $(ahoy cli echo \${PROJECT})
-      ahoy line "Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
-      ahoy line "Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
-      ahoy line "Path to project          : " $(ahoy cli echo /app)
-      ahoy line "Path to web root         : " $(ahoy cli echo /app/build/web)
-      ahoy line "DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
-      ahoy line "Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
-      if [ "$1" ]; then
-        ahoy line "One-time login           : " $(ahoy login -- --no-browser)
+      echo "  Project                  : " $(ahoy cli echo \${PROJECT})
+      echo "  Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
+      echo "  Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
+      echo "  Path to project          : " $(ahoy cli echo /app)
+      echo "  Path to web root         : " $(ahoy cli echo /app/build/web)
+      echo "  DB port on host          : " $(docker port $(docker-compose ps -q mariadb) 3306 | cut -d : -f 2)
+      echo "  Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
+      if [ -n "$1" ]; then
+        echo "  One-time login           : " $(ahoy login -- --no-browser)
       fi
+
+  db:
+    usage: Open DB in Sequel Ace.
+    cmd: |
+      uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace'|grep -q "Ace" \
+      && DREVOPS_HOST_DB_PORT="$(docker port $(docker-compose ps -q mariadb 2>/dev/null) 3306 2>/dev/null | cut -d : -f 2)" \
+      && open "mysql://drupal:drupal@127.0.0.1:${DREVOPS_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
+      || echo "Not a supported OS or Sequel Ace is not installed."
+
+  # ----------------------------------------------------------------------------
+  # Docker commands.
+  # ----------------------------------------------------------------------------
 
   up:
     usage: Build and start Docker containers.
-    cmd: |
-      docker-compose up -d "$@"
-      sleep 10 # Wait for DB container to come up without using Dockerize.
-      if docker-compose logs | grep -q "\[Error\]"; then docker-compose logs; exit 1; fi
-      docker ps -a --filter name=^/${COMPOSE_PROJECT_NAME:-behat-steps}_
+    cmd: docker-compose up -d "$@" && if docker-compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
     usage: Stop Docker containers and remove container, images, volumes and networks.
-    cmd: "if [ -f \"docker-compose.yml\" ]; then docker-compose down --volumes; fi"
+    cmd: if [ -f "docker-compose.yml" ]; then docker-compose down --volumes > /dev/null 2>&1; fi
 
   start:
     usage: Start existing Docker containers.
@@ -60,43 +65,31 @@ commands:
 
   pull:
     usage: Pull latest docker images.
-    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep amazeeio/ | grep -v none | xargs -n1 docker pull | cat; fi
+    cmd: if [ ! -z "$(docker image ls -q)" ]; then docker image ls --format \"{{.Repository}}:{{.Tag}}\" | grep uselagoon/ | grep -v none | xargs -n1 docker pull | cat; fi
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker exec -i $(docker-compose ps -q cli) bash -c "$*"; else docker exec -it $(docker-compose ps -q cli) bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
+
+  composer:
+    usage: Run Composer commands in the CLI service container.
+    cmd: docker-compose exec -T cli composer "$@"
 
   drush:
-    usage: Run drush commands in the CLI service container.
+    usage: Run Drush commands in the CLI service container.
     cmd: docker-compose exec -T cli bash -c "drush -r /app/build/web -l \${LOCALDEV_URL} $*"
 
+  # ----------------------------------------------------------------------------
   # Application commands.
+  # ----------------------------------------------------------------------------
+
   login:
     usage: Login to a website.
-    cmd: ahoy drush uublk 1 -q && ahoy drush uli "$@"
+    cmd: ahoy drush uli "$@"
 
   install-site:
     usage: Install a fixture test site.
-    cmd: |
-      ahoy title "Installing fixture Drupal $DRUPAL_VERSION site"
-      # Remove exiting build assets.
-      ahoy cli "chmod -Rf 777 /app/build/web || true; rm -Rf /app/build/web || true; rm -Rf /app/build/vendor || true; mkdir -p /app/build/web"
-      # Copy fixture files to the build dir.
-      ahoy cli "cp -Rf /app/tests/behat/fixtures/d\$DRUPAL_VERSION/. /app/build/"
-      # In CI, where volume mounting into container is not supported, copy all files into container.
-      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
-      # Copy tool configs and tests into build dir.
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/build
-      docker cp -L behat.yml $(docker-compose ps -q cli):/app/build
-      docker cp -L tests $(docker-compose ps -q cli):/app/build
-      # Install Composer dependencies inside of the build dir.
-      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app/build install --prefer-dist --no-suggest"
-      # Install Drupal site.
-      ahoy cli "/usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/web si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx"
-      # Run post-install commands defined in the composer.json for each sepecific fixture.
-      ahoy cli "composer --working-dir=/app/build drupal-post-install"
-      # Copy test fixture.
-      ahoy cli "cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/relative.html"
+    cmd: ahoy cli "./.circleci/install-site.sh"
 
   clean:
     usage: Remove containers and all build files.
@@ -112,59 +105,29 @@ commands:
 
   reset:
     usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
-    cmd: |
-      ahoy clean
-      rm -rf ./screenshots \
-        ./composer.lock
-
-  install-dev:
-    usage: Install dependencies for this package.
-    cmd: |
-      ahoy cli "mkdir -p /app/build"
-      [ ${CI+x} ] && docker cp -L . $(docker-compose ps -q cli):/app/ || true
-      docker cp -L tests $(docker-compose ps -q cli):/app/
-      docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
-      docker cp -L behat.yml $(docker-compose ps -q cli):/app/build/
-      ahoy cli "COMPOSER_MEMORY_LIMIT=-1 composer install -n --ansi --prefer-dist"
-    hide: true
-
-  update-fixtures:
-    usage: Update fixture files for Drupal
-    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d$DRUPAL_VERSION/.rsync-exclude build/ tests/behat/fixtures/d$DRUPAL_VERSION/
+    cmd: ahoy clean && rm -rf ./screenshots ./composer.lock
 
   lint:
-    usage: Lint all code.
-    cmd: |
-      ahoy cli "vendor/bin/parallel-lint --exclude vendor --exclude node_modules -e \$PHP_LINT_EXTENSIONS \${PHP_LINT_TARGETS//,/ }" && \
-      ahoy cli "vendor/bin/phpcs -v \${PHPCS_TARGETS//,/ }"
+    usage: Lint code.
+    cmd: ahoy cli "cd /app/build && vendor/bin/phpcs --standard=../phpcs.xml"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd /app/build && BEHAT_SCREENSHOT_DIR=/app/screenshots BEHAT_SCREENSHOT_PURGE=${BEHAT_SCREENSHOT_PURGE:-} vendor/bin/behat --strict --colors --profile=d$DRUPAL_VERSION $@"
+    cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors --profile=d${DRUPAL_VERSION} $@"
 
   debug:
-    usage: Enable debug configuration.
+    usage: Enable PHP Xdebug.
     cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
 
-  # Utilities.
-  confirm:
-    cmd: read -r -p "${@} [y/N] " response; [ ${response} = "y" ]
-    hide: true
-
-  title:
-    cmd: printf "$(tput -Txterm setaf 4)==> ${1}$(tput -Txterm sgr0)\n"
-    hide: true
-
-  line:
-    cmd: printf "$(tput -Txterm setaf 2)${1}$(tput -Txterm sgr0)${2}\n"
-    hide: true
+  update-fixtures:
+    usage: Update fixture files for Drupal.
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d$DRUPAL_VERSION/.rsync-exclude build/ tests/behat/fixtures/d$DRUPAL_VERSION/
 
 entrypoint:
   - bash
   - "-c"
   - "-e"
   - |
-    [ -f .env ] && [ -s .env ] && export $(grep -v '^#' .env | xargs) && if [ -f .env.local ] && [ -s .env.local ]; then export $(grep -v '^#' .env.local | xargs); fi
     export DRUPAL_VERSION=${DRUPAL_VERSION:-9}
     bash -e -c "$0" "$@"
   - '{{cmd}}'

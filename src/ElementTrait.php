@@ -5,11 +5,15 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait Element.
  *
+ * Steps to work with HTML element.
+ *
  * @package DrevOps\BehatSteps
  */
 trait ElementTrait {
 
   /**
+   * Assert that an element with selector and attribute with a value exists.
+   *
    * @Then I( should) see the :selector element with the :attribute attribute set to :value
    */
   public function elementAssertAttributeHasValue($selector, $attribute, $value) {

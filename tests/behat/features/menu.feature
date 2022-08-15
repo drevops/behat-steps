@@ -1,5 +1,5 @@
-@d8 @d9
-Feature: Check that MenuTrait works for D8 or D9
+@d9
+Feature: Check that MenuTrait works for or D9
 
   @api
   Scenario: Assert "Given menus:"

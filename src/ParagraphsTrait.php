@@ -9,6 +9,10 @@ use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Trait ParagraphsTrait.
+ *
+ * Paragraphs-related steps.
+ *
+ * @package DrevOps\BehatSteps
  */
 trait ParagraphsTrait {
 
@@ -20,6 +24,8 @@ trait ParagraphsTrait {
   protected static $paragraphs = [];
 
   /**
+   * Clean all paragraphs instances after scenario run.
+   *
    * @AfterScenario
    */
   public function paragraphsCleanAll(AfterScenarioScope $scope) {

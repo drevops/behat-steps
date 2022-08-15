@@ -9,6 +9,8 @@ use Drupal\user\Entity\User;
 /**
  * Trait TaxonomyTrait.
  *
+ * Taxonomy term-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait TaxonomyTrait {
@@ -87,6 +89,8 @@ trait TaxonomyTrait {
   }
 
   /**
+   * Visit specified vocabulary term page.
+   *
    * @When I visit :vocabulary vocabulary term :name
    */
   public function taxonomyVisitTermPageWithName($vocabulary, $name) {
@@ -107,6 +111,8 @@ trait TaxonomyTrait {
   }
 
   /**
+   * Visit specified vocabulary term edit page.
+   *
    * @When I edit :vocabulary vocabulary term :name
    */
   public function taxonomyEditTermPageWithName($vocabulary, $name) {
@@ -127,7 +133,7 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Helper to load multiple terms with specified vocabulary and conditions.
+   * Load multiple terms with specified vocabulary and conditions.
    *
    * @param string $vocabulary
    *   The term vocabulary.

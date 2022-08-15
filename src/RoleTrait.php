@@ -8,6 +8,10 @@ use Drupal\user\Entity\Role;
 
 /**
  * Trait RoleTrait.
+ *
+ * Role-related steps.
+ *
+ * @package DrevOps\BehatSteps
  */
 trait RoleTrait {
 
@@ -19,6 +23,8 @@ trait RoleTrait {
   protected $roles = [];
 
   /**
+   * Create a single role with specified permisisons.
+   *
    * @Given role :name with permissions :permissions
    */
   public function roleCreateSingle($name, $permissions) {
@@ -51,6 +57,8 @@ trait RoleTrait {
   }
 
   /**
+   * Create multiple roles from the specified table.
+   *
    * @Given roles:
    */
   public function roleCreateMultiple(TableNode $table) {
@@ -66,6 +74,8 @@ trait RoleTrait {
   }
 
   /**
+   * Remove all roles after scenario run.
+   *
    * @AfterScenario
    */
   public function roleCleanAll(AfterScenarioScope $scope) {

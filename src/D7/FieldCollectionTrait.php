@@ -9,6 +9,8 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 /**
  * Trait FieldCollectionTrait.
  *
+ * Steps to work with Field Collections for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait FieldCollectionTrait {
@@ -28,6 +30,8 @@ trait FieldCollectionTrait {
   protected static $fieldCollectionItemsFields;
 
   /**
+   * Parse fields for a field collection.
+   *
    * @BeforeNodeCreate
    */
   public static function fieldCollectionParseFields(BeforeNodeCreateScope $scope) {

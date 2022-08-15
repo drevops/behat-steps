@@ -1,5 +1,5 @@
-@d8 @d9
-Feature: Check that FileDownloadTrait works for D8 or D9
+@d9
+Feature: Check that FileDownloadTrait works for or D9
 
   Background:
     Given I am logged in as a user with the "administrator" role

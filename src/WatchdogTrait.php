@@ -9,6 +9,8 @@ use Drupal\Core\Database\Database;
 /**
  * Trait WatchdogTrait.
  *
+ * Watchdog-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait WatchdogTrait {

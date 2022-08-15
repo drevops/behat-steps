@@ -11,6 +11,10 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Trait FileDownloadTrait.
+ *
+ * Steps to work with file downloads.
+ *
+ * @package DrevOps\BehatSteps
  */
 trait FileDownloadTrait {
 
@@ -22,6 +26,8 @@ trait FileDownloadTrait {
   protected $fileDownloadDownloadedFileInfo;
 
   /**
+   * Prepare scenario to work with this trait.
+   *
    * @BeforeScenario
    */
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope) {
@@ -37,6 +43,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Cleanup after scenario run.
+   *
    * @AfterScenario
    */
   public function fileDownloadAfterScenario(AfterScenarioScope $scope) {
@@ -51,6 +59,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Download a file from the specified URL.
+   *
    * @Then I download file from :url
    */
   public function fileDownloadFrom($url) {
@@ -91,6 +101,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Download the file from the specified HTML link.
+   *
    * @Then I download file from link :link
    */
   public function fileDownloadFromLink($link) {
@@ -101,6 +113,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert that an HTML link is present or absent on the page.
+   *
    * @Then I see download :link link :presence(on the page)
    */
   public function fileDownloadAssertLinkPresence($link, $presense) {
@@ -120,6 +134,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert the contents of the download file.
+   *
    * @Then downloaded file contains:
    */
   public function fileDownloadAssertFileContains(PyStringNode $string) {
@@ -143,6 +159,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert the file name of the downloaded file.
+   *
    * @Then downloaded file name is :name
    */
   public function fileDownloadAssertFileName($name) {
@@ -156,6 +174,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert downloaded file is a ZIP archive and it contains files.
+   *
    * @Then downloaded file is zip archive that contains files:
    */
   public function fileDownloadAssertZipContains(TableNode $files) {
@@ -174,6 +194,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Assert downloaded file is a ZIP archive and it does not contain files.
+   *
    * @Then downloaded file is zip archive that does not contain files:
    */
   public function fileDownloadAssertNoZipContains(TableNode $files) {
@@ -288,7 +310,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to extract downloaded file information from the response headers.
+   * Extract downloaded file information from the response headers.
    *
    * @param array $headers
    *   Array of headers from CURL.
@@ -314,7 +336,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to prepare temporary directory for file downloads.
+   * Prepare temporary directory for file downloads.
    */
   protected function fileDownloadPrepareTempDir() {
     $fs = new Filesystem();
@@ -324,7 +346,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to remove temporary directory for file downloads.
+   * Remove temporary directory for file downloads.
    */
   protected function fileDownloadRemoveTempDir() {
     $fs = new Filesystem();

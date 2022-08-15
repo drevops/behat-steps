@@ -8,11 +8,15 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 /**
  * Trait WaitTrait.
  *
+ * Wait for time or other actions on the page.
+ *
  * @package DrevOps\BehatSteps
  */
 trait WaitTrait {
 
   /**
+   * Wait for a specified number of seconds.
+   *
    * @Then /^(?:|I )wait (\d+) second(s?)$/
    */
   public function waitSeconds($seconds) {

@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait PathTrait.
  *
+ * Path-related assertions.
+ *
  * @package DrevOps\BehatSteps
  */
 trait PathTrait {
