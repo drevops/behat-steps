@@ -99,6 +99,40 @@ trait LinkTrait {
   }
 
   /**
+   * Assert that the link with a text is absolute.
+   *
+   * @Then the link( with title) :text is an absolute link
+   */
+  public function assertLinkAbsolute($text) {
+    /** @var \Behat\Mink\Element\DocumentElement $page */
+    $link = $this->getSession()->getPage()->findLink($text);
+    if (!$link) {
+      throw new \Exception(sprintf('The link "%s" is not found', $text));
+    }
+    $href = $link->getAttribute('href');
+    if (!parse_url($href, PHP_URL_SCHEME)) {
+      throw new \Exception(sprintf('The link "%s" is not an absolute link.', $text));
+    }
+  }
+
+  /**
+   * Assert that the link with a title is not absolute.
+   *
+   * @Then the link( with title) :text is not an absolute link
+   */
+  public function assertLinkNotAbsolute($text) {
+    /** @var \Behat\Mink\Element\DocumentElement $page */
+    $link = $this->getSession()->getPage()->findLink($text);
+    if (!$link) {
+      throw new \Exception(sprintf('The link "%s" is not found', $text));
+    }
+    $href = $link->getAttribute('href');
+    if (parse_url($href, PHP_URL_SCHEME)) {
+      throw new \Exception(sprintf('The link "%s" is an absolute link.', $text));
+    }
+  }
+
+  /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
   protected function linkFixStepArgument($argument) {
