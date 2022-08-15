@@ -23,7 +23,7 @@ trait UserTrait {
     $user = $this->userGetByName($name);
 
     if (empty($user)) {
-      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
     }
 
     $path = $this->locatePath('/user/' . $user->id());
@@ -31,7 +31,7 @@ trait UserTrait {
   }
 
   /**
-   * Visit edit page of the specified user.
+   * Visit edit page of the current user.
    *
    * @When I go to my edit profile page
    */
@@ -42,6 +42,22 @@ trait UserTrait {
     }
     $page = '/user/' . $user->uid . '/edit';
     $this->visitPath($page);
+  }
+
+  /**
+   * Visit edit page of the specified user.
+   *
+   * @When I edit user :name profile
+   */
+  public function userEditProfile($name) {
+    $user = $this->userGetByName($name);
+
+    if (empty($user)) {
+      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
+    }
+
+    $path = $this->locatePath('/user/' . $user->id() . '/edit');
+    $this->getSession()->visit($path);
   }
 
   /**
@@ -85,7 +101,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->getRoles())) != count($roles)) {
-      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s"', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
+      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
     }
   }
 
@@ -103,7 +119,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
-      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s"', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
+      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
     }
   }
 
@@ -117,11 +133,11 @@ trait UserTrait {
 
     $user = $this->userGetByName($name);
     if (!$user) {
-      throw new \Exception(sprintf('Unable to find user with name %s', $name));
+      throw new \Exception(sprintf('Unable to find user with name %s.', $name));
     }
 
     if ($user->isActive() != $status) {
-      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s"', $name, $status ? 'active' : 'blocked', $user->isActive() ? 'active' : 'blocked'));
+      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s".', $name, $status ? 'active' : 'blocked', $user->isActive() ? 'active' : 'blocked'));
     }
   }
 
@@ -163,7 +179,7 @@ trait UserTrait {
     $user = reset($users);
 
     if (!$user) {
-      throw new \RuntimeException(sprintf('Unable to find user with name "%s"', $name));
+      throw new \RuntimeException(sprintf('Unable to find user with name "%s".', $name));
     }
 
     return $user;
@@ -181,7 +197,7 @@ trait UserTrait {
     $user = reset($users);
 
     if (!$user) {
-      throw new \RuntimeException(sprintf('Unable to find user with mail "%s"', $mail));
+      throw new \RuntimeException(sprintf('Unable to find user with mail "%s".', $mail));
     }
 
     return $user;
