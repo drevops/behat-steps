@@ -26,10 +26,31 @@ trait UserTrait {
     $user = user_load_by_name($name);
 
     if (empty($user)) {
-      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
     }
 
     $path = $this->locatePath('/user/' . $user->uid);
+    print $path;
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Edit profile page of the user with provided name.
+   *
+   * @code
+   * When I edit user "johndoe" profile
+   * @endcode
+   *
+   * @When I edit user :name profile
+   */
+  public function userEditProfile($name) {
+    $user = user_load_by_name($name);
+
+    if (empty($user)) {
+      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
+    }
+
+    $path = $this->locatePath('/user/' . $user->uid . '/edit');
     print $path;
     $this->getSession()->visit($path);
   }
@@ -88,7 +109,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->roles)) != count($roles)) {
-      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
+      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->roles)));
     }
   }
 
@@ -112,7 +133,7 @@ trait UserTrait {
     }, $roles);
 
     if (count(array_intersect($roles, $user->roles)) > 0) {
-      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s"', $name, implode('", "', $roles), implode('", "', $user->roles)));
+      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->roles)));
     }
   }
 
@@ -130,11 +151,11 @@ trait UserTrait {
 
     $user = user_load_by_name($name);
     if (!$user) {
-      throw new \Exception(sprintf('Unable to find user with name "%s"', $name));
+      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
     }
 
     if ($user->status != $status) {
-      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s"', $name, $status ? 'active' : 'blocked', $user->status ? 'active' : 'blocked'));
+      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s".', $name, $status ? 'active' : 'blocked', $user->status ? 'active' : 'blocked'));
     }
   }
 
