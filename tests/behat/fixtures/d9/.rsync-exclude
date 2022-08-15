@@ -1,6 +1,7 @@
 - .rsync-exclude
 - vendor/
 - node_modules/
+- composer.json
 - composer.lock
 - README.txt
 - example*
