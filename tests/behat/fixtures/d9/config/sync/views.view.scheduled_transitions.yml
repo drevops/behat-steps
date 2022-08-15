@@ -17,117 +17,12 @@ base_table: scheduled_transition
 base_field: id
 display:
   default:
-    display_plugin: default
     id: default
     display_title: Master
+    display_plugin: default
     position: 0
     display_options:
-      access:
-        type: perm
-        options:
-          perm: 'view all scheduled transitions'
-      cache:
-        type: tag
-        options: {  }
-      query:
-        type: views_query
-        options:
-          disable_sql_rewrite: false
-          distinct: false
-          replica: false
-          query_comment: ''
-          query_tags: {  }
-      exposed_form:
-        type: basic
-        options:
-          submit_button: Apply
-          reset_button: false
-          reset_button_label: Reset
-          exposed_sorts_label: 'Sort by'
-          expose_sort_order: true
-          sort_asc_label: Asc
-          sort_desc_label: Desc
-      pager:
-        type: mini
-        options:
-          items_per_page: 50
-          offset: 0
-          id: 0
-          total_pages: null
-          expose:
-            items_per_page: false
-            items_per_page_label: 'Items per page'
-            items_per_page_options: '5, 10, 25, 50'
-            items_per_page_options_all: false
-            items_per_page_options_all_label: '- All -'
-            offset: false
-            offset_label: Offset
-          tags:
-            previous: ‹‹
-            next: ››
-      style:
-        type: table
-        options:
-          grouping: {  }
-          row_class: ''
-          default_row_class: true
-          override: true
-          sticky: false
-          caption: ''
-          summary: ''
-          description: ''
-          columns:
-            entity__target_id: entity__target_id
-            state_from: state_from
-            moderation_state: moderation_state
-            transition_on: transition_on
-            author: author
-            operations: operations
-          info:
-            entity__target_id:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            state_from:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            moderation_state:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            transition_on:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            author:
-              sortable: false
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            operations:
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-          default: transition_on
-          empty_table: false
-      row:
-        type: fields
+      title: 'Scheduled Transitions'
       fields:
         entity__target_id:
           id: entity__target_id
@@ -136,6 +31,9 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          entity_field: entity
+          plugin_id: field
           label: Entity
           exclude: false
           alter:
@@ -191,9 +89,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-          entity_type: scheduled_transition
-          entity_field: entity
-          plugin_id: field
         entity_revision_link:
           id: entity_revision_link
           table: scheduled_transition
@@ -201,6 +96,8 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          plugin_id: scheduled_transitions_revision_link
           label: Revision
           exclude: false
           alter:
@@ -243,8 +140,6 @@ display:
           empty_zero: false
           hide_alter_empty: true
           text: 'View revision'
-          entity_type: scheduled_transition
-          plugin_id: scheduled_transitions_revision_link
         state_from:
           id: state_from
           table: scheduled_transition
@@ -252,6 +147,8 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          plugin_id: scheduled_transitions_transition_from
           label: 'From state'
           exclude: false
           alter:
@@ -293,8 +190,6 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          entity_type: scheduled_transition
-          plugin_id: scheduled_transitions_transition_from
         moderation_state:
           id: moderation_state
           table: scheduled_transition
@@ -302,6 +197,9 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          entity_field: moderation_state
+          plugin_id: scheduled_transitions_transition_to
           label: 'To state'
           exclude: false
           alter:
@@ -343,9 +241,6 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          entity_type: scheduled_transition
-          entity_field: moderation_state
-          plugin_id: scheduled_transitions_transition_to
         transition_on:
           id: transition_on
           table: scheduled_transition
@@ -353,6 +248,9 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          entity_field: transition_on
+          plugin_id: field
           label: 'On date'
           exclude: false
           alter:
@@ -410,9 +308,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-          entity_type: scheduled_transition
-          entity_field: transition_on
-          plugin_id: field
         author:
           id: author
           table: scheduled_transition
@@ -420,6 +315,9 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: scheduled_transition
+          entity_field: author
+          plugin_id: field
           label: 'Scheduled by'
           exclude: false
           alter:
@@ -475,9 +373,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-          entity_type: scheduled_transition
-          entity_field: author
-          plugin_id: field
         operations:
           id: operations
           table: scheduled_transition
@@ -485,6 +380,9 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          entity_type: null
+          entity_field: null
+          plugin_id: entity_operations
           label: Operations
           exclude: false
           alter:
@@ -527,14 +425,41 @@ display:
           empty_zero: false
           hide_alter_empty: true
           destination: true
-          entity_type: null
-          entity_field: null
-          plugin_id: entity_operations
-      filters: {  }
-      sorts: {  }
-      title: 'Scheduled Transitions'
-      header: {  }
-      footer: {  }
+      pager:
+        type: mini
+        options:
+          offset: 0
+          items_per_page: 50
+          total_pages: null
+          id: 0
+          tags:
+            next: ››
+            previous: ‹‹
+          expose:
+            items_per_page: false
+            items_per_page_label: 'Items per page'
+            items_per_page_options: '5, 10, 25, 50'
+            items_per_page_options_all: false
+            items_per_page_options_all_label: '- All -'
+            offset: false
+            offset_label: Offset
+      exposed_form:
+        type: basic
+        options:
+          submit_button: Apply
+          reset_button: false
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
+          expose_sort_order: true
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      access:
+        type: perm
+        options:
+          perm: 'view all scheduled transitions'
+      cache:
+        type: tag
+        options: {  }
       empty:
         area:
           id: area
@@ -543,14 +468,89 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
+          plugin_id: text
           empty: true
-          tokenize: false
           content:
             value: 'There are no scheduled transitions yet.'
             format: basic_html
-          plugin_id: text
-      relationships: {  }
+          tokenize: false
+      sorts: {  }
       arguments: {  }
+      filters: {  }
+      style:
+        type: table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          columns:
+            entity__target_id: entity__target_id
+            state_from: state_from
+            moderation_state: moderation_state
+            transition_on: transition_on
+            author: author
+            operations: operations
+          default: transition_on
+          info:
+            entity__target_id:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            state_from:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            moderation_state:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            transition_on:
+              sortable: true
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            author:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            operations:
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+          override: true
+          sticky: false
+          summary: ''
+          empty_table: false
+          caption: ''
+          description: ''
+      row:
+        type: fields
+      query:
+        type: views_query
+        options:
+          query_comment: ''
+          disable_sql_rewrite: false
+          distinct: false
+          replica: false
+          query_tags: {  }
+      relationships: {  }
+      header: {  }
+      footer: {  }
       display_extenders: {  }
     cache_metadata:
       max-age: -1
@@ -561,14 +561,14 @@ display:
         - user.permissions
       tags: {  }
   page_1:
-    display_plugin: page
     id: page_1
     display_title: Page
+    display_plugin: page
     position: 1
     display_options:
+      enabled: true
       display_extenders: {  }
       path: admin/content/scheduled-transitions
-      enabled: true
     cache_metadata:
       max-age: -1
       contexts:
