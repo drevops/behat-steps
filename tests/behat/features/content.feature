@@ -2,7 +2,7 @@
 Feature: Check that ContentTrait works for or D9
 
   @api
-  Scenario: Assert visiting page with title of specified content type
+  Scenario: Assert visiting a page with title of specified content type
     Given page content:
       | title             |
       | [TEST] Page title |
@@ -11,12 +11,21 @@ Feature: Check that ContentTrait works for or D9
     Then I should see "[TEST] Page title"
 
   @api
-  Scenario: Assert editing page with title of specified content type
+  Scenario: Assert visiting edit page with title of specified content type
     Given page content:
       | title             |
       | [TEST] Page title |
     When I am logged in as a user with the "administrator" role
     And I edit "page" "[TEST] Page title"
+    Then I should see "[TEST] Page title"
+
+  @api
+  Scenario: Assert visiting delete page with title of specified content type
+    Given page content:
+      | title             |
+      | [TEST] Page title |
+    When I am logged in as a user with the "administrator" role
+    And I delete "page" "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
   @api
