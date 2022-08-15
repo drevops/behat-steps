@@ -7,6 +7,8 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Trait TaxonomyTrait.
  *
+ * Steps to work with Taxonopmy Terms for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait TaxonomyTrait {

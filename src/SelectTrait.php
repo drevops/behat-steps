@@ -5,11 +5,15 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait SelectTrait.
  *
+ * Steps to work with HTML select element.
+ *
  * @package DrevOps\BehatSteps
  */
 trait SelectTrait {
 
   /**
+   * Assert that a select has an option.
+   *
    * @Then select :select should have an option :option
    */
   public function selectShouldHaveOption($select, $option) {
@@ -25,6 +29,8 @@ trait SelectTrait {
   }
 
   /**
+   * Assert that a select does not have an option.
+   *
    * @Then select :select should not have an option :option
    */
   public function selectShouldNotHaveOption($select, $option) {
@@ -40,6 +46,8 @@ trait SelectTrait {
   }
 
   /**
+   * Assert that a select option is selected.
+   *
    * @Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
    */
   public function selectOptionSelected($optionValue, $select) {

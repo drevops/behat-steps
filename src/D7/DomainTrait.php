@@ -8,6 +8,8 @@ use Drupal\DrupalExtension\Hook\Scope\BeforeUserCreateScope;
 /**
  * Trait DomainTrait.
  *
+ * Steps to work with Domain for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait DomainTrait {
@@ -85,7 +87,7 @@ trait DomainTrait {
   }
 
   /**
-   * Helper to build URL from the result of parse_url().
+   * Build URL from the result of parse_url().
    */
   protected function domainBuildUrl(array $parts) {
     return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .

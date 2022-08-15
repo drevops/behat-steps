@@ -1,5 +1,5 @@
-@d8 @d9
-Feature: Check that TaxonomyTrait works for D8 or D9
+@d9
+Feature: Check that TaxonomyTrait works for or D9
 
   Background:
     Given no "tags" terms:

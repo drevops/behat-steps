@@ -7,6 +7,8 @@ use Behat\Mink\Exception\ElementNotFoundException;
 /**
  * Trait Field.
  *
+ * Field-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait FieldTrait {
@@ -59,8 +61,6 @@ trait FieldTrait {
   /**
    * Assert whether the field exists on the page using id,name,label or value.
    *
-   * Shorthand helper to use in Scenario Outline.
-   *
    * @code
    * Then field "Body" "exists" on the page
    * Then field "field_body" "exists" on the page
@@ -104,8 +104,6 @@ trait FieldTrait {
 
   /**
    * Assert whether the field exists on the page and has a state.
-   *
-   * Shorthand helper to use in Scenario Outline.
    *
    * @code
    * Then field "Body" should be "present" on the page and have state "enabled"

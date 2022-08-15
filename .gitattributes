@@ -1,11 +1,12 @@
 # Ignore files for distribution archives.
-.circleci                 export-ignore
-.ahoy.yml                 export-ignore
-.editorconfig             export-ignore
-.env                      export-ignore
-.gitattributes            export-ignore
-.gitignore                export-ignore
-behat.yml                 export-ignore
-docker-compose.yml        export-ignore
-phpcs.xml                 export-ignore
-tests                     export-ignore
+.circleci                             export-ignore
+.ahoy.yml                             export-ignore
+.editorconfig                         export-ignore
+.env                                  export-ignore
+.gitattributes                        export-ignore
+.gitignore                            export-ignore
+behat.yml                             export-ignore
+default.docker-compose.override.yml   export-ignore
+docker-compose.yml                    export-ignore
+phpcs.xml                             export-ignore
+tests                                 export-ignore

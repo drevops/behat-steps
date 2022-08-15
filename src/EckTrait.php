@@ -9,7 +9,9 @@ use Drupal\user\Entity\User;
 /**
  * Trait EckTrait.
  *
- * @package IntegratedExperts\BehatSteps\D8
+ * Entity Contraction Kit-related steps.
+ *
+ * @package DrevOps\BehatSteps
  */
 trait EckTrait {
 
@@ -60,6 +62,8 @@ trait EckTrait {
   }
 
   /**
+   * Remove ECK types and entities.
+   *
    * @AfterScenario
    */
   public function eckEntitiesCleanAll(AfterScenarioScope $scope) {
@@ -85,7 +89,7 @@ trait EckTrait {
   }
 
   /**
-   * Helper to load multiple entities with specified type and conditions.
+   * Load multiple entities with specified type and conditions.
    *
    * @param string $entity_type
    *   The entity type.
@@ -112,7 +116,7 @@ trait EckTrait {
   }
 
   /**
-   * Helper to create custom content entities.
+   * Create custom content entities.
    *
    * @param string $entity_type
    *   The content entity type.
@@ -130,7 +134,7 @@ trait EckTrait {
   }
 
   /**
-   * Helper to create a single content entity.
+   * Create a single content entity.
    *
    * @param string $entity_type
    *   The content entity type.

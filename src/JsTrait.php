@@ -8,6 +8,8 @@ use Behat\Mink\Driver\Selenium2Driver;
 /**
  * Trait JsTrait.
  *
+ * JavaScript-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait JsTrait {
@@ -101,6 +103,8 @@ trait JsTrait {
   }
 
   /**
+   * Trigger an event on the specified element.
+   *
    * @When I trigger JS :event event on :selector element
    */
   public function jsTriggerElementEvent($event, $selector) {

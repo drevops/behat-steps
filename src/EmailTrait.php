@@ -10,6 +10,8 @@ use Drupal\Core\Database\Database;
 /**
  * Trait EmailTrait.
  *
+ * Email-related steps.
+ *
  * Behat trait for email interactions.
  */
 trait EmailTrait {
@@ -29,6 +31,8 @@ trait EmailTrait {
   protected $emailDebug = FALSE;
 
   /**
+   * Enable email tracking.
+   *
    * @BeforeScenario
    */
   public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
@@ -55,6 +59,8 @@ trait EmailTrait {
   }
 
   /**
+   * Disable email tracking.
+   *
    * @AfterScenario
    */
   public function emailAfterScenarioDisableTestEmailSystem(AfterScenarioScope $scope) {
@@ -69,6 +75,8 @@ trait EmailTrait {
   }
 
   /**
+   * Enable test email system.
+   *
    * @Given I enable the test email system
    */
   public function emailEnableTestEmailSystem() {
@@ -89,6 +97,8 @@ trait EmailTrait {
   }
 
   /**
+   * Disable test email system.
+   *
    * @Given I disable the test email system
    */
   public function emailDisableTestEmailSystem() {
@@ -103,6 +113,8 @@ trait EmailTrait {
   }
 
   /**
+   * Clear test email system queue.
+   *
    * @When I clear the test email system queue
    */
   public function emailClearTestEmailSystemQueue($force = FALSE) {
@@ -114,6 +126,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email was sent to an address.
+   *
    * @Then an email is sent to :address
    */
   public function emailAssertEmailIsSentTo($address) {
@@ -128,6 +142,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that no email messages were sent.
+   *
    * @Then no emails were sent
    */
   public function emailAssertNoEmailsWereSent() {
@@ -137,6 +153,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that no email messages were sent to a specified address.
+   *
    * @Then no emails were sent to :address
    */
   public function emailAssertNoEmailsWereSentToAddress($address) {
@@ -163,6 +181,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message header contains specified content.
+   *
    * @Then an email header :header contains:
    */
   public function emailAssertEmailHeadersContains($header, PyStringNode $string, $exact = FALSE) {
@@ -181,6 +201,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message header contains exact specified content.
+   *
    * @Then an email header :header contains exact:
    */
   public function emailAssertEmailHeadersContainsExact($header, PyStringNode $string) {
@@ -188,6 +210,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message was sent or not sent to a user with content.
+   *
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
   public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
@@ -209,6 +233,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message field contains a value.
+   *
    * @Then an email :field contains
    * @Then an email :field contains:
    */
@@ -231,6 +257,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message field contains an exact value.
+   *
    * @Then an email :field contains exact
    * @Then an email :field contains exact:
    */
@@ -239,6 +267,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message field does not contain a value.
+   *
    * @Then an email :field does not contain
    * @Then an email :field does not contain:
    */
@@ -258,6 +288,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that an email message field does not contain an exact value.
+   *
    * @Then an email :field does not contain exact
    * @Then an email :field does not contain exact:
    */
@@ -266,6 +298,8 @@ trait EmailTrait {
   }
 
   /**
+   * Visit a link from the email.
+   *
    * @When I follow the link number :number in the email with the subject
    * @When I follow the link number :number in the email with the subject:
    */
@@ -285,6 +319,8 @@ trait EmailTrait {
   }
 
   /**
+   * Assert that a file is attached to an email message with specified subject.
+   *
    * @Then file :name attached to the email with the subject
    * @Then file :name attached to the email with the subject:
    */

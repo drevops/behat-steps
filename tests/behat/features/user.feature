@@ -1,5 +1,5 @@
-@d8 @d9
-Feature: Check that UserTrait works for D8 or D9
+@d9
+Feature: Check that UserTrait works for or D9
 
   Background:
     Given users:
@@ -24,7 +24,7 @@ Feature: Check that UserTrait works for D8 or D9
       | name               |
       | authenticated_user |
 
-    Then user "authenticated_user" does not exists
+    Then user "authenticated_user" does not exist
 
   @api
   Scenario: Assert "Given no users:" by email
@@ -36,7 +36,7 @@ Feature: Check that UserTrait works for D8 or D9
       | mail                             |
       | authenticated_user@myexample.com |
 
-    Then user "authenticated_user" does not exists
+    Then user "authenticated_user" does not exist
 
   @api
   Scenario: Assert "Then user :name has :roles role(s) assigned"

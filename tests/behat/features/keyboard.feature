@@ -1,4 +1,4 @@
-@d7 @d8 @d9 @keyboard
+@d7 @d9 @keyboard
 Feature: Check that KeyboardTrait works
 
   @api @javascript

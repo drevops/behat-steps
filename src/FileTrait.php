@@ -11,6 +11,10 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Trait FileTrait.
+ *
+ * File-related steps.
+ *
+ * @package DrevOps\BehatSteps
  */
 trait FileTrait {
 
@@ -53,6 +57,8 @@ trait FileTrait {
   }
 
   /**
+   * Create managed file with properties provided in the table.
+   *
    * @Given managed file:
    */
   public function fileCreateManaged(TableNode $nodesTable) {
@@ -113,6 +119,8 @@ trait FileTrait {
   }
 
   /**
+   * Clean all created managed files after scenario run.
+   *
    * @AfterScenario
    */
   public function fileCleanAll(AfterScenarioScope $scope) {
@@ -154,7 +162,7 @@ trait FileTrait {
   }
 
   /**
-   * Helper to load multiple files with specified conditions.
+   * Load multiple files with specified conditions.
    *
    * @param array $conditions
    *   Conditions keyed by field names.
@@ -175,6 +183,8 @@ trait FileTrait {
   }
 
   /**
+   * Create an unmanaged file with specified content.
+   *
    * @Given unmanaged file :uri created
    */
   public function fileCreateUnmanaged($uri, $content = 'test') {
@@ -189,6 +199,8 @@ trait FileTrait {
   }
 
   /**
+   * Create an unmanaged file with specified content.
+   *
    * @Given unmanaged file :uri created with content :content
    */
   public function fileCreateUnmanagedWithContent($uri, $content) {
@@ -196,15 +208,19 @@ trait FileTrait {
   }
 
   /**
+   * Assert that an unmanaged file with specified URI exists.
+   *
    * @Then unmanaged file :uri exists
    */
   public function fileAssertUnmanagedExists($uri) {
     if (!@file_exists($uri)) {
-      throw new \Exception(sprintf('The file %s does not exists.', $uri));
+      throw new \Exception(sprintf('The file %s does not exist.', $uri));
     }
   }
 
   /**
+   * Assert that an unmanaged file with specified URI does not exist.
+   *
    * @Then unmanaged file :uri does not exist
    */
   public function fileAssertUnmanagedNotExists($uri) {
@@ -214,6 +230,8 @@ trait FileTrait {
   }
 
   /**
+   * Assert that an unmanaged file exists and has specified content.
+   *
    * @Then unmanaged file :uri has content :content
    */
   public function fileAssertUnmanagedHasContent($uri, $content) {
@@ -227,6 +245,8 @@ trait FileTrait {
   }
 
   /**
+   * Assert that an unmanaged file exists and does not have specified content.
+   *
    * @Then unmanaged file :uri does not have content :content
    */
   public function fileAssertUnmanagedHasNoContent($uri, $content) {

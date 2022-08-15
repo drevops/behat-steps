@@ -9,11 +9,15 @@ use Behat\Gherkin\Node\PyStringNode;
 /**
  * Trait EmailTrait.
  *
+ * Steps to work with emails for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait EmailTrait {
 
   /**
+   * Enable email tracking before scenario.
+   *
    * @BeforeScenario
    */
   public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
@@ -28,6 +32,8 @@ trait EmailTrait {
   }
 
   /**
+   * Disable email tracking before scenario.
+   *
    * @AfterScenario
    */
   public function emailAfterScenarioDisableTestEmailSystem(AfterScenarioScope $scope) {
@@ -165,7 +171,7 @@ trait EmailTrait {
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
     foreach ($this->emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
+      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
       if (strpos($field_string, $string) !== FALSE) {
         return $email;
       }
@@ -210,7 +216,7 @@ trait EmailTrait {
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
     foreach ($this->emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));;
+      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
       if (strpos($field_string, $string) !== FALSE) {
         throw new \Exception(sprintf('Found email with%s text "%s" in field "%s" retrieved from test email collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
       }

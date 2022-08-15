@@ -7,6 +7,8 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Trait ParagraphsTrait.
  *
+ * Steps to work with paragraphs for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait ParagraphsTrait {

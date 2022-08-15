@@ -11,11 +11,15 @@ use Drupal\user\Entity\User;
 /**
  * Trait DraggableViewsTrait.
  *
- * @note: This is currently limited to nodes only.
+ * Draggable Views-related steps.
+ *
+ * @note This is currently limited to nodes only.
  */
 trait DraggableViewsTrait {
 
   /**
+   * Save order of the Draggable Order items.
+   *
    * @Then I save draggable views :view_id view :views_display_id display :bundle items in the following order:
    */
   public function draggableViewsSaveBundleOrder($view_id, $view_display_id, $bundle, TableNode $order_table) {
