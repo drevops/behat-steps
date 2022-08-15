@@ -7,6 +7,7 @@
 
 use DrevOps\BehatSteps\BigPipeTrait;
 use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\DateTrait;
 use DrevOps\BehatSteps\DraggableViewsTrait;
 use DrevOps\BehatSteps\EckTrait;
 use DrevOps\BehatSteps\ElementTrait;
@@ -42,6 +43,7 @@ class FeatureContext extends DrupalContext {
   use BigPipeTrait;
   use ContentTrait;
   use EckTrait;
+  use DateTrait;
   use DraggableViewsTrait;
   use EmailTrait;
   use ElementTrait;
