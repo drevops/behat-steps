@@ -1,3 +1,5 @@
+_core:
+  default_config_hash: hvVxL1G-ZCxaq32IZws0YsfuhvaDiQE_np-0g35KjUk
 and_or_limit: 7
 index:
   cron_limit: 100
@@ -17,5 +19,3 @@ index:
     em: 3
     a: 10
 logging: false
-_core:
-  default_config_hash: hvVxL1G-ZCxaq32IZws0YsfuhvaDiQE_np-0g35KjUk
