@@ -10,6 +10,8 @@ use Drupal\system\Entity\Menu;
 /**
  * Trait MenuTrait.
  *
+ * Menu-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait MenuTrait {
@@ -126,6 +128,8 @@ trait MenuTrait {
   }
 
   /**
+   * Remove all menu items after scenario run.
+   *
    * @AfterScenario
    */
   public function menuCleanAll(AfterScenarioScope $scope) {

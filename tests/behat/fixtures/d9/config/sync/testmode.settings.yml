@@ -1,0 +1,13 @@
+_core:
+  default_config_hash: 54JWmARxlmi_PaC_VS5f2wtibDJGF67PlaUEoDA97Zg
+views_node:
+  - content
+  - content_test
+views_term: {  }
+views_user:
+  - user_admin_people
+list_term: true
+pattern_node:
+  - '[MYTEST%'
+pattern_term: {  }
+pattern_user: {  }

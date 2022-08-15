@@ -7,6 +7,8 @@ use Drupal\node\Entity\Node;
 /**
  * Trait SearchApiTrait.
  *
+ * Search API-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait SearchApiTrait {

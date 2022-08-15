@@ -4,7 +4,7 @@ status: true
 dependencies: {  }
 id: test_entity_type
 label: 'Test entity type'
+uid: true
 created: true
 changed: true
-uid: true
 title: true

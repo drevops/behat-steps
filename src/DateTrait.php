@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait DateTrait.
  *
+ * Date-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait DateTrait {

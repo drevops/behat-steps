@@ -33,6 +33,8 @@ trait OverrideTrait {
   }
 
   /**
+   * Creates content of a given type provided in the tabular form.
+   *
    * @Given :type content:
    */
   public function createNodes($type, TableNode $table) {
@@ -43,6 +45,8 @@ trait OverrideTrait {
   }
 
   /**
+   * Creates multiple users.
+   *
    * @Given users:
    */
   public function createUsers(TableNode $table) {

@@ -13,6 +13,8 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 trait KeyboardTrait {
 
   /**
+   * Press multiple keyboard keys, optionally on element.
+   *
    * @Given I press the :keys keys
    * @Given I press the :keys keys on :selector
    */

@@ -29,6 +29,8 @@ trait FileDownloadTrait {
   protected $fileDownloadFileInfo;
 
   /**
+   * Prepare scenario to work with this trait.
+   *
    * @BeforeScenario
    */
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope) {
@@ -44,6 +46,8 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Cleanup after scenario run.
+   *
    * @AfterScenario
    */
   public function fileDownloadAfterScenario(AfterScenarioScope $scope) {
@@ -349,7 +353,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to extract downloaded file information from the response headers.
+   * Extract downloaded file information from the response headers.
    *
    * @param array $headers
    *   Array of headers from CURL.
@@ -376,7 +380,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to prepare temporary directory for file downloads.
+   * Prepare temporary directory for file downloads.
    */
   protected function fileDownloadPrepareTempDir() {
     $fs = new Filesystem();
@@ -386,7 +390,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Helper to remove temporary directory for file downloads.
+   * Remove temporary directory for file downloads.
    */
   protected function fileDownloadRemoveTempDir() {
     $fs = new Filesystem();

@@ -3,25 +3,27 @@
     "description": "Drupal 9 site for MYSITE",
     "license": "proprietary",
     "require": {
-        "composer/installers": "^1.2.0",
-        "drupal/coffee": "^1",
+        "php": "=8.1",
+        "composer/installers": "^2.1",
+        "cweagans/composer-patches": "^1.7",
         "drupal/core-composer-scaffold": "^9",
+        "drupal/core-project-message": "^9",
         "drupal/core-recommended": "^9",
         "drupal/eck": "^1.0@beta",
-        "drupal/paragraphs": "^1.9",
-        "drupal/pathauto": "^1.8",
-        "drupal/scheduled_transitions": "^2.1",
-        "drupal/search_api": "^1.16",
-        "drush/drush": "^10",
+        "drupal/paragraphs": "^1.14",
+        "drupal/pathauto": "^1.11",
+        "drupal/scheduled_transitions": "^2.2",
+        "drupal/search_api": "^1.25",
+        "drush/drush": "^11",
+        "drupal/testmode": "^2",
+        "oomphinc/composer-installers-extender": "^2.0",
+        "vlucas/phpdotenv": "^5.4",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
-    "require-dev": {
-        "wikimedia/composer-merge-plugin": "^2"
-    },
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "8.1"
         },
         "process-timeout": 0,
         "sort-packages": true,
@@ -32,9 +34,7 @@
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "oomphinc/composer-installers-extender": true,
-            "pyrech/composer-changelogs": true,
-            "zaporylie/composer-drupal-optimizations": true
+            "oomphinc/composer-installers-extender": true
         }
     },
     "autoload": {
@@ -53,9 +53,11 @@
     },
     "extra": {
         "merge-plugin": {
-            "include": [
+            "require": [
                 "../composer.json"
-            ]
+            ],
+            "merge-dev": true,
+            "merge-scripts": true
         },
         "drupal-scaffold": {
             "locations": {

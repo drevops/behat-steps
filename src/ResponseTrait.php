@@ -5,6 +5,8 @@ namespace DrevOps\BehatSteps;
 /**
  * Trait ResponseTrait.
  *
+ * Response-related steps.
+ *
  * @package DrevOps\BehatSteps
  */
 trait ResponseTrait {

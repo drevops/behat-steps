@@ -8,11 +8,15 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 /**
  * Trait VariableTrait.
  *
+ * Steps to work with variables for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait VariableTrait {
 
   /**
+   * Set a variable to a value.
+   *
    * @Given I set variable :name to value :value
    * @Given I set variable :name to value:
    */
@@ -22,6 +26,8 @@ trait VariableTrait {
   }
 
   /**
+   * Delete a variable with a name.
+   *
    * @Given I delete variable :name
    */
   public function variableDelete($name) {
@@ -30,6 +36,8 @@ trait VariableTrait {
   }
 
   /**
+   * Assert that a variable has a value.
+   *
    * @Then variable :name has value :value
    * @Then variable :name has value:
    */
@@ -42,6 +50,8 @@ trait VariableTrait {
   }
 
   /**
+   * Assert that a variable does not have a value.
+   *
    * @Then variable :name does not have value :value
    */
   public function variableAssertNotValue($name, $value) {
@@ -53,6 +63,8 @@ trait VariableTrait {
   }
 
   /**
+   * Assert that a variable does not have a value.
+   *
    * @Then variable :name does not have a value
    */
   public function variableAssertNullValue($name) {
@@ -82,6 +94,8 @@ trait VariableTrait {
   }
 
   /**
+   * Restore original variable values.
+   *
    * @Given I restore original variables
    */
   public function variableRestoreOriginal() {

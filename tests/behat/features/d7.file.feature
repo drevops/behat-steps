@@ -9,8 +9,6 @@ Feature: Check that FileTrait works for D7
       | example_document.pdf                |
       | example_image.png                   |
       | example_audio.mp3                   |
-      | https://via.placeholder.com/150.jpg |
     And "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
-    And "150.jpg" file object exists

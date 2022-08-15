@@ -7,6 +7,8 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Trait FileTrait.
  *
+ * Steps to work with files for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait FileTrait {
@@ -73,6 +75,8 @@ trait FileTrait {
   }
 
   /**
+   * Remove all created files.
+   *
    * @AfterFeature
    */
   public static function fileRemoveAll() {

@@ -7,6 +7,8 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Trait ContentTrait.
  *
+ * Steps to work with content for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait ContentTrait {

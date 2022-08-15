@@ -8,6 +8,8 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 /**
  * Trait WatchdogTrait.
  *
+ * Steps to work with watchdog for Drupal 7.
+ *
  * @package DrevOps\BehatSteps\D7
  */
 trait WatchdogTrait {

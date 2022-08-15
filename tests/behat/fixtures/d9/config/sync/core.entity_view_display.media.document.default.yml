@@ -15,15 +15,14 @@ bundle: document
 mode: default
 content:
   field_media_document:
+    type: file_default
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
-    type: file_default
     weight: 1
     region: content
 hidden:
   created: true
-  langcode: true
   name: true
   search_api_excerpt: true
   thumbnail: true

@@ -2,14 +2,14 @@ uuid: 33174af6-db7f-4ce8-821e-cd5aa368f330
 langcode: en
 status: true
 dependencies:
-  module:
-    - node
-    - user
-    - search_api
   config:
     - field.storage.node.field_tags
     - search_api.server.default_server
     - core.entity_view_mode.node.search_index
+  module:
+    - node
+    - user
+    - search_api
 _core:
   default_config_hash: GLmLegZGHtMF6annRqgjizJAoiAip-IT-XOsDMCZfog
 id: default_index
@@ -63,7 +63,7 @@ field_settings:
     type: text
     configuration:
       roles:
-        anonymous: anonymous
+        - anonymous
       view_mode:
         'entity:node':
           article: search_index
@@ -139,6 +139,7 @@ processor_settings:
     weights:
       preprocess_index: -3
       preprocess_query: -6
+    all_fields: false
     fields:
       - rendered_item
     title: true
@@ -149,15 +150,14 @@ processor_settings:
       h2: 3
       h3: 2
       string: 2
-    all_fields: false
   ignorecase:
     weights:
       preprocess_index: -5
       preprocess_query: -8
+    all_fields: false
     fields:
       - rendered_item
       - title
-    all_fields: false
   language_with_fallback: {  }
   rendered_item:
     weights:
@@ -167,6 +167,7 @@ processor_settings:
     weights:
       postprocess_query: -10
       preprocess_query: -10
+    all_fields: false
     fields:
       - rendered_item
       - title
@@ -206,31 +207,30 @@ processor_settings:
       - was
       - will
       - with
-    all_fields: false
   tokenizer:
     weights:
       preprocess_index: -2
       preprocess_query: -5
+    all_fields: false
     fields:
       - rendered_item
       - title
     spaces: ''
+    ignored: ._-
     overlap_cjk: 1
     minimum_word_size: '3'
-    all_fields: false
-    ignored: ._-
   transliteration:
     weights:
       preprocess_index: -4
       preprocess_query: -7
+    all_fields: false
     fields:
       - rendered_item
       - title
-    all_fields: false
 tracker_settings:
   default:
     indexing_order: fifo
 options:
-  index_directly: true
   cron_limit: 50
+  index_directly: true
 server: default_server
