@@ -23,6 +23,13 @@ Feature: Check that LinkTrait works
     And the link with title "Some non-existing title" does not exist
     And I click the link with title "Return to site content"
 
+  @api @d9
+  Scenario: Assert link is absolute or not
+    Given I am logged in as a user with the "administrator" role
+    When I go to "/"
+    Then the link with title "Drupal" is an absolute link
+    Then the link with title "Return to site content" is not an absolute link
+
   @trait:LinkTrait @d9
   Scenario: Assert that negative assertions fail with an error
     Given some behat configuration
