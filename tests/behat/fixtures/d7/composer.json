@@ -3,8 +3,9 @@
     "description": "Drupal 7 site for MYSITE",
     "license": "proprietary",
     "require": {
-        "composer/installers": "^1.2.0",
-        "drupal-composer/preserve-paths": "^0.1.4",
+        "composer/installers": "^2.1",
+        "cweagans/composer-patches": "^1.7",
+        "drupal-composer/preserve-paths": "^0.1.6",
         "drupal/admin_menu": "^3.0-rc6",
         "drupal/coffee": "^2.3",
         "drupal/drafty": "^1.0-rc1",
@@ -26,14 +27,17 @@
         "drush/drush": "^8",
         "library/ckeditor": "^4.9"
     },
-    "require-dev": {
-        "wikimedia/composer-merge-plugin": "^2"
-    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
         "process-timeout": 0,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "drupal-composer/preserve-paths": true
+        }
     },
     "conflict": {
         "drupal/core": "8.*"
@@ -58,9 +62,11 @@
     },
     "extra": {
         "merge-plugin": {
-            "include": [
+            "require": [
                 "../composer.json"
-            ]
+            ],
+            "merge-dev": true,
+            "merge-scripts": true
         },
         "installer-paths": {
             "web": [
