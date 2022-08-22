@@ -15,6 +15,23 @@ Feature: Check that LinkTrait works
     Given I go to "/"
     Then I should see the link "Drupal" with "https://www.drupal*"
 
+  @d9
+  Scenario: Assert link with href without locator does not exist
+    Given I go to "/"
+    Then I should not see the link "RandomLinkText" with "https://www.drupal.org"
+    Then I should not see the link "Drupal" with "https://www.randomhref.org"
+
+  @d9
+  Scenario: Assert link with href with locator does not exist
+    Given I go to "/"
+    Then I should not see the link "RandomLinkText" with "https://www.randomhref.org" in "#block-system-powered-by,#block-bartik-powered"
+    Then I should not see the link "Drupal" with "https://www.drupal.org" in "#random-locator"
+
+  @d9
+  Scenario: Assert link with wildcard in href without locator does not exist
+    Given I go to "/"
+    Then I should not see the link "Drupal" with "https://www.randomhref*"
+
   @api @d9
   Scenario: Assert link with title
     Given I am logged in as a user with the "administrator" role
