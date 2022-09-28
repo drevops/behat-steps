@@ -11,7 +11,7 @@ Feature: Check that WatchdogTrait works for or D9
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      PHP errors were logged to watchdog during this scenario:
+      PHP errors were logged to watchdog during scenario "Stub scenario title" (line 3):
       """
 
   @api
