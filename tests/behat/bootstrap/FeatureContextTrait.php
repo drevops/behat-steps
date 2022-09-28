@@ -58,9 +58,10 @@ trait FeatureContextTrait {
 
   /**
    * @Given set watchdog error level :level
+   * @Given set watchdog error level :level of type :type
    */
-  public function setWatchdogErrorDrupal9($level) {
-    \Drupal::logger('php')->log($level, 'test');
+  public function setWatchdogErrorDrupal9($level, $type = 'php') {
+    \Drupal::logger($type)->log($level, 'test');
   }
 
   /**

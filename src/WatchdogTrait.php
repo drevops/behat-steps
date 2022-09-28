@@ -23,6 +23,13 @@ trait WatchdogTrait {
   protected $watchdogScenarioStartTime;
 
   /**
+   * Array of watchdog message types.
+   *
+   * @var array
+   */
+  protected $watchdogMessageTypes = [];
+
+  /**
    * Store current time.
    *
    * @BeforeScenario
@@ -34,6 +41,34 @@ trait WatchdogTrait {
     }
 
     $this->watchdogScenarioStartTime = time();
+
+    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes($scope->getScenario()->getTags());
+  }
+
+  /**
+   * Parse scenario tags into message types.
+   *
+   * @code
+   * @watchdog:my_module_type @watchdog:my_other_module_type
+   * @endcode
+   *
+   * @param array $tags
+   *   Array of scenario tags.
+   * @param string $prefix
+   *   Optional tag prefix to filter by.
+   *
+   * @return array
+   *   Array of message types. 'php' is always added to the list.
+   */
+  protected function watchdogParseMessageTypes(array $tags = [], $prefix = 'watchdog:') {
+    $types = [];
+    foreach ($tags as $tag) {
+      if (strpos($tag, $prefix) === 0 && strlen($tag) > strlen($prefix)) {
+        $types[] = substr($tag, strlen($prefix));
+      }
+    }
+
+    return array_unique(array_merge($types, ['php']));
   }
 
   /**
@@ -65,7 +100,7 @@ trait WatchdogTrait {
     // of the scenario.
     $entries = $database->select('watchdog', 'w')
       ->fields('w')
-      ->condition('w.type', 'php', '=')
+      ->condition('w.type', $this->watchdogMessageTypes, 'IN')
       ->condition('w.timestamp', $this->watchdogScenarioStartTime, '>=')
       ->execute()
       ->fetchAll();
