@@ -75,6 +75,28 @@ trait MediaTrait {
   }
 
   /**
+   * Remove media defined by provided properties.
+   *
+   * @code
+   * Given no "image" media:
+   * | name               |
+   * | Media item         |
+   * | Another media item |
+   * @endcode
+   *
+   * @Given /^no ([a-zA-z0-9_-]+) media:$/
+   */
+  public function mediaDelete($type, TableNode $nodesTable) {
+    foreach ($nodesTable->getHash() as $nodeHash) {
+      $ids = $this->mediaLoadMultiple($type, $nodeHash);
+
+      $controller = \Drupal::entityTypeManager()->getStorage('media');
+      $entities = $controller->loadMultiple($ids);
+      $controller->delete($entities);
+    }
+  }
+
+  /**
    * Create a single media item.
    */
   protected function mediaCreateSingle($stub) {
