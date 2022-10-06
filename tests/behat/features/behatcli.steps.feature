@@ -1,4 +1,4 @@
-@d7 @d9 @behatcli
+@d7 @d9 @d10 @behatcli
 Feature: Behat CLI context additional steps
 
   @trait:PathTrait

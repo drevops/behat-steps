@@ -1,4 +1,4 @@
-@d7 @d9 @smoke @login
+@d7 @d9 @d10 @smoke @login
 Feature: Login
 
   Ensure that user can login.

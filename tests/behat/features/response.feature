@@ -1,4 +1,4 @@
-@d7 @d9
+@d7 @d9 @d10
 Feature: Check that ResponseTrait works
 
   Scenario: Assert header response
