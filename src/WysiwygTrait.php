@@ -38,6 +38,7 @@ trait WysiwygTrait {
     if (!$driver instanceof Selenium2Driver) {
       // For non-Selenium driver process field in a standard way.
       $field->setValue($value);
+
       return;
     }
 

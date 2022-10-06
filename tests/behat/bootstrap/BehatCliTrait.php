@@ -166,7 +166,7 @@ default:
         - FeatureContext
         - Drupal\DrupalExtension\Context\MinkContext
   extensions:
-    Behat\MinkExtension:
+    Drupal\MinkExtension:
       goutte: ~
       selenium2: ~
       base_url: http://nginx:8080      

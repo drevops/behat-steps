@@ -124,6 +124,7 @@ trait ParagraphsTrait {
   protected function paragraphsFindEntity($conditions = []) {
     $type = ($conditions['entity_type'] === 'taxonomy_term') ? 'vid' : 'type';
     $query = \Drupal::entityQuery($conditions['entity_type'])
+      ->accessCheck(FALSE)
       ->condition($type, $conditions['bundle'])
       ->condition($conditions['field_name'], $conditions['field_value']);
 

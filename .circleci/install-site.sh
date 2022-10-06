@@ -25,10 +25,14 @@ php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('
 
 echo "  > Updating relative paths in build composer.json."
 sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-sed "${sed_opts[@]}" "s|\"src|\"../src|" "build/composer.json" && sleep 2
+sed "${sed_opts[@]}" 's|\"DrevOps\\\\BehatSteps\\\\": \"src\\\/\"|\"DrevOps\\\\BehatSteps\\\\": \"..\/src\/\"|' "build/composer.json" && sleep 2
+sed "${sed_opts[@]}" 's|\"DrevOps\\\\BehatSteps\\\\D7\\\\": \"src\\\/D7\\\/\"|\"DrevOps\\\\BehatSteps\\\\D7\\\\": \"..\/src\/D7\/\"|' "build/composer.json" && sleep 2
 
 echo "  > Validating merged fixture Composer configuration."
 composer --working-dir=/app/build validate --ansi --strict --no-check-all
+
+echo "  > Creating GitHub authentication token if provided."
+[ -n "$GITHUB_TOKEN" ] && echo "{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}" > /app/build/auth.json
 
 echo "  > Installing Composer dependencies inside the build dir."
 COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app/build install --prefer-dist
