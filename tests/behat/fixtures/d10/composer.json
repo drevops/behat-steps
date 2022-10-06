@@ -6,23 +6,21 @@
         "php": "=8.1",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
-        "drupal/core-composer-scaffold": "^9",
-        "drupal/core-project-message": "^9",
-        "drupal/core-recommended": "^9",
-        "drupal/eck": "^1.0@beta",
-        "drupal/paragraphs": "^1.14",
+        "drupal/core-composer-scaffold": "^10@beta",
+        "drupal/core-project-message": "^10@beta",
+        "drupal/core-recommended": "^10@beta",
+        "drupal/paragraphs": "^1.15",
         "drupal/pathauto": "^1.11",
-        "drupal/scheduled_transitions": "^2.2",
-        "drupal/search_api": "^1.25",
+        "drupal/scheduled_transitions": "^2.2@rc",
+        "drupal/search_api": "^1.26",
         "drush/drush": "^11",
-        "drupal/testmode": "^2",
         "oomphinc/composer-installers-extender": "^2.0",
         "vlucas/phpdotenv": "^5.4",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
-        "drupal/core-dev": "^9"
+        "drupal/core-dev": "^10@beta"
     },
     "config": {
         "platform": {
@@ -37,7 +35,8 @@
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "oomphinc/composer-installers-extender": true
+            "oomphinc/composer-installers-extender": true,
+            "phpstan/extension-installer": true
         }
     },
     "autoload": {
@@ -54,7 +53,10 @@
             "url": "https://packages.drupal.org/8"
         }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
+        "enable-patching": true,
         "drupal-scaffold": {
             "locations": {
                 "web-root": "./web"
@@ -105,7 +107,7 @@
         ],
         "drupal-post-install": [
             "chmod 644 web/sites/default/settings.php; echo \"\\$settings['config_sync_directory'] = '../config/sync';\" >> web/sites/default/settings.php; chmod 444 web/sites/default/settings.php",
-            "drush -r web config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y --uri=http://nginx",
+            "drush -r web config-set system.site uuid 5b4646a8-ed7b-453c-b5b6-78196271f41b -y --uri=http://nginx",
             "drush -r web ev \"\\Drupal::entityTypeManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
             "drush -r web cim --source=../config/sync -y --uri=http://nginx",
             "drush -r web pm:enable mysite_core -y --uri=http://nginx"

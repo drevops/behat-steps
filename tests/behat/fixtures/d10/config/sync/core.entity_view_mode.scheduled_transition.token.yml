@@ -1,0 +1,10 @@
+uuid: 4dfc7450-7ab9-4c63-9362-c14fec95e65b
+langcode: en
+status: true
+dependencies:
+  module:
+    - scheduled_transitions
+id: scheduled_transition.token
+label: Token
+targetEntityType: scheduled_transition
+cache: true
