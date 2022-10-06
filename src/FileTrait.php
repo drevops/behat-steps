@@ -109,7 +109,7 @@ trait FileTrait {
         throw new \RuntimeException('Unable to prepare directory ' . $directory);
       }
     }
-    $entity = file_save_data(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
+    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
 
     if (!$entity) {
       throw new \RuntimeException('Unable to save managed file ' . $path);
