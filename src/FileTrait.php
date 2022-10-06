@@ -6,7 +6,6 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\user\Entity\User;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -171,8 +170,7 @@ trait FileTrait {
    *   Array of file ids.
    */
   protected function fileLoadMultiple(array $conditions = []) {
-    $query = \Drupal::entityQuery('file');
-    $query->addMetaData('account', User::load(1));
+    $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);

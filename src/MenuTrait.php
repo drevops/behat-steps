@@ -170,6 +170,7 @@ trait MenuTrait {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
     $query = $entity_type_manager->getStorage('menu')->getQuery();
+    $query->accessCheck(FALSE);
     $query->condition('label', $label);
     $menu_ids = $query->execute();
     $menu_id = reset($menu_ids);
@@ -188,6 +189,7 @@ trait MenuTrait {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
     $query = $entity_type_manager->getStorage('menu_link_content')->getQuery();
+    $query->accessCheck(FALSE);
     $menu_link_ids = $query->condition('menu_name', $menu->id())->condition('title', $title)->execute();
     $menu_link_id = reset($menu_link_ids);
     if ($menu_link_id === FALSE) {

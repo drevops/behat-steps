@@ -213,7 +213,7 @@ trait UserTrait {
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []) {
-    $query = \Drupal::entityQuery('user');
+    $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);
