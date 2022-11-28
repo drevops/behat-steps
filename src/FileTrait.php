@@ -152,11 +152,14 @@ trait FileTrait {
    * @Given no managed files:
    */
   public function fileDeleteManagedFiles(TableNode $nodesTable) {
-    foreach ($nodesTable->getHash() as $hash) {
-      $ids = $this->fileLoadMultiple(['name' => $hash]);
-      $controller = \Drupal::entityTypeManager()->getStorage('file');
-      $entities = $controller->loadMultiple($ids);
-      $controller->delete($entities);
+    $storage = \Drupal::entityTypeManager()->getStorage('file');
+    $filenames = $nodesTable->getColumn(0);
+    // Get rid of the column header.
+    array_shift($filenames);
+    foreach ($filenames as $filename) {
+      $ids = $this->fileLoadMultiple(['filename' => $filename]);
+      $entities = $storage->loadMultiple($ids);
+      $storage->delete($entities);
     }
   }
 

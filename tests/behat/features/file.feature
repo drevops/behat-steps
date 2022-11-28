@@ -14,6 +14,27 @@ Feature: Check that FileTrait works for or D9
     And "example_audio.mp3" file object exists
 
   @api
+  Scenario: Assert "@Given no managed files:"
+    When I am logged in as a user with the "administrator" role
+    Given managed file:
+      | path                 |
+      | example_document.pdf |
+      | example_image.png    |
+      | example_audio.mp3    |
+    And "example_document.pdf" file object exists
+    And "example_image.png" file object exists
+    And "example_audio.mp3" file object exists
+    Given no managed files:
+      | path                 |
+      | example_document.pdf |
+      | example_image.png    |
+      | example_audio.mp3    |
+    Then no "example_document.pdf" file object exists
+    And no "example_image.png" file object exists
+    And no "example_audio.mp3" file object exists
+
+
+  @api
   Scenario: Assert unmanaged files step definitions
     Given unmanaged file "public://test1.txt" does not exist
     When unmanaged file "public://test1.txt" created
