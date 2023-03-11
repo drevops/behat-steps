@@ -3,6 +3,12 @@
     "type": "library",
     "description": "Collection of Behat traits",
     "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "DrevOps\\BehatSteps\\": "src/",
