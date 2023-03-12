@@ -3,7 +3,7 @@
     "description": "Drupal 9 site for MYSITE",
     "license": "proprietary",
     "require": {
-        "php": "=8.1",
+        "php": ">=8.1",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/core-composer-scaffold": "^9",
@@ -25,9 +25,6 @@
         "drupal/core-dev": "^9"
     },
     "config": {
-        "platform": {
-            "php": "8.1"
-        },
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
