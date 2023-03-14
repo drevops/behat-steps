@@ -3,7 +3,6 @@
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
-use Drupal\user\Entity\User;
 
 /**
  * Trait ContentTrait.
@@ -187,8 +186,8 @@ trait ContentTrait {
    */
   protected function contentNodeLoadMultiple($type, array $conditions = []) {
     $query = \Drupal::entityQuery('node')
-      ->condition('type', $type)
-      ->addMetaData('account', User::load(1));
+      ->accessCheck(FALSE)
+      ->condition('type', $type);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

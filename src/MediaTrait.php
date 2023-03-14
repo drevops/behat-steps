@@ -5,7 +5,6 @@ namespace DrevOps\BehatSteps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\media\Entity\Media;
-use Drupal\user\Entity\User;
 
 /**
  * Trait MediaTrait.
@@ -221,8 +220,8 @@ trait MediaTrait {
    */
   protected function mediaLoadMultiple($type, array $conditions = []) {
     $query = \Drupal::entityQuery('media')
-      ->condition('bundle', $type)
-      ->addMetaData('account', User::load(1));
+      ->accessCheck(FALSE)
+      ->condition('bundle', $type);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

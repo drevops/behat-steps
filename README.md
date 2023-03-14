@@ -18,6 +18,41 @@ This package may later be refactored to use proper architecture.
 
 `composer require --dev drevops/behat-steps`
 
+**Heads up! Version `1.5.0` requires adding custom repositories to your project and allowing patching!**
+
+Until upstream dependencies implement full support for Drupal 10, this project uses forked dependencies (maintained by DrevOps team). The follow-up release(s) of Behat Steps will have these reverted.
+
+Add the following to your `composer.json`:
+```json
+{
+    "require-dev": {
+        "drevops/behat-steps": "^1.5",
+        "cweagans/composer-patches": "^1.7",
+        "drupal/drupal-extension": "dev-feature/drupal-10 as 4.2.1-dev"
+    },
+    "repositories": {
+        "drupal/drupal-driver": {
+            "type": "vcs",
+            "url": "https://github.com/drevops/DrupalDriver"
+        },
+        "drupal/drupal-extension": {
+            "type": "vcs",
+            "url": "https://github.com/drevops/drupalextension"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "extra": {
+        "enable-patching": true
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
+    }   
+}
+```
+
 # Usage
 
 Add required traits to `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):

@@ -3,7 +3,7 @@
     "description": "Drupal 9 site for MYSITE",
     "license": "proprietary",
     "require": {
-        "php": "=8.1",
+        "php": ">=8.1",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
         "drupal/core-composer-scaffold": "^9",
@@ -21,10 +21,10 @@
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
+    "require-dev": {
+        "drupal/core-dev": "^9"
+    },
     "config": {
-        "platform": {
-            "php": "8.1"
-        },
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
@@ -52,13 +52,6 @@
         }
     },
     "extra": {
-        "merge-plugin": {
-            "require": [
-                "../composer.json"
-            ],
-            "merge-dev": true,
-            "merge-scripts": true
-        },
         "drupal-scaffold": {
             "locations": {
                 "web-root": "./web"

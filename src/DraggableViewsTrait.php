@@ -6,7 +6,6 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
-use Drupal\user\Entity\User;
 
 /**
  * Trait DraggableViewsTrait.
@@ -66,8 +65,8 @@ trait DraggableViewsTrait {
    */
   protected function draggableViewsFindNode($type, $conditions) {
     $query = \Drupal::entityQuery('node')
-      ->condition('type', $type)
-      ->addMetaData('account', User::load(1));
+      ->accessCheck(FALSE)
+      ->condition('type', $type);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

@@ -41,6 +41,7 @@ trait WysiwygTrait {
     catch (UnsupportedDriverActionException $exception) {
       // For non-JS drivers process field in a standard way.
       $field->setValue($value);
+
       return;
     }
 

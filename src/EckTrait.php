@@ -4,7 +4,6 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Drupal\user\Entity\User;
 
 /**
  * Trait EckTrait.
@@ -103,8 +102,8 @@ trait EckTrait {
    */
   protected function eckEntityLoadMultiple($entity_type, $bundle, array $conditions = []) {
     $query = \Drupal::entityQuery($entity_type)
-      ->condition('type', $bundle)
-      ->addMetaData('account', User::load(1));
+      ->accessCheck(FALSE)
+      ->condition('type', $bundle);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

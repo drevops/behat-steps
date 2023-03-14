@@ -1,0 +1,16 @@
+- .rsync-exclude
+- vendor/
+- node_modules/
+- composer.json
+- composer.lock
+- README.txt
+- example*
+- behat.yml
+- phpcs.xml
++ config
++ web
++ web/modules
++ web/modules/custom
+- web/modules/contrib
+- web/modules/*
+- web/*

@@ -4,7 +4,6 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\user\Entity\User;
 
 /**
  * Trait TaxonomyTrait.
@@ -145,8 +144,8 @@ trait TaxonomyTrait {
    */
   protected function taxonomyLoadMultiple($vocabulary, array $conditions = []) {
     $query = \Drupal::entityQuery('taxonomy_term')
-      ->condition('vid', $vocabulary)
-      ->addMetaData('account', User::load(1));
+      ->accessCheck(FALSE)
+      ->condition('vid', $vocabulary);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

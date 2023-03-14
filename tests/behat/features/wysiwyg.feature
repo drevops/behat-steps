@@ -1,7 +1,7 @@
 @d9
 Feature: Check that WysiywgTrait works for or D9
 
-  @api
+  @api @d10
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
     Given page content:
       | title             |

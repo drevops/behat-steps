@@ -7,7 +7,7 @@ Feature: Behat feature context smoke tests
 
   Basically, tests for tests, which are testing our steps provided by this package.
 
-  @api @d9
+  @api @d9 @d10
   Scenario: Assert that a module can be installed and uninstalled
     Given I am logged in as a user with the "administer site configuration, administer modules" permissions
     When I go to "/admin/modules"
@@ -24,7 +24,7 @@ Feature: Behat feature context smoke tests
     And the response status code should be 200
     Then the "modules[book][enable]" checkbox should be unchecked
 
-  @api @d9
+  @api @d9 @d10
   Scenario: Assert that a cookie presence and absence assertions work
     Given I am logged in as a user with the "administer site configuration" permissions
     Then cookie "testcookiename" exists
