@@ -185,4 +185,15 @@ trait FeatureContextTrait {
     }
   }
 
+  /**
+   * @Then no :file_name file object exists
+   */
+  public function noFileObjectExist($file_name) {
+    $file_name = basename($file_name);
+    $fids = $this->fileLoadMultiple(['filename' => $file_name]);
+    if ($fids) {
+      throw new \Exception(sprintf('"%s" file does exist in DB, but it should not', $file_name));
+    }
+  }
+
 }
