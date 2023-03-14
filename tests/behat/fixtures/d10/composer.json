@@ -3,29 +3,27 @@
     "description": "Drupal 9 site for MYSITE",
     "license": "proprietary",
     "require": {
-        "php": "=8.1",
+        "php": ">=8.1",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
-        "drupal/core-composer-scaffold": "^10@beta",
-        "drupal/core-project-message": "^10@beta",
-        "drupal/core-recommended": "^10@beta",
+        "drupal/core-composer-scaffold": "^10",
+        "drupal/core-project-message": "^10",
+        "drupal/core-recommended": "^10",
         "drupal/paragraphs": "^1.15",
         "drupal/pathauto": "^1.11",
-        "drupal/scheduled_transitions": "^2.2@rc",
+        "drupal/scheduled_transitions": "^2.3",
         "drupal/search_api": "^1.26",
         "drush/drush": "^11",
+        "drupal/testmode": "^2",
         "oomphinc/composer-installers-extender": "^2.0",
         "vlucas/phpdotenv": "^5.4",
         "webflo/drupal-finder": "^1.2",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
-        "drupal/core-dev": "^10@beta"
+        "drupal/core-dev": "^10"
     },
     "config": {
-        "platform": {
-            "php": "8.1"
-        },
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
