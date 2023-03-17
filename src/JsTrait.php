@@ -3,7 +3,6 @@
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Mink\Driver\Selenium2Driver;
 
 /**
  * Trait JsTrait.
@@ -29,16 +28,12 @@ trait JsTrait {
     }
 
     if ($scope->getScenario()->hasTag('javascript')) {
-      $driver = $this->getSession()->getDriver();
-      if ($driver instanceof Selenium2Driver) {
-        // Start driver's session manually if it is not already started.
-        if (!$driver->isStarted()) {
-          $driver->start();
-        }
-        $this->getSession()->resizeWindow(1440, 900, 'current');
-      }
-      else {
-        throw new \RuntimeException('Unable to load Selenium driver.');
+      $session = $this->getSession();
+      $driver = $session->getDriver();
+
+      $session->resizeWindow(1440, 900, 'current');
+      if (!$driver->isStarted()) {
+        $driver->start();
       }
     }
   }
@@ -137,12 +132,6 @@ trait JsTrait {
    */
   protected function jsExecute($selector, $script) {
     $driver = $this->getSession()->getDriver();
-
-    if (!($driver instanceof Selenium2Driver)) {
-      throw new \RuntimeException('JavaScript commands can only be used with Selenium driver.');
-    }
-
-    // Inject style to disable browser scrollbars.
     $scriptWrapper = "return (function() {
             {{SCRIPT}}
           }());";

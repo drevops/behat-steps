@@ -2,8 +2,8 @@
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
  * Trait WysiwygTrait.
@@ -35,14 +35,17 @@ trait WysiwygTrait {
     }
 
     $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
-      // For non-Selenium driver process field in a standard way.
+    try {
+      $driver->evaluateScript('true');
+    }
+    catch (UnsupportedDriverActionException $exception) {
+      // For non-JS drivers process field in a standard way.
       $field->setValue($value);
 
       return;
     }
 
-    // For Selenium driver, try to find WYSIWYG iframe as a child of the
+    // For a JS-capable driver, try to find WYSIWYG iframe as a child of the
     // following sibling.
     $iframe_xpath = $field->getXpath() . "/following-sibling::div[contains(@class, 'cke')]//iframe";
     $page_iframe_elements = $driver->find($iframe_xpath);

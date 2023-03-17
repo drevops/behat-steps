@@ -3,7 +3,6 @@
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
 
@@ -29,18 +28,14 @@ trait BigPipeTrait {
       return;
     }
 
-    $driver = $this->getSession()->getDriver();
-    if ($driver instanceof Selenium2Driver) {
-      // Start driver's session manually if it is not already started.
-      if (!$driver->isStarted()) {
-        $driver->start();
-      }
-    }
-
     try {
       // Check if JavaScript can be executed by the driver and add a cookie
       // if it cannot.
-      $this->getSession()->getDriver()->executeScript('true');
+      $driver = $this->getSession()->getDriver();
+      if (!$driver->isStarted()) {
+        $driver->start();
+      }
+      $driver->executeScript('true');
     }
     catch (UnsupportedDriverActionException $e) {
       $this

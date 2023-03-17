@@ -2,7 +2,6 @@
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
@@ -32,8 +31,12 @@ trait WaitTrait {
    */
   public function waitForAjaxToFinish($timeout) {
     $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
+
+    try {
+      $driver->evaluateScript('true');
+    }
+    catch (UnsupportedDriverActionException $exception) {
+      throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver', $driver);
     }
 
     $condition = <<<JS

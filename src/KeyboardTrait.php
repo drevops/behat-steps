@@ -42,7 +42,7 @@ trait KeyboardTrait {
   public function keyboardPressKeyOnElement($char, $selector = NULL) {
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
+      throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
     }
 
     $keys = [
@@ -139,7 +139,7 @@ trait KeyboardTrait {
   protected function keyboardTriggerKey($xpath, $key) {
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium driver', $driver);
+      throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
     }
 
     // Use reflection to re-use Syn library injection and execution of JS on
