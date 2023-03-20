@@ -1,7 +1,7 @@
 # Behat Steps
 Collection of Behat steps for Drupal
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/drevops/behat-steps/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/drevops/behat-steps/tree/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/drevops/behat-steps.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/drevops/behat-steps)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/behat-steps)
 [![Total Downloads](https://poser.pugx.org/drevops/behat-steps/downloads)](https://packagist.org/packages/drevops/behat-steps)
 ![LICENSE](https://img.shields.io/github/license/drevops/behat-steps)
