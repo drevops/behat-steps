@@ -31,10 +31,11 @@ trait JsTrait {
       $session = $this->getSession();
       $driver = $session->getDriver();
 
-      $session->resizeWindow(1440, 900, 'current');
       if (!$driver->isStarted()) {
         $driver->start();
       }
+
+      $session->resizeWindow(1440, 900, 'current');
     }
   }
 
