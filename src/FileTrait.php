@@ -189,9 +189,10 @@ trait FileTrait {
    * @Given unmanaged file :uri created
    */
   public function fileCreateUnmanaged($uri, $content = 'test') {
-    $dir = dirname($uri);
+    $dir = \Drupal::service('file_system')->dirname($uri);
+
     if (!file_exists($dir)) {
-      mkdir($dir, 0770, TRUE);
+      $dir = \Drupal::service('file_system')->dirname($dir, 0770, TRUE);
     }
 
     file_put_contents($uri, $content);
