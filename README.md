@@ -16,7 +16,11 @@ This package may later be refactored to use proper architecture.
 
 # Installation
 
-`composer require --dev drevops/behat-steps`
+`composer require --dev drevops/behat-steps:^2`
+
+For Drupal 7 support:
+
+`composer require --dev drevops/behat-steps:^1`
 
 # Usage
 
