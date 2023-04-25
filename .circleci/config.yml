@@ -5,7 +5,7 @@ aliases:
     docker:
       - image: drevops/ci-builder
         environment:
-          DRUPAL_VERSION: 9
+          DRUPAL_VERSION: 10
 
   - &build
     <<: *container_config
@@ -38,27 +38,20 @@ aliases:
           path: /tmp/artifacts
 
 jobs:
-  build_d7:
-    <<: *build
-    docker:
-      - image: drevops/ci-builder
-        environment:
-          DRUPAL_VERSION: 7
-
-  build_d9:
-    <<: *build
 
   build_d10:
     <<: *build
+
+  build_d9:
+    <<: *build
     docker:
       - image: drevops/ci-builder
         environment:
-          DRUPAL_VERSION: 10
+          DRUPAL_VERSION: 9
 
 workflows:
   version: 2
   main:
     jobs:
-      - build_d7
       - build_d9
       - build_d10

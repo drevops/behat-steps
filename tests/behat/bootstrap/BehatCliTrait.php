@@ -50,6 +50,22 @@ trait BehatCliTrait {
   }
 
   /**
+   * @BeforeStep
+   */
+  public function behatCliBeforeStep() {
+    // Drupal Extension >= ^5 is coupled with Drupal core's DrupalTestBrowser.
+    // This requires Drupal root to be discoverable when running Behat from a
+    // random directory using Drupal Finder.
+    //
+    // Set environment variables for Drupal Finder.
+    // This requires Drupal Finder version > 1.2 at commit:
+    // @see https://github.com/webflo/drupal-finder/commit/2663b117878f4a45ca56df028460350c977f92c0
+    $this->iSetEnvironmentVariable('DRUPAL_FINDER_DRUPAL_ROOT', '/app/build/web');
+    $this->iSetEnvironmentVariable('DRUPAL_FINDER_COMPOSER_ROOT', '/app/build');
+    $this->iSetEnvironmentVariable('DRUPAL_FINDER_VENDOR_DIR', '/app/build/vendor');
+  }
+
+  /**
    * Create FeatureContext.php file.
    *
    * @param array $traits
@@ -167,7 +183,7 @@ default:
         - Drupal\DrupalExtension\Context\MinkContext
   extensions:
     Drupal\MinkExtension:
-      goutte: ~
+      browserkit_http: ~
       selenium2: ~
       base_url: http://nginx:8080      
       browser_name: chrome

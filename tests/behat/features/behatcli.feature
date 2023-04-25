@@ -1,4 +1,4 @@
-@d7 @d9 @d10 @behatcli
+@d9 @d10 @behatcli
 Feature: Behat CLI context
 
   Tests for BehatCliContext functionality that is used to test Behat Steps traits
@@ -37,7 +37,7 @@ Feature: Behat CLI context
               - Drupal\DrupalExtension\Context\MinkContext
         extensions:
           Drupal\MinkExtension:
-            goutte: ~
+            browserkit_http: ~
             selenium2: ~
             base_url: http://nginx:8080
           Drupal\DrupalExtension:

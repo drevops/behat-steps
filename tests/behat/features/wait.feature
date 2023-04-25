@@ -1,4 +1,4 @@
-@d7 @@api @javascript
+@api @javascript
 Feature: Check that WaitTrait works
 
   Scenario: Anonymous user visits homepage

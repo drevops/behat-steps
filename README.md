@@ -18,41 +18,6 @@ This package may later be refactored to use proper architecture.
 
 `composer require --dev drevops/behat-steps`
 
-**Heads up! Version `1.5.0` requires adding custom repositories to your project and allowing patching!**
-
-Until upstream dependencies implement full support for Drupal 10, this project uses forked dependencies (maintained by DrevOps team). The follow-up release(s) of Behat Steps will have these reverted.
-
-Add the following to your `composer.json`:
-```json
-{
-    "require-dev": {
-        "drevops/behat-steps": "^1.5",
-        "cweagans/composer-patches": "^1.7",
-        "drupal/drupal-extension": "dev-feature/drupal-10 as 4.2.1-dev"
-    },
-    "repositories": {
-        "drupal/drupal-driver": {
-            "type": "vcs",
-            "url": "https://github.com/drevops/DrupalDriver"
-        },
-        "drupal/drupal-extension": {
-            "type": "vcs",
-            "url": "https://github.com/drevops/drupalextension"
-        }
-    },
-    "prefer-stable": true,
-    "minimum-stability": "dev",
-    "extra": {
-        "enable-patching": true
-    },
-    "config": {
-        "allow-plugins": {
-            "cweagans/composer-patches": true
-        }
-    }   
-}
-```
-
 # Usage
 
 Add required traits to `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
@@ -103,7 +68,7 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 - Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
 - Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).  
 - `pygmy up`
-- `ahoy build` for Drupal 9 build or `DRUPAL_VERSION=7 ahoy build` for Drupal 7.
+- `ahoy build` for Drupal 10 build or `DRUPAL_VERSION=9 ahoy build` for Drupal 9.
 - Access built site at http://behat-steps.docker.amazee.io/  
 
 To develop for another Drupal version, run `ahoy build` again.
@@ -124,8 +89,8 @@ but rather uses a content type created from configuration during site installati
 - Run all tests: `ahoy test-bdd`
 - Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
 - Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
-- Tests tagged with `@d7` or `@d9` will be run for Drupal 7 and Drupal 9 respectively.
-- Tests tagged with `@d7` and `@d9` are agnostic to Drupal version and will run for all versions. 
+- Tests tagged with `@d9` **or** `@d10` will be run **only** for Drupal 9 or Drupal 10 respectively.
+- Tests tagged with `@d9` **and** `@d10` are agnostic to Drupal version and will run for **all** versions. 
 
 To debug tests from CLI:
 - `ahoy debug`
@@ -133,8 +98,8 @@ To debug tests from CLI:
 
 To update fixtures:
 - Make required changes in the installed fixture site
-- Run `ahoy drush cex -y` for Drupal 9 or `ahoy drush fua -y` for Drupal 7
-- Run `ahoy update-fixtures` for Drupal 9 or `DRUPAL_VERSION=7 ahoy update-fixtures` for Drupal 7 to export configuration changes from build directory to the fixtures directory. 
+- Run `ahoy drush cex -y`
+- Run `ahoy update-fixtures` for Drupal 10 or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9 to copy configuration changes from build directory to the fixtures directory. 
 
 ---
 

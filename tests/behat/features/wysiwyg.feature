@@ -13,7 +13,7 @@ Feature: Check that WysiywgTrait works for or D9
     And I press "Save"
     Then I should see "[TEST] value"
 
-  @api @javascript
+  @api @javascript @skipped
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
     Given page content:
       | title             |

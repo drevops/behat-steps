@@ -33,6 +33,4 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->importNames(true, false);
     $rectorConfig->importShortClasses(false);
     $parameters->set('drupal_rector_notices_as_comments', true);
-
-    $rectorConfig->skip(["*/src/D7/*"]);
 };

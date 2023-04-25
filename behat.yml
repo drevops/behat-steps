@@ -16,10 +16,12 @@ default:
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
+      filters:
+        tags: "@d10&&~skipped"
 
   extensions:
     Drupal\MinkExtension:
-      goutte: ~
+      browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
@@ -46,29 +48,14 @@ default:
     # Allows to capture HTML and JPG screenshots (based on the driver used).
     DrevOps\BehatScreenshotExtension: ~
 
-d9:
-  gherkin:
-    cache: '/tmp/behat_gherkin_cache'
-    filters:
-      tags: "@d9&&~@skipped"
-
 d10:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: "@d10&&~@skipped"
 
-d7:
+d9:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
-      tags: "@d7&&~@skipped"
-  suites:
-    default:
-      contexts:
-        - FeatureContextD7
-        - BehatCliContext
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MarkupContext
-        - Drupal\DrupalExtension\Context\MessageContext
-        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
+      tags: "@d9&&~@skipped"

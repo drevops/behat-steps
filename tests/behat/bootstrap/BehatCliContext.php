@@ -10,6 +10,8 @@
  * Changes made to this calss:
  *  - renamed to "BehatCliContext"
  *  - added using a BehatCliTrait.php
+ *  - updated iSetEnvironmentVariable() to support adding of more variables
+ *    instead of replacing.
  *
  * DO NOT MODIFY THIS FILE IN ANY WAY TO KEEP IT SYNCED WITH UPSTREAM!
  */
@@ -190,7 +192,7 @@ EOL;
      */
     public function iSetEnvironmentVariable($name, $value)
     {
-        $this->env = array($name => (string) $value);
+        $this->env[$name] = (string) $value;
     }
 
     /**
@@ -202,7 +204,7 @@ EOL;
      */
     public function iSetBehatParamsEnvironmentVariable(PyStringNode $value)
     {
-        $this->env = array('BEHAT_PARAMS' => (string) $value);
+        $this->env['BEHAT_PARAMS'] = (string) $value;
     }
 
     /**
