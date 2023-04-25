@@ -1,4 +1,4 @@
-@d9 @d10
+@d9
 Feature: Check that FileTrait works for or D9
 
   @api

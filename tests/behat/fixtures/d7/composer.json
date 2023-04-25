@@ -27,8 +27,6 @@
         "drush/drush": "^8",
         "library/ckeditor": "^4.9"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "config": {
         "process-timeout": 0,
         "sort-packages": true,
@@ -60,6 +58,8 @@
             }
         }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "merge-plugin": {
             "require": [

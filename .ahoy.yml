@@ -9,7 +9,7 @@ commands:
       ahoy clean
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
       ahoy up -- --build --force-recreate   
-      docker cp -L . "$(docker-compose ps -q cli)":/app/
+      docker cp -L . "$(docker-compose ps -q cli)":/app/ || true
       ahoy install-site
       ahoy info 1
 
@@ -69,7 +69,7 @@ commands:
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -T cli bash -c "$*"; else docker-compose exec cli bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker-compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION:-9} -T cli bash -c "$*"; else docker-compose exec cli bash; fi
 
   composer:
     usage: Run Composer commands in the CLI service container.

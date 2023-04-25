@@ -1,4 +1,4 @@
-@d9 @d10 @errorcleanup
+@d9 @errorcleanup
 Feature: Check that WatchdogTrait works for or D9
 
   @trait:WatchdogTrait
