@@ -1,9 +1,8 @@
 @smoke
 Feature: Behat feature context smoke tests
 
-  Assertions for D7 and feature context steps (in FeatureContextD7.php and
-  FeatureContextD8.php) that are used to test the Behat-steps step definitions
-  defined in `src`.
+  Assertions for feature context steps (in FeatureContext.php) that are used
+  to test the Behat-steps step definitions defined in `src`.
 
   Basically, tests for tests, which are testing our steps provided by this package.
 
