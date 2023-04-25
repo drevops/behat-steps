@@ -17,8 +17,7 @@
     },
     "require": {
         "behat/behat": "^3",
-        "drupal/drupal-extension": "dev-feature/drupal-10 as 4.2.1-dev",
-        "cweagans/composer-patches": "^1.7"
+        "drupal/drupal-extension": "^4"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -31,20 +30,7 @@
         "phpunit/phpunit": "^8.5 || ^9.0",
         "rector/rector": "0.15.13"
     },
-    "repositories": {
-        "drupal/drupal-driver": {
-            "type": "vcs",
-            "url": "https://github.com/drevops/DrupalDriver"
-        },
-        "drupal/drupal-extension": {
-            "type": "vcs",
-            "url": "https://github.com/drevops/drupalextension"
-        }
-    },
-    "prefer-stable": true,
-    "minimum-stability": "dev",
     "extra": {
-        "enable-patching": true,
         "branch-alias": {
             "dev-master": "1.x-dev",
             "dev-main": "1.x-dev"
@@ -52,7 +38,6 @@
     },
     "config": {
         "allow-plugins": {
-            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }

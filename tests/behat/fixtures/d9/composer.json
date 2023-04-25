@@ -51,6 +51,8 @@
             "url": "https://packages.drupal.org/8"
         }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "drupal-scaffold": {
             "locations": {
@@ -101,7 +103,6 @@
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "drupal-post-install": [
-            "chmod 644 web/sites/default/settings.php; echo \"\\$settings['config_sync_directory'] = '../config/sync';\" >> web/sites/default/settings.php; chmod 444 web/sites/default/settings.php",
             "drush -r web config-set system.site uuid b74534f3-cac7-4fbf-b0a6-5cba2aa9bd1e -y --uri=http://nginx",
             "drush -r web ev \"\\Drupal::entityTypeManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
             "drush -r web cim --source=../config/sync -y --uri=http://nginx",

@@ -1,4 +1,4 @@
-@d9 @d10
+@d9
 Feature: Check that TaxonomyTrait works for or D9
 
   Background:

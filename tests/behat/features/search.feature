@@ -1,4 +1,4 @@
-@d9 @d10 @search
+@d9 @search
 Feature: Ensure Search works.
 
   @api
