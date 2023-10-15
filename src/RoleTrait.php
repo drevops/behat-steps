@@ -23,7 +23,7 @@ trait RoleTrait {
   protected $roles = [];
 
   /**
-   * Create a single role with specified permisisons.
+   * Create a single role with specified permissions.
    *
    * @Given role :name with permissions :permissions
    */
@@ -45,9 +45,7 @@ trait RoleTrait {
     $saved = $role->save();
 
     if ($saved === SAVED_NEW) {
-      if (!empty($permissions)) {
-        user_role_grant_permissions($role->id(), $permissions);
-      }
+      user_role_grant_permissions($role->id(), $permissions);
       $role = Role::load($role->id());
 
       return $role;
