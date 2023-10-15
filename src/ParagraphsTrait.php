@@ -90,17 +90,16 @@ trait ParagraphsTrait {
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
    *   Paragraphs item bundle name.
-   * @param object $stub
+   * @param \StdClass $stub
    *   Standard object with filled-in fields. Fields are merged with created
    *   paragraphs item object.
    * @param bool $save_entity
    *   Flag to save node after attaching a paragraphs item. Defaults to TRUE.
    *
-   * @return object
-   *   Create paragraphs item.
+   * @return \Drupal\paragraphs\Entity\Paragraph
+   *   Created paragraphs item.
    */
-  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $entity, $entity_field_name, $paragraph_bundle, $stub, $save_entity = TRUE) {
-    /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $entity, string $entity_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): Paragraph {
     $stub->type = $paragraph_bundle;
     $stub = (array) $stub;
     $paragraph = Paragraph::create($stub);
@@ -166,7 +165,7 @@ trait ParagraphsTrait {
    * Get a field name that references the paragraphs item.
    */
   protected function paragraphsCheckEntityFieldName($entity_type, $bundle, $field_name) {
-    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $entity_field_manager */
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
 
     if (!array_key_exists($field_name, $field_info)) {

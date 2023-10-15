@@ -149,7 +149,6 @@ trait LinkTrait {
    * @Then the link( with title) :text is an absolute link
    */
   public function assertLinkAbsolute($text) {
-    /** @var \Behat\Mink\Element\DocumentElement $page */
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
@@ -166,7 +165,6 @@ trait LinkTrait {
    * @Then the link( with title) :text is not an absolute link
    */
   public function assertLinkNotAbsolute($text) {
-    /** @var \Behat\Mink\Element\DocumentElement $page */
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));

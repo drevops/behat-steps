@@ -101,7 +101,7 @@ trait WatchdogTrait {
     $entries = $database->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', $this->watchdogMessageTypes, 'IN')
-      ->condition('w.timestamp', $this->watchdogScenarioStartTime, '>=')
+      ->condition('w.timestamp', (string) $this->watchdogScenarioStartTime, '>=')
       ->execute()
       ->fetchAll();
 

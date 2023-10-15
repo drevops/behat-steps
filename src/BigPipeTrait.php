@@ -40,7 +40,7 @@ trait BigPipeTrait {
     catch (UnsupportedDriverActionException $e) {
       $this
         ->getSession()
-        ->setCookie(BigPipeStrategy::NOJS_COOKIE, TRUE);
+        ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
     catch (\Exception $e) {
       // Mute exceptions.

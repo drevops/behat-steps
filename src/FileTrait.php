@@ -6,6 +6,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -81,7 +82,7 @@ trait FileTrait {
   /**
    * Create file entity.
    */
-  protected function fileCreateEntity($stub) {
+  protected function fileCreateEntity($stub): FileInterface {
     if (empty($stub->path)) {
       throw new \RuntimeException('"path" property is required');
     }
@@ -108,13 +109,8 @@ trait FileTrait {
         throw new \RuntimeException('Unable to prepare directory ' . $directory);
       }
     }
-    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
 
-    if (!$entity) {
-      throw new \RuntimeException('Unable to save managed file ' . $path);
-    }
-
-    return $entity;
+    return \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
   }
 
   /**
@@ -192,7 +188,7 @@ trait FileTrait {
     $dir = \Drupal::service('file_system')->dirname($uri);
 
     if (!file_exists($dir)) {
-      $dir = \Drupal::service('file_system')->dirname($dir, 0770, TRUE);
+      \Drupal::service('file_system')->dirname($dir);
     }
 
     file_put_contents($uri, $content);

@@ -81,7 +81,6 @@ trait FeatureContextTrait {
   protected function getCookies() {
     $cookie_list = [];
 
-    /** @var Behat\Mink\Driver\BrowserKitDriver $driver */
     $driver = $this->getSession()->getDriver();
     if ($driver instanceof Selenium2Driver) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
@@ -90,6 +89,7 @@ trait FeatureContextTrait {
       }
     }
     else {
+      /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       $cookie_list = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
     }
 
@@ -161,9 +161,9 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email',
       $email,
-      \Drupal::languageManager()->getDefaultLanguage(),
+      \Drupal::languageManager()->getDefaultLanguage()->getId(),
       ['body' => strval($string)],
-      FALSE
+      NULL
     );
   }
 

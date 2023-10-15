@@ -24,7 +24,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($name);
 
     if (!$header) {
-      throw new \Exception(sprintf('Response does not contain header %s', $name), $this->getSession()->getDriver());
+      throw new \Exception(sprintf('Response does not contain header %s', $name));
     }
   }
 
@@ -41,7 +41,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($name);
 
     if ($header) {
-      throw new \Exception(sprintf('Response contains header %s, but should not', $name), $this->getSession()->getDriver());
+      throw new \Exception(sprintf('Response contains header %s, but should not', $name));
     }
   }
 
