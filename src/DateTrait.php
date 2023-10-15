@@ -98,7 +98,7 @@ trait DateTrait {
         $timestamp = date($matches[3], $timestamp);
       }
 
-      if ($timestamp === FALSE) {
+      if (empty($timestamp)) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
 

@@ -70,7 +70,7 @@ trait FileDownloadTrait {
 
     $cookie_list = [];
 
-    /** @var Behat\Mink\Driver\BrowserKitDriver $driver */
+    /** @var \Behat\Mink\Driver\CoreDriver $driver */
     $driver = $this->getSession()->getDriver();
     if ($driver instanceof Selenium2Driver) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
@@ -79,6 +79,7 @@ trait FileDownloadTrait {
       }
     }
     else {
+      /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
       foreach ($cookies as $cookie_name => $cookie_value) {
         $cookie_list[] = $cookie_name . '=' . $cookie_value;
@@ -221,11 +222,11 @@ trait FileDownloadTrait {
       throw new \RuntimeException('ZIP extension is not enabled for PHP');
     }
 
-    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
+    if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
       throw new \RuntimeException('Downloaded file path data is not available.');
     }
 
-    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
+    if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
 

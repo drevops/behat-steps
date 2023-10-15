@@ -26,12 +26,11 @@ trait WysiwygTrait {
     $field = $this->wysiwygFixStepArgument($field);
     $value = $this->wysiwygFixStepArgument($value);
 
-    /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
-    $field = $page->findField($field);
+    $element = $page->findField($field);
 
-    if ($field === NULL) {
-      throw new ElementNotFoundException($this->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
     $driver = $this->getSession()->getDriver();
@@ -40,17 +39,17 @@ trait WysiwygTrait {
     }
     catch (UnsupportedDriverActionException $exception) {
       // For non-JS drivers process field in a standard way.
-      $field->setValue($value);
+      $element->setValue($value);
 
       return;
     }
 
     // For a JS-capable driver, try to find WYSIWYG iframe as a child of the
     // following sibling.
-    $iframe_xpath = $field->getXpath() . "/following-sibling::div[contains(@class, 'cke')]//iframe";
+    $iframe_xpath = $element->getXpath() . "/following-sibling::div[contains(@class, 'cke')]//iframe";
     $page_iframe_elements = $driver->find($iframe_xpath);
-    if (empty($page_iframe_elements) || $page_iframe_elements[0] === NULL) {
-      throw new ElementNotFoundException($this->getDriver(), 'WYSIWYG form field', 'id|name|label|value|placeholder', $field);
+    if (empty($page_iframe_elements[0])) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'WYSIWYG form field', 'id|name|label|value|placeholder', $field);
     }
 
     $iframe_element = reset($page_iframe_elements);
@@ -79,7 +78,7 @@ trait WysiwygTrait {
     }
 
     // Select WYSIWYG iframe frame.
-    $driver->switchToIFrame($index);
+    $driver->switchToIFrame((string) $index);
 
     // Type value as keys into 'body' of iframe.
     foreach (str_split($value) as $char) {

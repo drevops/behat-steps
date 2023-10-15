@@ -6,6 +6,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 
 /**
  * Trait DraggableViewsTrait.
@@ -21,15 +22,14 @@ trait DraggableViewsTrait {
    *
    * @Then I save draggable views :view_id view :views_display_id display :bundle items in the following order:
    */
-  public function draggableViewsSaveBundleOrder($view_id, $view_display_id, $bundle, TableNode $order_table) {
+  public function draggableViewsSaveBundleOrder($view_id, $view_display_id, $bundle, TableNode $order_table): void {
     $connection = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
-      /** @var \Drupal\node\Entity\Node $node */
       $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
 
-      if (!$node) {
-        throw new \RuntimeException(sprintf('Unable to find node "%s"', $node->getTitle()));
+      if (empty($node)) {
+        throw new \RuntimeException(sprintf('Unable to find node "%s"', $title));
       }
 
       $entity_id = $node->id();
@@ -63,7 +63,7 @@ trait DraggableViewsTrait {
   /**
    * Find a node using provided conditions.
    */
-  protected function draggableViewsFindNode($type, $conditions) {
+  protected function draggableViewsFindNode($type, $conditions): NodeInterface|null {
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);
