@@ -41,7 +41,7 @@ services:
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
 
   php:
-    image: uselagoon/php-8.1-fpm:23.2.0
+    image: uselagoon/php-8.1-fpm:23.10.0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
