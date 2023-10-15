@@ -1,28 +1,34 @@
 <?xml version="1.0"?>
-<ruleset name="behat_steps">
-    <description>PHPCS Standard for Behat Steps.
-    </description>
+<ruleset name="custom">
+    <description>Custom PHPCS standard.</description>
 
+    <!-- Coding standard. -->
     <rule ref="Drupal"/>
-    <rule ref="PHPCompatibility"/>
 
-    <arg name="extensions" value="php"/>
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+    <!-- Show progress of the run. -->
+    <arg value="p"/>
     <arg name="colors"/>
-    <arg value="sp"/>
-    <arg name="parallel" value="75"/>
-    <!--Lint code against platform version specified in composer.json
-    key "config.platform.php".-->
-    <config name="testVersion" value="7.4"/>
 
-    <file>src</file>
-    <file>tests/behat/bootstrap</file>
+    <file>../src</file>
+    <file>../tests/behat/bootstrap</file>
 
     <!-- Exclude circleci config files. -->
-    <exclude-pattern>circle\.yml</exclude-pattern>
-    <exclude-pattern>\.circle\/config\.yml</exclude-pattern>
+    <exclude-pattern>../circle\.yml</exclude-pattern>
+    <exclude-pattern>../\.circle\/config\.yml</exclude-pattern>
 
-    <!--Force short array syntax.-->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
-        <type>warning</type>
+    <!-- Allow long array lines in tests. -->
+    <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
+    </rule>
+
+    <!-- Allow missing function names in tests. -->
+    <rule ref="Drupal.Commenting.FunctionComment.Missing">
+        <exclude-pattern>*.Test\.php</exclude-pattern>
+        <exclude-pattern>*.TestCase\.php</exclude-pattern>
+        <exclude-pattern>*.test</exclude-pattern>
     </rule>
 </ruleset>

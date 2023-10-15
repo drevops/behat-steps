@@ -238,7 +238,7 @@ trait FileDownloadTrait {
     $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
-      if ($result == ZipArchive::ER_NOZIP) {
+      if ($result == \ZipArchive::ER_NOZIP) {
         throw new \Exception('Downloaded file is not valid ZIP file.');
       }
       else {

@@ -1,6 +1,13 @@
-vendor
+# To ignore OS temporary files use global .gitignore
+# https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#configuring-ignored-files-for-all-repositories-on-your-computer
+
+/.coverage-html
+/.phpunit.cache
+/build
+/cobertura.xml
 /composer.lock
-build
-screenshots
-docker-compose.override.yml
-todo.txt
+/docker-compose.override.yml
+/screenshots
+/vendor
+/vendor-bin
+/todo.txt

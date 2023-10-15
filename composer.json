@@ -1,43 +1,54 @@
 {
     "name": "drevops/behat-steps",
     "type": "library",
-    "description": "Collection of Behat traits",
+    "description": "Collection of steps for Behat",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Alex Skrypnyk",
-            "email": "alex@drevops.com"
+            "email": "alex@drevops.com",
+            "homepage": "https://drevops.com",
+            "role": "Maintainer"
         }
     ],
-    "autoload": {
-        "psr-4": {
-            "DrevOps\\BehatSteps\\": "src/"
-        }
+    "homepage": "https://github.com/drevops/behat-steps",
+    "support": {
+        "issues": "https://github.com/drevops/behat-steps/issues",
+        "source": "https://github.com/drevops/behat-steps"
     },
     "require": {
+        "php": ">=8.1",
         "behat/behat": "^3",
         "drupal/drupal-extension": "^5@rc"
     },
     "require-dev": {
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drevops/behat-screenshot": "^1",
         "drupal/coder": "^8.3",
         "mglaman/drupal-check": "^1",
         "palantirnet/drupal-rector": "^0.15",
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpcompatibility/php-compatibility": "^9.3",
-        "phpunit/phpunit": "^8.5 || ^9.0",
-        "rector/rector": "0.15.13"
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "0.15.13",
+        "phpstan/extension-installer": "^1.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\BehatSteps\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev",
             "dev-main": "1.x-dev"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

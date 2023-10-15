@@ -42,8 +42,7 @@ services:
 
   php:
     image: uselagoon/php-8.1-fpm:23.2.0
-    <<: *default-volumes
-    <<: *default-user
+    <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
     depends_on:
@@ -51,8 +50,7 @@ services:
 
   nginx:
     image: uselagoon/nginx-drupal:23.2.0
-    <<: *default-volumes
-    <<: *default-user
+    <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
     depends_on:
