@@ -3,6 +3,7 @@
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
 
@@ -12,6 +13,13 @@ use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
  * Behat trait for handling BigPipe functionality.
  */
 trait BigPipeTrait {
+
+  /**
+   * Flag for JS not supported by driver.
+   *
+   * @var bool
+   */
+  protected $bigPipeNoJS;
 
   /**
    * Prepares Big Pipe NOJS cookie if needed.
@@ -36,14 +44,26 @@ trait BigPipeTrait {
         $driver->start();
       }
       $driver->executeScript('true');
+      $this->bigPipeNoJS = FALSE;
     }
     catch (UnsupportedDriverActionException $e) {
-      $this
-        ->getSession()
-        ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
+      $this->bigPipeNoJS = TRUE;
     }
     catch (\Exception $e) {
       // Mute exceptions.
+    }
+  }
+
+  /**
+   * Prepares Big Pipe NO JS cookie if needed.
+   *
+   * @BeforeStep
+   */
+  public function bigPipeBeforeStep(BeforeStepScope $scope) {
+    if ($this->bigPipeNoJS) {
+      $this
+        ->getSession()
+        ->setCookie(BigPipeStrategy::NOJS_COOKIE, '1');
     }
   }
 
