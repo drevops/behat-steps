@@ -81,16 +81,14 @@ trait BigPipeTrait {
       return;
     }
     try {
-      $session = $this->getSession();
+      if ($this->bigPipeNoJS && !$this->getSession()->getCookie(BigPipeStrategy::NOJS_COOKIE)) {
+        $this->getSession()
+          ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
+      }
     }
     catch (DriverException $e) {
       // Mute not visited page exception.
       return;
-    }
-
-    if ($this->bigPipeNoJS && !$session->getCookie(BigPipeStrategy::NOJS_COOKIE)) {
-      $session
-        ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
   }
 
