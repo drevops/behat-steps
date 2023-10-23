@@ -23,11 +23,11 @@ trait BigPipeTrait {
   protected $bigPipeNoJS;
 
   /**
-   * Skip Big Pipe scenario.
+   * Skip Big Pipe BeforeStep.
    *
    * @var bool
    */
-  protected $skipBigPipeScenario = FALSE;
+  protected bool $skipBigPipeBeforeStep = FALSE;
 
   /**
    * Prepares Big Pipe NOJS cookie if needed.
@@ -37,7 +37,7 @@ trait BigPipeTrait {
   public function bigPipeBeforeScenarioInit(BeforeScenarioScope $scope) {
     // Allow to skip resetting cookies on step.
     if ($scope->getScenario()->hasTag('behat-steps-skip:bigPipeBeforeStep')) {
-      $this->skipBigPipeScenario = TRUE;
+      $this->skipBigPipeBeforeStep = TRUE;
     }
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -62,7 +62,7 @@ trait BigPipeTrait {
       $this->bigPipeNoJS = TRUE;
       $this
         ->getSession()
-        ->setCookie(BigPipeStrategy::NOJS_COOKIE, '1');
+        ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
     catch (\Exception $e) {
       // Mute exceptions.
@@ -75,19 +75,18 @@ trait BigPipeTrait {
    * @BeforeStep
    */
   public function bigPipeBeforeStep(BeforeStepScope $scope) {
-    // Allow to skip this by skipping scenario with tag.
-    if ($this->skipBigPipeScenario) {
+    if ($this->skipBigPipeBeforeStep) {
       return;
     }
     try {
       if ($this->bigPipeNoJS && !$this->getSession()->getCookie(BigPipeStrategy::NOJS_COOKIE)) {
         $this
           ->getSession()
-          ->setCookie(BigPipeStrategy::NOJS_COOKIE, '1');
+          ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
       }
     }
     catch (DriverException $e) {
-      // Mute not visited page.
+      // Mute not visited page exception.
     }
   }
 

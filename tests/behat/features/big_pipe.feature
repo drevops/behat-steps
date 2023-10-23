@@ -18,12 +18,10 @@ Feature: Check that BigPipeTrait works for or D9
     Given users:
       | name                        | mail                                      | roles         | status |
       | administrator_user          | administrator_user@myexample.com          | administrator | 1      |
-      | authenticated_user          | authenticated_user@myexample.com          |               | 1      |
     And I install a "big_pipe" module
-    And I am logged in as "administrator_user"
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
-    And I am logged in as "authenticated_user"
+    And I am logged in as "administrator_user"
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 
