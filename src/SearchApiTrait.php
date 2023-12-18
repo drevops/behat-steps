@@ -20,7 +20,7 @@ trait SearchApiTrait {
    *
    * @When I index :type :title for search
    */
-  public function searchApiIndexContent($type, $title) {
+  public function searchApiIndexContent(string $type, string $title): void {
     $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -44,7 +44,8 @@ trait SearchApiTrait {
    * @When I index :limit Search API items
    * @When I index 1 Search API item
    */
-  public function searchApiDoIndex($limit = 1) {
+  public function searchApiDoIndex(string|int $limit = 1): void {
+    $limit = intval($limit);
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
     /** @var \Drupal\search_api\IndexInterface[] $indexes */
     $indexes = $index_storage->loadByProperties(['status' => TRUE]);

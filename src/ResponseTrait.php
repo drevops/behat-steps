@@ -20,7 +20,7 @@ trait ResponseTrait {
    *
    * @Then response contains header :name
    */
-  public function responseAssertContainsHeader($name) {
+  public function responseAssertContainsHeader(string $name): void {
     $header = $this->getSession()->getResponseHeader($name);
 
     if (!$header) {
@@ -37,7 +37,7 @@ trait ResponseTrait {
    *
    * @Then response does not contain header :name
    */
-  public function responseAssertNotContainsHeader($name) {
+  public function responseAssertNotContainsHeader(string $name): void {
     $header = $this->getSession()->getResponseHeader($name);
 
     if ($header) {
@@ -54,7 +54,7 @@ trait ResponseTrait {
    *
    * @Then response header :name contains :value
    */
-  public function responseAssertHeaderContains($name, $value) {
+  public function responseAssertHeaderContains(string $name, string $value): void {
     $this->responseAssertContainsHeader($name);
     $this->assertSession()->responseHeaderContains($name, $value);
   }
@@ -68,7 +68,7 @@ trait ResponseTrait {
    *
    * @Then response header :name does not contain :value
    */
-  public function responseAssertHeaderNotContains($name, $value) {
+  public function responseAssertHeaderNotContains(string $name, string $value): void {
     $this->responseAssertContainsHeader($name);
     $this->assertSession()->responseHeaderNotContains($name, $value);
   }

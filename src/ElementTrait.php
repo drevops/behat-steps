@@ -16,7 +16,7 @@ trait ElementTrait {
    *
    * @Then I( should) see the :selector element with the :attribute attribute set to :value
    */
-  public function elementAssertAttributeHasValue($selector, $attribute, $value) {
+  public function elementAssertAttributeHasValue(string $selector, string $attribute, mixed $value): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -30,7 +30,7 @@ trait ElementTrait {
       $attr = $element->getAttribute($attribute);
       if (!empty($attr)) {
         $attr_found = TRUE;
-        if (strpos($attr, strval($value)) !== FALSE) {
+        if (str_contains($attr, strval($value))) {
           $attr_value_found = TRUE;
           break;
         }

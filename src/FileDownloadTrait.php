@@ -7,6 +7,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Element\NodeElement;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -30,7 +31,7 @@ trait FileDownloadTrait {
    *
    * @BeforeScenario
    */
-  public function fileDownloadBeforeScenario(BeforeScenarioScope $scope) {
+  public function fileDownloadBeforeScenario(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -47,7 +48,7 @@ trait FileDownloadTrait {
    *
    * @AfterScenario
    */
-  public function fileDownloadAfterScenario(AfterScenarioScope $scope) {
+  public function fileDownloadAfterScenario(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -63,7 +64,7 @@ trait FileDownloadTrait {
    *
    * @Then I download file from :url
    */
-  public function fileDownloadFrom($url) {
+  public function fileDownloadFrom(string $url): void {
     if (empty(parse_url($url, PHP_URL_HOST))) {
       $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
     }
@@ -106,8 +107,8 @@ trait FileDownloadTrait {
    *
    * @Then I download file from link :link
    */
-  public function fileDownloadFromLink($link) {
-    $link_element = $this->fileDownloadAssertLinkPresence($link, TRUE);
+  public function fileDownloadFromLink(string $link): void {
+    $link_element = $this->fileDownloadAssertLinkPresence($link, 'present');
 
     $url = $link_element->getAttribute('href');
     $this->fileDownloadFrom($url);
@@ -118,8 +119,8 @@ trait FileDownloadTrait {
    *
    * @Then I see download :link link :presence(on the page)
    */
-  public function fileDownloadAssertLinkPresence($link, $presense) {
-    $should_be_present = $presense == 'present';
+  public function fileDownloadAssertLinkPresence(string $link, string $presence): NodeElement {
+    $should_be_present = $presence == 'present';
 
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
@@ -139,7 +140,7 @@ trait FileDownloadTrait {
    *
    * @Then downloaded file contains:
    */
-  public function fileDownloadAssertFileContains(PyStringNode $string) {
+  public function fileDownloadAssertFileContains(PyStringNode $string): void {
     $string = strval($string);
     if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
@@ -151,7 +152,7 @@ trait FileDownloadTrait {
           return;
         }
       }
-      elseif (strpos($line, $string) !== FALSE) {
+      elseif (str_contains($line, $string)) {
         return;
       }
     }
@@ -164,7 +165,7 @@ trait FileDownloadTrait {
    *
    * @Then downloaded file name is :name
    */
-  public function fileDownloadAssertFileName($name) {
+  public function fileDownloadAssertFileName(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
     }
@@ -179,7 +180,7 @@ trait FileDownloadTrait {
    *
    * @Then downloaded file is zip archive that contains files:
    */
-  public function fileDownloadAssertZipContains(TableNode $files) {
+  public function fileDownloadAssertZipContains(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
@@ -199,7 +200,7 @@ trait FileDownloadTrait {
    *
    * @Then downloaded file is zip archive that does not contain files:
    */
-  public function fileDownloadAssertNoZipContains(TableNode $files) {
+  public function fileDownloadAssertNoZipContains(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
@@ -217,7 +218,7 @@ trait FileDownloadTrait {
   /**
    * Open downloaded ZIP archive and validate contents.
    */
-  protected function fileDownloadOpenZip() {
+  protected function fileDownloadOpenZip(): \ZipArchive {
     if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP');
     }
@@ -253,7 +254,7 @@ trait FileDownloadTrait {
   /**
    * Download file.
    */
-  protected function fileDownloadProcess($url, $options = []) {
+  protected function fileDownloadProcess(string $url, array $options = []): array {
     $response_headers = [];
 
     $options += [
@@ -266,7 +267,7 @@ trait FileDownloadTrait {
       CURLOPT_AUTOREFERER => TRUE,
       CURLOPT_CONNECTTIMEOUT => 120,
       CURLOPT_TIMEOUT => 120,
-      CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$response_headers) {
+      CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$response_headers): int {
         $response_headers[] = $header;
 
         return strlen($header);
@@ -319,7 +320,7 @@ trait FileDownloadTrait {
    * @return array
    *   Array of parsed headers, if any.
    */
-  protected function fileDownloadParseHeaders(array $headers) {
+  protected function fileDownloadParseHeaders(array $headers): array {
     $parsed_headers = [];
     foreach ($headers as $header) {
       if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', $header, $matches) && isset($matches[1])) {
@@ -339,7 +340,7 @@ trait FileDownloadTrait {
   /**
    * Prepare temporary directory for file downloads.
    */
-  protected function fileDownloadPrepareTempDir() {
+  protected function fileDownloadPrepareTempDir(): void {
     $fs = new Filesystem();
     if (!$fs->exists($this->fileDownloadGetTempDir())) {
       $fs->mkdir($this->fileDownloadGetTempDir());
@@ -349,7 +350,7 @@ trait FileDownloadTrait {
   /**
    * Remove temporary directory for file downloads.
    */
-  protected function fileDownloadRemoveTempDir() {
+  protected function fileDownloadRemoveTempDir(): void {
     $fs = new Filesystem();
     if (!$fs->exists($this->fileDownloadGetTempDir())) {
       $fs->remove($this->fileDownloadGetTempDir());
@@ -359,7 +360,7 @@ trait FileDownloadTrait {
   /**
    * Get temp download dir.
    */
-  protected function fileDownloadGetTempDir() {
+  protected function fileDownloadGetTempDir(): string {
     return '/tmp/behat_downloads';
   }
 

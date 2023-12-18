@@ -34,7 +34,7 @@ trait BigPipeTrait {
    *
    * @BeforeScenario
    */
-  public function bigPipeBeforeScenarioInit(BeforeScenarioScope $scope) {
+  public function bigPipeBeforeScenarioInit(BeforeScenarioScope $scope): void {
     // Allow to skip resetting cookies on step.
     // BeforeStep scope does not have access to scenario where tagging is
     // made.
@@ -76,7 +76,7 @@ trait BigPipeTrait {
    *
    * @BeforeStep
    */
-  public function bigPipeBeforeStep(BeforeStepScope $scope) {
+  public function bigPipeBeforeStep(BeforeStepScope $scope): void {
     if ($this->bigPipeBeforeStepSkip) {
       return;
     }

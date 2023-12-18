@@ -18,7 +18,7 @@ trait KeyboardTrait {
    * @Given I press the :keys keys
    * @Given I press the :keys keys on :selector
    */
-  public function keyboardPressKeysOnElement($keys, $selector = NULL) {
+  public function keyboardPressKeysOnElement(string $keys, ?string $selector = NULL): void {
     foreach (str_split($keys) as $char) {
       $this->keyboardPressKeyOnElement($char, $selector);
     }
@@ -39,7 +39,7 @@ trait KeyboardTrait {
    * @Given I press the :char key
    * @Given I press the :char key on :selector
    */
-  public function keyboardPressKeyOnElement($char, $selector = NULL) {
+  public function keyboardPressKeyOnElement(string $char, ?string $selector = NULL): void {
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
@@ -136,7 +136,7 @@ trait KeyboardTrait {
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
    */
-  protected function keyboardTriggerKey($xpath, $key) {
+  protected function keyboardTriggerKey(string $xpath, string $key) {
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);

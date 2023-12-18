@@ -30,7 +30,7 @@ trait TestmodeTrait {
    *
    * @BeforeScenario
    */
-  public function testmodeBeforeScenarioEnableTestMode(BeforeScenarioScope $scope) {
+  public function testmodeBeforeScenarioEnableTestMode(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -46,7 +46,7 @@ trait TestmodeTrait {
    *
    * @AfterScenario
    */
-  public function testmodeBeforeScenarioDisableTestMode(AfterScenarioScope $scope) {
+  public function testmodeBeforeScenarioDisableTestMode(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -60,15 +60,15 @@ trait TestmodeTrait {
   /**
    * Enable test mode.
    */
-  protected static function testmodeEnableTestMode() {
-    return Testmode::getInstance()->enableTestMode();
+  protected static function testmodeEnableTestMode(): void {
+    Testmode::getInstance()->enableTestMode();
   }
 
   /**
    * Disable test mode.
    */
-  protected static function testmodeDisableTestMode() {
-    return Testmode::getInstance()->disableTestMode();
+  protected static function testmodeDisableTestMode(): void {
+    Testmode::getInstance()->disableTestMode();
   }
 
 }

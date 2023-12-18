@@ -4,6 +4,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Trait UserTrait.
@@ -19,15 +20,9 @@ trait UserTrait {
    *
    * @When I visit user :name profile
    */
-  public function userVisitProfile($name) {
+  public function userVisitProfile(string $name): void {
     $user = $this->userGetByName($name);
-
-    if (empty($user)) {
-      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
-    }
-
-    $path = $this->locatePath('/user/' . $user->id());
-    $this->getSession()->visit($path);
+    $this->visitPath('/user/' . $user->id());
   }
 
   /**
@@ -35,13 +30,15 @@ trait UserTrait {
    *
    * @When I go to my edit profile page
    */
-  public function userVisitOwnProfilePage() {
+  public function userVisitOwnProfile(): void {
+    /** @var \Drupal\user\UserInterface $user */
     $user = $this->getUserManager()->getCurrentUser();
-    if ($user === FALSE) {
+
+    if (!$user instanceof UserInterface) {
       throw new \RuntimeException('Require user to login before visiting profile page.');
     }
-    $page = '/user/' . $user->uid . '/edit';
-    $this->visitPath($page);
+
+    $this->userVisitProfile($user->getAccountName());
   }
 
   /**
@@ -49,15 +46,9 @@ trait UserTrait {
    *
    * @When I edit user :name profile
    */
-  public function userEditProfile($name) {
+  public function userEditProfile(string $name): void {
     $user = $this->userGetByName($name);
-
-    if (empty($user)) {
-      throw new \Exception(sprintf('Unable to find user with name "%s".', $name));
-    }
-
-    $path = $this->locatePath('/user/' . $user->id() . '/edit');
-    $this->getSession()->visit($path);
+    $this->visitPath('/user/' . $user->id() . '/edit');
   }
 
   /**
@@ -65,7 +56,7 @@ trait UserTrait {
    *
    * @Given no users:
    */
-  public function userDelete(TableNode $usersTable) {
+  public function userDelete(TableNode $usersTable): void {
     foreach ($usersTable->getHash() as $userHash) {
       $user = NULL;
       try {
@@ -92,11 +83,11 @@ trait UserTrait {
    *
    * @Then user :name has :roles role(s) assigned
    */
-  public function userAssertHasRoles($name, $roles) {
+  public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(function ($value) {
+    $roles = array_map(function ($value): string {
       return trim($value);
     }, $roles);
 
@@ -110,11 +101,11 @@ trait UserTrait {
    *
    * @Then user :name does not have :roles role(s) assigned
    */
-  public function userAssertHasNoRoles($name, $roles) {
+  public function userAssertHasNoRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(function ($value) {
+    $roles = array_map(function ($value): string {
       return trim($value);
     }, $roles);
 
@@ -128,13 +119,10 @@ trait UserTrait {
    *
    * @Then user :name has :status status
    */
-  public function userAssertHasStatus($name, $status) {
+  public function userAssertHasStatus(string $name, string $status): void {
     $status = $status == 'active';
 
     $user = $this->userGetByName($name);
-    if (!$user) {
-      throw new \Exception(sprintf('Unable to find user with name %s.', $name));
-    }
 
     if ($user->isActive() != $status) {
       throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s".', $name, $status ? 'active' : 'blocked', $user->isActive() ? 'active' : 'blocked'));
@@ -146,7 +134,7 @@ trait UserTrait {
    *
    * @Then I set user :user password to :password
    */
-  public function userSetPassword($name, $password) {
+  public function userSetPassword(string $name, string $password): void {
     if (empty($password)) {
       throw new \RuntimeException('Password must be not empty.');
     }
@@ -170,11 +158,7 @@ trait UserTrait {
   /**
    * Get user by name.
    */
-  protected function userGetByName($name) {
-    if (is_object($name)) {
-      return $name;
-    }
-
+  protected function userGetByName(string $name): UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
@@ -188,11 +172,7 @@ trait UserTrait {
   /**
    * Get user by mail.
    */
-  protected function userGetByMail($mail) {
-    if (is_object($mail)) {
-      return $mail;
-    }
-
+  protected function userGetByMail(string $mail) {
     $users = $this->userLoadMultiple(['mail' => $mail]);
     $user = reset($users);
 
@@ -212,8 +192,9 @@ trait UserTrait {
    * @return array
    *   Array of loaded user objects.
    */
-  protected function userLoadMultiple(array $conditions = []) {
+  protected function userLoadMultiple(array $conditions = []): array {
     $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
+
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);

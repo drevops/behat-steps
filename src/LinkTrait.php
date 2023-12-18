@@ -2,6 +2,8 @@
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Element\NodeElement;
+
 /**
  * Trait LinkTrait.
  *
@@ -25,7 +27,7 @@ trait LinkTrait {
    * @Then I should see the link :text with :href
    * @Then I should see the link :text with :href in :locator
    */
-  public function linkAssertTextHref($text, $href, $locator = NULL) {
+  public function linkAssertTextHref(string $text, string $href, string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -50,7 +52,7 @@ trait LinkTrait {
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
-    $pattern = strpos($href, '*') !== FALSE ? str_replace('\*', '.*', $pattern) : $pattern;
+    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (!preg_match($pattern, $link->getAttribute('href'))) {
       throw new \Exception(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href));
     }
@@ -70,7 +72,7 @@ trait LinkTrait {
    * @Then I should not see the link :text with :href
    * @Then I should not see the link :text with :href in :locator
    */
-  public function linkAssertTextHrefNotExists($text, $href, $locator = NULL) {
+  public function linkAssertTextHrefNotExists(string $text, string $href, string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -95,7 +97,7 @@ trait LinkTrait {
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
-    $pattern = strpos($href, '*') !== FALSE ? str_replace('\*', '.*', $pattern) : $pattern;
+    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (preg_match($pattern, $link->getAttribute('href'))) {
       throw new \Exception(sprintf('The link href "%s" matches the specified href "%s" but should not', $link->getAttribute('href'), $href));
     }
@@ -106,16 +108,16 @@ trait LinkTrait {
    *
    * @Then the link with title :title exists
    */
-  public function linkAssertWithTitle($title) {
+  public function linkAssertWithTitle(string $title): NodeElement {
     $title = $this->linkFixStepArgument($title);
 
-    $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
 
-    if (!$item) {
+    if (!$element) {
       throw new \Exception(sprintf('The link with title "%s" does not exist.', $title));
     }
 
-    return $item;
+    return $element;
   }
 
   /**
@@ -123,7 +125,7 @@ trait LinkTrait {
    *
    * @Then the link with title :title does not exist
    */
-  public function linkAssertWithNoTitle($title) {
+  public function linkAssertWithNoTitle(string $title): void {
     $title = $this->linkFixStepArgument($title);
 
     $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
@@ -138,7 +140,7 @@ trait LinkTrait {
    *
    * @Then I click the link with title :title
    */
-  public function linkClickWithTitle($title) {
+  public function linkClickWithTitle(string $title): void {
     $link = $this->linkAssertWithTitle($title);
     $link->click();
   }
@@ -148,7 +150,7 @@ trait LinkTrait {
    *
    * @Then the link( with title) :text is an absolute link
    */
-  public function assertLinkAbsolute($text) {
+  public function assertLinkAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
@@ -164,7 +166,7 @@ trait LinkTrait {
    *
    * @Then the link( with title) :text is not an absolute link
    */
-  public function assertLinkNotAbsolute($text) {
+  public function assertLinkNotAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
@@ -178,7 +180,7 @@ trait LinkTrait {
   /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
-  protected function linkFixStepArgument($argument) {
+  protected function linkFixStepArgument(string $argument): string|array {
     return str_replace('\\"', '"', $argument);
   }
 

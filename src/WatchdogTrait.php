@@ -34,7 +34,7 @@ trait WatchdogTrait {
    *
    * @BeforeScenario
    */
-  public function watchdogSetScenarioStartTime(BeforeScenarioScope $scope) {
+  public function watchdogSetScenarioStartTime(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -60,10 +60,10 @@ trait WatchdogTrait {
    * @return array
    *   Array of message types. 'php' is always added to the list.
    */
-  protected function watchdogParseMessageTypes(array $tags = [], $prefix = 'watchdog:') {
+  protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {
     $types = [];
     foreach ($tags as $tag) {
-      if (strpos($tag, $prefix) === 0 && strlen($tag) > strlen($prefix)) {
+      if (str_starts_with($tag, $prefix) && strlen($tag) > strlen($prefix)) {
         $types[] = substr($tag, strlen($prefix));
       }
     }
@@ -79,7 +79,7 @@ trait WatchdogTrait {
    *
    * @AfterScenario
    */
-  public function watchdogAssertErrors(AfterScenarioScope $scope) {
+  public function watchdogAssertErrors(AfterScenarioScope $scope): void {
     $database = Database::getConnection();
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

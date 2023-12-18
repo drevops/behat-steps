@@ -35,7 +35,7 @@ trait EmailTrait {
    *
    * @BeforeScenario
    */
-  public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope) {
+  public function emailBeforeScenarioEnableTestEmailSystem(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -63,7 +63,7 @@ trait EmailTrait {
    *
    * @AfterScenario
    */
-  public function emailAfterScenarioDisableTestEmailSystem(AfterScenarioScope $scope) {
+  public function emailAfterScenarioDisableTestEmailSystem(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -79,7 +79,7 @@ trait EmailTrait {
    *
    * @Given I enable the test email system
    */
-  public function emailEnableTestEmailSystem() {
+  public function emailEnableTestEmailSystem(): void {
     foreach ($this->emailTypes as $type) {
       // Store the original system to restore after the scenario.
       $original_test_system = self::emailGetMailSystemDefault($type);
@@ -101,7 +101,7 @@ trait EmailTrait {
    *
    * @Given I disable the test email system
    */
-  public function emailDisableTestEmailSystem() {
+  public function emailDisableTestEmailSystem(): void {
     foreach ($this->emailTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
       self::emailDeleteMailSystemOriginal();
@@ -117,7 +117,7 @@ trait EmailTrait {
    *
    * @When I clear the test email system queue
    */
-  public function emailClearTestEmailSystemQueue($force = FALSE) {
+  public function emailClearTestEmailSystemQueue(bool $force = FALSE): void {
     if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
@@ -130,7 +130,7 @@ trait EmailTrait {
    *
    * @Then an email is sent to :address
    */
-  public function emailAssertEmailIsSentTo($address) {
+  public function emailAssertEmailIsSentTo(string $address): void {
     foreach (self::emailGetCollectedEmails() as $email) {
       $email_to = explode(',', $email['to']);
       if (in_array($address, $email_to)) {
@@ -146,7 +146,7 @@ trait EmailTrait {
    *
    * @Then no emails were sent
    */
-  public function emailAssertNoEmailsWereSent() {
+  public function emailAssertNoEmailsWereSent(): void {
     if (count(self::emailGetCollectedEmails()) > 0) {
       throw new \Exception('No emails were supposed to be sent');
     }
@@ -157,7 +157,7 @@ trait EmailTrait {
    *
    * @Then no emails were sent to :address
    */
-  public function emailAssertNoEmailsWereSentToAddress($address) {
+  public function emailAssertNoEmailsWereSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedEmails() as $email) {
       $email_to = explode(',', $email['to']);
       if (in_array($address, $email_to)) {
@@ -185,14 +185,14 @@ trait EmailTrait {
    *
    * @Then an email header :header contains:
    */
-  public function emailAssertEmailHeadersContains($header, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertEmailHeadersContains(string $header, PyStringNode $string, bool $exact = FALSE): string {
     $string_value = (string) $string;
     $string_value = $exact ? $string_value : trim(preg_replace('/\s+/', ' ', $string_value));
 
     foreach ($this->emailGetCollectedEmails() as $email) {
       $header_value = $email['headers'][$header] ?? '';
       $header_value = $exact ? $header_value : trim(preg_replace('/\s+/', ' ', $header_value));
-      if (strpos($header_value, $string_value) !== FALSE) {
+      if (str_contains($header_value, $string_value)) {
         return $email;
       }
     }
@@ -205,7 +205,7 @@ trait EmailTrait {
    *
    * @Then an email header :header contains exact:
    */
-  public function emailAssertEmailHeadersContainsExact($header, PyStringNode $string) {
+  public function emailAssertEmailHeadersContainsExact(string $header, PyStringNode $string): void {
     $this->emailAssertEmailHeadersContains($header, $string, TRUE);
   }
 
@@ -214,7 +214,7 @@ trait EmailTrait {
    *
    * @Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
    */
-  public function emailAssertEmailToUserIsActionWithContent($name, $action, $field, PyStringNode $string) {
+  public function emailAssertEmailToUserIsActionWithContent(string $name, string $action, string $field, PyStringNode $string): void {
     $user = $name == 'current' && !empty($this->getUserManager()->getCurrentUser()) ? $this->getUserManager()->getCurrentUser() : user_load_by_name($name);
     if (!$user) {
       throw new \Exception(sprintf('Unable to find a user "%s"', $name));
@@ -238,18 +238,20 @@ trait EmailTrait {
    * @Then an email :field contains
    * @Then an email :field contains:
    */
-  public function emailAssertEmailContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertEmailContains(string $field, PyStringNode $string, bool $exact = FALSE): array {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
 
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
-    foreach (self::emailGetCollectedEmails() as $email) {
-      $field_string = $email[$field] ?? '';
+
+    foreach (self::emailGetCollectedEmails() as $record) {
+      $field_string = $record[$field] ?? '';
       $field_string = $exact ? $field_string : trim(preg_replace('/\s+/', ' ', $field_string));
-      if (strpos($field_string, $string) !== FALSE) {
-        return $email;
+
+      if (str_contains($field_string, $string)) {
+        return $record;
       }
     }
 
@@ -262,7 +264,7 @@ trait EmailTrait {
    * @Then an email :field contains exact
    * @Then an email :field contains exact:
    */
-  public function emailAssertEmailContainsExact($field, PyStringNode $string) {
+  public function emailAssertEmailContainsExact(string $field, PyStringNode $string): void {
     $this->emailAssertEmailContains($field, $string, TRUE);
   }
 
@@ -272,7 +274,7 @@ trait EmailTrait {
    * @Then an email :field does not contain
    * @Then an email :field does not contain:
    */
-  public function emailAssertEmailNotContains($field, PyStringNode $string, $exact = FALSE) {
+  public function emailAssertEmailNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
@@ -281,7 +283,7 @@ trait EmailTrait {
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
     foreach (self::emailGetCollectedEmails() as $email) {
       $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
-      if (strpos($field_string, $string) !== FALSE) {
+      if (str_contains($field_string, $string)) {
         throw new \Exception(sprintf('Found email with%s text "%s" in field "%s" retrieved from test email collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
       }
     }
@@ -293,7 +295,7 @@ trait EmailTrait {
    * @Then an email :field does not contain exact
    * @Then an email :field does not contain exact:
    */
-  public function emailAssertEmailNotContainsExact($field, PyStringNode $string) {
+  public function emailAssertEmailNotContainsExact(string $field, PyStringNode $string): void {
     $this->emailAssertEmailNotContains($field, $string, TRUE);
   }
 
@@ -303,12 +305,16 @@ trait EmailTrait {
    * @When I follow the link number :number in the email with the subject
    * @When I follow the link number :number in the email with the subject:
    */
-  public function emailFollowLinkNumber($number, PyStringNode $subject) {
+  public function emailFollowLinkNumber(string $number, PyStringNode $subject): void {
+    $number = intval($number);
+
     $email = $this->emailAssertEmailContains('subject', $subject);
-    $links = self::emailExtractLinks($email['params']['body'] ?? $email['body']);
+    $links = self::emailExtractLinks($email['params']['body'] ?? $email['body'] ?? '');
+
     if (empty($links)) {
       throw new \Exception(sprintf('No links were found in the email with subject %s', $subject));
     }
+
     if (count($links) < $number) {
       throw new \Exception(sprintf('The link with number %s was not found among %s links', $number, count($links)));
     }
@@ -324,7 +330,7 @@ trait EmailTrait {
    * @Then file :name attached to the email with the subject
    * @Then file :name attached to the email with the subject:
    */
-  public function emailAssertEmailContainsAttachmentWithName($name, PyStringNode $subject) {
+  public function emailAssertEmailContainsAttachmentWithName(string $name, PyStringNode $subject): void {
     $email = $this->emailAssertEmailContains('subject', $subject);
 
     foreach ($email['params']['attachments'] as $attachment) {
@@ -339,14 +345,14 @@ trait EmailTrait {
   /**
    * Get default mail system value.
    */
-  protected static function emailGetMailSystemDefault($type = 'default') {
+  protected static function emailGetMailSystemDefault(string $type = 'default'): mixed {
     return \Drupal::config('system.mail')->get("interface.$type");
   }
 
   /**
    * Set default mail system value.
    */
-  protected static function emailSetMailSystemDefault($type, $value) {
+  protected static function emailSetMailSystemDefault(string $type, mixed $value): void {
     \Drupal::configFactory()->getEditable('system.mail')->set("interface.$type", $value)->save();
 
     // Maisystem module completely takes over default interface, so we need to
@@ -365,28 +371,28 @@ trait EmailTrait {
   /**
    * Get original mail system value.
    */
-  protected static function emailGetMailSystemOriginal($type = 'default') {
+  protected static function emailGetMailSystemOriginal(string $type = 'default'): mixed {
     return \Drupal::config('system.mail_original')->get("interface.$type");
   }
 
   /**
    * Set original mail system value.
    */
-  protected static function emailSetMailSystemOriginal($type, $value) {
-    return \Drupal::configFactory()->getEditable('system.mail_original')->set("interface.$type", $value)->save();
+  protected static function emailSetMailSystemOriginal(string $type, mixed $value): void {
+    \Drupal::configFactory()->getEditable('system.mail_original')->set("interface.$type", $value)->save();
   }
 
   /**
    * Remove original mail system value.
    */
-  protected static function emailDeleteMailSystemOriginal() {
-    return \Drupal::configFactory()->getEditable('system.mail_original')->delete();
+  protected static function emailDeleteMailSystemOriginal(): void {
+    \Drupal::configFactory()->getEditable('system.mail_original')->delete();
   }
 
   /**
    * Get emails collected during the test.
    */
-  protected function emailGetCollectedEmails() {
+  protected function emailGetCollectedEmails(): array {
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
     $emails = array_map('unserialize', Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
@@ -419,10 +425,10 @@ trait EmailTrait {
    * @return array
    *   Array of extracted links.
    */
-  protected static function emailExtractLinks($string) {
+  protected static function emailExtractLinks(string $string): array {
     // Correct links before extraction.
     $pattern = '(?xi)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
-    $string = preg_replace_callback("#$pattern#i", function ($matches) {
+    $string = preg_replace_callback("#$pattern#i", function (array $matches): string {
       return preg_match('!^https?://!i', $matches[0]) ? $matches[0] : "http://$matches[0]";
     }, $string);
 
@@ -434,11 +440,11 @@ trait EmailTrait {
   /**
    * Extract email types from tags.
    */
-  protected static function emailExtractTypes($tags) {
+  protected static function emailExtractTypes(array $tags): array {
     $types = [];
 
     foreach ($tags as $tag) {
-      if (strpos($tag, 'email') === 0) {
+      if (str_starts_with($tag, 'email')) {
         $parts = explode(':', $tag);
         if (count($parts) > 1) {
           $types[] = implode(':', array_slice($parts, 1));

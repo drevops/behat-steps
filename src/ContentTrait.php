@@ -22,7 +22,7 @@ trait ContentTrait {
    *
    * @Given no :type content type
    */
-  public function contentRemoveContentType($type) {
+  public function contentRemoveContentType(string $type): void {
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($type);
     if ($content_type_entity) {
       $content_type_entity->delete();
@@ -38,7 +38,7 @@ trait ContentTrait {
    *
    * @When I visit :type :title
    */
-  public function contentVisitPageWithTitle($type, $title) {
+  public function contentVisitPageWithTitle(string $type, string $title): void {
     $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -64,7 +64,7 @@ trait ContentTrait {
    *
    * @When I edit :type :title
    */
-  public function contentEditPageWithTitle($type, $title) {
+  public function contentEditPageWithTitle(string $type, string $title): void {
     $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -84,7 +84,7 @@ trait ContentTrait {
    *
    * @When I delete :type :title
    */
-  public function contentDeletePageWithTitle($type, $title) {
+  public function contentDeletePageWithTitle(string $type, string $title): void {
     $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -111,7 +111,7 @@ trait ContentTrait {
    *
    * @Given /^no ([a-zA-z0-9_-]+) content:$/
    */
-  public function contentDelete($type, TableNode $nodesTable) {
+  public function contentDelete(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
       $nids = $this->contentNodeLoadMultiple($type, $nodeHash);
 
@@ -130,7 +130,7 @@ trait ContentTrait {
    *
    * @When the moderation state of :type :title changes from :old_state to :new_state
    */
-  public function contentModeratePageWithTitle($type, $title, $old_state, $new_state) {
+  public function contentModeratePageWithTitle(string $type, string $title, string $old_state, string $new_state): void {
     $nodes = \Drupal::entityTypeManager()
       ->getStorage('node')
       ->loadByProperties([
@@ -158,7 +158,7 @@ trait ContentTrait {
    *
    * @When I visit :type :title scheduled transitions
    */
-  public function contentVisitScheduledTransitionsPageWithTitle($type, $title) {
+  public function contentVisitScheduledTransitionsPageWithTitle(string $type, string $title): void {
     $nids = $this->contentNodeLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -184,7 +184,7 @@ trait ContentTrait {
    * @return array
    *   Array of node ids.
    */
-  protected function contentNodeLoadMultiple($type, array $conditions = []) {
+  protected function contentNodeLoadMultiple(string $type, array $conditions = []) {
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);

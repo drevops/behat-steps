@@ -16,7 +16,7 @@ trait SelectTrait {
    *
    * @Then select :select should have an option :option
    */
-  public function selectShouldHaveOption($select, $option) {
+  public function selectShouldHaveOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
     if (is_null($selectElement)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $select));
@@ -33,7 +33,7 @@ trait SelectTrait {
    *
    * @Then select :select should not have an option :option
    */
-  public function selectShouldNotHaveOption($select, $option) {
+  public function selectShouldNotHaveOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
     if (is_null($selectElement)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $select));
@@ -50,7 +50,7 @@ trait SelectTrait {
    *
    * @Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
    */
-  public function selectOptionSelected($optionValue, $select) {
+  public function selectOptionSelected(string $value, string $select): void {
     $selectField = $this->getSession()->getPage()->findField($select);
     $currentUrl = $this->getSession()->getCurrentUrl();
 
@@ -60,7 +60,7 @@ trait SelectTrait {
 
     $optionField = $selectField->find('named', [
       'option',
-      $optionValue,
+      $value,
     ]);
 
     if (!$optionField) {
@@ -68,7 +68,7 @@ trait SelectTrait {
     }
 
     if (!$optionField->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $optionValue, $currentUrl));
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $currentUrl));
     }
   }
 

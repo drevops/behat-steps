@@ -25,7 +25,7 @@ trait MediaTrait {
    *
    * @AfterScenario
    */
-  public function mediaClean(AfterScenarioScope $scope) {
+  public function mediaClean(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -46,7 +46,7 @@ trait MediaTrait {
    *
    * @Given no :type media type
    */
-  public function mediaRemoveType($type) {
+  public function mediaRemoveType(string $type): void {
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($type);
     if ($type_entity) {
       $type_entity->delete();
@@ -65,7 +65,7 @@ trait MediaTrait {
    *
    * @Given :type media:
    */
-  public function mediaCreate($type, TableNode $nodesTable) {
+  public function mediaCreate(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
       $node = (object) $nodeHash;
       $node->bundle = $type;
@@ -85,7 +85,7 @@ trait MediaTrait {
    *
    * @Given /^no ([a-zA-z0-9_-]+) media:$/
    */
-  public function mediaDelete($type, TableNode $nodesTable) {
+  public function mediaDelete(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
       $ids = $this->mediaLoadMultiple($type, $nodeHash);
 
@@ -98,7 +98,7 @@ trait MediaTrait {
   /**
    * Create a single media item.
    */
-  protected function mediaCreateSingle($stub) {
+  protected function mediaCreateSingle(\StdClass $stub) {
     $this->parseEntityFields('media', $stub);
     $saved = $this->mediaCreateEntity($stub);
     $this->media[] = $saved;
@@ -109,7 +109,7 @@ trait MediaTrait {
   /**
    * Create media entity.
    */
-  protected function mediaCreateEntity($stub) {
+  protected function mediaCreateEntity(\StdClass $stub) {
     // Throw an exception if the media type is missing or does not exist.
     if (!isset($stub->bundle) || !$stub->bundle) {
       throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
@@ -134,16 +134,8 @@ trait MediaTrait {
    * Expand parsed fields into expected field values based on field type.
    *
    * This is a re-use of the functionality provided by DrupalExtension.
-   *
-   * @param string $entity_type
-   *   Entity type.
-   * @param object $stub
-   *   Stub stdClass object with fields and raw values.
-   *
-   * @return object
-   *   Stub object with expanded fields.
    */
-  protected function mediaExpandEntityFields($entity_type, $stub) {
+  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub) {
     $core = $this->getDriver()->getCore();
 
     $class = new \ReflectionClass(get_class($core));
@@ -156,7 +148,7 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    */
-  protected function mediaExpandEntityFieldsFixtures($stub) {
+  protected function mediaExpandEntityFieldsFixtures(\StdClass $stub) {
     $fixture_path = $this->getMinkParameter('files_path') ? rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : NULL;
 
     $fields = get_object_vars($stub);
@@ -164,7 +156,7 @@ trait MediaTrait {
     $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
 
     foreach ($fields as $name => $value) {
-      if (strpos($name, 'field_') === FALSE) {
+      if (!str_contains($name, 'field_')) {
         continue;
       }
 
@@ -192,7 +184,7 @@ trait MediaTrait {
    *
    * @When I edit :type media :name
    */
-  public function mediaEditWithName($type, $name) {
+  public function mediaEditWithName(string $type, string $name): void {
     $mids = $this->mediaLoadMultiple($type, [
       'name' => $name,
     ]);
@@ -218,7 +210,7 @@ trait MediaTrait {
    * @return array
    *   Array of node ids.
    */
-  protected function mediaLoadMultiple($type, array $conditions = []) {
+  protected function mediaLoadMultiple(string $type, array $conditions = []) {
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)
       ->condition('bundle', $type);

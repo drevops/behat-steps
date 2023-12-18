@@ -27,7 +27,7 @@ trait RoleTrait {
    *
    * @Given role :name with permissions :permissions
    */
-  public function roleCreateSingle($name, $permissions) {
+  public function roleCreateSingle(string $name, string $permissions) {
     $permissions = array_map('trim', explode(',', $permissions));
 
     $rid = strtolower($name);
@@ -59,7 +59,7 @@ trait RoleTrait {
    *
    * @Given roles:
    */
-  public function roleCreateMultiple(TableNode $table) {
+  public function roleCreateMultiple(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (!isset($hash['name'])) {
         throw new \RuntimeException('Missing required column "name"');
@@ -76,7 +76,7 @@ trait RoleTrait {
    *
    * @AfterScenario
    */
-  public function roleCleanAll(AfterScenarioScope $scope) {
+  public function roleCleanAll(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

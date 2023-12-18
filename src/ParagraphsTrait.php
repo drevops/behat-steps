@@ -28,7 +28,7 @@ trait ParagraphsTrait {
    *
    * @AfterScenario
    */
-  public function paragraphsCleanAll(AfterScenarioScope $scope) {
+  public function paragraphsCleanAll(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -57,9 +57,8 @@ trait ParagraphsTrait {
    *
    * @When :field_name in :bundle :entity_type with :entity_field_name of :entity_field_identifer has :paragraph_type paragraph:
    */
-  public function paragraphsAddToEntityWithFields($field_name, $bundle, $entity_type, $entity_field_name, $entity_field_identifer, $paragraph_type, TableNode $fields) {
-    // Get paragraph field name for this entity type.
-    $paragraph_node_field_name = $this->paragraphsCheckEntityFieldName($entity_type, $bundle, $field_name);
+  public function paragraphsAddToEntityWithFields(string $field_name, string $bundle, string $entity_type, string $entity_field_name, string $entity_field_identifer, string $paragraph_type, TableNode $fields): void {
+    $this->paragraphsValidateEntityFieldName($entity_type, $bundle, $field_name);
 
     // Find previously created entity by entity_type, bundle and identifying
     // field value.
@@ -78,7 +77,7 @@ trait ParagraphsTrait {
     $this->paragraphsExpandEntityFields('paragraph', $stub);
 
     // Attach paragraph from stub to node.
-    $this->paragraphsAttachFromStubToEntity($entity, $paragraph_node_field_name, $paragraph_type, $stub);
+    $this->paragraphsAttachFromStubToEntity($entity, $field_name, $paragraph_type, $stub);
   }
 
   /**
@@ -110,7 +109,11 @@ trait ParagraphsTrait {
       'target_id' => $paragraph->id(),
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
-    $entity->set($entity_field_name, $new_value)->save();
+    $entity->set($entity_field_name, $new_value);
+
+    if ($save_entity) {
+      $entity->save();
+    }
 
     static::$paragraphs[] = $paragraph;
 
@@ -118,9 +121,9 @@ trait ParagraphsTrait {
   }
 
   /**
-   * Find node using provided conditions.
+   * Find entity using provided conditions.
    */
-  protected function paragraphsFindEntity($conditions = []) {
+  protected function paragraphsFindEntity(array $conditions = []): ContentEntityInterface|null {
     $type = ($conditions['entity_type'] === 'taxonomy_term') ? 'vid' : 'type';
     $query = \Drupal::entityQuery($conditions['entity_type'])
       ->accessCheck(FALSE)
@@ -135,23 +138,19 @@ trait ParagraphsTrait {
 
     $entity_id = array_pop($entity_ids);
 
-    return \Drupal::entityTypeManager()->getStorage($conditions['entity_type'])->load($entity_id);
+    $entity = \Drupal::entityTypeManager()->getStorage($conditions['entity_type'])->load($entity_id);
+
+    if (!$entity instanceof ContentEntityInterface) {
+      throw new \Exception(sprintf('Unable to load entity "%s" with id "%s"', $conditions['entity_type'], $entity_id));
+    }
+
+    return $entity;
   }
 
   /**
    * Expand parsed fields into expected field values based on field type.
-   *
-   * This is a re-use of the functionality provided by DrupalExtension.
-   *
-   * @param string $entity_type
-   *   Entity type.
-   * @param object $stub
-   *   Stub stdClass object with fields and raw values.
-   *
-   * @return object
-   *   Stub object with expanded fields.
    */
-  protected function paragraphsExpandEntityFields($entity_type, $stub) {
+  protected function paragraphsExpandEntityFields(string $entity_type, \StdClass $stub) {
     $core = $this->getDriver()->getCore();
 
     $class = new \ReflectionClass(get_class($core));
@@ -164,15 +163,13 @@ trait ParagraphsTrait {
   /**
    * Get a field name that references the paragraphs item.
    */
-  protected function paragraphsCheckEntityFieldName($entity_type, $bundle, $field_name) {
+  protected function paragraphsValidateEntityFieldName(string $entity_type, string $bundle, string $field_name): void {
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
 
     if (!array_key_exists($field_name, $field_info)) {
       throw new \RuntimeException(sprintf('"%s" "%s" does not have a field "%s"', $bundle, $entity_type, $field_name));
     }
-
-    return $field_name;
   }
 
 }

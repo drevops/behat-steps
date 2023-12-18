@@ -26,7 +26,8 @@ trait OverrideTrait {
    *
    * @Given :vocabulary terms:
    */
-  public function createTerms($vocabulary, TableNode $table) {
+  public function createTerms(mixed $vocabulary, TableNode $table): void {
+    $vocabulary = (string) $vocabulary;
     // Delete entities before creating them.
     $this->taxonomyDeleteTerms($vocabulary, $table);
     parent::createTerms($vocabulary, $table);
@@ -37,7 +38,8 @@ trait OverrideTrait {
    *
    * @Given :type content:
    */
-  public function createNodes($type, TableNode $table) {
+  public function createNodes(mixed $type, TableNode $table): void {
+    $type = (string) $type;
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // Delete entities before creating them.
     $this->contentDelete($type, $filtered_table);
@@ -49,7 +51,7 @@ trait OverrideTrait {
    *
    * @Given users:
    */
-  public function createUsers(TableNode $table) {
+  public function createUsers(TableNode $table): void {
     // Delete entities before creating them.
     $this->userDelete($table);
     parent::createUsers($table);
@@ -61,7 +63,8 @@ trait OverrideTrait {
    * @Given I am logged in as a user with the :role role(s)
    * @Given I am logged in as a/an :role
    */
-  public function assertAuthenticatedByRole($role) {
+  public function assertAuthenticatedByRole(mixed $role): void {
+    $role = (string) $role;
     // Override parent assertion to allow using 'anonymous user' role without
     // actually creating a user with role. By default,
     // assertAuthenticatedByRole() will create a user with 'authenticated role'
