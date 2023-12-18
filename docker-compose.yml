@@ -67,7 +67,7 @@ services:
       - "3306"
 
   chrome:
-    image: selenium/standalone-chrome:111.0
+    image: selenium/standalone-chrome:120.0
     shm_size: '1gb'
     <<: *default-volumes
     environment:
