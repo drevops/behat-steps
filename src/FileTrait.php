@@ -252,7 +252,7 @@ trait FileTrait {
 
     $file_content = @file_get_contents($uri);
 
-    if (!str_contains($file_content, $content)) {
+    if (str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));
     }
   }
