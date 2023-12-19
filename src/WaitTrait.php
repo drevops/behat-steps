@@ -18,7 +18,7 @@ trait WaitTrait {
    *
    * @Then /^(?:|I )wait (\d+) second(s?)$/
    */
-  public function waitSeconds($seconds) {
+  public function waitSeconds($seconds): void {
     sleep($seconds);
   }
 
@@ -29,7 +29,9 @@ trait WaitTrait {
    *
    * @Given I wait :timeout seconds for AJAX to finish
    */
-  public function waitForAjaxToFinish($timeout) {
+  public function waitForAjaxToFinish(string|int $timeout): void {
+    $timeout = intval($timeout);
+
     $driver = $this->getSession()->getDriver();
 
     try {

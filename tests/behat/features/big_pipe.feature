@@ -16,8 +16,8 @@ Feature: Check that BigPipeTrait works for or D9
   @api
   Scenario: Assert that Big Pipe cookie is preserved across multiple users in a scenario
     Given users:
-      | name                        | mail                                      | roles         | status |
-      | administrator_user          | administrator_user@myexample.com          | administrator | 1      |
+      | name               | mail                             | roles         | status |
+      | administrator_user | administrator_user@myexample.com | administrator | 1      |
     And I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
@@ -28,8 +28,8 @@ Feature: Check that BigPipeTrait works for or D9
   @api @behat-steps-skip:bigPipeBeforeStep
   Scenario: Assert that Big Pipe cookie is not preserved across multiple users when skip tag is used
     Given users:
-      | name                        | mail                                      | roles         | status |
-      | administrator_user          | administrator_user@myexample.com          | administrator | 1      |
+      | name               | mail                             | roles         | status |
+      | administrator_user | administrator_user@myexample.com | administrator | 1      |
     And I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists

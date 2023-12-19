@@ -104,7 +104,7 @@ Use `ahoy --help` to see the list of available commands.
 
 ### Apple M1 adjustments
 
-Copy `default.docker-compose.override.yml` to `docker-compose.override.yml`.
+Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
 
 ### Behat tests
 

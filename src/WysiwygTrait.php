@@ -22,7 +22,7 @@ trait WysiwygTrait {
    *
    * @When /^(?:|I )fill in WYSIWYG "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
    */
-  public function wysiwygFillField($field, $value) {
+  public function wysiwygFillField(string $field, string $value): void {
     $field = $this->wysiwygFixStepArgument($field);
     $value = $this->wysiwygFixStepArgument($value);
 
@@ -92,7 +92,7 @@ trait WysiwygTrait {
   /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
-  protected function wysiwygFixStepArgument($argument) {
+  protected function wysiwygFixStepArgument(string $argument): string|array {
     return str_replace('\\"', '"', $argument);
   }
 

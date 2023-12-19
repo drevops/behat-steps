@@ -37,7 +37,7 @@ trait FileTrait {
    *
    * @BeforeScenario
    */
-  public function fileBeforeScenarioInit(BeforeScenarioScope $scope) {
+  public function fileBeforeScenarioInit(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -61,7 +61,7 @@ trait FileTrait {
    *
    * @Given managed file:
    */
-  public function fileCreateManaged(TableNode $nodesTable) {
+  public function fileCreateManaged(TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
       $node = (object) $nodeHash;
       $this->fileCreateManagedSingle($node);
@@ -71,7 +71,7 @@ trait FileTrait {
   /**
    * Create a single managed file.
    */
-  protected function fileCreateManagedSingle($stub) {
+  protected function fileCreateManagedSingle(\StdClass $stub): FileInterface {
     $this->parseEntityFields('file', $stub);
     $saved = $this->fileCreateEntity($stub);
     $this->files[] = $saved;
@@ -82,7 +82,7 @@ trait FileTrait {
   /**
    * Create file entity.
    */
-  protected function fileCreateEntity($stub): FileInterface {
+  protected function fileCreateEntity(\StdClass $stub): FileInterface {
     if (empty($stub->path)) {
       throw new \RuntimeException('"path" property is required');
     }
@@ -118,7 +118,7 @@ trait FileTrait {
    *
    * @AfterScenario
    */
-  public function fileCleanAll(AfterScenarioScope $scope) {
+  public function fileCleanAll(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -147,7 +147,7 @@ trait FileTrait {
    *
    * @Given no managed files:
    */
-  public function fileDeleteManagedFiles(TableNode $nodesTable) {
+  public function fileDeleteManagedFiles(TableNode $nodesTable): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
     $filenames = $nodesTable->getColumn(0);
     // Get rid of the column header.
@@ -168,7 +168,7 @@ trait FileTrait {
    * @return array
    *   Array of file ids.
    */
-  protected function fileLoadMultiple(array $conditions = []) {
+  protected function fileLoadMultiple(array $conditions = []): array|int {
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
@@ -184,7 +184,7 @@ trait FileTrait {
    *
    * @Given unmanaged file :uri created
    */
-  public function fileCreateUnmanaged($uri, $content = 'test') {
+  public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
     $dir = \Drupal::service('file_system')->dirname($uri);
 
     if (!file_exists($dir)) {
@@ -201,7 +201,7 @@ trait FileTrait {
    *
    * @Given unmanaged file :uri created with content :content
    */
-  public function fileCreateUnmanagedWithContent($uri, $content) {
+  public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->fileCreateUnmanaged($uri, $content);
   }
 
@@ -210,7 +210,7 @@ trait FileTrait {
    *
    * @Then unmanaged file :uri exists
    */
-  public function fileAssertUnmanagedExists($uri) {
+  public function fileAssertUnmanagedExists(string $uri): void {
     if (!@file_exists($uri)) {
       throw new \Exception(sprintf('The file %s does not exist.', $uri));
     }
@@ -221,7 +221,7 @@ trait FileTrait {
    *
    * @Then unmanaged file :uri does not exist
    */
-  public function fileAssertUnmanagedNotExists($uri) {
+  public function fileAssertUnmanagedNotExists(string $uri): void {
     if (@file_exists($uri)) {
       throw new \Exception(sprintf('The file %s exists but it should not.', $uri));
     }
@@ -232,12 +232,12 @@ trait FileTrait {
    *
    * @Then unmanaged file :uri has content :content
    */
-  public function fileAssertUnmanagedHasContent($uri, $content) {
+  public function fileAssertUnmanagedHasContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
 
-    if (strpos($file_content, $content) === FALSE) {
+    if (!str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" does not contain "%s".', $file_content, $content));
     }
   }
@@ -247,12 +247,12 @@ trait FileTrait {
    *
    * @Then unmanaged file :uri does not have content :content
    */
-  public function fileAssertUnmanagedHasNoContent($uri, $content) {
+  public function fileAssertUnmanagedHasNoContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
 
-    if (strpos($file_content, $content) !== FALSE) {
+    if (str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));
     }
   }

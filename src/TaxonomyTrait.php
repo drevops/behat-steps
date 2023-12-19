@@ -23,7 +23,7 @@ trait TaxonomyTrait {
    *
    * @Given vocabulary :vid with name :name exists
    */
-  public function taxonomyAssertVocabularyExist($name, $vid) {
+  public function taxonomyAssertVocabularyExist(string $name, string $vid): void {
     $vocab = Vocabulary::load($vid);
 
     if (!$vocab) {
@@ -44,7 +44,7 @@ trait TaxonomyTrait {
    *
    * @Given taxonomy term :name from vocabulary :vocabulary_id exists
    */
-  public function taxonomyAssertTermExistsByName($name, $vid) {
+  public function taxonomyAssertTermExistsByName(string $name, string $vid): void {
     $vocab = Vocabulary::load($vid);
 
     if (!$vocab) {
@@ -74,7 +74,7 @@ trait TaxonomyTrait {
    *
    * @Given no :vocabulary terms:
    */
-  public function taxonomyDeleteTerms($vocabulary, TableNode $termsTable) {
+  public function taxonomyDeleteTerms(string $vocabulary, TableNode $termsTable): void {
     foreach ($termsTable->getColumn(0) as $name) {
       $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties([
         'name' => $name,
@@ -92,7 +92,7 @@ trait TaxonomyTrait {
    *
    * @When I visit :vocabulary vocabulary term :name
    */
-  public function taxonomyVisitTermPageWithName($vocabulary, $name) {
+  public function taxonomyVisitTermPageWithName(string $vocabulary, string $name): void {
     $tids = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $name,
     ]);
@@ -114,7 +114,7 @@ trait TaxonomyTrait {
    *
    * @When I edit :vocabulary vocabulary term :name
    */
-  public function taxonomyEditTermPageWithName($vocabulary, $name) {
+  public function taxonomyEditTermPageWithName(string $vocabulary, string $name): void {
     $tids = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $name,
     ]);
@@ -142,7 +142,7 @@ trait TaxonomyTrait {
    * @return array
    *   Array of term ids.
    */
-  protected function taxonomyLoadMultiple($vocabulary, array $conditions = []) {
+  protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): int|array {
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)
       ->condition('vid', $vocabulary);

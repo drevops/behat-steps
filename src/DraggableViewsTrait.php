@@ -22,7 +22,7 @@ trait DraggableViewsTrait {
    *
    * @Then I save draggable views :view_id view :views_display_id display :bundle items in the following order:
    */
-  public function draggableViewsSaveBundleOrder($view_id, $view_display_id, $bundle, TableNode $order_table): void {
+  public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
     $connection = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
@@ -63,7 +63,7 @@ trait DraggableViewsTrait {
   /**
    * Find a node using provided conditions.
    */
-  protected function draggableViewsFindNode($type, $conditions): NodeInterface|null {
+  protected function draggableViewsFindNode(string $type, array $conditions): NodeInterface|null {
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);

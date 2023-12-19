@@ -31,7 +31,7 @@ trait EckTrait {
    *
    * @Given :bundle :entity_type entities:
    */
-  public function eckEntitiesCreate($bundle, $entity_type, TableNode $table) {
+  public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // Delete entities before creating them.
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
@@ -48,7 +48,7 @@ trait EckTrait {
    *
    * @Given no :bundle :entity_type entities:
    */
-  public function eckDeleteEntities($bundle, $entity_type, TableNode $table) {
+  public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     foreach ($table->getHash() as $nodeHash) {
       $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, $nodeHash);
 
@@ -65,7 +65,7 @@ trait EckTrait {
    *
    * @AfterScenario
    */
-  public function eckEntitiesCleanAll(AfterScenarioScope $scope) {
+  public function eckEntitiesCleanAll(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -100,7 +100,7 @@ trait EckTrait {
    * @return array
    *   Array of entity ids.
    */
-  protected function eckEntityLoadMultiple($entity_type, $bundle, array $conditions = []) {
+  protected function eckEntityLoadMultiple(string $entity_type, string $bundle, array $conditions = []) {
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
       ->condition('type', $bundle);
@@ -124,7 +124,7 @@ trait EckTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
    */
-  protected function eckCreateEntities($entity_type, $bundle, TableNode $table) {
+  protected function eckCreateEntities(string $entity_type, string $bundle, TableNode $table) {
     foreach ($table->getHash() as $entity_hash) {
       $entity = (object) $entity_hash;
       $entity->type = $bundle;
@@ -134,13 +134,8 @@ trait EckTrait {
 
   /**
    * Create a single content entity.
-   *
-   * @param string $entity_type
-   *   The content entity type.
-   * @param object $entity
-   *   The entity object.
    */
-  protected function eckCreateEntity($entity_type, $entity) {
+  protected function eckCreateEntity(string $entity_type, \StdClass $entity): void {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
     $this->eckEntities[$entity_type][] = $saved;
@@ -155,7 +150,7 @@ trait EckTrait {
    *
    * @When I edit :bundle :entity_type with title :label
    */
-  public function eckEditEntityWithTitle($bundle, $entity_type, $label) {
+  public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $label): void {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
       'title' => $label,
@@ -164,10 +159,12 @@ trait EckTrait {
     if (empty($entity_ids)) {
       throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $entity_type, $label));
     }
+
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('edit-form')->toString();
     print $path;
+
     $this->getSession()->visit($path);
   }
 
@@ -180,7 +177,7 @@ trait EckTrait {
    *
    * @When I visit :bundle :entity_type with title :label
    */
-  public function eckVisitEntityPageWithTitle($bundle, $entity_type, $label) {
+  public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $label): void {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
       'title' => $label,
@@ -189,10 +186,12 @@ trait EckTrait {
     if (empty($entity_ids)) {
       throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $entity_type, $label));
     }
+
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('canonical')->toString();
     print $path;
+
     $this->getSession()->visit($path);
   }
 

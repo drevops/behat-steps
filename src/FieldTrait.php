@@ -2,6 +2,7 @@
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 
 /**
@@ -23,7 +24,7 @@ trait FieldTrait {
    *
    * @Then I see field :name
    */
-  public function fieldAssertExists($field_name) {
+  public function fieldAssertExists(string $field_name): NodeElement {
     $page = $this->getSession()->getPage();
     $field = $page->findField($field_name);
     // Try to resolve by ID.
@@ -47,7 +48,7 @@ trait FieldTrait {
    *
    * @Then I don't see field :name
    */
-  public function fieldAssertNotExists($field_name) {
+  public function fieldAssertNotExists(string $field_name): void {
     $page = $this->getSession()->getPage();
     $field = $page->findField($field_name);
     // Try to resolve by ID.
@@ -70,7 +71,7 @@ trait FieldTrait {
    *
    * @Then field :name :exists on the page
    */
-  public function fieldAssertExistence($field_name, $exists) {
+  public function fieldAssertExistence(string $field_name, string $exists): void {
     if ($exists == 'exists') {
       $this->fieldAssertExists($field_name);
     }
@@ -91,7 +92,7 @@ trait FieldTrait {
    *
    * @Then field :name is :disabled on the page
    */
-  public function fieldAssertState($field_name, $disabled) {
+  public function fieldAssertState(string $field_name, string $disabled): void {
     $field = $this->fieldAssertExists($field_name);
 
     if ($disabled == 'disabled' && !$field->hasAttribute('disabled')) {
@@ -112,7 +113,7 @@ trait FieldTrait {
    *
    * @Then field :name should be :presence on the page and have state :state
    */
-  public function fieldAssertExistsState($field_name, $presence, $state = 'enabled') {
+  public function fieldAssertExistsState(string $field_name, string $presence, string $state = 'enabled'): void {
     if ($presence == 'present') {
       $this->fieldAssertExists($field_name);
       $this->fieldAssertState($field_name, $state);

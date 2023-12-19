@@ -21,7 +21,7 @@ trait JsTrait {
    *
    * @BeforeScenario
    */
-  public function jsBeforeScenarioInit(BeforeScenarioScope $scope) {
+  public function jsBeforeScenarioInit(BeforeScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -50,7 +50,7 @@ trait JsTrait {
    *
    * @javascript
    */
-  public function jsAcceptConfirmation() {
+  public function jsAcceptConfirmation(): void {
     $this->getSession()
       ->getDriver()
       ->executeScript('window.confirm = function(){return true;}');
@@ -67,7 +67,7 @@ trait JsTrait {
    *
    * @javascript
    */
-  public function jsAcceptNotConfirmation() {
+  public function jsAcceptNotConfirmation(): void {
     $this->getSession()
       ->getDriver()
       ->executeScript('window.confirm = function(){return false;}');
@@ -86,7 +86,7 @@ trait JsTrait {
    *
    * @javascript
    */
-  public function jsClickOnElement($element) {
+  public function jsClickOnElement(string $element): void {
     $xpath = $this
       ->getSession()
       ->getSelectorsHandler()
@@ -103,13 +103,13 @@ trait JsTrait {
    *
    * @When I trigger JS :event event on :selector element
    */
-  public function jsTriggerElementEvent($event, $selector) {
+  public function jsTriggerElementEvent(string $event, string $selector): void {
     $script = "return (function(el) {
             if (el) {
               el.$event();
               return true;
-            }            
-            return false;              
+            }
+            return false;
         })({{ELEMENT}});";
 
     $result = $this->jsExecute($selector, $script);
@@ -131,7 +131,7 @@ trait JsTrait {
    * @return mixed
    *   The result of script evaluation. Script has to explicitly return a value.
    */
-  protected function jsExecute($selector, $script) {
+  protected function jsExecute(string $selector, string $script) {
     $driver = $this->getSession()->getDriver();
     $scriptWrapper = "return (function() {
             {{SCRIPT}}

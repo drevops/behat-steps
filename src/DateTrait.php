@@ -18,7 +18,7 @@ trait DateTrait {
    *
    * @Transform :value
    */
-  public function dateRelativeTransformValue($value) {
+  public function dateRelativeTransformValue(string $value): string|array|null {
     return static::dateRelativeProcessValue($value);
   }
 
@@ -27,7 +27,7 @@ trait DateTrait {
    *
    * @Transform table:*
    */
-  public function dateRelativeTransformTable(TableNode $table) {
+  public function dateRelativeTransformTable(TableNode $table): TableNode {
     // Inexpensive token detection and early exit.
     if (!static::dateRelativeStringHasToken($table->getTableAsString())) {
       return $table;
@@ -50,8 +50,8 @@ trait DateTrait {
   /**
    * Check if sting has a token.
    */
-  protected static function dateRelativeStringHasToken($string) {
-    return strpos($string, '[relative:') !== FALSE;
+  protected static function dateRelativeStringHasToken(string $string): bool {
+    return str_contains($string, '[relative:');
   }
 
   /**
@@ -78,7 +78,7 @@ trait DateTrait {
    * To avoid this, default time is always rounded to midday and it is expected
    * that relative time within a day use max of 12 hours offset.
    */
-  public static function dateRelativeProcessValue($value, $now = NULL) {
+  public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string|array|null {
     // Inexpensive token detection and early exit.
     if (!static::dateRelativeStringHasToken($value)) {
       return $value;
@@ -88,7 +88,7 @@ trait DateTrait {
     // assertions are running within the same timeframe (for long tests).
     $now = $now ?: strtotime(date('Y-m-d H:i:00', time()));
 
-    return preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function ($matches) use ($now) {
+    return preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now) {
       $timestamp = strtotime($matches[2], $now);
       if ($timestamp === FALSE) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));

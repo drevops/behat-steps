@@ -23,7 +23,7 @@ trait PathTrait {
    *
    * @Then I should be in the :path path
    */
-  public function pathAssertCurrent($path) {
+  public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
     $current_path = parse_url($current_path, PHP_URL_PATH);
     $current_path = ltrim($current_path, '/');
@@ -46,7 +46,7 @@ trait PathTrait {
    *
    * @Then I should not be in the :path path
    */
-  public function pathAssertNotCurrent($path) {
+  public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
     $current_path = parse_url($current_path, PHP_URL_PATH);
     $current_path = ltrim($current_path, '/');
@@ -69,7 +69,7 @@ trait PathTrait {
    *
    * @Then I :can visit :path with HTTP credentials :user :pass
    */
-  public function pathAssertVisitWithBasicAuth($can, $path, $user, $pass) {
+  public function pathAssertVisitWithBasicAuth(string $can, string $path, string $user, string $pass): void {
     $this->getSession()->setBasicAuth($user, $pass);
     $this->visitPath($path);
 
@@ -92,7 +92,7 @@ trait PathTrait {
    *
    * @When I visit :path then the final URL should be :alias
    */
-  public function pathAssertWithRedirect($path, $alias) {
+  public function pathAssertWithRedirect(string $path, string $alias): void {
     $this->getSession()->visit($this->locatePath($path));
     $this->pathAssertCurrent($alias);
   }

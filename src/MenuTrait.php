@@ -39,7 +39,7 @@ trait MenuTrait {
    *
    * @Given no menus:
    */
-  public function menuDelete(TableNode $table) {
+  public function menuDelete(TableNode $table): void {
     foreach ($table->getColumn(0) as $label) {
       try {
         $menu = $this->loadMenuByLabel($label);
@@ -61,7 +61,7 @@ trait MenuTrait {
    *
    * @Given menus:
    */
-  public function menuCreate(TableNode $table) {
+  public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
         // Create menu id if one not provided.
@@ -85,7 +85,7 @@ trait MenuTrait {
    *
    * @Given no :menu_name menu_links:
    */
-  public function menuLinksDelete($menu_name, TableNode $table) {
+  public function menuLinksDelete(string $menu_name, TableNode $table): void {
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
       if ($menu_link) {
@@ -106,7 +106,7 @@ trait MenuTrait {
    *
    * @Given :menu_name menu_links:
    */
-  public function menuLinksCreate($menu_name, TableNode $table) {
+  public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
@@ -132,7 +132,7 @@ trait MenuTrait {
    *
    * @AfterScenario
    */
-  public function menuCleanAll(AfterScenarioScope $scope) {
+  public function menuCleanAll(AfterScenarioScope $scope): void {
     // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -166,7 +166,7 @@ trait MenuTrait {
   /**
    * Gets a menu by label.
    */
-  protected function loadMenuByLabel($label) {
+  protected function loadMenuByLabel(string $label) {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
     $query = $entity_type_manager->getStorage('menu')->getQuery();
@@ -184,7 +184,7 @@ trait MenuTrait {
   /**
    * Gets a menu link by title and menu name.
    */
-  protected function loadMenuLinkByTitle($title, $menu_name) {
+  protected function loadMenuLinkByTitle(string $title, string $menu_name) {
     $menu = $this->loadMenuByLabel($menu_name);
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
