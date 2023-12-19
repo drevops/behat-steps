@@ -33,7 +33,6 @@ Feature: Check that FileTrait works for or D9
     And no "example_image.png" file object exists
     And no "example_audio.mp3" file object exists
 
-
   @api
   Scenario: Assert unmanaged files step definitions
     Given unmanaged file "public://test1.txt" does not exist
