@@ -131,14 +131,15 @@ trait EmailTrait {
    * @Then an email is sent to :address
    */
   public function emailAssertEmailIsSentTo(string $address): void {
-    foreach (self::emailGetCollectedEmails() as $email) {
-      $email_to = explode(',', $email['to']);
+    foreach (self::emailGetCollectedEmails() as $record) {
+      $email_to = explode(',', $record['to']);
+
       if (in_array($address, $email_to)) {
         return;
       }
     }
 
-    throw new \Exception(sprintf('Unable to find email sent to "%s" retrieved from test email collector.', $address));
+    throw new \Exception(sprintf('Unable to find email sent to "%s" retrieved from test record collector.', $address));
   }
 
   /**
@@ -158,21 +159,21 @@ trait EmailTrait {
    * @Then no emails were sent to :address
    */
   public function emailAssertNoEmailsWereSentToAddress(string $address): void {
-    foreach ($this->emailGetCollectedEmails() as $email) {
-      $email_to = explode(',', $email['to']);
+    foreach ($this->emailGetCollectedEmails() as $record) {
+      $email_to = explode(',', $record['to']);
       if (in_array($address, $email_to)) {
         throw new \Exception(sprintf('An email sent to "%s" retrieved from test email collector.', $address));
       }
 
-      if (!empty($email['headers']['Cc'])) {
-        $email_cc = explode(',', $email['headers']['Cc']);
+      if (!empty($record['headers']['Cc'])) {
+        $email_cc = explode(',', $record['headers']['Cc']);
         if (in_array($address, $email_cc)) {
           throw new \Exception(sprintf('An email cc\'ed to "%s" retrieved from test email collector.', $address));
         }
       }
 
-      if (!empty($email['headers']['Bcc'])) {
-        $email_bcc = explode(',', $email['headers']['Bcc']);
+      if (!empty($record['headers']['Bcc'])) {
+        $email_bcc = explode(',', $record['headers']['Bcc']);
         if (in_array($address, $email_bcc)) {
           throw new \Exception(sprintf('An email bcc\'ed to "%s" retrieved from test email collector.', $address));
         }
@@ -185,15 +186,16 @@ trait EmailTrait {
    *
    * @Then an email header :header contains:
    */
-  public function emailAssertEmailHeadersContains(string $header, PyStringNode $string, bool $exact = FALSE): string {
+  public function emailAssertEmailHeadersContains(string $header, PyStringNode $string, bool $exact = FALSE): array {
     $string_value = (string) $string;
     $string_value = $exact ? $string_value : trim(preg_replace('/\s+/', ' ', $string_value));
 
-    foreach ($this->emailGetCollectedEmails() as $email) {
-      $header_value = $email['headers'][$header] ?? '';
+    foreach ($this->emailGetCollectedEmails() as $record) {
+      $header_value = $record['headers'][$header] ?? '';
       $header_value = $exact ? $header_value : trim(preg_replace('/\s+/', ' ', $header_value));
+
       if (str_contains($header_value, $string_value)) {
-        return $email;
+        return $record;
       }
     }
 
@@ -276,15 +278,17 @@ trait EmailTrait {
    */
   public function emailAssertEmailNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
-      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
+      throw new \RuntimeException(sprintf('Invalid record field %s was specified for assertion', $field));
     }
 
     $string = strval($string);
     $string = $exact ? $string : trim(preg_replace('/\s+/', ' ', $string));
-    foreach (self::emailGetCollectedEmails() as $email) {
-      $field_string = $exact ? $email[$field] : trim(preg_replace('/\s+/', ' ', $email[$field]));
+
+    foreach (self::emailGetCollectedEmails() as $record) {
+      $field_string = $exact ? $record[$field] : trim(preg_replace('/\s+/', ' ', $record[$field]));
+
       if (str_contains($field_string, $string)) {
-        throw new \Exception(sprintf('Found email with%s text "%s" in field "%s" retrieved from test email collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
+        throw new \Exception(sprintf('Found record with%s text "%s" in field "%s" retrieved from test record collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
       }
     }
   }
