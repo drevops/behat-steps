@@ -34,7 +34,7 @@ trait WysiwygTrait {
 
     $driver = $this->getSession()->getDriver();
     try {
-      $driver->evaluateScript(TRUE);
+      $driver->evaluateScript('true');
     }
     catch (UnsupportedDriverActionException $exception) {
       // For non-JS drivers process field in a standard way.
