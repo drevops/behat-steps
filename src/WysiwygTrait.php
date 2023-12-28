@@ -2,6 +2,7 @@
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
@@ -42,9 +43,9 @@ trait WysiwygTrait {
       return;
     }
 
-    $fieldId = $element->getAttribute('id');
-    if (empty($fieldId)) {
-      throw new ElementNotFoundException($this->getSession()->getDriver());
+    $element_id = $element->getAttribute('id');
+    if (empty($element_id)) {
+      throw new ElementHtmlException('ID is empty', $driver, $element);
     }
 
     $parent_element = $element->getParent();
@@ -53,7 +54,7 @@ trait WysiwygTrait {
     $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
     if ($is_ckeditor_4) {
       $this->getSession()
-        ->executeScript("CKEDITOR.instances[\"$fieldId\"].setData(\"$value\");");
+        ->executeScript("CKEDITOR.instances[\"$element_id\"].setData(\"$value\");");
 
       return;
     }
