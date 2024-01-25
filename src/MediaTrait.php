@@ -10,6 +10,9 @@ use Drupal\media\Entity\Media;
  * Trait MediaTrait.
  *
  * Trait to handle media entities.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
 trait MediaTrait {
 

@@ -13,6 +13,8 @@ use Drupal\paragraphs\Entity\Paragraph;
  * Paragraphs-related steps.
  *
  * @package DrevOps\BehatSteps
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 trait ParagraphsTrait {
 

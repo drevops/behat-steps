@@ -35,6 +35,8 @@ use Symfony\Component\Process\Process;
  * Behat test suite context.
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BehatCliContext implements Context
 {

@@ -9,6 +9,8 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  * Trait KeyboardTrait.
  *
  * Behat trait for keyboard interactions.
+ *
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
 trait KeyboardTrait {
 
