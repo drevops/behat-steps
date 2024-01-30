@@ -110,8 +110,10 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy cli "cp -Rf phpcs.xml phpstan.neon build > /dev/null" \
+      ahoy cli "cp -Rf phpcs.xml phpstan.neon phpmd.xml build > /dev/null" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpcs" \
+      && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../src text phpmd.xml" \
+      && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../tests/behat/bootstrap text phpmd.xml" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpstan" \
       && ahoy cli "cd /app/build && ./vendor/bin/rector process ../src --dry-run && cd .."
 

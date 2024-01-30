@@ -10,6 +10,8 @@ use Drupal\node\Entity\Node;
  * Search API-related steps.
  *
  * @package DrevOps\BehatSteps
+ *
+ * @SuppressWarnings(PHPMD.UnusedLocalVariable)
  */
 trait SearchApiTrait {
 

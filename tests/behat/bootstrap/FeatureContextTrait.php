@@ -19,6 +19,8 @@ use Drupal\file\Entity\File;
 
 /**
  * Defines application features from the specific context.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 trait FeatureContextTrait {
 
