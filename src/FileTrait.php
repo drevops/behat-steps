@@ -136,7 +136,11 @@ trait FileTrait {
   }
 
   /**
-   * Delete managed files defined by provided properties.
+   * Delete managed files defined by provided properties/fields.
+   *
+   * Example: filename, uri, status, uid and more.
+   *
+   * @see Drupal\file\Entity\File
    *
    * @code
    * Given no managed files:
@@ -145,15 +149,22 @@ trait FileTrait {
    * | otherfile.jpg |
    * @endcode
    *
+   * @code
+   *  Given no managed files:
+   *  | uri                    |
+   *  | public://myfile.jpg    |
+   *  | public://otherfile.jpg |
+   * @endcode
+   *
    * @Given no managed files:
    */
   public function fileDeleteManagedFiles(TableNode $nodesTable): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
-    $filenames = $nodesTable->getColumn(0);
-    // Get rid of the column header.
-    array_shift($filenames);
-    foreach ($filenames as $filename) {
-      $ids = $this->fileLoadMultiple(['filename' => $filename]);
+    $field_values = $nodesTable->getColumn(0);
+    // Get field name of the column header.
+    $field_name = array_shift($field_values);
+    foreach ($field_values as $field_value) {
+      $ids = $this->fileLoadMultiple([$field_name => $field_value]);
       $entities = $storage->loadMultiple($ids);
       $storage->delete($entities);
     }
