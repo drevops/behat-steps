@@ -155,7 +155,7 @@ trait KeyboardTrait {
 
     $executeJsOnXpathReflection->invokeArgs($withSynResult, [
       $xpath,
-      "Syn.key({{ELEMENT}}, '$key');",
+      "syn.key({{ELEMENT}}, '$key');",
     ]);
   }
 
