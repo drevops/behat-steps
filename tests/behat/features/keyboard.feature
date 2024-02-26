@@ -19,7 +19,8 @@ Feature: Check that KeyboardTrait works
     And I press the "l" key on "#input1"
     And I press the "l" key on "#input1"
     And I press the "o" key on "#input1"
-    Then the "input1" field should contain "hello"
+    And I press the "delete" key on "#input1"
+    Then the "input1" field should contain "hell"
 
   @api @javascript
   Scenario: Assert step definition "Given I press the :char key" succeeds as expected
