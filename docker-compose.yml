@@ -32,7 +32,7 @@ x-environment:
 services:
 
   cli:
-    image: uselagoon/php-8.1-cli-drupal:24.1.0
+    image: uselagoon/php-8.1-cli-drupal:24.2.0
     <<: *default-volumes
     user: root
     environment:
