@@ -49,7 +49,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:24.1.0
+    image: uselagoon/nginx-drupal:24.2.0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
