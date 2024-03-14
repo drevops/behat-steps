@@ -9,7 +9,7 @@
 
 [![GitHub Issues](https://img.shields.io/github/issues/DrevOps/behat-steps.svg)](https://github.com/DrevOps/behat-steps/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/DrevOps/behat-steps.svg)](https://github.com/DrevOps/behat-steps/pulls)
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/drevops/behat-steps.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/drevops/behat-steps)
+[![CircleCI](https://circleci.com/gh/drevops/behat-steps.svg?style=shield)](https://circleci.com/gh/drevops/behat-steps)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/behat-steps)
 ![LICENSE](https://img.shields.io/github/license/drevops/behat-steps)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
