@@ -111,8 +111,9 @@ trait FileTrait {
     }
 
     $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
+    $fields = get_object_vars($stub);
 
-    foreach ($stub as $property => $value) {
+    foreach ($fields as $property => $value) {
       // If path or URI has been specified then the value has already been
       // handled.
       if (in_array($property, ['path', 'uri'])) {
