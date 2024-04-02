@@ -9,9 +9,14 @@ Feature: Check that FileTrait works for or D9
       | example_document.pdf |
       | example_image.png    |
       | example_audio.mp3    |
+    And managed file:
+      | uuid                                 | path             |
+      | 9cb1b484-db7b-4496-bd63-8c702e207704 | example_text.txt |
     And "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
+    And "example_text.txt" file object exists
+    And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
   Scenario: Assert "@Given no managed files: With filename"

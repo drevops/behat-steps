@@ -198,4 +198,15 @@ trait FeatureContextTrait {
     }
   }
 
+  /**
+   * @Then :entity_type entity exists with UUID :uuid
+   */
+  public function entityExistsByUuid($entity_type, $uuid) {
+    $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
+
+    if (!$entity) {
+      throw new \Exception(sprintf('Entity of type "%s" does not exist in DB with UUID "%s", but it should', $entity_type, $uuid));
+    }
+  }
+
 }
