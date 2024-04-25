@@ -1,4 +1,3 @@
-@d9 @d10
 Feature: Check that email assertions work for or D9
 
   @api

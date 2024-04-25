@@ -1,15 +1,14 @@
 version: 2
 
-aliases:
-  - &container_config
+jobs:
+  build:
     working_directory: /app
+
     docker:
       - image: drevops/ci-runner:24.4.0
         environment:
           DRUPAL_VERSION: 10
 
-  - &build
-    <<: *container_config
     steps:
       - checkout
 
@@ -26,7 +25,7 @@ aliases:
 
       - run:
           name: Lint code
-          command: ahoy lint
+          command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Restart server with Xdebug enabled
@@ -34,7 +33,7 @@ aliases:
 
       - run:
           name: Run tests
-          command: ahoy test-bdd-coverage
+          command: ahoy test-bdd-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Process test logs and artifacts
@@ -58,21 +57,8 @@ aliases:
           name: Upload code coverage reports to Codecov
           command: if [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
 
-jobs:
-
-  build_d10:
-    <<: *build
-
-  build_d9:
-    <<: *build
-    docker:
-      - image: drevops/ci-runner:24.4.0
-        environment:
-          DRUPAL_VERSION: 9
-
 workflows:
   version: 2
   main:
     jobs:
-      - build_d9
-      - build_d10
+      - build

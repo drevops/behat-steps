@@ -16,8 +16,6 @@ default:
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
-      filters:
-        tags: "@d10&&~skipped"
 
   extensions:
     Drupal\MinkExtension:
@@ -64,14 +62,3 @@ default:
         cobertura:
           target: .logs/coverage/behat/cobertura.xml
 
-d10:
-  gherkin:
-    cache: '/tmp/behat_gherkin_cache'
-    filters:
-      tags: "@d10&&~@skipped"
-
-d9:
-  gherkin:
-    cache: '/tmp/behat_gherkin_cache'
-    filters:
-      tags: "@d9&&~@skipped"

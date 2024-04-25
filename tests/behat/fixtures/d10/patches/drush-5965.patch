@@ -1,0 +1,13 @@
+diff --git a/src/Preflight/Preflight.php b/src/Preflight/Preflight.php
+index c22ed3f73..da47bec01 100644
+--- a/src/Preflight/Preflight.php
++++ b/src/Preflight/Preflight.php
+@@ -307,7 +307,7 @@ class Preflight
+ 
+         // Check to see if the alias on the command line points at
+         // a local Drupal site that is not the site at $root
+-        $localAliasDrupalFinder = new DrupalFinder($this->environment());
++        $localAliasDrupalFinder = new DrupalFinder($this->environment()->cwd());
+         $foundAlternateRoot = $localAliasDrupalFinder->locateRoot($selfSiteAlias->localRoot());
+         if ($foundAlternateRoot) {
+             $alteredRoot = Path::canonicalize($localAliasDrupalFinder->getDrupalRoot());

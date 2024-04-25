@@ -1,4 +1,3 @@
-@d9
 Feature: Check that EckTrait works for or D9
 
   Background:
@@ -11,13 +10,13 @@ Feature: Check that EckTrait works for or D9
       | name |
       | T2   |
     And test_bundle test_entity_type entities:
-      | title             | field_test_text | field_test_reference |
-      | [TEST] ECK Entity | Test text field | T2                   |
+      | title            | field_test_text | field_test_reference |
+      | [TEST] ECK test1 | Test text field | T2                   |
 
   @api
   Scenario: Assert "When I edit :bundle :entity_type with title :label"
-    When I edit test_bundle test_entity_type with title "[TEST] ECK Entity"
-    Then I should see "Edit Test entity type"
-    And I visit test_bundle test_entity_type with title "[TEST] ECK Entity"
-    And I should see "[TEST] ECK Entity"
+    When I edit test_bundle test_entity_type with title "[TEST] ECK test1"
+    Then I should see "Edit test bundle [TEST] ECK test1"
+    And I visit test_bundle test_entity_type with title "[TEST] ECK test1"
+    And I should see "[TEST] ECK test1"
     And I should see "T2"

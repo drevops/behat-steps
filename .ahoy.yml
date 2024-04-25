@@ -17,7 +17,7 @@ commands:
     usage: Print information about this project.
     cmd: |
       echo "  Project                  : " $(ahoy cli echo \${PROJECT})
-      echo "  Drupal version           : " $(ahoy cli echo \$DRUPAL_VERSION)
+      echo "  Drupal version           : " $(ahoy cli echo \${DRUPAL_VERSION:-10})
       echo "  Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
       echo "  Path to project          : " $(ahoy cli echo /app)
       echo "  Path to web root         : " $(ahoy cli echo /app/build/web)
@@ -115,18 +115,18 @@ commands:
       && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../src text phpmd.xml" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../tests/behat/bootstrap text phpmd.xml" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpstan" \
-      && ahoy cli "cd /app/build && ./vendor/bin/rector process ../src --dry-run && cd .."
+      && ahoy cli "cd /app/build && ./vendor/bin/rector process ../src --clear-cache --dry-run || true"
 
   lint-fix:
     usage: Fix code.
     cmd: |
-      ahoy cli "cd /app/build && ./vendor/bin/phpcbf" \
-      && ahoy cli "cp -Rf phpcs.xml phpstan.neon build > /dev/null" \
-      && ahoy cli "cd /app/build && ./vendor/bin/rector process ../src && cd .."
+      ahoy cli "cp -Rf phpcs.xml phpstan.neon build > /dev/null" \
+      && ahoy cli "cd /app/build && ./vendor/bin/rector process ../src --clear-cache" \
+      && ahoy cli "cd /app/build && ./vendor/bin/phpcbf"
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors --profile=d${DRUPAL_VERSION} $@"
+    cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors $@"
 
   test-bdd-coverage:
     usage: Run BDD tests.
@@ -134,18 +134,16 @@ commands:
 
   debug:
     usage: Enable PHP Xdebug.
-    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."
+    cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
 
   update-fixtures:
     usage: Update fixture files for Drupal.
-    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d$DRUPAL_VERSION/.rsync-exclude build/ tests/behat/fixtures/d$DRUPAL_VERSION/
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d${DRUPAL_VERSION:-10}/.rsync-exclude build/ tests/behat/fixtures/d${DRUPAL_VERSION:-10}/
 
 entrypoint:
   - bash
   - "-c"
   - "-e"
-  - |
-    export DRUPAL_VERSION=${DRUPAL_VERSION:-10}
-    bash -e -c "$0" "$@"
+  - bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'

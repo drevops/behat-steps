@@ -25,7 +25,7 @@
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
-        "drevops/behat-screenshot": "^1",
+        "drevops/behat-screenshot": "^1.5",
         "drupal/coder": "^8.3",
         "dvdoug/behat-code-coverage": "^5.3",
         "mglaman/phpstan-drupal": "^1.2",

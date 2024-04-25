@@ -6,5 +6,6 @@ dependencies:
     - scheduled_transitions
 id: scheduled_transition.token
 label: Token
+description: ''
 targetEntityType: scheduled_transition
 cache: true
