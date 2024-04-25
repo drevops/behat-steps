@@ -45,8 +45,24 @@ default:
         error_message_selector: '.messages.error'
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
-    # Allows to capture HTML and JPG screenshots (based on the driver used).
-    DrevOps\BehatScreenshotExtension: ~
+    # Capture HTML and JPG screenshots on demand and on failure.
+    DrevOps\BehatScreenshotExtension:
+      dir: '%paths.base%/.logs/screenshots'
+      purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
+    # Show explicit fail information and continue the test run.
+    DVDoug\Behat\CodeCoverage\Extension:
+      filter:
+        include:
+          directories:
+            'src': ~
+      reports:
+        text:
+          showColors: true
+          showOnlySummary: true
+        html:
+          target: .logs/coverage/behat/.coverage-html
+        cobertura:
+          target: .logs/coverage/behat/cobertura.xml
 
 d10:
   gherkin:

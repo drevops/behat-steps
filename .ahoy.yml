@@ -128,6 +128,10 @@ commands:
     usage: Run BDD tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors --profile=d${DRUPAL_VERSION} $@"
 
+  test-bdd-coverage:
+    usage: Run BDD tests.
+    cmd: ahoy cli "cd /app/build && XDEBUG_MODE=coverage vendor/bin/behat -c /app/behat.yml --strict --colors --profile=d${DRUPAL_VERSION} $@"
+
   debug:
     usage: Enable PHP Xdebug.
     cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug confguration. Use 'ahoy up' to disable."

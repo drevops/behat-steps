@@ -1,4 +1,5 @@
 version: 2
+
 aliases:
   - &container_config
     working_directory: /app
@@ -11,31 +12,51 @@ aliases:
     <<: *container_config
     steps:
       - checkout
+
       - setup_remote_docker
+
       - run:
           name: Adjust codebase for CI
           command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+
       - run:
           name: Build
           command: ahoy build
           no_output_timeout: 30m
+
       - run:
           name: Lint code
           command: ahoy lint
+
+      - run:
+          name: Restart server with Xdebug enabled
+          command: ahoy debug
+
       - run:
           name: Run tests
-          command: ahoy test-bdd
+          command: ahoy test-bdd-coverage
+
       - run:
-          name: Process artifacts
+          name: Process test logs and artifacts
           command: |
-            ahoy cli "mkdir -p /app/screenshots"
-            mkdir -p /tmp/artifacts/behat
-            docker cp "$(docker compose ps -q cli)":/app/screenshots /tmp/artifacts/behat
+            mkdir -p /tmp/test_results /tmp/artifacts
+            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+              docker compose cp cli:/app/.logs/. "/tmp/artifacts/"
+              if docker compose exec -T cli sh -c 'test -d /app/.logs/test_results'; then
+                 docker compose cp cli:/app/.logs/test_results/. "/tmp/test_results/"
+              fi
+            fi
           when: always
+
       - store_test_results:
           path: /tmp/test_results
+
       - store_artifacts:
           path: /tmp/artifacts
+
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: if [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
 
 jobs:
 

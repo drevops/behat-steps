@@ -1,5 +1,4 @@
-# For reference, @see https://github.com/drevops/drupal-dev/blob/8.x/docker-compose.yml
-version: '2.3'
+# For reference, @see https://github.com/drevops/scaffold/blob/main/docker-compose.yml
 
 x-project:
   &project ${PROJECT:-behat-steps}
@@ -28,6 +27,7 @@ x-environment:
   DRUPAL_VERSION: ${DRUPAL_VERSION:-9}
   BEHAT_SCREENSHOT_DIR: ${BEHAT_SCREENSHOT_DIR:-/app/screenshots}
   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  PHP_MEMORY_LIMIT: 2048M
 
 services:
 
