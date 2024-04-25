@@ -19,29 +19,18 @@
 
 ---
 
-# Why traits?
+## Installation
 
-Usually, such packages implement own Drupal driver with several contexts,
-service containers and a lot of other useful architectural structures.
-But for this simple library, using traits helps to lower entry barrier for
-usage,
-maintenance and support.
-This package may later be refactored to use proper architecture.
+```bash
+composer require --dev drevops/behat-steps:^2
+```
 
-# Installation
-
-`composer require --dev drevops/behat-steps:^2`
-
-For Drupal 7 support:
-
-`composer require --dev drevops/behat-steps:^1`
-
-# Usage
+## Usage
 
 Add required traits
-to `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
+to your `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
 
-```
+```php
 <?php
 
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -57,19 +46,21 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-## Exceptions
+Modification of `behat.yml` configuration is not required.
+
+### Exceptions
 
 - `\Exception` is thrown for all assertions.
 - `\RuntimeException` is thrown for any unfulfilled requirements within a step.
 
-## Available steps
+### Available steps
 
 Use `behat -d l` to list all available step definitions.
 
-There are also several pre and post scenario hooks that perform data alterations
+There are also several pre- and post-scenario hooks that perform data alterations
 and cleanup.
 
-### Skipping before scenario hooks
+#### Skipping before scenario hooks
 
 Some traits provide `beforeScenario` hook implementations. These can be disabled
 by adding `behat-steps-skip:METHOD_NAME` tag to your test.
@@ -81,47 +72,42 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 
 ### Local environment setup
 
-- Make sure that you have latest versions of all required software installed:
-  - [Docker](https://www.docker.com/)
-  - [Pygmy](https://github.com/pygmystack/pygmy)
-  - [Ahoy](https://github.com/ahoy-cli/ahoy)
-- Make sure that all local web development services are shut down (Apache/Nginx,
-  Mysql, MAMP etc).
-- Checkout project repository (in one of
-  the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
+- Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy) and shut down local web services (Apache/Nginx, MAMP etc)
+- Checkout project repository in one of
+  the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control).
 - `pygmy up`
 - `ahoy build`
 - Access built site at http://behat-steps.docker.amazee.io/
 
-To develop for another Drupal version, run `ahoy build` again.
-
 Use `ahoy --help` to see the list of available commands.
 
-### Apple M1 adjustments
+#### Apple Silicon adjustments
 
-Copy `docker-compose.override.default.yml` to `docker-compose.override.yml`.
+`cp docker-compose.override.default.yml docker-compose.override.yml`
 
-### Behat tests
+### Running tests
 
-After every `ahoy build`, a new installation of Drupal is created in `build`
-directory.
-This project uses fixture Drupal sites (sites with pre-defined configuration)
-in order to simplify testing (i.e., the test does not create a content type
-but rather uses a content type created from configuration during site
-installation).
+The source code of traits is tested by running Behat tests in the same way they would be run in your project: traits are included into [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php) and then ran on the pre-configured [fixture Drupal site](tests/behat/fixtures/d10) using [test features](tests/behat/features).
 
-- Run all tests: `ahoy test-bdd`
-- Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
-- Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
+Run `ahoy build` to setup a fixture Drupal site in the `build` directory.
 
-To debug tests from CLI:
+```bash
+ahoy test-bdd                # Run all tests
+
+ahoy test-bdd path/to/file   # Run all scenarios in specific feature file
+
+ahoy test-bdd -- --tags=wip  # Run all scenarios tagged with `@wip` tag
+```
+
+#### Debugging tests
 
 - `ahoy debug`
-- Set breakpoint and run tests - your IDE will pickup incoming debug connection.
+- Set breakpoint
+- Run tests with `ahoy test-bdd` - your IDE will pickup an incoming debug connection
 
-To update fixtures:
+#### Updating fixture site
 
-- Make required changes in the installed fixture site
-- Run `ahoy drush cex -y`
-- Run `ahoy update-fixtures` to copy configuration
-  changes from build directory to the fixtures directory.
+- Build the fixture site and make the required changes
+- `ahoy drush cex -y`
+- `ahoy update-fixtures` to copy configuration
+  changes from build directory to the fixtures directory
