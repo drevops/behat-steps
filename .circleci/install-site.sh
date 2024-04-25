@@ -25,6 +25,7 @@ echo "  > Validating fixture Composer configuration."
 composer validate --ansi --no-check-all
 
 echo "  > Merging configuration from module's composer.json."
+# Do not add `JSON_UNESCAPED_SLASHES` as it will break the relative path replacement below.
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('/app/composer.json'), true),json_decode(file_get_contents('/app/build/composer.json'), true)),JSON_PRETTY_PRINT);" > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."

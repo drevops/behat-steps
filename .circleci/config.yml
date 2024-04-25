@@ -21,10 +21,10 @@ aliases:
           no_output_timeout: 30m
       - run:
           name: Lint code
-          command: ahoy lint
+          command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
           name: Run tests
-          command: ahoy test-bdd
+          command: ahoy test-bdd || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
       - run:
           name: Process artifacts
           command: |
