@@ -90,7 +90,7 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 - Checkout project repository (in one of
   the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control)).
 - `pygmy up`
-- `ahoy build` for Drupal 10 build or `DRUPAL_VERSION=9 ahoy build` for Drupal 9.
+- `ahoy build`
 - Access built site at http://behat-steps.docker.amazee.io/
 
 To develop for another Drupal version, run `ahoy build` again.
@@ -113,10 +113,6 @@ installation).
 - Run all tests: `ahoy test-bdd`
 - Run all scenarios in specific feature file: `ahoy test-bdd path/to/file`
 - Run all scenarios tagged with `@wip` tag: `ahoy test-bdd -- --tags=wip`
-- Tests tagged with `@d9` **or** `@d10` will be run **only** for Drupal 9 or
-  Drupal 10 respectively.
-- Tests tagged with `@d9` **and** `@d10` are agnostic to Drupal version and will
-  run for **all** versions.
 
 To debug tests from CLI:
 
@@ -127,6 +123,5 @@ To update fixtures:
 
 - Make required changes in the installed fixture site
 - Run `ahoy drush cex -y`
-- Run `ahoy update-fixtures` for Drupal 10
-  or `DRUPAL_VERSION=9 ahoy update-fixtures` for Drupal 9 to copy configuration
+- Run `ahoy update-fixtures` to copy configuration
   changes from build directory to the fixtures directory.

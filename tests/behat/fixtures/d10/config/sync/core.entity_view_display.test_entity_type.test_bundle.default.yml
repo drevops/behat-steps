@@ -1,4 +1,4 @@
-uuid: 151e7270-26da-4ae2-a002-5e2925d98fee
+uuid: 1736b1be-d0e0-4f4f-8ad6-8208855672d8
 langcode: en
 status: true
 dependencies:
@@ -20,8 +20,17 @@ content:
       date_format: medium
       custom_date_format: ''
       timezone: ''
+      tooltip:
+        date_format: long
+        custom_date_format: ''
+      time_diff:
+        enabled: false
+        future_format: '@interval hence'
+        past_format: '@interval ago'
+        granularity: 2
+        refresh: 60
     third_party_settings: {  }
-    weight: 0
+    weight: 2
     region: content
   field_test_reference:
     type: entity_reference_label
@@ -29,7 +38,7 @@ content:
     settings:
       link: true
     third_party_settings: {  }
-    weight: 1
+    weight: 3
     region: content
   field_test_text:
     type: string
@@ -37,7 +46,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: 2
+    weight: 4
     region: content
   title:
     type: string
@@ -45,14 +54,14 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
-    weight: -5
+    weight: 0
     region: content
   uid:
     type: author
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 0
+    weight: 1
     region: content
 hidden:
   changed: true

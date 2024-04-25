@@ -1,30 +1,36 @@
 version: 2
-aliases:
-  - &container_config
+
+jobs:
+  build:
     working_directory: /app
+
     docker:
       - image: drevops/ci-runner:24.4.0
         environment:
           DRUPAL_VERSION: 10
 
-  - &build
-    <<: *container_config
     steps:
       - checkout
+
       - setup_remote_docker
+
       - run:
           name: Adjust codebase for CI
           command: sed -i -e "/###/d" docker-compose.yml && sed -i -e "s/##//" docker-compose.yml
+
       - run:
           name: Build
           command: ahoy build
           no_output_timeout: 30m
+
       - run:
           name: Lint code
           command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Run tests
           command: ahoy test-bdd || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Process artifacts
           command: |
@@ -32,26 +38,15 @@ aliases:
             mkdir -p /tmp/artifacts/behat
             docker cp "$(docker compose ps -q cli)":/app/screenshots /tmp/artifacts/behat
           when: always
+
       - store_test_results:
           path: /tmp/test_results
+
       - store_artifacts:
           path: /tmp/artifacts
-
-jobs:
-
-  build_d10:
-    <<: *build
-
-  build_d9:
-    <<: *build
-    docker:
-      - image: drevops/ci-runner:24.4.0
-        environment:
-          DRUPAL_VERSION: 9
 
 workflows:
   version: 2
   main:
     jobs:
-      - build_d9
-      - build_d10
+      - build

@@ -1,4 +1,4 @@
-@d9 @d10 @behatcli
+@behatcli
 Feature: Behat CLI context
 
   Tests for BehatCliContext functionality that is used to test Behat Steps traits
