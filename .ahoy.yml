@@ -105,7 +105,7 @@ commands:
 
   reset:
     usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
-    cmd: ahoy clean && rm -rf ./screenshots ./composer.lock
+    cmd: ahoy clean && rm -rf ./.logs ./composer.lock
 
   lint:
     usage: Lint code.

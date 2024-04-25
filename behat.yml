@@ -47,18 +47,17 @@ default:
     DrevOps\BehatScreenshotExtension:
       dir: '%paths.base%/.logs/screenshots'
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
-    # Show explicit fail information and continue the test run.
     DVDoug\Behat\CodeCoverage\Extension:
       filter:
         include:
           directories:
-            'src': ~
+            '%paths.base%/src': ~
       reports:
         text:
           showColors: true
           showOnlySummary: true
         html:
-          target: .logs/coverage/behat/.coverage-html
+          target: '%paths.base%/.logs/coverage/behat/.coverage-html'
         cobertura:
-          target: .logs/coverage/behat/cobertura.xml
+          target: '%paths.base%/.logs/coverage/behat/cobertura.xml'
 
