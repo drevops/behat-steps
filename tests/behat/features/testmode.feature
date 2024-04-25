@@ -1,4 +1,3 @@
-@d9
 Feature: Ensure TestmodeTrait works.
 
   Background:

@@ -16,8 +16,6 @@ default:
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
-      filters:
-        tags: "@d10&&~skipped"
 
   extensions:
     Drupal\MinkExtension:
@@ -48,14 +46,3 @@ default:
     # Allows to capture HTML and JPG screenshots (based on the driver used).
     DrevOps\BehatScreenshotExtension: ~
 
-d10:
-  gherkin:
-    cache: '/tmp/behat_gherkin_cache'
-    filters:
-      tags: "@d10&&~@skipped"
-
-d9:
-  gherkin:
-    cache: '/tmp/behat_gherkin_cache'
-    filters:
-      tags: "@d9&&~@skipped"

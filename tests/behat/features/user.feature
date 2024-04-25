@@ -1,4 +1,3 @@
-@d9 @d10
 Feature: Check that UserTrait works for or D9
 
   Background:
