@@ -130,7 +130,7 @@ commands:
 
   test-bdd-coverage:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd /app/build && XDEBUG_MODE=coverage vendor/bin/behat -c /app/behat.yml --strict --colors --profile=d${DRUPAL_VERSION} $@"
+    cmd: ahoy cli "cd /app/build && XDEBUG_MODE=coverage vendor/bin/behat -c /app/behat.yml --strict --colors $@"
 
   debug:
     usage: Enable PHP Xdebug.
