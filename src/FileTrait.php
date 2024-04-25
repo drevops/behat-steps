@@ -110,7 +110,20 @@ trait FileTrait {
       }
     }
 
-    return \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
+    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
+    $fields = get_object_vars($stub);
+
+    foreach ($fields as $property => $value) {
+      // If path or URI has been specified then the value has already been
+      // handled.
+      if (in_array($property, ['path', 'uri'])) {
+        continue;
+      }
+      $entity->set($property, $value);
+    }
+
+    $entity->save();
+    return $entity;
   }
 
   /**
