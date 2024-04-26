@@ -20,6 +20,12 @@ Feature: Check that UserTrait works for or D9
     Then I should get a 200 HTTP response
 
   @api
+  Scenario: Assert "When I go to my profile edit page"
+    Given I am logged in as a user with the "administrator" role
+    When I go to my profile edit page
+    Then I should get a 200 HTTP response
+
+  @api
   Scenario: Assert "Given no users:" by name
     Given I am logged in as a user with the "administrator" role
     When I visit user "authenticated_user" profile
