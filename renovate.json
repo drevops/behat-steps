@@ -4,5 +4,15 @@
     "automerge": true,
     "extends": [
         "config:base"
+    ],
+    "packageRules": [
+        {
+            "matchDatasources": ["docker"],
+            "matchPackageNames": [
+                "seleniarm/standalone-chromium",
+                "selenium/standalone-chrome"
+            ],
+            "enabled": false
+        }
     ]
 }
