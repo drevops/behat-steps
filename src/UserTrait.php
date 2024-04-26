@@ -28,17 +28,19 @@ trait UserTrait {
   /**
    * Visit edit page of the current user.
    *
-   * @When I go to my edit profile page
+   * @When I go to my profile edit page
    */
   public function userVisitOwnProfile(): void {
-    /** @var \Drupal\user\UserInterface $user */
     $user = $this->getUserManager()->getCurrentUser();
 
-    if (!$user instanceof UserInterface) {
+    if ($user instanceof \stdClass) {
+      $id = $user->uid;
+    }
+    else {
       throw new \RuntimeException('Require user to login before visiting profile page.');
     }
 
-    $this->userVisitProfile($user->getAccountName());
+    $this->visitPath("/user/$id/edit");
   }
 
   /**
