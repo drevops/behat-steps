@@ -17,6 +17,7 @@ trait DateTrait {
    * Transform a scalar value.
    *
    * @Transform :value
+   * @Transform :expectedValue
    */
   public function dateRelativeTransformValue(string $value): string|array|null {
     return static::dateRelativeProcessValue($value);
