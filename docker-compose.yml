@@ -30,7 +30,9 @@ x-environment:
 services:
 
   cli:
-    image: uselagoon/php-8.2-cli-drupal:24.3.1
+    build:
+      context: .
+      dockerfile: .docker/cli.dockerfile
     <<: *default-volumes
     user: root
     environment:

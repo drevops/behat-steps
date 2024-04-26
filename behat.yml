@@ -1,11 +1,13 @@
 default:
   autoload: [ '%paths.base%/tests/behat/bootstrap' ]
+
   gherkin:
     # Disable caching during development. It is enabled for profiles below.
     cache: ~
     filters:
       # Allow skipping tests by tagging them with "@skipped".
       tags: "~@skipped"
+
   suites:
     default:
       paths: [ '%paths.base%/tests/behat/features' ]
@@ -27,6 +29,7 @@ default:
         wd_host: "http://chrome:4444/wd/hub"
         capabilities: { "browser": "chrome", "version": "*", "marionette": true, "extra_capabilities": { "chromeOptions": { "w3c": false } } }
       javascript_session: selenium2
+
     # Provides integration with Drupal APIs.
     Drupal\DrupalExtension:
       blackbox: ~
@@ -43,10 +46,12 @@ default:
         error_message_selector: '.messages.error'
         success_message_selector: '.messages.status'
         warning_message_selector: '.messages.warning'
+
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
       dir: '%paths.base%/.logs/screenshots'
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
+
     DVDoug\Behat\CodeCoverage\Extension:
       filter:
         include:
@@ -60,4 +65,3 @@ default:
           target: '%paths.base%/.logs/coverage/behat/.coverage-html'
         cobertura:
           target: '%paths.base%/.logs/coverage/behat/cobertura.xml'
-

@@ -9,6 +9,8 @@ jobs:
         environment:
           DRUPAL_VERSION: 10
 
+    resource_class: large
+
     steps:
       - checkout
 
@@ -28,11 +30,7 @@ jobs:
           command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Restart server with Xdebug enabled
-          command: ahoy debug
-
-      - run:
-          name: Run tests
+          name: Run tests with coverage
           command: ahoy test-bdd-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
