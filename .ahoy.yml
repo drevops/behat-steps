@@ -105,7 +105,7 @@ commands:
 
   reset:
     usage: "Reset environment: remove containers, all build, manually created and Drupal-Dev files."
-    cmd: ahoy clean && rm -rf ./screenshots ./composer.lock
+    cmd: ahoy clean && rm -rf ./.logs ./composer.lock
 
   lint:
     usage: Lint code.
@@ -127,6 +127,10 @@ commands:
   test-bdd:
     usage: Run BDD tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors $@"
+
+  test-bdd-coverage:
+    usage: Run BDD tests.
+    cmd: ahoy cli "cd /app/build && php -dpcov.enabled=1 -dpcov.directory=/app/src  vendor/bin/behat -c /app/behat.yml --strict --colors $@"
 
   debug:
     usage: Enable PHP Xdebug.

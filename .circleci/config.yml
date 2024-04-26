@@ -9,6 +9,8 @@ jobs:
         environment:
           DRUPAL_VERSION: 10
 
+    resource_class: large
+
     steps:
       - checkout
 
@@ -28,15 +30,19 @@ jobs:
           command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Run tests
-          command: ahoy test-bdd || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+          name: Run tests with coverage
+          command: ahoy test-bdd-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Process artifacts
+          name: Process test logs and artifacts
           command: |
-            ahoy cli "mkdir -p /app/screenshots"
-            mkdir -p /tmp/artifacts/behat
-            docker cp "$(docker compose ps -q cli)":/app/screenshots /tmp/artifacts/behat
+            mkdir -p /tmp/test_results /tmp/artifacts
+            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+              docker compose cp cli:/app/.logs/. "/tmp/artifacts/"
+              if docker compose exec -T cli sh -c 'test -d /app/.logs/test_results'; then
+                 docker compose cp cli:/app/.logs/test_results/. "/tmp/test_results/"
+              fi
+            fi
           when: always
 
       - store_test_results:
@@ -44,6 +50,10 @@ jobs:
 
       - store_artifacts:
           path: /tmp/artifacts
+
+      - run:
+          name: Upload code coverage reports to Codecov
+          command: if [ -d /tmp/artifacts/coverage ]; then codecov -Z -s /tmp/artifacts/coverage; fi
 
 workflows:
   version: 2
