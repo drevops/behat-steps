@@ -60,7 +60,7 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-drupal:24.3.1
+    image: uselagoon/mariadb-drupal:24.4.0
     environment:
       <<: *default-environment
     ports:
