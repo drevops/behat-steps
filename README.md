@@ -112,3 +112,6 @@ ahoy test-bdd -- --tags=wip  # Run all scenarios tagged with `@wip` tag
 - `ahoy drush cex -y`
 - `ahoy update-fixtures` to copy configuration
   changes from build directory to the fixtures directory
+
+---
+Repository created using https://getscaffold.dev/ project scaffold template
