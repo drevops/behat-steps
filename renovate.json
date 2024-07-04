@@ -13,6 +13,11 @@
                 "selenium/standalone-chrome"
             ],
             "enabled": false
+        },
+        {
+            "groupName": "all dependencies",
+            "groupSlug": "all-dependencies",
+            "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"]
         }
     ]
 }
