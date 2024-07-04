@@ -9,22 +9,19 @@ use Behat\Gherkin\Node\TableNode;
  *
  * Used to override standard Drupal Extension methods.
  *
+ * Use with caution: depending on your version of Drupal Extension, PHP and
+ * Composer, the step definition string (/^Given etc.../) may need to be defined
+ * for these overrides. If you encounter errors about missing or duplicated
+ * step definitions, feel free to copy the contents of this file into your
+ * feature context file and copy the step definition strings from the Drupal
+ * Extension.
+ *
  * @package DrevOps\BehatSteps
  */
 trait OverrideTrait {
 
   /**
-   * Creates one or more terms on an existing vocabulary.
-   *
-   * Provide term data in the following format:
-   *
-   * | name  | parent | description | weight | taxonomy_field_image |
-   * | Snook | Fish   | Marine fish | 10     | snook-123.jpg        |
-   * | ...   | ...    | ...         | ...    | ...                  |
-   *
-   * Only the 'name' field is required.
-   *
-   * @Given :vocabulary terms:
+   * {@inheritdoc}
    */
   public function createTerms(mixed $vocabulary, TableNode $table): void {
     $vocabulary = (string) $vocabulary;
@@ -34,9 +31,7 @@ trait OverrideTrait {
   }
 
   /**
-   * Creates content of a given type provided in the tabular form.
-   *
-   * @Given :type content:
+   * {@inheritdoc}
    */
   public function createNodes(mixed $type, TableNode $table): void {
     $type = (string) $type;
@@ -47,9 +42,7 @@ trait OverrideTrait {
   }
 
   /**
-   * Creates multiple users.
-   *
-   * @Given users:
+   * {@inheritdoc}
    */
   public function createUsers(TableNode $table): void {
     // Delete entities before creating them.
@@ -58,10 +51,7 @@ trait OverrideTrait {
   }
 
   /**
-   * Creates and authenticates a user with the given role(s).
-   *
-   * @Given I am logged in as a user with the :role role(s)
-   * @Given I am logged in as a/an :role
+   * {@inheritdoc}
    */
   public function assertAuthenticatedByRole(mixed $role): void {
     $role = (string) $role;

@@ -7,6 +7,6 @@ Feature: Check that OverrideTrait works for or D9
     Then I should get a "<code>" HTTP response
     Examples:
       | role               | code |
-      | administrator      | 200  |
-      | authenticated user | 403  |
       | anonymous user     | 403  |
+      | authenticated user | 403  |
+      | administrator      | 200  |
