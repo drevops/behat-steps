@@ -10,7 +10,7 @@ commands:
       (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
       ahoy up -- --build --force-recreate
       docker cp -L . "$(docker compose ps -q cli)":/app/ || true
-      ahoy install-site
+      ahoy provision
       ahoy info 1
 
   info:
@@ -87,9 +87,9 @@ commands:
     usage: Login to a website.
     cmd: ahoy drush uli "$@"
 
-  install-site:
-    usage: Install a fixture test site.
-    cmd: ahoy cli "./.circleci/install-site.sh"
+  provision:
+    usage: Provision a fixture test site.
+    cmd: ahoy cli ./.circleci/provision.sh
 
   clean:
     usage: Remove containers and all build files.
