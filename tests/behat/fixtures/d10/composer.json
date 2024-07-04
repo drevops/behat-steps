@@ -6,9 +6,9 @@
         "php": ">=8.2",
         "composer/installers": "^2.1",
         "cweagans/composer-patches": "^1.7",
-        "drupal/core-composer-scaffold": "~10.2",
-        "drupal/core-project-message": "~10.2",
-        "drupal/core-recommended": "~10.2",
+        "drupal/core-composer-scaffold": "~10.3.0",
+        "drupal/core-project-message": "~10.3.0",
+        "drupal/core-recommended": "~10.3.0",
         "drupal/eck": "^2.0",
         "drupal/paragraphs": "^1.15",
         "drupal/pathauto": "^1.11",
@@ -18,11 +18,11 @@
         "drupal/testmode": "^2",
         "oomphinc/composer-installers-extender": "^2.0",
         "vlucas/phpdotenv": "^5.4",
-        "webflo/drupal-finder": "dev-master#ba98770d652a280933da0dbd7e3ac78db93f8567 as 1.2",
+        "webflo/drupal-finder": "^1.3",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
-        "drupal/core-dev": "~10.2"
+        "drupal/core-dev": "~10.3.0"
     },
     "config": {
         "process-timeout": 0,
@@ -98,12 +98,7 @@
         "installer-types": [
             "bower-asset",
             "npm-asset"
-        ],
-        "patches": {
-            "drush/drush": {
-                "DrupalFinder drush replacement PR did not fully replaced it in Preflight": "patches/drush-5965.patch"
-            }
-        }
+        ]
     },
     "scripts": {
         "post-install-cmd": [

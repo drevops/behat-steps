@@ -9,7 +9,7 @@ set -e
 
 DRUPAL_VERSION="${DRUPAL_VERSION:-10}"
 
-echo "==> Starting installation of fixture Drupal ${DRUPAL_VERSION} site."
+echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site."
 
 echo "  > Removing existing build assets."
 chmod -Rf 777 /app/build || true; rm -Rf /app/build/.* || true; rm -Rf /app/build/* || true;
@@ -26,11 +26,11 @@ composer validate --ansi --no-check-all
 
 echo "  > Merging configuration from module's composer.json."
 # Do not add `JSON_UNESCAPED_SLASHES` as it will break the relative path replacement below.
-php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('/app/composer.json'), true),json_decode(file_get_contents('/app/build/composer.json'), true)),JSON_PRETTY_PRINT);" > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
+php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('/app/composer.json'), true),json_decode(file_get_contents('/app/build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."
 sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-sed "${sed_opts[@]}" 's|\"DrevOps\\\\BehatSteps\\\\": \"src\\\/\"|\"DrevOps\\\\BehatSteps\\\\": \"..\/src\/\"|' "composer.json" && sleep 2
+sed "${sed_opts[@]}" 's|"DrevOps\\\\BehatSteps\\\\": "src/"|"DrevOps\\\\BehatSteps\\\\": "../src/"|' "composer.json" && sleep 2
 
 echo "  > Show compiled composer.json."
 cat composer.json
@@ -61,4 +61,4 @@ echo "  > Bootstrapping site."
 
 popd >/dev/null || exit 1
 
-echo "==> Finished installation of fixture Drupal ${DRUPAL_VERSION} site."
+echo "==> Finished provisioning of fixture Drupal ${DRUPAL_VERSION} site."
