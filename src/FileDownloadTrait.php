@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -120,7 +122,7 @@ trait FileDownloadTrait {
    * @Then I see download :link link :presence(on the page)
    */
   public function fileDownloadAssertLinkPresence(string $link, string $presence): NodeElement {
-    $should_be_present = $presence == 'present';
+    $should_be_present = $presence === 'present';
 
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
@@ -145,7 +147,7 @@ trait FileDownloadTrait {
     if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
     }
-    $lines = preg_split('/\R/', $this->fileDownloadDownloadedFileInfo['content']);
+    $lines = preg_split('/\R/', (string) $this->fileDownloadDownloadedFileInfo['content']);
     foreach ($lines as $line) {
       if (preg_match('/^\/.+\/[a-z]*$/i', $string)) {
         if (preg_match($string, $line)) {
@@ -297,7 +299,7 @@ trait FileDownloadTrait {
     $url_file_name = parse_url($url, PHP_URL_PATH);
     $url_file_name = $url_file_name ? basename($url_file_name) : $url_file_name;
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
-    $file_path = !empty($headers['file_name']) ? $dir . DIRECTORY_SEPARATOR . $headers['file_name'] : tempnam($dir, 'behat');
+    $file_path = empty($headers['file_name']) ? tempnam($dir, 'behat') : $dir . DIRECTORY_SEPARATOR . $headers['file_name'];
     $file_name = basename($file_path);
 
     // Write file contents.
@@ -323,12 +325,12 @@ trait FileDownloadTrait {
   protected function fileDownloadParseHeaders(array $headers): array {
     $parsed_headers = [];
     foreach ($headers as $header) {
-      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', $header, $matches) && isset($matches[1])) {
+      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && isset($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);
         continue;
       }
 
-      if (preg_match('/Content-Type:\s*(.+)/', $header, $matches) && isset($matches[1])) {
+      if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && isset($matches[1])) {
         $parsed_headers['content_type'] = trim($matches[1]);
         continue;
       }

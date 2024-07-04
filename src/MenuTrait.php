@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -45,7 +47,7 @@ trait MenuTrait {
         $menu = $this->loadMenuByLabel($label);
         $menu->delete();
       }
-      catch (\Exception $e) {
+      catch (\Exception) {
       }
     }
   }
@@ -65,7 +67,7 @@ trait MenuTrait {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
         // Create menu id if one not provided.
-        $menu_id = strtolower($menu_hash['label']);
+        $menu_id = strtolower((string) $menu_hash['label']);
         $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
         $menu_id = preg_replace('/_+/', '_', $menu_id);
         $menu_hash['id'] = $menu_id;
@@ -142,7 +144,7 @@ trait MenuTrait {
       try {
         $menu->delete();
       }
-      catch (\Exception $exception) {
+      catch (\Exception) {
         // Ignore the exception and move on.
         continue;
       }
@@ -152,7 +154,7 @@ trait MenuTrait {
       try {
         $menu_link->delete();
       }
-      catch (\Exception $exception) {
+      catch (\Exception) {
         // Ignore the exception and move on.
         continue;
       }

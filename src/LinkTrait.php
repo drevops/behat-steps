@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
@@ -53,7 +55,7 @@ trait LinkTrait {
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (!preg_match($pattern, $link->getAttribute('href'))) {
+    if (!preg_match($pattern, (string) $link->getAttribute('href'))) {
       throw new \Exception(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href));
     }
   }
@@ -98,7 +100,7 @@ trait LinkTrait {
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (preg_match($pattern, $link->getAttribute('href'))) {
+    if (preg_match($pattern, (string) $link->getAttribute('href'))) {
       throw new \Exception(sprintf('The link href "%s" matches the specified href "%s" but should not', $link->getAttribute('href'), $href));
     }
   }
@@ -156,7 +158,7 @@ trait LinkTrait {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
     }
     $href = $link->getAttribute('href');
-    if (!parse_url($href, PHP_URL_SCHEME)) {
+    if (!parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new \Exception(sprintf('The link "%s" is not an absolute link.', $text));
     }
   }
@@ -172,7 +174,7 @@ trait LinkTrait {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
     }
     $href = $link->getAttribute('href');
-    if (parse_url($href, PHP_URL_SCHEME)) {
+    if (parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new \Exception(sprintf('The link "%s" is an absolute link.', $text));
     }
   }

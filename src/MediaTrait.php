@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -114,13 +116,13 @@ trait MediaTrait {
    */
   protected function mediaCreateEntity(\StdClass $stub) {
     // Throw an exception if the media type is missing or does not exist.
-    if (!isset($stub->bundle) || !$stub->bundle) {
+    if (!property_exists($stub, 'bundle') || $stub->bundle === NULL || !$stub->bundle) {
       throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
     }
 
     $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
     if (!in_array($stub->bundle, array_keys($bundles))) {
-      throw new \Exception("Cannot create media because provided bundle '$stub->bundle' does not exist.");
+      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
     }
 
     $this->mediaExpandEntityFieldsFixtures($stub);
@@ -141,7 +143,7 @@ trait MediaTrait {
   protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub) {
     $core = $this->getDriver()->getCore();
 
-    $class = new \ReflectionClass(get_class($core));
+    $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
     $method->setAccessible(TRUE);
 
@@ -165,10 +167,8 @@ trait MediaTrait {
 
       if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
         if (is_array($value)) {
-          if (!empty($value[0])) {
-            if (is_file($fixture_path . $value[0])) {
-              $stub->{$name}[0] = $fixture_path . $value[0];
-            }
+          if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
+            $stub->{$name}[0] = $fixture_path . $value[0];
           }
         }
         elseif (is_file($fixture_path . $value)) {

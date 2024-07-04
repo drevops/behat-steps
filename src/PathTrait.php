@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 /**
@@ -25,11 +27,11 @@ trait PathTrait {
    */
   public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
-    $current_path = parse_url($current_path, PHP_URL_PATH);
+    $current_path = parse_url((string) $current_path, PHP_URL_PATH);
     $current_path = ltrim($current_path, '/');
-    $current_path = $current_path == '' ? '<front>' : $current_path;
+    $current_path = $current_path === '' ? '<front>' : $current_path;
 
-    if ($current_path != ltrim($path, '/')) {
+    if ($current_path !== ltrim($path, '/')) {
       throw new \Exception(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
     }
   }
@@ -48,11 +50,11 @@ trait PathTrait {
    */
   public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
-    $current_path = parse_url($current_path, PHP_URL_PATH);
+    $current_path = parse_url((string) $current_path, PHP_URL_PATH);
     $current_path = ltrim($current_path, '/');
-    $current_path = $current_path == '' ? '<front>' : $current_path;
+    $current_path = $current_path === '' ? '<front>' : $current_path;
 
-    if ($current_path == $path) {
+    if ($current_path === $path) {
       throw new \Exception(sprintf('Current path should not be "%s"', $current_path));
     }
 
@@ -73,7 +75,7 @@ trait PathTrait {
     $this->getSession()->setBasicAuth($user, $pass);
     $this->visitPath($path);
 
-    if ($can == 'can') {
+    if ($can === 'can') {
       $this->assertSession()->statusCodeEquals(200);
     }
     else {

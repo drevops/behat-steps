@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
@@ -59,7 +61,7 @@ trait OverrideTrait {
     // actually creating a user with role. By default,
     // assertAuthenticatedByRole() will create a user with 'authenticated role'
     // even if 'anonymous user' role is provided.
-    if ($role == 'anonymous user' || $role == 'anonymous') {
+    if ($role === 'anonymous user' || $role === 'anonymous') {
       if (!empty($this->userManager->getCurrentUser())) {
         $this->logout();
       }

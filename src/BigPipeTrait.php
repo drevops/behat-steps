@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -26,8 +28,6 @@ trait BigPipeTrait {
 
   /**
    * Skip Big Pipe BeforeStep.
-   *
-   * @var bool
    */
   protected bool $bigPipeBeforeStepSkip = FALSE;
 
@@ -62,13 +62,13 @@ trait BigPipeTrait {
       $driver->executeScript('true');
       $this->bigPipeNoJS = FALSE;
     }
-    catch (UnsupportedDriverActionException $e) {
+    catch (UnsupportedDriverActionException) {
       $this->bigPipeNoJS = TRUE;
       $this
         ->getSession()
         ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
-    catch (\Exception $e) {
+    catch (\Exception) {
       // Mute exceptions.
     }
   }
@@ -88,7 +88,7 @@ trait BigPipeTrait {
           ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
       }
     }
-    catch (DriverException $e) {
+    catch (DriverException) {
       // Mute not visited page exception.
       return;
     }

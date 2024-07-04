@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -18,8 +20,8 @@ trait WaitTrait {
    *
    * @Then /^(?:|I )wait (\d+) second(s?)$/
    */
-  public function waitSeconds($seconds): void {
-    sleep($seconds);
+  public function waitSeconds(int|string $seconds): void {
+    sleep((int) $seconds);
   }
 
   /**
@@ -37,7 +39,7 @@ trait WaitTrait {
     try {
       $driver->evaluateScript('true');
     }
-    catch (UnsupportedDriverActionException $exception) {
+    catch (UnsupportedDriverActionException) {
       throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver', $driver);
     }
 

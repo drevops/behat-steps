@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -63,8 +65,8 @@ trait WatchdogTrait {
   protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {
     $types = [];
     foreach ($tags as $tag) {
-      if (str_starts_with($tag, $prefix) && strlen($tag) > strlen($prefix)) {
-        $types[] = substr($tag, strlen($prefix));
+      if (str_starts_with((string) $tag, $prefix) && strlen((string) $tag) > strlen($prefix)) {
+        $types[] = substr((string) $tag, strlen($prefix));
       }
     }
 

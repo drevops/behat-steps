@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
@@ -72,7 +74,7 @@ trait FieldTrait {
    * @Then field :name :exists on the page
    */
   public function fieldAssertExistence(string $field_name, string $exists): void {
-    if ($exists == 'exists') {
+    if ($exists === 'exists') {
       $this->fieldAssertExists($field_name);
     }
     else {
@@ -95,10 +97,10 @@ trait FieldTrait {
   public function fieldAssertState(string $field_name, string $disabled): void {
     $field = $this->fieldAssertExists($field_name);
 
-    if ($disabled == 'disabled' && !$field->hasAttribute('disabled')) {
+    if ($disabled === 'disabled' && !$field->hasAttribute('disabled')) {
       throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $field_name));
     }
-    elseif ($disabled != 'disabled' && $field->hasAttribute('disabled')) {
+    elseif ($disabled !== 'disabled' && $field->hasAttribute('disabled')) {
       throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $field_name));
     }
   }
@@ -114,7 +116,7 @@ trait FieldTrait {
    * @Then field :name should be :presence on the page and have state :state
    */
   public function fieldAssertExistsState(string $field_name, string $presence, string $state = 'enabled'): void {
-    if ($presence == 'present') {
+    if ($presence === 'present') {
       $this->fieldAssertExists($field_name);
       $this->fieldAssertState($field_name, $state);
     }

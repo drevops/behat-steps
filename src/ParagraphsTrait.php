@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -40,7 +42,7 @@ trait ParagraphsTrait {
       try {
         $paragraph->delete();
       }
-      catch (\Exception $exception) {
+      catch (\Exception) {
         // Ignore the exception and move on.
         continue;
       }
@@ -155,7 +157,7 @@ trait ParagraphsTrait {
   protected function paragraphsExpandEntityFields(string $entity_type, \StdClass $stub) {
     $core = $this->getDriver()->getCore();
 
-    $class = new \ReflectionClass(get_class($core));
+    $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
     $method->setAccessible(TRUE);
 
