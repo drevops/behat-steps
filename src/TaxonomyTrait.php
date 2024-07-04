@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Drupal\node\Entity\Node;
@@ -55,7 +57,7 @@ trait SearchApiTrait {
       return;
     }
 
-    foreach ($indexes as $index_id => $index) {
+    foreach ($indexes as $index) {
       $index->indexItems($limit);
     }
   }

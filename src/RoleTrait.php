@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
@@ -28,7 +30,7 @@ trait RoleTrait {
    * @Given role :name with permissions :permissions
    */
   public function roleCreateSingle(string $name, string $permissions) {
-    $permissions = array_map('trim', explode(',', $permissions));
+    $permissions = array_map(trim(...), explode(',', $permissions));
 
     $rid = strtolower($name);
     $name = trim($name);
@@ -46,9 +48,8 @@ trait RoleTrait {
 
     if ($saved === SAVED_NEW) {
       user_role_grant_permissions($role->id(), $permissions);
-      $role = Role::load($role->id());
 
-      return $role;
+      return Role::load($role->id());
     }
 
     throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));

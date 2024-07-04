@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
@@ -40,7 +42,7 @@ trait UserTrait {
       throw new \RuntimeException('Require user to login before visiting profile page.');
     }
 
-    $this->visitPath("/user/$id/edit");
+    $this->visitPath(sprintf('/user/%s/edit', $id));
   }
 
   /**
@@ -69,7 +71,7 @@ trait UserTrait {
           $user = $this->userGetByName($userHash['name']);
         }
       }
-      catch (\Exception $exception) {
+      catch (\Exception) {
         // User may not exist - do nothing.
       }
 
@@ -93,7 +95,7 @@ trait UserTrait {
       return trim($value);
     }, $roles);
 
-    if (count(array_intersect($roles, $user->getRoles())) != count($roles)) {
+    if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
       throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
     }
   }
@@ -122,7 +124,7 @@ trait UserTrait {
    * @Then user :name has :status status
    */
   public function userAssertHasStatus(string $name, string $status): void {
-    $status = $status == 'active';
+    $status = $status === 'active';
 
     $user = $this->userGetByName($name);
 
@@ -145,11 +147,11 @@ trait UserTrait {
       /** @var \Drupal\user\UserInterface $user */
       $user = $this->userGetByName($name);
     }
-    catch (\Exception $e1) {
+    catch (\Exception) {
       try {
         $user = $this->userGetByMail($name);
       }
-      catch (\Exception $e2) {
+      catch (\Exception) {
         throw new \Exception(sprintf('Unable to find a user with name or email "%s".', $name));
       }
     }

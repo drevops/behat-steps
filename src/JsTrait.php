@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -106,7 +108,7 @@ trait JsTrait {
   public function jsTriggerElementEvent(string $event, string $selector): void {
     $script = "return (function(el) {
             if (el) {
-              el.$event();
+              el.{$event}();
               return true;
             }
             return false;
@@ -136,7 +138,7 @@ trait JsTrait {
     $scriptWrapper = "return (function() {
             {{SCRIPT}}
           }());";
-    $script = str_replace('{{ELEMENT}}', "document.querySelector('$selector')", $script);
+    $script = str_replace('{{ELEMENT}}', sprintf("document.querySelector('%s')", $selector), $script);
     $script = str_replace('{{SCRIPT}}', $script, $scriptWrapper);
 
     return $driver->evaluateScript($script);

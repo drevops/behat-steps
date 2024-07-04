@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -110,7 +113,7 @@ trait FileTrait {
       }
     }
 
-    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileSystemInterface::EXISTS_REPLACE);
+    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileExists::Replace);
     $fields = get_object_vars($stub);
 
     foreach ($fields as $property => $value) {
@@ -123,6 +126,7 @@ trait FileTrait {
     }
 
     $entity->save();
+
     return $entity;
   }
 

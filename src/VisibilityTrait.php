@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 /**
@@ -126,8 +128,8 @@ trait VisibilityTrait {
     // Include and call visibility assertion function.
     $script = <<<JS
       (function() {
-        $scriptFunction
-        return isElemVisible('$selector', $offset);
+        {$scriptFunction}
+        return isElemVisible('{$selector}', {$offset});
       })();
     JS;
 

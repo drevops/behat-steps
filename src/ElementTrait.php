@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 /**
@@ -30,7 +32,7 @@ trait ElementTrait {
       $attr = $element->getAttribute($attribute);
       if (!empty($attr)) {
         $attr_found = TRUE;
-        if (str_contains($attr, strval($value))) {
+        if (str_contains((string) $attr, strval($value))) {
           $attr_value_found = TRUE;
           break;
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
@@ -43,9 +45,7 @@ trait DateTrait {
       $rows[] = $row;
     }
 
-    $new_table = new TableNode($rows);
-
-    return $new_table;
+    return new TableNode($rows);
   }
 
   /**

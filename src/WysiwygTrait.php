@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Exception\ElementHtmlException;
@@ -37,7 +39,7 @@ trait WysiwygTrait {
     try {
       $driver->evaluateScript('true');
     }
-    catch (UnsupportedDriverActionException $exception) {
+    catch (UnsupportedDriverActionException) {
       // For non-JS drivers process field in a standard way.
       $element->setValue($value);
       return;
@@ -54,21 +56,21 @@ trait WysiwygTrait {
     $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
     if ($is_ckeditor_4) {
       $this->getSession()
-        ->executeScript("CKEDITOR.instances[\"$element_id\"].setData(\"$value\");");
+        ->executeScript(sprintf('CKEDITOR.instances["%s"].setData("%s");', $element_id, $value));
 
       return;
     }
 
     // Support Ckeditor 5.
-    $ckeditor_5_element_selector = ".{$parent_element->getAttribute('class')} .ck-editor__editable";
+    $ckeditor_5_element_selector = sprintf('.%s .ck-editor__editable', $parent_element->getAttribute('class'));
     $this->getSession()
       ->executeScript(
         "
-        const domEditableElement = document.querySelector(\"$ckeditor_5_element_selector\");
+        const domEditableElement = document.querySelector(\"{$ckeditor_5_element_selector}\");
         if (domEditableElement.ckeditorInstance) {
           const editorInstance = domEditableElement.ckeditorInstance;
           if (editorInstance) {
-            editorInstance.setData(\"$value\");
+            editorInstance.setData(\"{$value}\");
           } else {
             throw new Exception('Could not get the editor instance!');
           }
