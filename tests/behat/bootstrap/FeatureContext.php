@@ -71,4 +71,11 @@ class FeatureContext extends DrupalContext {
 
   use FeatureContextTrait;
 
+  /**
+   * Override dateNow() method to return a preset value for testing.
+   */
+  public static function dateNow(): int {
+    return strtotime('2024-07-15 12:00:00');
+  }
+
 }

@@ -87,7 +87,7 @@ trait DateTrait {
 
     // If `now` is not provided, round to the current hour to make sure that
     // assertions are running within the same timeframe (for long tests).
-    $now = $now ?: strtotime(date('Y-m-d H:i:00', time()));
+    $now = $now ?: strtotime(date('Y-m-d H:i:00', self::dateNow()));
 
     return preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now) {
       $timestamp = strtotime($matches[2], $now);
@@ -105,6 +105,13 @@ trait DateTrait {
 
       return $timestamp;
     }, $value);
+  }
+
+  /**
+   * Get the current timestamp.
+   */
+  public static function dateNow(): int {
+    return time();
   }
 
 }
