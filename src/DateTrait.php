@@ -61,15 +61,12 @@ trait DateTrait {
    * Possible formats:
    * [relative:OFFSET]
    * [relative:OFFSET#FORMAT]
-   * - OFFSET|BASETIMESTAMP: any format & base timestamp
-   * that can be passed into strtotime().
+   * - OFFSET: any format that can be parsed by strtotime()
    * - FORMAT: date() format for additional processing.
    *
    * Examples:
    * [relative:-1 day] would be converted to 1893456000
    * [relative:-1 day#Y-m-d] would be converted to 2017-11-5
-   * [relative:-1 day|1720410603#Y-m-d] would be converted to 2024-07-07
-   * specific base timestamp.
    *
    * @code
    * Give content "article" exists:
@@ -90,13 +87,10 @@ trait DateTrait {
 
     // If `now` is not provided, round to the current hour to make sure that
     // assertions are running within the same timeframe (for long tests).
-    $now = $now ?: strtotime(date('Y-m-d H:i:s', time()));
+    $now = $now ?: strtotime(date('Y-m-d H:i:00', time()));
 
     return preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now) {
-      $relative_time_parts = explode('|', $matches[2]);
-      $relative_time = $relative_time_parts[0];
-      $base_timestamp = $relative_time_parts[1] ?? $now;
-      $timestamp = strtotime($relative_time, (int) $base_timestamp);
+      $timestamp = strtotime($matches[2], $now);
       if ($timestamp === FALSE) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }

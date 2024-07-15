@@ -19,33 +19,3 @@ Feature: Check that DateTrait works
     When I visit article "[TEST] Article 1"
     Then the response status code should be 200
     And I should see the text "201"
-
-  @api
-  Scenario: Assert that table transform works
-    Given I am logged in as a user with the "administrator" role
-    When I go to "node/add/article"
-    And I fill in "Title" with "[TEST] Article relative 5 seconds [relative:5 seconds|1720410603#Y-m-d H:i:s]"
-    And I select "Published" from "edit-moderation-state-0-state"
-    And I press "Save"
-    Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 5 seconds 2024-07-08 03:50:08"
-  
-  @api
-  Scenario: Assert that table transform works
-    Given I am logged in as a user with the "administrator" role
-    When I go to "node/add/article"
-    And I fill in "Title" with "[TEST] Article relative 30 seconds [relative:30 seconds|1720410603#Y-m-d H:i:s]"
-    And I select "Published" from "edit-moderation-state-0-state"
-    And I press "Save"
-    Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 30 seconds 2024-07-08 03:50:33"
-  
-  @api
-  Scenario: Assert that table transform works
-    Given I am logged in as a user with the "administrator" role
-    When I go to "node/add/article"
-    And I fill in "Title" with "[TEST] Article relative 65 seconds [relative:65 seconds|1720410603#Y-m-d H:i:s]"
-    And I select "Published" from "edit-moderation-state-0-state"
-    And I press "Save"
-    Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 65 seconds 2024-07-08 03:51:08"
