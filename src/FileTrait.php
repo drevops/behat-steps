@@ -213,10 +213,13 @@ trait FileTrait {
    * @Given unmanaged file :uri created
    */
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
-    $dir = \Drupal::service('file_system')->dirname($uri);
+    $directory = \Drupal::service('file_system')->dirname($uri);
 
-    if (!file_exists($dir)) {
-      \Drupal::service('file_system')->dirname($dir);
+    if (!file_exists($directory)) {
+      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      if (!$dir) {
+        throw new \RuntimeException('Unable to prepare directory ' . $directory);
+      }
     }
 
     file_put_contents($uri, $content);
