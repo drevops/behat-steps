@@ -2,7 +2,7 @@
 Feature: Behat feature context smoke tests
 
   Assertions for feature context steps (in FeatureContext.php) that are used
-  to test the Behat-steps step definitions defined in `src`. Test.
+  to test the Behat-steps step definitions defined in `src`.
 
   Basically, tests for tests, which are testing our steps provided by this package.
 
