@@ -25,8 +25,8 @@ Feature: Check that PathTrait works
   @api
   Scenario: Assert that a path can be visited or not with HTTP credentials.
     Given users:
-      | name       | mail                | pass       |
-      | admin-test | admin-test@bar.com  | admin-test |
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
     When I am an anonymous user
     Then I go to "/mysite_core/test-basic-auth"
     Then I should get a "401" HTTP response

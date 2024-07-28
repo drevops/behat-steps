@@ -10,7 +10,7 @@ Feature: Check that ContentTrait works for or D9
     Then I should see "[TEST] Page title"
 
   @trait:ContentTrait
-  Scenario: Assert visiting page with non-existing node throw exception
+  Scenario: Assert visiting page with non-existing node throws an exception
     Given some behat configuration
     And scenario steps:
       """
@@ -33,7 +33,7 @@ Feature: Check that ContentTrait works for or D9
     Then I should see "[TEST] Page title"
 
   @trait:ContentTrait
-  Scenario: Assert visiting edit page with non-existing node throw exception
+  Scenario: Assert visiting edit page with non-existing node throws an exception
     Given some behat configuration
     And scenario steps:
       """
@@ -56,7 +56,7 @@ Feature: Check that ContentTrait works for or D9
     Then I should see "[TEST] Page title"
 
   @trait:ContentTrait
-  Scenario: Assert delete page with non-existing node throw exception
+  Scenario: Assert delete page with non-existing node throws an exception
     Given some behat configuration
     And scenario steps:
       """
@@ -94,7 +94,7 @@ Feature: Check that ContentTrait works for or D9
     And save screenshot
 
   @trait:ContentTrait
-  Scenario: Assert visiting scheduled transition page with non-existing node throw exception
+  Scenario: Assert visiting scheduled transition page with non-existing node throws an exception
     Given some behat configuration
     And scenario steps:
       """
@@ -120,7 +120,7 @@ Feature: Check that ContentTrait works for or D9
     Then I should see "Published" in the "#edit-moderation-state-0-current" element
 
   @trait:ContentTrait
-  Scenario: Assert change moderation state of a content with non-existing node throw exception
+  Scenario: Assert change moderation state of a content with non-existing node throws an exception
     Given some behat configuration
     And scenario steps:
       """
@@ -134,7 +134,7 @@ Feature: Check that ContentTrait works for or D9
       """
 
   @trait:ContentTrait
-  Scenario: Assert change moderation state of a content with difference current state throw exception
+  Scenario: Assert change moderation state of a content with a different current state throws an exception
     Given some behat configuration
     And scenario steps:
       """
