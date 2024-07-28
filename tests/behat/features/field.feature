@@ -1,18 +1,19 @@
-@skipped
 Feature: Check that FieldTrait works
-  # @todo: Implement controller with a form for or D9/D10 and add this test.
 
+  @api
   Scenario: Assert field exists
-    Given I go to "test-form"
+    Given I go to "form/test-form"
     Then I see field "field1"
     Then I see field "Field 1"
 
+  @api
   Scenario: Assert field does not exist
     Given I go to "test-form"
     Then I don't see field "some_random_field"
 
+  @api
   Scenario Outline: Assert field existence
-    Given I go to "test-form"
+    Given I go to "form/test-form"
     Then field "<field>" "<existence>" on the page
     Examples:
       | field        | existence  |
@@ -22,8 +23,9 @@ Feature: Check that FieldTrait works
       | Field 2      | exists     |
       | random_field | not exists |
 
+  @api
   Scenario Outline: Assert if field is disabled
-    Given I go to "test-form"
+    Given I go to "form/test-form"
     Then field "<field>" is "<state>" on the page
     Examples:
       | field          | state    |
@@ -34,8 +36,9 @@ Feature: Check that FieldTrait works
       | field3disabled | disabled |
       | Field 3        | disabled |
 
+  @api
   Scenario Outline: Assert field presence and state
-    Given I go to "test-form"
+    Given I go to "form/test-form"
     Then field "<field>" should be "<presence>" on the page and have state "<state>"
     Examples:
       | field          | presence    | state    |

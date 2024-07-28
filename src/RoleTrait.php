@@ -22,7 +22,7 @@ trait RoleTrait {
    *
    * @var array
    */
-  protected $roles = [];
+  protected array $rolesNeedClean = [];
 
   /**
    * Create a single role with specified permissions.
@@ -48,8 +48,11 @@ trait RoleTrait {
 
     if ($saved === SAVED_NEW) {
       user_role_grant_permissions($role->id(), $permissions);
+      // Mark for clean later.
+      $this->rolesNeedClean[$role->id()] = $role->id();
 
       return Role::load($role->id());
+
     }
 
     throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
@@ -67,8 +70,7 @@ trait RoleTrait {
       }
 
       $permissions = $hash['permissions'] ?: '';
-      $role = $this->roleCreateSingle($hash['name'], $permissions);
-      $this->roles[] = $role->id();
+      $this->roleCreateSingle($hash['name'], $permissions);
     }
   }
 
@@ -83,14 +85,14 @@ trait RoleTrait {
       return;
     }
 
-    foreach ($this->roles as $rid) {
+    foreach ($this->rolesNeedClean as $rid) {
       $role = Role::load($rid);
       if ($role) {
         $role->delete();
       }
     }
 
-    $this->roles = [];
+    $this->rolesNeedClean = [];
   }
 
 }

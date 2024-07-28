@@ -18,7 +18,7 @@ trait JsTrait {
   /**
    * Init values required for javascript tagged scenarios.
    *
-   * @param Behat\Behat\Hook\Scope\BeforeScenarioScope $scope
+   * @param \Behat\Behat\Hook\Scope\BeforeScenarioScope $scope
    *   Scenario scope.
    *
    * @BeforeScenario
@@ -89,15 +89,12 @@ trait JsTrait {
    * @javascript
    */
   public function jsClickOnElement(string $element): void {
-    $xpath = $this
+    $element = $this
       ->getSession()
-      ->getSelectorsHandler()
-      ->selectorToXpath('css', $element);
+      ->getPage()
+      ->find('css', $element);
 
-    $this
-      ->getSession()
-      ->getDriver()
-      ->click($xpath);
+    $element->click();
   }
 
   /**

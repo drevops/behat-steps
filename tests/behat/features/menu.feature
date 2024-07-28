@@ -31,7 +31,7 @@ Feature: Check that MenuTrait works for or D9
     And I should not see the text "Test menu 2 description"
 
   @api
-  Scenario: Assert "Given menu_links:"
+  Scenario: Assert "Given menu_links:" and "no menu_links"
     Given menus:
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
@@ -43,3 +43,11 @@ Feature: Check that MenuTrait works for or D9
     When I visit "/admin/structure/menu/manage/_test_menu_1_title"
     And I should see "Parent Link Title"
     And I should see "Child Link Title"
+    Then no "[TEST] menu 1 title" menu_links:
+      | Child Link Title |
+    Then I visit "/admin/config/development/performance"
+    # We should not need clear cache at here. Re-check later.
+    Then I press the "Clear all cache" button
+    Then I visit "/admin/structure/menu/manage/_test_menu_1_title"
+    And I should not see "Child Link Title"
+    And I should see "Parent Link Title"

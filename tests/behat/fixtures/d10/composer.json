@@ -16,6 +16,7 @@
         "drupal/search_api": "^1.26",
         "drush/drush": "^12",
         "drupal/testmode": "^2",
+        "drupal/webform": "^6.2",
         "oomphinc/composer-installers-extender": "^2.0",
         "vlucas/phpdotenv": "^5.4",
         "webflo/drupal-finder": "^1.3",

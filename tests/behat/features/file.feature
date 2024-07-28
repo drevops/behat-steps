@@ -18,6 +18,21 @@ Feature: Check that FileTrait works for or D9
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
+  Scenario: Assert "Given managed file: With uri"
+    When I am logged in as a user with the "administrator" role
+    And no "example_document.pdf" file object exists
+    And no "example_image.png" file object exists
+    And no "example_audio.mp3" file object exists
+    Given managed file:
+      | path                 | uri                                |
+      | example_document.pdf | public://test/example_document.pdf |
+      | example_image.png    | public://test/example_image.png    |
+      | example_audio.mp3    | public://test/example_audio.mp3    |
+    And "example_document.pdf" file object exists
+    And "example_image.png" file object exists
+    And "example_audio.mp3" file object exists
+
+  @api
   Scenario: Assert "@Given no managed files: With filename"
     When I am logged in as a user with the "administrator" role
     Given managed file:
@@ -106,6 +121,10 @@ Feature: Check that FileTrait works for or D9
     And unmanaged file "public://test3.txt" has content "test content"
     And unmanaged file "public://test3.txt" has content "content"
     And unmanaged file "public://test3.txt" does not have content "test more content"
+
+    Given unmanaged file "public://test-random/test4.txt" does not exist
+    When unmanaged file "public://test-random/test4.txt" created with content "test content"
+    Then unmanaged file "public://test-random/test4.txt" exists
 
   @trait:FileTrait
   Scenario: Assert that negative assertions fail with an error

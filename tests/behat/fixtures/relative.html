@@ -493,7 +493,19 @@ Scroll to the bottom of the document to `isElemVisible()` function.
   </div>
 </div>
 
+<button id="trigger-confirm" onclick="testConfirm()">Test confirm</button>
+
 <script>
+  function testConfirm() {
+    let text = "Press a button!\nEither OK or Cancel.";
+    if (confirm(text) === true) {
+      text = "You pressed OK!";
+    } else {
+      text = "You canceled!";
+    }
+    document.getElementById("trigger-confirm").innerHTML = text;
+  }
+
   /**
    * Check if an element is visible on the page.
    *
