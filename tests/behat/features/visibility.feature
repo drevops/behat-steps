@@ -1,4 +1,4 @@
-@visibility @skipped
+@visibility
 Feature: Check that VisibilityTrait works
 
   @api @javascript
