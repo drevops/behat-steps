@@ -64,11 +64,13 @@ trait ElementTrait {
       $element = $this->getSession()->getPage()->find('xpath', $selector);
     }
     else {
-      throw new \InvalidArgumentException('Selector type must be "css" or "xpath".');
+      throw new \Exception('Selector type must be "css" or "xpath".');
     }
 
     if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), NULL, $type, $selector);
+      $exception = new ElementNotFoundException($this->getSession()->getDriver(), NULL, $type, $selector);
+
+      throw new \Exception($exception->getMessage());
     }
 
     if (!str_contains($element->getText(), $text)) {
