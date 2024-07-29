@@ -51,3 +51,101 @@ Feature: Check that FieldTrait works
       | field_random   | not present | disabled |
       | field_random   | not present | active   |
       | field_random   | not present |          |
+
+  @trait:FieldTrait
+  Scenario: Assert that field exists on the page using id,name,label or value.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then I see field "No existing field"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Form field with id|name|label|value "No existing field" not found.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert that field does not exist on the page using id,name,label or value.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then I don't see field "Field 1"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      A field "Field 1" appears on this page, but it should not.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert that field does not exist on the page using id,name,label or value.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then field "Field 1" "does not exist" on the page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      A field "Field 1" appears on this page, but it should not.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert whether the field has a state.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then field "field3disabled" is "enabled" on the page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      A field "field3disabled" should not be disabled, but it is.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert whether the field has a state.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then field "field1" is "disabled" on the page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      A field "field1" should be disabled, but it is not.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert whether the field exists on the page and has a state.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then field "field1" should be "present" on the page and have state "disabled"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      A field "field1" should be disabled, but it is not.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert whether the field exists on the page and has a state.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then field "No existing field" should be "present" on the page and have state "disabled"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Form field with id|name|label|value "No existing field" not found.
+      """
