@@ -208,7 +208,7 @@ trait FileTrait {
   }
 
   /**
-   * Create an unmanaged file.
+   * Create an unmanaged file with specified content.
    *
    * @Given unmanaged file :uri created
    */
