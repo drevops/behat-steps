@@ -33,10 +33,8 @@ trait FieldTrait {
     $field = $field ? $field : $page->findById($field_name);
 
     if ($field === NULL) {
-      $exception = new ElementNotFoundException($this->getSession()
+      throw new ElementNotFoundException($this->getSession()
         ->getDriver(), 'form field', 'id|name|label|value', $field_name);
-
-      throw new \Exception($exception->getMessage());
     }
 
     return $field;
