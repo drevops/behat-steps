@@ -161,3 +161,17 @@ Feature: Check that email assertions work for or D9
 
     When I clear the test email system queue
     Then no emails were sent
+
+  @trait:EmailTrait
+  Scenario: Assert that an email was sent to an address.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then an email is sent to "test@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email sent to "test@example.com" retrieved from test record collector.
+      """

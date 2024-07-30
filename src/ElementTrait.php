@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ElementNotFoundException;
+
 /**
  * Trait Element.
  *
@@ -46,6 +48,33 @@ trait ElementTrait {
       else {
         throw new \Exception(sprintf('The "%s" attribute was found on the element "%s", but does not contain a value "%s".', $attribute, $selector, $value));
       }
+    }
+  }
+
+  /**
+   * Assert that an element with selector contains text.
+   *
+   * @Then I should see an element :selector using :type contains :text text
+   */
+  public function iShouldSeeAnElementUsingType(string $selector, string $type, string $text): void {
+    if ($type === 'css') {
+      $element = $this->getSession()->getPage()->find('css', $selector);
+    }
+    elseif ($type === 'xpath') {
+      $element = $this->getSession()->getPage()->find('xpath', $selector);
+    }
+    else {
+      throw new \Exception('Selector type must be "css" or "xpath".');
+    }
+
+    if (!$element) {
+      $exception = new ElementNotFoundException($this->getSession()->getDriver(), NULL, $type, $selector);
+
+      throw new \Exception($exception->getMessage());
+    }
+
+    if (!str_contains($element->getText(), $text)) {
+      throw new \Exception(sprintf('The text "%s" was not found in the element "%s" using %s.', $text, $selector, $type));
     }
   }
 

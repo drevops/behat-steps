@@ -9,6 +9,7 @@
         "drupal/core-composer-scaffold": "~10.3.0",
         "drupal/core-project-message": "~10.3.0",
         "drupal/core-recommended": "~10.3.0",
+        "drupal/draggableviews": "^2.1",
         "drupal/eck": "^2.0",
         "drupal/paragraphs": "^1.15",
         "drupal/pathauto": "^1.11",
