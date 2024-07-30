@@ -62,7 +62,7 @@ trait FieldTrait {
   }
 
   /**
-   * Assert whether the field exists on the page using id,name,label or value.
+   * Assert whether the field exists/does not exist on the page using id,name,label or value.
    *
    * @code
    * Then field "Body" "exists" on the page

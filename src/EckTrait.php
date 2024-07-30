@@ -144,7 +144,7 @@ trait EckTrait {
   }
 
   /**
-   * Navigate to view eck entity page with specified type and title.
+   * Navigate to edit eck entity page with specified type and title.
    *
    * @code
    * When I edit "contact" "contact_type" with title "Test contact"
@@ -171,7 +171,7 @@ trait EckTrait {
   }
 
   /**
-   * Navigate to entity page with specified type and title.
+   * Navigate to view entity page with specified type and title.
    *
    * @code
    * When I visit "contact" "contact_type" with title "Test contact"
