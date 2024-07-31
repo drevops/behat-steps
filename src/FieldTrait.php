@@ -128,21 +128,23 @@ trait FieldTrait {
   }
 
   /**
-   * Fills in form color field with specified id|name|label|value.
-   *
-   * Example: When I fill color in "#colorpickerHolder" with: "#ffffff"
+   * Fills value for color field.
    *
    * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
-   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with:$/
    * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
    */
-  public function fillColorField(string $field, string $value): mixed {
-    $js = sprintf(
-      'jQuery("%s").val("%s").change();',
-      $field,
-      $value
-    );
-
+  public function fillColorField(string $field, string $value = NULL): mixed {
+    $js = <<<JS
+        (function() {
+            var element = document.querySelector('$field');
+            if (!element) {
+                throw new Error('Element not found: $field');
+            }
+            element.value = '$value';
+            var event = new Event('change', { bubbles: true });
+            element.dispatchEvent(event);
+        })();
+JS;
     return $this->getSession()->evaluateScript($js);
   }
 
@@ -152,8 +154,15 @@ trait FieldTrait {
    * @Then /^color field "(?P<field>(?:[^"]|\\")*)" value is "(?P<value>(?:[^"]|\\")*)"$/
    */
   public function assertColorFieldHasValue(string $field, string $value): void {
-    $js = sprintf('jQuery("%s").val();', $field);
-
+    $js = <<<JS
+        (function() {
+            var element = document.querySelector('$field');
+            if (!element) {
+                throw new Error('Element not found: $field');
+            }
+            return element.value;
+        })();
+JS;
     $actual = $this->getSession()->evaluateScript($js);
 
     if ($actual != $value) {
