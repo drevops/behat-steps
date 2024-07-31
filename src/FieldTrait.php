@@ -127,4 +127,38 @@ trait FieldTrait {
     }
   }
 
+  /**
+   * Fills in form color field with specified id|name|label|value.
+   *
+   * Example: When I fill color in "#colorpickerHolder" with: "#ffffff"
+   *
+   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
+   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with:$/
+   * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
+   */
+  public function fillColorField(string $field, string $value): mixed {
+    $js = sprintf(
+      'jQuery("%s").val("%s").change();',
+      $field,
+      $value
+    );
+
+    return $this->getSession()->evaluateScript($js);
+  }
+
+  /**
+   * Asserts that a color field has a value.
+   *
+   * @Then /^color field "(?P<field>(?:[^"]|\\")*)" value is "(?P<value>(?:[^"]|\\")*)"$/
+   */
+  public function assertColorFieldHasValue(string $field, string $value): void {
+    $js = sprintf('jQuery("%s").val();', $field);
+
+    $actual = $this->getSession()->evaluateScript($js);
+
+    if ($actual != $value) {
+      throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
+    }
+  }
+
 }
