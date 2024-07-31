@@ -17,6 +17,8 @@ use Drupal\user\UserInterface;
  */
 trait UserTrait {
 
+  use DateTrait;
+
   /**
    * Visit profile page of the specified user.
    *
