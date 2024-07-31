@@ -21,31 +21,32 @@ trait MetaTagTrait {
    * @Then I should see a meta tag with the following attributes:
    */
   public function assertMetaTagWithAttributesExists(TableNode $table): void {
-    $page = $this->getSession()->getPage();
-    $meta_tags = $page->findAll('css', 'meta');
+    $elements = $this->getSession()->getPage()->findAll('css', 'meta');
 
     $attributes = [];
     foreach ($table->getRowsHash() as $attribute => $value) {
       $attributes[$attribute] = $value;
     }
 
-    $meta_tag_found = FALSE;
+    $found = FALSE;
 
-    foreach ($meta_tags as $metaTag) {
-      $all_attributes_match = TRUE;
+    foreach ($elements as $element) {
+      $all_attributes_matched = TRUE;
+
       foreach ($attributes as $attribute => $value) {
-        if ($metaTag->getAttribute($attribute) !== $value) {
-          $all_attributes_match = FALSE;
+        if ($element->getAttribute($attribute) !== $value) {
+          $all_attributes_matched = FALSE;
           break;
         }
       }
-      if ($all_attributes_match) {
-        $meta_tag_found = TRUE;
+
+      if ($all_attributes_matched) {
+        $found = TRUE;
         break;
       }
     }
 
-    if (!$meta_tag_found) {
+    if (!$found) {
       throw new \Exception('Meta tag with specified attributes was not found: ' . json_encode($attributes));
     }
   }
@@ -56,8 +57,7 @@ trait MetaTagTrait {
    * @Then I should not see a meta tag with the following attributes:
    */
   public function assertMetaTagWithAttributesDoesNotExists(TableNode $table): void {
-    $page = $this->getSession()->getPage();
-    $meta_tags = $page->findAll('css', 'meta');
+    $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');
 
     $attributes = [];
     foreach ($table->getRowsHash() as $attribute => $value) {
@@ -65,14 +65,15 @@ trait MetaTagTrait {
     }
 
     foreach ($meta_tags as $metaTag) {
-      $all_attributes_match = TRUE;
+      $all_attributes_matched = TRUE;
       foreach ($attributes as $attribute => $value) {
         if ($metaTag->getAttribute($attribute) !== $value) {
-          $all_attributes_match = FALSE;
+          $all_attributes_matched = FALSE;
           break;
         }
       }
-      if ($all_attributes_match) {
+
+      if ($all_attributes_matched) {
         throw new \Exception('Meta tag with specified attributes should not exist: ' . json_encode($attributes));
       }
     }
