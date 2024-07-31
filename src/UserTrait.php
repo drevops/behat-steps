@@ -160,6 +160,18 @@ trait UserTrait {
   }
 
   /**
+   * Set last access time for user.
+   *
+   * @Then the last access time of user :name is :time
+   */
+  public function setUserLastAccess(string $name, string $time): void {
+    /** @var \Drupal\user\UserInterface $user */
+    $user = $this->userGetByName($name);
+    $timestamp = (int) static::dateRelativeProcessValue($time, time());
+    $user->setLastAccessTime($timestamp)->save();
+  }
+
+  /**
    * Get user by name.
    */
   protected function userGetByName(string $name): UserInterface {
