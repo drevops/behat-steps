@@ -85,3 +85,35 @@ Feature: Check that UserTrait works for or D9
       """
       Unable to find a user with name or email "non_existing_user".
       """
+
+  @api
+  Scenario: Assert "Then the last access time of user :name is :time"
+    Given users:
+      | name                                | mail                                              | roles         | status |
+      | administrator_user_test_last_access | administrator_user_test_last_access@myexample.com | administrator | 1      |
+    Then I am logged in as a user with the "administrator" role
+    And I visit "/admin/people?user=administrator_user_test_last_access"
+    Then I should see the text "never"
+    Then the last access time of user "administrator_user_test_last_access" is "[relative:-10 years]"
+    # We should not need clear cache at here. Re-check later.
+    Then I visit "/admin/config/development/performance"
+    Then I press the "Clear all cache" button
+    Then I visit "/admin/people?user=administrator_user_test_last_access"
+    Then I should not see the text "never"
+    Then I should see the text "10 years ago"
+
+  @api
+  Scenario: Assert "Then the last access time of user :name is :time"
+    Given users:
+      | name                                | mail                                              | roles         | status |
+      | administrator_user_test_last_access | administrator_user_test_last_access@myexample.com | administrator | 1      |
+    Then I am logged in as a user with the "administrator" role
+    And I visit "/admin/people?user=administrator_user_test_last_access"
+    Then I should see the text "never"
+    Then the last access time of user "administrator_user_test_last_access" is "1406774864"
+    # We should not need clear cache at here. Re-check later.
+    Then I visit "/admin/config/development/performance"
+    Then I press the "Clear all cache" button
+    Then I visit "/admin/people?user=administrator_user_test_last_access"
+    Then I should not see the text "never"
+    Then I should see the text "10 years ago"
