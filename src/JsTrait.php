@@ -119,6 +119,37 @@ trait JsTrait {
   }
 
   /**
+   * Scroll to an element with ID.
+   *
+   * @Then /^I scroll to an? element with id "([^"]*)"$/
+   */
+  public function iScrollToElementWithId(string $id): void {
+    $this->getSession()->executeScript("
+      var element = document.getElementById('" . $id . "');
+      element.scrollIntoView( true );
+    ");
+  }
+
+  /**
+   * Assert the element with id at the top of page.
+   *
+   * @Then the element with id :id should be at the top of the page
+   */
+  public function assertElementAtTopOfPage(string $id): void {
+    $script = <<<JS
+        (function() {
+            var element = document.getElementById('$id');
+            var rect = element.getBoundingClientRect();
+            return (rect.top >= 0 && rect.top <= window.innerHeight);
+        })();
+JS;
+    $result = $this->getSession()->evaluateScript($script);
+    if (!$result) {
+      throw new \Exception("Element with ID '$id' is not at the top of the page.");
+    }
+  }
+
+  /**
    * Execute JS on an element provided by the selector.
    *
    * @param string $selector
