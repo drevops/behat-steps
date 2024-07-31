@@ -38,7 +38,7 @@ trait ElementTrait {
       $attr = $element->getAttribute($attribute);
       if (!empty($attr)) {
         $attr_found = TRUE;
-        // Convert wildcard pattern to regex
+        // Convert wildcard pattern to regex.
         $regex_pattern = '/' . str_replace(['*', '?'], ['.*', '.'], preg_quote($pattern, '/')) . '/';
         if (preg_match($regex_pattern, $attr)) {
           $attr_pattern_matched = TRUE;
