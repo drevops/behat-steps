@@ -16,11 +16,14 @@ use Behat\Mink\Exception\ElementNotFoundException;
 trait ElementTrait {
 
   /**
-   * Assert that an element with selector and attribute with a value exists.
+   * Assert element with wildcard pattern exists.
    *
-   * @Then I( should) see the :selector element with the :attribute attribute set to :value
+   * Assert an element with selector and attribute with a value exists,
+   * matching a wildcard pattern.
+   *
+   * @Then I( should) see the :selector element with a(n) :attribute attribute containing :value
    */
-  public function elementAssertAttributeHasValue(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertAttributeContains(string $selector, string $attribute, string $pattern): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -29,25 +32,27 @@ trait ElementTrait {
     }
 
     $attr_found = FALSE;
-    $attr_value_found = FALSE;
+    $attr_pattern_matched = FALSE;
+
     foreach ($elements as $element) {
       $attr = $element->getAttribute($attribute);
       if (!empty($attr)) {
         $attr_found = TRUE;
-        if (str_contains((string) $attr, strval($value))) {
-          $attr_value_found = TRUE;
+        // Convert wildcard pattern to regex
+        $regex_pattern = '/' . str_replace(['*', '?'], ['.*', '.'], preg_quote($pattern, '/')) . '/';
+        if (preg_match($regex_pattern, $attr)) {
+          $attr_pattern_matched = TRUE;
           break;
         }
       }
     }
 
-    if (!$attr_value_found) {
-      if (!$attr_found) {
-        throw new \Exception(sprintf('The "%s" attribute was not found on the element "%s".', $attribute, $selector));
-      }
-      else {
-        throw new \Exception(sprintf('The "%s" attribute was found on the element "%s", but does not contain a value "%s".', $attribute, $selector, $value));
-      }
+    if (!$attr_found) {
+      throw new \Exception(sprintf('The "%s" attribute was not found on the element "%s".', $attribute, $selector));
+    }
+
+    if (!$attr_pattern_matched) {
+      throw new \Exception(sprintf('No element with "%s" attribute matching the pattern "%s" found.', $attribute, $pattern));
     }
   }
 
