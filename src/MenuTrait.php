@@ -89,9 +89,12 @@ trait MenuTrait {
    */
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
     foreach ($table->getColumn(0) as $title) {
-      $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
-      if ($menu_link) {
-        $menu_link->delete();
+      try {
+        $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
+        $menu_link?->delete();
+      }
+      catch (\Exception) {
+        continue;
       }
     }
   }
