@@ -4,9 +4,59 @@ Feature: Check that ElementTrait works
   Scenario: Assert step definition "Then I should see the :selector element with the :attribute attribute set to :value" works as expected
     Given I am an anonymous user
     When I visit "/"
+    Then I should see the "html" element with the "dir" attribute set to "ltr"
+
+  @trait:ElementTrait
+  Scenario: Assert that an element with selector and attribute with a value exists.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then I should see the "#invalid-element" element with the "dir" attribute set to "ltr"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "#invalid-element" element was not found on the page.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert that an element with selector and attribute with a value exists.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then I should see the "html" element with the "no-existing-attribute" attribute set to "ltr"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "no-existing-attribute" attribute was not found on the element "html".
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert that an element with selector and attribute with a value exists.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then I should see the "html" element with the "dir" attribute set to "not-match-value"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "dir" attribute was found on the element "html", but does not contain a value "not-match-value".
+      """
+
+  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected
+    Given I am an anonymous user
+    When I visit "/"
     Then I should see the "html" element with a "dir" attribute containing "ltr"
 
-  Scenario: Assert step definition "Then I should see the :selector element with the :attribute attribute set to :value" works as expected
+  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected
     Given I am an anonymous user
     When I visit "/"
     Then I should see the "html" element with a "dir" attribute containing "lt*"
