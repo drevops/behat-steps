@@ -52,6 +52,20 @@ Feature: Check that FieldTrait works
       | field_random   | not present | active   |
       | field_random   | not present |          |
 
+  @api @javascript
+  Scenario: Assert fills in form color field with specified id|name|label|value.
+    Given I visit "/sites/default/files/relative.html#edit-color-input"
+    Then color field "#edit-color-input" value is "#000000"
+    And I fill color in "#edit-color-input" with "#ffffff"
+    Then color field "#edit-color-input" value is "#ffffff"
+
+  @api @javascript
+  Scenario: Assert fills in form color field with specified id|name|label|value.
+    Given I visit "/sites/default/files/relative.html#edit-color-input"
+    Then color field "#edit-color-input" value is "#000000"
+    And I fill color in "#ffffff" for "#edit-color-input"
+    Then color field "#edit-color-input" value is "#ffffff"
+
   @trait:FieldTrait
   Scenario: Assert that field exists on the page using id,name,label or value.
     Given some behat configuration

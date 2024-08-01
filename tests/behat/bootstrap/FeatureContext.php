@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\MediaTrait;
 use DrevOps\BehatSteps\MenuTrait;
+use DrevOps\BehatSteps\MetaTagTrait;
 use DrevOps\BehatSteps\OverrideTrait;
 use DrevOps\BehatSteps\ParagraphsTrait;
 use DrevOps\BehatSteps\PathTrait;
@@ -55,6 +56,7 @@ class FeatureContext extends DrupalContext {
   use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
+  use MetaTagTrait;
   use MenuTrait;
   use OverrideTrait;
   use ParagraphsTrait;

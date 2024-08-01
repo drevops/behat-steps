@@ -127,4 +127,47 @@ trait FieldTrait {
     }
   }
 
+  /**
+   * Fills value for color field.
+   *
+   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
+   * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
+   */
+  public function fillColorField(string $field, string $value = NULL): mixed {
+    $js = <<<JS
+        (function() {
+            var element = document.querySelector('$field');
+            if (!element) {
+                throw new Error('Element not found: $field');
+            }
+            element.value = '$value';
+            var event = new Event('change', { bubbles: true });
+            element.dispatchEvent(event);
+        })();
+JS;
+    return $this->getSession()->evaluateScript($js);
+  }
+
+  /**
+   * Asserts that a color field has a value.
+   *
+   * @Then /^color field "(?P<field>(?:[^"]|\\")*)" value is "(?P<value>(?:[^"]|\\")*)"$/
+   */
+  public function assertColorFieldHasValue(string $field, string $value): void {
+    $js = <<<JS
+        (function() {
+            var element = document.querySelector('$field');
+            if (!element) {
+                throw new Error('Element not found: $field');
+            }
+            return element.value;
+        })();
+JS;
+    $actual = $this->getSession()->evaluateScript($js);
+
+    if ($actual != $value) {
+      throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
+    }
+  }
+
 }
