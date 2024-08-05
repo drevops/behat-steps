@@ -61,7 +61,7 @@ Feature: Check that FieldTrait works
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value.
-    Given I visit "/sites/default/files/relative.html#edit-color-input"
+    Given I visit "/sites/default/files/relative.html"
     Then color field "#edit-color-input" value is "#000000"
     And I fill color in "#ffffff" for "#edit-color-input"
     Then color field "#edit-color-input" value is "#ffffff"
