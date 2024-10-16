@@ -247,10 +247,6 @@ and shut down local web services (Apache/Nginx, MAMP etc)
 
 Use `ahoy --help` to see the list of available commands.
 
-#### Apple Silicon adjustments
-
-`cp docker-compose.override.default.yml docker-compose.override.yml`
-
 ### Running tests
 
 The source code of traits is tested by running Behat tests in the same way they
