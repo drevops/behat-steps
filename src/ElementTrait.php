@@ -71,7 +71,7 @@ trait ElementTrait {
     $attr_pattern_matched = FALSE;
 
     foreach ($elements as $element) {
-      $attr = $element->getAttribute($attribute);
+      $attr = (string) $element->getAttribute($attribute);
       if (!empty($attr)) {
         $attr_found = TRUE;
         // Convert wildcard pattern to regex.

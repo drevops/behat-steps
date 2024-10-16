@@ -69,7 +69,7 @@ trait MenuTrait {
         // Create menu id if one not provided.
         $menu_id = strtolower((string) $menu_hash['label']);
         $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
-        $menu_id = preg_replace('/_+/', '_', $menu_id);
+        $menu_id = preg_replace('/_+/', '_', (string) $menu_id);
         $menu_hash['id'] = $menu_id;
       }
       $menu = Menu::create($menu_hash);

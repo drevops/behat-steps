@@ -29,7 +29,7 @@ trait LinkTrait {
    * @Then I should see the link :text with :href
    * @Then I should see the link :text with :href in :locator
    */
-  public function linkAssertTextHref(string $text, string $href, string $locator = NULL): void {
+  public function linkAssertTextHref(string $text, string $href, ?string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -74,7 +74,7 @@ trait LinkTrait {
    * @Then I should not see the link :text with :href
    * @Then I should not see the link :text with :href in :locator
    */
-  public function linkAssertTextHrefNotExists(string $text, string $href, string $locator = NULL): void {
+  public function linkAssertTextHrefNotExists(string $text, string $href, ?string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 

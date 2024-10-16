@@ -138,14 +138,14 @@ trait JsTrait {
   public function assertElementAtTopOfPage(string $id): void {
     $script = <<<JS
         (function() {
-            var element = document.getElementById('$id');
+            var element = document.getElementById('{$id}');
             var rect = element.getBoundingClientRect();
             return (rect.top >= 0 && rect.top <= window.innerHeight);
         })();
 JS;
     $result = $this->getSession()->evaluateScript($script);
     if (!$result) {
-      throw new \Exception("Element with ID '$id' is not at the top of the page.");
+      throw new \Exception(sprintf("Element with ID '%s' is not at the top of the page.", $id));
     }
   }
 

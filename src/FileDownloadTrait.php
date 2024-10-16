@@ -325,12 +325,12 @@ trait FileDownloadTrait {
   protected function fileDownloadParseHeaders(array $headers): array {
     $parsed_headers = [];
     foreach ($headers as $header) {
-      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && isset($matches[1])) {
+      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);
         continue;
       }
 
-      if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && isset($matches[1])) {
+      if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['content_type'] = trim($matches[1]);
         continue;
       }

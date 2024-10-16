@@ -40,7 +40,7 @@ trait WaitTrait {
       $driver->evaluateScript('true');
     }
     catch (UnsupportedDriverActionException) {
-      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver', get_class($driver)));
+      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver', $driver::class));
     }
 
     $condition = <<<JS
