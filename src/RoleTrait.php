@@ -19,8 +19,6 @@ trait RoleTrait {
 
   /**
    * Roles ids.
-   *
-   * @var array
    */
   protected array $rolesNeedClean = [];
 

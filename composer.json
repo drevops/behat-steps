@@ -28,7 +28,7 @@
         "drevops/behat-screenshot": "^1.5",
         "drupal/coder": "^8.3",
         "dvdoug/behat-code-coverage": "^5.3",
-        "mglaman/phpstan-drupal": "^1.2",
+        "mglaman/phpstan-drupal": "^1.3",
         "palantirnet/drupal-rector": "^0.20",
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpcompatibility/php-compatibility": "^9.3",

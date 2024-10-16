@@ -194,7 +194,7 @@ trait EmailTrait {
 
     foreach ($this->emailGetCollectedEmails() as $record) {
       $header_value = $record['headers'][$header] ?? '';
-      $header_value = $exact ? $header_value : trim(preg_replace('/\s+/', ' ', $header_value));
+      $header_value = $exact ? $header_value : trim((string) preg_replace('/\s+/', ' ', (string) $header_value));
 
       if (str_contains((string) $header_value, $string_value)) {
         return $record;
@@ -252,7 +252,7 @@ trait EmailTrait {
 
     foreach (self::emailGetCollectedEmails() as $record) {
       $field_string = $record[$field] ?? '';
-      $field_string = $exact ? $field_string : trim(preg_replace('/\s+/', ' ', $field_string));
+      $field_string = $exact ? $field_string : trim((string) preg_replace('/\s+/', ' ', (string) $field_string));
 
       if (str_contains((string) $field_string, $string)) {
         return $record;
@@ -287,7 +287,7 @@ trait EmailTrait {
     $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
 
     foreach (self::emailGetCollectedEmails() as $record) {
-      $field_string = $exact ? $record[$field] : trim(preg_replace('/\s+/', ' ', $record[$field]));
+      $field_string = $exact ? $record[$field] : trim((string) preg_replace('/\s+/', ' ', (string) $record[$field]));
 
       if (str_contains((string) $field_string, $string)) {
         throw new \Exception(sprintf('Found record with%s text "%s" in field "%s" retrieved from test record collector, but should not.', ($exact ? ' exact' : ''), $string, $field));
