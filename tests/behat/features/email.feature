@@ -90,7 +90,7 @@ Feature: Check that email assertions work for or D9
       Line four of the test email content
       """
 
-  @api
+  @api @email
   Scenario: As a developer, I want to know that test email system queue clearing
   step is working.
     Given I send test email to "test@example.com" with

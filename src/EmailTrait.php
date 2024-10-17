@@ -43,7 +43,7 @@ trait EmailTrait {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('email')) {
+    if (!$scope->getScenario()->hasTag('email')) {
       return;
     }
 
