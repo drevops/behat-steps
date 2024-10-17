@@ -140,14 +140,14 @@ trait MediaTrait {
    *
    * This is a re-use of the functionality provided by DrupalExtension.
    */
-  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub) {
+  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub): void {
     $core = $this->getDriver()->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
     $method->setAccessible(TRUE);
 
-    return $method->invokeArgs($core, func_get_args());
+    $method->invokeArgs($core, func_get_args());
   }
 
   /**

@@ -133,14 +133,14 @@ trait FieldTrait {
    * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
    * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
    */
-  public function fillColorField(string $field, string $value = NULL): mixed {
+  public function fillColorField(string $field, ?string $value = NULL): mixed {
     $js = <<<JS
         (function() {
-            var element = document.querySelector('$field');
+            var element = document.querySelector('{$field}');
             if (!element) {
-                throw new Error('Element not found: $field');
+                throw new Error('Element not found: {$field}');
             }
-            element.value = '$value';
+            element.value = '{$value}';
             var event = new Event('change', { bubbles: true });
             element.dispatchEvent(event);
         })();
@@ -156,9 +156,9 @@ JS;
   public function assertColorFieldHasValue(string $field, string $value): void {
     $js = <<<JS
         (function() {
-            var element = document.querySelector('$field');
+            var element = document.querySelector('{$field}');
             if (!element) {
-                throw new Error('Element not found: $field');
+                throw new Error('Element not found: {$field}');
             }
             return element.value;
         })();

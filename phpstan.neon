@@ -16,6 +16,3 @@ parameters:
 
   scanFiles:
     - vendor/behat/behat/bin/behat
-
-  drupal:
-    drupal_root: web
