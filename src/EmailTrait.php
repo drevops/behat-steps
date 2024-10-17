@@ -340,11 +340,11 @@ trait EmailTrait {
   protected function emailDisableTestEmailSystem(): void {
     foreach ($this->emailTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
-      self::emailDeleteMailSystemOriginal();
       // Restore the original system to after the scenario.
       self::emailSetMailSystemDefault($type, $original_test_system);
     }
 
+    self::emailDeleteMailSystemOriginal();
     self::emailClearTestEmailSystemQueue(TRUE);
   }
 
