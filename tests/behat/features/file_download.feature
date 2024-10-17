@@ -28,9 +28,9 @@ Feature: Check that FileDownloadTrait works for or D9
     Then I see download "example_text.txt" link "present"
     Then I download file from link "example_text.txt"
     And downloaded file contains:
-    """
-    Some Text
-    """
+      """
+      Some Text
+      """
 
   @api
   Scenario: Assert "Given downloaded file is zip archive that contains files:"

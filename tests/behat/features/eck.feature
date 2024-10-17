@@ -1,4 +1,3 @@
-@api
 Feature: Check that EckTrait works for or D9
 
   Background:

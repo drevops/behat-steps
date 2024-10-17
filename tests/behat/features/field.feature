@@ -60,14 +60,14 @@ Feature: Check that FieldTrait works
     Then color field "#edit-color-input" value is "#ffffff"
 
   @api @javascript
-  Scenario: Assert fills in form color field with specified id|name|label|value.
+  Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition.
     Given I visit "/sites/default/files/relative.html"
     Then color field "#edit-color-input" value is "#000000"
     And I fill color in "#ffffff" for "#edit-color-input"
     Then color field "#edit-color-input" value is "#ffffff"
 
   @trait:FieldTrait
-  Scenario: Assert that field exists on the page using id,name,label or value.
+  Scenario: Assert that negative assertion for "I see field :field" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -81,7 +81,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that field does not exist on the page using id,name,label or value.
+  Scenario: Assert that negative assertion for "I don't see field :field" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -95,7 +95,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that field does not exist on the page using id,name,label or value.
+  Scenario: Assert that field does not exist on the page using id, name, label or value.
     Given some behat configuration
     And scenario steps:
       """
@@ -123,7 +123,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert whether the field has a state.
+  Scenario: Assert that negative assertion for "field :field1 is :state on the page" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -137,7 +137,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert whether the field exists on the page and has a state.
+  Scenario: Assert that negative assertion for "field :field should be :presence on the page and have state :state" fails with an error for existing field
     Given some behat configuration
     And scenario steps:
       """
@@ -151,7 +151,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert whether the field exists on the page and has a state.
+  Scenario: Assert that negative assertion for "field :field should be :presence on the page and have state :state" fails with an error for non-existing field
     Given some behat configuration
     And scenario steps:
       """
