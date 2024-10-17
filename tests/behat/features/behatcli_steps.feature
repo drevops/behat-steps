@@ -17,21 +17,6 @@ Feature: Behat CLI context additional steps
       """
 
   @trait:PathTrait
-  Scenario: Test fails with exception
-    Given some behat configuration
-    And scenario steps:
-      """
-      Given I go to the homepage
-      Then I throw test exception with message "Intentional error"
-      And I should be in the "nonexisting" path
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an exception:
-      """
-      Intentional error
-      """
-
-  @trait:PathTrait
   Scenario: Test with additionally tagged scenario fails with exception
     Given some behat configuration
     And scenario steps tagged with "@tag1 @tag2":

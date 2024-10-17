@@ -22,7 +22,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then I should see the :selector element with the :attribute attribute set to :value" fails as expected when the attribute is not found
     Given some behat configuration
     And scenario steps:
       """
@@ -37,7 +37,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then I should see the :selector element with the :attribute attribute set to :value" fails as expected when the attribute value does not match
     Given some behat configuration
     And scenario steps:
       """
@@ -51,18 +51,18 @@ Feature: Check that ElementTrait works
       The "dir" attribute was found on the element "html", but does not contain a value "not-match-value".
       """
 
-  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected
+  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected with a specific value
     Given I am an anonymous user
     When I visit "/"
     Then I should see the "html" element with a "dir" attribute containing "ltr"
 
-  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected
+  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected with a wildcard
     Given I am an anonymous user
     When I visit "/"
     Then I should see the "html" element with a "dir" attribute containing "lt*"
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute is not found
     Given some behat configuration
     And scenario steps:
       """
@@ -77,7 +77,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute value does not match
     Given some behat configuration
     And scenario steps:
       """
@@ -92,7 +92,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute value does not match; alternative step definition
     Given some behat configuration
     And scenario steps:
       """
@@ -106,18 +106,18 @@ Feature: Check that ElementTrait works
       No element with "dir" attribute matching the pattern "not-match-value" found.
       """
 
-  Scenario: Assert that an element with selector contains text.
+  Scenario: Assert that an element with selector contains text using css.
     Given I am an anonymous user
     When I visit "/"
     Then I should see an element ".site-branding__name" using "css" contains "Drush Site-Install" text
 
-  Scenario: Assert that an element with selector contains text.
+  Scenario: Assert that an element with selector contains text using xpath.
     Given I am an anonymous user
     When I visit "/"
     Then I should see an element "//div[@class='site-branding__name']" using "xpath" contains "Drush Site-Install" text
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector contains text.
+  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the selector type is invalid
     Given some behat configuration
     And scenario steps:
       """
@@ -132,7 +132,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector contains text.
+  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the selector is not found
     Given some behat configuration
     And scenario steps:
       """
@@ -147,7 +147,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector contains text.
+  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the text is not found
     Given some behat configuration
     And scenario steps:
       """
