@@ -63,13 +63,13 @@ Feature: Check that email assertions work for or D9
     And an email is sent to "test2@example.com"
     And no emails were sent to "test3@example.com"
     And an email header "Content-Type" contains:
-    """
-    text/plain
-    """
+      """
+      text/plain
+      """
     And an email header "X-Mailer" contains:
-    """
-    Drupal
-    """
+      """
+      Drupal
+      """
 
   @api @email
   Scenario: As a developer, I want to know that test email system is activated

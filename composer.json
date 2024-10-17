@@ -24,6 +24,7 @@
         "drupal/drupal-extension": "^5"
     },
     "require-dev": {
+        "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drevops/behat-screenshot": "^1.5",
         "drupal/coder": "^8.3",

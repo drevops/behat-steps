@@ -140,7 +140,7 @@ Feature: Check that FileTrait works for or D9
       """
 
   @trait:FileTrait
-  Scenario: Assert that negative assertions fail with an error
+  Scenario: Assert that negative assertion for "Given unmanaged file :uri does not exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -154,7 +154,7 @@ Feature: Check that FileTrait works for or D9
       """
 
   @trait:FileTrait
-  Scenario: Assert that negative assertions fail with an error
+  Scenario: Assert that negative assertion for "Given unmanaged file :uri has content :content" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -169,7 +169,7 @@ Feature: Check that FileTrait works for or D9
       """
 
   @trait:FileTrait
-  Scenario: Assert that negative assertions fail with an error
+  Scenario: Assert that negative assertion for "Given unmanaged file :uri does not have content :content" fails with an error
     Given some behat configuration
     And scenario steps:
       """

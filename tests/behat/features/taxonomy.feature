@@ -18,7 +18,7 @@ Feature: Check that TaxonomyTrait works for or D9
     And I see the text "T1"
 
   @trait:TaxonomyTrait
-  Scenario: Assert "Given vocabulary :vid with name :name exists" fail with an error
+  Scenario: Assert that negative assertion for "Given vocabulary :vid with name :name exists" fails with an error for non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -31,7 +31,7 @@ Feature: Check that TaxonomyTrait works for or D9
       """
 
   @trait:TaxonomyTrait
-  Scenario: Assert "Given vocabulary :vid with name :name exists" fail with an error
+  Scenario: Assert that negative assertion for "Given vocabulary :vid with name :name exists" fails with an error for existing vocabulary with different name
     Given some behat configuration
     And scenario steps:
       """

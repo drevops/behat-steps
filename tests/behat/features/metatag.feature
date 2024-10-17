@@ -11,7 +11,7 @@ Feature: Check that MetaTagTrait works
       | content | width        |
 
   @trait:MetaTagTrait
-  Scenario: Assert that a meta tag with specific attributes and values exists/does not exist.
+  Scenario: Assert that negative assertion for "I should not see a meta tag with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -27,7 +27,7 @@ Feature: Check that MetaTagTrait works
       """
 
   @trait:MetaTagTrait
-  Scenario: Assert that a meta tag with specific attributes and values exists/does not exist.
+  Scenario: Assert that negative assertion for "I should see a meta tag with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
       """

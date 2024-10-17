@@ -24,7 +24,7 @@ Feature: Ensure TestmodeTrait works.
     And I should not see the text "[MYTEST] Article 7"
 
   @api @testmode
-  Scenario: Assert visiting test content page without test mode will put the required content on the second page
+  Scenario: Assert visiting test content page with test mode will put the required content on the second page
     Given I am logged in as a user with the "administrator" role
     When I go to "/content_test"
     Then I should not see the text "Article 1"

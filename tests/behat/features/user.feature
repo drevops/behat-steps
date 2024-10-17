@@ -69,7 +69,7 @@ Feature: Check that UserTrait works for or D9
     And user "authenticated_user_disabled" has "disabled" status
 
   @api
-  Scenario: Assert "Then user :name has :status status"
+  Scenario: Assert "I set user :user password to :password"
     Given I set user "administrator_user" password to "password123"
     Given I set user "administrator_user@myexample.com" password to "password123"
 

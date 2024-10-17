@@ -110,7 +110,9 @@
         "drupal-post-install": [
             "drush -r web config-set system.site uuid 5b4646a8-ed7b-453c-b5b6-78196271f41b -y --uri=http://nginx",
             "drush -r web ev \"\\Drupal::entityTypeManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
+            "drush -r web updb -y --uri=http://nginx",
             "drush -r web cim --source=../config/sync -y --uri=http://nginx",
+            "drush -r web cr -y --uri=http://nginx",
             "drush -r web pm:enable mysite_core -y --uri=http://nginx"
         ]
     }
