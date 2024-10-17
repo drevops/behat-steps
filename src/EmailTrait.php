@@ -43,7 +43,7 @@ trait EmailTrait {
       return;
     }
 
-    if (!$scope->getScenario()->hasTag('email')) {
+    if ($scope->getScenario()->hasTag('email')) {
       return;
     }
 
@@ -78,43 +78,6 @@ trait EmailTrait {
     if ($scope->getScenario()->hasTag('email')) {
       self::emailDisableTestEmailSystem();
     }
-  }
-
-  /**
-   * Enable test email system.
-   *
-   * @Given I enable the test email system
-   */
-  public function emailEnableTestEmailSystem(): void {
-    foreach ($this->emailTypes as $type) {
-      // Store the original system to restore after the scenario.
-      $original_test_system = self::emailGetMailSystemDefault($type);
-      // But store only if previous has not been stored yet.
-      if (!self::emailGetMailSystemOriginal($type)) {
-        self::emailSetMailSystemOriginal($type, $original_test_system);
-      }
-      // Set the test system.
-      self::emailSetMailSystemDefault($type, 'test_mail_collector');
-    }
-
-    // Flush the email buffer, allowing us to reuse this step definition
-    // to clear existing mail.
-    self::emailClearTestEmailSystemQueue(TRUE);
-  }
-
-  /**
-   * Disable test email system.
-   *
-   * @Given I disable the test email system
-   */
-  public function emailDisableTestEmailSystem(): void {
-    foreach ($this->emailTypes as $type) {
-      $original_test_system = self::emailGetMailSystemOriginal($type);
-      // Restore the original system to after the scenario.
-      self::emailSetMailSystemDefault($type, $original_test_system);
-    }
-    self::emailDeleteMailSystemOriginal();
-    self::emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
@@ -349,6 +312,40 @@ trait EmailTrait {
     }
 
     throw new \Exception(sprintf('No attachments were found in the email with subject %s', $subject));
+  }
+
+  /**
+   * Enable test email system.
+   */
+  protected function emailEnableTestEmailSystem(): void {
+    foreach ($this->emailTypes as $type) {
+      // Store the original system to restore after the scenario.
+      $original_test_system = self::emailGetMailSystemDefault($type);
+      // But store only if previous has not been stored yet.
+      if (!self::emailGetMailSystemOriginal($type)) {
+        self::emailSetMailSystemOriginal($type, $original_test_system);
+      }
+      // Set the test system.
+      self::emailSetMailSystemDefault($type, 'test_mail_collector');
+    }
+
+    // Flush the email buffer, allowing us to reuse this step definition
+    // to clear existing mail.
+    self::emailClearTestEmailSystemQueue(TRUE);
+  }
+
+  /**
+   * Disable test email system.
+   */
+  protected function emailDisableTestEmailSystem(): void {
+    foreach ($this->emailTypes as $type) {
+      $original_test_system = self::emailGetMailSystemOriginal($type);
+      // Restore the original system to after the scenario.
+      self::emailSetMailSystemDefault($type, $original_test_system);
+    }
+
+    self::emailDeleteMailSystemOriginal();
+    self::emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
