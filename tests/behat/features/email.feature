@@ -1,11 +1,24 @@
 Feature: Check that email assertions work for or D9
 
-  @api
+  @api @email
+  Scenario: As a developer, I want to know that test email system is automatically
+  activated when @email tag is added to the scenario.
+    When I send test email to "test@example.com" with
+      """
+      Line one of the test email content
+      Line two of the test email content
+      Line three of the test email content
+      """
+    Then an email is sent to "test@example.com"
+    And an email body contains:
+      """
+      Line two of the test email content
+      """
+
+  @api @email
   Scenario: As a developer, I want to know that email step definitions work as
   expected.
-    # @note: No @email tag on scenario to test "Given I enable the test email system" step.
-    Given I enable the test email system
-    When I send test email to "test@example.com" with
+    Given I send test email to "test@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -36,13 +49,11 @@ Feature: Check that email assertions work for or D9
       """
       Line   three   with  tabs and spaces
       """
-    And I disable the test email system
 
-  @api
+  @api @email
   Scenario: As a developer, I want to know that an email is sent to step definition can correctly assert
   emails sent to multiple recipients.
-    Given I enable the test email system
-    When I send test email to "test@example.com,test2@example.com" with
+    Given I send test email to "test@example.com,test2@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -60,11 +71,10 @@ Feature: Check that email assertions work for or D9
     Drupal
     """
 
-  @api
+  @api @email
   Scenario: As a developer, I want to know that test email system is activated
   as before and after scenario steps.
-    Given I enable the test email system
-    When I send test email to "test@example.com" with
+    Given I send test email to "test@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -79,13 +89,11 @@ Feature: Check that email assertions work for or D9
       """
       Line four of the test email content
       """
-    And I disable the test email system
 
   @api
   Scenario: As a developer, I want to know that test email system queue clearing
   step is working.
-    Given I enable the test email system
-    When I send test email to "test@example.com" with
+    Given I send test email to "test@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -102,22 +110,6 @@ Feature: Check that email assertions work for or D9
       """
     When I clear the test email system queue
     And an email body does not contain:
-      """
-      Line two of the test email content
-      """
-    And I disable the test email system
-
-  @api @email
-  Scenario: As a developer, I want to know that test email system is automatically
-  activated when @email tag is added to the scenario.
-    When I send test email to "test@example.com" with
-      """
-      Line one of the test email content
-      Line two of the test email content
-      Line three of the test email content
-      """
-    Then an email is sent to "test@example.com"
-    And an email body contains:
       """
       Line two of the test email content
       """
@@ -151,7 +143,7 @@ Feature: Check that email assertions work for or D9
   @api @email
   Scenario: As a developer, I want to know that no emails assertions works as expected.
     Given no emails were sent
-    Given I send test email to "test@example.com" with
+    When I send test email to "test@example.com" with
       """
       Line one of the test email content
       "<content>"
@@ -165,7 +157,7 @@ Feature: Check that email assertions work for or D9
   @trait:EmailTrait
   Scenario: Assert that an email was sent to an address.
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@api @email":
       """
       Given I am logged in as a user with the "administrator" role
       Then an email is sent to "test@example.com"
