@@ -4,7 +4,7 @@
  * @file
  * Context to run tests using Behat through CLI.
  *
- * Straight copy fromBehat project.
+ * Straight copy from Behat project.
  * @see https://raw.githubusercontent.com/Behat/Behat/master/features/bootstrap/FeatureContext.php
  *
  * Changes made to this calss:
