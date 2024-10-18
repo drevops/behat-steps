@@ -94,14 +94,16 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 
 class FeatureContext extends DrupalContext {
   {{USE_IN_CLASS}}
-  
+
+  use FeatureContextTrait;
+
   /**
    * @Given I throw test exception with message :message
    */
   public function throwTestException($message) {
     throw new \RuntimeException($message);
   }
-  
+
   /**
    * @Given set Drupal7 watchdog error level :level
    * @Given set Drupal7 watchdog error level :level of type :type
@@ -117,7 +119,7 @@ class FeatureContext extends DrupalContext {
   public function setWatchdogErrorDrupal9($level, $type = 'php') {
     \Drupal::logger($type)->log($level, 'test');
   }
-      
+
 }
 EOL;
 
@@ -126,6 +128,13 @@ EOL;
 
     $filename = $this->workingDir . DIRECTORY_SEPARATOR . 'features/bootstrap/FeatureContext.php';
     $this->createFile($filename, $content);
+
+    $feature_context_trait_content = file_get_contents(__DIR__ . '/FeatureContextTrait.php');
+    if ($feature_context_trait_content === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to access file "%s"', __DIR__ . '/FeatureContextTrait.php'));
+    }
+    $feature_context_trait = $this->workingDir . DIRECTORY_SEPARATOR . 'features/bootstrap/FeatureContextTrait.php';
+    $this->createFile($feature_context_trait, $feature_context_trait_content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'FeatureContext.php');
@@ -185,13 +194,13 @@ default:
     Drupal\MinkExtension:
       browserkit_http: ~
       selenium2: ~
-      base_url: http://nginx:8080      
+      base_url: http://nginx:8080
       browser_name: chrome
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
         capabilities: { "browser": "chrome", "version": "*", "marionette": true, "extra_capabilities": { "chromeOptions": { "w3c": false } } }
       javascript_session: selenium2
-      
+
     Drupal\DrupalExtension:
       api_driver: drupal
       drupal:

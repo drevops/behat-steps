@@ -7,6 +7,7 @@
 
 use DrevOps\BehatSteps\BigPipeTrait;
 use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
 use DrevOps\BehatSteps\DraggableViewsTrait;
 use DrevOps\BehatSteps\EckTrait;
@@ -43,6 +44,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
+  use CookieTrait;
   use ContentTrait;
   use EckTrait;
   use DateTrait;
@@ -77,6 +79,9 @@ class FeatureContext extends DrupalContext {
 
   /**
    * Override dateNow() method to return a preset value for testing.
+   *
+   * This cannot be moved to FeatureContextTrait because traits cannot override
+   * methods from other traits.
    */
   public static function dateNow(): int {
     return strtotime('2024-07-15 12:00:00');

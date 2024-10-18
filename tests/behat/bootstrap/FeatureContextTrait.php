@@ -16,6 +16,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\file\Entity\File;
+use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * Defines application features from the specific context.
@@ -206,6 +207,31 @@ trait FeatureContextTrait {
 
     if (!$entity) {
       throw new \Exception(sprintf('Entity of type "%s" does not exist in DB with UUID "%s", but it should', $entity_type, $uuid));
+    }
+  }
+
+  /**
+   * @Given I set a test cookie with name :name and value :value
+   */
+  public function testSetCookie(string $name, string $value): void {
+    $session = $this->getSession();
+
+    $driver = $session->getDriver();
+
+    // WebDriver-based drivers like Selenium2Driver.
+    if (method_exists($driver, 'getWebDriverSession')) {
+      $driver->getWebDriverSession()->setCookie([
+        'name' => $name,
+        'value' => rawurlencode($value),
+        'secure' => FALSE,
+      ]);
+    }
+
+    // BrowserKit-based drivers like GoutteDriver.
+    if (method_exists($driver, 'getClient')) {
+      $cookie_jar = $driver->getClient()->getCookieJar();
+      $cookie = new Cookie($name, rawurlencode($value));
+      $cookie_jar->set($cookie);
     }
   }
 
