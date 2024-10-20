@@ -1,4 +1,4 @@
-Feature: Check that email assertions work for or D9
+Feature: Check that EmailTrait works
 
   @api @email
   Scenario: As a developer, I want to know that test email system is automatically

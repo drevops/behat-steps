@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\media\Entity\Media;
+use Drupal\media\MediaInterface;
 
 /**
  * Trait MediaTrait.
@@ -21,9 +22,9 @@ trait MediaTrait {
   /**
    * Array of created media entities.
    *
-   * @var array
+   * @var array<int,\Drupal\media\MediaInterface>
    */
-  protected $media = [];
+  protected $mediaEntities = [];
 
   /**
    * Remove any created media items.
@@ -36,10 +37,10 @@ trait MediaTrait {
       return;
     }
 
-    foreach ($this->media as $media) {
+    foreach ($this->mediaEntities as $media) {
       $media->delete();
     }
-    $this->media = [];
+    $this->mediaEntities = [];
   }
 
   /**
@@ -90,91 +91,12 @@ trait MediaTrait {
    *
    * @Given /^no ([a-zA-z0-9_-]+) media:$/
    */
-  public function mediaDelete(string $type, TableNode $nodesTable): void {
-    foreach ($nodesTable->getHash() as $nodeHash) {
-      $ids = $this->mediaLoadMultiple($type, $nodeHash);
-
+  public function mediaDelete(string $type, TableNode $table): void {
+    foreach ($table->getHash() as $node_hash) {
+      $ids = $this->mediaLoadMultiple($type, $node_hash);
       $controller = \Drupal::entityTypeManager()->getStorage('media');
       $entities = $controller->loadMultiple($ids);
       $controller->delete($entities);
-    }
-  }
-
-  /**
-   * Create a single media item.
-   */
-  protected function mediaCreateSingle(\StdClass $stub) {
-    $this->parseEntityFields('media', $stub);
-    $saved = $this->mediaCreateEntity($stub);
-    $this->media[] = $saved;
-
-    return $saved;
-  }
-
-  /**
-   * Create media entity.
-   */
-  protected function mediaCreateEntity(\StdClass $stub) {
-    // Throw an exception if the media type is missing or does not exist.
-    if (!property_exists($stub, 'bundle') || $stub->bundle === NULL || !$stub->bundle) {
-      throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
-    }
-
-    $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
-    if (!in_array($stub->bundle, array_keys($bundles))) {
-      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
-    }
-
-    $this->mediaExpandEntityFieldsFixtures($stub);
-
-    $this->mediaExpandEntityFields('media', $stub);
-
-    $entity = Media::create((array) $stub);
-    $entity->save();
-
-    return $entity;
-  }
-
-  /**
-   * Expand parsed fields into expected field values based on field type.
-   *
-   * This is a re-use of the functionality provided by DrupalExtension.
-   */
-  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub): void {
-    $core = $this->getDriver()->getCore();
-
-    $class = new \ReflectionClass($core::class);
-    $method = $class->getMethod('expandEntityFields');
-    $method->setAccessible(TRUE);
-
-    $method->invokeArgs($core, func_get_args());
-  }
-
-  /**
-   * Expand entity fields with fixture values.
-   */
-  protected function mediaExpandEntityFieldsFixtures(\StdClass $stub) {
-    $fixture_path = $this->getMinkParameter('files_path') ? rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : NULL;
-
-    $fields = get_object_vars($stub);
-
-    $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
-
-    foreach ($fields as $name => $value) {
-      if (!str_contains($name, 'field_')) {
-        continue;
-      }
-
-      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
-        if (is_array($value)) {
-          if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
-            $stub->{$name}[0] = $fixture_path . $value[0];
-          }
-        }
-        elseif (is_file($fixture_path . $value)) {
-          $stub->{$name} = $fixture_path . $value;
-        }
-      }
     }
   }
 
@@ -203,17 +125,121 @@ trait MediaTrait {
   }
 
   /**
+   * Create a single media item.
+   *
+   * @param \StdClass $stub
+   *   The media item properties.
+   *
+   * @return \Drupal\media\MediaInterface
+   *   The created media item.
+   */
+  protected function mediaCreateSingle(\StdClass $stub): MediaInterface {
+    $this->parseEntityFields('media', $stub);
+    $saved = $this->mediaCreateEntity($stub);
+    $this->mediaEntities[] = $saved;
+
+    return $saved;
+  }
+
+  /**
+   * Create media entity.
+   *
+   * @param \StdClass $stub
+   *   The media entity properties.
+   *
+   * @return \Drupal\media\MediaInterface
+   *   The created media entity.
+   */
+  protected function mediaCreateEntity(\StdClass $stub): MediaInterface {
+    // Throw an exception if the media type is missing or does not exist.
+    if (!property_exists($stub, 'bundle') || $stub->bundle === NULL || !$stub->bundle) {
+      throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
+    }
+
+    $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
+    if (!in_array($stub->bundle, array_keys($bundles))) {
+      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
+    }
+
+    $this->mediaExpandEntityFieldsFixtures($stub);
+
+    $this->mediaExpandEntityFields('media', $stub);
+
+    $entity = Media::create((array) $stub);
+    $entity->save();
+
+    return $entity;
+  }
+
+  /**
+   * Expand parsed fields into expected field values based on field type.
+   *
+   * This is a re-use of the functionality provided by DrupalExtension.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param \StdClass $stub
+   *   The entity stub.
+   */
+  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub): void {
+    $core = $this->getDriver()->getCore();
+
+    $class = new \ReflectionClass($core::class);
+    $method = $class->getMethod('expandEntityFields');
+    $method->setAccessible(TRUE);
+
+    $method->invokeArgs($core, func_get_args());
+  }
+
+  /**
+   * Expand entity fields with fixture values.
+   *
+   * @param \StdClass $stub
+   *   The entity stub.
+   */
+  protected function mediaExpandEntityFieldsFixtures(\StdClass $stub): void {
+    if (!empty($this->getMinkParameter('files_path'))) {
+      $fixture_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    }
+
+    if (empty($fixture_path) || !is_dir($fixture_path)) {
+      throw new \RuntimeException('Fixture files path is not set or does not exist. Check that the "files_path" parameter is set for Mink.');
+    }
+
+    $fields = get_object_vars($stub);
+
+    $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
+
+    foreach ($fields as $name => $value) {
+      if (!str_contains($name, 'field_')) {
+        continue;
+      }
+
+      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
+        if (is_array($value)) {
+          if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
+            $stub->{$name}[0] = $fixture_path . $value[0];
+          }
+        }
+        elseif (is_file($fixture_path . $value)) {
+          $stub->{$name} = $fixture_path . $value;
+        }
+      }
+    }
+  }
+
+  /**
    * Load multiple media entities with specified type and conditions.
    *
    * @param string $type
    *   The node type.
-   * @param array $conditions
+   * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of node ids.
    */
-  protected function mediaLoadMultiple(string $type, array $conditions = []) {
+  protected function mediaLoadMultiple(string $type, array $conditions = []): array {
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)
       ->condition('bundle', $type);

@@ -5,6 +5,8 @@
  * Feature context for testing Behat-steps.
  */
 
+declare(strict_types=1);
+
 use DrevOps\BehatSteps\BigPipeTrait;
 use DrevOps\BehatSteps\ContentTrait;
 use DrevOps\BehatSteps\CookieTrait;
@@ -83,7 +85,7 @@ class FeatureContext extends DrupalContext {
    * This cannot be moved to FeatureContextTrait because traits cannot override
    * methods from other traits.
    */
-  public static function dateNow(): int {
+  protected static function dateNow(): int {
     return strtotime('2024-07-15 12:00:00');
   }
 

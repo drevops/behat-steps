@@ -19,15 +19,17 @@ trait RoleTrait {
 
   /**
    * Roles ids.
+   *
+   * @var array<string,string>
    */
-  protected array $rolesNeedClean = [];
+  protected array $rolesIds = [];
 
   /**
    * Create a single role with specified permissions.
    *
    * @Given role :name with permissions :permissions
    */
-  public function roleCreateSingle(string $name, string $permissions) {
+  public function roleCreateSingle(string $name, string $permissions): void {
     $permissions = array_map(trim(...), explode(',', $permissions));
 
     $rid = strtolower($name);
@@ -38,22 +40,19 @@ trait RoleTrait {
       $existing_role->delete();
     }
 
+    /** @var \Drupal\user\RoleInterface $role */
     $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
       'id' => $rid,
       'label' => $name,
     ]);
     $saved = $role->save();
 
-    if ($saved === SAVED_NEW) {
-      user_role_grant_permissions($role->id(), $permissions);
-      // Mark for clean later.
-      $this->rolesNeedClean[$role->id()] = $role->id();
-
-      return Role::load($role->id());
-
+    if ($saved !== SAVED_NEW) {
+      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
+    $this->rolesIds[(string) $role->id()] = (string) $role->id();
 
-    throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
+    user_role_grant_permissions($role->id(), $permissions);
   }
 
   /**
@@ -83,14 +82,14 @@ trait RoleTrait {
       return;
     }
 
-    foreach ($this->rolesNeedClean as $rid) {
+    foreach ($this->rolesIds as $rid) {
       $role = Role::load($rid);
       if ($role) {
         $role->delete();
       }
     }
 
-    $this->rolesNeedClean = [];
+    $this->rolesIds = [];
   }
 
 }

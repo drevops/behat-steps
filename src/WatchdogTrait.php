@@ -27,7 +27,7 @@ trait WatchdogTrait {
   /**
    * Array of watchdog message types.
    *
-   * @var array
+   * @var array<int, string>
    */
   protected $watchdogMessageTypes = [];
 
@@ -54,12 +54,12 @@ trait WatchdogTrait {
    * @watchdog:my_module_type @watchdog:my_other_module_type
    * @endcode
    *
-   * @param array $tags
+   * @param array<int,string> $tags
    *   Array of scenario tags.
    * @param string $prefix
    *   Optional tag prefix to filter by.
    *
-   * @return array
+   * @return array<int,string>
    *   Array of message types. 'php' is always added to the list.
    */
   protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {

@@ -10,6 +10,8 @@
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 
+declare(strict_types=1);
+
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
@@ -30,7 +32,7 @@ trait FeatureContextTrait {
    *
    * @AfterFeature @errorcleanup
    */
-  public static function cleanWatchdog(AfterFeatureScope $scope) {
+  public static function testClearWatchdog(AfterFeatureScope $scope): void {
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
@@ -40,7 +42,7 @@ trait FeatureContextTrait {
   /**
    * @Then user :name does not exist
    */
-  public function userDoesNotExist($name) {
+  public function testAssertUserDoesNotExist(string $name): void {
     // We need to check that user was removed from both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
@@ -52,7 +54,7 @@ trait FeatureContextTrait {
     try {
       $this->getUserManager()->getUser($name);
     }
-    catch (\Exception $exception) {
+    catch (\Exception) {
       return;
     }
 
@@ -63,15 +65,15 @@ trait FeatureContextTrait {
    * @Given set watchdog error level :level
    * @Given set watchdog error level :level of type :type
    */
-  public function setWatchdogErrorDrupal9($level, $type = 'php') {
+  public function testSetWatchdogError(string $level, string $type = 'php'): void {
     \Drupal::logger($type)->log($level, 'test');
   }
 
   /**
    * @Given cookie :name exists
    */
-  public function assertCookieExists($name) {
-    $cookies = $this->getCookies();
+  public function testAssertCookieExists(string $name): void {
+    $cookies = $this->testGetAllCookies();
 
     if (!isset($cookies[$name])) {
       throw new \Exception(sprintf('Cookie "%s" does not exist.', $name));
@@ -79,31 +81,10 @@ trait FeatureContextTrait {
   }
 
   /**
-   * Get a list of cookies.
-   */
-  protected function getCookies() {
-    $cookie_list = [];
-
-    $driver = $this->getSession()->getDriver();
-    if ($driver instanceof Selenium2Driver) {
-      $cookies = $driver->getWebDriverSession()->getAllCookies();
-      foreach ($cookies as $cookie) {
-        $cookie_list[$cookie['name']] = $cookie['value'];
-      }
-    }
-    else {
-      /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
-      $cookie_list = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
-    }
-
-    return $cookie_list;
-  }
-
-  /**
    * @Given cookie :name does not exist
    */
-  public function assertCookieNotExists($name) {
-    $cookies = $this->getCookies();
+  public function testAssertCookieNotExists(string $name): void {
+    $cookies = $this->testGetAllCookies();
 
     if (isset($cookies[$name])) {
       throw new \Exception(sprintf('Cookie "%s" exists but should not.', $name));
@@ -113,7 +94,7 @@ trait FeatureContextTrait {
   /**
    * @Given I install a :name module
    */
-  public function installModule($name) {
+  public function testInstallModule(string $name): void {
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
     if ($module_handler->moduleExists($name)) {
@@ -126,8 +107,8 @@ trait FeatureContextTrait {
     try {
       $result = $module_installer->install([$name]);
     }
-    catch (MissingDependencyException $exception) {
-      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $exception->getMessage()));
+    catch (MissingDependencyException $missingDependencyException) {
+      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $missingDependencyException->getMessage()), $missingDependencyException->getCode(), $missingDependencyException);
     }
 
     if (!$result) {
@@ -138,7 +119,7 @@ trait FeatureContextTrait {
   /**
    * @Given I uninstall a :name module
    */
-  public function uninstallModule($name) {
+  public function testUninstallModule(string $name): void {
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
     if (!$module_handler->moduleExists($name)) {
@@ -159,7 +140,7 @@ trait FeatureContextTrait {
    * @When I send test email to :email with
    * @When I send test email to :email with:
    */
-  public function sendTestEmail($email, PyStringNode $string) {
+  public function testSendEmail(string $email, PyStringNode $string): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email',
@@ -173,7 +154,7 @@ trait FeatureContextTrait {
   /**
    * @Then :file_name file object exists
    */
-  public function fileObjectExist($file_name) {
+  public function testAssertFileObjectExists(string $file_name): void {
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
     if (empty($fids)) {
@@ -191,7 +172,7 @@ trait FeatureContextTrait {
   /**
    * @Then no :file_name file object exists
    */
-  public function noFileObjectExist($file_name) {
+  public function testAssertFileObjectNotExists(string $file_name): void {
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
     if ($fids) {
@@ -202,12 +183,36 @@ trait FeatureContextTrait {
   /**
    * @Then :entity_type entity exists with UUID :uuid
    */
-  public function entityExistsByUuid($entity_type, $uuid) {
+  public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
     $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
     if (!$entity) {
       throw new \Exception(sprintf('Entity of type "%s" does not exist in DB with UUID "%s", but it should', $entity_type, $uuid));
     }
+  }
+
+  /**
+   * Get a list of cookies.
+   *
+   * @return array<string, string>
+   *   List of cookies.
+   */
+  protected function testGetAllCookies(): array {
+    $cookie_list = [];
+
+    $driver = $this->getSession()->getDriver();
+    if ($driver instanceof Selenium2Driver) {
+      $cookies = $driver->getWebDriverSession()->getAllCookies();
+      foreach ($cookies as $cookie) {
+        $cookie_list[$cookie['name']] = $cookie['value'];
+      }
+    }
+    else {
+      /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+      $cookie_list = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
+    }
+
+    return $cookie_list;
   }
 
   /**

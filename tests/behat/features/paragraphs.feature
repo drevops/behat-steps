@@ -1,4 +1,4 @@
-Feature: Check that ParagraphsTrait works for or D9
+Feature: Check that ParagraphsTrait works
 
   Background:
     Given I am logged in as a user with the "administrator" role

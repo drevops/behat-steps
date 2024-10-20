@@ -25,7 +25,7 @@ trait SearchApiTrait {
    * @When I index :type :title for search
    */
   public function searchApiIndexContent(string $type, string $title): void {
-    $nids = $this->contentNodeLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
 

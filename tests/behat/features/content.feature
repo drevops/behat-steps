@@ -1,4 +1,4 @@
-Feature: Check that ContentTrait works for or D9
+Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert visiting a page with title of specified content type

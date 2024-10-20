@@ -1,5 +1,5 @@
 @errorcleanup
-Feature: Check that WatchdogTrait works for or D9
+Feature: Check that WatchdogTrait works
 
   @trait:WatchdogTrait
   Scenario: Assert that watchdog fails with an error

@@ -82,6 +82,7 @@ trait TaxonomyTrait {
         'name' => $name,
         'vid' => $vocabulary,
       ]);
+
       /** @var \Drupal\taxonomy\Entity\Term $term */
       foreach ($terms as $term) {
         $term->delete();
@@ -104,10 +105,11 @@ trait TaxonomyTrait {
     }
 
     ksort($tids);
-
     $tid = end($tids);
+
     $path = $this->locatePath('/taxonomy/term/' . $tid);
     print $path;
+
     $this->getSession()->visit($path);
   }
 
@@ -126,10 +128,11 @@ trait TaxonomyTrait {
     }
 
     ksort($tids);
-
     $tid = end($tids);
+
     $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
     print $path;
+
     $this->getSession()->visit($path);
   }
 
@@ -138,13 +141,13 @@ trait TaxonomyTrait {
    *
    * @param string $vocabulary
    *   The term vocabulary.
-   * @param array $conditions
+   * @param array<string,string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of term ids.
    */
-  protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): int|array {
+  protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)
       ->condition('vid', $vocabulary);

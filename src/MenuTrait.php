@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
+use Drupal\system\MenuInterface;
 
 /**
  * Trait MenuTrait.
@@ -43,11 +44,9 @@ trait MenuTrait {
    */
   public function menuDelete(TableNode $table): void {
     foreach ($table->getColumn(0) as $label) {
-      try {
-        $menu = $this->loadMenuByLabel($label);
+      $menu = $this->loadMenuByLabel($label);
+      if ($menu instanceof MenuInterface) {
         $menu->delete();
-      }
-      catch (\Exception) {
       }
     }
   }
@@ -66,14 +65,16 @@ trait MenuTrait {
   public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
-        // Create menu id if one not provided.
+        // Create menu id if one was not provided.
         $menu_id = strtolower((string) $menu_hash['label']);
         $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
         $menu_id = preg_replace('/_+/', '_', (string) $menu_id);
         $menu_hash['id'] = $menu_id;
       }
+
       $menu = Menu::create($menu_hash);
       $menu->save();
+
       $this->menus[] = $menu;
     }
   }
@@ -89,12 +90,9 @@ trait MenuTrait {
    */
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
     foreach ($table->getColumn(0) as $title) {
-      try {
-        $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
-        $menu_link?->delete();
-      }
-      catch (\Exception) {
-        continue;
+      $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
+      if ($menu_link instanceof MenuLinkContent) {
+        $menu_link->delete();
       }
     }
   }
@@ -113,6 +111,11 @@ trait MenuTrait {
    */
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
+
+    if (!$menu instanceof MenuInterface) {
+      throw new \RuntimeException(sprintf('Menu "%s" not found', $menu_name));
+    }
+
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
       // Add uri to correct property.
@@ -142,64 +145,76 @@ trait MenuTrait {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // Clean up created menus.
-    foreach ($this->menus as $menu) {
-      try {
-        $menu->delete();
-      }
-      catch (\Exception) {
-        // Ignore the exception and move on.
-        continue;
-      }
-    }
-    // Clean up menu links.
-    foreach ($this->menuLinks as $menu_link) {
-      try {
-        $menu_link->delete();
-      }
-      catch (\Exception) {
-        // Ignore the exception and move on.
-        continue;
-      }
-    }
 
+    foreach ($this->menuLinks as $menu_link) {
+      $menu_link->delete();
+    }
     $this->menuLinks = [];
 
+    foreach ($this->menus as $menu) {
+      $menu->delete();
+    }
     $this->menus = [];
   }
 
   /**
    * Gets a menu by label.
+   *
+   * @param string $label
+   *   The label of the menu.
+   *
+   * @return \Drupal\system\MenuInterface|null
+   *   The menu or NULL if not found.
    */
-  protected function loadMenuByLabel(string $label) {
+  protected function loadMenuByLabel(string $label): ?MenuInterface {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
-    $query = $entity_type_manager->getStorage('menu')->getQuery();
-    $query->accessCheck(FALSE);
-    $query->condition('label', $label);
-    $menu_ids = $query->execute();
-    $menu_id = reset($menu_ids);
-    if ($menu_id === FALSE) {
-      throw new \Exception(sprintf('Could not find the %s menu.', $label));
+    $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('label', $label)
+      ->execute();
+
+    if (empty($menu_ids)) {
+      return NULL;
     }
+
+    $menu_id = reset($menu_ids);
 
     return Menu::load($menu_id);
   }
 
   /**
    * Gets a menu link by title and menu name.
+   *
+   * @param string $title
+   *   The title of the menu link.
+   * @param string $menu_name
+   *   The name of the menu.
+   *
+   * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
+   *   The menu link or NULL if not found.
    */
-  protected function loadMenuLinkByTitle(string $title, string $menu_name) {
+  protected function loadMenuLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
     $menu = $this->loadMenuByLabel($menu_name);
+
+    if (!$menu instanceof MenuInterface) {
+      return NULL;
+    }
+
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
-    $query = $entity_type_manager->getStorage('menu_link_content')->getQuery();
-    $query->accessCheck(FALSE);
-    $menu_link_ids = $query->condition('menu_name', $menu->id())->condition('title', $title)->execute();
-    $menu_link_id = reset($menu_link_ids);
-    if ($menu_link_id === FALSE) {
-      throw new \Exception(sprintf('Could not find the %s menu link in %s menu.', $title, $menu_name));
+
+    $menu_link_ids = $entity_type_manager->getStorage('menu_link_content')->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('menu_name', $menu->id())
+      ->condition('title', $title)
+      ->execute();
+
+    if (empty($menu_link_ids)) {
+      return NULL;
     }
+
+    $menu_link_id = reset($menu_link_ids);
 
     return MenuLinkContent::load($menu_link_id);
   }

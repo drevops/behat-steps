@@ -7,6 +7,8 @@
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 
+declare(strict_types=1);
+
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use PHPUnit\Framework\Assert;
@@ -21,16 +23,16 @@ trait BehatCliTrait {
   /**
    * @BeforeScenario
    */
-  public function behatCliBeforeScenario(BeforeScenarioScope $scope) {
+  public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $traits = [];
 
     // Scan scenario tags and extract trait names from tags starting with
     // 'trait:'. For example, @trait:PathTrait or @trait:D7\\UserTrait.
     foreach ($scope->getScenario()->getTags() as $tag) {
-      if (strpos($tag, 'trait:') === 0) {
+      if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);
-        $tags = array_map(function ($value) {
+        $tags = array_map(function ($value): string {
           return trim(str_replace('\\\\', '\\', $value));
         }, $tags);
         $traits = array_merge($traits, $tags);
@@ -52,7 +54,7 @@ trait BehatCliTrait {
   /**
    * @BeforeStep
    */
-  public function behatCliBeforeStep() {
+  public function behatCliBeforeStep(): void {
     // Drupal Extension >= ^5 is coupled with Drupal core's DrupalTestBrowser.
     // This requires Drupal root to be discoverable when running Behat from a
     // random directory using Drupal Finder.
@@ -74,14 +76,14 @@ trait BehatCliTrait {
    * @return string
    *   Path to written file.
    */
-  public function behatCliWriteFeatureContextFile(array $traits = []) {
+  public function behatCliWriteFeatureContextFile(array $traits = []): string {
     $tokens = [
       '{{USE_DECLARATION}}' => '',
       '{{USE_IN_CLASS}}' => '',
     ];
     foreach ($traits as $trait) {
       $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s;' . PHP_EOL, $trait);
-      $trait_name__parts = explode('\\', $trait);
+      $trait_name__parts = explode('\\', (string) $trait);
       $trait_name = end($trait_name__parts);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);
     }
@@ -116,7 +118,7 @@ class FeatureContext extends DrupalContext {
    * @Given set watchdog error level :level
    * @Given set watchdog error level :level of type :type
    */
-  public function setWatchdogErrorDrupal9($level, $type = 'php') {
+  public function testSetWatchdogError($level, $type = 'php') {
     \Drupal::logger($type)->log($level, 'test');
   }
 
@@ -146,7 +148,7 @@ EOL;
   /**
    * @Given /^scenario steps(?: tagged with "([^"]*)")?:$/
    */
-  public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = '') {
+  public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
     // Make sure that indentation in provided content is accurate.
@@ -182,7 +184,7 @@ EOL;
   /**
    * @Given some behat configuration
    */
-  public function behatCliWriteBehatYml() {
+  public function behatCliWriteBehatYml(): void {
     $content = <<<'EOL'
 default:
   suites:
@@ -218,7 +220,7 @@ EOL;
   /**
    * @Then it should fail with an error:
    */
-  public function behatCliAssertFailWithError(PyStringNode $message) {
+  public function behatCliAssertFailWithError(PyStringNode $message): void {
     $this->itShouldFail('fail');
     Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
     // Enforce \Exception for all assertion exceptions. Non-assertion
@@ -230,7 +232,7 @@ EOL;
   /**
    * @Then it should fail with an exception:
    */
-  public function behatCliAssertFailWithException(PyStringNode $message) {
+  public function behatCliAssertFailWithException(PyStringNode $message): void {
     $this->itShouldFail('fail');
     Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
@@ -242,24 +244,24 @@ EOL;
   /**
    * Helper to print file comments.
    */
-  protected static function behatCliPrintFileContents($filename, $title = '') {
+  protected static function behatCliPrintFileContents(string $filename, $title = '') {
     if (!is_readable($filename)) {
       throw new \RuntimeException(sprintf('Unable to access file "%s"', $filename));
     }
 
     $content = file_get_contents($filename);
 
-    print "-------------------- $title START --------------------" . PHP_EOL;
+    print sprintf('-------------------- %s START --------------------', $title) . PHP_EOL;
     print $filename . PHP_EOL;
     print_r($content);
     print PHP_EOL;
-    print "-------------------- $title FINISH --------------------" . PHP_EOL;
+    print sprintf('-------------------- %s FINISH --------------------', $title) . PHP_EOL;
   }
 
   /**
    * Helper to check if debug mode is enabled.
    */
-  protected static function behatCliIsDebug() {
+  protected static function behatCliIsDebug(): bool {
     // Change to TRUE to see debug messages for this trait.
     return FALSE;
   }

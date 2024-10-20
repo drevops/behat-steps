@@ -182,7 +182,7 @@ trait LinkTrait {
   /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
-  protected function linkFixStepArgument(string $argument): string|array {
+  protected function linkFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
   }
 

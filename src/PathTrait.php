@@ -27,8 +27,17 @@ trait PathTrait {
    */
   public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
+    if (empty($current_path)) {
+      throw new \Exception('Current path is empty');
+    }
+
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
-    $current_path = ltrim($current_path, '/');
+
+    if ($current_path === FALSE) {
+      throw new \Exception('Current path is not a valid URL');
+    }
+
+    $current_path = ltrim((string) $current_path, '/');
     $current_path = $current_path === '' ? '<front>' : $current_path;
 
     if ($current_path !== ltrim($path, '/')) {
@@ -50,8 +59,17 @@ trait PathTrait {
    */
   public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
+    if (empty($current_path)) {
+      throw new \Exception('Current path is empty');
+    }
+
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
-    $current_path = ltrim($current_path, '/');
+
+    if ($current_path === FALSE) {
+      throw new \Exception('Current path is not a valid URL');
+    }
+
+    $current_path = ltrim((string) $current_path, '/');
     $current_path = $current_path === '' ? '<front>' : $current_path;
 
     if ($current_path === $path) {

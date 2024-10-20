@@ -140,7 +140,7 @@ trait KeyboardTrait {
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
    */
-  protected function keyboardTriggerKey(string $xpath, string $key) {
+  protected function keyboardTriggerKey(string $xpath, string $key): void {
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);

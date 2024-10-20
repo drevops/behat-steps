@@ -8,6 +8,8 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Database\StatementInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Trait EmailTrait.
@@ -21,7 +23,7 @@ trait EmailTrait {
   /**
    * List of email service types.
    *
-   * @var array
+   * @var array<int, string>
    */
   protected $emailTypes = [];
 
@@ -154,7 +156,7 @@ trait EmailTrait {
    *
    * @Then an email header :header contains:
    */
-  public function emailAssertEmailHeadersContains(string $header, PyStringNode $string, bool $exact = FALSE): array {
+  public function emailAssertEmailHeaderContains(string $header, PyStringNode $string, bool $exact = FALSE): void {
     $string_value = (string) $string;
     $string_value = $exact ? $string_value : trim((string) preg_replace('/\s+/', ' ', $string_value));
 
@@ -163,7 +165,7 @@ trait EmailTrait {
       $header_value = $exact ? $header_value : trim((string) preg_replace('/\s+/', ' ', (string) $header_value));
 
       if (str_contains((string) $header_value, $string_value)) {
-        return $record;
+        return;
       }
     }
 
@@ -175,8 +177,8 @@ trait EmailTrait {
    *
    * @Then an email header :header contains exact:
    */
-  public function emailAssertEmailHeadersContainsExact(string $header, PyStringNode $string): void {
-    $this->emailAssertEmailHeadersContains($header, $string, TRUE);
+  public function emailAssertEmailHeaderContainsExact(string $header, PyStringNode $string): void {
+    $this->emailAssertEmailHeaderContains($header, $string, TRUE);
   }
 
   /**
@@ -186,12 +188,13 @@ trait EmailTrait {
    */
   public function emailAssertEmailToUserIsActionWithContent(string $name, string $action, string $field, PyStringNode $string): void {
     $user = $name === 'current' && !empty($this->getUserManager()->getCurrentUser()) ? $this->getUserManager()->getCurrentUser() : user_load_by_name($name);
-    if (!$user) {
+
+    if (!$user instanceof UserInterface) {
       throw new \Exception(sprintf('Unable to find a user "%s"', $name));
     }
 
     if ($action === 'sent') {
-      $this->emailAssertEmailContains('to', new PyStringNode([$user->mail], 0), TRUE);
+      $this->emailAssertEmailContains('to', new PyStringNode([$user->getEmail()], 0), TRUE);
       $this->emailAssertEmailContains($field, $string);
     }
     elseif ($action === 'not sent') {
@@ -208,24 +211,12 @@ trait EmailTrait {
    * @Then an email :field contains
    * @Then an email :field contains:
    */
-  public function emailAssertEmailContains(string $field, PyStringNode $string, bool $exact = FALSE): array {
-    if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
-      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
+  public function emailAssertEmailContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
+    $email = $this->emailFind($field, $string, $exact);
+
+    if (!$email) {
+      throw new \Exception(sprintf('Unable to find email with%s text "%s" in field "%s" retrieved from test email collector.', ($exact ? ' exact' : ''), $string, $field));
     }
-
-    $string = strval($string);
-    $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
-
-    foreach (self::emailGetCollectedEmails() as $record) {
-      $field_string = $record[$field] ?? '';
-      $field_string = $exact ? $field_string : trim((string) preg_replace('/\s+/', ' ', (string) $field_string));
-
-      if (str_contains((string) $field_string, $string)) {
-        return $record;
-      }
-    }
-
-    throw new \Exception(sprintf('Unable to find email with%s text "%s" in field "%s" retrieved from test email collector.', ($exact ? ' exact' : ''), $string, $field));
   }
 
   /**
@@ -280,8 +271,23 @@ trait EmailTrait {
   public function emailFollowLinkNumber(string $number, PyStringNode $subject): void {
     $number = intval($number);
 
-    $email = $this->emailAssertEmailContains('subject', $subject);
-    $links = self::emailExtractLinks($email['params']['body'] ?? $email['body'] ?? '');
+    $email = $this->emailFind('subject', $subject);
+
+    if (!$email) {
+      throw new \Exception(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject));
+    }
+
+    if (isset($email['params']['body']) && is_string($email['params']['body'])) {
+      $body = $email['params']['body'];
+    }
+    elseif (is_string($email['body'])) {
+      $body = $email['body'];
+    }
+    else {
+      throw new \Exception('No body found in email');
+    }
+
+    $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
       throw new \Exception(sprintf('No links were found in the email with subject %s', $subject));
@@ -303,11 +309,17 @@ trait EmailTrait {
    * @Then file :name attached to the email with the subject:
    */
   public function emailAssertEmailContainsAttachmentWithName(string $name, PyStringNode $subject): void {
-    $email = $this->emailAssertEmailContains('subject', $subject);
+    $email = $this->emailFind('subject', $subject);
 
-    foreach ($email['params']['attachments'] as $attachment) {
-      if ($attachment['filename'] == $name) {
-        return;
+    if (!$email) {
+      throw new \Exception(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject));
+    }
+
+    if (!empty($email['params']['attachments'])) {
+      foreach ($email['params']['attachments'] as $attachment) {
+        if ($attachment['filename'] == $name) {
+          return;
+        }
       }
     }
 
@@ -397,11 +409,18 @@ trait EmailTrait {
 
   /**
    * Get emails collected during the test.
+   *
+   * @return array<string,array<string,mixed>>
+   *   Array of collected emails.
    */
   protected function emailGetCollectedEmails(): array {
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
-    $emails = array_map(unserialize(...), Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'")->fetchAllKeyed());
+    $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");
+
+    if ($query instanceof StatementInterface) {
+      $emails = array_map(unserialize(...), $query->fetchAllKeyed());
+    }
 
     $emails = empty($emails['system.test_mail_collector']) ? [] : $emails['system.test_mail_collector'];
 
@@ -423,12 +442,45 @@ trait EmailTrait {
   }
 
   /**
+   * Find an email message field containing a value.
+   *
+   * @param string $field
+   *   Field to search in.
+   * @param \Behat\Gherkin\Node\PyStringNode $string
+   *   String to search for.
+   * @param bool $exact
+   *   Whether to search for an exact match.
+   *
+   * @return array<string,string|array<string,mixed>>|null
+   *   Email record or NULL if not found.
+   */
+  protected function emailFind(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
+    if (!in_array($field, ['subject', 'body', 'to', 'from'])) {
+      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
+    }
+
+    $string = strval($string);
+    $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
+
+    foreach (self::emailGetCollectedEmails() as $record) {
+      $field_string = $record[$field] ?? '';
+      $field_string = $exact ? $field_string : trim((string) preg_replace('/\s+/', ' ', (string) $field_string));
+
+      if (str_contains((string) $field_string, $string)) {
+        return $record;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
    * Extract all links from provided string.
    *
    * @param string $string
    *   String to extract links from.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of extracted links.
    */
   protected static function emailExtractLinks(string $string): array {
@@ -445,6 +497,12 @@ trait EmailTrait {
 
   /**
    * Extract email types from tags.
+   *
+   * @param array<int, string> $tags
+   *   Array of tags.
+   *
+   * @return array<int, string>
+   *   Array of email types.
    */
   protected static function emailExtractTypes(array $tags): array {
     $types = [];
