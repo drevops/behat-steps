@@ -64,8 +64,16 @@ trait DraggableViewsTrait {
 
   /**
    * Find a node using provided conditions.
+   *
+   * @param string $type
+   *   The node type.
+   * @param array<string, string> $conditions
+   *   The conditions to search for.
+   *
+   * @return \Drupal\node\NodeInterface|null
+   *   The found node or NULL.
    */
-  protected function draggableViewsFindNode(string $type, array $conditions): NodeInterface|NULL {
+  protected function draggableViewsFindNode(string $type, array $conditions): ?NodeInterface {
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);

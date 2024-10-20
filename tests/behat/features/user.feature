@@ -1,4 +1,4 @@
-Feature: Check that UserTrait works for or D9
+Feature: Check that UserTrait works
 
   Background:
     Given users:
@@ -64,9 +64,7 @@ Feature: Check that UserTrait works for or D9
   @api
   Scenario: Assert "Then user :name has :status status"
     Given user "authenticated_user" has "active" status
-
-    Given user "authenticated_user_disabled" has "not active" status
-    And user "authenticated_user_disabled" has "disabled" status
+    And user "authenticated_user_disabled" has "blocked" status
 
   @api
   Scenario: Assert "I set user :user password to :password"
@@ -81,7 +79,7 @@ Feature: Check that UserTrait works for or D9
       Given I set user "non_existing_user" password to "password123"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       Unable to find a user with name or email "non_existing_user".
       """

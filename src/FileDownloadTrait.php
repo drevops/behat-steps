@@ -24,7 +24,7 @@ trait FileDownloadTrait {
   /**
    * Information about downloaded file.
    *
-   * @var array
+   * @var array<string, mixed>
    */
   protected $fileDownloadDownloadedFileInfo;
 
@@ -147,15 +147,19 @@ trait FileDownloadTrait {
     if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
     }
+
     $lines = preg_split('/\R/', (string) $this->fileDownloadDownloadedFileInfo['content']);
-    foreach ($lines as $line) {
-      if (preg_match('/^\/.+\/[a-z]*$/i', $string)) {
-        if (preg_match($string, $line)) {
+
+    if (is_array($lines)) {
+      foreach ($lines as $line) {
+        if (preg_match('/^\/.+\/[a-z]*$/i', $string)) {
+          if (preg_match($string, $line)) {
+            return;
+          }
+        }
+        elseif (str_contains($line, $string)) {
           return;
         }
-      }
-      elseif (str_contains($line, $string)) {
-        return;
       }
     }
 
@@ -255,6 +259,14 @@ trait FileDownloadTrait {
 
   /**
    * Download file.
+   *
+   * @param string $url
+   *   URL to download file from.
+   * @param array<int, mixed> $options
+   *   CURL options.
+   *
+   * @return array<string, string>
+   *   Array of downloaded file information.
    */
   protected function fileDownloadProcess(string $url, array $options = []): array {
     $response_headers = [];
@@ -295,11 +307,17 @@ trait FileDownloadTrait {
 
     // Resolve file path and name.
     $dir = $this->fileDownloadGetTempDir();
+
     // Try to extract name from the download string.
     $url_file_name = parse_url($url, PHP_URL_PATH);
     $url_file_name = $url_file_name ? basename($url_file_name) : $url_file_name;
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
+
     $file_path = empty($headers['file_name']) ? tempnam($dir, 'behat') : $dir . DIRECTORY_SEPARATOR . $headers['file_name'];
+    if (!$file_path) {
+      throw new \RuntimeException('Unable to create temp file for downloaded content');
+    }
+
     $file_name = basename($file_path);
 
     // Write file contents.
@@ -316,14 +334,15 @@ trait FileDownloadTrait {
   /**
    * Extract downloaded file information from the response headers.
    *
-   * @param array $headers
+   * @param array<int,string> $headers
    *   Array of headers from CURL.
    *
-   * @return array
+   * @return array<string, string>
    *   Array of parsed headers, if any.
    */
   protected function fileDownloadParseHeaders(array $headers): array {
     $parsed_headers = [];
+
     foreach ($headers as $header) {
       if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);
@@ -332,7 +351,6 @@ trait FileDownloadTrait {
 
       if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['content_type'] = trim($matches[1]);
-        continue;
       }
     }
 

@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\paragraphs\ParagraphInterface;
 
 /**
  * Trait ParagraphsTrait.
@@ -23,9 +24,9 @@ trait ParagraphsTrait {
   /**
    * Array of created paragraph entities.
    *
-   * @var array
+   * @var array<int,\Drupal\paragraphs\ParagraphInterface>
    */
-  protected static $paragraphs = [];
+  protected static $paragraphEntities = [];
 
   /**
    * Clean all paragraphs instances after scenario run.
@@ -38,16 +39,10 @@ trait ParagraphsTrait {
       return;
     }
 
-    foreach (static::$paragraphs as $paragraph) {
-      try {
-        $paragraph->delete();
-      }
-      catch (\Exception) {
-        // Ignore the exception and move on.
-        continue;
-      }
+    foreach (static::$paragraphEntities as $paragraph) {
+      $paragraph->delete();
     }
-    static::$paragraphs = [];
+    static::$paragraphEntities = [];
   }
 
   /**
@@ -66,12 +61,11 @@ trait ParagraphsTrait {
 
     // Find previously created entity by entity_type, bundle and identifying
     // field value.
-    $entity = $this->paragraphsFindEntity([
-      'field_value' => $entity_field_identifer,
-      'field_name' => $entity_field_name,
-      'bundle' => $bundle,
-      'entity_type' => $entity_type,
-    ]);
+    $parent_entity = $this->paragraphsFindEntity($entity_type, $bundle, $entity_field_name, $entity_field_identifer);
+
+    if (!$parent_entity) {
+      throw new \RuntimeException(sprintf('Parent entity "%s" with field "%s" of value "%s" not found', $bundle, $entity_field_name, $entity_field_identifer));
+    }
 
     // Get fields from scenario, parse them and expand values according to
     // field tables.
@@ -80,16 +74,15 @@ trait ParagraphsTrait {
     $this->parseEntityFields('paragraph', $stub);
     $this->paragraphsExpandEntityFields('paragraph', $stub);
 
-    // Attach paragraph from stub to node.
-    $this->paragraphsAttachFromStubToEntity($entity, $field_name, $paragraph_type, $stub);
+    $this->paragraphsAttachFromStubToEntity($parent_entity, $field_name, $paragraph_type, $stub);
   }
 
   /**
    * Create a paragraphs item from a stub and attach it to an entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
    *   Node to attach paragraph to.
-   * @param string $entity_field_name
+   * @param string $parent_entity_field_name
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
    *   Paragraphs item bundle name.
@@ -99,60 +92,73 @@ trait ParagraphsTrait {
    * @param bool $save_entity
    *   Flag to save node after attaching a paragraphs item. Defaults to TRUE.
    *
-   * @return \Drupal\paragraphs\Entity\Paragraph
+   * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.
    */
-  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $entity, string $entity_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): Paragraph {
+  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_entity_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): ParagraphInterface {
     $stub->type = $paragraph_bundle;
     $stub = (array) $stub;
+
     $paragraph = Paragraph::create($stub);
-    $paragraph->setParentEntity($entity, $entity_field_name)->save();
-    $existing_value = $entity->get($entity_field_name);
-    $new_value = $existing_value->getValue();
+    $paragraph->setParentEntity($parent_entity, $parent_entity_field_name)->save();
+
+    $new_value = $parent_entity->get($parent_entity_field_name)->getValue();
     $new_value[] = [
       'target_id' => $paragraph->id(),
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
-    $entity->set($entity_field_name, $new_value);
+    $parent_entity->set($parent_entity_field_name, $new_value);
 
     if ($save_entity) {
-      $entity->save();
+      $parent_entity->save();
     }
 
-    static::$paragraphs[] = $paragraph;
+    static::$paragraphEntities[] = $paragraph;
 
     return $paragraph;
   }
 
   /**
-   * Find entity using provided conditions.
+   * Find entity.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle name.
+   * @param string $field_name
+   *   Field name.
+   * @param string $field_value
+   *   Field value.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface|null
+   *   Found entity or NULL if not found.
    */
-  protected function paragraphsFindEntity(array $conditions = []): ContentEntityInterface|null {
-    $type = ($conditions['entity_type'] === 'taxonomy_term') ? 'vid' : 'type';
-    $query = \Drupal::entityQuery($conditions['entity_type'])
+  protected function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
+    $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
-      ->condition($type, $conditions['bundle'])
-      ->condition($conditions['field_name'], $conditions['field_value']);
+      ->condition($entity_type === 'taxonomy_term' ? 'vid' : 'type', $bundle)
+      ->condition($field_name, $field_value);
 
     $entity_ids = $query->execute();
 
     if (empty($entity_ids)) {
-      throw new \Exception(sprintf('Unable to find entity that matches conditions: "%s"', print_r($conditions, TRUE)));
+      return NULL;
     }
 
     $entity_id = array_pop($entity_ids);
 
-    $entity = \Drupal::entityTypeManager()->getStorage($conditions['entity_type'])->load($entity_id);
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
 
-    if (!$entity instanceof ContentEntityInterface) {
-      throw new \Exception(sprintf('Unable to load entity "%s" with id "%s"', $conditions['entity_type'], $entity_id));
-    }
-
-    return $entity;
+    return $entity instanceof ContentEntityInterface ? $entity : NULL;
   }
 
   /**
    * Expand parsed fields into expected field values based on field type.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param \StdClass $stub
+   *   Stub object.
    */
   protected function paragraphsExpandEntityFields(string $entity_type, \StdClass $stub): void {
     $core = $this->getDriver()->getCore();
@@ -165,7 +171,17 @@ trait ParagraphsTrait {
   }
 
   /**
-   * Get a field name that references the paragraphs item.
+   * Validate that an entity has a field.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param string $bundle
+   *   Bundle name.
+   * @param string $field_name
+   *   Field name.
+   *
+   * @throws \RuntimeException
+   *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityFieldName(string $entity_type, string $bundle, string $field_name): void {
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */

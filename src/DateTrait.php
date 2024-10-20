@@ -21,7 +21,7 @@ trait DateTrait {
    * @Transform :value
    * @Transform :expectedValue
    */
-  public function dateRelativeTransformValue(string $value): string|array|null {
+  public function dateRelativeTransformValue(string $value): string {
     return static::dateRelativeProcessValue($value);
   }
 
@@ -79,7 +79,7 @@ trait DateTrait {
    * To avoid this, default time is always rounded to midday and it is expected
    * that relative time within a day use max of 12 hours offset.
    */
-  public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string|array|null {
+  public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
     // Inexpensive token detection and early exit.
     if (!static::dateRelativeStringHasToken($value)) {
       return $value;
@@ -88,12 +88,14 @@ trait DateTrait {
     // If `now` is not provided, round to the current hour to make sure that
     // assertions are running within the same timeframe (for long tests).
     $now = $now ?: strtotime(date('Y-m-d H:i:00', self::dateNow()));
+    $now = $now ?: NULL;
 
-    return preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now) {
+    return (string) preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {
       $timestamp = strtotime($matches[2], $now);
       if ($timestamp === FALSE) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
+
       // Convert to date format, if provided.
       if (isset($matches[3])) {
         $timestamp = date($matches[3], $timestamp);
@@ -103,14 +105,14 @@ trait DateTrait {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
 
-      return $timestamp;
+      return (string) $timestamp;
     }, $value);
   }
 
   /**
    * Get the current timestamp.
    */
-  public static function dateNow(): int {
+  protected static function dateNow(): int {
     return time();
   }
 

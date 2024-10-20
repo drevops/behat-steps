@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
-use Drupal\user\UserInterface;
 
 /**
  * Trait UserTrait.
@@ -25,7 +24,14 @@ trait UserTrait {
    * @When I visit user :name profile
    */
   public function userVisitProfile(string $name): void {
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
+
     $this->visitPath('/user/' . $user->id());
   }
 
@@ -53,7 +59,14 @@ trait UserTrait {
    * @When I edit user :name profile
    */
   public function userEditProfile(string $name): void {
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
+
     $this->visitPath('/user/' . $user->id() . '/edit');
   }
 
@@ -64,20 +77,17 @@ trait UserTrait {
    */
   public function userDelete(TableNode $usersTable): void {
     foreach ($usersTable->getHash() as $userHash) {
-      $user = NULL;
-      try {
-        if (isset($userHash['mail'])) {
-          $user = $this->userGetByMail($userHash['mail']);
-        }
-        elseif (isset($userHash['name'])) {
-          $user = $this->userGetByName($userHash['name']);
-        }
+      $users = [];
+
+      if (isset($userHash['mail'])) {
+        $users = $this->userLoadMultiple(['mail' => $userHash['mail']]);
       }
-      catch (\Exception) {
-        // User may not exist - do nothing.
+      elseif (isset($userHash['name'])) {
+        $users = $this->userLoadMultiple(['name' => $userHash['name']]);
       }
 
-      if ($user) {
+      if (!empty($users)) {
+        $user = reset($users);
         $user->delete();
         $this->getUserManager()->removeUser($user->getAccountName());
       }
@@ -90,7 +100,13 @@ trait UserTrait {
    * @Then user :name has :roles role(s) assigned
    */
   public function userAssertHasRoles(string $name, string $roles): void {
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
 
     $roles = explode(',', $roles);
     $roles = array_map(function ($value): string {
@@ -108,7 +124,13 @@ trait UserTrait {
    * @Then user :name does not have :roles role(s) assigned
    */
   public function userAssertHasNoRoles(string $name, string $roles): void {
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
 
     $roles = explode(',', $roles);
     $roles = array_map(function ($value): string {
@@ -126,12 +148,25 @@ trait UserTrait {
    * @Then user :name has :status status
    */
   public function userAssertHasStatus(string $name, string $status): void {
-    $status = $status === 'active';
+    if (!in_array($status, ['active', 'blocked'])) {
+      throw new \Exception(sprintf('Invalid status "%s".', $status));
+    }
 
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
 
-    if ($user->isActive() != $status) {
-      throw new \Exception(sprintf('User "%s" is expected to have status "%s", but has status "%s".', $name, $status ? 'active' : 'blocked', $user->isActive() ? 'active' : 'blocked'));
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
+
+    if ($status === 'active') {
+      if (!$user->isActive()) {
+        throw new \Exception(sprintf('User "%s" is expected to have status "active", but has status "blocked".', $name));
+      }
+    }
+    elseif ($user->isActive()) {
+      throw new \Exception(sprintf('User "%s" is expected to have status "blocked", but has status "active".', $name));
     }
   }
 
@@ -145,18 +180,16 @@ trait UserTrait {
       throw new \RuntimeException('Password must be not empty.');
     }
 
-    try {
-      /** @var \Drupal\user\UserInterface $user */
-      $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+    if (empty($users)) {
+      $users = $this->userLoadMultiple(['mail' => $name]);
     }
-    catch (\Exception) {
-      try {
-        $user = $this->userGetByMail($name);
-      }
-      catch (\Exception) {
-        throw new \Exception(sprintf('Unable to find a user with name or email "%s".', $name));
-      }
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('Unable to find a user with name or email "%s".', $name));
     }
+
+    $user = reset($users);
 
     $user->setPassword($password)->save();
   }
@@ -167,47 +200,25 @@ trait UserTrait {
    * @Then the last access time of user :name is :time
    */
   public function setUserLastAccess(string $name, string $time): void {
-    /** @var \Drupal\user\UserInterface $user */
-    $user = $this->userGetByName($name);
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    }
+
+    $user = reset($users);
+
     $timestamp = (int) static::dateRelativeProcessValue($time, time());
     $user->setLastAccessTime($timestamp)->save();
   }
 
   /**
-   * Get user by name.
-   */
-  protected function userGetByName(string $name): UserInterface {
-    $users = $this->userLoadMultiple(['name' => $name]);
-    $user = reset($users);
-
-    if (!$user) {
-      throw new \RuntimeException(sprintf('Unable to find user with name "%s".', $name));
-    }
-
-    return $user;
-  }
-
-  /**
-   * Get user by mail.
-   */
-  protected function userGetByMail(string $mail) {
-    $users = $this->userLoadMultiple(['mail' => $mail]);
-    $user = reset($users);
-
-    if (!$user) {
-      throw new \RuntimeException(sprintf('Unable to find user with mail "%s".', $mail));
-    }
-
-    return $user;
-  }
-
-  /**
    * Load multiple users with specified conditions.
    *
-   * @param array $conditions
+   * @param array<string,string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int,\Drupal\user\UserInterface>
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []): array {

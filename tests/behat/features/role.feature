@@ -1,4 +1,4 @@
-Feature: Check that RoleTrait works for or D9
+Feature: Check that RoleTrait works
 
   @api
   Scenario: Assert "Given role :name with permissions :permissions"

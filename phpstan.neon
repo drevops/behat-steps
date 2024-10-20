@@ -4,7 +4,9 @@
 
 parameters:
 
-  level: 5
+  level: 7
+
+  phpVersion: 80224
 
   paths:
     - ../src
@@ -13,6 +15,7 @@ parameters:
   excludePaths:
     - vendor/*
     - node_modules/*
+    - ../tests/behat/bootstrap/BehatCliContext.php
 
   scanFiles:
     - vendor/behat/behat/bin/behat

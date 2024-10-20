@@ -22,16 +22,16 @@ use Symfony\Component\Filesystem\Filesystem;
 trait FileTrait {
 
   /**
-   * Files ids.
+   * Files entities.
    *
-   * @var array
+   * @var array<int,FileInterface>
    */
-  protected $files = [];
+  protected $fileEntities = [];
 
   /**
    * Unmanaged file URIs.
    *
-   * @var array
+   * @var array<int,string>
    */
   protected $filesUnmanagedUris = [];
 
@@ -77,23 +77,34 @@ trait FileTrait {
   protected function fileCreateManagedSingle(\StdClass $stub): FileInterface {
     $this->parseEntityFields('file', $stub);
     $saved = $this->fileCreateEntity($stub);
-    $this->files[] = $saved;
+
+    $this->fileEntities[] = $saved;
 
     return $saved;
   }
 
   /**
    * Create file entity.
+   *
+   * @param \StdClass $stub
+   *   Stub object.
+   *
+   * @return \Drupal\file\FileInterface
+   *   Created file entity.
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   protected function fileCreateEntity(\StdClass $stub): FileInterface {
     if (empty($stub->path)) {
       throw new \RuntimeException('"path" property is required');
     }
+
     $path = ltrim($stub->path, '/');
 
     // Get fixture file path.
-    if ($this->getMinkParameter('files_path')) {
-      $full_path = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
+    if (!empty($this->getMinkParameter('files_path'))) {
+      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
       if (is_file($full_path)) {
         $path = $full_path;
       }
@@ -113,7 +124,12 @@ trait FileTrait {
       }
     }
 
-    $entity = \Drupal::service('file.repository')->writeData(file_get_contents($path), $destination, FileExists::Replace);
+    $content = file_get_contents($path);
+    if ($content === FALSE) {
+      throw new \RuntimeException('Unable to read file ' . $path);
+    }
+
+    $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
     $fields = get_object_vars($stub);
 
     foreach ($fields as $property => $value) {
@@ -141,7 +157,7 @@ trait FileTrait {
       return;
     }
 
-    foreach ($this->files as $file) {
+    foreach ($this->fileEntities as $file) {
       $file->delete();
     }
 
@@ -149,7 +165,7 @@ trait FileTrait {
       @unlink($uri);
     }
 
-    $this->files = [];
+    $this->fileEntities = [];
   }
 
   /**
@@ -177,11 +193,19 @@ trait FileTrait {
    */
   public function fileDeleteManagedFiles(TableNode $nodesTable): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
+
     $field_values = $nodesTable->getColumn(0);
     // Get field name of the column header.
     $field_name = array_shift($field_values);
+
+    if (is_numeric($field_name)) {
+      throw new \RuntimeException('The first column should be the field name');
+    }
+
+    $field_name = (string) $field_name;
+
     foreach ($field_values as $field_value) {
-      $ids = $this->fileLoadMultiple([$field_name => $field_value]);
+      $ids = $this->fileLoadMultiple([$field_name => (string) $field_value]);
       $entities = $storage->loadMultiple($ids);
       $storage->delete($entities);
     }
@@ -190,14 +214,15 @@ trait FileTrait {
   /**
    * Load multiple files with specified conditions.
    *
-   * @param array $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of file ids.
    */
-  protected function fileLoadMultiple(array $conditions = []): array|int {
+  protected function fileLoadMultiple(array $conditions = []): array {
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
+
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
       $and->condition($k, $v);
@@ -267,6 +292,9 @@ trait FileTrait {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
+    if ($file_content === FALSE) {
+      throw new \Exception(sprintf('Unable to read file %s.', $uri));
+    }
 
     if (!str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" does not contain "%s".', $file_content, $content));
@@ -282,6 +310,9 @@ trait FileTrait {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
+    if ($file_content === FALSE) {
+      throw new \Exception(sprintf('Unable to read file %s.', $uri));
+    }
 
     if (str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));

@@ -1,4 +1,4 @@
-Feature: Check that FileTrait works for or D9
+Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "Given managed file:"

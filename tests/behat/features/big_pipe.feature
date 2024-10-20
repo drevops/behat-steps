@@ -1,4 +1,4 @@
-Feature: Check that BigPipeTrait works for or D9
+Feature: Check that BigPipeTrait works
 
   @api
   Scenario: Assert that Big Pipe cookie is set

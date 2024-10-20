@@ -83,7 +83,7 @@ trait WysiwygTrait {
   /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
-  protected function wysiwygFixStepArgument(string $argument): string|array {
+  protected function wysiwygFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
   }
 

@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Drupal\eck\EckEntityInterface;
 
 /**
  * Trait EckTrait.
@@ -19,7 +20,7 @@ trait EckTrait {
   /**
    * Custom eck content entities organised by entity type.
    *
-   * @var array
+   * @var array<string, array<int, \Drupal\eck\EckEntityInterface>>
    */
   protected $eckEntities = [];
 
@@ -52,7 +53,7 @@ trait EckTrait {
    */
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     foreach ($table->getHash() as $nodeHash) {
-      $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, $nodeHash);
+      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $nodeHash);
 
       $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
       $entities = $controller->loadMultiple($entity_ids);
@@ -75,8 +76,9 @@ trait EckTrait {
 
     $entity_ids_by_type = [];
     foreach ($this->eckEntities as $entity_type => $content_entities) {
+      /** @var \Drupal\eck\EckEntityInterface $content_entity */
       foreach ($content_entities as $content_entity) {
-        $entity_ids_by_type[$entity_type][] = $content_entity->id;
+        $entity_ids_by_type[$entity_type][] = $content_entity->id();
       }
     }
 
@@ -96,13 +98,13 @@ trait EckTrait {
    *   The entity type.
    * @param string $bundle
    *   The entity bundle.
-   * @param array $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of entity ids.
    */
-  protected function eckEntityLoadMultiple(string $entity_type, string $bundle, array $conditions = []) {
+  protected function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
       ->condition('type', $bundle);
@@ -126,7 +128,7 @@ trait EckTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   The TableNode of entity data.
    */
-  protected function eckCreateEntities(string $entity_type, string $bundle, TableNode $table) {
+  protected function eckCreateEntities(string $entity_type, string $bundle, TableNode $table): void {
     foreach ($table->getHash() as $entity_hash) {
       $entity = (object) $entity_hash;
       $entity->type = $bundle;
@@ -140,7 +142,9 @@ trait EckTrait {
   protected function eckCreateEntity(string $entity_type, \StdClass $entity): void {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
-    $this->eckEntities[$entity_type][] = $saved;
+    if ($saved instanceof EckEntityInterface) {
+      $this->eckEntities[$entity_type][] = $saved;
+    }
   }
 
   /**
@@ -154,7 +158,7 @@ trait EckTrait {
    */
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $label): void {
     $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
+    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $label,
     ]);
 
@@ -181,7 +185,7 @@ trait EckTrait {
    */
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $label): void {
     $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckEntityLoadMultiple($entity_type, $bundle, [
+    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $label,
     ]);
 

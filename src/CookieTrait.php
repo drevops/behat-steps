@@ -18,7 +18,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name should exist
    */
-  public function cookieWithNameShouldExist($name): void {
+  public function cookieWithNameShouldExist(string $name): void {
     static::cookieExists($name);
   }
 
@@ -27,7 +27,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name and value :value should exist
    */
-  public function cookieWithNameValueShouldExist($name, $value): void {
+  public function cookieWithNameValueShouldExist(string $name, string $value): void {
     static::cookieExists($name, $value);
   }
 
@@ -36,7 +36,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name and value containing :partial_value should exist
    */
-  public function cookieWithNamePartialValueShouldExist($name, $partial_value): void {
+  public function cookieWithNamePartialValueShouldExist(string $name, string $partial_value): void {
     static::cookieExists($name, $partial_value, FALSE, TRUE);
   }
 
@@ -45,7 +45,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name should exist
    */
-  public function cookieWithPartialNameShouldExist($partial_name): void {
+  public function cookieWithPartialNameShouldExist(string $partial_name): void {
     static::cookieExists($partial_name, NULL, TRUE);
   }
 
@@ -54,7 +54,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name and value :value should exist
    */
-  public function cookieWithPartialNameValueShouldExist($partial_name, $value): void {
+  public function cookieWithPartialNameValueShouldExist(string $partial_name, string $value): void {
     static::cookieExists($partial_name, $value, TRUE);
   }
 
@@ -63,7 +63,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name and value containing :partial_value should exist
    */
-  public function cookieWithPartialNamePartialValueShouldExist($partial_name, $partial_value): void {
+  public function cookieWithPartialNamePartialValueShouldExist(string $partial_name, string $partial_value): void {
     static::cookieExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
@@ -72,7 +72,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name should not exist
    */
-  public function cookieWithNameShouldNotExist($name): void {
+  public function cookieWithNameShouldNotExist(string $name): void {
     static::cookieNotExists($name);
   }
 
@@ -81,7 +81,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name and value :value should not exist
    */
-  public function cookieWithNameValueShouldNotExist($name, $value): void {
+  public function cookieWithNameValueShouldNotExist(string $name, string $value): void {
     static::cookieNotExists($name, $value);
   }
 
@@ -90,7 +90,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name :name and value containing :partial_value should not exist
    */
-  public function cookieWithNamePartialValueShouldNotExist($name, $partial_value): void {
+  public function cookieWithNamePartialValueShouldNotExist(string $name, string $partial_value): void {
     static::cookieNotExists($name, $partial_value, FALSE, TRUE);
   }
 
@@ -99,7 +99,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name should not exist
    */
-  public function cookieWithPartialNameShouldNotExist($partial_name): void {
+  public function cookieWithPartialNameShouldNotExist(string $partial_name): void {
     static::cookieNotExists($partial_name, NULL, TRUE);
   }
 
@@ -108,7 +108,7 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name and value :value should not exist
    */
-  public function cookieWithPartialNameValueShouldNotExist($partial_name, $value): void {
+  public function cookieWithPartialNameValueShouldNotExist(string $partial_name, string $value): void {
     static::cookieNotExists($partial_name, $value, TRUE);
   }
 
@@ -117,14 +117,14 @@ trait CookieTrait {
    *
    * @Then a cookie with( the) name containing :partial_name and value containing :partial_value should not exist
    */
-  public function cookieWithPartialNamePartialValueShouldNotExist($partial_name, $partial_value): void {
+  public function cookieWithPartialNamePartialValueShouldNotExist(string $partial_name, string $partial_value): void {
     static::cookieNotExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
   /**
    * Check if a cookie exists.
    */
-  protected function cookieExists($name, $value = NULL, $is_partial_name = FALSE, $is_partial_value = FALSE): void {
+  protected function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
@@ -137,7 +137,7 @@ trait CookieTrait {
 
     if ($value !== NULL) {
       if ($is_partial_value) {
-        if (!str_contains((string) $cookie['value'], (string) $value)) {
+        if (!str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
             throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should contain "%s"', $name, $cookie['value'], $value));
           }
@@ -156,7 +156,7 @@ trait CookieTrait {
   /**
    * Check if a cookie does not exist.
    */
-  protected function cookieNotExists($name, $value = NULL, $is_partial_name = FALSE, $is_partial_value = FALSE): void {
+  protected function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
@@ -165,7 +165,7 @@ trait CookieTrait {
 
     if ($value !== NULL) {
       if ($is_partial_value) {
-        if (str_contains((string) $cookie['value'], (string) $value)) {
+        if (str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
             throw new \Exception(sprintf('The cookie with name containing "%s" was set with value containing "%s", but it should not contain "%s"', $name, $cookie['value'], $value));
           }
@@ -189,13 +189,21 @@ trait CookieTrait {
 
   /**
    * Get a cookie by exact or partial name.
+   *
+   * @param string $name
+   *   The name of the cookie.
+   * @param bool $is_partial
+   *   Whether to search for a partial name.
+   *
+   * @return array<string, mixed>|null
+   *   The cookie or NULL if not found.
    */
-  protected function cookieGetByName($name, $is_partial = FALSE): ?array {
+  protected function cookieGetByName(string $name, bool $is_partial = FALSE): ?array {
     $cookies = self::cookieGetAll();
 
     foreach ($cookies as $cookie) {
       if ($is_partial) {
-        if (str_contains((string) $cookie['name'], (string) $name)) {
+        if (str_contains((string) $cookie['name'], $name)) {
           return $cookie;
         }
       }
@@ -209,6 +217,9 @@ trait CookieTrait {
 
   /**
    * Get all cookies.
+   *
+   * @return array<int, array<string, mixed>>
+   *   An array of cookies.
    */
   protected function cookieGetAll(): array {
     $driver = $this->getSession()->getDriver();
@@ -257,7 +268,10 @@ trait CookieTrait {
         continue;
       }
 
-      $cookies = self::cookieParseHeader($header_value);
+      // Only support parsed cookies from a string header.
+      if (is_string($header_value)) {
+        $cookies = self::cookieParseHeader($header_value);
+      }
       break;
     }
 
@@ -266,6 +280,12 @@ trait CookieTrait {
 
   /**
    * Parse a cookie header string.
+   *
+   * @param string $string
+   *   The cookie header string.
+   *
+   * @return array<int, array<string, mixed>>
+   *   An array of cookies.
    */
   protected static function cookieParseHeader(string $string): array {
     $cookies = [];

@@ -1,4 +1,4 @@
-Feature: Check that EckTrait works for or D9
+Feature: Check that EckTrait works
 
   Background:
     Given no test_bundle test_entity_type entities:

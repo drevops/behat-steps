@@ -1,4 +1,4 @@
-Feature: Check that TaxonomyTrait works for or D9
+Feature: Check that TaxonomyTrait works
 
   @api
   Scenario: Assert "Given vocabulary :vid with name :name exists"

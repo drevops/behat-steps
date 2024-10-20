@@ -1,4 +1,4 @@
-Feature: Check that OverrideTrait works for or D9
+Feature: Check that OverrideTrait works
 
   @api
   Scenario Outline: Assert override of authentication by role works

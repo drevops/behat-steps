@@ -41,7 +41,7 @@ trait ContentTrait {
    * @When I visit :type :title
    */
   public function contentVisitPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentNodeLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -67,7 +67,7 @@ trait ContentTrait {
    * @When I edit :type :title
    */
   public function contentEditPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentNodeLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -87,7 +87,7 @@ trait ContentTrait {
    * @When I delete :type :title
    */
   public function contentDeletePageWithTitle(string $type, string $title): void {
-    $nids = $this->contentNodeLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -115,7 +115,7 @@ trait ContentTrait {
    */
   public function contentDelete(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
-      $nids = $this->contentNodeLoadMultiple($type, $nodeHash);
+      $nids = $this->contentLoadMultiple($type, $nodeHash);
 
       $controller = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $controller->loadMultiple($nids);
@@ -161,7 +161,7 @@ trait ContentTrait {
    * @When I visit :type :title scheduled transitions
    */
   public function contentVisitScheduledTransitionsPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentNodeLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
 
@@ -180,13 +180,13 @@ trait ContentTrait {
    *
    * @param string $type
    *   The node type.
-   * @param array $conditions
+   * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array
+   * @return array<int, string>
    *   Array of node ids.
    */
-  protected function contentNodeLoadMultiple(string $type, array $conditions = []) {
+  protected function contentLoadMultiple(string $type, array $conditions = []): array {
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);
