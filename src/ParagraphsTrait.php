@@ -46,25 +46,27 @@ trait ParagraphsTrait {
   }
 
   /**
-   * Creates paragraphs of the given type with fields for existing entity.
+   * Create a paragraph of the given type with fields within an existing entity.
    *
-   * Paragraph fields are specified in the same way as for nodeCreate():
+   * @code
+   * Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
    * | field_paragraph_title           | My paragraph title   |
    * | field_paragraph_longtext:value  | My paragraph message |
    * | field_paragraph_longtext:format | full_html            |
    * | ...                             | ...                  |
+   * @endcode
    *
-   * @When :field_name in :bundle :entity_type with :entity_field_name of :entity_field_identifer has :paragraph_type paragraph:
+   * @Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:
    */
-  public function paragraphsAddToEntityWithFields(string $field_name, string $bundle, string $entity_type, string $entity_field_name, string $entity_field_identifer, string $paragraph_type, TableNode $fields): void {
-    $this->paragraphsValidateEntityFieldName($entity_type, $bundle, $field_name);
+  public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
+    $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
     // Find previously created entity by entity_type, bundle and identifying
     // field value.
-    $parent_entity = $this->paragraphsFindEntity($entity_type, $bundle, $entity_field_name, $entity_field_identifer);
+    $parent_entity = $this->paragraphsFindEntity($parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value);
 
     if (!$parent_entity) {
-      throw new \RuntimeException(sprintf('Parent entity "%s" with field "%s" of value "%s" not found', $bundle, $entity_field_name, $entity_field_identifer));
+      throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found', $parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value));
     }
 
     // Get fields from scenario, parse them and expand values according to
@@ -74,7 +76,7 @@ trait ParagraphsTrait {
     $this->parseEntityFields('paragraph', $stub);
     $this->paragraphsExpandEntityFields('paragraph', $stub);
 
-    $this->paragraphsAttachFromStubToEntity($parent_entity, $field_name, $paragraph_type, $stub);
+    $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $stub);
   }
 
   /**
@@ -82,7 +84,7 @@ trait ParagraphsTrait {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
    *   Node to attach paragraph to.
-   * @param string $parent_entity_field_name
+   * @param string $parent_field_name
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
    *   Paragraphs item bundle name.
@@ -95,19 +97,19 @@ trait ParagraphsTrait {
    * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.
    */
-  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_entity_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): ParagraphInterface {
+  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): ParagraphInterface {
     $stub->type = $paragraph_bundle;
     $stub = (array) $stub;
 
     $paragraph = Paragraph::create($stub);
-    $paragraph->setParentEntity($parent_entity, $parent_entity_field_name)->save();
+    $paragraph->setParentEntity($parent_entity, $parent_field_name)->save();
 
-    $new_value = $parent_entity->get($parent_entity_field_name)->getValue();
+    $new_value = $parent_entity->get($parent_field_name)->getValue();
     $new_value[] = [
       'target_id' => $paragraph->id(),
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
-    $parent_entity->set($parent_entity_field_name, $new_value);
+    $parent_entity->set($parent_field_name, $new_value);
 
     if ($save_entity) {
       $parent_entity->save();
@@ -183,12 +185,12 @@ trait ParagraphsTrait {
    * @throws \RuntimeException
    *   If the field does not exist on the entity.
    */
-  protected function paragraphsValidateEntityFieldName(string $entity_type, string $bundle, string $field_name): void {
+  protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
 
     if (!array_key_exists($field_name, $field_info)) {
-      throw new \RuntimeException(sprintf('"%s" "%s" does not have a field "%s"', $bundle, $entity_type, $field_name));
+      throw new \RuntimeException(sprintf('The entity type "%s" and bundle "%s" does not have a field "%s"', $entity_type, $bundle, $field_name));
     }
   }
 
