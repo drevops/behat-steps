@@ -8,7 +8,7 @@ Feature: Behat CLI context additional steps
       """
       Given I go to the homepage
       Then I throw test exception with message "Intentional error"
-      And I should be in the "nonexisting" path
+      And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -23,7 +23,7 @@ Feature: Behat CLI context additional steps
       """
       Given I go to the homepage
       Then I throw test exception with message "Intentional error"
-      And I should be in the "nonexisting" path
+      And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -41,7 +41,7 @@ Feature: Behat CLI context additional steps
     And scenario steps:
       """
       Given I go to the homepage
-      And I should be in the "nonexisting" path
+      And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail
@@ -52,10 +52,10 @@ Feature: Behat CLI context additional steps
     And scenario steps:
       """
       Given I go to the homepage
-      And I should be in the "nonexisting" path
+      And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path is "<front>", but expected is "nonexisting"
+      Current path is "/", but expected is "/nonexisting"
       """

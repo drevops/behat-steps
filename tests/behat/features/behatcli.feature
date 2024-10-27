@@ -53,7 +53,7 @@ Feature: Behat CLI context
         @api
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
-          And I should be in the "<front>" path
+          And the path should be "/"
       """
 
     When I run "behat --no-colors"
@@ -64,7 +64,7 @@ Feature: Behat CLI context
         @api
         Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
           Given I go to the homepage             # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
-          And I should be in the "<front>" path  # FeatureContext::pathAssertCurrent()
+          And the path should be "/"             # FeatureContext::pathAssertCurrent()
 
       1 scenario (1 passed)
       2 steps (2 passed)
@@ -77,7 +77,7 @@ Feature: Behat CLI context
         @api
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
-          And I should be in the "nonexisting" path
+          And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with:
@@ -85,10 +85,10 @@ Feature: Behat CLI context
       Feature: Homepage
 
         @api
-        Scenario: Anonymous user visits homepage    # features/drupal_bootstrap.feature:3
-          Given I go to the homepage                # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
-          And I should be in the "nonexisting" path # FeatureContext::pathAssertCurrent()
-            Current path is "<front>", but expected is "nonexisting" (Exception)
+        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
+          Given I go to the homepage             # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
+          And the path should be "/nonexisting"  # FeatureContext::pathAssertCurrent()
+            Current path is "/", but expected is "/nonexisting" (Exception)
 
       --- Failed scenarios:
 
@@ -106,7 +106,7 @@ Feature: Behat CLI context
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
           Then I throw test exception with message "Intentional error"
-          And I should be in the "nonexisting" path
+          And the path should be "/nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with:
@@ -118,7 +118,7 @@ Feature: Behat CLI context
           Given I go to the homepage                                   # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
           Then I throw test exception with message "Intentional error" # FeatureContext::throwTestException()
             Intentional error (RuntimeException)
-          And I should be in the "nonexisting" path                    # FeatureContext::pathAssertCurrent()
+          And the path should be "/nonexisting"                        # FeatureContext::pathAssertCurrent()
 
       --- Failed scenarios:
 
