@@ -14,19 +14,20 @@ namespace DrevOps\BehatSteps;
 trait PathTrait {
 
   /**
-   * Assert current page is specified path.
+   * Assert that the current page is a specified path.
    *
    * Note that "<front>" is supported as path.
    *
    * @code
-   * Then I should be in the "/about-us" path
-   * Then I should be in the "<front>" path
+   * Then the path should be "/about-us"
+   * Then the path should be "<front>"
    * @endcode
    *
-   * @Then I should be in the :path path
+   * @Then the path should be :path
    */
   public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
+
     if (empty($current_path)) {
       throw new \Exception('Current path is empty');
     }
@@ -37,28 +38,28 @@ trait PathTrait {
       throw new \Exception('Current path is not a valid URL');
     }
 
-    $current_path = ltrim((string) $current_path, '/');
     $current_path = $current_path === '' ? '<front>' : $current_path;
 
-    if ($current_path !== ltrim($path, '/')) {
+    if (ltrim((string) $current_path, '/') !== ltrim($path, '/')) {
       throw new \Exception(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
     }
   }
 
   /**
-   * Assert current page is not specified path.
+   * Assert that the current page is not a specified path.
    *
    * Note that "<front>" is supported as path.
    *
    * @code
-   * Then I should not be in the "/about-us" path
-   * Then I should not be in the "<front>" path
+   * Then the path should not be "/about-us"
+   * Then the path should not be "<front>"
    * @endcode
    *
-   * @Then I should not be in the :path path
+   * @Then the path should not be :path
    */
   public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
+
     if (empty($current_path)) {
       throw new \Exception('Current path is empty');
     }
@@ -69,10 +70,9 @@ trait PathTrait {
       throw new \Exception('Current path is not a valid URL');
     }
 
-    $current_path = ltrim((string) $current_path, '/');
-    $current_path = $current_path === '' ? '<front>' : $current_path;
+    $current_path = $current_path === '/' ? '<front>' : $current_path;
 
-    if ($current_path === $path) {
+    if (ltrim((string) $current_path, '/') === ltrim($path, '/')) {
       throw new \Exception(sprintf('Current path should not be "%s"', $current_path));
     }
 
@@ -80,41 +80,16 @@ trait PathTrait {
   }
 
   /**
-   * Assert that a path can be visited or not with HTTP credentials.
+   * Set basic authentication for the current session.
    *
    * @code
-   * Then I "can" visit "/about-us" with HTTP credentials "user" "pass"
-   * Then I "cannot" visit "/about-us" with HTTP credentials "user" "pass"
+   * Given the basic authentication with the username "myusername" and the password "mypassword"
    * @endcode
    *
-   * @Then I :can visit :path with HTTP credentials :user :pass
+   * @Given the basic authentication with the username :username and the password :password
    */
-  public function pathAssertVisitWithBasicAuth(string $can, string $path, string $user, string $pass): void {
-    $this->getSession()->setBasicAuth($user, $pass);
-    $this->visitPath($path);
-
-    if ($can === 'can') {
-      $this->assertSession()->statusCodeEquals(200);
-    }
-    else {
-      $this->assertSession()->statusCodeNotEquals(200);
-    }
-  }
-
-  /**
-   * Visit a path and assert the final destination.
-   *
-   * Useful for pages with redirects.
-   *
-   * @code
-   * When I visit "/node/123" then the final URL should be "/about/us"
-   * @endcode
-   *
-   * @When I visit :path then the final URL should be :alias
-   */
-  public function pathAssertWithRedirect(string $path, string $alias): void {
-    $this->getSession()->visit($this->locatePath($path));
-    $this->pathAssertCurrent($alias);
+  public function pathSetBasicAuth(string $username, string $password): void {
+    $this->getSession()->setBasicAuth($username, $password);
   }
 
 }
