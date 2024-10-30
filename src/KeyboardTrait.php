@@ -19,8 +19,8 @@ trait KeyboardTrait {
   /**
    * Press multiple keyboard keys, optionally on element.
    *
-   * @Given I press the :keys keys
-   * @Given I press the :keys keys on :selector
+   * @When I press the keys :keys
+   * @When I press the keys :keys on the element :selector
    */
   public function keyboardPressKeysOnElement(string $keys, ?string $selector = NULL): void {
     foreach (str_split($keys) as $char) {
@@ -40,11 +40,12 @@ trait KeyboardTrait {
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
    *
-   * @Given I press the :char key
-   * @Given I press the :char key on :selector
+   * @When I press the key :char
+   * @When I press the key :char on the element :selector
    */
   public function keyboardPressKeyOnElement(string $char, ?string $selector = NULL): void {
     $driver = $this->getSession()->getDriver();
+
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
     }
@@ -84,7 +85,7 @@ trait KeyboardTrait {
       // Consider provided characters string longer then 1 to be a keyboard key.
       elseif (strlen($char) > 1) {
         if (!array_key_exists(strtolower($char), $keys)) {
-          throw new \Exception('Unsupported key name provided');
+          throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
         }
 
         // Special case for tab key triggered in window without target element
@@ -114,8 +115,7 @@ trait KeyboardTrait {
     }
 
     $selector = $selector ?: 'html';
-
-    // Element to trigger key press on.
+    $this->assertSession()->elementExists('css', $selector);
     $element = $this->getSession()->getPage()->find('css', $selector);
 
     if (!$element) {

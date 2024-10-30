@@ -7,6 +7,9 @@ JS-based assertions.
 It also has a JS code used in VisibilityTrait to test visibility of an element.
 And it also has tests for this JS code.
 Scroll to the bottom of the document to `isElemVisible()` function.
+
+Any changes to this document should be copied over manually:
+cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/relative.html
 -->
 <!DOCTYPE html>
 <html>
@@ -375,6 +378,7 @@ Scroll to the bottom of the document to `isElemVisible()` function.
     <div id="main-inner-custom">
       inner Main content custom
       <input type="text" name="input1" id="input1" />
+      <input type="text" name="input2" id="input2" />
     </div>
   </div>
 </div>
