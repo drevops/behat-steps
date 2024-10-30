@@ -25,45 +25,6 @@ trait EckTrait {
   protected $eckEntities = [];
 
   /**
-   * Create eck entities.
-   *
-   * Provide entity data in the following format:
-   * | title  | field_marine_animal     | field_fish_type | ... |
-   * | Snook  | Fish                    | Marine fish     | 10  |
-   * | ...    | ...                     | ...         | ...     |
-   *
-   * @Given :bundle :entity_type entities:
-   */
-  public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
-    $filtered_table = TableNode::fromList($table->getColumn(0));
-    // Delete entities before creating them.
-    $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
-    $this->eckCreateEntities($entity_type, $bundle, $table);
-  }
-
-  /**
-   * Remove custom entities by field.
-   *
-   * Provide custom entity data in the following format:
-   *
-   * | field        | value           |
-   * | field_a      | Entity label    |
-   *
-   * @Given no :bundle :entity_type entities:
-   */
-  public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
-    foreach ($table->getHash() as $nodeHash) {
-      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $nodeHash);
-
-      $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
-      $entities = $controller->loadMultiple($entity_ids);
-      foreach ($entities as $entity) {
-        $entity->delete();
-      }
-    }
-  }
-
-  /**
    * Remove ECK types and entities.
    *
    * @AfterScenario
@@ -89,6 +50,102 @@ trait EckTrait {
     }
 
     $this->eckEntities = [];
+  }
+
+  /**
+   * Create eck entities.
+   *
+   * @code
+   * Given the following eck "contact" "contact_type" entities exist:
+   * | title  | field_marine_animal     | field_fish_type | ... |
+   * | Snook  | Fish                    | Marine fish     | 10  |
+   * | ...    | ...                     | ...             | ... |
+   * @endcode
+   *
+   * @Given the following eck :bundle :entity_type entities exist:
+   */
+  public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
+    $filtered_table = TableNode::fromList($table->getColumn(0));
+    // Delete entities before creating them.
+    $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
+    $this->eckCreateEntities($entity_type, $bundle, $table);
+  }
+
+  /**
+   * Remove custom entities by field.
+   *
+   * @code
+   * Given the following eck "contact" "contact_type" entities do not exist:
+   * | field        | value           |
+   * | field_a      | Entity label    |
+   * @endcode
+   *
+   * @Given the following eck :bundle :entity_type entities do not exist:
+   */
+  public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
+    foreach ($table->getHash() as $node_hash) {
+      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $node_hash);
+
+      $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
+      $entities = $controller->loadMultiple($entity_ids);
+      foreach ($entities as $entity) {
+        $entity->delete();
+      }
+    }
+  }
+
+  /**
+   * Navigate to view entity page with specified type and title.
+   *
+   * @code
+   * When I visit eck "contact" "contact_type" entity with the title "Test contact"
+   * @endcode
+   *
+   * @When I visit eck :bundle :entity_type entity with the title :title
+   */
+  public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
+      'title' => $title,
+    ]);
+
+    if (empty($entity_ids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s"', $entity_type, $title));
+    }
+
+    $entity_id = current($entity_ids);
+    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
+    $path = $entity->toUrl('canonical')->toString();
+    print $path;
+
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Navigate to edit eck entity page with specified type and title.
+   *
+   * @code
+   * @When I edit eck "contact" "contact_type" entity with the title "Test contact"
+   * @endcode
+   *
+   * @When I edit eck :bundle :entity_type entity with the title :title
+   */
+  public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
+      'title' => $title,
+    ]);
+
+    if (empty($entity_ids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s"', $entity_type, $title));
+    }
+
+    $entity_id = current($entity_ids);
+    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
+    $path = $entity->toUrl('edit-form')->toString();
+    print $path;
+
+    $this->getSession()->visit($path);
   }
 
   /**
@@ -145,60 +202,6 @@ trait EckTrait {
     if ($saved instanceof EckEntityInterface) {
       $this->eckEntities[$entity_type][] = $saved;
     }
-  }
-
-  /**
-   * Navigate to edit eck entity page with specified type and title.
-   *
-   * @code
-   * When I edit "contact" "contact_type" with title "Test contact"
-   * @endcode
-   *
-   * @When I edit :bundle :entity_type with title :label
-   */
-  public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $label): void {
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
-      'title' => $label,
-    ]);
-
-    if (empty($entity_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $entity_type, $label));
-    }
-
-    $entity_id = current($entity_ids);
-    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
-    $path = $entity->toUrl('edit-form')->toString();
-    print $path;
-
-    $this->getSession()->visit($path);
-  }
-
-  /**
-   * Navigate to view entity page with specified type and title.
-   *
-   * @code
-   * When I visit "contact" "contact_type" with title "Test contact"
-   * @endcode
-   *
-   * @When I visit :bundle :entity_type with title :label
-   */
-  public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $label): void {
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
-      'title' => $label,
-    ]);
-
-    if (empty($entity_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $entity_type, $label));
-    }
-
-    $entity_id = current($entity_ids);
-    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
-    $path = $entity->toUrl('canonical')->toString();
-    print $path;
-
-    $this->getSession()->visit($path);
   }
 
 }
