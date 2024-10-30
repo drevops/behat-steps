@@ -68,6 +68,8 @@ services:
 
   chrome:
     image: selenium/standalone-chromium:130.0
+    ports:
+      - "7900:7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
     shm_size: '1gb'
     <<: *default-volumes
     environment:

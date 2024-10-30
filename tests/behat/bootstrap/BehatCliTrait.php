@@ -195,13 +195,25 @@ default:
   extensions:
     Drupal\MinkExtension:
       browserkit_http: ~
-      selenium2: ~
       base_url: http://nginx:8080
+      files_path: '%paths.base%/tests/behat/fixtures'
       browser_name: chrome
+      javascript_session: selenium2
       selenium2:
         wd_host: "http://chrome:4444/wd/hub"
-        capabilities: { "browser": "chrome", "version": "*", "marionette": true, "extra_capabilities": { "chromeOptions": { "w3c": false } } }
-      javascript_session: selenium2
+        capabilities:
+          browser: chrome
+          extra_capabilities:
+            "goog:chromeOptions":
+              args:
+                - '--disable-gpu'            # Disables hardware acceleration required in containers and cloud-based instances (like CI runners) where GPU is not available.
+                # Options to increase stability and speed.
+                - '--disable-extensions'     # Disables all installed Chrome extensions. Useful in testing environments to avoid interference from extensions.
+                - '--disable-infobars'       # Hides the infobar that Chrome displays for various notifications, like warnings when opening multiple tabs.
+                - '--disable-popup-blocking' # Disables the popup blocker, allowing all popups to appear. Useful in testing scenarios where popups are expected.
+                - '--disable-translate'      # Disables the built-in translation feature, preventing Chrome from offering to translate pages.
+                - '--no-first-run'           # Skips the initial setup screen that Chrome typically shows when running for the first time.
+                - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
 
     Drupal\DrupalExtension:
       api_driver: drupal
@@ -239,6 +251,17 @@ EOL;
     // exceptions should be thrown as \Exception.
     Assert::assertStringContainsString(' (RuntimeException)', $this->getOutput());
     Assert::assertStringNotContainsString(' (Exception)', $this->getOutput());
+  }
+
+  /**
+   * @Then it should fail with a :exception exception:
+   */
+  public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $message): void {
+    $this->itShouldFail('fail');
+    Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
+    // Enforce \RuntimeException for all non-assertion exceptions. Assertion
+    // exceptions should be thrown as \Exception.
+    Assert::assertStringContainsString(' (' . $exception . ')', $this->getOutput());
   }
 
   /**
