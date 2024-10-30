@@ -22,7 +22,7 @@ trait DraggableViewsTrait {
   /**
    * Save order of the Draggable Order items.
    *
-   * @Then I save draggable views :view_id view :views_display_id display :bundle items in the following order:
+   * @When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
    */
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
     $connection = Database::getConnection();
@@ -31,7 +31,7 @@ trait DraggableViewsTrait {
       $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
 
       if (empty($node)) {
-        throw new \RuntimeException(sprintf('Unable to find node "%s"', $title));
+        throw new \RuntimeException(sprintf('Unable to find the node "%s"', $title));
       }
 
       $entity_id = $node->id();
