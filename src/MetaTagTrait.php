@@ -18,7 +18,7 @@ trait MetaTagTrait {
   /**
    * Assert that a meta tag with specific attributes and values exists.
    *
-   * @Then I should see a meta tag with the following attributes:
+   * @Then the meta tag should exist with the following attributes:
    */
   public function assertMetaTagWithAttributesExists(TableNode $table): void {
     $elements = $this->getSession()->getPage()->findAll('css', 'meta');
@@ -54,7 +54,7 @@ trait MetaTagTrait {
   /**
    * Assert that a meta tag with specific attributes and values does not exist.
    *
-   * @Then I should not see a meta tag with the following attributes:
+   * @Then the meta tag should not exist with the following attributes:
    */
   public function assertMetaTagWithAttributesDoesNotExists(TableNode $table): void {
     $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');

@@ -1,38 +1,19 @@
 Feature: Check that MetaTagTrait works
 
   @api
-  Scenario: Assert that a meta tag with specific attributes and values exists/does not exist.
+  Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
     Given I visit "/"
-    Then I should see a meta tag with the following attributes:
+    Then the meta tag should exist with the following attributes:
       | name    | MobileOptimized |
       | content | width           |
-    And I should not see a meta tag with the following attributes:
-      | name    | Non_Existing |
-      | content | width        |
 
   @trait:MetaTagTrait
-  Scenario: Assert that negative assertion for "I should not see a meta tag with the following attributes:" fails with an error
+  Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I visit "/"
-      Then I should not see a meta tag with the following attributes:
-        | name    | MobileOptimized |
-        | content | width           |
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      Meta tag with specified attributes should not exist: {"name":"MobileOptimized","content":"width"}
-      """
-
-  @trait:MetaTagTrait
-  Scenario: Assert that negative assertion for "I should see a meta tag with the following attributes:" fails with an error
-    Given some behat configuration
-    And scenario steps:
-      """
-      Given I visit "/"
-      Then I should see a meta tag with the following attributes:
+      Then the meta tag should exist with the following attributes:
         | name    | Non_Existing |
         | content | width        |
       """
@@ -40,4 +21,27 @@ Feature: Check that MetaTagTrait works
     Then it should fail with an error:
       """
       Meta tag with specified attributes was not found: {"name":"Non_Existing","content":"width"}
+      """
+
+  @api
+  Scenario: Assert that "Then the meta tag should not exist with the following attributes:" step works as expected
+    Given I visit "/"
+    Then the meta tag should not exist with the following attributes:
+      | name    | Non_Existing |
+      | content | width        |
+
+  @trait:MetaTagTrait
+  Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I visit "/"
+      Then the meta tag should not exist with the following attributes:
+        | name    | MobileOptimized |
+        | content | width           |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Meta tag with specified attributes should not exist: {"name":"MobileOptimized","content":"width"}
       """
