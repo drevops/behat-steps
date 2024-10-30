@@ -1,49 +1,53 @@
 Feature: Check that EckTrait works
 
   Background:
-    Given no test_bundle test_entity_type entities:
+    Given the following eck "test_bundle" "test_entity_type" entities do not exist:
       | title             |
       | [TEST] ECK Entity |
     And "tags" terms:
       | name |
       | T2   |
-    And test_bundle test_entity_type entities:
+    And the following eck "test_bundle" "test_entity_type" entities exist:
       | title            | field_test_text | field_test_reference |
       | [TEST] ECK test1 | Test text field | T2                   |
 
   @api
-  Scenario: Assert "When I edit :bundle :entity_type with title :label"
+  Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected.
     Given I am logged in as a user with the "administrator" role
-    When I edit test_bundle test_entity_type with title "[TEST] ECK test1"
-    Then I should see "Edit test bundle [TEST] ECK test1"
-    And I visit test_bundle test_entity_type with title "[TEST] ECK test1"
-    And I should see "[TEST] ECK test1"
+    When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
+    Then I should see "[TEST] ECK test1"
     And I should see "T2"
 
   @api @trait:EckTrait
-  Scenario: Assert navigate to entity type with specified bundle and title.
+  Scenario: Assert navigate "I visit eck :bundle :entity_type entity with the title :title" works as expected.
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit "test_bundle" "test_entity_type" with title "[Test] Entity Custom"
+      And I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Unable to find test_entity_type page "[Test] Entity Custom"
+      Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
 
+  @api
+  Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected.
+    Given I am logged in as a user with the "administrator" role
+    When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
+    Then I should see "Edit test bundle [TEST] ECK test1"
+
   @api @trait:EckTrait
-  Scenario: Assert edit to entity type with specified bundle and title.
+  Scenario: Assert negative "When I edit eck :bundle :entity_type entity with the title :title" works as expected.
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I edit "test_bundle" "test_entity_type" with title "[Test] Entity Custom"
+      When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Unable to find test_entity_type page "[Test] Entity Custom"
+      Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
