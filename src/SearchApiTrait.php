@@ -20,9 +20,9 @@ trait SearchApiTrait {
   use ContentTrait;
 
   /**
-   * Index a node with all Search API indices.
+   * Index a node of a specific content type with a specific title.
    *
-   * @When I index :type :title for search
+   * @When I add the :content_type content with the title :title to the search index
    */
   public function searchApiIndexContent(string $type, string $title): void {
     $nids = $this->contentLoadMultiple($type, [
@@ -43,18 +43,20 @@ trait SearchApiTrait {
   }
 
   /**
-   * Index a number of items across all active Search API indices.
+   * Run indexing for a specific number of items.
    *
-   * @When I index :limit Search API items
-   * @When I index 1 Search API item
+   * @When I run search indexing for :count item(s)
    */
-  public function searchApiDoIndex(string|int $limit = 1): void {
+  public function searchApiDoIndex(string|int $limit): void {
     $limit = intval($limit);
+
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
+
     /** @var \Drupal\search_api\IndexInterface[] $indexes */
     $indexes = $index_storage->loadByProperties(['status' => TRUE]);
-    if (!$indexes) {
-      return;
+
+    if (empty($indexes)) {
+      throw new \RuntimeException('No active search indexes found');
     }
 
     foreach ($indexes as $index) {
