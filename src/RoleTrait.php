@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\Role;
 
@@ -18,22 +17,15 @@ use Drupal\user\Entity\Role;
 trait RoleTrait {
 
   /**
-   * Roles ids.
-   *
-   * @var array<string,string>
-   */
-  protected array $rolesIds = [];
-
-  /**
    * Create a single role with specified permissions.
    *
-   * @Given role :name with permissions :permissions
+   * @Given the role :role_name with the permissions :permissions
    */
-  public function roleCreateSingle(string $name, string $permissions): void {
+  public function roleCreateSingle(string $role_name, string $permissions): void {
     $permissions = array_map(trim(...), explode(',', $permissions));
 
-    $rid = strtolower($name);
-    $name = trim($name);
+    $rid = strtolower($role_name);
+    $role_name = trim($role_name);
 
     $existing_role = Role::load($rid);
     if ($existing_role) {
@@ -43,14 +35,14 @@ trait RoleTrait {
     /** @var \Drupal\user\RoleInterface $role */
     $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
       'id' => $rid,
-      'label' => $name,
+      'label' => $role_name,
     ]);
     $saved = $role->save();
 
     if ($saved !== SAVED_NEW) {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
-    $this->rolesIds[(string) $role->id()] = (string) $role->id();
+    $this->roles[(string) $role->id()] = (string) $role->id();
 
     user_role_grant_permissions($role->id(), $permissions);
   }
@@ -58,7 +50,7 @@ trait RoleTrait {
   /**
    * Create multiple roles from the specified table.
    *
-   * @Given roles:
+   * @Given the following roles:
    */
   public function roleCreateMultiple(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
@@ -69,27 +61,6 @@ trait RoleTrait {
       $permissions = $hash['permissions'] ?: '';
       $this->roleCreateSingle($hash['name'], $permissions);
     }
-  }
-
-  /**
-   * Remove all roles after scenario run.
-   *
-   * @AfterScenario
-   */
-  public function roleCleanAll(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    foreach ($this->rolesIds as $rid) {
-      $role = Role::load($rid);
-      if ($role) {
-        $role->delete();
-      }
-    }
-
-    $this->rolesIds = [];
   }
 
 }
