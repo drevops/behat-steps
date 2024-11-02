@@ -25,16 +25,6 @@ trait OverrideTrait {
   /**
    * {@inheritdoc}
    */
-  public function createTerms(mixed $vocabulary, TableNode $table): void {
-    $vocabulary = (string) $vocabulary;
-    // Delete entities before creating them.
-    $this->taxonomyDeleteTerms($vocabulary, $table);
-    parent::createTerms($vocabulary, $table);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function createNodes(mixed $type, TableNode $table): void {
     $type = (string) $type;
     $filtered_table = TableNode::fromList($table->getColumn(0));
