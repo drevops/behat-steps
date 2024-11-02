@@ -10,24 +10,24 @@ Feature: Check that DraggableViewsTrait works
 
     When I visit "/draggableviews-demo"
     And I save screenshot
-    Then I should see an element ".view-draggableviews-demo .views-row:first-child .views-field-title" using "css" contains "Test 2" text
-    And I should see an element ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" using "css" contains "Test 1" text
+    Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 2"
+    And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 1"
 
     When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
       | Test 1 |
       | Test 2 |
     And the cache has been cleared
     And I visit "/draggableviews-demo"
-    Then I should see an element ".view-draggableviews-demo .views-row:first-child .views-field-title" using "css" contains "Test 1" text
-    And I should see an element ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" using "css" contains "Test 2" text
+    Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 1"
+    And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 2"
 
     When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
       | Test 2 |
       | Test 1 |
     And the cache has been cleared
     And I visit "/draggableviews-demo"
-    Then I should see an element ".view-draggableviews-demo .views-row:first-child .views-field-title" using "css" contains "Test 2" text
-    And I should see an element ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" using "css" contains "Test 1" text
+    Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 2"
+    And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 1"
 
   @trait:DraggableViewsTrait
   Scenario: Assert that negative assertion for "When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:" step throws an exception

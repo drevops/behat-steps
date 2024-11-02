@@ -1,162 +1,201 @@
-@api
 Feature: Check that ElementTrait works
 
-  Scenario: Assert step definition "Then I should see the :selector element with the :attribute attribute set to :value" works as expected
+  Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
     Given I am an anonymous user
     When I visit "/"
-    Then I should see the "html" element with the "dir" attribute set to "ltr"
+    Then the element "html" with the attribute "dir" and the value "ltr" should exist
 
   @trait:ElementTrait
-  Scenario: Assert that an element with selector and attribute with a value exists.
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "#invalid-element" element with the "dir" attribute set to "ltr"
+      Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#invalid-element" element was not found on the page.
+      The "#nonexisting-element" element does not exist.
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see the :selector element with the :attribute attribute set to :value" fails as expected when the attribute is not found
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "html" element with the "no-existing-attribute" attribute set to "ltr"
+      Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute was not found on the element "html".
+      The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see the :selector element with the :attribute attribute set to :value" fails as expected when the attribute value does not match
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "html" element with the "dir" attribute set to "not-match-value"
+      Then the element "html" with the attribute "dir" and the value "lt" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "dir" attribute was found on the element "html", but does not contain a value "not-match-value".
+      The "dir" attribute exists on the element "html" with a value "ltr", but it does not have a value "lt".
       """
 
-  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected with a specific value
+  Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should exist" works as expected
     Given I am an anonymous user
     When I visit "/"
-    Then I should see the "html" element with a "dir" attribute containing "ltr"
+    Then the element "html" with the attribute "dir" and the value containing "lt" should exist
 
-  Scenario: Assert step definition "I( should) see the :selector element with a(n) :attribute attribute containing :value" works as expected with a wildcard
+  @trait:ElementTrait
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the element does not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "#nonexisting-element" element does not exist.
+      """
+
+  @trait:ElementTrait
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute is not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "no-existing-attribute" attribute does not exist on the element "html".
+      """
+
+  @trait:ElementTrait
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute does not contain the partial value
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/"
+      Then the element "html" with the attribute "dir" and the value containing "ltr1" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "dir" attribute exists on the element "html" with a value "ltr", but it does not contain a value "ltr1".
+      """
+
+  Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should not exist" works as expected
     Given I am an anonymous user
     When I visit "/"
-    Then I should see the "html" element with a "dir" attribute containing "lt*"
+    Then the element "html" with the attribute "dir" and the value "nonexistingvalue" should not exist
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute is not found
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "#invalid-element" element with a "dir" attribute containing "ltr"
+      Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#invalid-element" element was not found on the page.
+      The "#nonexisting-element" element does not exist.
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute value does not match
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "html" element with a "no-existing-attribute" attribute containing "ltr"
+      Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute was not found on the element "html".
+      The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see the :selector element with a(n) :attribute attribute containing :value" fails as expected when the attribute value does not match; alternative step definition
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see the "html" element with a "dir" attribute containing "not-match-value"
+      Then the element "html" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No element with "dir" attribute matching the pattern "not-match-value" found.
+      The "dir" attribute exists on the element "html" with a value "ltr", but it should not.
       """
 
-  Scenario: Assert that an element with selector contains text using css.
+  Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should not exist" works as expected
     Given I am an anonymous user
     When I visit "/"
-    Then I should see an element ".site-branding__name" using "css" contains "Drush Site-Install" text
-
-  Scenario: Assert that an element with selector contains text using xpath.
-    Given I am an anonymous user
-    When I visit "/"
-    Then I should see an element "//div[@class='site-branding__name']" using "xpath" contains "Drush Site-Install" text
+    Then the element "html" with the attribute "dir" and the value containing "nonexistingvalue" should not exist
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the selector type is invalid
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see an element "//div[@class='site-branding__name']" using "invalid-selector-type" contains "Drush Site-Install" text
+      Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Selector type must be "css" or "xpath".
+      The "#nonexisting-element" element does not exist.
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the selector is not found
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see an element "//div[@class='site-branding__name_invalid']" using "xpath" contains "Drush Site-Install" text
+      Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Tag matching xpath "//div[@class='site-branding__name_invalid']" not found.
+      The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then I should see an element :selector using :selector_type contains :text text" fails as expected when the text is not found
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps:
       """
       Given I am an anonymous user
       When I visit "/"
-      Then I should see an element "//div[@class='site-branding__name']" using "xpath" contains "Drush Site-Install Fail" text
+      Then the element "html" with the attribute "dir" and the value containing "lt" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The text "Drush Site-Install Fail" was not found in the element "//div[@class='site-branding__name']" using xpath.
+      The "dir" attribute exists on the element "html" with a value containing "lt", but it should not.
       """

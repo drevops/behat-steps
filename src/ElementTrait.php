@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Mink\Exception\ElementNotFoundException;
-
 /**
  * Trait Element.
  *
@@ -16,106 +14,99 @@ use Behat\Mink\Exception\ElementNotFoundException;
 trait ElementTrait {
 
   /**
-   * Assert that an element with selector and attribute with a value exists.
+   * Assert an element with selector and attribute with a value exists.
    *
-   * @Then I( should) see the :selector element with the :attribute attribute set to :value
+   * @Then the element :selector with the attribute :attribute and the value :value should exist
    */
-  public function elementAssertAttributeHasValue(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertAttributeWithValueExists(string $selector, string $attribute, mixed $value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, FALSE);
+  }
+
+  /**
+   * Assert an element with selector and attribute containing a value exists.
+   *
+   * @Then the element :selector with the attribute :attribute and the value containing :value should exist
+   */
+  public function elementAssertAttributeContainingValueExists(string $selector, string $attribute, mixed $value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, FALSE);
+  }
+
+  /**
+   * Assert an element with selector and attribute with a value exists.
+   *
+   * @Then the element :selector with the attribute :attribute and the value :value should not exist
+   */
+  public function elementAssertAttributeWithValueNotExists(string $selector, string $attribute, mixed $value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, TRUE);
+  }
+
+  /**
+   * Assert an element with selector and attribute containing a value does not exist.
+   *
+   * @Then the element :selector with the attribute :attribute and the value containing :value should not exist
+   */
+  public function elementAssertAttributeContainingValueNotExists(string $selector, string $attribute, mixed $value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, TRUE);
+  }
+
+  /**
+   * Assert an element with selector and attribute with a value.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $attribute
+   *   The attribute name.
+   * @param mixed $value
+   *   The value to assert.
+   * @param bool $is_exact
+   *   Whether to assert the value exactly.
+   * @param bool $is_inverted
+   *   Whether to assert the value is not present.
+   *
+   * @throws \Exception
+   */
+  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, $is_exact, $is_inverted): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
     if (empty($elements)) {
-      throw new \Exception(sprintf('The "%s" element was not found on the page.', $selector));
+      throw new \Exception(sprintf('The "%s" element does not exist.', $selector));
     }
 
     $attr_found = FALSE;
     $attr_value_found = FALSE;
     foreach ($elements as $element) {
-      $attr = $element->getAttribute($attribute);
-      if (!empty($attr)) {
+      $attr_value = (string) $element->getAttribute($attribute);
+      if (!empty($attr_value)) {
         $attr_found = TRUE;
-        if (str_contains((string) $attr, strval($value))) {
+        if ($is_exact) {
+          if ($attr_value === strval($value)) {
+            $attr_value_found = TRUE;
+            break;
+          }
+        }
+        elseif (str_contains($attr_value, strval($value))) {
           $attr_value_found = TRUE;
           break;
         }
       }
     }
 
-    if (!$attr_value_found) {
-      if (!$attr_found) {
-        throw new \Exception(sprintf('The "%s" attribute was not found on the element "%s".', $attribute, $selector));
-      }
-      else {
-        throw new \Exception(sprintf('The "%s" attribute was found on the element "%s", but does not contain a value "%s".', $attribute, $selector, $value));
-      }
-    }
-  }
-
-  /**
-   * Assert element with wildcard pattern exists.
-   *
-   * Assert an element with selector and attribute with a value exists,
-   * matching a wildcard pattern.
-   *
-   * @Then I( should) see the :selector element with a(n) :attribute attribute containing :value
-   */
-  public function elementAssertAttributeContains(string $selector, string $attribute, string $pattern): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    if (empty($elements)) {
-      throw new \Exception(sprintf('The "%s" element was not found on the page.', $selector));
-    }
-
-    $attr_found = FALSE;
-    $attr_pattern_matched = FALSE;
-
-    foreach ($elements as $element) {
-      $attr = (string) $element->getAttribute($attribute);
-      if (!empty($attr)) {
-        $attr_found = TRUE;
-        // Convert wildcard pattern to regex.
-        $regex_pattern = '/' . str_replace(['*', '?'], ['.*', '.'], preg_quote($pattern, '/')) . '/';
-        if (preg_match($regex_pattern, $attr)) {
-          $attr_pattern_matched = TRUE;
-          break;
-        }
-      }
-    }
-
     if (!$attr_found) {
-      throw new \Exception(sprintf('The "%s" attribute was not found on the element "%s".', $attribute, $selector));
+      throw new \Exception(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector));
     }
 
-    if (!$attr_pattern_matched) {
-      throw new \Exception(sprintf('No element with "%s" attribute matching the pattern "%s" found.', $attribute, $pattern));
+    if ($is_inverted && $attr_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
+      throw new \Exception($message);
     }
-  }
-
-  /**
-   * Assert that an element with selector contains text.
-   *
-   * @Then I should see an element :selector using :type contains :text text
-   */
-  public function iShouldSeeAnElementUsingType(string $selector, string $type, string $text): void {
-    if ($type === 'css') {
-      $element = $this->getSession()->getPage()->find('css', $selector);
-    }
-    elseif ($type === 'xpath') {
-      $element = $this->getSession()->getPage()->find('xpath', $selector);
-    }
-    else {
-      throw new \Exception('Selector type must be "css" or "xpath".');
-    }
-
-    if (!$element) {
-      $exception = new ElementNotFoundException($this->getSession()->getDriver(), NULL, $type, $selector);
-
-      throw new \Exception($exception->getMessage());
-    }
-
-    if (!str_contains($element->getText(), $text)) {
-      throw new \Exception(sprintf('The text "%s" was not found in the element "%s" using %s.', $text, $selector, $type));
+    elseif (!$is_inverted && !$attr_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attr_value, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attr_value, $value);
+      throw new \Exception($message);
     }
   }
 
