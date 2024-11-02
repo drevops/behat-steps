@@ -3,7 +3,9 @@
     <description>Custom PHPCS standard.</description>
 
     <!-- Coding standard. -->
-    <rule ref="Drupal"/>
+    <rule ref="Drupal">
+        <exclude name="Drupal.Files.LineLength.TooLong"/>
+    </rule>
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="PHPCompatibility"/>
 
