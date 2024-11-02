@@ -17,70 +17,37 @@ use Drupal\taxonomy\Entity\Vocabulary;
 trait TaxonomyTrait {
 
   /**
-   * Assert that a vocabulary exist.
-   *
-   * @code
-   * Given vocabulary "topics" with name "Topics" exists
-   * @endcode
-   *
-   * @Given vocabulary :vid with name :name exists
+   * {@inheritdoc}
    */
-  public function taxonomyAssertVocabularyExist(string $name, string $vid): void {
-    $vocab = Vocabulary::load($vid);
-
-    if (!$vocab) {
-      throw new \Exception(sprintf('"%s" vocabulary does not exist', $vid));
-    }
-
-    if ($vocab->get('name') != $name) {
-      throw new \Exception(sprintf('"%s" vocabulary name is not "%s"', $vid, $name));
-    }
-  }
-
-  /**
-   * Assert that a taxonomy term exist by name.
-   *
-   * @code
-   * Given taxonomy term "Apple" from vocabulary "Fruits" exists
-   * @endcode
-   *
-   * @Given taxonomy term :name from vocabulary :vocabulary_id exists
-   */
-  public function taxonomyAssertTermExistsByName(string $name, string $vid): void {
-    $vocab = Vocabulary::load($vid);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('"%s" vocabulary does not exist', $vid));
-    }
-
-    $found = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadByProperties([
-        'name' => $name,
-        'vid' => $vid,
-      ]);
-
-    if (count($found) == 0) {
-      throw new \Exception(sprintf('Taxonomy term "%s" from vocabulary "%s" does not exist', $name, $vid));
-    }
+  public function createTerms(mixed $vocabulary, TableNode $table): void {
+    $vocabulary = (string) $vocabulary;
+    // Delete entities before creating them.
+    $this->taxonomyDeleteTerms($vocabulary, $table);
+    parent::createTerms($vocabulary, $table);
   }
 
   /**
    * Remove terms from a specified vocabulary.
    *
    * @code
-   * Given no "Fruits" terms:
-   * | Apple |
-   * | Pear  |
+   * Given the following "fruits" vocabulary terms do not exist:
+   *   | Apple |
+   *   | Pear  |
    * @endcode
    *
-   * @Given no :vocabulary terms:
+   * @Given the following :vocabulary_machine_name vocabulary terms do not exist:
    */
-  public function taxonomyDeleteTerms(string $vocabulary, TableNode $termsTable): void {
-    foreach ($termsTable->getColumn(0) as $name) {
+  public function taxonomyDeleteTerms(string $vocabulary_machine_name, TableNode $terms_table): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    foreach ($terms_table->getColumn(0) as $term_name) {
       $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties([
-        'name' => $name,
-        'vid' => $vocabulary,
+        'name' => $term_name,
+        'vid' => $vocabulary_machine_name,
       ]);
 
       /** @var \Drupal\taxonomy\Entity\Term $term */
@@ -91,40 +58,155 @@ trait TaxonomyTrait {
   }
 
   /**
+   * Assert that a vocabulary with a specific name exists.
+   *
+   * @code
+   * Then the vocabulary "topics" with the name "Topics" should exist
+   * @endcode
+   *
+   * @Then the vocabulary :machine_name with the name :name should exist
+   */
+  public function taxonomyAssertVocabularyExist(string $machine_name, string $name): void {
+    $vocab = Vocabulary::load($machine_name);
+
+    if (!$vocab) {
+      throw new \Exception(sprintf('The vocabulary "%s" does not exist.', $machine_name));
+    }
+
+    $actual_name = $vocab->get('name');
+    if ($actual_name != $name) {
+      throw new \Exception(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $machine_name, $actual_name, $name));
+    }
+  }
+
+  /**
+   * Assert that a vocabulary with a specific name does not exist.
+   *
+   * @code
+   * Then the vocabulary "topics" should not exist
+   * @endcode
+   *
+   * @Then the vocabulary :machine_name should not exist
+   */
+  public function taxonomyAssertVocabularyNotExist(string $machine_name): void {
+    $vocab = Vocabulary::load($machine_name);
+
+    if ($vocab) {
+      throw new \Exception(sprintf('The vocabulary "%s" exist, but it should not.', $machine_name));
+    }
+  }
+
+  /**
+   * Assert that a taxonomy term exist by name.
+   *
+   * @code
+   * Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
+   * @endcode
+   *
+   * @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist
+   */
+  public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary_machine_name): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    $found = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties([
+        'name' => $term_name,
+        'vid' => $vocabulary_machine_name,
+      ]);
+
+    if (count($found) == 0) {
+      throw new \Exception(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary_machine_name));
+    }
+  }
+
+  /**
+   * Assert that a taxonomy term does not exist by name.
+   *
+   * @code
+   * Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
+   * @endcode
+   *
+   * @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist
+   */
+  public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary_machine_name): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    $found = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties([
+        'name' => $term_name,
+        'vid' => $vocabulary_machine_name,
+      ]);
+
+    if (count($found) > 0) {
+      throw new \Exception(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary_machine_name));
+    }
+  }
+
+  /**
    * Visit specified vocabulary term page.
    *
-   * @When I visit :vocabulary vocabulary term :name
+   * @code
+   * When I visit the "fruits" vocabulary "Apple" term page
+   * @endcode
+   *
+   * @When I visit the :vocabulary_machine_name vocabulary :term_name term page
    */
-  public function taxonomyVisitTermPageWithName(string $vocabulary, string $name): void {
-    $tids = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $name,
+  public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
+      'name' => $term_name,
     ]);
 
     if (empty($tids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $vocabulary, $name));
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
     }
 
+    // Use the term created last.
     ksort($tids);
     $tid = end($tids);
 
     $path = $this->locatePath('/taxonomy/term/' . $tid);
-    print $path;
 
     $this->getSession()->visit($path);
   }
 
   /**
-   * Visit specified vocabulary term edit page.
+   * Edit specified vocabulary term page.
    *
-   * @When I edit :vocabulary vocabulary term :name
+   * @code
+   * When I edit the "fruits" vocabulary "Apple" term page
+   * @endcode
+   *
+   * @When I edit the :vocabulary_machine_name vocabulary :term_name term page
    */
-  public function taxonomyEditTermPageWithName(string $vocabulary, string $name): void {
-    $tids = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $name,
+  public function taxonomyEditTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
+      'name' => $term_name,
     ]);
 
     if (empty($tids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $vocabulary, $name));
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
     }
 
     ksort($tids);
@@ -139,7 +221,7 @@ trait TaxonomyTrait {
   /**
    * Load multiple terms with specified vocabulary and conditions.
    *
-   * @param string $vocabulary
+   * @param string $vocabulary_machine_name
    *   The term vocabulary.
    * @param array<string,string> $conditions
    *   Conditions keyed by field names.
@@ -147,10 +229,10 @@ trait TaxonomyTrait {
    * @return array<int, string>
    *   Array of term ids.
    */
-  protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
+  protected function taxonomyLoadMultiple(string $vocabulary_machine_name, array $conditions = []): array {
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)
-      ->condition('vid', $vocabulary);
+      ->condition('vid', $vocabulary_machine_name);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();

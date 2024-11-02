@@ -1,96 +1,216 @@
+@api
 Feature: Check that TaxonomyTrait works
 
-  @api
-  Scenario: Assert "Given vocabulary :vid with name :name exists"
-    Given no "tags" terms:
-      | T1 |
-    And "tags" terms:
+  Background:
+    Given "tags" terms:
       | name |
-      | T1   |
-    And I am logged in as a user with the "administrator" role
-    And vocabulary tags with name "Tags" exists
-    And taxonomy term "T1" from vocabulary "tags" exists
-    When I visit "tags" vocabulary term "T1"
-    Then I see the text "T1"
+      | Tag1 |
+      | Tag2 |
+      | Tag3 |
 
-    When I edit "tags" vocabulary term "T1"
-    Then I see the text "Edit term"
-    And I see the text "T1"
+  Scenario: Assert "Then the vocabulary :machine_name with the name :name should exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the vocabulary "tags" with the name "Tags" should exist
 
   @trait:TaxonomyTrait
-  Scenario: Assert that negative assertion for "Given vocabulary :vid with name :name exists" fails with an error for non-existing vocabulary
+  Scenario: Assert negative assertion for "Then the vocabulary :machine_name with the name :name should exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given vocabulary "non_existing_topics" with name "Non Existing Topics" exists
+      Given I am logged in as a user with the "administrator" role
+      Then the vocabulary "noneixisting" with the name "Noneixisting" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      "non_existing_topics" vocabulary does not exist
+      The vocabulary "noneixisting" does not exist.
       """
 
   @trait:TaxonomyTrait
-  Scenario: Assert that negative assertion for "Given vocabulary :vid with name :name exists" fails with an error for existing vocabulary with different name
+  Scenario: Assert negative assertion for "Then the vocabulary :machine_name with the name :name should exist" works with existing vocabulary but incorrect name
     Given some behat configuration
     And scenario steps:
       """
-      Given vocabulary "tags" with name "Tags Fake" exists
+      Given I am logged in as a user with the "administrator" role
+      Then the vocabulary "tags" with the name "Invalidname" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      "tags" vocabulary name is not "Tags Fake"
+      The vocabulary "tags" exists with a name "Tags", but expected "Invalidname".
       """
 
+  Scenario: Assert "Then the vocabulary :machine_name should not exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the vocabulary "noneixisting" should not exist
+
   @trait:TaxonomyTrait
-  Scenario: Assert "Given taxonomy term :name from vocabulary :vocabulary_id exists" fail with an error
+  Scenario: Assert negative assertion for "Then the vocabulary :machine_name should not exist" works with existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given taxonomy term "Tag Random 1" from vocabulary "tags" exists
+      Given I am logged in as a user with the "administrator" role
+      Then the vocabulary "tags" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Taxonomy term "Tag Random 1" from vocabulary "tags" does not exist
+      The vocabulary "tags" exist, but it should not.
       """
 
+  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the taxonomy term "Tag1" from the vocabulary "tags" should exist
+
   @trait:TaxonomyTrait
-  Scenario: Assert "Given taxonomy term :name from vocabulary :vocabulary_id exists" fail with an exception
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given taxonomy term "Tag Random 1" from vocabulary "tags_random" exists
+      Given I am logged in as a user with the "administrator" role
+      Then the taxonomy term "Tag" from the vocabulary "nonexisting" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      "tags_random" vocabulary does not exist
+      The vocabulary "nonexisting" does not exist.
       """
 
   @trait:TaxonomyTrait
-  Scenario: Assert "When I visit :vocabulary vocabulary term :name" fail with an exception
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works with non-existing term
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "tags" vocabulary term "Random Tag"
+      Given I am logged in as a user with the "administrator" role
+      Then the taxonomy term "Nonexisting" from the vocabulary "tags" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The taxonomy term "Nonexisting" from the vocabulary "tags" does not exist.
+      """
+
+  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the taxonomy term "Nonexisting" from the vocabulary "tags" should not exist
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works with non-existing vocabulary
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then the taxonomy term "Nonexisting" from the vocabulary "nonexisting" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Unable to find tags term "Random Tag"
+      The vocabulary "nonexisting" does not exist.
       """
 
   @trait:TaxonomyTrait
-  Scenario: Assert "When I edit :vocabulary vocabulary term :name" fail with an exception
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works with an existing term
     Given some behat configuration
     And scenario steps:
       """
-      When I edit "tags" vocabulary term "Random Tag"
+      Given I am logged in as a user with the "administrator" role
+      Then the taxonomy term "Tag1" from the vocabulary "tags" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The taxonomy term "Tag1" from the vocabulary "tags" exists, but it should not.
+      """
+
+  @trait:TaxonomyTrait
+  Scenario: Assert "Given the following :vocabulary_machine_name vocabulary terms do not exist" works
+    Given the following "tags" vocabulary terms do not exist:
+      | Tag1        |
+      | Tag2        |
+      | Nonexisting |
+    Then the taxonomy term "Tag1" from the vocabulary "tags" should not exist
+    Then the taxonomy term "Tag2" from the vocabulary "tags" should not exist
+    Then the taxonomy term "Nonexisting" from the vocabulary "tags" should not exist
+    Then the taxonomy term "Tag3" from the vocabulary "tags" should exist
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "Given the following :vocabulary_machine_name vocabulary terms do not exist" fails with non-existing vocabulary
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "nonexisting" vocabulary terms do not exist:
+        | Tag1        |
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Unable to find tags term "Random Tag"
+      The vocabulary "nonexisting" does not exist.
+      """
+
+  Scenario: Assert "When I visit the :vocabulary_machine_name vocabulary :term_name term page" works
+    Given I am logged in as a user with the "administrator" role
+    When I visit the "tags" vocabulary "Tag1" term page
+    Then the response should contain "200"
+    And I should see "Tag1"
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the "nonexisting" vocabulary "Tag1" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The vocabulary "nonexisting" does not exist.
+      """
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the "tags" vocabulary "Nonexisting" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find the term "Nonexisting" in the vocabulary "tags".
+      """
+
+  Scenario: Assert "When I edit the :vocabulary_machine_name vocabulary :term_name term page" works
+    Given I am logged in as a user with the "administrator" role
+    When I edit the "tags" vocabulary "Tag1" term page
+    Then the response should contain "200"
+    And I should see "Tag1"
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "When I edit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I edit the "nonexisting" vocabulary "Tag1" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The vocabulary "nonexisting" does not exist.
+      """
+
+  @trait:TaxonomyTrait
+  Scenario: Assert negative assertion for "When I edit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I edit the "tags" vocabulary "Nonexisting" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find the term "Nonexisting" in the vocabulary "tags".
       """
