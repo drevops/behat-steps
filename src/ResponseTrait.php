@@ -17,62 +17,72 @@ trait ResponseTrait {
    * Assert that a response contains a header with specified name.
    *
    * @code
-   * Then response contains header "Connection"
+   * Then the response should contain the header "Connection"
    * @endcode
    *
-   * @Then response contains header :name
+   * @Then the response should contain the header :header_name
    */
-  public function responseAssertContainsHeader(string $name): void {
-    $header = $this->getSession()->getResponseHeader($name);
+  public function responseAssertContainsHeader(string $header_name): void {
+    $header = $this->getSession()->getResponseHeader($header_name);
 
     if (!$header) {
-      throw new \Exception(sprintf('Response does not contain header %s', $name));
+      throw new \Exception(sprintf('The response does not contain the header "%s".', $header_name));
     }
   }
 
   /**
-   * Assert that a response does not contain a header with specified name.
+   * Assert that a response does not contain a header with a specified name.
    *
    * @code
-   * Then response does not contain header "Connection"
+   * Then the response should not contain the header "Connection"
    * @endcode
    *
-   * @Then response does not contain header :name
+   * @Then the response should not contain the header :header_name
    */
-  public function responseAssertNotContainsHeader(string $name): void {
-    $header = $this->getSession()->getResponseHeader($name);
+  public function responseAssertNotContainsHeader(string $header_name): void {
+    $header = $this->getSession()->getResponseHeader($header_name);
 
     if ($header) {
-      throw new \Exception(sprintf('Response contains header %s, but should not', $name));
+      throw new \Exception(sprintf('The response contains the header "%s", but should not.', $header_name));
     }
   }
 
   /**
-   * Assert that a response contains a header with specified name and value.
+   * Assert that a response contains a header with a specified name and value.
    *
    * @code
-   * Then response header "Connection" contains "Keep-Alive"
+   * Then the response header "Connection" should contain the value "Keep-Alive"
    * @endcode
    *
-   * @Then response header :name contains :value
+   * @Then the response header :header_name should contain the value :header_value
    */
-  public function responseAssertHeaderContains(string $name, string $value): void {
-    $this->responseAssertContainsHeader($name);
-    $this->assertSession()->responseHeaderContains($name, $value);
+  public function responseAssertHeaderContains(string $header_name, string $header_value): void {
+    $header = $this->getSession()->getResponseHeader($header_name);
+
+    if (!$header) {
+      throw new \RuntimeException(sprintf('The response does not contain the header "%s".', $header_name));
+    }
+
+    $this->assertSession()->responseHeaderContains($header_name, $header_value);
   }
 
   /**
-   * Assert a response does not contain a header with specified name and value.
+   * Assert a response does not contain a header with a specified name and value.
    *
    * @code
-   * Then response header "Connection" does not contain "Keep-Alive"
+   * Then the response header "Connection" should not contain the value "Keep-Alive"
    * @endcode
    *
-   * @Then response header :name does not contain :value
+   * @Then the response header :header_name should not contain the value :header_value
    */
-  public function responseAssertHeaderNotContains(string $name, string $value): void {
-    $this->responseAssertContainsHeader($name);
-    $this->assertSession()->responseHeaderNotContains($name, $value);
+  public function responseAssertHeaderNotContains(string $header_name, string $header_value): void {
+    $header = $this->getSession()->getResponseHeader($header_name);
+
+    if (!$header) {
+      throw new \RuntimeException(sprintf('The response does not contain the header "%s".', $header_name));
+    }
+
+    $this->assertSession()->responseHeaderNotContains($header_name, $header_value);
   }
 
 }
