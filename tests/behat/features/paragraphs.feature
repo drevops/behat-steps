@@ -3,7 +3,7 @@ Feature: Check that ParagraphsTrait works
 
   Background:
     Given I am logged in as a user with the "administrator" role
-    Given no landing_page content:
+    And the following "landing_page" content does not exist:
       | title                 |
       | [TEST] Landing page 1 |
     And landing_page content:
@@ -15,7 +15,7 @@ Feature: Check that ParagraphsTrait works
       | field_paragraph_title       | My paragraph title   |
       | field_paragraph_body:value  | My paragraph message |
       | field_paragraph_body:format | full_html            |
-    And I visit landing_page "[TEST] Landing page 1"
+    When I visit the "landing_page" content page with the title "[TEST] Landing page 1"
     Then I should see the text "My paragraph title"
     And I should see the text "My paragraph message"
 

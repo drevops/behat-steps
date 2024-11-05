@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\workflows\Entity\Workflow;
 
 /**
  * Trait ContentTrait.
@@ -19,99 +22,30 @@ trait ContentTrait {
    * Delete content type.
    *
    * @code
-   * Given no "article" content type
+   * Given the content type "article" does not exist
    * @endcode
    *
-   * @Given no :type content type
+   * @Given the content type :content_type does not exist
    */
-  public function contentRemoveContentType(string $type): void {
-    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($type);
+  public function contentRemoveContentType(string $content_type): void {
+    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+
     if ($content_type_entity) {
       $content_type_entity->delete();
     }
   }
 
   /**
-   * Navigate to page with specified type and title.
-   *
-   * @code
-   * When I visit "article" "Test article"
-   * @endcode
-   *
-   * @When I visit :type :title
-   */
-  public function contentVisitPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentLoadMultiple($type, [
-      'title' => $title,
-    ]);
-
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
-    }
-
-    ksort($nids);
-
-    $nid = end($nids);
-    $path = $this->locatePath('/node/' . $nid);
-    print $path;
-    $this->getSession()->visit($path);
-  }
-
-  /**
-   * Navigate to edit page with specified type and title.
-   *
-   * @code
-   * When I edit "article" "Test article"
-   * @endcode
-   *
-   * @When I edit :type :title
-   */
-  public function contentEditPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentLoadMultiple($type, [
-      'title' => $title,
-    ]);
-
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
-    }
-
-    $nid = current($nids);
-    $path = $this->locatePath('/node/' . $nid) . '/edit';
-    print $path;
-    $this->getSession()->visit($path);
-  }
-
-  /**
-   * Navigate to delete page with specified type and title.
-   *
-   * @When I delete :type :title
-   */
-  public function contentDeletePageWithTitle(string $type, string $title): void {
-    $nids = $this->contentLoadMultiple($type, [
-      'title' => $title,
-    ]);
-
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
-    }
-
-    $nid = current($nids);
-    $path = $this->locatePath('/node/' . $nid) . '/delete';
-    print $path;
-    $this->getSession()->visit($path);
-  }
-
-  /**
    * Remove content defined by provided properties.
    *
    * @code
-   * Given no "article" content:
+   * Given the following "article" content does not exist:
    *   | title                |
    *   | Test article         |
    *   | Another test article |
    * @endcode
    *
-   * @Given /^no ([a-zA-z0-9_-]+) content:$/
+   * @Given the following :content_type content does not exist:
    */
   public function contentDelete(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
@@ -124,55 +58,140 @@ trait ContentTrait {
   }
 
   /**
-   * Change moderation state of a content with specified title.
+   * Visit a page of a type with a specified title.
    *
    * @code
-   * When the moderation state of "article" "Test article" changes from "draft" to "published"
+   * When I visit the "article" content page with the title "Test article"
    * @endcode
    *
-   * @When the moderation state of :type :title changes from :old_state to :new_state
+   * @When I visit the :content_type content page with the title :title
    */
-  public function contentModeratePageWithTitle(string $type, string $title, string $old_state, string $new_state): void {
-    $nodes = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->loadByProperties([
-        'title' => $title,
-        'type' => $type,
-      ]);
-
-    if (empty($nodes)) {
-      throw new \Exception(sprintf('Unable to find %s page "%s"', $type, $title));
-    }
-
-    /** @var \Drupal\node\Entity\Node $node */
-    $node = current($nodes);
-    $current_old_state = $node->get('moderation_state')->first()->getString();
-    if ($current_old_state != $old_state) {
-      throw new \Exception(sprintf('The current state "%s" is different from "%s"', $current_old_state, $old_state));
-    }
-
-    $node->set('moderation_state', $new_state);
-    $node->save();
+  public function contentVisitViewWithTitle(string $content_type, string $title): void {
+    $this->contentVisitActionPageWithTitle($content_type, $title);
   }
 
   /**
-   * Visit scheduled-transition page for node with title.
+   * Visit an edit page of a type with a specified title.
    *
-   * @When I visit :type :title scheduled transitions
+   * @code
+   * When I visit the "article" content edit page with the title "Test article"
+   * @endcode
+   *
+   * @When I visit the :content_type content edit page with the title :title
    */
-  public function contentVisitScheduledTransitionsPageWithTitle(string $type, string $title): void {
-    $nids = $this->contentLoadMultiple($type, [
+  public function contentVisitEditPageWithTitle(string $content_type, string $title): void {
+    $this->contentVisitActionPageWithTitle($content_type, $title, '/edit');
+  }
+
+  /**
+   * Visit a delete page of a type with a specified title.
+   *
+   * @code
+   * When I visit the "article" content delete page with the title "Test article"
+   * @endcode
+   *
+   * @When I visit the :content_type content delete page with the title :title
+   */
+  public function contentVisitDeletePageWithTitle(string $content_type, string $title): void {
+    $this->contentVisitActionPageWithTitle($content_type, $title, '/delete');
+  }
+
+  /**
+   * Visit a scheduled transitions page of a type with a specified title.
+   *
+   * @code
+   * When I visit the "article" content scheduled transitions page with the title "Test article"
+   * @endcode
+   *
+   * @When I visit the :content_type content scheduled transitions page with the title :title
+   */
+  public function contentVisitScheduledTransitionsPageWithTitle(string $content_type, string $title): void {
+    $this->contentVisitActionPageWithTitle($content_type, $title, '/scheduled-transitions');
+  }
+
+  /**
+   * Visit the action page of the content with a specified title.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param string $title
+   *   The title of the content.
+   * @param string $action_subpath
+   *   The operation to perform.
+   */
+  protected function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
+    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+
+    if (!$content_type_entity) {
+      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
+    }
+
+    $nids = $this->contentLoadMultiple($content_type, [
       'title' => $title,
     ]);
 
     if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
     }
 
-    $nid = current($nids);
-    $path = $this->locatePath('/node/' . $nid) . '/scheduled-transitions';
-    print $path;
+    ksort($nids);
+
+    $nid = end($nids);
+    $path = $this->locatePath('/node/' . $nid . $action_subpath);
+
     $this->getSession()->visit($path);
+  }
+
+  /**
+   * Change moderation state of a content with the specified title.
+   *
+   * @code
+   * When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+   * @endcode
+   *
+   * @When I change the moderation state of the :content_type content with the title :title to the :new_state state
+   */
+  public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
+    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+
+    if (!$content_type_entity) {
+      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
+    }
+
+    $nids = $this->contentLoadMultiple($content_type, [
+      'title' => $title,
+    ]);
+
+    if (empty($nids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+
+    ksort($nids);
+
+    $nid = end($nids);
+    /** @var \Drupal\node\Entity\Node $node */
+    $node = Node::load($nid);
+
+    if (!$node instanceof NodeInterface) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+
+    $state_is_valid = FALSE;
+    $workflows = Workflow::loadMultiple();
+    foreach ($workflows as $workflow) {
+      $workflow_type_settings = $workflow->get('type_settings');
+      if (in_array($content_type, $workflow_type_settings['entity_types']['node']) && isset($workflow_type_settings['states'][$new_state])) {
+        $state_is_valid = TRUE;
+        break;
+      }
+    }
+
+    if (!$state_is_valid) {
+      throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $new_state, $content_type));
+    }
+
+    $node->set('moderation_state', $new_state);
+    $node->save();
   }
 
   /**

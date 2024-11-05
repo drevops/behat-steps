@@ -275,17 +275,21 @@ function print_report(array $info): void {
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
-      $step = $method['steps'][0];
+      $step = (string) $method['steps'][0];
 
-      if (str_starts_with((string) $step, '@When') && !str_contains((string) $method['steps'][0], 'I ')) {
+      if (str_starts_with($step, '@Given') && str_ends_with($step, ':') && !str_contains($step, 'following')) {
+        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "following" in the step');
+      }
+
+      if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
         printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "I " in the step');
       }
 
-      if (str_starts_with((string) $step, '@Then') && !str_contains((string) $method['steps'][0], 'should')) {
+      if (str_starts_with($step, '@Then') && !str_contains($step, 'should')) {
         printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "should" in the step');
       }
 
-      if (str_starts_with((string) $step, '@Then') && !str_contains((string) $method['steps'][0], 'the')) {
+      if (str_starts_with($step, '@Then') && !str_contains($step, 'the')) {
         printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "the" in the step');
       }
 
