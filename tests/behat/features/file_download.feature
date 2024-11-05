@@ -24,7 +24,7 @@ Feature: Check that FileDownloadTrait works
 
   @api
   Scenario: Assert "Then I download file from link :link"
-    When I visit article "[TEST] document page"
+    When I visit the "article" content page with the title "[TEST] document page"
     Then I see download "example_text.txt" link "present"
     Then I download file from link "example_text.txt"
     And downloaded file contains:
@@ -34,7 +34,7 @@ Feature: Check that FileDownloadTrait works
 
   @api
   Scenario: Assert "Given downloaded file is zip archive that contains files:"
-    When I visit article "[TEST] zip page"
+    When I visit the "article" content page with the title "[TEST] zip page"
     Then I see download "example_files.zip" link "present"
     Then I download file from link "example_files.zip"
     And downloaded file name is "example_files.zip"

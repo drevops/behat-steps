@@ -122,66 +122,74 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 #### Delete content type
 
 ```gherkin
-@Given no :type content type
+@Given the content type :content_type does not exist
 ```
 Example:
 ```gherkin
-Given no "article" content type
+Given the content type "article" does not exist
 ```
 
 #### Remove content defined by provided properties
 
 ```gherkin
-@Given /^no ([a-zA-z0-9_-]+) content:$/
+@Given the following :content_type content does not exist:
 ```
 Example:
 ```gherkin
-Given no "article" content:
+Given the following "article" content does not exist:
   | title                |
   | Test article         |
   | Another test article |
 ```
 
-#### Navigate to page with specified type and title
+#### Visit a page of a type with a specified title
 
 ```gherkin
-@When I visit :type :title
+@When I visit the :content_type content page with the title :title
 ```
 Example:
 ```gherkin
-When I visit "article" "Test article"
+When I visit the "article" content page with the title "Test article"
 ```
 
-#### Navigate to edit page with specified type and title
+#### Visit an edit page of a type with a specified title
 
 ```gherkin
-@When I edit :type :title
-```
-Example:
-```gherkin
-When I edit "article" "Test article"
-```
-
-#### Navigate to delete page with specified type and title
-
-```gherkin
-@When I delete :type :title
-```
-
-#### Change moderation state of a content with specified title
-
-```gherkin
-@When the moderation state of :type :title changes from :old_state to :new_state
+@When I visit the :content_type content edit page with the title :title
 ```
 Example:
 ```gherkin
-When the moderation state of "article" "Test article" changes from "draft" to "published"
+When I visit the "article" content edit page with the title "Test article"
 ```
 
-#### Visit scheduled-transition page for node with title
+#### Visit a delete page of a type with a specified title
 
 ```gherkin
-@When I visit :type :title scheduled transitions
+@When I visit the :content_type content delete page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content delete page with the title "Test article"
+```
+
+#### Visit a scheduled transitions page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content scheduled transitions page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content scheduled transitions page with the title "Test article"
+```
+
+#### Change moderation state of a content with the specified title
+
+```gherkin
+@When I change the moderation state of the :content_type content with the title :title to the :new_state state
+```
+Example:
+```gherkin
+When I change the moderation state of the "article" content with the title "Test article" to the "published" state
 ```
 
 ### CookieTrait

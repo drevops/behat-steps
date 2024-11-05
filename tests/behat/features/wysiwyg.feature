@@ -6,7 +6,7 @@ Feature: Check that WysiywgTrait works.
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
-    And I edit "page" "[TEST] Page title"
+    And I visit the "page" content edit page with the title "[TEST] Page title"
     When I fill in WYSIWYG "Body" with "[TEST] value"
     And save screenshot
     And I press "Save"
@@ -18,7 +18,7 @@ Feature: Check that WysiywgTrait works.
       | title                       |
       | [TEST-JS-Driver] Page title |
     And I am logged in as a user with the "administrator" role
-    And I edit "page" "[TEST-JS-Driver] Page title"
+    And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
     When I fill in WYSIWYG "Body" with "[TEST-JS-Driver] value"
     And save screenshot
     And I press "Save"
