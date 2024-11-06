@@ -125,6 +125,14 @@ commands:
       && ahoy cli "cd /app/build && ./vendor/bin/rector --clear-cache" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpcbf"
 
+  lint-docs:
+    usage: Lint docs.
+    cmd: ahoy cli "php docs.php --fail-on-change"
+
+  update-docs:
+    usage: Lint docs.
+    cmd: ahoy cli "php docs.php"
+
   test-bdd:
     usage: Run BDD tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors $@"

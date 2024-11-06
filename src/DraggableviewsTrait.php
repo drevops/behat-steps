@@ -11,13 +11,13 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
 /**
- * Trait DraggableViewsTrait.
+ * Trait DraggableviewsTrait.
  *
  * Draggable Views-related steps.
  *
  * @note This is currently limited to nodes only.
  */
-trait DraggableViewsTrait {
+trait DraggableviewsTrait {
 
   /**
    * Save order of the Draggable Order items.

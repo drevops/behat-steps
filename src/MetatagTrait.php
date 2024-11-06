@@ -7,13 +7,13 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Trait Metatag.
+ * Trait MetatagTrait.
  *
  * Steps to work with Metatag.
  *
  * @package DrevOps\BehatSteps
  */
-trait MetaTagTrait {
+trait MetatagTrait {
 
   /**
    * Assert that a meta tag with specific attributes and values exists.

@@ -1,4 +1,4 @@
-Feature: Check that MetaTagTrait works
+Feature: Check that MetatagTrait works
 
   @api
   Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
@@ -7,7 +7,7 @@ Feature: Check that MetaTagTrait works
       | name    | MobileOptimized |
       | content | width           |
 
-  @trait:MetaTagTrait
+  @trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -30,7 +30,7 @@ Feature: Check that MetaTagTrait works
       | name    | Non_Existing |
       | content | width        |
 
-  @trait:MetaTagTrait
+  @trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
