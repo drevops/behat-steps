@@ -106,9 +106,9 @@ trait ContentTrait {
    *
    * @code
    * Given no "article" content:
-   * | title                |
-   * | Test article         |
-   * | Another test article |
+   *   | title                |
+   *   | Test article         |
+   *   | Another test article |
    * @endcode
    *
    * @Given /^no ([a-zA-z0-9_-]+) content:$/

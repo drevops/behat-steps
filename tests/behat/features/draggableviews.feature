@@ -1,5 +1,5 @@
 @api
-Feature: Check that DraggableViewsTrait works
+Feature: Check that DraggableviewsTrait works
 
   Scenario: Assert save order of the Draggable Order items
     Given "draggableviews_demo" content:
@@ -29,7 +29,7 @@ Feature: Check that DraggableViewsTrait works
     Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 2"
     And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 1"
 
-  @trait:DraggableViewsTrait
+  @trait:DraggableviewsTrait
   Scenario: Assert that negative assertion for "When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:" step throws an exception
     Given some behat configuration
     And scenario steps:

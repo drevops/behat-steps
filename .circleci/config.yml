@@ -30,6 +30,10 @@ jobs:
           command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
+          name: Lint documentation
+          command: ahoy lint-docs || [ "${CI_LINT_DOCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
           name: Run tests with coverage
           command: ahoy test-bdd-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 

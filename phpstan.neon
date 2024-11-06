@@ -11,6 +11,7 @@ parameters:
   paths:
     - ../src
     - ../tests/behat/bootstrap
+    - ../docs.php
 
   excludePaths:
     - vendor/*

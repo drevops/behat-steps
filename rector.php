@@ -43,6 +43,7 @@ return static function (RectorConfig $rectorConfig): void {
   $rectorConfig->paths([
     $drupalRoot . '/../../src',
     $drupalRoot . '/../../tests/behat/bootstrap',
+    $drupalRoot . '/../../docs.php',
   ]);
 
   $rectorConfig->sets([
