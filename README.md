@@ -1051,52 +1051,153 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 [Source](src/UserTrait.php), [Example](tests/behat/features/user.feature)
 
-#### Remove users specified in the table
+#### Remove users specified in a table
 
 ```gherkin
-@Given no users:
+@Given the following users do not exist:
 ```
-
-#### Visit profile page of the specified user
-
+Example:
 ```gherkin
-@When I visit user :name profile
-```
-
-#### Visit edit page of the current user
-
-```gherkin
-@When I go to my profile edit page
-```
-
-#### Visit edit page of the specified user
-
-```gherkin
-@When I edit user :name profile
-```
-
-#### Assert that a user has roles assigned
-
-```gherkin
-@Then user :name has :roles role(s) assigned
-```
-
-#### Assert that a user does not have roles assigned
-
-```gherkin
-@Then user :name does not have :roles role(s) assigned
-```
-
-#### Assert that a user is active or not
-
-```gherkin
-@Then user :name has :status status
+Given the following users do not exist:
+ | name |
+ | John |
+ | Jane |
+ Given the following users do not exist:
+  | mail             |
+  | john@example.com |
+  | jane@example.com |
 ```
 
 #### Set a password for a user
 
 ```gherkin
-@Then I set user :user password to :password
+@Given the password for the user :name is :password
+```
+Example:
+```gherkin
+Given the password for the user "John" is "password"
+```
+
+#### Set last access time for a user
+
+```gherkin
+@Given the last access time for the user :name is :datetime
+```
+Example:
+```gherkin
+Given the last access time for the user "John" is "Friday, 22 November 2024 13:46:14"
+Given the last access time for the user "John" is "1732319174"
+```
+
+#### Set last login time for a user
+
+```gherkin
+@Given the last login time for the user :name is :datetime
+```
+Example:
+```gherkin
+Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
+Given the last login time for the user "John" is "1732319174"
+```
+
+#### Visit the profile page of the specified user
+
+```gherkin
+@When I visit :name user profile page
+```
+Example:
+```gherkin
+When I visit "John" user profile page
+```
+
+#### Visit the profile page of the current user
+
+```gherkin
+@When I visit my own user profile page
+```
+Example:
+```gherkin
+When I visit my own user profile page
+```
+
+#### Visit the profile edit page of the specified user
+
+```gherkin
+@When I visit :name user profile edit page
+```
+Example:
+```gherkin
+When I visit "John" user profile edit page
+```
+
+#### Visit the profile edit page of the current user
+
+```gherkin
+@When I visit my own user profile edit page
+```
+Example:
+```gherkin
+When I visit my own user profile edit page
+```
+
+#### Visit the profile delete page of the specified user
+
+```gherkin
+@When I visit :name user profile delete page
+```
+Example:
+```gherkin
+When I visit "John" user profile delete page
+```
+
+#### Visit the profile delete page of the current user
+
+```gherkin
+@When I visit my own user profile delete page
+```
+Example:
+```gherkin
+When I visit my own user profile delete page
+```
+
+#### Assert that a user has roles assigned
+
+```gherkin
+@Then the user :name should have the role(s) :roles assigned
+```
+Example:
+```gherkin
+Then the user "John" should have the roles "administrator, editor" assigned
+```
+
+#### Assert that a user does not have roles assigned
+
+```gherkin
+@Then the user :name should not have the role(s) :roles assigned
+```
+Example:
+```gherkin
+Then the user "John" should not have the roles "administrator, editor" assigned
+```
+
+#### Assert that a user is blocked
+
+```gherkin
+@Then the user :name should be blocked
+```
+Example:
+```gherkin
+Then the user "John" should be blocked
+```
+
+#### Assert that a user is not blocked
+
+```gherkin
+@Then the user :name should not be blocked
+```
+Example:
+```gherkin
+Then the user "John" should not be blocked
 ```
 
 ### VisibilityTrait

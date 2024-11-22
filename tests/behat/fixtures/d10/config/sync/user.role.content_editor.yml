@@ -19,7 +19,7 @@ _core:
   default_config_hash: Wur9kcEOwY1Jal81NssKnz3RhVJxAvBwyWQBGcA_1Go
 id: content_editor
 label: 'Content editor'
-weight: 2
+weight: -8
 is_admin: false
 permissions:
   - 'access administration pages'

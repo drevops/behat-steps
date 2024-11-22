@@ -40,15 +40,35 @@ trait FeatureContextTrait {
   }
 
   /**
-   * @Then user :name does not exist
+   * @Then user :name should exist
    */
-  public function testAssertUserDoesNotExist(string $name): void {
+  public function testUserExists(string $name): void {
+    // We need to check that user exists in both DB and test variables.
+    $users = $this->userLoadMultiple(['name' => $name]);
+    $user = reset($users);
+
+    if (!$user) {
+      throw new \Exception(sprintf('User "%s" does not exist in DB.', $name));
+    }
+
+    try {
+      $this->getUserManager()->getUser($name);
+    }
+    catch (\Exception) {
+      throw new \Exception(sprintf('User "%s" exists in DB, but does not exist in test variables', $name));
+    }
+  }
+
+  /**
+   * @Then user :name should not exist
+   */
+  public function testUserNotExists(string $name): void {
     // We need to check that user was removed from both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
     if ($user) {
-      throw new \Exception(sprintf('User "%s" exists in DB but should not', $name));
+      throw new \Exception(sprintf('User "%s" exists in DB, but should not.', $name));
     }
 
     try {
@@ -58,7 +78,7 @@ trait FeatureContextTrait {
       return;
     }
 
-    throw new \Exception(sprintf('User "%s" does not exist in DB, but still exists in test variables', $name));
+    throw new \Exception(sprintf('User "%s" does not exist in DB, but exists in test variables', $name));
   }
 
   /**
