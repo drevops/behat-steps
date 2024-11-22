@@ -19,7 +19,7 @@
 </div>
 
 > [!IMPORTANT]
-> Behat Steps version [3.0](https://github.com/drevops/behat-steps/tree/3.x) is coming soon with more consistent steps language and more steps! Track progress in [this issue](https://github.com/drevops/behat-steps/issues/134).
+> Behat Steps version [3.0](https://github.com/drevops/behat-steps/tree/3.x) is on the way, featuring additional steps and refined, consistent language! Follow the progress in [this issue](https://github.com/drevops/behat-steps/issues/134).
 
 ---
 
