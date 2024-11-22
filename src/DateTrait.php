@@ -18,6 +18,7 @@ trait DateTrait {
   /**
    * Transform a scalar value.
    *
+   * @Transform :datetime
    * @Transform :value
    * @Transform :expectedValue
    */

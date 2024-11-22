@@ -6,74 +6,35 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Trait UserTrait.
  *
  * User-related steps.
  *
- * @package DrevOps\BehatSteps\D7
+ * @package DrevOps\BehatSteps
  */
 trait UserTrait {
 
-  use DateTrait;
-
   /**
-   * Visit profile page of the specified user.
+   * Remove users specified in a table.
    *
-   * @When I visit user :name profile
-   */
-  public function userVisitProfile(string $name): void {
-    $users = $this->userLoadMultiple(['name' => $name]);
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
-    }
-
-    $user = reset($users);
-
-    $this->visitPath('/user/' . $user->id());
-  }
-
-  /**
-   * Visit edit page of the current user.
+   * @code
+   * Given the following users do not exist:
+   *  | name |
+   *  | John |
+   *  | Jane |
+   * @endcode
    *
-   * @When I go to my profile edit page
-   */
-  public function userVisitOwnProfile(): void {
-    $user = $this->getUserManager()->getCurrentUser();
-
-    if ($user instanceof \stdClass) {
-      $id = $user->uid;
-    }
-    else {
-      throw new \RuntimeException('Require user to login before visiting profile page.');
-    }
-
-    $this->visitPath(sprintf('/user/%s/edit', $id));
-  }
-
-  /**
-   * Visit edit page of the specified user.
+   * @code
+   *  Given the following users do not exist:
+   *   | mail             |
+   *   | john@example.com |
+   *   | jane@example.com |
+   * @endcode
    *
-   * @When I edit user :name profile
-   */
-  public function userEditProfile(string $name): void {
-    $users = $this->userLoadMultiple(['name' => $name]);
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
-    }
-
-    $user = reset($users);
-
-    $this->visitPath('/user/' . $user->id() . '/edit');
-  }
-
-  /**
-   * Remove users specified in the table.
-   *
-   * @Given no users:
+   * @Given the following users do not exist:
    */
   public function userDelete(TableNode $usersTable): void {
     foreach ($usersTable->getHash() as $userHash) {
@@ -86,8 +47,7 @@ trait UserTrait {
         $users = $this->userLoadMultiple(['name' => $userHash['name']]);
       }
 
-      if (!empty($users)) {
-        $user = reset($users);
+      foreach ($users as $user) {
         $user->delete();
         $this->getUserManager()->removeUser($user->getAccountName());
       }
@@ -95,18 +55,163 @@ trait UserTrait {
   }
 
   /**
-   * Assert that a user has roles assigned.
+   * Set a password for a user.
    *
-   * @Then user :name has :roles role(s) assigned
+   * @code
+   * Given the password for the user "John" is "password"
+   * @endcode
+   *
+   * @Given the password for the user :name is :password
    */
-  public function userAssertHasRoles(string $name, string $roles): void {
-    $users = $this->userLoadMultiple(['name' => $name]);
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+  public function userSetPassword(string $name, string $password): void {
+    if (empty($password)) {
+      throw new \RuntimeException('Password must not be empty.');
     }
 
-    $user = reset($users);
+    $user = $this->userLoadByName($name);
+
+    $user->setPassword($password)->save();
+  }
+
+  /**
+   * Set last access time for a user.
+   *
+   * @code
+   * Given the last access time for the user "John" is "Friday, 22 November 2024 13:46:14"
+   * @endcode
+   *
+   * @code
+   * Given the last access time for the user "John" is "1732319174"
+   * @endcode
+   *
+   * @Given the last access time for the user :name is :datetime
+   */
+  public function userSetLastAccessTime(string $name, string $datetime): void {
+    $user = $this->userLoadByName($name);
+
+    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+
+    if ($timestamp === FALSE) {
+      throw new \RuntimeException('Invalid date format.');
+    }
+
+    $user->setLastAccessTime($timestamp)->save();
+  }
+
+  /**
+   * Set last login time for a user.
+   *
+   * @code
+   * Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
+   * @endcode
+   *
+   * @code
+   * Given the last login time for the user "John" is "1732319174"
+   * @endcode
+   *
+   * @Given the last login time for the user :name is :datetime
+   */
+  public function userSetLastLoginTime(string $name, string $datetime): void {
+    $user = $this->userLoadByName($name);
+
+    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+
+    if ($timestamp === FALSE) {
+      throw new \RuntimeException('Invalid date format.');
+    }
+
+    $user->setLastLoginTime($timestamp)->save();
+  }
+
+  /**
+   * Visit the profile page of the specified user.
+   *
+   * @code
+   * When I visit "John" user profile page
+   * @endcode
+   *
+   * @When I visit :name user profile page
+   */
+  public function userVisitProfile(string $name): void {
+    $this->userVisitActionPage($name);
+  }
+
+  /**
+   * Visit the profile page of the current user.
+   *
+   * @code
+   * When I visit my own user profile page
+   * @endcode
+   *
+   * @When I visit my own user profile page
+   */
+  public function userVisitOwnProfile(): void {
+    $this->userVisitActionPage('current');
+  }
+
+  /**
+   * Visit the profile edit page of the specified user.
+   *
+   * @code
+   * When I visit "John" user profile edit page
+   * @endcode
+   *
+   * @When I visit :name user profile edit page
+   */
+  public function userEditProfile(string $name): void {
+    $this->userVisitActionPage($name, '/edit');
+  }
+
+  /**
+   * Visit the profile edit page of the current user.
+   *
+   * @code
+   * When I visit my own user profile edit page
+   * @endcode
+   *
+   * @When I visit my own user profile edit page
+   */
+  public function userEditOwnProfile(): void {
+    $this->userVisitActionPage('current', '/edit');
+  }
+
+  /**
+   * Visit the profile delete page of the specified user.
+   *
+   * @code
+   * When I visit "John" user profile delete page
+   * @endcode
+   *
+   * @When I visit :name user profile delete page
+   */
+  public function userDeleteProfile(string $name): void {
+    $this->userVisitActionPage($name, '/cancel');
+  }
+
+  /**
+   * Visit the profile delete page of the current user.
+   *
+   * @code
+   * When I visit my own user profile delete page
+   * @endcode
+   *
+   * @When I visit my own user profile delete page
+   */
+  public function userDeleteOwnProfile(): void {
+    $this->userVisitActionPage('current', '/cancel');
+  }
+
+  /**
+   * Assert that a user has roles assigned.
+   *
+   * @code
+   * Then the user "John" should have the roles "administrator, editor" assigned
+   * @endcode
+   *
+   * @Then the user :name should have the role(s) :roles assigned
+   */
+  public function userAssertHasRoles(string $name, string $roles): void {
+    $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
     $roles = array_map(function ($value): string {
@@ -121,16 +226,14 @@ trait UserTrait {
   /**
    * Assert that a user does not have roles assigned.
    *
-   * @Then user :name does not have :roles role(s) assigned
+   * @code
+   * Then the user "John" should not have the roles "administrator, editor" assigned
+   * @endcode
+   *
+   * @Then the user :name should not have the role(s) :roles assigned
    */
   public function userAssertHasNoRoles(string $name, string $roles): void {
-    $users = $this->userLoadMultiple(['name' => $name]);
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
-    }
-
-    $user = reset($users);
+    $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
     $roles = array_map(function ($value): string {
@@ -143,73 +246,37 @@ trait UserTrait {
   }
 
   /**
-   * Assert that a user is active or not.
+   * Assert that a user is blocked.
    *
-   * @Then user :name has :status status
+   * @code
+   * Then the user "John" should be blocked
+   * @endcode
+   *
+   * @Then the user :name should be blocked
    */
-  public function userAssertHasStatus(string $name, string $status): void {
-    if (!in_array($status, ['active', 'blocked'])) {
-      throw new \Exception(sprintf('Invalid status "%s".', $status));
-    }
+  public function userAssertIsBlocked(string $name): void {
+    $user = $this->userLoadByName($name);
 
-    $users = $this->userLoadMultiple(['name' => $name]);
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
-    }
-
-    $user = reset($users);
-
-    if ($status === 'active') {
-      if (!$user->isActive()) {
-        throw new \Exception(sprintf('User "%s" is expected to have status "active", but has status "blocked".', $name));
-      }
-    }
-    elseif ($user->isActive()) {
-      throw new \Exception(sprintf('User "%s" is expected to have status "blocked", but has status "active".', $name));
+    if ($user->isActive()) {
+      throw new \Exception(sprintf('User "%s" is expected to be blocked, but they are not.', $name));
     }
   }
 
   /**
-   * Set a password for a user.
+   * Assert that a user is not blocked.
    *
-   * @Then I set user :user password to :password
-   */
-  public function userSetPassword(string $name, string $password): void {
-    if (empty($password)) {
-      throw new \RuntimeException('Password must be not empty.');
-    }
-
-    $users = $this->userLoadMultiple(['name' => $name]);
-    if (empty($users)) {
-      $users = $this->userLoadMultiple(['mail' => $name]);
-    }
-
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('Unable to find a user with name or email "%s".', $name));
-    }
-
-    $user = reset($users);
-
-    $user->setPassword($password)->save();
-  }
-
-  /**
-   * Set last access time for user.
+   * @code
+   * Then the user "John" should not be blocked
+   * @endcode
    *
-   * @Then the last access time of user :name is :time
+   * @Then the user :name should not be blocked
    */
-  public function setUserLastAccess(string $name, string $time): void {
-    $users = $this->userLoadMultiple(['name' => $name]);
+  public function userAssertIsNotBlocked(string $name): void {
+    $user = $this->userLoadByName($name);
 
-    if (empty($users)) {
-      throw new \RuntimeException(sprintf('User "%s" does not exist.', $name));
+    if (!$user->isActive()) {
+      throw new \Exception(sprintf('User "%s" is expected to not be blocked, but they are.', $name));
     }
-
-    $user = reset($users);
-
-    $timestamp = (int) static::dateRelativeProcessValue($time, time());
-    $user->setLastAccessTime($timestamp)->save();
   }
 
   /**
@@ -233,6 +300,52 @@ trait UserTrait {
     $ids = $query->execute();
 
     return $ids ? User::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Load a user by name.
+   *
+   * @param string $name
+   *   The user name.
+   *
+   * @return \Drupal\user\UserInterface|null
+   *   The loaded user object or NULL if not found.
+   */
+  protected function userLoadByName(string $name): ?UserInterface {
+    $users = $this->userLoadMultiple(['name' => $name]);
+
+    if (empty($users)) {
+      throw new \RuntimeException(sprintf('User with name "%s" does not exist.', $name));
+    }
+
+    return reset($users);
+  }
+
+  /**
+   * Visit a user action page.
+   *
+   * @param string $name
+   *   The user name.
+   * @param string $action_subpath
+   *   The action subpath.
+   */
+  protected function userVisitActionPage(string $name, string $action_subpath = ''): void {
+    if ($name === 'current') {
+      /** @var \Drupal\user\UserInterface $user */
+      $user = $this->getUserManager()->getCurrentUser();
+
+      if (!$user instanceof \StdClass) {
+        throw new \RuntimeException('Current user is not logged in.');
+      }
+
+      $uid = $user->uid;
+    }
+    else {
+      $user = $this->userLoadByName($name);
+      $uid = $user->id();
+    }
+
+    $this->visitPath('/user/' . $uid . $action_subpath);
   }
 
 }
