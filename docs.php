@@ -17,7 +17,7 @@ print_report($info);
 
 $markdown = PHP_EOL . info_to_content($info) . PHP_EOL;
 
-$readme_file = 'README.md';
+$readme_file = 'steps.md';
 $readme = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $readme_file);
 
 if ($readme === FALSE) {
@@ -25,7 +25,7 @@ if ($readme === FALSE) {
   exit(1);
 }
 
-$readme_replaced = replace_content($readme, '## Available steps', '## Development', $markdown);
+$readme_replaced = replace_content($readme, '# Available steps', '[//]: # (END)', $markdown);
 
 if ($readme_replaced === $readme) {
   echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
@@ -283,6 +283,10 @@ function print_report(array $info): void {
 
       if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
         printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "I " in the step');
+      }
+
+      if (str_starts_with($step, '@Then') && !str_contains($method['name'], 'Assert')) {
+        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "Assert" in the method name');
       }
 
       if (str_starts_with($step, '@Then') && !str_contains($step, 'should')) {
