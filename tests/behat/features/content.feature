@@ -191,8 +191,8 @@ Feature: Check that ContentTrait works
   @api
   Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected.
     Given page content:
-      | title             |moderation_state|
-      | [TEST] Page title |draft           |
+      | title             | moderation_state |
+      | [TEST] Page title | draft            |
     And I am an anonymous user
     When I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 403
