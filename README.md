@@ -72,10 +72,6 @@ For example, to skip `beforeScenario` hook from `JsTrait`, add
 
 A consistent steps format is essential for the readability and maintainability of tests. Follow these guidelines:
 
-### Steps Format
-
-A consistent steps format is essential for the readability and maintainability of tests. Follow these guidelines:
-
 - **General Guidelines**:
   - Avoid using regular expressions to define a step definition. Use tuple format instead for better clarity and maintainability.
   - Use descriptive placeholder names to help users quickly understand the expected value: `content_type` instead of `type`.
