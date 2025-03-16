@@ -31,7 +31,7 @@ trait BlockTrait {
    *
    * @SuppressWarnings(PHPMD.StaticAccess)
    */
-  public function placeBlockInRegion(string $label, TableNode $fields): void {
+  public function blockPlaceBlockInRegion(string $label, TableNode $fields): void {
     /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
     $block_manager = \Drupal::service('plugin.manager.block');
     $definitions = $block_manager->getDefinitions();
@@ -52,7 +52,8 @@ trait BlockTrait {
     if (!$block instanceof Block) {
       throw new \Exception(sprintf('Could not create block of type "%s"', $label));
     }
-    $this->configureBlockInstance($block, $fields);
+    $this->blockConfigureBlockInstance($block, $fields);
+    static::$blockInstances[] = $block;
   }
 
   /**
@@ -83,10 +84,10 @@ trait BlockTrait {
    *  | status        | 1                           |
    * @endcode
    */
-  public function configureBlock(string $description, TableNode $fields): void {
-    $block = $this->loadBlockByLabel($description);
+  public function blockConfigureBlock(string $description, TableNode $fields): void {
+    $block = $this->blockLoadBlockByLabel($description);
 
-    $this->configureBlockInstance($block, $fields);
+    $this->blockConfigureBlockInstance($block, $fields);
 
     $block->save();
   }
@@ -99,7 +100,7 @@ trait BlockTrait {
    * @param \Behat\Gherkin\Node\TableNode $fields
    *   Provide fields to configure.
    */
-  protected function configureBlockInstance(Block $block, TableNode $fields): void {
+  protected function blockConfigureBlockInstance(Block $block, TableNode $fields): void {
     foreach ($fields->getRowsHash() as $field => $value) {
       switch ($field) {
         case 'label':
@@ -138,8 +139,8 @@ trait BlockTrait {
    *
    * @When I configure the visibility condition :condition for the block with label :label
    */
-  public function configureBlockVisibility(string $label, string $condition, TableNode $fields): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockConfigureBlockVisibility(string $label, string $condition, TableNode $fields): void {
+    $block = $this->blockLoadBlockByLabel($label);
     $configuration = $fields->getRowsHash();
     $configuration['id'] = $condition;
     $block->setVisibilityConfig($condition, $configuration);
@@ -156,8 +157,8 @@ trait BlockTrait {
    *
    * @When I remove the visibility condition :condition from the block with label :label
    */
-  public function removeBlockVisibility(string $label, string $condition): void {
-    $this->configureBlockVisibility($label, $condition, new TableNode([]));
+  public function blockRemoveBlockVisibility(string $label, string $condition): void {
+    $this->blockConfigureBlockVisibility($label, $condition, new TableNode([]));
   }
 
   /**
@@ -170,8 +171,8 @@ trait BlockTrait {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function disableBlock(string $label): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockDisableBlock(string $label): void {
+    $block = $this->blockLoadBlockByLabel($label);
     $block->disable();
     $block->save();
   }
@@ -186,8 +187,8 @@ trait BlockTrait {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function enableBlock(string $label): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockEnableBlock(string $label): void {
+    $block = $this->blockLoadBlockByLabel($label);
     $block->enable();
     $block->save();
   }
@@ -200,7 +201,7 @@ trait BlockTrait {
    *
    * @Then block with label :label should exist
    */
-  public function assertBlockExists(string $label): void {
+  public function blockAssertBlockExists(string $label): void {
     $default_theme = \Drupal::config('system.theme')->get('default');
     $blocks = \Drupal::entityTypeManager()
       ->getStorage('block')
@@ -224,7 +225,7 @@ trait BlockTrait {
    *
    * @When block with label :label should exist in the region :region
    */
-  public function assertBlockExistsInRegion(string $label, string $region): void {
+  public function blockAssertBlockExistsInRegion(string $label, string $region): void {
     $blocks = \Drupal::entityTypeManager()
       ->getStorage('block')
       ->loadByProperties([
@@ -247,7 +248,7 @@ trait BlockTrait {
    *
    * @When block with label :label should not exist in the region :region
    */
-  public function assertBlockDoesNotExistInRegion(string $label, string $region): void {
+  public function blockAssertBlockDoesNotExistInRegion(string $label, string $region): void {
     $blocks = \Drupal::entityTypeManager()
       ->getStorage('block')
       ->loadByProperties([
@@ -270,8 +271,8 @@ trait BlockTrait {
    *
    * @Then the block with label :label should have the visibility condition :condition
    */
-  public function assertBlockHasCondition(string $label, string $condition): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockAssertBlockHasCondition(string $label, string $condition): void {
+    $block = $this->blockLoadBlockByLabel($label);
     $conditions = $block->getVisibilityConditions();
 
     if (!$conditions->has($condition)) {
@@ -289,8 +290,8 @@ trait BlockTrait {
    *
    * @Then the block with label :label should not have the visibility condition :condition
    */
-  public function assertBlockShouldNotHaveCondition(string $label, string $condition): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockAssertBlockShouldNotHaveCondition(string $label, string $condition): void {
+    $block = $this->blockLoadBlockByLabel($label);
     $conditions = $block->getVisibilityConditions();
 
     if ($conditions->has($condition)) {
@@ -306,8 +307,8 @@ trait BlockTrait {
    *
    * @Then the block with label :label is disabled
    */
-  public function assertBlockIsDisabled(string $label): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockAssertBlockIsDisabled(string $label): void {
+    $block = $this->blockLoadBlockByLabel($label);
     if ($block->status()) {
       throw new \Exception(sprintf('Block "%s" is not disabled and should be.', $label));
     }
@@ -321,8 +322,8 @@ trait BlockTrait {
    *
    * @Then the block with label :label is enabled
    */
-  public function assertBlockIsNotDisabled(string $label): void {
-    $block = $this->loadBlockByLabel($label);
+  public function blockAssertBlockIsNotDisabled(string $label): void {
+    $block = $this->blockLoadBlockByLabel($label);
     if (!$block->status()) {
       throw new \Exception(sprintf('Block "%s" is disabled but should not be.', $label));
     }
@@ -337,7 +338,7 @@ trait BlockTrait {
    * @return \Drupal\block\Entity\Block
    *   Loaded block.
    */
-  private function loadBlockByLabel(string $label): Block {
+  private function blockLoadBlockByLabel(string $label): Block {
     $default_theme = \Drupal::config('system.theme')->get('default');
     $blocks = \Drupal::entityTypeManager()
       ->getStorage('block')

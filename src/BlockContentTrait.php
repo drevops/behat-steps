@@ -43,7 +43,7 @@ trait BlockContentTrait {
    * Given block_content_type "civictheme_search" with description "Search" exists
    * @endcode
    *
-   * @Given block_content_type :type with desciprion :description exists
+   * @Given block_content_type :type with description :description exists
    */
   public function contentBlockAssertTypeExist(string $description, string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
