@@ -9,11 +9,11 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\block\Entity\Block;
 
 /**
- * Provides Behat step definitions for creating, configuring, and testing Drupal blocks.
+ * Provides step definitions for creating, configuring, and testing blocks.
  *
  * This trait enables programmatic management of blocks in the Drupal system,
- * including configuration, placement in regions, visibility settings, and assertions
- * about block state. All operations are performed in the site's default theme.
+ * including configuration, placement in regions, visibility settings, and
+ * assertions about block state.
  */
 trait BlockTrait {
 
@@ -31,8 +31,8 @@ trait BlockTrait {
    * The following table fields are supported:
    * - label: The visible block title
    * - label_display: Whether to display the block title (1 for yes, 0 for no)
-   * - region: The theme region to place the block in (e.g., sidebar_first, content, header)
-   * - status: Block enabled status (1 for enabled, 0 for disabled)
+   * - region: The theme region to place the block in (e.g. content, header)
+   * - status: Block enabled status (1 for enabled, 0 for disabled).
    *
    * @code
    * @When I create a block of type :label with:
@@ -72,9 +72,10 @@ trait BlockTrait {
   /**
    * Cleans up all blocks created during the scenario.
    *
-   * This method automatically runs after each scenario to ensure clean test state.
-   * Add the tag @behat-steps-skip:blockInstanceCleanAll to your scenario to prevent
-   * automatic cleanup of blocks.
+   * This method automatically runs after each scenario to ensure clean
+   * test state.
+   * Add the tag @behat-steps-skip:blockInstanceCleanAll to your scenario to
+   * prevent automatic cleanup of blocks.
    *
    * @AfterScenario
    */
@@ -93,14 +94,14 @@ trait BlockTrait {
   /**
    * Finds and configures an existing block identified by its label.
    *
-   * This step finds a block in the default theme by its label and updates its 
+   * This step finds a block in the default theme by its label and updates its
    * configuration with the provided values.
    *
-   * Supported configuration fields:
+   * Common configuration fields:
    * - label: The visible block title
    * - label_display: Whether to display the block title (1 for yes, 0 for no)
-   * - region: The theme region to place the block in (e.g., sidebar_first, content)
-   * - status: Block enabled status (1 for enabled, 0 for disabled)
+   * - region: The theme region to place the block in (e.g., sicontent)
+   * - status: Block enabled status (1 for enabled, 0 for disabled).
    *
    * @code
    * @When I configure the block with the label :label with:
@@ -121,12 +122,12 @@ trait BlockTrait {
   /**
    * Configures a block instance with the specified settings.
    *
-   * Applies the configuration values from the table to the block instance and saves
-   * the changes. Supported configuration fields include:
+   * Applies the configuration values from the table to the block instance.
+   * Common configuration fields include:
    * - label: The visible block title
    * - label_display: Whether to display the block title (bool, 1 or 0)
    * - region: The theme region to place the block in
-   * - status: Block enabled status (bool, 1 or 0)
+   * - status: Block enabled status (bool, 1 or 0).
    *
    * @param \Drupal\block\Entity\Block $block
    *   Block entity to be configured.
@@ -167,19 +168,19 @@ trait BlockTrait {
    * Common condition types include:
    * - request_path: Control visibility based on the current path
    * - user_role: Control visibility based on user role
-   * - language: Control visibility based on the interface language
+   * - language: Control visibility based on the interface language.
    *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition (e.g., 'request_path', 'user_role', 'language').
+   *   The type of visibility condition.
    * @param \Behat\Gherkin\Node\TableNode $fields
    *   Configuration for the visibility condition.
    *
    * @code
-   * When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
-   * | pages | /node/1\r\n/about |
-   * | negate | 0 |
+   *   When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
+   *   | pages | /node/1\r\n/about |
+   *   | negate | 0 |
    * @endcode
    *
    * @When I configure a visibility condition :condition for the block with label :label
@@ -195,16 +196,16 @@ trait BlockTrait {
   /**
    * Removes a visibility condition from the specified block.
    *
-   * This step removes any existing visibility restrictions of the specified type
-   * from the block, making it visible regardless of that condition.
+   * This step removes any existing visibility restrictions of the specified
+   * type from the block.
    *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition to remove (e.g., 'request_path', 'user_role').
+   *   The type of visibility condition to remove.
    *
    * @code
-   * When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+   *   When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
    * @endcode
    *
    * @When I remove the visibility condition :condition from the block with label :label
@@ -223,7 +224,7 @@ trait BlockTrait {
    *   Label used to identify the block.
    *
    * @code
-   * When I disable the block with label "[TEST] Sidebar Block"
+   *   When I disable the block with label "[TEST] Sidebar Block"
    * @endcode
    *
    * @When I disable the block with label :label
@@ -247,7 +248,7 @@ trait BlockTrait {
    *   Label used to identify the block.
    *
    * @code
-   * When I enable the block with label "[TEST] Sidebar Block"
+   *   When I enable the block with label "[TEST] Sidebar Block"
    * @endcode
    *
    * @When I enable the block with label :label
@@ -271,7 +272,7 @@ trait BlockTrait {
    *   The label (title) of the block to find.
    *
    * @code
-   * Then block with label "[TEST] Footer Block" should exist
+   *   Then block with label "[TEST] Footer Block" should exist
    * @endcode
    *
    * @Then block with label :label should exist
@@ -302,10 +303,10 @@ trait BlockTrait {
    * @param string $label
    *   The label (title) of the block to find.
    * @param string $region
-   *   The region to check for the block (e.g., 'sidebar_first', 'content', 'header').
+   *   The region to check for the block
    *
    * @code
-   * Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
+   *   Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
    * @endcode
    *
    * @When block with label :label should exist in the region :region
@@ -327,7 +328,7 @@ trait BlockTrait {
   }
 
   /**
-   * Verifies that a block with the specified label does not exist in a specific region.
+   * Verifies that a block does not exist in a specific region.
    *
    * This assertion checks that a block with the given label has not been placed
    * in the specified region of the current theme. This is useful for verifying
@@ -339,7 +340,7 @@ trait BlockTrait {
    *   The region to check for the absence of the block.
    *
    * @code
-   * Then block with label "[TEST] User Menu" should not exist in the region "content"
+   *   Then block with label "[TEST] User Menu" should not exist in the region "content"
    * @endcode
    *
    * @When block with label :label should not exist in the region :region
@@ -370,10 +371,10 @@ trait BlockTrait {
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition to check for (e.g., 'request_path', 'user_role').
+   *   The type of visibility condition to check for.
    *
    * @code
-   * Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+   *   Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
    * @endcode
    *
    * @Then the block with label :label should have the visibility condition :condition
@@ -391,7 +392,7 @@ trait BlockTrait {
   }
 
   /**
-   * Verifies that a block does not have a specific visibility condition configured.
+   * Asserts that a block does not have a specific visibility condition.
    *
    * This checks that a block does not have any visibility conditions of the
    * specified type, meaning it is not restricted by that condition type.
@@ -399,10 +400,10 @@ trait BlockTrait {
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition to check for (e.g., 'request_path', 'user_role').
+   *   The type of visibility condition to check for.
    *
    * @code
-   * Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
+   *   Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
    * @endcode
    *
    * @Then the block with label :label should not have the visibility condition :condition
@@ -430,7 +431,7 @@ trait BlockTrait {
    *   Label to identify the block.
    *
    * @code
-   * Then the block with label "[TEST] Maintenance Block" is disabled
+   *   Then the block with label "[TEST] Maintenance Block" is disabled
    * @endcode
    *
    * @Then the block with label :label is disabled
@@ -446,17 +447,13 @@ trait BlockTrait {
   }
 
   /**
-   * Verifies that a block with the specified label is enabled (active).
-   *
-   * This assertion checks that a block exists and is enabled for display
-   * on the site. This is equivalent to verifying that the "Enabled" checkbox
-   * in the block UI is checked.
+   * Verifies that a block with the specified label is enabled.
    *
    * @param string $label
    *   Label to identify the block.
    *
    * @code
-   * Then the block with label "[TEST] Navigation Block" is enabled
+   *   Then the block with label "[TEST] Navigation Block" is enabled
    * @endcode
    *
    * @Then the block with label :label is enabled
@@ -472,11 +469,9 @@ trait BlockTrait {
   }
 
   /**
-   * Loads a block by its visible label.
+   * Loads a block by its label.
    *
-   * Searches for a block in the default theme with the specified visible label.
-   * This is the label that typically shows up to users on the front end of the site
-   * (if label display is enabled).
+   * Searches for a block in the default theme with the block label.
    *
    * @param string $label
    *   The visible label of the block to find.

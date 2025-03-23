@@ -12,7 +12,7 @@ use Drupal\block_content\BlockContentTypeInterface;
 /**
  * Provides Behat step definitions for managing custom block content entities.
  *
- * This trait enables programmatic management of custom block content (block_content)
+ * This trait enables programmatic management of custom block_content
  * entities in Drupal, including creation, validation, and editing operations.
  * These reusable content blocks can be placed in regions using the BlockTrait.
  */
@@ -28,9 +28,10 @@ trait BlockContentTrait {
   /**
    * Cleans up all custom block content entities created during the scenario.
    *
-   * This method automatically runs after each scenario to ensure clean test state.
-   * Add the tag @behat-steps-skip:blockContentCleanAll to your scenario to prevent
-   * automatic cleanup of block content entities.
+   * This method automatically runs after each scenario to ensure clean test
+   * state.
+   * Add the tag @behat-steps-skip:blockContentCleanAll to your scenario to
+   * prevent automatic cleanup of block content entities.
    *
    * @AfterScenario
    */
@@ -149,9 +150,10 @@ trait BlockContentTrait {
   }
 
   /**
-   * Creates one or more custom blocks of the specified type with the given field values.
+   * Creates custom blocks of the specified type with the given field values.
    *
-   * This step creates new custom block (block_content) entities with the specified field values.
+   * This step creates new custom block (block_content) entities with
+   * the specified field values.
    * Each row in the table creates a separate block entity of the given type.
    *
    * Required fields:
@@ -185,7 +187,8 @@ trait BlockContentTrait {
   /**
    * Creates a block content entity with the specified type and field values.
    *
-   * This internal helper method creates and saves a single block content entity.
+   * This internal helper method creates and saves a single block content
+   * entity.
    * Created entities are stored in the static $blockContentEntities array for
    * automatic cleanup after the scenario.
    *
