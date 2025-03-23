@@ -1,4 +1,4 @@
-@api @wip
+@api
 Feature: Check that BlockTrait works
 
   Scenario: Configure and place a system block in a region

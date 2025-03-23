@@ -47,61 +47,19 @@ trait BlockContentTrait {
   }
 
   /**
-   * Verifies that a custom block type exists with the specified description.
-   *
-   * This step checks if a custom block type exists with the given machine name
-   * and description. It fails if either the type doesn't exist or if the
-   * description doesn't match.
+   * Verifies that a custom block type exists.
    *
    * @code
-   * Given block_content_type "basic" with description "Basic block" exists
-   * Given block_content_type "civictheme_search" with description "Search" exists
+   * Given "search" block_content type exists
    * @endcode
    *
-   * @Given block_content_type :type with description :description exists
+   * @Given :type block_content type exists
    */
-  public function contentBlockAssertTypeExist(string $description, string $type): void {
+  public function blockContentAssertTypeExist(string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
       throw new \Exception(sprintf('"%s" block_content_type does not exist', $type));
-    }
-
-    if ($block_content_type->label() !== $description) {
-      throw new \Exception(sprintf('"%s" block_content_type expected name is "%s, actual name is %s"', $type, $description, $block_content_type->label()));
-    }
-  }
-
-  /**
-   * Verifies that a custom block with the given name and type exists.
-   *
-   * Checks if a custom block (block_content entity) exists with the specified name
-   * and block type. Fails if either the block type doesn't exist or if no block
-   * with the given name is found.
-   *
-   * @code
-   * Given block_content "Footer Contact" of block_content_type "basic" exists
-   * Given block_content "Search" of block_content_type "civictheme_search" exists
-   * @endcode
-   *
-   * @Given block_content :name of block_content_type :type exists
-   */
-  public function contentBlockAssertBlockContentExistsByName(string $name, string $type): void {
-    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
-
-    if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new \Exception(sprintf('"%s" block_content_type does not exist', $type));
-    }
-
-    $found = \Drupal::entityTypeManager()
-      ->getStorage('block_content')
-      ->loadByProperties([
-        'info' => $name,
-        'type' => $block_content_type,
-      ]);
-
-    if (count($found) == 0) {
-      throw new \Exception(sprintf('Block content "%s" of type "%s" does not exist', $name, $type));
     }
   }
 
@@ -118,8 +76,11 @@ trait BlockContentTrait {
    * @endcode
    *
    * @Given no :type block_content:
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the entity cannot be deleted.
    */
-  public function contentBlockDeleteTerms(string $type, TableNode $contentBlockTable): void {
+  public function blockContentDelete(string $type, TableNode $contentBlockTable): void {
     foreach ($contentBlockTable->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
         'info' => $description,
@@ -144,23 +105,21 @@ trait BlockContentTrait {
    * When I edit "basic" block_content_type with description "[TEST] Footer Block"
    * @endcode
    *
-   * @When I edit :type block_content_type with description :info
+   * @When I edit :type block_content_type with description :description
    */
-  public function blockContentEditBlockContentPageWithName(string $type, string $info): void {
-    $block_ids = $this->contentBlockLoadMultiple($type, [
-      'info' => $info,
+  public function blockContentEditBlockContentWithDescription(string $type, string $description): void {
+    $block_ids = $this->blockContentLoadMultiple($type, [
+      'info' => $description,
     ]);
 
     if (empty($block_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s term "%s"', $type, $info));
+      throw new \RuntimeException(sprintf('Unable to find %s block content with description "%s"', $type, $description));
     }
 
     ksort($block_ids);
     $block_id = end($block_ids);
 
     $path = $this->locatePath('/admin/content/block/' . $block_id);
-    print $path;
-
     $this->getSession()->visit($path);
   }
 
@@ -175,7 +134,7 @@ trait BlockContentTrait {
    * @return array<int, string>
    *   Array of block content ids.
    */
-  protected function contentBlockLoadMultiple(string $type, array $conditions = []): array {
+  protected function blockContentLoadMultiple(string $type, array $conditions = []): array {
     $query = \Drupal::entityQuery('block_content')
       ->accessCheck(FALSE)
       ->condition('type', $type);
@@ -217,7 +176,7 @@ trait BlockContentTrait {
    *   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
    * @endcode
    */
-  public function createBlockContents(string $type, TableNode $block_content_table): void {
+  public function blockContentCreate(string $type, TableNode $block_content_table): void {
     foreach ($block_content_table->getHash() as $blockContentHash) {
       $this->createBlockContent($type, $blockContentHash);
     }
