@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
+namespace DrevOps\BehatSteps;
+
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\block\Entity\Block;
 
 /**
- * Provides Behat step definitions for managing blocks programmatically.
+ * Provides Behat step definitions for creating, configuring, and testing Drupal blocks.
+ *
+ * This trait enables programmatic management of blocks in the Drupal system,
+ * including configuration, placement in regions, visibility settings, and assertions
+ * about block state. All operations are performed in the site's default theme.
  */
 trait BlockTrait {
 
@@ -19,13 +25,20 @@ trait BlockTrait {
   protected static array $blockInstances = [];
 
   /**
-   * Create, configure and place a block in the default theme region.
+   * Creates, configures and places a block in the default theme region.
+   *
+   * The :label parameter must match an existing block's admin label.
+   * The following table fields are supported:
+   * - label: The visible block title
+   * - label_display: Whether to display the block title (1 for yes, 0 for no)
+   * - region: The theme region to place the block in (e.g., sidebar_first, content, header)
+   * - status: Block enabled status (1 for enabled, 0 for disabled)
    *
    * @code
    * @When I create a block of type :label with:
    * | label         | [TEST] Welcome Message      |
-   * | display_label | 1                           |
-   * | region        | <region>                    |
+   * | label_display | 1                           |
+   * | region        | sidebar_first               |
    * | status        | 1                           |
    * @endcode
    *
@@ -57,7 +70,11 @@ trait BlockTrait {
   }
 
   /**
-   * Clean all created blocks after scenario run.
+   * Cleans up all blocks created during the scenario.
+   *
+   * This method automatically runs after each scenario to ensure clean test state.
+   * Add the tag @behat-steps-skip:blockInstanceCleanAll to your scenario to prevent
+   * automatic cleanup of blocks.
    *
    * @AfterScenario
    */
@@ -74,13 +91,22 @@ trait BlockTrait {
   }
 
   /**
-   * Find a block in default theme with a specified label and configure.
+   * Finds and configures an existing block identified by its label.
+   *
+   * This step finds a block in the default theme by its label and updates its 
+   * configuration with the provided values.
+   *
+   * Supported configuration fields:
+   * - label: The visible block title
+   * - label_display: Whether to display the block title (1 for yes, 0 for no)
+   * - region: The theme region to place the block in (e.g., sidebar_first, content)
+   * - status: Block enabled status (1 for enabled, 0 for disabled)
    *
    * @code
    * @When I configure the block with the label :label with:
-   *  | label         | [TEST] Welcome Message      |
-   *  | display_label | 1                           |
-   *  | region        | <region>                    |
+   *  | label         | [TEST] Updated Message      |
+   *  | label_display | 1                           |
+   *  | region        | sidebar_second              |
    *  | status        | 1                           |
    * @endcode
    */
@@ -93,12 +119,19 @@ trait BlockTrait {
   }
 
   /**
-   * Configure block instance.
+   * Configures a block instance with the specified settings.
+   *
+   * Applies the configuration values from the table to the block instance and saves
+   * the changes. Supported configuration fields include:
+   * - label: The visible block title
+   * - label_display: Whether to display the block title (bool, 1 or 0)
+   * - region: The theme region to place the block in
+   * - status: Block enabled status (bool, 1 or 0)
    *
    * @param \Drupal\block\Entity\Block $block
-   *   Block to be configured.
+   *   Block entity to be configured.
    * @param \Behat\Gherkin\Node\TableNode $fields
-   *   Provide fields to configure.
+   *   Table of configuration fields and values.
    */
   protected function blockConfigureBlockInstance(Block $block, TableNode $fields): void {
     foreach ($fields->getRowsHash() as $field => $value) {
@@ -130,14 +163,26 @@ trait BlockTrait {
   /**
    * Sets a visibility condition for a block.
    *
+   * Configures when a block should be displayed based on specific conditions.
+   * Common condition types include:
+   * - request_path: Control visibility based on the current path
+   * - user_role: Control visibility based on user role
+   * - language: Control visibility based on the interface language
+   *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition.
+   *   The type of visibility condition (e.g., 'request_path', 'user_role', 'language').
    * @param \Behat\Gherkin\Node\TableNode $fields
-   *   Field data table.
+   *   Configuration for the visibility condition.
    *
-   * @When I configure the visibility condition :condition for the block with label :label
+   * @code
+   * When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
+   * | pages | /node/1\r\n/about |
+   * | negate | 0 |
+   * @endcode
+   *
+   * @When I configure a visibility condition :condition for the block with label :label
    */
   public function blockConfigureBlockVisibility(string $label, string $condition, TableNode $fields): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -148,12 +193,19 @@ trait BlockTrait {
   }
 
   /**
-   * Removes a visibility condition from the block.
+   * Removes a visibility condition from the specified block.
+   *
+   * This step removes any existing visibility restrictions of the specified type
+   * from the block, making it visible regardless of that condition.
    *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition.
+   *   The type of visibility condition to remove (e.g., 'request_path', 'user_role').
+   *
+   * @code
+   * When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+   * @endcode
    *
    * @When I remove the visibility condition :condition from the block with label :label
    */
@@ -162,14 +214,22 @@ trait BlockTrait {
   }
 
   /**
-   * Disables a block specified with a label.
+   * Disables a block specified by its label.
+   *
+   * Makes the block inactive so it will not be displayed on the site.
+   * This is equivalent to unchecking the "Enabled" checkbox in the block UI.
    *
    * @param string $label
-   *   Label used to identify a block.
+   *   Label used to identify the block.
+   *
+   * @code
+   * When I disable the block with label "[TEST] Sidebar Block"
+   * @endcode
    *
    * @When I disable the block with label :label
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the block cannot be saved.
    */
   public function blockDisableBlock(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -178,14 +238,22 @@ trait BlockTrait {
   }
 
   /**
-   * Enables a block specified with a label.
+   * Enables a block specified by its label.
+   *
+   * Makes the block active so it will be displayed on the site.
+   * This is equivalent to checking the "Enabled" checkbox in the block UI.
    *
    * @param string $label
-   *   Label used to identify a block.
+   *   Label used to identify the block.
+   *
+   * @code
+   * When I enable the block with label "[TEST] Sidebar Block"
+   * @endcode
    *
    * @When I enable the block with label :label
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the block cannot be saved.
    */
   public function blockEnableBlock(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -194,12 +262,22 @@ trait BlockTrait {
   }
 
   /**
-   * Asserts that a block exists.
+   * Verifies that a block with the specified label exists in the default theme.
+   *
+   * This assertion checks for the existence of a block with the given label,
+   * regardless of which region it's placed in or whether it's enabled.
    *
    * @param string $label
-   *   Label used to identify a block.
+   *   The label (title) of the block to find.
+   *
+   * @code
+   * Then block with label "[TEST] Footer Block" should exist
+   * @endcode
    *
    * @Then block with label :label should exist
+   *
+   * @throws \Exception
+   *   When no block with the specified label is found.
    */
   public function blockAssertBlockExists(string $label): void {
     $default_theme = \Drupal::config('system.theme')->get('default');
@@ -216,14 +294,24 @@ trait BlockTrait {
   }
 
   /**
-   * Asserts that a block exists in a specified region.
+   * Verifies that a block with the specified label exists in a specific region.
+   *
+   * This assertion checks that a block with the given label has been placed
+   * in the specified region of the current theme.
    *
    * @param string $label
-   *   Label used to identify a block.
+   *   The label (title) of the block to find.
    * @param string $region
-   *   Region to check for the block in.
+   *   The region to check for the block (e.g., 'sidebar_first', 'content', 'header').
+   *
+   * @code
+   * Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
+   * @endcode
    *
    * @When block with label :label should exist in the region :region
+   *
+   * @throws \Exception
+   *   When no block with the specified label is found in the given region.
    */
   public function blockAssertBlockExistsInRegion(string $label, string $region): void {
     $blocks = \Drupal::entityTypeManager()
@@ -239,14 +327,25 @@ trait BlockTrait {
   }
 
   /**
-   * Asserts that a block does not exist in a specified region.
+   * Verifies that a block with the specified label does not exist in a specific region.
+   *
+   * This assertion checks that a block with the given label has not been placed
+   * in the specified region of the current theme. This is useful for verifying
+   * that a block has been moved or removed from a region.
    *
    * @param string $label
-   *   Label used to identify a block.
+   *   The label (title) of the block to check.
    * @param string $region
-   *   Region to check for the block in.
+   *   The region to check for the absence of the block.
+   *
+   * @code
+   * Then block with label "[TEST] User Menu" should not exist in the region "content"
+   * @endcode
    *
    * @When block with label :label should not exist in the region :region
+   *
+   * @throws \Exception
+   *   When a block with the specified label is found in the given region.
    */
   public function blockAssertBlockDoesNotExistInRegion(string $label, string $region): void {
     $blocks = \Drupal::entityTypeManager()
@@ -262,14 +361,25 @@ trait BlockTrait {
   }
 
   /**
-   * Asserts that the block has a visibility condition.
+   * Verifies that a block has a specific visibility condition configured.
+   *
+   * This checks that a block has at least one visibility condition of the
+   * specified type configured, such as path restrictions, role restrictions,
+   * or language restrictions.
    *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition.
+   *   The type of visibility condition to check for (e.g., 'request_path', 'user_role').
+   *
+   * @code
+   * Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+   * @endcode
    *
    * @Then the block with label :label should have the visibility condition :condition
+   *
+   * @throws \Exception
+   *   When the block does not have the specified visibility condition.
    */
   public function blockAssertBlockHasCondition(string $label, string $condition): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -281,14 +391,24 @@ trait BlockTrait {
   }
 
   /**
-   * Assert that the block should not have a visibility condition.
+   * Verifies that a block does not have a specific visibility condition configured.
+   *
+   * This checks that a block does not have any visibility conditions of the
+   * specified type, meaning it is not restricted by that condition type.
    *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
-   *   The type of visibility condition.
+   *   The type of visibility condition to check for (e.g., 'request_path', 'user_role').
+   *
+   * @code
+   * Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
+   * @endcode
    *
    * @Then the block with label :label should not have the visibility condition :condition
+   *
+   * @throws \Exception
+   *   When the block has the specified visibility condition when it should not.
    */
   public function blockAssertBlockShouldNotHaveCondition(string $label, string $condition): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -300,12 +420,23 @@ trait BlockTrait {
   }
 
   /**
-   * Assert that the block with specified label is disabled.
+   * Verifies that a block with the specified label is disabled (inactive).
+   *
+   * This assertion checks that a block exists but is not enabled for display
+   * on the site. This is equivalent to verifying that the "Enabled" checkbox
+   * in the block UI is unchecked.
    *
    * @param string $label
-   *   Label to identify block with.
+   *   Label to identify the block.
+   *
+   * @code
+   * Then the block with label "[TEST] Maintenance Block" is disabled
+   * @endcode
    *
    * @Then the block with label :label is disabled
+   *
+   * @throws \Exception
+   *   When the block is enabled when it should be disabled.
    */
   public function blockAssertBlockIsDisabled(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -315,12 +446,23 @@ trait BlockTrait {
   }
 
   /**
-   * Assert that the block with specified label is enabled.
+   * Verifies that a block with the specified label is enabled (active).
+   *
+   * This assertion checks that a block exists and is enabled for display
+   * on the site. This is equivalent to verifying that the "Enabled" checkbox
+   * in the block UI is checked.
    *
    * @param string $label
-   *   Label to identify block with.
+   *   Label to identify the block.
+   *
+   * @code
+   * Then the block with label "[TEST] Navigation Block" is enabled
+   * @endcode
    *
    * @Then the block with label :label is enabled
+   *
+   * @throws \Exception
+   *   When the block is disabled when it should be enabled.
    */
   public function blockAssertBlockIsNotDisabled(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
@@ -330,13 +472,20 @@ trait BlockTrait {
   }
 
   /**
-   * Loads a block by its description/admin label.
+   * Loads a block by its visible label.
+   *
+   * Searches for a block in the default theme with the specified visible label.
+   * This is the label that typically shows up to users on the front end of the site
+   * (if label display is enabled).
    *
    * @param string $label
-   *   Label to find the block by.
+   *   The visible label of the block to find.
    *
    * @return \Drupal\block\Entity\Block
-   *   Loaded block.
+   *   The loaded block entity.
+   *
+   * @throws \Exception
+   *   When no block with the specified label is found.
    */
   private function blockLoadBlockByLabel(string $label): Block {
     $default_theme = \Drupal::config('system.theme')->get('default');

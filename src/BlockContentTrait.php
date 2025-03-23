@@ -2,13 +2,19 @@
 
 declare(strict_types=1);
 
+namespace DrevOps\BehatSteps;
+
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Drupal\block_content\Entity\BlockContent;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\block_content\BlockContentTypeInterface;
 
 /**
- * Provides Behat step definitions for managing block_content entities.
+ * Provides Behat step definitions for managing custom block content entities.
+ *
+ * This trait enables programmatic management of custom block content (block_content)
+ * entities in Drupal, including creation, validation, and editing operations.
+ * These reusable content blocks can be placed in regions using the BlockTrait.
  */
 trait BlockContentTrait {
 
@@ -20,7 +26,11 @@ trait BlockContentTrait {
   protected static $blockContentEntities = [];
 
   /**
-   * Clean all block_content instances after scenario run.
+   * Cleans up all custom block content entities created during the scenario.
+   *
+   * This method automatically runs after each scenario to ensure clean test state.
+   * Add the tag @behat-steps-skip:blockContentCleanAll to your scenario to prevent
+   * automatic cleanup of block content entities.
    *
    * @AfterScenario
    */
@@ -37,9 +47,14 @@ trait BlockContentTrait {
   }
 
   /**
-   * Assert that a vocabulary exist.
+   * Verifies that a custom block type exists with the specified description.
+   *
+   * This step checks if a custom block type exists with the given machine name
+   * and description. It fails if either the type doesn't exist or if the
+   * description doesn't match.
    *
    * @code
+   * Given block_content_type "basic" with description "Basic block" exists
    * Given block_content_type "civictheme_search" with description "Search" exists
    * @endcode
    *
@@ -52,24 +67,29 @@ trait BlockContentTrait {
       throw new \Exception(sprintf('"%s" block_content_type does not exist', $type));
     }
 
-    if ($block_content_type->get('info') !== $description) {
-      throw new \Exception(sprintf('"%s" block_content_type name is not "%s"', $type, $description));
+    if ($block_content_type->label() !== $description) {
+      throw new \Exception(sprintf('"%s" block_content_type expected name is "%s, actual name is %s"', $type, $description, $block_content_type->label()));
     }
   }
 
   /**
-   * Assert that a block_content exist by name.
+   * Verifies that a custom block with the given name and type exists.
+   *
+   * Checks if a custom block (block_content entity) exists with the specified name
+   * and block type. Fails if either the block type doesn't exist or if no block
+   * with the given name is found.
    *
    * @code
+   * Given block_content "Footer Contact" of block_content_type "basic" exists
    * Given block_content "Search" of block_content_type "civictheme_search" exists
    * @endcode
    *
    * @Given block_content :name of block_content_type :type exists
    */
-  public function contentBlockAssertTermExistsByName(string $name, string $type): void {
+  public function contentBlockAssertBlockContentExistsByName(string $name, string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
-    if ($block_content_type instanceof BlockContentTypeInterface) {
+    if (!$block_content_type instanceof BlockContentTypeInterface) {
       throw new \Exception(sprintf('"%s" block_content_type does not exist', $type));
     }
 
@@ -86,12 +106,15 @@ trait BlockContentTrait {
   }
 
   /**
-   * Remove content blocks from a specified content_block_type.
+   * Removes custom blocks of a specified type with the given descriptions.
+   *
+   * Deletes all custom blocks of the specified type that match any of the
+   * descriptions (titles) provided in the table.
    *
    * @code
-   * Given no "Fruits" content blocks:
-   * | Apple |
-   * | Pear  |
+   * Given no "basic" block_content:
+   * | [TEST] Footer Block  |
+   * | [TEST] Contact Form  |
    * @endcode
    *
    * @Given no :type block_content:
@@ -99,7 +122,7 @@ trait BlockContentTrait {
   public function contentBlockDeleteTerms(string $type, TableNode $contentBlockTable): void {
     foreach ($contentBlockTable->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
-        'description' => $description,
+        'info' => $description,
         'type' => $type,
       ]);
 
@@ -111,7 +134,15 @@ trait BlockContentTrait {
   }
 
   /**
-   * Visit specified block_content_type block_content edit page.
+   * Navigates to the edit page for a specified custom block.
+   *
+   * Finds a custom block by its type and description (admin title) and
+   * navigates to its edit page. Throws an exception if no matching block
+   * is found.
+   *
+   * @code
+   * When I edit "basic" block_content_type with description "[TEST] Footer Block"
+   * @endcode
    *
    * @When I edit :type block_content_type with description :info
    */
@@ -127,7 +158,7 @@ trait BlockContentTrait {
     ksort($block_ids);
     $block_id = end($block_ids);
 
-    $path = $this->locatePath('/admin/content/block/' . $block_id . '/edit');
+    $path = $this->locatePath('/admin/content/block/' . $block_id);
     print $path;
 
     $this->getSession()->visit($path);
@@ -159,19 +190,31 @@ trait BlockContentTrait {
   }
 
   /**
-   * Creates block_content of a given type with field data.
+   * Creates one or more custom blocks of the specified type with the given field values.
+   *
+   * This step creates new custom block (block_content) entities with the specified field values.
+   * Each row in the table creates a separate block entity of the given type.
+   *
+   * Required fields:
+   * - info (or title): The block's admin title/label
+   *
+   * Common optional fields:
+   * - status: Published status (1 for published, 0 for unpublished)
+   * - created: Creation timestamp (format: YYYY-MM-DD H:MMam/pm)
+   * - body: Block content (for blocks with a body field)
    *
    * @param string $type
-   *   Content block_content type.
+   *   The custom block type machine name.
    * @param \Behat\Gherkin\Node\TableNode $block_content_table
-   *   Field data for a block_content.
+   *   Table containing field values for each block to create.
    *
    * @Given :type block_content:
    *
    * @code
-   *   Given "help" block_content:
-   *  | title    | status | created           |
-   *  | My title | 1      | 2014-10-17 8:00am |
+   *   Given "basic" block_content:
+   *   | info                  | status | body                   | created           |
+   *   | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
+   *   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
    * @endcode
    */
   public function createBlockContents(string $type, TableNode $block_content_table): void {
@@ -181,17 +224,26 @@ trait BlockContentTrait {
   }
 
   /**
-   * Create a block content entity and place if region set.
+   * Creates a block content entity with the specified type and field values.
+   *
+   * This internal helper method creates and saves a single block content entity.
+   * Created entities are stored in the static $blockContentEntities array for
+   * automatic cleanup after the scenario.
    *
    * @param string $type
-   *   Block content type.
+   *   The machine name of the block content type.
    * @param array<string> $values
-   *   Values for block content entity.
+   *   Associative array of field values for the block content entity.
+   *   Common fields include:
+   *   - info: The admin title/label (required)
+   *   - body: The body field value (optional)
+   *   - status: Published status (optional, 1 = published, 0 = unpublished)
    *
    * @return \Drupal\block_content\Entity\BlockContent
-   *   Created block content entity.
+   *   The created block content entity.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the entity cannot be saved.
    *
    * @SuppressWarnings(PHPMD.StaticAccess)
    */
