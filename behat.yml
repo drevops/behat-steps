@@ -62,7 +62,7 @@ default:
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
       dir: '%paths.base%/.logs/screenshots'
-      purge: true # Change to 'true' (no quotes) to purge screenshots on each run.
+      purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
 
     DVDoug\Behat\CodeCoverage\Extension:
       filter:
