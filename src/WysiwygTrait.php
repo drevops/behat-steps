@@ -62,11 +62,11 @@ trait WysiwygTrait {
     }
 
     // Support Ckeditor 5.
-    $ckeditor_5_element_selector = sprintf('.%s .ck-editor__editable', $parent_element->getAttribute('class'));
     $this->getSession()
       ->executeScript(
         "
-        const domEditableElement = document.querySelector(\"{$ckeditor_5_element_selector}\");
+        const textareaElement = document.querySelector(\"#{$element_id}\");
+        const domEditableElement = textareaElement.nextElementSibling.querySelector('.ck-editor__editable');
         if (domEditableElement.ckeditorInstance) {
           const editorInstance = domEditableElement.ckeditorInstance;
           if (editorInstance) {

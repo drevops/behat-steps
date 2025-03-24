@@ -7,10 +7,12 @@ Feature: Check that WysiywgTrait works.
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
     And I edit "page" "[TEST] Page title"
-    When I fill in WYSIWYG "Body" with "[TEST] value"
+    When I fill in WYSIWYG "Body" with "[TEST] body"
+    When I fill in WYSIWYG "Description" with "[TEST] description"
     And save screenshot
     And I press "Save"
-    Then I should see "[TEST] value"
+    Then I should see "[TEST] body"
+    And I should see "[TEST] description"
 
   @api @javascript
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
@@ -19,7 +21,9 @@ Feature: Check that WysiywgTrait works.
       | [TEST-JS-Driver] Page title |
     And I am logged in as a user with the "administrator" role
     And I edit "page" "[TEST-JS-Driver] Page title"
-    When I fill in WYSIWYG "Body" with "[TEST-JS-Driver] value"
+    When I fill in WYSIWYG "Body" with "[TEST-JS-Driver] body"
+    When I fill in WYSIWYG "Description" with "[TEST-JS-Driver] description"
     And save screenshot
     And I press "Save"
-    Then I should see "[TEST-JS-Driver] value"
+    Then I should see "[TEST-JS-Driver] body"
+    And I should see "[TEST-JS-Driver] description"
