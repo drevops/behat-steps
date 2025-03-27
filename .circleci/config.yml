@@ -5,7 +5,7 @@ jobs:
     working_directory: /app
 
     docker:
-      - image: drevops/ci-runner:25.1.0
+      - image: drevops/ci-runner:25.3.0
         environment:
           DRUPAL_VERSION: 10
 
