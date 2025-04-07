@@ -21,13 +21,13 @@ trait LinkTrait {
    * Note that simplified wildcard is supported in "href".
    *
    * @code
-   * Then I should see the link "About us" with "/about-us"
-   * Then I should see the link "About us" with "/about-us" in ".main-nav"
-   * Then I should see the link "About us" with "/about*" in ".main-nav"
+   * Then the link "About us" with the href "/about-us" should exist
+   * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
+   * Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
    * @endcode
    *
-   * @Then I should see the link :text with :href
-   * @Then I should see the link :text with :href in :locator
+   * @Then the link :link with the href :href should exist
+   * @Then the link :link with the href :href within the element :locator should exist
    */
   public function linkAssertTextHref(string $text, string $href, ?string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
@@ -66,13 +66,13 @@ trait LinkTrait {
    * Note that simplified wildcard is supported in "href".
    *
    * @code
-   * Then I should not see the link "About us" with "/about-us"
-   * Then I should not see the link "About us" with "/about-us" in ".main-nav"
-   * Then I should not see the link "About us" with "/about*" in ".main-nav"
+   * Then the link "About us" with the href "/about-us" should not exist
+   * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
+   * Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
    * @endcode
    *
-   * @Then I should not see the link :text with :href
-   * @Then I should not see the link :text with :href in :locator
+   * @Then the link :link with the href :href should not exist
+   * @Then the link :link with the href :href within the element :locator should not exist
    */
   public function linkAssertTextHrefNotExists(string $text, string $href, ?string $locator = NULL): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
@@ -108,7 +108,11 @@ trait LinkTrait {
   /**
    * Assert that a link with a title exists.
    *
-   * @Then the link with title :title exists
+   * @code
+   * Then the link with the title "Return to site content" should exist
+   * @endcode
+   *
+   * @Then the link with the title :title should exist
    */
   public function linkAssertWithTitle(string $title): NodeElement {
     $title = $this->linkFixStepArgument($title);
@@ -116,7 +120,7 @@ trait LinkTrait {
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
 
     if (!$element) {
-      throw new \Exception(sprintf('The link with title "%s" does not exist.', $title));
+      throw new \Exception(sprintf('The link with the title "%s" does not exist.', $title));
     }
 
     return $element;
@@ -125,7 +129,11 @@ trait LinkTrait {
   /**
    * Assert that a link with a title does not exist.
    *
-   * @Then the link with title :title does not exist
+   * @code
+   * Then the link with the title "Some non-existing title" should not exist
+   * @endcode
+   *
+   * @Then the link with the title :title should not exist
    */
   public function linkAssertWithNoTitle(string $title): void {
     $title = $this->linkFixStepArgument($title);
@@ -133,14 +141,18 @@ trait LinkTrait {
     $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
 
     if ($item) {
-      throw new \Exception(sprintf('The link with title "%s" exists, but should not.', $title));
+      throw new \Exception(sprintf('The link with the title "%s" exists, but should not.', $title));
     }
   }
 
   /**
    * Click on the link with a title.
    *
-   * @Then I click the link with title :title
+   * @code
+   * When I click on the link with the title "Return to site content"
+   * @endcode
+   *
+   * @When I click on the link with the title :title
    */
   public function linkClickWithTitle(string $title): void {
     $link = $this->linkAssertWithTitle($title);
@@ -150,7 +162,11 @@ trait LinkTrait {
   /**
    * Assert that the link with a text is absolute.
    *
-   * @Then the link( with title) :text is an absolute link
+   * @code
+   * Then the link "Drupal" should be an absolute link
+   * @endcode
+   *
+   * @Then the link :link should be an absolute link
    */
   public function assertLinkAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
@@ -164,9 +180,13 @@ trait LinkTrait {
   }
 
   /**
-   * Assert that the link with a title is not absolute.
+   * Assert that the link is not an absolute.
    *
-   * @Then the link( with title) :text is not an absolute link
+   * @code
+   * Then the link "Return to site content" should not be an absolute link
+   * @endcode
+   *
+   * @Then the link :link should not be an absolute link
    */
   public function assertLinkNotAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
