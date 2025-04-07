@@ -630,52 +630,64 @@ When click ".button" element
 
 [Source](src/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
-#### Assert presence of a link with a href
+#### Click on the link with a title
 
 ```gherkin
-@Then I should see the link :text with :href
-```
-```gherkin
-@Then I should see the link :text with :href in :locator
+@When I click on the link with the title :title
 ```
 Example:
 ```gherkin
-Then I should see the link "About us" with "/about-us"
-Then I should see the link "About us" with "/about-us" in ".main-nav"
-Then I should see the link "About us" with "/about*" in ".main-nav"
+When I click on the link with the title "Return to site content"
+```
+
+#### Assert presence of a link with a href
+
+```gherkin
+@Then the link :link with the href :href should exist
+```
+```gherkin
+@Then the link :link with the href :href within the element :locator should exist
+```
+Example:
+```gherkin
+Then the link "About us" with the href "/about-us" should exist
+Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
+Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
 ```
 
 #### Assert link with a href does not exist
 
 ```gherkin
-@Then I should not see the link :text with :href
+@Then the link :link with the href :href should not exist
 ```
 ```gherkin
-@Then I should not see the link :text with :href in :locator
+@Then the link :link with the href :href within the element :locator should not exist
 ```
 Example:
 ```gherkin
-Then I should not see the link "About us" with "/about-us"
-Then I should not see the link "About us" with "/about-us" in ".main-nav"
-Then I should not see the link "About us" with "/about*" in ".main-nav"
+Then the link "About us" with the href "/about-us" should not exist
+Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
+Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
 ```
 
 #### Assert that a link with a title exists
 
 ```gherkin
-@Then the link with title :title exists
+@Then the link with the title :title should exist
+```
+Example:
+```gherkin
+Then the link with the title "Return to site content" should exist
 ```
 
 #### Assert that a link with a title does not exist
 
 ```gherkin
-@Then the link with title :title does not exist
+@Then the link with the title :title should not exist
 ```
-
-#### Click on the link with a title
-
+Example:
 ```gherkin
-@Then I click the link with title :title
+Then the link with the title "Some non-existing title" should not exist
 ```
 
 ### MediaTrait
