@@ -344,7 +344,9 @@ trait FileDownloadTrait {
     $parsed_headers = [];
 
     foreach ($headers as $header) {
-      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && !empty($matches[1])) {
+      // @see \Symfony\Component\HttpFoundation\HeaderUtils::quote
+      // Symfony only quotes when certain characters are encountered.
+      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*(?:\"([^\"]+)\"|([^;\s]+))/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);
         continue;
       }
