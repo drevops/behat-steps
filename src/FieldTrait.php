@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
  * Trait Field.
@@ -15,6 +17,8 @@ use Behat\Mink\Exception\ElementNotFoundException;
  * @package DrevOps\BehatSteps
  */
 trait FieldTrait {
+
+  use KeyboardTrait;
 
   /**
    * Assert that field exists on the page using id,name,label or value.
@@ -26,15 +30,15 @@ trait FieldTrait {
    *
    * @Then the field :name should exist
    */
-  public function fieldAssertExists(string $field_name): NodeElement {
+  public function fieldAssertExists(string $name): NodeElement {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($field_name);
+    $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($field_name);
+    $field = $field ? $field : $page->findById($name);
 
     if ($field === NULL) {
       $exception = new ElementNotFoundException($this->getSession()
-        ->getDriver(), 'form field', 'id|name|label|value', $field_name);
+        ->getDriver(), 'form field', 'id|name|label|value', $name);
 
       throw new \Exception($exception->getMessage());
     }
@@ -52,14 +56,14 @@ trait FieldTrait {
    *
    * @Then the field :name should not exist
    */
-  public function fieldAssertNotExists(string $field_name): void {
+  public function fieldAssertNotExists(string $name): void {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($field_name);
+    $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($field_name);
+    $field = $field ? $field : $page->findById($name);
 
     if ($field !== NULL) {
-      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $field_name));
+      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $name));
     }
   }
 
@@ -73,24 +77,24 @@ trait FieldTrait {
    * Then the field "field_tags" should be "not enabled"
    * @endcode
    *
-   * @Then the field :name should be :state
+   * @Then the field :name should be :enabled_or_disabled
    */
-  public function fieldAssertState(string $field_name, string $state): void {
-    $field = $this->fieldAssertExists($field_name);
+  public function fieldAssertState(string $name, string $enabled_or_disabled): void {
+    $field = $this->fieldAssertExists($name);
 
-    if ($state === 'disabled' && !$field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $field_name));
+    if ($enabled_or_disabled === 'disabled' && !$field->hasAttribute('disabled')) {
+      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $name));
     }
-    elseif ($state !== 'disabled' && $field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $field_name));
+    elseif ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
+      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $name));
     }
   }
 
   /**
    * Fills value for color field.
    *
-   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
-   * @When /^(?:|I )fill in the color field "(?P<field>(?:[^"]|\\")*)" with the value "(?P<value>(?:[^"]|\\")*)"$/
+   * @When I fill color in :field with :value
+   * @When I fill in the color field :field with the value :value
    */
   public function fillColorField(string $field, ?string $value = NULL): mixed {
     $js = <<<JS
@@ -110,7 +114,7 @@ JS;
   /**
    * Asserts that a color field has a value.
    *
-   * @Then /^the color field "(?P<field>(?:[^"]|\\")*)" should have the value "(?P<value>(?:[^"]|\\")*)"$/
+   * @Then the color field :field should have the value :value
    */
   public function assertColorFieldHasValue(string $field, string $value): void {
     $js = <<<JS
@@ -127,6 +131,76 @@ JS;
     if ($actual != $value) {
       throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
     }
+  }
+
+  /**
+   * Set value for WYSIWYG field.
+   *
+   * If used with Selenium driver, it will try to find associated WYSIWYG and
+   * fill it in. If used with webdriver - it will fill in the field as normal.
+   *
+   * @When I fill in the WYSIWYG field :field with the :value
+   */
+  public function wysiwygFillField(string $field, string $value): void {
+    $field = $this->wysiwygFixStepArgument($field);
+    $value = $this->wysiwygFixStepArgument($value);
+
+    $page = $this->getSession()->getPage();
+    $element = $page->findField($field);
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
+    }
+
+    $driver = $this->getSession()->getDriver();
+    try {
+      $driver->evaluateScript('true');
+    }
+    catch (UnsupportedDriverActionException) {
+      // For non-JS drivers process field in a standard way.
+      $element->setValue($value);
+      return;
+    }
+
+    $element_id = $element->getAttribute('id');
+    if (empty($element_id)) {
+      throw new ElementHtmlException('ID is empty', $driver, $element);
+    }
+
+    $parent_element = $element->getParent();
+
+    // Support Ckeditor 4.
+    $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
+    if ($is_ckeditor_4) {
+      $this->getSession()
+        ->executeScript(sprintf('CKEDITOR.instances["%s"].setData("%s");', $element_id, $value));
+
+      return;
+    }
+
+    // Support Ckeditor 5.
+    $ckeditor_5_element_selector = sprintf('.%s .ck-editor__editable', $parent_element->getAttribute('class'));
+    $this->getSession()
+      ->executeScript(
+        "
+        const domEditableElement = document.querySelector(\"{$ckeditor_5_element_selector}\");
+        if (domEditableElement.ckeditorInstance) {
+          const editorInstance = domEditableElement.ckeditorInstance;
+          if (editorInstance) {
+            editorInstance.setData(\"{$value}\");
+          } else {
+            throw new Exception('Could not get the editor instance!');
+          }
+        } else {
+          throw new Exception('Could not find the element!');
+        }
+        ");
+  }
+
+  /**
+   * Returns fixed step argument (with \\" replaced back to ").
+   */
+  protected function wysiwygFixStepArgument(string $argument): string {
+    return str_replace('\\"', '"', $argument);
   }
 
 }

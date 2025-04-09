@@ -48,8 +48,6 @@
 
 - [WaitTrait](#waittrait)
 
-- [WysiwygTrait](#wysiwygtrait)
-
 
 ### ContentTrait
 
@@ -419,7 +417,7 @@ Then the field "field_body" should not exist
 #### Assert whether the field has a state
 
 ```gherkin
-@Then the field :name should be :state
+@Then the field :name should be :enabled_or_disabled
 ```
 Example:
 ```gherkin
@@ -1166,16 +1164,6 @@ Then the user "John" should not be blocked
 
 ```gherkin
 @When I wait for :seconds second(s) for AJAX to finish
-```
-
-### WysiwygTrait
-
-[Source](src/WysiwygTrait.php), [Example](tests/behat/features/wysiwyg.feature)
-
-#### Set value for WYSIWYG field
-
-```gherkin
-@When /^(?:|I )fill in WYSIWYG "(?P<field>(?:[^"]|\")*)" with "(?P<value>(?:[^"]|\")*)"$/
 ```
 
 

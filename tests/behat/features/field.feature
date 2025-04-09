@@ -24,17 +24,17 @@ Feature: Check that FieldTrait works
       | random_field | not exist  |
 
   @api
-  Scenario Outline: Assert if field is disabled
+  Scenario Outline: Assert if field is disabled or enabled
     Given I go to "form/test-form"
-    Then the field "<field>" should be "<state>"
+    Then the field "<field>" should be "<enabled_or_disabled>"
     Examples:
-      | field          | state    |
-      | field1         | enabled  |
-      | Field 1        | enabled  |
-      | field2         | enabled  |
-      | Field 2        | enabled  |
-      | field3disabled | disabled |
-      | Field 3        | disabled |
+      | field          | enabled_or_disabled |
+      | field1         | enabled             |
+      | Field 1        | enabled             |
+      | field2         | enabled             |
+      | Field 2        | enabled             |
+      | field3disabled | disabled            |
+      | Field 3        | disabled            |
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value.
@@ -93,7 +93,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that "The field :field should be :state" fails when the state is wrong
+  Scenario: Assert that "the field :field should be enabled" fails when it is disabled
     Given some behat configuration
     And scenario steps:
       """
@@ -107,7 +107,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "The field :field1 should be :state" fails with an error
+  Scenario: Assert that "the field :field1 should be disabled" fails when it is not disabled
     Given some behat configuration
     And scenario steps:
       """
@@ -119,3 +119,27 @@ Feature: Check that FieldTrait works
       """
       A field "field1" should be disabled, but it is not.
       """
+
+  @api
+  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
+    Given page content:
+      | title             |
+      | [TEST] Page title |
+    And I am logged in as a user with the "administrator" role
+    And I visit the "page" content edit page with the title "[TEST] Page title"
+    When I fill in the WYSIWYG field "Body" with the "[TEST] value"
+    And save screenshot
+    And I press "Save"
+    Then I should see "[TEST] value"
+
+  @api @javascript
+  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
+    Given page content:
+      | title                       |
+      | [TEST-JS-Driver] Page title |
+    And I am logged in as a user with the "administrator" role
+    And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
+    When I fill in the WYSIWYG field "Body" with the "[TEST-JS-Driver] value"
+    And save screenshot
+    And I press "Save"
+    Then I should see "[TEST-JS-Driver] value"
