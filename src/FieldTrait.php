@@ -20,11 +20,11 @@ trait FieldTrait {
    * Assert that field exists on the page using id,name,label or value.
    *
    * @code
-   * Then I see field "Body"
-   * Then I see field "field_body"
+   * Then the field "Body" should exist
+   * Then the field "field_body" should exist
    * @endcode
    *
-   * @Then I see field :name
+   * @Then the field :name should exist
    */
   public function fieldAssertExists(string $field_name): NodeElement {
     $page = $this->getSession()->getPage();
@@ -46,11 +46,11 @@ trait FieldTrait {
    * Assert that field does not exist on the page using id,name,label or value.
    *
    * @code
-   * Then I don't see field "Body"
-   * Then I don't see field "field_body"
+   * Then the field "Body" should not exist
+   * Then the field "field_body" should not exist
    * @endcode
    *
-   * @Then I don't see field :name
+   * @Then the field :name should not exist
    */
   public function fieldAssertNotExists(string $field_name): void {
     $page = $this->getSession()->getPage();
@@ -64,66 +64,25 @@ trait FieldTrait {
   }
 
   /**
-   * Assert whether the field exists on the page using id,name,label or value.
-   *
-   * @code
-   * Then field "Body" "exists" on the page
-   * Then field "field_body" "exists" on the page
-   * Then field "Tags" "does not exist" on the page
-   * Then field "field_tags" "does not exist" on the page
-   * @endcode
-   *
-   * @Then field :name :exists on the page
-   */
-  public function fieldAssertExistence(string $field_name, string $exists): void {
-    if ($exists === 'exists') {
-      $this->fieldAssertExists($field_name);
-    }
-    else {
-      $this->fieldAssertNotExists($field_name);
-    }
-  }
-
-  /**
    * Assert whether the field has a state.
    *
    * @code
-   * Then field "Body" is "disabled" on the page
-   * Then field "field_body" is "disabled" on the page
-   * Then field "Tags" is "enabled" on the page
-   * Then field "field_tags" is "not enabled" on the page
+   * Then the field "Body" should be "disabled"
+   * Then the field "field_body" should be "disabled"
+   * Then the field "Tags" should be "enabled"
+   * Then the field "field_tags" should be "not enabled"
    * @endcode
    *
-   * @Then field :name is :disabled on the page
+   * @Then the field :name should be :state
    */
-  public function fieldAssertState(string $field_name, string $disabled): void {
+  public function fieldAssertState(string $field_name, string $state): void {
     $field = $this->fieldAssertExists($field_name);
 
-    if ($disabled === 'disabled' && !$field->hasAttribute('disabled')) {
+    if ($state === 'disabled' && !$field->hasAttribute('disabled')) {
       throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $field_name));
     }
-    elseif ($disabled !== 'disabled' && $field->hasAttribute('disabled')) {
+    elseif ($state !== 'disabled' && $field->hasAttribute('disabled')) {
       throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $field_name));
-    }
-  }
-
-  /**
-   * Assert whether the field exists on the page and has a state.
-   *
-   * @code
-   * Then field "Body" should be "present" on the page and have state "enabled"
-   * Then field "Tags" should be "absent" on the page and have state "n/a"
-   * @endcode
-   *
-   * @Then field :name should be :presence on the page and have state :state
-   */
-  public function fieldAssertExistsState(string $field_name, string $presence, string $state = 'enabled'): void {
-    if ($presence === 'present') {
-      $this->fieldAssertExists($field_name);
-      $this->fieldAssertState($field_name, $state);
-    }
-    else {
-      $this->fieldAssertNotExists($field_name);
     }
   }
 
@@ -131,7 +90,7 @@ trait FieldTrait {
    * Fills value for color field.
    *
    * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
-   * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
+   * @When /^(?:|I )fill in the color field "(?P<field>(?:[^"]|\\")*)" with the value "(?P<value>(?:[^"]|\\")*)"$/
    */
   public function fillColorField(string $field, ?string $value = NULL): mixed {
     $js = <<<JS
@@ -151,7 +110,7 @@ JS;
   /**
    * Asserts that a color field has a value.
    *
-   * @Then /^color field "(?P<field>(?:[^"]|\\")*)" value is "(?P<value>(?:[^"]|\\")*)"$/
+   * @Then /^the color field "(?P<field>(?:[^"]|\\")*)" should have the value "(?P<value>(?:[^"]|\\")*)"$/
    */
   public function assertColorFieldHasValue(string $field, string $value): void {
     $js = <<<JS

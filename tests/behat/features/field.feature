@@ -3,76 +3,60 @@ Feature: Check that FieldTrait works
   @api
   Scenario: Assert field exists
     Given I go to "form/test-form"
-    Then I see field "field1"
-    Then I see field "Field 1"
+    Then the field "field1" should exist
+    Then the field "Field 1" should exist
 
   @api
   Scenario: Assert field does not exist
     Given I go to "test-form"
-    Then I don't see field "some_random_field"
+    Then the field "some_random_field" should not exist
 
   @api
   Scenario Outline: Assert field existence
     Given I go to "form/test-form"
-    Then field "<field>" "<existence>" on the page
+    Then the field "<field>" should <existence>
     Examples:
       | field        | existence  |
-      | field1       | exists     |
-      | Field 1      | exists     |
-      | field2       | exists     |
-      | Field 2      | exists     |
-      | random_field | not exists |
+      | field1       | exist      |
+      | Field 1      | exist      |
+      | field2       | exist      |
+      | Field 2      | exist      |
+      | random_field | not exist  |
 
   @api
   Scenario Outline: Assert if field is disabled
     Given I go to "form/test-form"
-    Then field "<field>" is "<state>" on the page
+    Then the field "<field>" should be "<state>"
     Examples:
       | field          | state    |
-      | field1         | active   |
-      | Field 1        | active   |
-      | field2         | active   |
-      | Field 2        | active   |
+      | field1         | enabled  |
+      | Field 1        | enabled  |
+      | field2         | enabled  |
+      | Field 2        | enabled  |
       | field3disabled | disabled |
       | Field 3        | disabled |
-
-  @api
-  Scenario Outline: Assert field presence and state
-    Given I go to "form/test-form"
-    Then field "<field>" should be "<presence>" on the page and have state "<state>"
-    Examples:
-      | field          | presence    | state    |
-      | field1         | present     | active   |
-      | Field 1        | present     | active   |
-      | field2         | present     | active   |
-      | Field 2        | present     | active   |
-      | field3disabled | present     | disabled |
-      | Field 3        | present     | disabled |
-      | field_random   | not present | disabled |
-      | field_random   | not present | active   |
-      | field_random   | not present |          |
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value.
     Given I visit "/sites/default/files/relative.html"
-    Then color field "#edit-color-input" value is "#000000"
+    Then the color field "#edit-color-input" should have the value "#000000"
     And I fill color in "#edit-color-input" with "#ffffff"
-    Then color field "#edit-color-input" value is "#ffffff"
+    Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition.
     Given I visit "/sites/default/files/relative.html"
-    Then color field "#edit-color-input" value is "#000000"
-    And I fill color in "#ffffff" for "#edit-color-input"
-    Then color field "#edit-color-input" value is "#ffffff"
+    Then the color field "#edit-color-input" should have the value "#000000"
+    And I fill in the color field "#edit-color-input" with the value "#ffffff"
+    Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "I see field :field" fails with an error
+  Scenario: Assert that negative assertion for "The field :field should exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then I see field "No existing field"
+      Then the field "No existing field" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -81,12 +65,12 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "I don't see field :field" fails with an error
+  Scenario: Assert that negative assertion for "The field :name should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then I don't see field "Field 1"
+      Then the field "Field 1" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -95,26 +79,26 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that field does not exist on the page using id, name, label or value.
+  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then field "Field 1" "does not exist" on the page
+      Then the field "field1" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      A field "Field 1" appears on this page, but it should not.
+      A field "field1" appears on this page, but it should not.
       """
 
   @trait:FieldTrait
-  Scenario: Assert whether the field has a state.
+  Scenario: Assert that "The field :field should be :state" fails when the state is wrong
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then field "field3disabled" is "enabled" on the page
+      Then the field "field3disabled" should be "enabled"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -123,43 +107,15 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "field :field1 is :state on the page" fails with an error
+  Scenario: Assert that negative assertion for "The field :field1 should be :state" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then field "field1" is "disabled" on the page
+      Then the field "field1" should be "disabled"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
       A field "field1" should be disabled, but it is not.
-      """
-
-  @trait:FieldTrait
-  Scenario: Assert that negative assertion for "field :field should be :presence on the page and have state :state" fails with an error for existing field
-    Given some behat configuration
-    And scenario steps:
-      """
-      Given I go to "form/test-form"
-      Then field "field1" should be "present" on the page and have state "disabled"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      A field "field1" should be disabled, but it is not.
-      """
-
-  @trait:FieldTrait
-  Scenario: Assert that negative assertion for "field :field should be :presence on the page and have state :state" fails with an error for non-existing field
-    Given some behat configuration
-    And scenario steps:
-      """
-      Given I go to "form/test-form"
-      Then field "No existing field" should be "present" on the page and have state "disabled"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      Form field with id|name|label|value "No existing field" not found.
       """
