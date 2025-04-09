@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
  * Trait Field.
@@ -16,25 +18,27 @@ use Behat\Mink\Exception\ElementNotFoundException;
  */
 trait FieldTrait {
 
+  use KeyboardTrait;
+
   /**
    * Assert that field exists on the page using id,name,label or value.
    *
    * @code
-   * Then I see field "Body"
-   * Then I see field "field_body"
+   * Then the field "Body" should exist
+   * Then the field "field_body" should exist
    * @endcode
    *
-   * @Then I see field :name
+   * @Then the field :name should exist
    */
-  public function fieldAssertExists(string $field_name): NodeElement {
+  public function fieldAssertExists(string $name): NodeElement {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($field_name);
+    $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($field_name);
+    $field = $field ? $field : $page->findById($name);
 
     if ($field === NULL) {
       $exception = new ElementNotFoundException($this->getSession()
-        ->getDriver(), 'form field', 'id|name|label|value', $field_name);
+        ->getDriver(), 'form field', 'id|name|label|value', $name);
 
       throw new \Exception($exception->getMessage());
     }
@@ -46,41 +50,20 @@ trait FieldTrait {
    * Assert that field does not exist on the page using id,name,label or value.
    *
    * @code
-   * Then I don't see field "Body"
-   * Then I don't see field "field_body"
+   * Then the field "Body" should not exist
+   * Then the field "field_body" should not exist
    * @endcode
    *
-   * @Then I don't see field :name
+   * @Then the field :name should not exist
    */
-  public function fieldAssertNotExists(string $field_name): void {
+  public function fieldAssertNotExists(string $name): void {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($field_name);
+    $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($field_name);
+    $field = $field ? $field : $page->findById($name);
 
     if ($field !== NULL) {
-      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $field_name));
-    }
-  }
-
-  /**
-   * Assert whether the field exists on the page using id,name,label or value.
-   *
-   * @code
-   * Then field "Body" "exists" on the page
-   * Then field "field_body" "exists" on the page
-   * Then field "Tags" "does not exist" on the page
-   * Then field "field_tags" "does not exist" on the page
-   * @endcode
-   *
-   * @Then field :name :exists on the page
-   */
-  public function fieldAssertExistence(string $field_name, string $exists): void {
-    if ($exists === 'exists') {
-      $this->fieldAssertExists($field_name);
-    }
-    else {
-      $this->fieldAssertNotExists($field_name);
+      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $name));
     }
   }
 
@@ -88,50 +71,30 @@ trait FieldTrait {
    * Assert whether the field has a state.
    *
    * @code
-   * Then field "Body" is "disabled" on the page
-   * Then field "field_body" is "disabled" on the page
-   * Then field "Tags" is "enabled" on the page
-   * Then field "field_tags" is "not enabled" on the page
+   * Then the field "Body" should be "disabled"
+   * Then the field "field_body" should be "disabled"
+   * Then the field "Tags" should be "enabled"
+   * Then the field "field_tags" should be "not enabled"
    * @endcode
    *
-   * @Then field :name is :disabled on the page
+   * @Then the field :name should be :enabled_or_disabled
    */
-  public function fieldAssertState(string $field_name, string $disabled): void {
-    $field = $this->fieldAssertExists($field_name);
+  public function fieldAssertState(string $name, string $enabled_or_disabled): void {
+    $field = $this->fieldAssertExists($name);
 
-    if ($disabled === 'disabled' && !$field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $field_name));
+    if ($enabled_or_disabled === 'disabled' && !$field->hasAttribute('disabled')) {
+      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $name));
     }
-    elseif ($disabled !== 'disabled' && $field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $field_name));
-    }
-  }
-
-  /**
-   * Assert whether the field exists on the page and has a state.
-   *
-   * @code
-   * Then field "Body" should be "present" on the page and have state "enabled"
-   * Then field "Tags" should be "absent" on the page and have state "n/a"
-   * @endcode
-   *
-   * @Then field :name should be :presence on the page and have state :state
-   */
-  public function fieldAssertExistsState(string $field_name, string $presence, string $state = 'enabled'): void {
-    if ($presence === 'present') {
-      $this->fieldAssertExists($field_name);
-      $this->fieldAssertState($field_name, $state);
-    }
-    else {
-      $this->fieldAssertNotExists($field_name);
+    elseif ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
+      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $name));
     }
   }
 
   /**
    * Fills value for color field.
    *
-   * @When /^(?:|I )fill color in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
-   * @When /^(?:|I )fill color in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
+   * @When I fill color in :field with :value
+   * @When I fill in the color field :field with the value :value
    */
   public function fillColorField(string $field, ?string $value = NULL): mixed {
     $js = <<<JS
@@ -151,7 +114,7 @@ JS;
   /**
    * Asserts that a color field has a value.
    *
-   * @Then /^color field "(?P<field>(?:[^"]|\\")*)" value is "(?P<value>(?:[^"]|\\")*)"$/
+   * @Then the color field :field should have the value :value
    */
   public function assertColorFieldHasValue(string $field, string $value): void {
     $js = <<<JS
@@ -168,6 +131,76 @@ JS;
     if ($actual != $value) {
       throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
     }
+  }
+
+  /**
+   * Set value for WYSIWYG field.
+   *
+   * If used with Selenium driver, it will try to find associated WYSIWYG and
+   * fill it in. If used with webdriver - it will fill in the field as normal.
+   *
+   * @When I fill in the WYSIWYG field :field with the :value
+   */
+  public function wysiwygFillField(string $field, string $value): void {
+    $field = $this->wysiwygFixStepArgument($field);
+    $value = $this->wysiwygFixStepArgument($value);
+
+    $page = $this->getSession()->getPage();
+    $element = $page->findField($field);
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
+    }
+
+    $driver = $this->getSession()->getDriver();
+    try {
+      $driver->evaluateScript('true');
+    }
+    catch (UnsupportedDriverActionException) {
+      // For non-JS drivers process field in a standard way.
+      $element->setValue($value);
+      return;
+    }
+
+    $element_id = $element->getAttribute('id');
+    if (empty($element_id)) {
+      throw new ElementHtmlException('ID is empty', $driver, $element);
+    }
+
+    $parent_element = $element->getParent();
+
+    // Support Ckeditor 4.
+    $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
+    if ($is_ckeditor_4) {
+      $this->getSession()
+        ->executeScript(sprintf('CKEDITOR.instances["%s"].setData("%s");', $element_id, $value));
+
+      return;
+    }
+
+    // Support Ckeditor 5.
+    $ckeditor_5_element_selector = sprintf('.%s .ck-editor__editable', $parent_element->getAttribute('class'));
+    $this->getSession()
+      ->executeScript(
+        "
+        const domEditableElement = document.querySelector(\"{$ckeditor_5_element_selector}\");
+        if (domEditableElement.ckeditorInstance) {
+          const editorInstance = domEditableElement.ckeditorInstance;
+          if (editorInstance) {
+            editorInstance.setData(\"{$value}\");
+          } else {
+            throw new Exception('Could not get the editor instance!');
+          }
+        } else {
+          throw new Exception('Could not find the element!');
+        }
+        ");
+  }
+
+  /**
+   * Returns fixed step argument (with \\" replaced back to ").
+   */
+  protected function wysiwygFixStepArgument(string $argument): string {
+    return str_replace('\\"', '"', $argument);
   }
 
 }

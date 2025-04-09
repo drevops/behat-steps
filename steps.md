@@ -48,8 +48,6 @@
 
 - [WaitTrait](#waittrait)
 
-- [WysiwygTrait](#wysiwygtrait)
-
 
 ### ContentTrait
 
@@ -397,60 +395,36 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 #### Assert that field exists on the page using id,name,label or value
 
 ```gherkin
-@Then I see field :name
+@Then the field :name should exist
 ```
 Example:
 ```gherkin
-Then I see field "Body"
-Then I see field "field_body"
+Then the field "Body" should exist
+Then the field "field_body" should exist
 ```
 
 #### Assert that field does not exist on the page using id,name,label or value
 
 ```gherkin
-@Then I don't see field :name
+@Then the field :name should not exist
 ```
 Example:
 ```gherkin
-Then I don't see field "Body"
-Then I don't see field "field_body"
-```
-
-#### Assert whether the field exists on the page using id,name,label or value
-
-```gherkin
-@Then field :name :exists on the page
-```
-Example:
-```gherkin
-Then field "Body" "exists" on the page
-Then field "field_body" "exists" on the page
-Then field "Tags" "does not exist" on the page
-Then field "field_tags" "does not exist" on the page
+Then the field "Body" should not exist
+Then the field "field_body" should not exist
 ```
 
 #### Assert whether the field has a state
 
 ```gherkin
-@Then field :name is :disabled on the page
+@Then the field :name should be :enabled_or_disabled
 ```
 Example:
 ```gherkin
-Then field "Body" is "disabled" on the page
-Then field "field_body" is "disabled" on the page
-Then field "Tags" is "enabled" on the page
-Then field "field_tags" is "not enabled" on the page
-```
-
-#### Assert whether the field exists on the page and has a state
-
-```gherkin
-@Then field :name should be :presence on the page and have state :state
-```
-Example:
-```gherkin
-Then field "Body" should be "present" on the page and have state "enabled"
-Then field "Tags" should be "absent" on the page and have state "n/a"
+Then the field "Body" should be "disabled"
+Then the field "field_body" should be "disabled"
+Then the field "Tags" should be "enabled"
+Then the field "field_tags" should be "not enabled"
 ```
 
 ### FileDownloadTrait
@@ -1190,16 +1164,6 @@ Then the user "John" should not be blocked
 
 ```gherkin
 @When I wait for :seconds second(s) for AJAX to finish
-```
-
-### WysiwygTrait
-
-[Source](src/WysiwygTrait.php), [Example](tests/behat/features/wysiwyg.feature)
-
-#### Set value for WYSIWYG field
-
-```gherkin
-@When /^(?:|I )fill in WYSIWYG "(?P<field>(?:[^"]|\")*)" with "(?P<value>(?:[^"]|\")*)"$/
 ```
 
 
