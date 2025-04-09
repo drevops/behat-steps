@@ -28,7 +28,7 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert "Then I download file from link :link"
     When I visit article "[TEST] document page"
     Then I see download "example_text.txt" link "present"
-    And downloaded file name is "example_files.text"
+    And downloaded file name is "example_file.text"
     Then I download file from link "example_text.txt"
     And downloaded file contains:
       """
@@ -54,4 +54,4 @@ Feature: Check that FileDownloadTrait works
     When I visit article "[TEST] document page 2"
     Then I see download "example text.txt" link "present"
     Then I download file from link "example text.txt"
-    And downloaded file name is "example text.txt"
+    And downloaded file name is "example%20text.txt"
