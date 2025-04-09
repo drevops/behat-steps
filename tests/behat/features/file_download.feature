@@ -8,11 +8,13 @@ Feature: Check that FileDownloadTrait works
       | example_image.png    |
       | example_audio.mp3    |
       | example_text.txt     |
+      | example text.txt     |
       | example_files.zip    |
     And article content:
       | title                | field_file        |
       | [TEST] document page | example_text.txt  |
       | [TEST] zip page      | example_files.zip |
+      | [TEST] document page 2 | example text.txt |
 
   @api @download
   Scenario: Assert "Then I download file from :url"
@@ -26,6 +28,7 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert "Then I download file from link :link"
     When I visit article "[TEST] document page"
     Then I see download "example_text.txt" link "present"
+    And downloaded file name is "example_files.text"
     Then I download file from link "example_text.txt"
     And downloaded file contains:
       """
@@ -45,3 +48,10 @@ Feature: Check that FileDownloadTrait works
     Then downloaded file is zip archive that does not contain files:
       | example_text.txt |
       | not_existing.png |
+
+  @api
+  Scenario: Assert file name with a space is correctly checked
+    When I visit article "[TEST] document page 2"
+    Then I see download "example text.txt" link "present"
+    Then I download file from link "example text.txt"
+    And downloaded file name is "example text.txt"
