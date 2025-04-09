@@ -11,6 +11,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 /**
  * Trait FileDownloadTrait.
@@ -173,6 +174,7 @@ trait FileDownloadTrait {
    */
   public function fileDownloadAssertFileName(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
+      var_dump($this->fileDownloadDownloadedFileInfo);
       throw new \RuntimeException('Downloaded file name content has no data.');
     }
 
@@ -346,8 +348,8 @@ trait FileDownloadTrait {
     foreach ($headers as $header) {
       // @see \Symfony\Component\HttpFoundation\HeaderUtils::quote
       // Symfony only quotes when certain characters are encountered.
-      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*(?:\"([^\"]+)\"|([^;\s]+))/', (string) $header, $matches) && !empty($matches[1])) {
-        $parsed_headers['file_name'] = trim($matches[1]);
+      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=/', (string) $header)) {
+        $parsed_headers['file_name'] = HeaderUtils::split($header, '=')[1] ?? '';
         continue;
       }
 
