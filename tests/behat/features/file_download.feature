@@ -22,10 +22,11 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert in browser "Then I download file from :url"
     And I download file from "/example_text.txt"
 
-  @api
+  @api @wip
   Scenario: Assert "Then I download file from link :link"
     When I visit article "[TEST] document page"
     Then I see download "example_text.txt" link "present"
+    And downloaded file name is "example_text.txt"
     Then I download file from link "example_text.txt"
     And downloaded file contains:
       """
