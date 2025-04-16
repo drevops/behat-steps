@@ -434,43 +434,49 @@ Then the field "field_tags" should be "not enabled"
 #### Download a file from the specified URL
 
 ```gherkin
-@Then I download file from :url
+@When I download the file from the URL :url
 ```
 
 #### Download the file from the specified HTML link
 
 ```gherkin
-@Then I download file from link :link
-```
-
-#### Assert that an HTML link is present or absent on the page
-
-```gherkin
-@Then I see download :link link :presence(on the page)
+@When I download the file from the link :link
 ```
 
 #### Assert the contents of the download file
 
 ```gherkin
-@Then downloaded file contains:
+@Then the downloaded file should contain:
 ```
 
 #### Assert the file name of the downloaded file
 
 ```gherkin
-@Then downloaded file name is :name
+@Then the downloaded file name should be :name
 ```
 
-#### Assert downloaded file is a ZIP archive and it contains files
+#### Assert the downloaded file name contains a specific string
 
 ```gherkin
-@Then downloaded file is zip archive that contains files:
+@Then the downloaded file name should contain :name
 ```
 
-#### Assert downloaded file is a ZIP archive and it does not contain files
+#### Assert the downloaded file is a zip archive containing specific files
 
 ```gherkin
-@Then downloaded file is zip archive that does not contain files:
+@Then the downloaded file should be a zip archive containing the files named:
+```
+
+#### Assert the downloaded file is a zip archive containing files with partial names
+
+```gherkin
+@Then the downloaded file should be a zip archive containing the files partially named:
+```
+
+#### Assert the downloaded file is a zip archive not containing files with partial names
+
+```gherkin
+@Then the downloaded file should be a zip archive not containing the files partially named:
 ```
 
 ### FileTrait

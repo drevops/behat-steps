@@ -15,19 +15,18 @@ Feature: Check that FileDownloadTrait works
       | [TEST] zip page      | example_files.zip |
 
   @api @download
-  Scenario: Assert "Then I download file from :url"
-    And I download file from "/example_text.txt"
+  Scenario: Assert "When I download the file from the URL :url"
+    And I download the file from the URL "/example_text.txt"
 
   @api @javascript @download
-  Scenario: Assert in browser "Then I download file from :url"
-    And I download file from "/example_text.txt"
+  Scenario: Assert in browser "When I download the file from the URL :url"
+    And I download the file from the URL "/example_text.txt"
 
   @api
-  Scenario: Assert "Then I download file from link :link"
+  Scenario: Assert "When I download the file from the link :link"
     When I visit the "article" content page with the title "[TEST] document page"
-    Then I see download "example_text.txt" link "present"
-    Then I download file from link "example_text.txt"
-    And downloaded file contains:
+    When I download the file from the link "example_text.txt"
+    And the downloaded file should contain:
       """
       Some Text
       """
@@ -35,13 +34,35 @@ Feature: Check that FileDownloadTrait works
   @api
   Scenario: Assert "Given downloaded file is zip archive that contains files:"
     When I visit the "article" content page with the title "[TEST] zip page"
-    Then I see download "example_files.zip" link "present"
-    Then I download file from link "example_files.zip"
-    And downloaded file name is "example_files.zip"
-    And downloaded file is zip archive that contains files:
+    When I download the file from the link "example_files.zip"
+    And the downloaded file name should be "example_files.zip"
+    And the downloaded file should be a zip archive containing the files named:
       | example_audio.mp3    |
       | example_image.png    |
       | example_document.pdf |
-    Then downloaded file is zip archive that does not contain files:
+    Then the downloaded file should be a zip archive not containing the files partially named:
       | example_text.txt |
       | not_existing.png |
+
+  @api
+  Scenario: Assert the downloaded file name contains a specific string
+    When I download the file from the URL "/example_text.txt"
+    Then the downloaded file name should contain "example"
+
+  @api
+  Scenario: Assert the downloaded file is a zip archive containing files partially named
+    When I visit the "article" content page with the title "[TEST] zip page"
+    When I download the file from the link "example_files.zip"
+    And the downloaded file name should be "example_files.zip"
+    Then the downloaded file should be a zip archive containing the files partially named:
+      | example_aud |
+      | example_ima |
+
+  @api
+  Scenario: Assert the downloaded file is a zip archive not containing files partially named
+    When I visit the "article" content page with the title "[TEST] zip page"
+    When I download the file from the link "example_files.zip"
+    And the downloaded file name should be "example_files.zip"
+    Then the downloaded file should be a zip archive not containing the files partially named:
+      | example_text |
+      | not_existing |

@@ -64,7 +64,7 @@ trait FileDownloadTrait {
   /**
    * Download a file from the specified URL.
    *
-   * @Then I download file from :url
+   * @When I download the file from the URL :url
    */
   public function fileDownloadFrom(string $url): void {
     if (empty(parse_url($url, PHP_URL_HOST))) {
@@ -107,31 +107,25 @@ trait FileDownloadTrait {
   /**
    * Download the file from the specified HTML link.
    *
-   * @Then I download file from link :link
+   * @When I download the file from the link :link
    */
   public function fileDownloadFromLink(string $link): void {
-    $link_element = $this->fileDownloadAssertLinkPresence($link, 'present');
+    $link_element = $this->fileDownloadAssertLinkPresent($link);
 
     $url = $link_element->getAttribute('href');
     $this->fileDownloadFrom($url);
   }
 
   /**
-   * Assert that an HTML link is present or absent on the page.
-   *
-   * @Then I see download :link link :presence(on the page)
+   * Assert that an HTML link is present on the page.
    */
-  public function fileDownloadAssertLinkPresence(string $link, string $presence): NodeElement {
-    $should_be_present = $presence === 'present';
+  public function fileDownloadAssertLinkPresent(string $link): NodeElement {
 
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
 
-    if ($should_be_present && !$link_element) {
+    if (!$link_element) {
       throw new \Exception(sprintf('No link "%s" is present on the page, but expected to be present', $link));
-    }
-    elseif (!$should_be_present && $link_element) {
-      throw new \Exception(sprintf('Link "%s" is present on the page, but expected to be absent', $link));
     }
 
     return $link_element;
@@ -140,7 +134,7 @@ trait FileDownloadTrait {
   /**
    * Assert the contents of the download file.
    *
-   * @Then downloaded file contains:
+   * @Then the downloaded file should contain:
    */
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
     $string = strval($string);
@@ -169,7 +163,7 @@ trait FileDownloadTrait {
   /**
    * Assert the file name of the downloaded file.
    *
-   * @Then downloaded file name is :name
+   * @Then the downloaded file name should be :name
    */
   public function fileDownloadAssertFileName(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
@@ -182,9 +176,24 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert downloaded file is a ZIP archive and it contains files.
+   * Assert the downloaded file name contains a specific string.
    *
-   * @Then downloaded file is zip archive that contains files:
+   * @Then the downloaded file name should contain :name
+   */
+  public function fileDownloadAssertFileNameContains(string $name): void {
+    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
+      throw new \RuntimeException('Downloaded file name content has no data.');
+    }
+
+    if (!str_contains($this->fileDownloadDownloadedFileInfo['file_name'], $name)) {
+      throw new \Exception(sprintf('Downloaded file name "%s" does not contain "%s"', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+    }
+  }
+
+  /**
+   * Assert the downloaded file is a zip archive containing specific files.
+   *
+   * @Then the downloaded file should be a zip archive containing the files named:
    */
   public function fileDownloadAssertZipContains(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
@@ -202,17 +211,49 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert downloaded file is a ZIP archive and it does not contain files.
+   * Assert the downloaded file is a zip archive containing files with partial names.
    *
-   * @Then downloaded file is zip archive that does not contain files:
+   * @Then the downloaded file should be a zip archive containing the files partially named:
    */
-  public function fileDownloadAssertNoZipContains(TableNode $files): void {
+  public function fileDownloadAssertZipContainsPartial(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
-    foreach ($files->getColumn(0) as $line) {
-      if ($zip->locateName($line) !== FALSE) {
-        $errors[] = sprintf('Found file "%s" in archive but should not', $line);
+    foreach ($files->getColumn(0) as $partialName) {
+      $found = false;
+      for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if (str_contains($stat['name'], $partialName)) {
+          $found = true;
+          break;
+        }
+      }
+      if (!$found) {
+        $errors[] = sprintf('Unable to find any file partially named "%s" in archive', $partialName);
+      }
+    }
+
+    if (!empty($errors)) {
+      throw new \Exception(implode(PHP_EOL, $errors));
+    }
+  }
+
+  /**
+   * Assert the downloaded file is a zip archive not containing files with partial names.
+   *
+   * @Then the downloaded file should be a zip archive not containing the files partially named:
+   */
+  public function fileDownloadAssertNoZipContainsPartial(TableNode $files): void {
+    $zip = $this->fileDownloadOpenZip();
+
+    $errors = [];
+    foreach ($files->getColumn(0) as $partialName) {
+      for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if (str_contains($stat['name'], $partialName)) {
+          $errors[] = sprintf('Found file partially named "%s" in archive but should not', $partialName);
+          break;
+        }
       }
     }
 
