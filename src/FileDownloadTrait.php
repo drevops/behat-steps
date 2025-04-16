@@ -185,7 +185,7 @@ trait FileDownloadTrait {
       throw new \RuntimeException('Downloaded file name content has no data.');
     }
 
-    if (!str_contains($this->fileDownloadDownloadedFileInfo['file_name'], $name)) {
+    if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $name)) {
       throw new \Exception(sprintf('Downloaded file name "%s" does not contain "%s"', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
     }
   }
@@ -223,7 +223,7 @@ trait FileDownloadTrait {
       $found = FALSE;
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains($stat['name'], $partialName)) {
+        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partialName)) {
           $found = TRUE;
           break;
         }
@@ -250,7 +250,7 @@ trait FileDownloadTrait {
     foreach ($files->getColumn(0) as $partialName) {
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains($stat['name'], $partialName)) {
+        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partialName)) {
           $errors[] = sprintf('Found file partially named "%s" in archive but should not', $partialName);
           break;
         }
