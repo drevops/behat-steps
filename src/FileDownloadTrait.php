@@ -220,11 +220,11 @@ trait FileDownloadTrait {
 
     $errors = [];
     foreach ($files->getColumn(0) as $partialName) {
-      $found = false;
+      $found = FALSE;
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if (str_contains($stat['name'], $partialName)) {
-          $found = true;
+        if ($stat !== FALSE && str_contains($stat['name'], $partialName)) {
+          $found = TRUE;
           break;
         }
       }
@@ -250,7 +250,7 @@ trait FileDownloadTrait {
     foreach ($files->getColumn(0) as $partialName) {
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if (str_contains($stat['name'], $partialName)) {
+        if ($stat !== FALSE && str_contains($stat['name'], $partialName)) {
           $errors[] = sprintf('Found file partially named "%s" in archive but should not', $partialName);
           break;
         }
