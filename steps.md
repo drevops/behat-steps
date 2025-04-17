@@ -461,13 +461,13 @@ Then the field "field_tags" should be "not enabled"
 @Then the downloaded file name should contain :name
 ```
 
-#### Assert the downloaded file is a zip archive containing specific files
+#### Assert the downloaded file should be a zip archive containing specific files
 
 ```gherkin
 @Then the downloaded file should be a zip archive containing the files named:
 ```
 
-#### Assert the downloaded file is a zip archive containing files with partial names
+#### Assert the downloaded file should be a zip archive containing files with partial names
 
 ```gherkin
 @Then the downloaded file should be a zip archive containing the files partially named:
