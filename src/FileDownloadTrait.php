@@ -191,7 +191,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert the downloaded file is a zip archive containing specific files.
+   * Assert the downloaded file should be a zip archive containing specific files.
    *
    * @Then the downloaded file should be a zip archive containing the files named:
    */
@@ -211,7 +211,7 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert the downloaded file is a zip archive containing files with partial names.
+   * Assert the downloaded file should be a zip archive containing files with partial names.
    *
    * @Then the downloaded file should be a zip archive containing the files partially named:
    */

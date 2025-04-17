@@ -49,14 +49,47 @@ Feature: Check that FileDownloadTrait works
     When I download the file from the URL "/example_text.txt"
     Then the downloaded file name should contain "example"
 
+  @api @trait:FileDownloadTrait
+  Scenario: Assert that negative assertion for "The downloaded file name should contain :name" fails with an error
+    Given some behat configuration
+    And scenario steps:
+    """
+    Given I visit "/"
+    Given I download the file from the URL "/example_text.txt"
+    Then the downloaded file name should contain "nonexistent"
+    """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+    """
+    Downloaded file name "example_text.txt" does not contain "nonexistent"
+    """
+
   @api
-  Scenario: Assert the downloaded file is a zip archive containing files partially named
+  Scenario: Assert the downloaded file should be a zip archive containing the files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "example_files.zip"
     And the downloaded file name should be "example_files.zip"
     Then the downloaded file should be a zip archive containing the files partially named:
       | example_aud |
       | example_ima |
+
+  @api @trait:FileDownloadTrait,ContentTrait
+  Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the files partially named" fails with an error
+    Given some behat configuration
+    And scenario steps:
+    """
+    Given I am logged in as a user with the "administrator" role
+    When I visit the "article" content page with the title "[TEST] zip page"
+    When I download the file from the link "example_files.zip"
+    And the downloaded file name should be "example_files.zip"
+    Then the downloaded file should be a zip archive containing the files partially named:
+      | nonexistent_file |
+    """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+    """
+    Unable to find any file partially named "nonexistent_file" in archive
+    """
 
   @api
   Scenario: Assert the downloaded file is a zip archive not containing files partially named
