@@ -133,37 +133,37 @@ When I change the moderation state of the "article" content with the title "Test
 #### Check if a cookie exists
 
 ```gherkin
-@Then a cookie with( the) name :name should exist
+@Then a cookie with the name :name should exist
 ```
 
 #### Check if a cookie exists with a specific value
 
 ```gherkin
-@Then a cookie with( the) name :name and value :value should exist
+@Then a cookie with the name :name and the value :value should exist
 ```
 
 #### Check if a cookie exists with a value containing a partial value
 
 ```gherkin
-@Then a cookie with( the) name :name and value containing :partial_value should exist
+@Then a cookie with the name :name and a value containing :partial_value should exist
 ```
 
 #### Check if a cookie with a partial name exists
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name should exist
+@Then a cookie with a name containing :partial_name should exist
 ```
 
 #### Check if a cookie with a partial name and value exists
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name and value :value should exist
+@Then a cookie with a name containing :partial_name and the value :value should exist
 ```
 
 #### Check if a cookie with a partial name and partial value exists
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name and value containing :partial_value should exist
+@Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
 ```
 
 #### Check if a cookie does not exist
@@ -175,31 +175,31 @@ When I change the moderation state of the "article" content with the title "Test
 #### Check if a cookie with a specific value does not exist
 
 ```gherkin
-@Then a cookie with( the) name :name and value :value should not exist
+@Then a cookie with the name :name and the value :value should not exist
 ```
 
 #### Check if a cookie with a value containing a partial value does not exist
 
 ```gherkin
-@Then a cookie with( the) name :name and value containing :partial_value should not exist
+@Then a cookie with the name :name and a value containing :partial_value should not exist
 ```
 
 #### Check if a cookie with a partial name does not exist
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name should not exist
+@Then a cookie with a name containing :partial_name should not exist
 ```
 
 #### Check if a cookie with a partial name and value does not exist
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name and value :value should not exist
+@Then a cookie with a name containing :partial_name and the value :value should not exist
 ```
 
 #### Check if a cookie with a partial name and partial value does not exist
 
 ```gherkin
-@Then a cookie with( the) name containing :partial_name and value containing :partial_value should not exist
+@Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
 ```
 
 ### EckTrait
