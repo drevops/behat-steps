@@ -483,16 +483,16 @@ Then the field "field_tags" should be "not enabled"
 
 [Source](src/FileTrait.php), [Example](tests/behat/features/file.feature)
 
-#### Create managed file with properties provided in the table
+#### Create managed files with properties provided in the table
 
 ```gherkin
-@Given managed file:
+@Given the following managed files:
 ```
 
 #### Delete managed files defined by provided properties/fields
 
 ```gherkin
-@Given no managed files:
+@Given the following managed files do not exist:
 ```
 Example:
 ```gherkin
@@ -506,40 +506,40 @@ Given no managed files:
  | public://otherfile.jpg |
 ```
 
-#### Create an unmanaged file with specified content
+#### Create an unmanaged file
 
 ```gherkin
-@Given unmanaged file :uri created
+@Given the unmanaged file at the URI :uri exists
 ```
 
 #### Create an unmanaged file with specified content
 
 ```gherkin
-@Given unmanaged file :uri created with content :content
+@Given the unmanaged file at the URI :uri exists with :content
 ```
 
 #### Assert that an unmanaged file with specified URI exists
 
 ```gherkin
-@Then unmanaged file :uri exists
+@Then an unmanaged file at the URI :uri should exist
 ```
 
 #### Assert that an unmanaged file with specified URI does not exist
 
 ```gherkin
-@Then unmanaged file :uri does not exist
+@Then an unmanaged file at the URI :uri should not exist
 ```
 
 #### Assert that an unmanaged file exists and has specified content
 
 ```gherkin
-@Then unmanaged file :uri has content :content
+@Then an unmanaged file at the URI :uri should contain :content
 ```
 
 #### Assert that an unmanaged file exists and does not have specified content
 
 ```gherkin
-@Then unmanaged file :uri does not have content :content
+@Then an unmanaged file at the URI :uri should not contain :content
 ```
 
 ### JsTrait

@@ -60,9 +60,9 @@ trait FileTrait {
   }
 
   /**
-   * Create managed file with properties provided in the table.
+   * Create managed files with properties provided in the table.
    *
-   * @Given managed file:
+   * @Given the following managed files:
    */
   public function fileCreateManaged(TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
@@ -189,7 +189,7 @@ trait FileTrait {
    *  | public://otherfile.jpg |
    * @endcode
    *
-   * @Given no managed files:
+   * @Given the following managed files do not exist:
    */
   public function fileDeleteManagedFiles(TableNode $nodesTable): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
@@ -233,9 +233,9 @@ trait FileTrait {
   }
 
   /**
-   * Create an unmanaged file with specified content.
+   * Create an unmanaged file.
    *
-   * @Given unmanaged file :uri created
+   * @Given the unmanaged file at the URI :uri exists
    */
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
     $directory = \Drupal::service('file_system')->dirname($uri);
@@ -255,7 +255,7 @@ trait FileTrait {
   /**
    * Create an unmanaged file with specified content.
    *
-   * @Given unmanaged file :uri created with content :content
+   * @Given the unmanaged file at the URI :uri exists with :content
    */
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->fileCreateUnmanaged($uri, $content);
@@ -264,7 +264,7 @@ trait FileTrait {
   /**
    * Assert that an unmanaged file with specified URI exists.
    *
-   * @Then unmanaged file :uri exists
+   * @Then an unmanaged file at the URI :uri should exist
    */
   public function fileAssertUnmanagedExists(string $uri): void {
     if (!@file_exists($uri)) {
@@ -275,7 +275,7 @@ trait FileTrait {
   /**
    * Assert that an unmanaged file with specified URI does not exist.
    *
-   * @Then unmanaged file :uri does not exist
+   * @Then an unmanaged file at the URI :uri should not exist
    */
   public function fileAssertUnmanagedNotExists(string $uri): void {
     if (@file_exists($uri)) {
@@ -286,7 +286,7 @@ trait FileTrait {
   /**
    * Assert that an unmanaged file exists and has specified content.
    *
-   * @Then unmanaged file :uri has content :content
+   * @Then an unmanaged file at the URI :uri should contain :content
    */
   public function fileAssertUnmanagedHasContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
@@ -304,7 +304,7 @@ trait FileTrait {
   /**
    * Assert that an unmanaged file exists and does not have specified content.
    *
-   * @Then unmanaged file :uri does not have content :content
+   * @Then an unmanaged file at the URI :uri should not contain :content
    */
   public function fileAssertUnmanagedHasNoContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
