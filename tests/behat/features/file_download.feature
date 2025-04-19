@@ -2,7 +2,7 @@ Feature: Check that FileDownloadTrait works
 
   Background:
     Given I am logged in as a user with the "administrator" role
-    Given managed file:
+    Given the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
