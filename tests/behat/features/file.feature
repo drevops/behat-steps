@@ -18,7 +18,7 @@ Feature: Check that FileTrait works
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
-  Scenario: Assert "Given managed file: With uri"
+  Scenario: Assert "Given the following managed files: With uri"
     When I am logged in as a user with the "administrator" role
     And no "example_document.pdf" file object exists
     And no "example_image.png" file object exists
