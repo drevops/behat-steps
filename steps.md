@@ -675,16 +675,16 @@ Then the link with the title "Some non-existing title" should not exist
 #### Remove media type
 
 ```gherkin
-@Given no "video" media type
+@Given "video" media type does not exist
 ```
 ```gherkin
-@Given no :type media type
+@Given :media_type media type does not exist
 ```
 
 #### Creates media of a given type
 
 ```gherkin
-@Given :type media:
+@Given the following media :media_type exist:
 ```
 Example:
 ```gherkin
@@ -697,11 +697,11 @@ Given "video" media:
 #### Remove media defined by provided properties
 
 ```gherkin
-@Given /^no ([a-zA-z0-9_-]+) media:$/
+@Given the following media :media_type do not exist:
 ```
 Example:
 ```gherkin
-Given no "image" media:
+Given the following media "image" do not exist:
 | name               |
 | Media item         |
 | Another media item |
@@ -710,7 +710,7 @@ Given no "image" media:
 #### Navigate to edit media with specified type and name
 
 ```gherkin
-@When I edit :type media :name
+@When I edit the media :media_type with the name :name
 ```
 Example:
 ```gherkin

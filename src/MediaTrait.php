@@ -47,10 +47,10 @@ trait MediaTrait {
    * Remove media type.
    *
    * @code
-   * @Given no "video" media type
+   * @Given "video" media type does not exist
    * @endcode
    *
-   * @Given no :type media type
+   * @Given :media_type media type does not exist
    */
   public function mediaRemoveType(string $type): void {
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($type);
@@ -69,7 +69,7 @@ trait MediaTrait {
    * | ...      | ...      | ...    | ...              |
    * @endcode
    *
-   * @Given :type media:
+   * @Given the following media :media_type exist:
    */
   public function mediaCreate(string $type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
@@ -83,17 +83,17 @@ trait MediaTrait {
    * Remove media defined by provided properties.
    *
    * @code
-   * Given no "image" media:
+   * Given the following media "image" do not exist:
    * | name               |
    * | Media item         |
    * | Another media item |
    * @endcode
    *
-   * @Given /^no ([a-zA-z0-9_-]+) media:$/
+   * @Given the following media :media_type do not exist:
    */
-  public function mediaDelete(string $type, TableNode $table): void {
+  public function mediaDelete(string $media_type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
-      $ids = $this->mediaLoadMultiple($type, $node_hash);
+      $ids = $this->mediaLoadMultiple($media_type, $node_hash);
       $controller = \Drupal::entityTypeManager()->getStorage('media');
       $entities = $controller->loadMultiple($ids);
       $controller->delete($entities);
@@ -107,15 +107,15 @@ trait MediaTrait {
    * When I edit "document" media "Test document"
    * @endcode
    *
-   * @When I edit :type media :name
+   * @When I edit the media :media_type with the name :name
    */
-  public function mediaEditWithName(string $type, string $name): void {
-    $mids = $this->mediaLoadMultiple($type, [
+  public function mediaEditWithName(string $media_type, string $name): void {
+    $mids = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
 
     if (empty($mids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s media "%s"', $type, $name));
+      throw new \RuntimeException(sprintf('Unable to find %s media "%s"', $media_type, $name));
     }
 
     $mid = current($mids);
