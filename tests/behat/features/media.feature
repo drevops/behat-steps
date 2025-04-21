@@ -2,7 +2,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I attach the file :file to :field_name media field"
-    Given managed file:
+    Given the following managed files:
       | path                 |
       | example_document.pdf |
 
@@ -31,7 +31,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert navigate to edit media with specified type and name
-    Given managed file:
+    Given the following managed files:
       | path                 |
       | example_document.pdf |
     And "document" media:
