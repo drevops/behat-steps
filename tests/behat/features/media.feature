@@ -55,3 +55,17 @@ Feature: Check that MediaTrait works
     Given "test_media_type" media type does not exist
     Then I visit "/admin/structure/media"
     Then I should not see "test_media_type"
+
+  @api @trait:MediaTrait
+  Scenario: Assert that editing non-existent media throws an exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I edit the media "document" with the name "Non-existent media"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "RuntimeException" exception:
+      """
+      Unable to find document media "Non-existent media"
+      """
