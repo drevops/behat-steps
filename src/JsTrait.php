@@ -45,10 +45,10 @@ trait JsTrait {
    * Accept confirmation dialogs appearing on the page.
    *
    * @code
-   * When I accept confirmation dialogs
+   * Given I accept all confirmation dialogs
    * @endcode
    *
-   * @When I accept confirmation dialogs
+   * @Given I accept all confirmation dialogs
    *
    * @javascript
    */
@@ -62,10 +62,10 @@ trait JsTrait {
    * Do not accept confirmation dialogs appearing on the page.
    *
    * @code
-   * When I do not accept confirmation dialogs
+   * Given I do not accept any confirmation dialogs
    * @endcode
    *
-   * @When I do not accept confirmation dialogs
+   * @Given I do not accept any confirmation dialogs
    *
    * @javascript
    */
@@ -79,12 +79,10 @@ trait JsTrait {
    * Click on the element defined by the selector.
    *
    * @code
-   * When I click on ".button" element
-   * When I click ".button" element
-   * When click ".button" element
+   * When I click on the element ".button"
    * @endcode
    *
-   * @When /^(?:|I )click (an?|on) "(?P<element>[^"]*)" element$/
+   * @When I click on the element :selector
    *
    * @javascript
    */
@@ -98,9 +96,9 @@ trait JsTrait {
   }
 
   /**
-   * Trigger an event on the specified element.
+   * When I trigger the JS event :event on the element :selector.
    *
-   * @When I trigger JS :event event on :selector element
+   * @When I trigger the JS event :event on the element :selector
    */
   public function jsTriggerElementEvent(string $event, string $selector): void {
     $script = "return (function(el) {
@@ -121,31 +119,31 @@ trait JsTrait {
   /**
    * Scroll to an element with ID.
    *
-   * @Then /^I scroll to an? element with id "([^"]*)"$/
+   * @When I scroll to the element :selector
    */
-  public function iScrollToElementWithId(string $id): void {
+  public function iScrollToElement(string $selector): void {
     $this->getSession()->executeScript("
-      var element = document.getElementById('" . $id . "');
+      var element = document.querySelector('" . $selector . "');
       element.scrollIntoView( true );
     ");
   }
 
   /**
-   * Assert the element with id at the top of page.
+   * Assert the element :selector should be at the top of the viewport.
    *
-   * @Then the element with id :id should be at the top of the page
+   * @Then the element :selector should be at the top of the viewport
    */
-  public function assertElementAtTopOfPage(string $id): void {
+  public function assertElementAtTopOfViewport(string $selector): void {
     $script = <<<JS
         (function() {
-            var element = document.getElementById('{$id}');
+            var element = document.querySelector('{$selector}');
             var rect = element.getBoundingClientRect();
             return (rect.top >= 0 && rect.top <= window.innerHeight);
         })();
 JS;
     $result = $this->getSession()->evaluateScript($script);
     if (!$result) {
-      throw new \Exception(sprintf("Element with ID '%s' is not at the top of the page.", $id));
+      throw new \Exception(sprintf("Element with selector '%s' is not at the top of the viewport.", $selector));
     }
   }
 

@@ -549,39 +549,37 @@ Given no managed files:
 #### Accept confirmation dialogs appearing on the page
 
 ```gherkin
-@When I accept confirmation dialogs
+@Given I accept all confirmation dialogs
 ```
 Example:
 ```gherkin
-When I accept confirmation dialogs
+Given I accept all confirmation dialogs
 ```
 
 #### Do not accept confirmation dialogs appearing on the page
 
 ```gherkin
-@When I do not accept confirmation dialogs
+@Given I do not accept any confirmation dialogs
 ```
 Example:
 ```gherkin
-When I do not accept confirmation dialogs
+Given I do not accept any confirmation dialogs
 ```
 
 #### Click on the element defined by the selector
 
 ```gherkin
-@When /^(?:|I )click (an?|on) "(?P<element>[^"]*)" element$/
+@When I click on the element :selector
 ```
 Example:
 ```gherkin
-When I click on ".button" element
-When I click ".button" element
-When click ".button" element
+When I click on the element ".button"
 ```
 
-#### Trigger an event on the specified element
+#### When I trigger the JS event :event on the element :selector
 
 ```gherkin
-@When I trigger JS :event event on :selector element
+@When I trigger the JS event :event on the element :selector
 ```
 
 ### KeyboardTrait
