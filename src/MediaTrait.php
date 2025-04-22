@@ -71,10 +71,10 @@ trait MediaTrait {
    *
    * @Given the following media :media_type exist:
    */
-  public function mediaCreate(string $type, TableNode $nodesTable): void {
+  public function mediaCreate(string $media_type, TableNode $nodesTable): void {
     foreach ($nodesTable->getHash() as $nodeHash) {
       $node = (object) $nodeHash;
-      $node->bundle = $type;
+      $node->bundle = $media_type;
       $this->mediaCreateSingle($node);
     }
   }
