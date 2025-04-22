@@ -57,7 +57,7 @@ Feature: Check that MediaTrait works
     Then I should not see "test_media_type"
 
   @api @trait:MediaTrait
-  Scenario: Assert that editing non-existent media throws an exception
+  Scenario: Assert that negative assertion for "When I edit the media :media_type with the name :name" fails with an error.
     Given some behat configuration
     And scenario steps:
       """
