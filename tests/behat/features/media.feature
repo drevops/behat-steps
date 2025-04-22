@@ -6,20 +6,20 @@ Feature: Check that MediaTrait works
       | path                 |
       | example_document.pdf |
 
-    And no image media:
+    And the following media "image" do not exist:
       | name             | field_media_image |
       | Test media image | example_image.png |
 
-    And "image" media:
+    And the following media "image" exist:
       | name              | field_media_image |
       | Test media image  | example_image.png |
       | Test media image2 | example_image.png |
 
-    And no image media:
+    And the following media "image" do not exist:
       | name              |
       | Test media image2 |
 
-    And "document" media:
+    And the following media "document" exist:
       | name                | field_media_document |
       | Test media document | example_document.pdf |
 
@@ -34,11 +34,11 @@ Feature: Check that MediaTrait works
     Given the following managed files:
       | path                 |
       | example_document.pdf |
-    And "document" media:
+    And the following media "document" exist:
       | name                | field_media_document |
       | Test media document | example_document.pdf |
     Then I am logged in as a user with the "administrator" role
-    Then I edit "document" media "Test media document"
+    When I edit the media "document" with the name "Test media document"
     And I should see "Edit Document Test media document"
 
   @api @javascript
@@ -52,6 +52,20 @@ Feature: Check that MediaTrait works
     Then I press "Save"
     Then I visit "/admin/structure/media"
     Then I should see "test_media_type"
-    Given no "test_media_type" media type
+    Given "test_media_type" media type does not exist
     Then I visit "/admin/structure/media"
     Then I should not see "test_media_type"
+
+  @api @trait:MediaTrait
+  Scenario: Assert that negative assertion for "When I edit the media :media_type with the name :name" fails with an error.
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I edit the media "document" with the name "Non-existent media"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "RuntimeException" exception:
+      """
+      Unable to find document media "Non-existent media"
+      """
