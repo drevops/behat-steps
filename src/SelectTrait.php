@@ -67,11 +67,11 @@ trait SelectTrait {
     ]);
 
     if (!$optionField) {
-      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $select, $currentUrl));
+      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $select, $path));
     }
 
     if (!$optionField->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $currentUrl));
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $path));
     }
   }
 

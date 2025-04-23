@@ -110,3 +110,63 @@ Feature: Ensure SelectTrait works.
       """
       The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be
       """
+
+  @api @trait:SelectTrait
+  Scenario: Assert negative "the option :option should not exist within the select element :selector" for non-existent select
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then I visit "/admin/config/regional/settings"
+      Then the option "UTC" should not exist within the select element "non_existent_select"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "InvalidArgumentException" exception:
+      """
+      Element "non_existent_select" is not found.
+      """
+
+  @api @trait:SelectTrait
+  Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent option
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then I visit "/admin/config/regional/settings"
+      Then the option "INVALID_OPTION" should be selected within the select element "date_default_timezone"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Exception" exception:
+      """
+      No option is selected in the date_default_timezone select on the page /admin/config/regional/settings
+      """
+
+  @api @trait:SelectTrait
+  Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-selected option
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then I visit "/admin/config/regional/settings"
+      Then the option "Australia/Sydney" should be selected within the select element "date_default_timezone"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Exception" exception:
+      """
+      The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings
+      """
+
+  @api @trait:SelectTrait
+  Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent select
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then I visit "/admin/config/regional/settings"
+      Then the option "UTC" should not be selected within the select element "non_existent_select"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Exception" exception:
+      """
+      The select "non_existent_select" was not found on the page /admin/config/regional/settings
+      """
