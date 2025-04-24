@@ -866,19 +866,25 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 #### Assert that a select has an option
 
 ```gherkin
-@Then select :select should have an option :option
+@Then the option :option should exist within the select element :selector
 ```
 
 #### Assert that a select does not have an option
 
 ```gherkin
-@Then select :select should not have an option :option
+@Then the option :option should not exist within the select element :selector
 ```
 
 #### Assert that a select option is selected
 
 ```gherkin
-@Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
+@Then the option :option should be selected within the select element :selector
+```
+
+#### Assert that a select option is not selected
+
+```gherkin
+@Then the option :option should not be selected within the select element :selector
 ```
 
 ### SearchApiTrait
