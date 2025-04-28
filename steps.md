@@ -270,94 +270,124 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 @When I clear the test email system queue
 ```
 
-#### Visit a link from the email
+#### Enable the test email system
 
 ```gherkin
-@When I follow the link number :number in the email with the subject
-```
-```gherkin
-@When I follow the link number :number in the email with the subject:
+@When I enable the test email system
 ```
 
-#### Assert that an email was sent to an address
+#### Disable the test email system
 
 ```gherkin
-@Then an email is sent to :address
+@When I disable the test email system
 ```
 
-#### Assert that no email messages were sent
+#### Follow a specific link number in an email with the given subject
 
 ```gherkin
-@Then no emails were sent
+@When I follow link number :link_number in the email with the subject :subject
 ```
 
-#### Assert that no email messages were sent to a specified address
+#### Follow a specific link number in an email whose subject contains the given substring
 
 ```gherkin
-@Then no emails were sent to :address
+@When I follow link number :link_number in the email with the subject containing :subject
 ```
 
-#### Assert that an email message header contains specified content
+#### Assert that an email should be sent to an address
 
 ```gherkin
-@Then an email header :header contains:
+@Then an email should be sent to the :address
 ```
 
-#### Assert that an email message header contains exact specified content
+#### Assert that no email messages should be sent
 
 ```gherkin
-@Then an email header :header contains exact:
+@Then no emails should be sent
 ```
 
-#### Assert that an email message was sent or not sent to a user with content
+#### Assert that no email messages should be sent to a specified address
 
 ```gherkin
-@Then /^an email to "(?P<name>[^"]*)" user is "(?P<action>[^"]*)" with "(?P<field>[^"]*)" content:$/
+@Then no emails should be sent to the :address
 ```
 
-#### Assert that an email message field contains a value
+#### Assert that the email message header should contain specified content
 
 ```gherkin
-@Then an email :field contains
-```
-```gherkin
-@Then an email :field contains:
+@Then the email header :header should contain:
 ```
 
-#### Assert that an email message field contains an exact value
+#### Assert that the email message header should be the exact specified content
 
 ```gherkin
-@Then an email :field contains exact
-```
-```gherkin
-@Then an email :field contains exact:
+@Then the email header :header should be:
 ```
 
-#### Assert that an email message field does not contain a value
+#### Assert that an email should be sent to an address with the exact content in the body
 
 ```gherkin
-@Then an email :field does not contain
-```
-```gherkin
-@Then an email :field does not contain:
+@Then an email should be sent to the address :address with the content:
 ```
 
-#### Assert that an email message field does not contain an exact value
+#### Assert that an email should be sent to an address with the body containing specific content
 
 ```gherkin
-@Then an email :field does not contain exact
+@Then an email should be sent to the address :address with the content containing:
 ```
+
+#### Assert that an email should be sent to an address with the body not containing specific content
+
 ```gherkin
-@Then an email :field does not contain exact:
+@Then an email should be sent to the address :address with the content not containing:
+```
+
+#### Assert that an email should not be sent to an address with the exact content in the body
+
+```gherkin
+@Then an email should not be sent to the address :address with the content:
+```
+
+#### Assert that an email should not be sent to an address with the body containing specific content
+
+```gherkin
+@Then an email should not be sent to the address :address with the content containing:
+```
+
+#### Assert that the email field should contain a value
+
+```gherkin
+@Then the email field :field should contain:
+```
+
+#### Assert that the email field should exactly match a value
+
+```gherkin
+@Then the email field :field should be:
+```
+
+#### Assert that the email field should not contain a value
+
+```gherkin
+@Then the email field :field should not contain:
+```
+
+#### Assert that the email field should not exactly match a value
+
+```gherkin
+@Then the email field :field should not be:
 ```
 
 #### Assert that a file is attached to an email message with specified subject
 
 ```gherkin
-@Then file :name attached to the email with the subject
+@Then the file :file_name should be attached to the email with the subject :subject
 ```
+
+#### Assert that a file is attached to an email message with a subject containing the specified substring
+
 ```gherkin
-@Then file :name attached to the email with the subject:
+@Then the file :file_name should be attached to the email with the subject containing :subject
 ```
 
 ### ElementTrait
