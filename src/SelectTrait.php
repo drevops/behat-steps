@@ -16,7 +16,7 @@ trait SelectTrait {
   /**
    * Assert that a select has an option.
    *
-   * @Then select :select should have an option :option
+   * @Then the option :option should exist within the select element :selector
    */
   public function selectShouldHaveOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
@@ -33,7 +33,7 @@ trait SelectTrait {
   /**
    * Assert that a select does not have an option.
    *
-   * @Then select :select should not have an option :option
+   * @Then the option :option should not exist within the select element :selector
    */
   public function selectShouldNotHaveOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
@@ -50,14 +50,15 @@ trait SelectTrait {
   /**
    * Assert that a select option is selected.
    *
-   * @Then /^the option "([^"]*)" from select "([^"]*)" is selected$/
+   * @Then the option :option should be selected within the select element :selector
    */
   public function selectOptionSelected(string $value, string $select): void {
     $selectField = $this->getSession()->getPage()->findField($select);
     $currentUrl = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
 
     if (!$selectField) {
-      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $select, $currentUrl));
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $select, $path));
     }
 
     $optionField = $selectField->find('named', [
@@ -66,11 +67,36 @@ trait SelectTrait {
     ]);
 
     if (!$optionField) {
-      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $select, $currentUrl));
+      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $select, $path));
     }
 
     if (!$optionField->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $currentUrl));
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $path));
+    }
+  }
+
+  /**
+   * Assert that a select option is not selected.
+   *
+   * @Then the option :option should not be selected within the select element :selector
+   */
+  public function selectOptionNotSelected(string $value, string $select): void {
+    $selectField = $this->getSession()->getPage()->findField($select);
+    $currentUrl = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
+
+    if (!$selectField) {
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $select, $path));
+    }
+
+    $optionField = $selectField->find('named', ['option', $value]);
+
+    if (!$optionField) {
+      throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s', $value, $select, $path));
+    }
+
+    if ($optionField->isSelected()) {
+      throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be', $value, $select, $path));
     }
   }
 
