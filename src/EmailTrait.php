@@ -9,7 +9,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
-use Drupal\user\UserInterface;
 
 /**
  * Trait EmailTrait.
@@ -95,11 +94,11 @@ trait EmailTrait {
     \Drupal::state()->set('system.test_mail_collector', []);
   }
 
- /**
-  * Enable the test email system.
-  *
-  * @When I enable the test email system
-  */
+  /**
+   * Enable the test email system.
+   *
+   * @When I enable the test email system
+   */
   public function emailEnableTestEmailSystemStep(): void {
     $this->emailEnableTestEmailSystem();
   }
@@ -235,23 +234,23 @@ trait EmailTrait {
     $this->emailAssertEmailFieldShouldNotContain('body', $string);
   }
 
- /**
-  * Assert that an email should not be sent to an address with the exact content in the body.
-  *
-  * @Then an email should not be sent to the address :address with the content:
-  */
+  /**
+   * Assert that an email should not be sent to an address with the exact content in the body.
+   *
+   * @Then an email should not be sent to the address :address with the content:
+   */
   public function emailAssertEmailShouldNotBeSentToAddressWithContent(string $address, PyStringNode $string): void {
-     // Assert that no email was sent to the specified address.
-     $this->emailAssertNoEmailsShouldBeSentToAddress($address);
-     // Assert that no email contains the specified content in the body.
+    // Assert that no email was sent to the specified address.
+    $this->emailAssertNoEmailsShouldBeSentToAddress($address);
+    // Assert that no email contains the specified content in the body.
     $this->emailAssertEmailFieldShouldNotBe('body', $string);
   }
 
- /**
-  * Assert that an email should not be sent to an address with the body containing specific content.
-  *
-  * @Then an email should not be sent to the address :address with the content containing:
-  */
+  /**
+   * Assert that an email should not be sent to an address with the body containing specific content.
+   *
+   * @Then an email should not be sent to the address :address with the content containing:
+   */
   public function emailAssertEmailShouldNotBeSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
     // Assert that no email was sent to the specified address.
     $this->emailAssertNoEmailsShouldBeSentToAddress($address);
@@ -352,38 +351,6 @@ trait EmailTrait {
   }
 
   /**
-   * Print the list of sent emails for debugging.
-   *
-   * @When I print the list of sent emails
-   */
-  public function emailPrintSentEmails(): void {
-    $emails = $this->emailGetCollectedEmails();
-
-    if (empty($emails)) {
-      print "No emails were sent.\n";
-      return;
-    }
-
-    print "List of sent emails:\n";
-    print "----------------------------------------\n";
-    foreach ($emails as $index => $email) {
-      print sprintf("Email #%d\n", $index + 1);
-      print sprintf("To: %s\n", $email['to'] ?? '<EMPTY>');
-      print sprintf("Subject: %s\n", $email['subject'] ?? '<EMPTY>');
-      print sprintf("Body: %s\n", $email['body'] ?? '<EMPTY>');
-      print "Headers:\n";
-      if (!empty($email['headers'])) {
-        foreach ($email['headers'] as $header => $value) {
-          print sprintf("  %s: %s\n", $header, $value);
-        }
-      } else {
-        print "  <NONE>\n";
-      }
-      print "----------------------------------------\n";
-    }
-  }
-
-  /**
    * Follow a specific link number in an email whose subject contains the given substring.
    *
    * @When I follow link number :link_number in the email with the subject containing :subject
@@ -392,9 +359,9 @@ trait EmailTrait {
     $link_number = intval($link_number);
 
     // Find an email where the subject contains the specified substring.
-    $email = null;
+    $email = NULL;
     foreach (self::emailGetCollectedEmails() as $record) {
-      if (stripos((string) $record['subject'], $subject) !== false) {
+      if (stripos((string) $record['subject'], $subject) !== FALSE) {
         $email = $record;
         break;
       }
@@ -407,9 +374,11 @@ trait EmailTrait {
     // Extract the body from the email.
     if (isset($email['params']['body']) && is_string($email['params']['body'])) {
       $body = $email['params']['body'];
-    } elseif (is_string($email['body'])) {
+    }
+    elseif (is_string($email['body'])) {
       $body = $email['body'];
-    } else {
+    }
+    else {
       throw new \Exception('No body found in email');
     }
 
@@ -433,8 +402,8 @@ trait EmailTrait {
    *
    * @Then the file :file_name should be attached to the email with the subject :subject
    */
-  public function emailAssertEmailContainsAttachmentWithName(string $name, PyStringNode $subject): void {
-    $email = $this->emailFind('subject', $subject);
+  public function emailAssertEmailContainsAttachmentWithName(string $file_name, string $subject): void {
+    $email = $this->emailFind('subject', new PyStringNode([$subject], 0));
 
     if (!$email) {
       throw new \Exception(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject));
@@ -442,13 +411,43 @@ trait EmailTrait {
 
     if (!empty($email['params']['attachments'])) {
       foreach ($email['params']['attachments'] as $attachment) {
-        if ($attachment['filename'] == $name) {
+        if ($attachment['filename'] == $file_name) {
           return;
         }
       }
     }
 
     throw new \Exception(sprintf('No attachments were found in the email with subject %s', $subject));
+  }
+
+  /**
+   * Assert that a file is attached to an email message with a subject containing the specified substring.
+   *
+   * @Then the file :file_name should be attached to the email with the subject containing :subject
+   */
+  public function emailAssertEmailContainsAttachmentWithSubjectContaining(string $file_name, string $subject): void {
+    // Find an email where the subject contains the specified substring.
+    $email = NULL;
+    foreach ($this->emailGetCollectedEmails() as $record) {
+      if (stripos((string) $record['subject'], $subject) !== FALSE) {
+        $email = $record;
+        break;
+      }
+    }
+
+    if (!$email) {
+      throw new \Exception(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject));
+    }
+
+    if (!empty($email['params']['attachments'])) {
+      foreach ($email['params']['attachments'] as $attachment) {
+        if ($attachment['filename'] == $file_name) {
+          return;
+        }
+      }
+    }
+
+    throw new \Exception(sprintf('No attachments were found in the email with subject containing "%s"', $subject));
   }
 
   /**

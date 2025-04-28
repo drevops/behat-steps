@@ -172,6 +172,28 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Send a test email with an attachment.
+   *
+   * @When I send test email to :email with subject :subject and attachment :attachment and body:
+   */
+  public function testSendEmailWithAttachment(string $email, string $subject, string $attachment, PyStringNode $body): void {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email_with_attachment',
+      $email,
+      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      [
+        'subject' => $subject,
+        'body' => strval($body),
+        'attachments' => [
+          ['filename' => $attachment, 'content' => 'Attachment content for ' . $attachment],
+        ],
+      ],
+      NULL
+    );
+  }
+
+  /**
    * @Then :file_name file object exists
    */
   public function testAssertFileObjectExists(string $file_name): void {

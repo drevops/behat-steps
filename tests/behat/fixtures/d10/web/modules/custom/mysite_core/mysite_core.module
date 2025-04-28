@@ -23,6 +23,10 @@ function mysite_core_mail($key, &$message, $params) {
       // Add test subject to all test emails.
       $message['subject'] = t('Test Email');
       break;
+    default:
+      $message['subject'] = t($params['subject']);
+      break;
   }
+
   $message['body'][] = strval($params['body']) ?? '';
 }

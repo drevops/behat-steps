@@ -284,6 +284,27 @@ Feature: Check that EmailTrait works
     When I disable the test email system
     Then no emails should be sent
 
+  @api @email
+  Scenario: As a developer, I want to verify that an email contains an attachment
+    When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
+      """
+      This email contains an attachment.
+      """
+    Then an email should be sent to the "test@example.com"
+    And the email field "subject" should be:
+      """
+      Email with Attachment
+      """
+    And the file "example.pdf" should be attached to the email with the subject "Email with Attachment"
+
+  @api @email
+  Scenario: As a developer, I want to verify that an email with a subject containing a substring has an attachment
+    When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
+      """
+      This email contains an attachment.
+      """
+    Then an email should be sent to the "test@example.com"
+    And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
 
   @trait:EmailTrait
   Scenario: Assert that an email was sent to an address.
@@ -298,4 +319,3 @@ Feature: Check that EmailTrait works
       """
       Unable to find email that should be sent to "test@example.com" retrieved from test record collector.
       """
-
