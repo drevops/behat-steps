@@ -34,20 +34,17 @@ trait MenuTrait {
   protected $menuLinks = [];
 
   /**
-   * Remove menu by menu name.
+   * Remove a single menu by its label if it exists.
    *
-   * Provide menu labels in the following format:
-   * | Fish Menu    |
-   * | ...          |
+   * @param string $menu_name
+   *   The label of the menu to remove.
    *
-   * @Given no menus:
+   * @Given the menu :menu_name does not exist
    */
-  public function menuDelete(TableNode $table): void {
-    foreach ($table->getColumn(0) as $label) {
-      $menu = $this->loadMenuByLabel($label);
-      if ($menu instanceof MenuInterface) {
-        $menu->delete();
-      }
+  public function menuDeleteSingle(string $menu_name): void {
+    $menu = $this->loadMenuByLabel($menu_name);
+    if ($menu instanceof MenuInterface) {
+      $menu->delete();
     }
   }
 
@@ -60,7 +57,7 @@ trait MenuTrait {
    * | Fish Menu    | Menu of fish    |
    * | ...          | ...             |
    *
-   * @Given menus:
+   * @Given the following menus:
    */
   public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
@@ -86,7 +83,7 @@ trait MenuTrait {
    * | Test Menu    |
    * | ...          |
    *
-   * @Given no :menu_name menu_links:
+   * @Given the following menu links do not exist in the menu :menu_name:
    */
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
     foreach ($table->getColumn(0) as $title) {
@@ -107,7 +104,7 @@ trait MenuTrait {
    * | Child Link    | 1       | https://www.example.com | Parent Link        |
    * | ...           | ...     | ...                     | ...                |
    *
-   * @Given :menu_name menu_links:
+   * @Given the following menu links exist in the menu :menu_name :
    */
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
