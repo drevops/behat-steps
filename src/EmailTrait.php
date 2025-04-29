@@ -467,7 +467,7 @@ trait EmailTrait {
    *
    * @When I disable the test email system
    */
-  protected function emailDisableTestEmailSystem(): void {
+  public function emailDisableTestEmailSystem(): void {
     foreach ($this->emailTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
       // Restore the original system to after the scenario.

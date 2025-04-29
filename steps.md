@@ -288,6 +288,12 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 @When I follow link number :link_number in the email with the subject containing :subject
 ```
 
+#### Disable test email system
+
+```gherkin
+@When I disable the test email system
+```
+
 #### Assert that an email should be sent to an address
 
 ```gherkin
