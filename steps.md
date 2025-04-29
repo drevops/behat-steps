@@ -276,12 +276,6 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 @When I enable the test email system
 ```
 
-#### Disable the test email system
-
-```gherkin
-@When I disable the test email system
-```
-
 #### Follow a specific link number in an email with the given subject
 
 ```gherkin
@@ -321,7 +315,7 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 #### Assert that the email message header should be the exact specified content
 
 ```gherkin
-@Then the email header :header should be:
+@Then the email header :header should exactly be:
 ```
 
 #### Assert that an email should be sent to an address with the exact content in the body
