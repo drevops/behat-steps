@@ -104,15 +104,6 @@ trait EmailTrait {
   }
 
   /**
-   * Disable the test email system.
-   *
-   * @When I disable the test email system
-   */
-  public function emailDisableTestEmailSystemStep(): void {
-    $this->emailDisableTestEmailSystem();
-  }
-
-  /**
    * Assert that an email should be sent to an address.
    *
    * @Then an email should be sent to the :address
@@ -192,7 +183,7 @@ trait EmailTrait {
   /**
    * Assert that the email message header should be the exact specified content.
    *
-   * @Then the email header :header should be:
+   * @Then the email header :header should exactly be:
    */
   public function emailAssertEmailHeaderShouldBe(string $header, PyStringNode $string): void {
     $this->emailAssertEmailHeaderShouldContain($header, $string, TRUE);
@@ -293,8 +284,9 @@ trait EmailTrait {
     $string = strval($string);
     $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
 
-    foreach (self::emailGetCollectedEmails() as $record) {
-      $field_string = $exact ? $record[$field] : trim((string) preg_replace('/\s+/', ' ', (string) $record[$field]));
+    foreach ($this->emailGetCollectedEmails() as $record) {
+      $value = $record[$field] ?? '';
+      $field_string = $exact ? $value : trim((string) preg_replace('/\s+/', ' ', (string) $value));
 
       if (str_contains((string) $field_string, $string)) {
         throw new \Exception(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string));
@@ -467,11 +459,13 @@ trait EmailTrait {
 
     // Flush the email buffer, allowing us to reuse this step definition
     // to clear existing mail.
-    self::emailClearTestEmailSystemQueue(TRUE);
+    $this->emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
    * Disable test email system.
+   *
+   * @When I disable the test email system
    */
   protected function emailDisableTestEmailSystem(): void {
     foreach ($this->emailTypes as $type) {
@@ -481,7 +475,7 @@ trait EmailTrait {
     }
 
     self::emailDeleteMailSystemOriginal();
-    self::emailClearTestEmailSystemQueue(TRUE);
+    $this->emailClearTestEmailSystemQueue(TRUE);
   }
 
   /**
@@ -542,11 +536,11 @@ trait EmailTrait {
     // may corrupt the system under test.
     $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");
 
+    $emails = [];
     if ($query instanceof StatementInterface) {
-      $emails = array_map(unserialize(...), $query->fetchAllKeyed());
+      $emails = array_map('unserialize', $query->fetchAllKeyed());
     }
-
-    $emails = empty($emails['system.test_mail_collector']) ? [] : $emails['system.test_mail_collector'];
+    $emails = $emails['system.test_mail_collector'] ?? [];
 
     if ($this->emailDebug) {
       $fields = ['to', 'from', 'subject', 'body'];
@@ -583,7 +577,7 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
 
-    $string = strval($string);
+    $string = (string) $string;
     $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
 
     foreach (self::emailGetCollectedEmails() as $record) {
