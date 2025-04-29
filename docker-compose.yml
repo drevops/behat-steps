@@ -35,6 +35,8 @@ services:
       dockerfile: .docker/cli.dockerfile
     <<: *default-volumes
     user: root
+    expose:
+      - "8888"
     environment:
       <<: *default-environment
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
@@ -68,6 +70,10 @@ services:
 
   chrome:
     image: selenium/standalone-chromium:135.0
+    ports:
+      - "7900:7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
+    expose:
+      - "8888"
     shm_size: '1gb'
     <<: *default-volumes
     environment:

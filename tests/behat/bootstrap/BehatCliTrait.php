@@ -24,6 +24,8 @@ trait BehatCliTrait {
    * @BeforeScenario
    */
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->behatCliCopyFixtures();
+
     $traits = [];
 
     // Scan scenario tags and extract trait names from tags starting with
@@ -192,6 +194,12 @@ default:
       contexts:
         - FeatureContext
         - Drupal\DrupalExtension\Context\MinkContext
+        - DrevOps\BehatPhpServer\PhpServerContext:
+            webroot: '%paths.base%/tests/behat/fixtures'
+            protocol: http
+            host: 0.0.0.0
+            port: 8888
+            debug: true
   extensions:
     Drupal\MinkExtension:
       browserkit_http: ~
@@ -264,6 +272,28 @@ EOL;
   protected static function behatCliIsDebug(): bool {
     // Change to TRUE to see debug messages for this trait.
     return FALSE;
+  }
+
+  /**
+   * Copy fixtures to the working directory.
+   */
+  protected function behatCliCopyFixtures() {
+    // Copy fixtures to the working directory.
+    $fixture_path = 'tests/behat/fixtures';
+    // @note Hardcoded path to the fixture directory.
+    $fixture_path_abs = '/app' . DIRECTORY_SEPARATOR . $fixture_path;
+    if (is_dir($fixture_path_abs)) {
+      $dst = $this->workingDir . DIRECTORY_SEPARATOR . $fixture_path;
+      mkdir($dst, 0777, TRUE);
+      // Copy fixtures from the webroot to the working directory.
+      foreach (glob($fixture_path_abs . '/*') as $file) {
+        // @note Only copy files for speed.
+        if (is_file($file)) {
+          $filename = basename($file);
+          copy($file, $dst . DIRECTORY_SEPARATOR . $filename);
+        }
+      }
+    }
   }
 
 }
