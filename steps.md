@@ -751,28 +751,28 @@ When I edit "document" media "Test document"
 
 [Source](src/MenuTrait.php), [Example](tests/behat/features/menu.feature)
 
-#### Remove menu by menu name
+#### Remove a single menu by its label if it exists
 
 ```gherkin
-@Given no menus:
+@Given the menu :menu_name does not exist
 ```
 
 #### Create a menu if one does not exist
 
 ```gherkin
-@Given menus:
+@Given the following menus:
 ```
 
 #### Remove menu links by title
 
 ```gherkin
-@Given no :menu_name menu_links:
+@Given the following menu links do not exist in the menu :menu_name:
 ```
 
 #### Create menu links
 
 ```gherkin
-@Given :menu_name menu_links:
+@Given the following menu links exist in the menu :menu_name :
 ```
 
 ### ParagraphsTrait
