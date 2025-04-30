@@ -16,6 +16,10 @@ trait CookieTrait {
   /**
    * Check if a cookie exists.
    *
+   * @code
+   * Then a cookie with the name "session_id" should exist
+   * @endcode
+   *
    * @Then a cookie with the name :name should exist
    */
   public function cookieWithNameShouldExist(string $name): void {
@@ -24,6 +28,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie exists with a specific value.
+   *
+   * @code
+   * Then a cookie with the name "language" and the value "en" should exist
+   * @endcode
    *
    * @Then a cookie with the name :name and the value :value should exist
    */
@@ -34,6 +42,10 @@ trait CookieTrait {
   /**
    * Check if a cookie exists with a value containing a partial value.
    *
+   * @code
+   * Then a cookie with the name "preferences" and a value containing "darkmode" should exist
+   * @endcode
+   *
    * @Then a cookie with the name :name and a value containing :partial_value should exist
    */
   public function cookieWithNamePartialValueShouldExist(string $name, string $partial_value): void {
@@ -42,6 +54,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie with a partial name exists.
+   *
+   * @code
+   * Then a cookie with a name containing "session" should exist
+   * @endcode
    *
    * @Then a cookie with a name containing :partial_name should exist
    */
@@ -52,6 +68,10 @@ trait CookieTrait {
   /**
    * Check if a cookie with a partial name and value exists.
    *
+   * @code
+   * Then a cookie with a name containing "user" and the value "admin" should exist
+   * @endcode
+   *
    * @Then a cookie with a name containing :partial_name and the value :value should exist
    */
   public function cookieWithPartialNameValueShouldExist(string $partial_name, string $value): void {
@@ -60,6 +80,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie with a partial name and partial value exists.
+   *
+   * @code
+   * Then a cookie with a name containing "user" and a value containing "admin" should exist
+   * @endcode
    *
    * @Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
    */
@@ -70,6 +94,10 @@ trait CookieTrait {
   /**
    * Check if a cookie does not exist.
    *
+   * @code
+   * Then a cookie with name "old_session" should not exist
+   * @endcode
+   *
    * @Then a cookie with( the) name :name should not exist
    */
   public function cookieWithNameShouldNotExist(string $name): void {
@@ -78,6 +106,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie with a specific value does not exist.
+   *
+   * @code
+   * Then a cookie with the name "language" and the value "fr" should not exist
+   * @endcode
    *
    * @Then a cookie with the name :name and the value :value should not exist
    */
@@ -88,6 +120,10 @@ trait CookieTrait {
   /**
    * Check if a cookie with a value containing a partial value does not exist.
    *
+   * @code
+   * Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
+   * @endcode
+   *
    * @Then a cookie with the name :name and a value containing :partial_value should not exist
    */
   public function cookieWithNamePartialValueShouldNotExist(string $name, string $partial_value): void {
@@ -96,6 +132,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie with a partial name does not exist.
+   *
+   * @code
+   * Then a cookie with a name containing "old" should not exist
+   * @endcode
    *
    * @Then a cookie with a name containing :partial_name should not exist
    */
@@ -106,6 +146,10 @@ trait CookieTrait {
   /**
    * Check if a cookie with a partial name and value does not exist.
    *
+   * @code
+   * Then a cookie with a name containing "user" and the value "guest" should not exist
+   * @endcode
+   *
    * @Then a cookie with a name containing :partial_name and the value :value should not exist
    */
   public function cookieWithPartialNameValueShouldNotExist(string $partial_name, string $value): void {
@@ -114,6 +158,10 @@ trait CookieTrait {
 
   /**
    * Check if a cookie with a partial name and partial value does not exist.
+   *
+   * @code
+   * Then a cookie with a name containing "user" and a value containing "guest" should not exist
+   * @endcode
    *
    * @Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
    */

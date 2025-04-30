@@ -16,6 +16,10 @@ trait ElementTrait {
   /**
    * Assert an element with selector and attribute with a value exists.
    *
+   * @code
+   * Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
+   * @endcode
+   *
    * @Then the element :selector with the attribute :attribute and the value :value should exist
    */
   public function elementAssertAttributeWithValueExists(string $selector, string $attribute, mixed $value): void {
@@ -24,6 +28,10 @@ trait ElementTrait {
 
   /**
    * Assert an element with selector and attribute containing a value exists.
+   *
+   * @code
+   * Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
+   * @endcode
    *
    * @Then the element :selector with the attribute :attribute and the value containing :value should exist
    */
@@ -34,6 +42,10 @@ trait ElementTrait {
   /**
    * Assert an element with selector and attribute with a value exists.
    *
+   * @code
+   * Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
+   * @endcode
+   *
    * @Then the element :selector with the attribute :attribute and the value :value should not exist
    */
   public function elementAssertAttributeWithValueNotExists(string $selector, string $attribute, mixed $value): void {
@@ -42,6 +54,10 @@ trait ElementTrait {
 
   /**
    * Assert an element with selector and attribute containing a value does not exist.
+   *
+   * @code
+   * Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
+   * @endcode
    *
    * @Then the element :selector with the attribute :attribute and the value containing :value should not exist
    */
@@ -112,6 +128,10 @@ trait ElementTrait {
 
   /**
    * Assert the element :selector should be at the top of the viewport.
+   *
+   * @code
+   * Then the element "#header" should be at the top of the viewport
+   * @endcode
    *
    * @Then the element :selector should be at the top of the viewport
    */
@@ -190,6 +210,10 @@ JS;
   /**
    * When I trigger the JS event :event on the element :selector.
    *
+   * @code
+   * When I trigger the JS event "click" on the element "#submit-button"
+   * @endcode
+   *
    * @When I trigger the JS event :event on the element :selector
    */
   public function elementTriggerEvent(string $event, string $selector): void {
@@ -210,6 +234,10 @@ JS;
 
   /**
    * Scroll to an element with ID.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * @endcode
    *
    * @When I scroll to the element :selector
    */
