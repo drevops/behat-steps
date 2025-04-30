@@ -50,7 +50,7 @@ trait VisibilityTrait {
   }
 
   /**
-   * Assert that element with specified CSS is displayed within a viewport
+   * Assert that element with specified CSS is displayed within a viewport.
    *
    * @Then the element :selector should be displayed within a viewport
    */
