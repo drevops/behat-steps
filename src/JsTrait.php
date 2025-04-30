@@ -121,7 +121,7 @@ trait JsTrait {
    *
    * @When I scroll to the element :selector
    */
-  public function iScrollToElement(string $selector): void {
+  public function jsScrollToElement(string $selector): void {
     $this->getSession()->executeScript("
       var element = document.querySelector('" . $selector . "');
       element.scrollIntoView( true );
@@ -133,7 +133,7 @@ trait JsTrait {
    *
    * @Then the element :selector should be at the top of the viewport
    */
-  public function assertElementAtTopOfViewport(string $selector): void {
+  public function jsAssertElementAtTopOfViewport(string $selector): void {
     $script = <<<JS
         (function() {
             var element = document.querySelector('{$selector}');

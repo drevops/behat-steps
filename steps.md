@@ -617,6 +617,21 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 
 [Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
 
+#### Fills value for color field
+
+```gherkin
+@When I fill color in :field with :value
+```
+```gherkin
+@When I fill in the color field :field with the value :value
+```
+
+#### Set value for WYSIWYG field
+
+```gherkin
+@When I fill in the WYSIWYG field :field with the :value
+```
+
 #### Assert that field exists on the page using id,name,label or value
 
 ```gherkin
@@ -650,6 +665,12 @@ Then the field "Body" should be "disabled"
 Then the field "field_body" should be "disabled"
 Then the field "Tags" should be "enabled"
 Then the field "field_tags" should be "not enabled"
+```
+
+#### Asserts that a color field has a value
+
+```gherkin
+@Then the color field :field should have the value :value
 ```
 
 ### FileDownloadTrait
@@ -807,6 +828,18 @@ When I click on the element ".button"
 @When I trigger the JS event :event on the element :selector
 ```
 
+#### Scroll to an element with ID
+
+```gherkin
+@When I scroll to the element :selector
+```
+
+#### Assert the element :selector should be at the top of the viewport
+
+```gherkin
+@Then the element :selector should be at the top of the viewport
+```
+
 ### KeyboardTrait
 
 [Source](src/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
@@ -891,6 +924,26 @@ Then the link with the title "Return to site content" should exist
 Example:
 ```gherkin
 Then the link with the title "Some non-existing title" should not exist
+```
+
+#### Assert that the link with a text is absolute
+
+```gherkin
+@Then the link :link should be an absolute link
+```
+Example:
+```gherkin
+Then the link "Drupal" should be an absolute link
+```
+
+#### Assert that the link is not an absolute
+
+```gherkin
+@Then the link :link should not be an absolute link
+```
+Example:
+```gherkin
+Then the link "Return to site content" should not be an absolute link
 ```
 
 ### MediaTrait

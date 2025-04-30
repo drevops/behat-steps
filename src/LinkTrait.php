@@ -168,7 +168,7 @@ trait LinkTrait {
    *
    * @Then the link :link should be an absolute link
    */
-  public function assertLinkAbsolute(string $text): void {
+  public function linkAssertLinkAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
@@ -188,7 +188,7 @@ trait LinkTrait {
    *
    * @Then the link :link should not be an absolute link
    */
-  public function assertLinkNotAbsolute(string $text): void {
+  public function linkAssertLinkNotAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
