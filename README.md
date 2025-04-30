@@ -21,6 +21,9 @@
 > [!IMPORTANT]
 > Behat Steps version [3.0](https://github.com/drevops/behat-steps/tree/3.x) is on the way, featuring additional steps and refined, consistent language! Follow the progress in [this issue](https://github.com/drevops/behat-steps/issues/134).
 
+> [!IMPORTANT]
+> `2.x` will no longer receive feature updates. It will still receive security updates until 31 December 2025.
+
 ---
 
 ## Installation
