@@ -40,9 +40,9 @@ Feature: Check that KeyboardTrait works
   Scenario: Assert step definition "When I press the key :char" succeeds as expected
     Given I am an anonymous user
     When I visit "/sites/default/files/relative.html"
-    Then I should not see a visually hidden "#sr-only-focusable" element
+    Then the element "#sr-only-focusable" should not be displayed within a viewport
     When I press the key "tab"
-    Then I should see a visually visible "#sr-only-focusable" element
+    Then the element "#sr-only-focusable" should be displayed within a viewport
 
   @api @javascript
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected with "tab" key
