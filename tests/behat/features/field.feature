@@ -16,12 +16,12 @@ Feature: Check that FieldTrait works
     Given I go to "form/test-form"
     Then the field "<field>" should <existence>
     Examples:
-      | field        | existence  |
-      | field1       | exist      |
-      | Field 1      | exist      |
-      | field2       | exist      |
-      | Field 2      | exist      |
-      | random_field | not exist  |
+      | field        | existence |
+      | field1       | exist     |
+      | Field 1      | exist     |
+      | field2       | exist     |
+      | Field 2      | exist     |
+      | random_field | not exist |
 
   @api
   Scenario Outline: Assert if field is disabled or enabled
@@ -127,10 +127,11 @@ Feature: Check that FieldTrait works
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST] Page title"
-    When I fill in the WYSIWYG field "Body" with the "[TEST] value"
-    And save screenshot
+    When I fill in the WYSIWYG field "Body" with the "[TEST] body"
+    And I fill in the WYSIWYG field "Description" with the "[TEST] description"
     And I press "Save"
-    Then I should see "[TEST] value"
+    Then I should see "[TEST] body"
+    And I should see "[TEST] description"
 
   @api @javascript
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
@@ -139,7 +140,8 @@ Feature: Check that FieldTrait works
       | [TEST-JS-Driver] Page title |
     And I am logged in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
-    When I fill in the WYSIWYG field "Body" with the "[TEST-JS-Driver] value"
-    And save screenshot
+    When I fill in the WYSIWYG field "Body" with the "[TEST-JS-Driver] body"
+    And I fill in the WYSIWYG field "Description" with the "[TEST-JS-Driver] description"
     And I press "Save"
-    Then I should see "[TEST-JS-Driver] value"
+    Then I should see "[TEST-JS-Driver] body"
+    And I should see "[TEST-JS-Driver] description"

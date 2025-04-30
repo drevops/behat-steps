@@ -8,6 +8,8 @@
 declare(strict_types=1);
 
 use DrevOps\BehatSteps\BigPipeTrait;
+use DrevOps\BehatSteps\BlockTrait;
+use DrevOps\BehatSteps\BlockContentTrait;
 use DrevOps\BehatSteps\ContentTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
@@ -45,6 +47,9 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
+  use BlockTrait;
+  use BlockContentTrait;
+  use CookieTrait;
   use ContentTrait;
   use CookieTrait;
   use EckTrait;

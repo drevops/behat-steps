@@ -18,6 +18,12 @@ default:
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
+        - DrevOps\BehatPhpServer\PhpServerContext:
+            webroot: '%paths.base%/tests/behat/fixtures'
+            protocol: http
+            host: 0.0.0.0
+            port: 8888
+            debug: true
 
   extensions:
     Drupal\MinkExtension:
@@ -55,9 +61,9 @@ default:
         root: web
       selectors:
         message_selector: '.messages'
-        error_message_selector: '.messages.error'
-        success_message_selector: '.messages.status'
-        warning_message_selector: '.messages.warning'
+        error_message_selector: '.messages.messages--error'
+        success_message_selector: '.messages.messages--status'
+        warning_message_selector: '.messages.messages--warning'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:

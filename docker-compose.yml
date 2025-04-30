@@ -35,13 +35,15 @@ services:
       dockerfile: .docker/cli.dockerfile
     <<: *default-volumes
     user: root
+    expose:
+      - "8888"
     environment:
       <<: *default-environment
     volumes_from: ### Local overrides to mount host SSH keys. Automatically removed in CI.
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
 
   php:
-    image: uselagoon/php-8.2-fpm:24.10.0
+    image: uselagoon/php-8.2-fpm:25.4.0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -49,7 +51,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:24.10.0
+    image: uselagoon/nginx-drupal:25.4.0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -60,16 +62,18 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-drupal:24.10.0
+    image: uselagoon/mariadb-drupal:24.12.0
     environment:
       <<: *default-environment
     ports:
       - "3306"
 
   chrome:
-    image: selenium/standalone-chromium:130.0
+    image: selenium/standalone-chromium:135.0
     ports:
       - "7900:7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
+    expose:
+      - "8888"
     shm_size: '1gb'
     <<: *default-volumes
     environment:
@@ -79,7 +83,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:24.9.0
+    image: drevops/docker-wait-for-dependencies:25.3.0
     depends_on:
       - cli
       - mariadb
