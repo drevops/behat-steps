@@ -96,7 +96,7 @@ trait FieldTrait {
    * @When I fill color in :field with :value
    * @When I fill in the color field :field with the value :value
    */
-  public function fillColorField(string $field, ?string $value = NULL): mixed {
+  public function fieldFillColor(string $field, ?string $value = NULL): mixed {
     $js = <<<JS
         (function() {
             var element = document.querySelector('{$field}');
@@ -116,7 +116,7 @@ JS;
    *
    * @Then the color field :field should have the value :value
    */
-  public function assertColorFieldHasValue(string $field, string $value): void {
+  public function fieldAssertColorFieldHasValue(string $field, string $value): void {
     $js = <<<JS
         (function() {
             var element = document.querySelector('{$field}');
@@ -141,9 +141,9 @@ JS;
    *
    * @When I fill in the WYSIWYG field :field with the :value
    */
-  public function wysiwygFillField(string $field, string $value): void {
-    $field = $this->wysiwygFixStepArgument($field);
-    $value = $this->wysiwygFixStepArgument($value);
+  public function fieldFillWysiwyg(string $field, string $value): void {
+    $field = $this->fieldFixStepArgument($field);
+    $value = $this->fieldFixStepArgument($value);
 
     $page = $this->getSession()->getPage();
     $element = $page->findField($field);
@@ -199,7 +199,7 @@ JS;
   /**
    * Returns fixed step argument (with \\" replaced back to ").
    */
-  protected function wysiwygFixStepArgument(string $argument): string {
+  protected function fieldFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
   }
 

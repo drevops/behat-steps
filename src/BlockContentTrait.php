@@ -179,8 +179,8 @@ trait BlockContentTrait {
    * @endcode
    */
   public function blockContentCreate(string $type, TableNode $block_content_table): void {
-    foreach ($block_content_table->getHash() as $blockContentHash) {
-      $this->createBlockContent($type, $blockContentHash);
+    foreach ($block_content_table->getHash() as $hash) {
+      $this->blockContentCreateSingle($type, $hash);
     }
   }
 
@@ -209,7 +209,7 @@ trait BlockContentTrait {
    *
    * @SuppressWarnings(PHPMD.StaticAccess)
    */
-  protected function createBlockContent(string $type, array $values): BlockContent {
+  protected function blockContentCreateSingle(string $type, array $values): BlockContent {
     $block_content = (object) $values;
     $block_content->type = $type;
     $this->parseEntityFields('block_content', $block_content);
