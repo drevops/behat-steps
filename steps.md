@@ -22,8 +22,6 @@
 
 - [FileTrait](#filetrait)
 
-- [JsTrait](#jstrait)
-
 - [KeyboardTrait](#keyboardtrait)
 
 - [LinkTrait](#linktrait)
@@ -589,6 +587,48 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 
 [Source](src/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
+#### Accept confirmation dialogs appearing on the page
+
+```gherkin
+@Given I accept all confirmation dialogs
+```
+Example:
+```gherkin
+Given I accept all confirmation dialogs
+```
+
+#### Do not accept confirmation dialogs appearing on the page
+
+```gherkin
+@Given I do not accept any confirmation dialogs
+```
+Example:
+```gherkin
+Given I do not accept any confirmation dialogs
+```
+
+#### Click on the element defined by the selector
+
+```gherkin
+@When I click on the element :selector
+```
+Example:
+```gherkin
+When I click on the element ".button"
+```
+
+#### When I trigger the JS event :event on the element :selector
+
+```gherkin
+@When I trigger the JS event :event on the element :selector
+```
+
+#### Scroll to an element with ID
+
+```gherkin
+@When I scroll to the element :selector
+```
+
 #### Assert an element with selector and attribute with a value exists
 
 ```gherkin
@@ -611,6 +651,12 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 
 ```gherkin
 @Then the element :selector with the attribute :attribute and the value containing :value should not exist
+```
+
+#### Assert the element :selector should be at the top of the viewport
+
+```gherkin
+@Then the element :selector should be at the top of the viewport
 ```
 
 ### FieldTrait
@@ -786,58 +832,6 @@ Given no managed files:
 
 ```gherkin
 @Then an unmanaged file at the URI :uri should not contain :content
-```
-
-### JsTrait
-
-[Source](src/JsTrait.php), [Example](tests/behat/features/js.feature)
-
-#### Accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I accept all confirmation dialogs
-```
-Example:
-```gherkin
-Given I accept all confirmation dialogs
-```
-
-#### Do not accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I do not accept any confirmation dialogs
-```
-Example:
-```gherkin
-Given I do not accept any confirmation dialogs
-```
-
-#### Click on the element defined by the selector
-
-```gherkin
-@When I click on the element :selector
-```
-Example:
-```gherkin
-When I click on the element ".button"
-```
-
-#### When I trigger the JS event :event on the element :selector
-
-```gherkin
-@When I trigger the JS event :event on the element :selector
-```
-
-#### Scroll to an element with ID
-
-```gherkin
-@When I scroll to the element :selector
-```
-
-#### Assert the element :selector should be at the top of the viewport
-
-```gherkin
-@Then the element :selector should be at the top of the viewport
 ```
 
 ### KeyboardTrait

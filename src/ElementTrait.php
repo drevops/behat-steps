@@ -110,4 +110,144 @@ trait ElementTrait {
     }
   }
 
+  /**
+   * Assert the element :selector should be at the top of the viewport.
+   *
+   * @Then the element :selector should be at the top of the viewport
+   */
+  public function elementAssertElementAtTopOfViewport(string $selector): void {
+    $script = <<<JS
+        (function() {
+            var element = document.querySelector('{$selector}');
+            var rect = element.getBoundingClientRect();
+            return (rect.top >= 0 && rect.top <= window.innerHeight);
+        })();
+JS;
+    $result = $this->getSession()->evaluateScript($script);
+    if (!$result) {
+      throw new \Exception(sprintf("Element with selector '%s' is not at the top of the viewport.", $selector));
+    }
+  }
+
+  /**
+   * Accept confirmation dialogs appearing on the page.
+   *
+   * @code
+   * Given I accept all confirmation dialogs
+   * @endcode
+   *
+   * @Given I accept all confirmation dialogs
+   *
+   * @javascript
+   */
+  public function elementAcceptConfirmation(): void {
+    $this->getSession()
+      ->getDriver()
+      ->executeScript('window.confirm = function(){return true;}');
+  }
+
+  /**
+   * Do not accept confirmation dialogs appearing on the page.
+   *
+   * @code
+   * Given I do not accept any confirmation dialogs
+   * @endcode
+   *
+   * @Given I do not accept any confirmation dialogs
+   *
+   * @javascript
+   */
+  public function elementDeclineConfirmation(): void {
+    $this->getSession()
+      ->getDriver()
+      ->executeScript('window.confirm = function(){return false;}');
+  }
+
+  /**
+   * Click on the element defined by the selector.
+   *
+   * @code
+   * When I click on the element ".button"
+   * @endcode
+   *
+   * @When I click on the element :selector
+   *
+   * @javascript
+   */
+  public function elementClick(string $selector): void {
+    $selector = $this
+      ->getSession()
+      ->getPage()
+      ->find('css', $selector);
+
+    if (!$selector) {
+      throw new \RuntimeException(sprintf('Element with selector "%s" not found on the page', $selector));
+    }
+
+    $selector->click();
+  }
+
+  /**
+   * When I trigger the JS event :event on the element :selector.
+   *
+   * @When I trigger the JS event :event on the element :selector
+   */
+  public function elementTriggerEvent(string $event, string $selector): void {
+    $script = "return (function(el) {
+            if (el) {
+              el.{$event}();
+              return true;
+            }
+            return false;
+        })({{ELEMENT}});";
+
+    $result = $this->elementExecuteJs($selector, $script);
+
+    if (!$result) {
+      throw new \RuntimeException(sprintf('Unable to trigger "%s" event on an element "%s" with JavaScript', $event, $selector));
+    }
+  }
+
+  /**
+   * Scroll to an element with ID.
+   *
+   * @When I scroll to the element :selector
+   */
+  public function elementScrollTo(string $selector): void {
+    $page = $this->getSession()->getPage();
+    $element = $page->find('css', $selector);
+
+    if (!$element) {
+      throw new \RuntimeException(sprintf('Cannot scroll to element "%s" as it was not found on the page', $selector));
+    }
+
+    $this->getSession()->executeScript("
+      var element = document.querySelector('" . $selector . "');
+      element.scrollIntoView( true );
+    ");
+  }
+
+  /**
+   * Execute JS on an element provided by the selector.
+   *
+   * @param string $selector
+   *   The CSS selector for an element.
+   * @param string $script
+   *   The script to execute. Note that '{{ELEMENT}}' is a token to use in
+   *   the script to reference the element.
+   *
+   * @return mixed
+   *   The result of script evaluation. Script has to explicitly return a value.
+   */
+  protected function elementExecuteJs(string $selector, string $script) {
+    $driver = $this->getSession()->getDriver();
+    $scriptWrapper = "return (function() {
+            {{SCRIPT}}
+          }());";
+    $script = str_replace('{{ELEMENT}}', sprintf("document.querySelector('%s')", $selector), $script);
+    $script = str_replace('{{SCRIPT}}', $script, $scriptWrapper);
+
+    return $driver->evaluateScript($script);
+  }
+
 }
