@@ -61,6 +61,7 @@
 @When I create a block of type :label with:
 ```
 Example:
+
 ```gherkin
 | label         | [TEST] Welcome Message      |
 | label_display | 1                           |
@@ -74,6 +75,7 @@ Example:
 @When I configure the block with the label :label with:
 ```
 Example:
+
 ```gherkin
  | label         | [TEST] Updated Message      |
  | label_display | 1                           |
@@ -87,6 +89,7 @@ Example:
 @When I configure a visibility condition :condition for the block with label :label
 ```
 Example:
+
 ```gherkin
   When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
   | pages | /node/1\r\n/about |
@@ -99,6 +102,7 @@ Example:
 @When I remove the visibility condition :condition from the block with label :label
 ```
 Example:
+
 ```gherkin
   When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
 ```
@@ -109,6 +113,7 @@ Example:
 @When I disable the block with label :label
 ```
 Example:
+
 ```gherkin
   When I disable the block with label "[TEST] Sidebar Block"
 ```
@@ -119,6 +124,7 @@ Example:
 @When I enable the block with label :label
 ```
 Example:
+
 ```gherkin
   When I enable the block with label "[TEST] Sidebar Block"
 ```
@@ -129,6 +135,7 @@ Example:
 @When block with label :label should exist in the region :region
 ```
 Example:
+
 ```gherkin
   Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
 ```
@@ -139,6 +146,7 @@ Example:
 @When block with label :label should not exist in the region :region
 ```
 Example:
+
 ```gherkin
   Then block with label "[TEST] User Menu" should not exist in the region "content"
 ```
@@ -149,6 +157,7 @@ Example:
 @Then block with label :label should exist
 ```
 Example:
+
 ```gherkin
   Then block with label "[TEST] Footer Block" should exist
 ```
@@ -159,6 +168,7 @@ Example:
 @Then the block with label :label should have the visibility condition :condition
 ```
 Example:
+
 ```gherkin
   Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
 ```
@@ -169,6 +179,7 @@ Example:
 @Then the block with label :label should not have the visibility condition :condition
 ```
 Example:
+
 ```gherkin
   Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
 ```
@@ -179,6 +190,7 @@ Example:
 @Then the block with label :label is disabled
 ```
 Example:
+
 ```gherkin
   Then the block with label "[TEST] Maintenance Block" is disabled
 ```
@@ -189,6 +201,7 @@ Example:
 @Then the block with label :label is enabled
 ```
 Example:
+
 ```gherkin
   Then the block with label "[TEST] Navigation Block" is enabled
 ```
@@ -203,6 +216,7 @@ Example:
 @Given :type block_content type exists
 ```
 Example:
+
 ```gherkin
 Given "search" block_content type exists
 ```
@@ -213,6 +227,7 @@ Given "search" block_content type exists
 @Given no :type block_content:
 ```
 Example:
+
 ```gherkin
 Given no "basic" block_content:
 | [TEST] Footer Block  |
@@ -225,6 +240,7 @@ Given no "basic" block_content:
 @Given :type block_content:
 ```
 Example:
+
 ```gherkin
   Given "basic" block_content:
   | info                  | status | body                   | created           |
@@ -238,6 +254,7 @@ Example:
 @When I edit :type block_content_type with description :description
 ```
 Example:
+
 ```gherkin
 When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```
@@ -251,11 +268,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with the name :name should exist
 ```
+Example:
+
+```gherkin
+Then a cookie with the name "session_id" should exist
+```
 
 #### Check if a cookie exists with a specific value
 
 ```gherkin
 @Then a cookie with the name :name and the value :value should exist
+```
+Example:
+
+```gherkin
+Then a cookie with the name "language" and the value "en" should exist
 ```
 
 #### Check if a cookie exists with a value containing a partial value
@@ -263,11 +290,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with the name :name and a value containing :partial_value should exist
 ```
+Example:
+
+```gherkin
+Then a cookie with the name "preferences" and a value containing "darkmode" should exist
+```
 
 #### Check if a cookie with a partial name exists
 
 ```gherkin
 @Then a cookie with a name containing :partial_name should exist
+```
+Example:
+
+```gherkin
+Then a cookie with a name containing "session" should exist
 ```
 
 #### Check if a cookie with a partial name and value exists
@@ -275,11 +312,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with a name containing :partial_name and the value :value should exist
 ```
+Example:
+
+```gherkin
+Then a cookie with a name containing "user" and the value "admin" should exist
+```
 
 #### Check if a cookie with a partial name and partial value exists
 
 ```gherkin
 @Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
+```
+Example:
+
+```gherkin
+Then a cookie with a name containing "user" and a value containing "admin" should exist
 ```
 
 #### Check if a cookie does not exist
@@ -287,11 +334,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with( the) name :name should not exist
 ```
+Example:
+
+```gherkin
+Then a cookie with name "old_session" should not exist
+```
 
 #### Check if a cookie with a specific value does not exist
 
 ```gherkin
 @Then a cookie with the name :name and the value :value should not exist
+```
+Example:
+
+```gherkin
+Then a cookie with the name "language" and the value "fr" should not exist
 ```
 
 #### Check if a cookie with a value containing a partial value does not exist
@@ -299,11 +356,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with the name :name and a value containing :partial_value should not exist
 ```
+Example:
+
+```gherkin
+Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
+```
 
 #### Check if a cookie with a partial name does not exist
 
 ```gherkin
 @Then a cookie with a name containing :partial_name should not exist
+```
+Example:
+
+```gherkin
+Then a cookie with a name containing "old" should not exist
 ```
 
 #### Check if a cookie with a partial name and value does not exist
@@ -311,11 +378,21 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```gherkin
 @Then a cookie with a name containing :partial_name and the value :value should not exist
 ```
+Example:
+
+```gherkin
+Then a cookie with a name containing "user" and the value "guest" should not exist
+```
 
 #### Check if a cookie with a partial name and partial value does not exist
 
 ```gherkin
 @Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
+```
+Example:
+
+```gherkin
+Then a cookie with a name containing "user" and a value containing "guest" should not exist
 ```
 
 ### ContentTrait
@@ -328,6 +405,7 @@ When I edit "basic" block_content_type with description "[TEST] Footer Block"
 @Given the content type :content_type does not exist
 ```
 Example:
+
 ```gherkin
 Given the content type "article" does not exist
 ```
@@ -338,6 +416,7 @@ Given the content type "article" does not exist
 @Given the following :content_type content does not exist:
 ```
 Example:
+
 ```gherkin
 Given the following "article" content does not exist:
   | title                |
@@ -351,6 +430,7 @@ Given the following "article" content does not exist:
 @When I visit the :content_type content page with the title :title
 ```
 Example:
+
 ```gherkin
 When I visit the "article" content page with the title "Test article"
 ```
@@ -361,6 +441,7 @@ When I visit the "article" content page with the title "Test article"
 @When I visit the :content_type content edit page with the title :title
 ```
 Example:
+
 ```gherkin
 When I visit the "article" content edit page with the title "Test article"
 ```
@@ -371,6 +452,7 @@ When I visit the "article" content edit page with the title "Test article"
 @When I visit the :content_type content delete page with the title :title
 ```
 Example:
+
 ```gherkin
 When I visit the "article" content delete page with the title "Test article"
 ```
@@ -381,6 +463,7 @@ When I visit the "article" content delete page with the title "Test article"
 @When I visit the :content_type content scheduled transitions page with the title :title
 ```
 Example:
+
 ```gherkin
 When I visit the "article" content scheduled transitions page with the title "Test article"
 ```
@@ -391,6 +474,7 @@ When I visit the "article" content scheduled transitions page with the title "Te
 @When I change the moderation state of the :content_type content with the title :title to the :new_state state
 ```
 Example:
+
 ```gherkin
 When I change the moderation state of the "article" content with the title "Test article" to the "published" state
 ```
@@ -405,6 +489,7 @@ When I change the moderation state of the "article" content with the title "Test
 @Given the following eck :bundle :entity_type entities exist:
 ```
 Example:
+
 ```gherkin
 Given the following eck "contact" "contact_type" entities exist:
 | title  | field_marine_animal     | field_fish_type | ... |
@@ -418,6 +503,7 @@ Given the following eck "contact" "contact_type" entities exist:
 @Given the following eck :bundle :entity_type entities do not exist:
 ```
 Example:
+
 ```gherkin
 Given the following eck "contact" "contact_type" entities do not exist:
 | field        | value           |
@@ -430,6 +516,7 @@ Given the following eck "contact" "contact_type" entities do not exist:
 @When I visit eck :bundle :entity_type entity with the title :title
 ```
 Example:
+
 ```gherkin
 When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```
@@ -452,6 +539,14 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
 ```
+Example:
+
+```gherkin
+When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
+  | First Article  |
+  | Second Article |
+  | Third Article  |
+```
 
 ### EmailTrait
 
@@ -462,11 +557,21 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @When I clear the test email system queue
 ```
+Example:
+
+```gherkin
+When I clear the test email system queue
+```
 
 #### Enable the test email system
 
 ```gherkin
 @When I enable the test email system
+```
+Example:
+
+```gherkin
+When I enable the test email system
 ```
 
 #### Follow a specific link number in an email with the given subject
@@ -474,11 +579,21 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @When I follow link number :link_number in the email with the subject :subject
 ```
+Example:
+
+```gherkin
+When I follow link number "1" in the email with the subject "Account Verification"
+```
 
 #### Follow a specific link number in an email whose subject contains the given substring
 
 ```gherkin
 @When I follow link number :link_number in the email with the subject containing :subject
+```
+Example:
+
+```gherkin
+When I follow link number "1" in the email with the subject containing "Verification"
 ```
 
 #### Disable test email system
@@ -486,11 +601,21 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @When I disable the test email system
 ```
+Example:
+
+```gherkin
+When I disable the test email system
+```
 
 #### Assert that an email should be sent to an address
 
 ```gherkin
 @Then an email should be sent to the :address
+```
+Example:
+
+```gherkin
+Then an email should be sent to the "user@example.com"
 ```
 
 #### Assert that no email messages should be sent
@@ -498,11 +623,21 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then no emails should be sent
 ```
+Example:
+
+```gherkin
+Then no emails should be sent
+```
 
 #### Assert that no email messages should be sent to a specified address
 
 ```gherkin
 @Then no emails should be sent to the :address
+```
+Example:
+
+```gherkin
+Then no emails should be sent to the "user@example.com"
 ```
 
 #### Assert that the email message header should contain specified content
@@ -510,11 +645,27 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then the email header :header should contain:
 ```
+Example:
+
+```gherkin
+Then the email header "Subject" should contain:
+"""
+Account details
+"""
+```
 
 #### Assert that the email message header should be the exact specified content
 
 ```gherkin
 @Then the email header :header should exactly be:
+```
+Example:
+
+```gherkin
+Then the email header "Subject" should exactly be:
+"""
+Your Account Details
+"""
 ```
 
 #### Assert that an email should be sent to an address with the exact content in the body
@@ -522,11 +673,28 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then an email should be sent to the address :address with the content:
 ```
+Example:
+
+```gherkin
+Then an email should be sent to the address "user@example.com" with the content:
+"""
+Welcome to our site!
+Click the link below to verify your account.
+"""
+```
 
 #### Assert that an email should be sent to an address with the body containing specific content
 
 ```gherkin
 @Then an email should be sent to the address :address with the content containing:
+```
+Example:
+
+```gherkin
+Then an email should be sent to the address "user@example.com" with the content containing:
+"""
+verification link
+"""
 ```
 
 #### Assert that an email should be sent to an address with the body not containing specific content
@@ -534,11 +702,27 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then an email should be sent to the address :address with the content not containing:
 ```
+Example:
+
+```gherkin
+Then an email should be sent to the address "user@example.com" with the content not containing:
+"""
+password
+"""
+```
 
 #### Assert that an email should not be sent to an address with the exact content in the body
 
 ```gherkin
 @Then an email should not be sent to the address :address with the content:
+```
+Example:
+
+```gherkin
+Then an email should not be sent to the address "wrong@example.com" with the content:
+"""
+Welcome to our site!
+"""
 ```
 
 #### Assert that an email should not be sent to an address with the body containing specific content
@@ -546,11 +730,27 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then an email should not be sent to the address :address with the content containing:
 ```
+Example:
+
+```gherkin
+Then an email should not be sent to the address "wrong@example.com" with the content containing:
+"""
+verification link
+"""
+```
 
 #### Assert that the email field should contain a value
 
 ```gherkin
 @Then the email field :field should contain:
+```
+Example:
+
+```gherkin
+Then the email field "body" should contain:
+"""
+Please verify your account
+"""
 ```
 
 #### Assert that the email field should exactly match a value
@@ -558,11 +758,27 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then the email field :field should be:
 ```
+Example:
+
+```gherkin
+Then the email field "subject" should be:
+"""
+Account Verification
+"""
+```
 
 #### Assert that the email field should not contain a value
 
 ```gherkin
 @Then the email field :field should not contain:
+```
+Example:
+
+```gherkin
+Then the email field "body" should not contain:
+"""
+password
+"""
 ```
 
 #### Assert that the email field should not exactly match a value
@@ -570,17 +786,35 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 ```gherkin
 @Then the email field :field should not be:
 ```
+Example:
+
+```gherkin
+Then the email field "subject" should not be:
+"""
+Password Reset
+"""
+```
 
 #### Assert that a file is attached to an email message with specified subject
 
 ```gherkin
 @Then the file :file_name should be attached to the email with the subject :subject
 ```
+Example:
+
+```gherkin
+Then the file "document.pdf" should be attached to the email with the subject "Your document"
+```
 
 #### Assert that a file is attached to an email message with a subject containing the specified substring
 
 ```gherkin
 @Then the file :file_name should be attached to the email with the subject containing :subject
+```
+Example:
+
+```gherkin
+Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
 ```
 
 ### ElementTrait
@@ -593,6 +827,7 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 @Given I accept all confirmation dialogs
 ```
 Example:
+
 ```gherkin
 Given I accept all confirmation dialogs
 ```
@@ -603,6 +838,7 @@ Given I accept all confirmation dialogs
 @Given I do not accept any confirmation dialogs
 ```
 Example:
+
 ```gherkin
 Given I do not accept any confirmation dialogs
 ```
@@ -613,6 +849,7 @@ Given I do not accept any confirmation dialogs
 @When I click on the element :selector
 ```
 Example:
+
 ```gherkin
 When I click on the element ".button"
 ```
@@ -622,11 +859,21 @@ When I click on the element ".button"
 ```gherkin
 @When I trigger the JS event :event on the element :selector
 ```
+Example:
+
+```gherkin
+When I trigger the JS event "click" on the element "#submit-button"
+```
 
 #### Scroll to an element with ID
 
 ```gherkin
 @When I scroll to the element :selector
+```
+Example:
+
+```gherkin
+When I scroll to the element "#footer"
 ```
 
 #### Assert an element with selector and attribute with a value exists
@@ -634,11 +881,21 @@ When I click on the element ".button"
 ```gherkin
 @Then the element :selector with the attribute :attribute and the value :value should exist
 ```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
+```
 
 #### Assert an element with selector and attribute containing a value exists
 
 ```gherkin
 @Then the element :selector with the attribute :attribute and the value containing :value should exist
+```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
 ```
 
 #### Assert an element with selector and attribute with a value exists
@@ -646,17 +903,32 @@ When I click on the element ".button"
 ```gherkin
 @Then the element :selector with the attribute :attribute and the value :value should not exist
 ```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
+```
 
 #### Assert an element with selector and attribute containing a value does not exist
 
 ```gherkin
 @Then the element :selector with the attribute :attribute and the value containing :value should not exist
 ```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
+```
 
 #### Assert the element :selector should be at the top of the viewport
 
 ```gherkin
 @Then the element :selector should be at the top of the viewport
+```
+Example:
+
+```gherkin
+Then the element "#header" should be at the top of the viewport
 ```
 
 ### FieldTrait
@@ -684,6 +956,7 @@ When I click on the element ".button"
 @Then the field :name should exist
 ```
 Example:
+
 ```gherkin
 Then the field "Body" should exist
 Then the field "field_body" should exist
@@ -695,6 +968,7 @@ Then the field "field_body" should exist
 @Then the field :name should not exist
 ```
 Example:
+
 ```gherkin
 Then the field "Body" should not exist
 Then the field "field_body" should not exist
@@ -706,6 +980,7 @@ Then the field "field_body" should not exist
 @Then the field :name should be :enabled_or_disabled
 ```
 Example:
+
 ```gherkin
 Then the field "Body" should be "disabled"
 Then the field "field_body" should be "disabled"
@@ -787,6 +1062,7 @@ Then the field "field_tags" should be "not enabled"
 @Given the following managed files do not exist:
 ```
 Example:
+
 ```gherkin
 Given no managed files:
 | filename      |
@@ -866,6 +1142,7 @@ Given no managed files:
 @When I click on the link with the title :title
 ```
 Example:
+
 ```gherkin
 When I click on the link with the title "Return to site content"
 ```
@@ -879,6 +1156,7 @@ When I click on the link with the title "Return to site content"
 @Then the link :link with the href :href within the element :locator should exist
 ```
 Example:
+
 ```gherkin
 Then the link "About us" with the href "/about-us" should exist
 Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
@@ -894,6 +1172,7 @@ Then the link "About us" with the href "/about*" within the element ".main-nav" 
 @Then the link :link with the href :href within the element :locator should not exist
 ```
 Example:
+
 ```gherkin
 Then the link "About us" with the href "/about-us" should not exist
 Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
@@ -906,6 +1185,7 @@ Then the link "About us" with the href "/about*" within the element ".main-nav" 
 @Then the link with the title :title should exist
 ```
 Example:
+
 ```gherkin
 Then the link with the title "Return to site content" should exist
 ```
@@ -916,6 +1196,7 @@ Then the link with the title "Return to site content" should exist
 @Then the link with the title :title should not exist
 ```
 Example:
+
 ```gherkin
 Then the link with the title "Some non-existing title" should not exist
 ```
@@ -926,6 +1207,7 @@ Then the link with the title "Some non-existing title" should not exist
 @Then the link :link should be an absolute link
 ```
 Example:
+
 ```gherkin
 Then the link "Drupal" should be an absolute link
 ```
@@ -936,6 +1218,7 @@ Then the link "Drupal" should be an absolute link
 @Then the link :link should not be an absolute link
 ```
 Example:
+
 ```gherkin
 Then the link "Return to site content" should not be an absolute link
 ```
@@ -959,6 +1242,7 @@ Then the link "Return to site content" should not be an absolute link
 @Given the following media :media_type exist:
 ```
 Example:
+
 ```gherkin
 Given "video" media:
 | name     | field1   | field2 | field3           |
@@ -972,6 +1256,7 @@ Given "video" media:
 @Given the following media :media_type do not exist:
 ```
 Example:
+
 ```gherkin
 Given the following media "image" do not exist:
 | name               |
@@ -985,6 +1270,7 @@ Given the following media "image" do not exist:
 @When I edit the media :media_type with the name :name
 ```
 Example:
+
 ```gherkin
 When I edit "document" media "Test document"
 ```
@@ -1027,6 +1313,7 @@ When I edit "document" media "Test document"
 @Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:
 ```
 Example:
+
 ```gherkin
 Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
 | field_paragraph_title           | My paragraph title   |
@@ -1045,6 +1332,7 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 @Given the basic authentication with the username :username and the password :password
 ```
 Example:
+
 ```gherkin
 Given the basic authentication with the username "myusername" and the password "mypassword"
 ```
@@ -1055,6 +1343,7 @@ Given the basic authentication with the username "myusername" and the password "
 @Then the path should be :path
 ```
 Example:
+
 ```gherkin
 Then the path should be "/about-us"
 Then the path should be "<front>"
@@ -1066,6 +1355,7 @@ Then the path should be "<front>"
 @Then the path should not be :path
 ```
 Example:
+
 ```gherkin
 Then the path should not be "/about-us"
 Then the path should not be "<front>"
@@ -1081,6 +1371,7 @@ Then the path should not be "<front>"
 @Then the response should contain the header :header_name
 ```
 Example:
+
 ```gherkin
 Then the response should contain the header "Connection"
 ```
@@ -1091,6 +1382,7 @@ Then the response should contain the header "Connection"
 @Then the response should not contain the header :header_name
 ```
 Example:
+
 ```gherkin
 Then the response should not contain the header "Connection"
 ```
@@ -1101,6 +1393,7 @@ Then the response should not contain the header "Connection"
 @Then the response header :header_name should contain the value :header_value
 ```
 Example:
+
 ```gherkin
 Then the response header "Connection" should contain the value "Keep-Alive"
 ```
@@ -1111,6 +1404,7 @@ Then the response header "Connection" should contain the value "Keep-Alive"
 @Then the response header :header_name should not contain the value :header_value
 ```
 Example:
+
 ```gherkin
 Then the response header "Connection" should not contain the value "Keep-Alive"
 ```
@@ -1185,6 +1479,7 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 @Given the following :vocabulary_machine_name vocabulary terms do not exist:
 ```
 Example:
+
 ```gherkin
 Given the following "fruits" vocabulary terms do not exist:
   | Apple |
@@ -1197,6 +1492,7 @@ Given the following "fruits" vocabulary terms do not exist:
 @When I visit the :vocabulary_machine_name vocabulary :term_name term page
 ```
 Example:
+
 ```gherkin
 When I visit the "fruits" vocabulary "Apple" term page
 ```
@@ -1207,6 +1503,7 @@ When I visit the "fruits" vocabulary "Apple" term page
 @When I edit the :vocabulary_machine_name vocabulary :term_name term page
 ```
 Example:
+
 ```gherkin
 When I edit the "fruits" vocabulary "Apple" term page
 ```
@@ -1217,6 +1514,7 @@ When I edit the "fruits" vocabulary "Apple" term page
 @Then the vocabulary :machine_name with the name :name should exist
 ```
 Example:
+
 ```gherkin
 Then the vocabulary "topics" with the name "Topics" should exist
 ```
@@ -1227,6 +1525,7 @@ Then the vocabulary "topics" with the name "Topics" should exist
 @Then the vocabulary :machine_name should not exist
 ```
 Example:
+
 ```gherkin
 Then the vocabulary "topics" should not exist
 ```
@@ -1237,6 +1536,7 @@ Then the vocabulary "topics" should not exist
 @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist
 ```
 Example:
+
 ```gherkin
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 ```
@@ -1247,6 +1547,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist
 ```
 Example:
+
 ```gherkin
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 ```
@@ -1261,6 +1562,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 @Given the following users do not exist:
 ```
 Example:
+
 ```gherkin
 Given the following users do not exist:
  | name |
@@ -1278,6 +1580,7 @@ Given the following users do not exist:
 @Given the password for the user :name is :password
 ```
 Example:
+
 ```gherkin
 Given the password for the user "John" is "password"
 ```
@@ -1288,6 +1591,7 @@ Given the password for the user "John" is "password"
 @Given the last access time for the user :name is :datetime
 ```
 Example:
+
 ```gherkin
 Given the last access time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last access time for the user "John" is "1732319174"
@@ -1299,6 +1603,7 @@ Given the last access time for the user "John" is "1732319174"
 @Given the last login time for the user :name is :datetime
 ```
 Example:
+
 ```gherkin
 Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last login time for the user "John" is "1732319174"
@@ -1310,6 +1615,7 @@ Given the last login time for the user "John" is "1732319174"
 @When I visit :name user profile page
 ```
 Example:
+
 ```gherkin
 When I visit "John" user profile page
 ```
@@ -1320,6 +1626,7 @@ When I visit "John" user profile page
 @When I visit my own user profile page
 ```
 Example:
+
 ```gherkin
 When I visit my own user profile page
 ```
@@ -1330,6 +1637,7 @@ When I visit my own user profile page
 @When I visit :name user profile edit page
 ```
 Example:
+
 ```gherkin
 When I visit "John" user profile edit page
 ```
@@ -1340,6 +1648,7 @@ When I visit "John" user profile edit page
 @When I visit my own user profile edit page
 ```
 Example:
+
 ```gherkin
 When I visit my own user profile edit page
 ```
@@ -1350,6 +1659,7 @@ When I visit my own user profile edit page
 @When I visit :name user profile delete page
 ```
 Example:
+
 ```gherkin
 When I visit "John" user profile delete page
 ```
@@ -1360,6 +1670,7 @@ When I visit "John" user profile delete page
 @When I visit my own user profile delete page
 ```
 Example:
+
 ```gherkin
 When I visit my own user profile delete page
 ```
@@ -1370,6 +1681,7 @@ When I visit my own user profile delete page
 @Then the user :name should have the role(s) :roles assigned
 ```
 Example:
+
 ```gherkin
 Then the user "John" should have the roles "administrator, editor" assigned
 ```
@@ -1380,6 +1692,7 @@ Then the user "John" should have the roles "administrator, editor" assigned
 @Then the user :name should not have the role(s) :roles assigned
 ```
 Example:
+
 ```gherkin
 Then the user "John" should not have the roles "administrator, editor" assigned
 ```
@@ -1390,6 +1703,7 @@ Then the user "John" should not have the roles "administrator, editor" assigned
 @Then the user :name should be blocked
 ```
 Example:
+
 ```gherkin
 Then the user "John" should be blocked
 ```
@@ -1400,6 +1714,7 @@ Then the user "John" should be blocked
 @Then the user :name should not be blocked
 ```
 Example:
+
 ```gherkin
 Then the user "John" should not be blocked
 ```

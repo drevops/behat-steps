@@ -22,6 +22,13 @@ trait DraggableviewsTrait {
   /**
    * Save order of the Draggable Order items.
    *
+   * @code
+   * When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
+   *   | First Article  |
+   *   | Second Article |
+   *   | Third Article  |
+   * @endcode
+   *
    * @When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
    */
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {

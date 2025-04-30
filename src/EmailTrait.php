@@ -84,6 +84,10 @@ trait EmailTrait {
   /**
    * Clear test email system queue.
    *
+   * @code
+   * When I clear the test email system queue
+   * @endcode
+   *
    * @When I clear the test email system queue
    */
   public function emailClearTestEmailSystemQueue(bool $force = FALSE): void {
@@ -97,6 +101,10 @@ trait EmailTrait {
   /**
    * Enable the test email system.
    *
+   * @code
+   * When I enable the test email system
+   * @endcode
+   *
    * @When I enable the test email system
    */
   public function emailEnableTestEmailSystemStep(): void {
@@ -105,6 +113,10 @@ trait EmailTrait {
 
   /**
    * Assert that an email should be sent to an address.
+   *
+   * @code
+   * Then an email should be sent to the "user@example.com"
+   * @endcode
    *
    * @Then an email should be sent to the :address
    */
@@ -123,6 +135,10 @@ trait EmailTrait {
   /**
    * Assert that no email messages should be sent.
    *
+   * @code
+   * Then no emails should be sent
+   * @endcode
+   *
    * @Then no emails should be sent
    */
   public function emailAssertNoEmailsShouldBeSent(): void {
@@ -133,6 +149,10 @@ trait EmailTrait {
 
   /**
    * Assert that no email messages should be sent to a specified address.
+   *
+   * @code
+   * Then no emails should be sent to the "user@example.com"
+   * @endcode
    *
    * @Then no emails should be sent to the :address
    */
@@ -162,6 +182,13 @@ trait EmailTrait {
   /**
    * Assert that the email message header should contain specified content.
    *
+   * @code
+   * Then the email header "Subject" should contain:
+   * """
+   * Account details
+   * """
+   * @endcode
+   *
    * @Then the email header :header should contain:
    */
   public function emailAssertEmailHeaderShouldContain(string $header, PyStringNode $string, bool $exact = FALSE): void {
@@ -183,6 +210,13 @@ trait EmailTrait {
   /**
    * Assert that the email message header should be the exact specified content.
    *
+   * @code
+   * Then the email header "Subject" should exactly be:
+   * """
+   * Your Account Details
+   * """
+   * @endcode
+   *
    * @Then the email header :header should exactly be:
    */
   public function emailAssertEmailHeaderShouldBe(string $header, PyStringNode $string): void {
@@ -191,6 +225,14 @@ trait EmailTrait {
 
   /**
    * Assert that an email should be sent to an address with the exact content in the body.
+   *
+   * @code
+   * Then an email should be sent to the address "user@example.com" with the content:
+   * """
+   * Welcome to our site!
+   * Click the link below to verify your account.
+   * """
+   * @endcode
    *
    * @Then an email should be sent to the address :address with the content:
    */
@@ -204,6 +246,13 @@ trait EmailTrait {
   /**
    * Assert that an email should be sent to an address with the body containing specific content.
    *
+   * @code
+   * Then an email should be sent to the address "user@example.com" with the content containing:
+   * """
+   * verification link
+   * """
+   * @endcode
+   *
    * @Then an email should be sent to the address :address with the content containing:
    */
   public function emailAssertEmailShouldBeSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
@@ -215,6 +264,13 @@ trait EmailTrait {
 
   /**
    * Assert that an email should be sent to an address with the body not containing specific content.
+   *
+   * @code
+   * Then an email should be sent to the address "user@example.com" with the content not containing:
+   * """
+   * password
+   * """
+   * @endcode
    *
    * @Then an email should be sent to the address :address with the content not containing:
    */
@@ -228,6 +284,13 @@ trait EmailTrait {
   /**
    * Assert that an email should not be sent to an address with the exact content in the body.
    *
+   * @code
+   * Then an email should not be sent to the address "wrong@example.com" with the content:
+   * """
+   * Welcome to our site!
+   * """
+   * @endcode
+   *
    * @Then an email should not be sent to the address :address with the content:
    */
   public function emailAssertEmailShouldNotBeSentToAddressWithContent(string $address, PyStringNode $string): void {
@@ -240,6 +303,13 @@ trait EmailTrait {
   /**
    * Assert that an email should not be sent to an address with the body containing specific content.
    *
+   * @code
+   * Then an email should not be sent to the address "wrong@example.com" with the content containing:
+   * """
+   * verification link
+   * """
+   * @endcode
+   *
    * @Then an email should not be sent to the address :address with the content containing:
    */
   public function emailAssertEmailShouldNotBeSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
@@ -251,6 +321,13 @@ trait EmailTrait {
 
   /**
    * Assert that the email field should contain a value.
+   *
+   * @code
+   * Then the email field "body" should contain:
+   * """
+   * Please verify your account
+   * """
+   * @endcode
    *
    * @Then the email field :field should contain:
    */
@@ -265,6 +342,13 @@ trait EmailTrait {
   /**
    * Assert that the email field should exactly match a value.
    *
+   * @code
+   * Then the email field "subject" should be:
+   * """
+   * Account Verification
+   * """
+   * @endcode
+   *
    * @Then the email field :field should be:
    */
   public function emailAssertEmailFieldShouldBe(string $field, PyStringNode $string): void {
@@ -273,6 +357,13 @@ trait EmailTrait {
 
   /**
    * Assert that the email field should not contain a value.
+   *
+   * @code
+   * Then the email field "body" should not contain:
+   * """
+   * password
+   * """
+   * @endcode
    *
    * @Then the email field :field should not contain:
    */
@@ -297,6 +388,13 @@ trait EmailTrait {
   /**
    * Assert that the email field should not exactly match a value.
    *
+   * @code
+   * Then the email field "subject" should not be:
+   * """
+   * Password Reset
+   * """
+   * @endcode
+   *
    * @Then the email field :field should not be:
    */
   public function emailAssertEmailFieldShouldNotBe(string $field, PyStringNode $string): void {
@@ -305,6 +403,10 @@ trait EmailTrait {
 
   /**
    * Follow a specific link number in an email with the given subject.
+   *
+   * @code
+   * When I follow link number "1" in the email with the subject "Account Verification"
+   * @endcode
    *
    * @When I follow link number :link_number in the email with the subject :subject
    */
@@ -344,6 +446,10 @@ trait EmailTrait {
 
   /**
    * Follow a specific link number in an email whose subject contains the given substring.
+   *
+   * @code
+   * When I follow link number "1" in the email with the subject containing "Verification"
+   * @endcode
    *
    * @When I follow link number :link_number in the email with the subject containing :subject
    */
@@ -392,6 +498,10 @@ trait EmailTrait {
   /**
    * Assert that a file is attached to an email message with specified subject.
    *
+   * @code
+   * Then the file "document.pdf" should be attached to the email with the subject "Your document"
+   * @endcode
+   *
    * @Then the file :file_name should be attached to the email with the subject :subject
    */
   public function emailAssertEmailContainsAttachmentWithName(string $file_name, string $subject): void {
@@ -414,6 +524,10 @@ trait EmailTrait {
 
   /**
    * Assert that a file is attached to an email message with a subject containing the specified substring.
+   *
+   * @code
+   * Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
+   * @endcode
    *
    * @Then the file :file_name should be attached to the email with the subject containing :subject
    */
@@ -464,6 +578,10 @@ trait EmailTrait {
 
   /**
    * Disable test email system.
+   *
+   * @code
+   * When I disable the test email system
+   * @endcode
    *
    * @When I disable the test email system
    */

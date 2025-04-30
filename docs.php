@@ -248,7 +248,7 @@ function info_to_content(array $info): string {
 
       if (!empty($method['example'])) {
         $example = sprintf("```gherkin\n%s```", $method['example']);
-        $output .= 'Example:' . PHP_EOL;
+        $output .= 'Example:' . PHP_EOL . PHP_EOL;
         $output .= $example . PHP_EOL;
       }
 
