@@ -14,8 +14,6 @@ use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
  * Big Pipe trait.
  *
  * Behat trait for handling BigPipe functionality.
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 trait BigPipeTrait {
 

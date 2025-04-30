@@ -41,8 +41,6 @@ trait BlockTrait {
    * | region        | sidebar_first               |
    * | status        | 1                           |
    * @endcode
-   *
-   * @SuppressWarnings(PHPMD.StaticAccess)
    */
   public function blockPlaceBlockInRegion(string $label, TableNode $fields): void {
     /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */

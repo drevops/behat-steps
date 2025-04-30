@@ -20,7 +20,7 @@ trait WaitTrait {
    *
    * @When I wait for :seconds second(s)
    */
-  public function waitSeconds(int|string $seconds): void {
+  public function waitWaitForSeconds(int|string $seconds): void {
     sleep((int) $seconds);
   }
 

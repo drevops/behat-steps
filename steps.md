@@ -332,7 +332,7 @@ Then a cookie with a name containing "user" and a value containing "admin" shoul
 #### Check if a cookie does not exist
 
 ```gherkin
-@Then a cookie with( the) name :name should not exist
+@Then a cookie with the name :name should not exist
 ```
 Example:
 

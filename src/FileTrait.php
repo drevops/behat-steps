@@ -65,8 +65,8 @@ trait FileTrait {
    * @Given the following managed files:
    */
   public function fileCreateManaged(TableNode $nodesTable): void {
-    foreach ($nodesTable->getHash() as $nodeHash) {
-      $node = (object) $nodeHash;
+    foreach ($nodesTable->getHash() as $node_hash) {
+      $node = (object) $node_hash;
       $this->fileCreateManagedSingle($node);
     }
   }
@@ -91,9 +91,6 @@ trait FileTrait {
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
-   *
-   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   protected function fileCreateEntity(\StdClass $stub): FileInterface {
     if (empty($stub->path)) {
