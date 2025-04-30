@@ -213,23 +213,23 @@ Example:
 #### Verifies that a custom block type exists
 
 ```gherkin
-@Given :type block_content type exists
+@Given the custom block type ":type" exists
 ```
 Example:
 
 ```gherkin
-Given "search" block_content type exists
+Given the custom block type "Search" exists
 ```
 
 #### Removes custom blocks of a specified type with the given descriptions
 
 ```gherkin
-@Given no :type block_content:
+@Given the following ":type" custom blocks do not exist:
 ```
 Example:
 
 ```gherkin
-Given no "basic" block_content:
+Given the following "basic" custom blocks do not exist:
 | [TEST] Footer Block  |
 | [TEST] Contact Form  |
 ```
@@ -237,12 +237,12 @@ Given no "basic" block_content:
 #### Creates custom blocks of the specified type with the given field values
 
 ```gherkin
-@Given :type block_content:
+@Given the following ":type" custom blocks exist:
 ```
 Example:
 
 ```gherkin
-  Given "basic" block_content:
+  Given the following "basic" custom blocks exist:
   | info                  | status | body                   | created           |
   | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
@@ -251,12 +251,12 @@ Example:
 #### Navigates to the edit page for a specified custom block
 
 ```gherkin
-@When I edit :type block_content_type with description :description
+@When I edit the ":type" custom block with description ":description"
 ```
 Example:
 
 ```gherkin
-When I edit "basic" block_content_type with description "[TEST] Footer Block"
+When I edit the "basic" custom block with description "[TEST] Footer Block"
 ```
 
 ### CookieTrait

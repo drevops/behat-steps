@@ -51,10 +51,10 @@ trait BlockContentTrait {
    * Verifies that a custom block type exists.
    *
    * @code
-   * Given "search" block_content type exists
+   * Given the custom block type "Search" exists
    * @endcode
    *
-   * @Given :type block_content type exists
+   * @Given the custom block type ":type" exists
    */
   public function blockContentAssertTypeExist(string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
@@ -71,12 +71,12 @@ trait BlockContentTrait {
    * descriptions (titles) provided in the table.
    *
    * @code
-   * Given no "basic" block_content:
+   * Given the following "basic" custom blocks do not exist:
    * | [TEST] Footer Block  |
    * | [TEST] Contact Form  |
    * @endcode
    *
-   * @Given no :type block_content:
+   * @Given the following ":type" custom blocks do not exist:
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
@@ -103,10 +103,10 @@ trait BlockContentTrait {
    * is found.
    *
    * @code
-   * When I edit "basic" block_content_type with description "[TEST] Footer Block"
+   * When I edit the "basic" custom block with description "[TEST] Footer Block"
    * @endcode
    *
-   * @When I edit :type block_content_type with description :description
+   * @When I edit the ":type" custom block with description ":description"
    */
   public function blockContentEditBlockContentWithDescription(string $type, string $description): void {
     $block_ids = $this->blockContentLoadMultiple($type, [
@@ -169,10 +169,10 @@ trait BlockContentTrait {
    * @param \Behat\Gherkin\Node\TableNode $block_content_table
    *   Table containing field values for each block to create.
    *
-   * @Given :type block_content:
+   * @Given the following ":type" custom blocks exist:
    *
    * @code
-   *   Given "basic" block_content:
+   *   Given the following "basic" custom blocks exist:
    *   | info                  | status | body                   | created           |
    *   | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
    *   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
@@ -206,6 +206,8 @@ trait BlockContentTrait {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be saved.
+   *
+   * @SuppressWarnings(PHPMD.StaticAccess)
    */
   protected function blockContentCreateSingle(string $type, array $values): BlockContent {
     $block_content = (object) $values;
