@@ -2,9 +2,9 @@
 Feature: Check that VisibilityTrait works
 
   @api @javascript @phpserver
-  Scenario: Assert step definition "Then /^(?:|I )should see a visible "(?P<selector>[^"]*)" element" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
     Given I am on the phpserver test page
-    Then I should see a visible "#top" element
+    Then the element "#top" should be displayed
 
   # Here and below: skipped because of Behat hanging in the child process.
   @trait:VisibilityTrait @skipped
@@ -24,7 +24,7 @@ Feature: Check that VisibilityTrait works
   @api @javascript @phpserver
   Scenario: Assert step definition "Then /^(?:|I )should not see a visible "(?P<selector>[^"]*)" element" succeeds as expected
     Given I am on the phpserver test page
-    Then I should not see a visible "#hidden" element
+    Then the element "#hidden" should not be displayed
 
   @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should not see a visible "(?P<selector>[^"]*)" element" fails as expected
@@ -41,14 +41,38 @@ Feature: Check that VisibilityTrait works
       """
 
   @api @javascript @phpserver
-  Scenario: Assert step definition "Then /^(?:|I )should see a visually visible "(?P<selector>[^"]*)" element" and "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :number pixels" succeeds as expected
     Given I am on the phpserver test page
-    Then I should see a visually visible "#top" element
-    # Accessibility element visible to screen reader are visible to normal
+    Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" succeeds as expected
+    Given I am on the phpserver test page
+    Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
+
+  @api @javascript @phpserver @skipped
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should be displayed within a viewport with a top offset of 1000 pixels
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is not visually visible on the page with a top offset of 1000 pixels.
+      """
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" and "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" succeeds as expected
+    Given I am on the phpserver test page
+    Then the element "#top" should be displayed within a viewport
+    # Accessibility elements visible to screen readers are visible to normal
     # visibility assertion, but visually hidden.
-    And I should see a visible "#sr-only" element
-    And I should not see a visually hidden "#sr-only" element
-    And I should not see a visually hidden "#sr-only-focusable" element
+    And the element "#sr-only" should be displayed
+    Then the element "#sr-only" should not be displayed within a viewport
+    Then the element "#sr-only-focusable" should not be displayed within a viewport
 
   @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should see a visually visible "(?P<selector>[^"]*)" element" fails as expected

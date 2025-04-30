@@ -1726,25 +1726,37 @@ Then the user "John" should not be blocked
 #### Assert that element with specified CSS is visible on page
 
 ```gherkin
-@Then /^(?:|I )should see a visible "(?P<selector>[^"]*)" element$/
+@Then the element :selector should be displayed
 ```
 
 #### Assert that element with specified CSS is visible on page
 
 ```gherkin
-@Then /^(?:|I )should not see a visible "(?P<selector>[^"]*)" element$/
+@Then the element :selector should not be displayed
 ```
 
 #### Assert that element with specified CSS is visually visible on page
 
 ```gherkin
-@Then /^(?:|I )should see a visually visible "(?P<selector>[^"]*)" element(?: with top offset of "([^"]*)" pixels)?$/
+@Then the element :selector should be displayed within a viewport
+```
+
+#### Assert that element with specified CSS is visually visible on page with a top offset
+
+```gherkin
+@Then the element :selector should be displayed within a viewport with a top offset of :number pixels
+```
+
+#### Assert that element with specified CSS is not visually visible on page with a top offset
+
+```gherkin
+@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
 ```
 
 #### Assert that element with specified CSS is visually hidden on page
 
 ```gherkin
-@Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element(?: with top offset of "([^"]*)" pixels)?$/
+@Then the element :selector should not be displayed within a viewport
 ```
 
 ### WaitTrait
