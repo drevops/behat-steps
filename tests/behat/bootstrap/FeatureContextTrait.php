@@ -282,4 +282,14 @@ trait FeatureContextTrait {
     }
   }
 
+  /**
+   * Go to the phpserver test page.
+   *
+   * @Given /^(?:|I )am on (?:|the )phpserver test page$/
+   * @When /^(?:|I )go to (?:|the )phpserver test page$/
+   */
+  public function goToPhpServerTestPage(): void {
+    $this->getSession()->visit('http://cli:8888/relative.html');
+  }
+
 }

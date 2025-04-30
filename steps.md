@@ -1,8 +1,12 @@
 # Available steps
 
-- [ContentTrait](#contenttrait)
+- [BlockTrait](#blocktrait)
+
+- [BlockContentTrait](#blockcontenttrait)
 
 - [CookieTrait](#cookietrait)
+
+- [ContentTrait](#contenttrait)
 
 - [EckTrait](#ecktrait)
 
@@ -49,81 +53,195 @@
 - [WaitTrait](#waittrait)
 
 
-### ContentTrait
+### BlockTrait
 
-[Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
+[Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
 
-#### Delete content type
+#### Creates, configures and places a block in the default theme region
 
 ```gherkin
-@Given the content type :content_type does not exist
+@When I create a block of type :label with:
 ```
 Example:
 ```gherkin
-Given the content type "article" does not exist
+| label         | [TEST] Welcome Message      |
+| label_display | 1                           |
+| region        | sidebar_first               |
+| status        | 1                           |
 ```
 
-#### Remove content defined by provided properties
+#### Finds and configures an existing block identified by its label
 
 ```gherkin
-@Given the following :content_type content does not exist:
-```
-Example:
-```gherkin
-Given the following "article" content does not exist:
-  | title                |
-  | Test article         |
-  | Another test article |
-```
-
-#### Visit a page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content page with the title :title
+@When I configure the block with the label :label with:
 ```
 Example:
 ```gherkin
-When I visit the "article" content page with the title "Test article"
+ | label         | [TEST] Updated Message      |
+ | label_display | 1                           |
+ | region        | sidebar_second              |
+ | status        | 1                           |
 ```
 
-#### Visit an edit page of a type with a specified title
+#### Sets a visibility condition for a block
 
 ```gherkin
-@When I visit the :content_type content edit page with the title :title
-```
-Example:
-```gherkin
-When I visit the "article" content edit page with the title "Test article"
-```
-
-#### Visit a delete page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content delete page with the title :title
+@When I configure a visibility condition :condition for the block with label :label
 ```
 Example:
 ```gherkin
-When I visit the "article" content delete page with the title "Test article"
+  When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
+  | pages | /node/1\r\n/about |
+  | negate | 0 |
 ```
 
-#### Visit a scheduled transitions page of a type with a specified title
+#### Removes a visibility condition from the specified block
 
 ```gherkin
-@When I visit the :content_type content scheduled transitions page with the title :title
-```
-Example:
-```gherkin
-When I visit the "article" content scheduled transitions page with the title "Test article"
-```
-
-#### Change moderation state of a content with the specified title
-
-```gherkin
-@When I change the moderation state of the :content_type content with the title :title to the :new_state state
+@When I remove the visibility condition :condition from the block with label :label
 ```
 Example:
 ```gherkin
-When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+  When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+```
+
+#### Disables a block specified by its label
+
+```gherkin
+@When I disable the block with label :label
+```
+Example:
+```gherkin
+  When I disable the block with label "[TEST] Sidebar Block"
+```
+
+#### Enables a block specified by its label
+
+```gherkin
+@When I enable the block with label :label
+```
+Example:
+```gherkin
+  When I enable the block with label "[TEST] Sidebar Block"
+```
+
+#### Verifies that a block with the specified label exists in a specific region
+
+```gherkin
+@When block with label :label should exist in the region :region
+```
+Example:
+```gherkin
+  Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
+```
+
+#### Verifies that a block does not exist in a specific region
+
+```gherkin
+@When block with label :label should not exist in the region :region
+```
+Example:
+```gherkin
+  Then block with label "[TEST] User Menu" should not exist in the region "content"
+```
+
+#### Verifies that a block with the specified label exists in the default theme
+
+```gherkin
+@Then block with label :label should exist
+```
+Example:
+```gherkin
+  Then block with label "[TEST] Footer Block" should exist
+```
+
+#### Verifies that a block has a specific visibility condition configured
+
+```gherkin
+@Then the block with label :label should have the visibility condition :condition
+```
+Example:
+```gherkin
+  Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+```
+
+#### Asserts that a block does not have a specific visibility condition
+
+```gherkin
+@Then the block with label :label should not have the visibility condition :condition
+```
+Example:
+```gherkin
+  Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
+```
+
+#### Verifies that a block with the specified label is disabled (inactive)
+
+```gherkin
+@Then the block with label :label is disabled
+```
+Example:
+```gherkin
+  Then the block with label "[TEST] Maintenance Block" is disabled
+```
+
+#### Verifies that a block with the specified label is enabled
+
+```gherkin
+@Then the block with label :label is enabled
+```
+Example:
+```gherkin
+  Then the block with label "[TEST] Navigation Block" is enabled
+```
+
+### BlockContentTrait
+
+[Source](src/BlockContentTrait.php), [Example](tests/behat/features/block_content.feature)
+
+#### Verifies that a custom block type exists
+
+```gherkin
+@Given :type block_content type exists
+```
+Example:
+```gherkin
+Given "search" block_content type exists
+```
+
+#### Removes custom blocks of a specified type with the given descriptions
+
+```gherkin
+@Given no :type block_content:
+```
+Example:
+```gherkin
+Given no "basic" block_content:
+| [TEST] Footer Block  |
+| [TEST] Contact Form  |
+```
+
+#### Creates custom blocks of the specified type with the given field values
+
+```gherkin
+@Given :type block_content:
+```
+Example:
+```gherkin
+  Given "basic" block_content:
+  | info                  | status | body                   | created           |
+  | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
+  | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
+```
+
+#### Navigates to the edit page for a specified custom block
+
+```gherkin
+@When I edit :type block_content_type with description :description
+```
+Example:
+```gherkin
+When I edit "basic" block_content_type with description "[TEST] Footer Block"
 ```
 
 ### CookieTrait
@@ -200,6 +318,83 @@ When I change the moderation state of the "article" content with the title "Test
 
 ```gherkin
 @Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
+```
+
+### ContentTrait
+
+[Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
+
+#### Delete content type
+
+```gherkin
+@Given the content type :content_type does not exist
+```
+Example:
+```gherkin
+Given the content type "article" does not exist
+```
+
+#### Remove content defined by provided properties
+
+```gherkin
+@Given the following :content_type content does not exist:
+```
+Example:
+```gherkin
+Given the following "article" content does not exist:
+  | title                |
+  | Test article         |
+  | Another test article |
+```
+
+#### Visit a page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content page with the title "Test article"
+```
+
+#### Visit an edit page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content edit page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content edit page with the title "Test article"
+```
+
+#### Visit a delete page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content delete page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content delete page with the title "Test article"
+```
+
+#### Visit a scheduled transitions page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content scheduled transitions page with the title :title
+```
+Example:
+```gherkin
+When I visit the "article" content scheduled transitions page with the title "Test article"
+```
+
+#### Change moderation state of a content with the specified title
+
+```gherkin
+@When I change the moderation state of the :content_type content with the title :title to the :new_state state
+```
+Example:
+```gherkin
+When I change the moderation state of the "article" content with the title "Test article" to the "published" state
 ```
 
 ### EckTrait

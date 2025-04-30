@@ -1,19 +1,18 @@
-@visibility @skipped
+@visibility
 Feature: Check that VisibilityTrait works
 
-  @api @javascript
+  @api @javascript @phpserver
   Scenario: Assert step definition "Then /^(?:|I )should see a visible "(?P<selector>[^"]*)" element" succeeds as expected
-    Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    Given I am on the phpserver test page
     Then I should see a visible "#top" element
 
-  @trait:VisibilityTrait
+  # Here and below: skipped because of Behat hanging in the child process.
+  @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should see a visible "(?P<selector>[^"]*)" element" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
-      When I visit "/sites/default/files/relative.html"
+      Given I am on the phpserver test page
       Then I should see a visible "#hidden" element
       """
     When I run "behat --no-colors"
@@ -22,19 +21,17 @@ Feature: Check that VisibilityTrait works
       Element defined by "#hidden" selector is not visible on the page.
       """
 
-  @api @javascript
+  @api @javascript @phpserver
   Scenario: Assert step definition "Then /^(?:|I )should not see a visible "(?P<selector>[^"]*)" element" succeeds as expected
-    Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    Given I am on the phpserver test page
     Then I should not see a visible "#hidden" element
 
-  @trait:VisibilityTrait
+  @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should not see a visible "(?P<selector>[^"]*)" element" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
-      When I visit "/sites/default/files/relative.html"
+      Given I am on the phpserver test page
       Then I should not see a visible "#top" element
       """
     When I run "behat --no-colors"
@@ -43,10 +40,9 @@ Feature: Check that VisibilityTrait works
       Element defined by "#top" selector is visible on the page, but should not be.
       """
 
-  @api @javascript
+  @api @javascript @phpserver
   Scenario: Assert step definition "Then /^(?:|I )should see a visually visible "(?P<selector>[^"]*)" element" and "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" succeeds as expected
-    Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    Given I am on the phpserver test page
     Then I should see a visually visible "#top" element
     # Accessibility element visible to screen reader are visible to normal
     # visibility assertion, but visually hidden.
@@ -54,7 +50,7 @@ Feature: Check that VisibilityTrait works
     And I should not see a visually hidden "#sr-only" element
     And I should not see a visually hidden "#sr-only-focusable" element
 
-  @trait:VisibilityTrait
+  @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should see a visually visible "(?P<selector>[^"]*)" element" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@api @javascript":
@@ -69,7 +65,7 @@ Feature: Check that VisibilityTrait works
       Element(s) defined by "#sr-only" selector is not visually visible on the page.
       """
 
-  @trait:VisibilityTrait
+  @trait:VisibilityTrait @skipped
   Scenario: Assert step definition "Then /^(?:|I )should not see a visually hidden "(?P<selector>[^"]*)" element" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@api @javascript":
