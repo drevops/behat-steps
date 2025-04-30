@@ -45,7 +45,7 @@
         "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drevops/behat-phpserver": "^2.1.1",
-        "drevops/behat-screenshot": "^1.6",
+        "drevops/behat-screenshot": "^2.1",
         "drupal/coder": "^8.3.28",
         "drupal/core-dev": "~10.4.6",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
