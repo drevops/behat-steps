@@ -61,7 +61,7 @@ Feature: Check that VisibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is not visually visible on the page with a top offset of 1000 pixels.
+      Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 1000 pixels.
       """
 
   @api @javascript @phpserver
@@ -86,7 +86,7 @@ Feature: Check that VisibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#sr-only" selector is not visually visible on the page.
+      Element(s) defined by "#sr-only" selector is not displayed within a viewport.
       """
 
   @trait:VisibilityTrait @skipped
@@ -101,5 +101,5 @@ Feature: Check that VisibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is visually visible on the page, but should not be.
+      Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """

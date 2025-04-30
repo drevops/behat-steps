@@ -50,7 +50,7 @@ trait VisibilityTrait {
   }
 
   /**
-   * Assert that element with specified CSS is visually visible on page.
+   * Assert that element with specified CSS is displayed within a viewport
    *
    * @Then the element :selector should be displayed within a viewport
    */
@@ -58,30 +58,30 @@ trait VisibilityTrait {
     $this->visibilityAssertElementIsVisible($selector);
 
     if (!$this->visibilityElementIsVisuallyVisible($selector, 0)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not visually visible on the page.', $selector));
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector));
     }
   }
 
   /**
-   * Assert that element with specified CSS is visually visible on page with a top offset.
+   * Assert that element with specified CSS is displayed within a viewport with a top offset.
    *
    * @Then the element :selector should be displayed within a viewport with a top offset of :number pixels
    */
   public function visibilityAssertElementIsVisuallyVisibleWithOffset(string $selector, int $number): void {
     $this->visibilityAssertElementIsVisible($selector);
     if (!$this->visibilityElementIsVisuallyVisible($selector, $number)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not visually visible on the page with a top offset of %d pixels.', $selector, $number));
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $number));
     }
   }
 
   /**
-   * Assert that element with specified CSS is not visually visible on page with a top offset.
+   * Assert that element with specified CSS is not displayed within a viewport with a top offset.
    *
    * @Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
    */
   public function visibilityAssertElementIsNotVisuallyVisibleWithOffset(string $selector, int $number): void {
     if ($this->visibilityElementIsVisuallyVisible($selector, $number)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is visually visible on the page with a top offset of %d pixels, but should not be.', $selector, $number));
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number));
     }
   }
 
@@ -97,12 +97,12 @@ trait VisibilityTrait {
    */
   public function visibilityAssertElementIsVisuallyHidden(string $selector, int $offset = 0): void {
     if ($this->visibilityElementIsVisuallyVisible($selector, $offset)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is visually visible on the page, but should not be.', $selector));
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector));
     }
   }
 
   /**
-   * Check if an element is visually visible using different FE techniques.
+   * Check if an element is displayed withing a viewport using different FE techniques.
    *
    * @param string $selector
    *   CSS query selector.
@@ -110,7 +110,7 @@ trait VisibilityTrait {
    *   (optional) Vertical element offset in pixels. Defaults to 0.
    *
    * @return bool
-   *   TRUE if an element is visually visible, FALSE if not.
+   *   TRUE if an element is displayed withing a viewport, FALSE if not.
    */
   protected function visibilityElementIsVisuallyVisible(string $selector, int $offset) {
     // The contents of this JS function should be copied as-is from the <script>
