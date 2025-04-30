@@ -13,9 +13,6 @@ use Drupal\media\MediaInterface;
  * Trait MediaTrait.
  *
  * Trait to handle media entities.
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)
- * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  */
 trait MediaTrait {
 
@@ -72,8 +69,8 @@ trait MediaTrait {
    * @Given the following media :media_type exist:
    */
   public function mediaCreate(string $media_type, TableNode $nodesTable): void {
-    foreach ($nodesTable->getHash() as $nodeHash) {
-      $node = (object) $nodeHash;
+    foreach ($nodesTable->getHash() as $node_hash) {
+      $node = (object) $node_hash;
       $node->bundle = $media_type;
       $this->mediaCreateSingle($node);
     }

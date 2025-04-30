@@ -110,18 +110,16 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
-      ahoy cli "cp -Rf phpcs.xml phpstan.neon phpmd.xml gherkinlint.json rector.php build > /dev/null" \
+      ahoy cli "cp -Rf phpcs.xml phpstan.neon gherkinlint.json rector.php build > /dev/null" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpcs" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpstan" \
       && ahoy cli "cd /app/build && ./vendor/bin/rector --clear-cache --dry-run" \
-      && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../src text phpmd.xml" \
-      && ahoy cli "cd /app/build && ./vendor/bin/phpmd ../tests/behat/bootstrap text phpmd.xml" \
       && ahoy cli "cd /app/build && ./vendor/bin/gherkinlint lint ../tests/behat/features"
 
   lint-fix:
     usage: Fix code.
     cmd: |
-      ahoy cli "cp -Rf phpcs.xml phpstan.neon phpmd.xml gherkinlint.json rector.php build > /dev/null" \
+      ahoy cli "cp -Rf phpcs.xml phpstan.neon gherkinlint.json rector.php build > /dev/null" \
       && ahoy cli "cd /app/build && ./vendor/bin/rector --clear-cache" \
       && ahoy cli "cd /app/build && ./vendor/bin/phpcbf"
 

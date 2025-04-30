@@ -16,8 +16,6 @@ use Drupal\paragraphs\ParagraphInterface;
  * Paragraphs-related steps.
  *
  * @package DrevOps\BehatSteps
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 trait ParagraphsTrait {
 

@@ -206,8 +206,6 @@ trait BlockContentTrait {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be saved.
-   *
-   * @SuppressWarnings(PHPMD.StaticAccess)
    */
   protected function blockContentCreateSingle(string $type, array $values): BlockContent {
     $block_content = (object) $values;

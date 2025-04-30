@@ -6,8 +6,6 @@
  *
  * This is a test for the test framework itself. Consumer project should not
  * use any steps or functions from this file.
- *
- * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 
 declare(strict_types=1);
@@ -22,8 +20,6 @@ use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * Defines application features from the specific context.
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 trait FeatureContextTrait {
 
@@ -40,6 +36,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a user exists.
+   *
    * @Then user :name should exist
    */
   public function testUserExists(string $name): void {
@@ -60,6 +58,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a user does not exist.
+   *
    * @Then user :name should not exist
    */
   public function testUserNotExists(string $name): void {
@@ -82,6 +82,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Set watchdog error level for testing.
+   *
    * @Given set watchdog error level :level
    * @Given set watchdog error level :level of type :type
    */
@@ -90,6 +92,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a cookie exists.
+   *
    * @Given cookie :name exists
    */
   public function testAssertCookieExists(string $name): void {
@@ -101,6 +105,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a cookie does not exist.
+   *
    * @Given cookie :name does not exist
    */
   public function testAssertCookieNotExists(string $name): void {
@@ -112,6 +118,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Install a module.
+   *
    * @Given I install a :name module
    */
   public function testInstallModule(string $name): void {
@@ -137,6 +145,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Uninstall a module.
+   *
    * @Given I uninstall a :name module
    */
   public function testUninstallModule(string $name): void {
@@ -157,6 +167,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Send a test email.
+   *
    * @When I send test email to :email with
    * @When I send test email to :email with:
    */
@@ -194,6 +206,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a file object exists.
+   *
    * @Then :file_name file object exists
    */
   public function testAssertFileObjectExists(string $file_name): void {
@@ -212,6 +226,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that a file object does not exist.
+   *
    * @Then no :file_name file object exists
    */
   public function testAssertFileObjectNotExists(string $file_name): void {
@@ -223,6 +239,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that an entity exists with the specified UUID.
+   *
    * @Then :entity_type entity exists with UUID :uuid
    */
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
@@ -258,6 +276,8 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Set a test cookie with the given name and value.
+   *
    * @Given I set a test cookie with name :name and value :value
    */
   public function testSetCookie(string $name, string $value): void {
