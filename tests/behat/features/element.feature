@@ -199,3 +199,39 @@ Feature: Check that ElementTrait works
       """
       The "dir" attribute exists on the element "html" with a value containing "lt", but it should not.
       """
+
+  @javascript @phpserver
+  Scenario: Assert click on element
+    Given I am on the phpserver test page
+    Then I click on the element "#overlay-off-canvas-trigger"
+
+  @javascript @phpserver
+  Scenario: Assert trigger event on element
+    Given I am on the phpserver test page
+    Then I should not see an ".overlay-visible" element
+    When I trigger the JS event "click" on the element "#overlay-off-canvas-trigger"
+    Then I should see an ".overlay-visible" element
+
+  @javascript @phpserver
+  Scenario: Assert Accept/Not Accept confirmation
+    Given I am on the phpserver test page
+    Then I should see the button "Test confirm"
+    Then I should not see the button "You pressed OK!"
+    Then I accept all confirmation dialogs
+    Then I press the "Test confirm" button
+    Then I should see the button "You pressed OK!"
+
+  @javascript @phpserver
+  Scenario: Assert Not Accept confirmation
+    Given I am on the phpserver test page
+    Then I should see the button "Test confirm"
+    Then I should not see the button "You canceled!"
+    Then I do not accept any confirmation dialogs
+    Then I press the "Test confirm" button
+    Then I should see the button "You canceled!"
+
+  @javascript @phpserver
+  Scenario: Assert scroll to an element with selector.
+    Given I am on the phpserver test page
+    When I scroll to the element "#main-inner"
+    Then the element "#main-inner" should be at the top of the viewport
