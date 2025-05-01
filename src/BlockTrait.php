@@ -35,21 +35,21 @@ trait BlockTrait {
    * - status: Block enabled status (1 for enabled, 0 for disabled).
    *
    * @code
-   * @When I create a block of type :label with:
+   * @When I create a block of type :type with:
    * | label         | [TEST] Welcome Message      |
    * | label_display | 1                           |
    * | region        | sidebar_first               |
    * | status        | 1                           |
    * @endcode
    */
-  public function blockPlaceBlockInRegion(string $label, TableNode $fields): void {
+  public function blockPlaceBlockInRegion(string $type, TableNode $fields): void {
     /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
     $block_manager = \Drupal::service('plugin.manager.block');
     $definitions = $block_manager->getDefinitions();
     $default_theme = \Drupal::config('system.theme')->get('default');
     $block = NULL;
     foreach ($definitions as $plugin_id => $definition) {
-      if ((string) $definition['admin_label'] === $label) {
+      if ((string) $definition['admin_label'] === $type) {
         $block = \Drupal::entityTypeManager()->getStorage('block')->create([
           'plugin' => $plugin_id,
           'theme' => $default_theme,
@@ -61,7 +61,7 @@ trait BlockTrait {
       }
     }
     if (!$block instanceof Block) {
-      throw new \Exception(sprintf('Could not create block of type "%s"', $label));
+      throw new \Exception(sprintf('Could not create block of type "%s"', $type));
     }
     $this->blockConfigureBlockInstance($block, $fields);
     static::$blockInstances[] = $block;
@@ -110,8 +110,8 @@ trait BlockTrait {
    *
    * @When I configure the block with the label :label with:
    */
-  public function blockConfigureBlock(string $description, TableNode $fields): void {
-    $block = $this->blockLoadBlockByLabel($description);
+  public function blockConfigureBlock(string $label, TableNode $fields): void {
+    $block = $this->blockLoadBlockByLabel($label);
 
     $this->blockConfigureBlockInstance($block, $fields);
 
@@ -169,22 +169,22 @@ trait BlockTrait {
    * - user_role: Control visibility based on user role
    * - language: Control visibility based on the interface language.
    *
-   * @param string $label
-   *   Label identifying the block.
    * @param string $condition
    *   The type of visibility condition.
+   * @param string $label
+   *   Label identifying the block.
    * @param \Behat\Gherkin\Node\TableNode $fields
    *   Configuration for the visibility condition.
    *
    * @code
-   *   When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
+   *   When I configure the visibility condition "request_path" for the block "[TEST] Block" with:
    *   | pages | /node/1\r\n/about |
    *   | negate | 0 |
    * @endcode
    *
-   * @When I configure a visibility condition :condition for the block with label :label
+   * @When I configure the visibility condition :condition for the block :label with:
    */
-  public function blockConfigureBlockVisibility(string $label, string $condition, TableNode $fields): void {
+  public function blockConfigureBlockVisibility(string $condition, string $label, TableNode $fields): void {
     $block = $this->blockLoadBlockByLabel($label);
     $configuration = $fields->getRowsHash();
     $configuration['id'] = $condition;
@@ -198,19 +198,19 @@ trait BlockTrait {
    * This step removes any existing visibility restrictions of the specified
    * type from the block.
    *
-   * @param string $label
-   *   Label identifying the block.
    * @param string $condition
    *   The type of visibility condition to remove.
+   * @param string $label
+   *   Label identifying the block.
    *
    * @code
-   *   When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+   *   When I remove the visibility condition "request_path" from the block "[TEST] Block"
    * @endcode
    *
-   * @When I remove the visibility condition :condition from the block with label :label
+   * @When I remove the visibility condition :condition from the block :label
    */
-  public function blockRemoveBlockVisibility(string $label, string $condition): void {
-    $this->blockConfigureBlockVisibility($label, $condition, new TableNode([]));
+  public function blockRemoveBlockVisibility(string $condition, string $label): void {
+    $this->blockConfigureBlockVisibility($condition, $label, new TableNode([]));
   }
 
   /**
@@ -223,10 +223,10 @@ trait BlockTrait {
    *   Label used to identify the block.
    *
    * @code
-   *   When I disable the block with label "[TEST] Sidebar Block"
+   *   When I disable the block "[TEST] Sidebar Block"
    * @endcode
    *
-   * @When I disable the block with label :label
+   * @When I disable the block :label
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -247,10 +247,10 @@ trait BlockTrait {
    *   Label used to identify the block.
    *
    * @code
-   *   When I enable the block with label "[TEST] Sidebar Block"
+   *   When I enable the block "[TEST] Sidebar Block"
    * @endcode
    *
-   * @When I enable the block with label :label
+   * @When I enable the block :label
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -271,10 +271,10 @@ trait BlockTrait {
    *   The label (title) of the block to find.
    *
    * @code
-   *   Then I should see the block with label "[TEST] Footer Block"
+   *   Then the block "[TEST] Footer Block" should exist
    * @endcode
    *
-   * @Then I should see the block with label :label
+   * @Then the block :label should exist
    *
    * @throws \Exception
    *   When no block with the specified label is found.
@@ -289,7 +289,7 @@ trait BlockTrait {
       ]);
 
     if (empty($blocks)) {
-      throw new \Exception(sprintf('Block with title "%s" was not found', $label));
+      throw new \Exception(sprintf('The block "%s" was not found', $label));
     }
   }
 
@@ -305,10 +305,10 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then I should see the block with label "[TEST] User Menu" in the region "sidebar_first"
+   *   Then the block "[TEST] User Menu" should exist in the region "sidebar_first"
    * @endcode
    *
-   * @When I should see the block with label :label in the region :region
+   * @Then the block :label should exist in the region :region
    *
    * @throws \Exception
    *   When no block with the specified label is found in the given region.
@@ -339,10 +339,10 @@ trait BlockTrait {
    *   The region to check for the absence of the block.
    *
    * @code
-   *   Then I should not see the block with label "[TEST] User Menu" in the region "content"
+   *   Then the block "[TEST] User Menu" should not exist in the "content" region
    * @endcode
    *
-   * @When I should not see the block with label :label in the region :region
+   * @Then the block :label should not exist in the :region region
    *
    * @throws \Exception
    *   When a block with the specified label is found in the given region.
@@ -373,10 +373,10 @@ trait BlockTrait {
    *   The type of visibility condition to check for.
    *
    * @code
-   *   Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+   *   Then the block "[TEST] Admin Block" should have the visibility condition "user_role"
    * @endcode
    *
-   * @Then the block with label :label should have the visibility condition :condition
+   * @Then the block :label should have the visibility condition :condition
    *
    * @throws \Exception
    *   When the block does not have the specified visibility condition.
@@ -386,7 +386,7 @@ trait BlockTrait {
     $conditions = $block->getVisibilityConditions();
 
     if (!$conditions->has($condition)) {
-      throw new \Exception(sprintf('Block "%s" does not have condition "%s"', $label, $condition));
+      throw new \Exception(sprintf('The block "%s" does not have condition "%s"', $label, $condition));
     }
   }
 
@@ -402,10 +402,10 @@ trait BlockTrait {
    *   The type of visibility condition to check for.
    *
    * @code
-   *   Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
+   *   Then the block "[TEST] Public Block" should not have the visibility condition "user_role"
    * @endcode
    *
-   * @Then the block with label :label should not have the visibility condition :condition
+   * @Then the block :label should not have the visibility condition :condition
    *
    * @throws \Exception
    *   When the block has the specified visibility condition when it should not.
@@ -415,7 +415,7 @@ trait BlockTrait {
     $conditions = $block->getVisibilityConditions();
 
     if ($conditions->has($condition)) {
-      throw new \Exception(sprintf('Block "%s" should not have condition "%s"', $label, $condition));
+      throw new \Exception(sprintf('The block "%s" should not have the visibility condition "%s"', $label, $condition));
     }
   }
 
@@ -430,10 +430,10 @@ trait BlockTrait {
    *   Label to identify the block.
    *
    * @code
-   *   Then the block with label "[TEST] Maintenance Block" should be disabled
+   *   Then the block "[TEST] Maintenance Block" should be disabled
    * @endcode
    *
-   * @Then the block with label :label should be disabled
+   * @Then the block :label should be disabled
    *
    * @throws \Exception
    *   When the block is enabled when it should be disabled.
@@ -441,7 +441,7 @@ trait BlockTrait {
   public function blockAssertBlockIsDisabled(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
     if ($block->status()) {
-      throw new \Exception(sprintf('Block "%s" is not disabled and should be.', $label));
+      throw new \Exception(sprintf('The block "%s" should be disabled but is enabled.', $label));
     }
   }
 
@@ -452,18 +452,18 @@ trait BlockTrait {
    *   Label to identify the block.
    *
    * @code
-   *   Then the block with label "[TEST] Navigation Block" should be enabled
+   *   Then the block "[TEST] Navigation Block" should be enabled
    * @endcode
    *
-   * @Then the block with label :label should be enabled
+   * @Then the block :label should be enabled
    *
    * @throws \Exception
    *   When the block is disabled when it should be enabled.
    */
-  public function blockAssertBlockIsNotDisabled(string $label): void {
+  public function blockAssertBlockIsEnabled(string $label): void {
     $block = $this->blockLoadBlockByLabel($label);
     if (!$block->status()) {
-      throw new \Exception(sprintf('Block "%s" is disabled but should not be.', $label));
+      throw new \Exception(sprintf('The block "%s" should be enabled but is disabled.', $label));
     }
   }
 
