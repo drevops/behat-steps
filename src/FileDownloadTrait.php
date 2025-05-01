@@ -13,7 +13,7 @@ use Behat\Mink\Element\NodeElement;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Trait FileDownloadTrait.
+ * Downloads and validates files during tests.
  *
  * Steps to work with file downloads.
  *
@@ -34,7 +34,6 @@ trait FileDownloadTrait {
    * @BeforeScenario
    */
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -51,7 +50,6 @@ trait FileDownloadTrait {
    * @AfterScenario
    */
   public function fileDownloadAfterScenario(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -63,6 +61,11 @@ trait FileDownloadTrait {
 
   /**
    * Download a file from the specified URL.
+   *
+   * @code
+   * When I download the file from the URL "/sites/default/files/document.pdf"
+   * When I download the file from the URL "https://example.com/files/report.xlsx"
+   * @endcode
    *
    * @When I download the file from the URL :url
    */
@@ -107,6 +110,11 @@ trait FileDownloadTrait {
   /**
    * Download the file from the specified HTML link.
    *
+   * @code
+   * When I download the file from the link "Download PDF"
+   * When I download the file from the link "Get Report"
+   * @endcode
+   *
    * @When I download the file from the link :link
    */
   public function fileDownloadFromLink(string $link): void {
@@ -133,6 +141,13 @@ trait FileDownloadTrait {
 
   /**
    * Assert the contents of the download file.
+   *
+   * @code
+   * Then the downloaded file should contain:
+   * """
+   * Financial Report 2023
+   * """
+   * @endcode
    *
    * @Then the downloaded file should contain:
    */
@@ -163,6 +178,10 @@ trait FileDownloadTrait {
   /**
    * Assert the file name of the downloaded file.
    *
+   * @code
+   * Then the downloaded file name should be "report.pdf"
+   * @endcode
+   *
    * @Then the downloaded file name should be :name
    */
   public function fileDownloadAssertFileName(string $name): void {
@@ -178,6 +197,10 @@ trait FileDownloadTrait {
   /**
    * Assert the downloaded file name contains a specific string.
    *
+   * @code
+   * Then the downloaded file name should contain "report"
+   * @endcode
+   *
    * @Then the downloaded file name should contain :name
    */
   public function fileDownloadAssertFileNameContains(string $name): void {
@@ -192,6 +215,13 @@ trait FileDownloadTrait {
 
   /**
    * Assert the downloaded file should be a zip archive containing specific files.
+   *
+   * @code
+   * Then the downloaded file should be a zip archive containing the files named:
+   * | document.pdf |
+   * | image.jpg    |
+   * | data.csv     |
+   * @endcode
    *
    * @Then the downloaded file should be a zip archive containing the files named:
    */
@@ -212,6 +242,13 @@ trait FileDownloadTrait {
 
   /**
    * Assert the downloaded file should be a zip archive containing files with partial names.
+   *
+   * @code
+   * Then the downloaded file should be a zip archive containing the files partially named:
+   * | report |
+   * | data   |
+   * | image  |
+   * @endcode
    *
    * @Then the downloaded file should be a zip archive containing the files partially named:
    */
@@ -240,6 +277,13 @@ trait FileDownloadTrait {
 
   /**
    * Assert the downloaded file is a zip archive not containing files with partial names.
+   *
+   * @code
+   * Then the downloaded file should be a zip archive not containing the files partially named:
+   * | confidential |
+   * | private      |
+   * | draft        |
+   * @endcode
    *
    * @Then the downloaded file should be a zip archive not containing the files partially named:
    */
@@ -366,8 +410,6 @@ trait FileDownloadTrait {
     if ($written === FALSE) {
       throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path);
     }
-
-    print $file_path;
 
     return ['file_name' => $file_name, 'file_path' => $file_path] + $headers;
   }

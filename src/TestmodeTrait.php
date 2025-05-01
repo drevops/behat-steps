@@ -9,7 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Drupal\testmode\Testmode;
 
 /**
- * Trait TestmodeTrait.
+ * Integrates with Drupal's Testmode module for isolated test execution.
  *
  * What is Testmode?
  *
@@ -33,7 +33,6 @@ trait TestmodeTrait {
    * @BeforeScenario
    */
   public function testmodeBeforeScenarioEnableTestMode(BeforeScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -49,7 +48,6 @@ trait TestmodeTrait {
    * @AfterScenario
    */
   public function testmodeBeforeScenarioDisableTestMode(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

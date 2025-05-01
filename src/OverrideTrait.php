@@ -7,9 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Trait OverrideTrait.
- *
- * Used to override standard Drupal Extension methods.
+ * Overrides standard Drupal Extension methods to enhance functionality.
  *
  * Use with caution: depending on your version of Drupal Extension, PHP and
  * Composer, the step definition string (/^Given etc.../) may need to be defined

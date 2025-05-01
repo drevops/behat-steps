@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Trait DateTrait.
+ * Handles relative dates in test steps.
  *
  * Date-related steps.
  *
@@ -50,7 +50,7 @@ trait DateTrait {
   }
 
   /**
-   * Check if sting has a token.
+   * Assert that string has a token.
    */
   protected static function dateRelativeStringHasToken(string $string): bool {
     return str_contains($string, '[relative:');

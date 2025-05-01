@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Mink\Element\NodeElement;
-
 /**
- * Trait LinkTrait.
+ * Interacts with and validates HTML links.
  *
  * Link-related steps.
  *
@@ -16,27 +14,41 @@ use Behat\Mink\Element\NodeElement;
 trait LinkTrait {
 
   /**
-   * Assert presence of a link with a href.
+   * Assert a link with a href exists.
    *
    * Note that simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" should exist
+   * Then the link "About us" with the href "/about*" should exist
+   * @endcode
+   *
+   * @Then the link :link with the href :href should exist
+   */
+  public function linkAssertTextWithHrefExists(string $text, string $href): void {
+    $this->linkAssertTextWithHrefWithinElementExists($text, $href, NULL);
+  }
+
+  /**
+   * Assert link with a href exists within an element.
+   *
+   * Note that simplified wildcard is supported in "href".
+   *
+   * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
    * @endcode
    *
-   * @Then the link :link with the href :href should exist
-   * @Then the link :link with the href :href within the element :locator should exist
+   * @Then the link :link with the href :href within the element :selector should exist
    */
-  public function linkAssertTextHref(string $text, string $href, ?string $locator = NULL): void {
+  public function linkAssertTextWithHrefWithinElementExists(string $text, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
-    if ($locator) {
-      $element = $page->find('css', $locator);
+    if ($selector) {
+      $element = $page->find('css', $selector);
       if (!$element) {
-        throw new \Exception(sprintf('Locator "%s" does not exist on the page', $locator));
+        throw new \Exception(sprintf('Selector "%s" does not exist on the page', $selector));
       }
     }
     else {
@@ -67,19 +79,33 @@ trait LinkTrait {
    *
    * @code
    * Then the link "About us" with the href "/about-us" should not exist
+   * Then the link "About us" with the href "/about*" should not exist
+   * @endcode
+   *
+   * @Then the link :link with the href :href should not exist
+   */
+  public function linkAssertTextWithHrefNotExists(string $text, string $href): void {
+    $this->linkAssertTextWithHrefWithinElementNotExists($text, $href, NULL);
+  }
+
+  /**
+   * Assert link with a href does not exist within an element.
+   *
+   * Note that simplified wildcard is supported in "href".
+   *
+   * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
    * @endcode
    *
-   * @Then the link :link with the href :href should not exist
-   * @Then the link :link with the href :href within the element :locator should not exist
+   * @Then the link :link with the href :href within the element :selector should not exist
    */
-  public function linkAssertTextHrefNotExists(string $text, string $href, ?string $locator = NULL): void {
+  public function linkAssertTextWithHrefWithinElementNotExists(string $text, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
-    if ($locator) {
-      $element = $page->find('css', $locator);
+    if ($selector) {
+      $element = $page->find('css', $selector);
       if (!$element) {
         return;
       }
@@ -114,16 +140,14 @@ trait LinkTrait {
    *
    * @Then the link with the title :title should exist
    */
-  public function linkAssertWithTitle(string $title): NodeElement {
+  public function linkAssertWithTitleExists(string $title): void {
     $title = $this->linkFixStepArgument($title);
 
-    $element = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if (!$element) {
       throw new \Exception(sprintf('The link with the title "%s" does not exist.', $title));
     }
-
-    return $element;
   }
 
   /**
@@ -135,10 +159,10 @@ trait LinkTrait {
    *
    * @Then the link with the title :title should not exist
    */
-  public function linkAssertWithNoTitle(string $title): void {
+  public function linkAssertWithTitleNotExists(string $title): void {
     $title = $this->linkFixStepArgument($title);
 
-    $item = $this->getSession()->getPage()->find('css', 'a[title="' . $title . '"]');
+    $item = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if ($item) {
       throw new \Exception(sprintf('The link with the title "%s" exists, but should not.', $title));
@@ -146,34 +170,23 @@ trait LinkTrait {
   }
 
   /**
-   * Click on the link with a title.
-   *
-   * @code
-   * When I click on the link with the title "Return to site content"
-   * @endcode
-   *
-   * @When I click on the link with the title :title
-   */
-  public function linkClickWithTitle(string $title): void {
-    $link = $this->linkAssertWithTitle($title);
-    $link->click();
-  }
-
-  /**
    * Assert that the link with a text is absolute.
    *
    * @code
-   * Then the link "Drupal" should be an absolute link
+   * Then the link "my-link-title" should be an absolute link
    * @endcode
    *
    * @Then the link :link should be an absolute link
    */
-  public function linkAssertLinkAbsolute(string $text): void {
+  public function linkAssertLinkIsAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
+
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
     }
+
     $href = $link->getAttribute('href');
+
     if (!parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new \Exception(sprintf('The link "%s" is not an absolute link.', $text));
     }
@@ -188,19 +201,42 @@ trait LinkTrait {
    *
    * @Then the link :link should not be an absolute link
    */
-  public function linkAssertLinkNotAbsolute(string $text): void {
+  public function linkAssertLinkIsNotAbsolute(string $text): void {
     $link = $this->getSession()->getPage()->findLink($text);
+
     if (!$link) {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
     }
+
     $href = $link->getAttribute('href');
+
     if (parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new \Exception(sprintf('The link "%s" is an absolute link.', $text));
     }
   }
 
   /**
-   * Returns fixed step argument (with \\" replaced back to ").
+   * Click on the link with a title.
+   *
+   * @code
+   * When I click on the link with the title "Return to site content"
+   * @endcode
+   *
+   * @When I click on the link with the title :title
+   */
+  public function linkClickWithTitle(string $title): void {
+    $title = $this->linkFixStepArgument($title);
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
+
+    if (!$element) {
+      throw new \Exception(sprintf('The link with the title "%s" does not exist.', $title));
+    }
+
+    $element->click();
+  }
+
+  /**
+   * Return fixed step argument (with \\" replaced back to ").
    */
   protected function linkFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);

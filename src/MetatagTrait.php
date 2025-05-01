@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Trait MetatagTrait.
+ * Tests HTML meta tags in page markup.
  *
  * Steps to work with Metatag.
  *

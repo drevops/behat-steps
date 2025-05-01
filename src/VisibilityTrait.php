@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait VisibilityTrait.
+ * Tests element visibility on web pages.
  *
  * Visibility-related steps.
  *
@@ -15,6 +15,10 @@ trait VisibilityTrait {
 
   /**
    * Assert that element with specified CSS is visible on page.
+   *
+   * @code
+   * Then the element ".alert-success" should be displayed
+   * @endcode
    *
    * @Then the element :selector should be displayed
    */
@@ -34,7 +38,11 @@ trait VisibilityTrait {
   }
 
   /**
-   * Assert that element with specified CSS is visible on page.
+   * Assert that element with specified CSS is not visible on page.
+   *
+   * @code
+   * Then the element ".error-message" should not be displayed
+   * @endcode
    *
    * @Then the element :selector should not be displayed
    */
@@ -52,6 +60,10 @@ trait VisibilityTrait {
   /**
    * Assert that element with specified CSS is displayed within a viewport.
    *
+   * @code
+   * Then the element ".hero-banner" should be displayed within a viewport
+   * @endcode
+   *
    * @Then the element :selector should be displayed within a viewport
    */
   public function visibilityAssertElementIsVisuallyVisible(string $selector): void {
@@ -65,6 +77,10 @@ trait VisibilityTrait {
   /**
    * Assert that element with specified CSS is displayed within a viewport with a top offset.
    *
+   * @code
+   * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+   * @endcode
+   *
    * @Then the element :selector should be displayed within a viewport with a top offset of :number pixels
    */
   public function visibilityAssertElementIsVisuallyVisibleWithOffset(string $selector, int $number): void {
@@ -76,6 +92,10 @@ trait VisibilityTrait {
 
   /**
    * Assert that element with specified CSS is not displayed within a viewport with a top offset.
+   *
+   * @code
+   * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+   * @endcode
    *
    * @Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
    */
@@ -93,6 +113,10 @@ trait VisibilityTrait {
    * - element is rendered in the layout, but not visible to the viewer (i.e.,
    *   when one of the screen reader-only techniques is used).
    *
+   * @code
+   * Then the element ".visually-hidden" should not be displayed within a viewport
+   * @endcode
+   *
    * @Then the element :selector should not be displayed within a viewport
    */
   public function visibilityAssertElementIsVisuallyHidden(string $selector, int $offset = 0): void {
@@ -102,7 +126,7 @@ trait VisibilityTrait {
   }
 
   /**
-   * Check if an element is displayed withing a viewport using different FE techniques.
+   * Assert that an element is displayed withing a viewport using different FE techniques.
    *
    * @param string $selector
    *   CSS query selector.

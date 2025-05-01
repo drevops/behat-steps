@@ -9,7 +9,7 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 
 /**
- * Trait UserTrait.
+ * Tests Drupal users, authentication, and profiles.
  *
  * User-related steps.
  *

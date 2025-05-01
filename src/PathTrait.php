@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait PathTrait.
+ * Tests URL paths and basic authentication.
  *
  * Path-related assertions.
  *

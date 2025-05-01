@@ -8,8 +8,8 @@ Feature: Check that BlockTrait works
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
-    Then block with label "[TEST] User Account Menu" should exist
-    And block with label "[TEST] User Account Menu" should exist in the region "content"
+    Then I should see the block with label "[TEST] User Account Menu"
+    And I should see the block with label "[TEST] User Account Menu" in the region "content"
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
@@ -20,13 +20,13 @@ Feature: Check that BlockTrait works
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
-    Then the block with label "[TEST] User Account Menu" is enabled
+    Then the block with label "[TEST] User Account Menu" should be enabled
     When I disable the block with label "[TEST] User Account Menu"
-    Then the block with label "[TEST] User Account Menu" is disabled
+    Then the block with label "[TEST] User Account Menu" should be disabled
     When I visit "/"
     Then I should not see "[TEST] User Account Menu"
     When I enable the block with label "[TEST] User Account Menu"
-    Then the block with label "[TEST] User Account Menu" is enabled
+    Then the block with label "[TEST] User Account Menu" should be enabled
     And the cache has been cleared
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
@@ -58,8 +58,8 @@ Feature: Check that BlockTrait works
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
-    Then block with label "[TEST] User Account Menu" should exist in the region "content"
+    Then I should see the block with label "[TEST] User Account Menu" in the region "content"
     When I configure the block with the label "[TEST] User Account Menu" with:
       | region | header |
-    Then block with label "[TEST] User Account Menu" should exist in the region "header"
-    And block with label "[TEST] User Account Menu" should not exist in the region "content"
+    Then I should see the block with label "[TEST] User Account Menu" in the region "header"
+    And I should not see the block with label "[TEST] User Account Menu" in the region "content"

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait ResponseTrait.
+ * Tests HTTP response headers in web requests.
  *
  * Response-related steps.
  *

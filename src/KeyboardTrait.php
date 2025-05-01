@@ -8,21 +8,71 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Trait KeyboardTrait.
+ * Simulates keyboard interactions in browser tests.
  *
  * Behat trait for keyboard interactions.
  */
 trait KeyboardTrait {
 
   /**
-   * Press multiple keyboard keys, optionally on element.
+   * Press a single keyboard key.
+   *
+   * @code
+   * When I press the key "a"
+   * When I press the key "tab"
+   * @endcode
+   *
+   * @When I press the key :key
+   */
+  public function keyboardPressKey(string $key): void {
+    $this->keyboardPressKeyOnElementSingle($key, NULL);
+  }
+
+  /**
+   * Press a single keyboard key on the element.
+   *
+   * @code
+   * When I press the key "a" on the element "#edit-title"
+   * When I press the key "tab" on the element "#edit-title"
+   * @endcode
+   *
+   * @When I press the key :key on the element :selector
+   */
+  public function keyboardPressKeyOnElement(string $key, ?string $selector): void {
+    $this->keyboardPressKeyOnElementSingle($key, $selector);
+  }
+
+  /**
+   * Press multiple keyboard keys.
+   *
+   * @code
+   * When I press the keys "abc"
+   * @endcode
    *
    * @When I press the keys :keys
+   */
+  public function keyboardPressKeys(string $keys): void {
+    $this->keyboardPressKeysOnElement($keys, NULL);
+  }
+
+  /**
+   * Press multiple keyboard keys on the element.
+   *
+   * @code
+   * When I press the keys "abc" on the element "#edit-title"
+   * @endcode
+   *
    * @When I press the keys :keys on the element :selector
    */
-  public function keyboardPressKeysOnElement(string $keys, ?string $selector = NULL): void {
-    foreach (str_split($keys) as $char) {
-      $this->keyboardPressKeyOnElement($char, $selector);
+  public function keyboardPressKeysOnElement(string $keys, ?string $selector): void {
+    $chars = preg_split('//u', $keys, -1, PREG_SPLIT_NO_EMPTY);
+
+    if ($chars === FALSE) {
+      throw new \RuntimeException('Unable to split provided string into characters.');
+    }
+
+    foreach ($chars as $char) {
+      $this->keyboardPressKeyOnElementSingle($char, $selector);
     }
   }
 
@@ -37,11 +87,8 @@ trait KeyboardTrait {
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
-   *
-   * @When I press the key :char
-   * @When I press the key :char on the element :selector
    */
-  public function keyboardPressKeyOnElement(string $char, ?string $selector = NULL): void {
+  public function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
     $driver = $this->getSession()->getDriver();
 
     if (!$driver instanceof Selenium2Driver) {
@@ -126,7 +173,7 @@ trait KeyboardTrait {
   /**
    * Trigger key on the element.
    *
-   * Uses Syn library injected by original Selenium2 class to trigger browser
+   * Use Syn library injected by original Selenium2 class to trigger browser
    * events.
    *
    * @param string $xpath
@@ -147,13 +194,13 @@ trait KeyboardTrait {
     // Use reflection to re-use Syn library injection and execution of JS on
     // element.
     $reflector = new \ReflectionClass($driver);
-    $withSynReflection = $reflector->getMethod('withSyn');
-    $withSynReflection->setAccessible(TRUE);
-    $executeJsOnXpathReflection = $reflector->getMethod('executeJsOnXpath');
-    $executeJsOnXpathReflection->setAccessible(TRUE);
-    $withSynResult = $withSynReflection->invoke($driver);
+    $with_syn_reflection = $reflector->getMethod('withSyn');
+    $with_syn_reflection->setAccessible(TRUE);
+    $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
+    $execute_js_on_xpath_reflection->setAccessible(TRUE);
+    $withSynResult = $with_syn_reflection->invoke($driver);
 
-    $executeJsOnXpathReflection->invokeArgs($withSynResult, [
+    $execute_js_on_xpath_reflection->invokeArgs($withSynResult, [
       $xpath,
       sprintf("syn.key({{ELEMENT}}, '%s');", $key),
     ]);

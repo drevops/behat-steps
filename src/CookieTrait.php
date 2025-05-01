@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait CookieTrait.
+ * Works with browser cookies.
  *
  * Cookie-related steps.
  *
@@ -14,7 +14,7 @@ namespace DrevOps\BehatSteps;
 trait CookieTrait {
 
   /**
-   * Check if a cookie exists.
+   * Assert that a cookie exists.
    *
    * @code
    * Then a cookie with the name "session_id" should exist
@@ -22,12 +22,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name should exist
    */
-  public function cookieWithNameShouldExist(string $name): void {
+  public function cookieAssertWithNameExists(string $name): void {
     static::cookieExists($name);
   }
 
   /**
-   * Check if a cookie exists with a specific value.
+   * Assert that a cookie exists with a specific value.
    *
    * @code
    * Then a cookie with the name "language" and the value "en" should exist
@@ -35,12 +35,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name and the value :value should exist
    */
-  public function cookieWithNameValueShouldExist(string $name, string $value): void {
+  public function cookieAssertWithNameValueExists(string $name, string $value): void {
     static::cookieExists($name, $value);
   }
 
   /**
-   * Check if a cookie exists with a value containing a partial value.
+   * Assert that a cookie exists with a value containing a partial value.
    *
    * @code
    * Then a cookie with the name "preferences" and a value containing "darkmode" should exist
@@ -48,12 +48,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name and a value containing :partial_value should exist
    */
-  public function cookieWithNamePartialValueShouldExist(string $name, string $partial_value): void {
+  public function cookieAssertWithNamePartialValueExists(string $name, string $partial_value): void {
     static::cookieExists($name, $partial_value, FALSE, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name exists.
+   * Assert that a cookie with a partial name exists.
    *
    * @code
    * Then a cookie with a name containing "session" should exist
@@ -61,12 +61,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name should exist
    */
-  public function cookieWithPartialNameShouldExist(string $partial_name): void {
+  public function cookieAssertWithPartialNameExists(string $partial_name): void {
     static::cookieExists($partial_name, NULL, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name and value exists.
+   * Assert that a cookie with a partial name and value exists.
    *
    * @code
    * Then a cookie with a name containing "user" and the value "admin" should exist
@@ -74,12 +74,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name and the value :value should exist
    */
-  public function cookieWithPartialNameValueShouldExist(string $partial_name, string $value): void {
+  public function cookieAssertWithPartialNameValueExists(string $partial_name, string $value): void {
     static::cookieExists($partial_name, $value, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name and partial value exists.
+   * Assert that a cookie with a partial name and partial value exists.
    *
    * @code
    * Then a cookie with a name containing "user" and a value containing "admin" should exist
@@ -87,12 +87,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
    */
-  public function cookieWithPartialNamePartialValueShouldExist(string $partial_name, string $partial_value): void {
+  public function cookieAssertWithPartialNamePartialValueExists(string $partial_name, string $partial_value): void {
     static::cookieExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
   /**
-   * Check if a cookie does not exist.
+   * Assert that a cookie does not exist.
    *
    * @code
    * Then a cookie with name "old_session" should not exist
@@ -100,12 +100,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name should not exist
    */
-  public function cookieWithNameShouldNotExist(string $name): void {
+  public function cookieAssertWithNameNotExists(string $name): void {
     static::cookieNotExists($name);
   }
 
   /**
-   * Check if a cookie with a specific value does not exist.
+   * Assert that a cookie with a specific value does not exist.
    *
    * @code
    * Then a cookie with the name "language" and the value "fr" should not exist
@@ -113,12 +113,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name and the value :value should not exist
    */
-  public function cookieWithNameValueShouldNotExist(string $name, string $value): void {
+  public function cookieAssertWithNameValueNotExists(string $name, string $value): void {
     static::cookieNotExists($name, $value);
   }
 
   /**
-   * Check if a cookie with a value containing a partial value does not exist.
+   * Assert that a cookie with a value containing a partial value does not exist.
    *
    * @code
    * Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
@@ -126,12 +126,12 @@ trait CookieTrait {
    *
    * @Then a cookie with the name :name and a value containing :partial_value should not exist
    */
-  public function cookieWithNamePartialValueShouldNotExist(string $name, string $partial_value): void {
+  public function cookieAssertWithNamePartialValueNotExists(string $name, string $partial_value): void {
     static::cookieNotExists($name, $partial_value, FALSE, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name does not exist.
+   * Assert that a cookie with a partial name does not exist.
    *
    * @code
    * Then a cookie with a name containing "old" should not exist
@@ -139,12 +139,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name should not exist
    */
-  public function cookieWithPartialNameShouldNotExist(string $partial_name): void {
+  public function cookieAssertWithPartialNameNotExists(string $partial_name): void {
     static::cookieNotExists($partial_name, NULL, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name and value does not exist.
+   * Assert that a cookie with a partial name and value does not exist.
    *
    * @code
    * Then a cookie with a name containing "user" and the value "guest" should not exist
@@ -152,12 +152,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name and the value :value should not exist
    */
-  public function cookieWithPartialNameValueShouldNotExist(string $partial_name, string $value): void {
+  public function cookieAssertWithPartialNameValueNotExists(string $partial_name, string $value): void {
     static::cookieNotExists($partial_name, $value, TRUE);
   }
 
   /**
-   * Check if a cookie with a partial name and partial value does not exist.
+   * Assert that a cookie with a partial name and partial value does not exist.
    *
    * @code
    * Then a cookie with a name containing "user" and a value containing "guest" should not exist
@@ -165,12 +165,12 @@ trait CookieTrait {
    *
    * @Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
    */
-  public function cookieWithPartialNamePartialValueShouldNotExist(string $partial_name, string $partial_value): void {
+  public function cookieAssertWithPartialNamePartialValueNotExists(string $partial_name, string $partial_value): void {
     static::cookieNotExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
   /**
-   * Check if a cookie exists.
+   * Assert that a cookie exists.
    */
   protected function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);
@@ -202,7 +202,7 @@ trait CookieTrait {
   }
 
   /**
-   * Check if a cookie does not exist.
+   * Assert that a cookie does not exist.
    */
   protected function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);

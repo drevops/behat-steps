@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait SelectTrait.
+ * Tests HTML select elements and their options.
  *
  * Steps to work with HTML select element.
  *
@@ -16,9 +16,13 @@ trait SelectTrait {
   /**
    * Assert that a select has an option.
    *
+   * @code
+   * Then the option "Administrator" should exist within the select element "edit-roles"
+   * @endcode
+   *
    * @Then the option :option should exist within the select element :selector
    */
-  public function selectShouldHaveOption(string $select, string $option): void {
+  public function selectAssertOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
     if (is_null($selectElement)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $select));
@@ -33,9 +37,13 @@ trait SelectTrait {
   /**
    * Assert that a select does not have an option.
    *
+   * @code
+   * Then the option "Guest" should not exist within the select element "edit-roles"
+   * @endcode
+   *
    * @Then the option :option should not exist within the select element :selector
    */
-  public function selectShouldNotHaveOption(string $select, string $option): void {
+  public function selectAssertNoOption(string $select, string $option): void {
     $selectElement = $this->getSession()->getPage()->findField($select);
     if (is_null($selectElement)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $select));
@@ -50,9 +58,13 @@ trait SelectTrait {
   /**
    * Assert that a select option is selected.
    *
+   * @code
+   * Then the option "Administrator" should be selected within the select element "edit-roles"
+   * @endcode
+   *
    * @Then the option :option should be selected within the select element :selector
    */
-  public function selectOptionSelected(string $value, string $select): void {
+  public function selectAssertOptionSelected(string $value, string $select): void {
     $selectField = $this->getSession()->getPage()->findField($select);
     $currentUrl = $this->getSession()->getCurrentUrl();
     $path = parse_url((string) $currentUrl, PHP_URL_PATH);
@@ -78,9 +90,13 @@ trait SelectTrait {
   /**
    * Assert that a select option is not selected.
    *
+   * @code
+   * Then the option "Editor" should not be selected within the select element "edit-roles"
+   * @endcode
+   *
    * @Then the option :option should not be selected within the select element :selector
    */
-  public function selectOptionNotSelected(string $value, string $select): void {
+  public function selectAssertOptionNotSelected(string $value, string $select): void {
     $selectField = $this->getSession()->getPage()->findField($select);
     $currentUrl = $this->getSession()->getCurrentUrl();
     $path = parse_url((string) $currentUrl, PHP_URL_PATH);

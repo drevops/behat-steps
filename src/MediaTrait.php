@@ -10,7 +10,7 @@ use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
 /**
- * Trait MediaTrait.
+ * Creates and tests Drupal media entities.
  *
  * Trait to handle media entities.
  */
@@ -29,7 +29,6 @@ trait MediaTrait {
    * @AfterScenario
    */
   public function mediaClean(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -44,7 +43,7 @@ trait MediaTrait {
    * Remove media type.
    *
    * @code
-   * @Given "video" media type does not exist
+   * Given "video" media type does not exist
    * @endcode
    *
    * @Given :media_type media type does not exist
@@ -57,7 +56,7 @@ trait MediaTrait {
   }
 
   /**
-   * Creates media of a given type.
+   * Create media of a given type.
    *
    * @code
    * Given "video" media:
@@ -117,7 +116,7 @@ trait MediaTrait {
 
     $mid = current($mids);
     $path = $this->locatePath('/media/' . $mid) . '/edit';
-    print $path;
+
     $this->getSession()->visit($path);
   }
 
