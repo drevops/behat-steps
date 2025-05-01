@@ -1,0 +1,29 @@
+uuid: 4f07d462-bf67-4175-a11e-e927c3fb52ef
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.test_entity_type.test_bundle
+    - field.storage.test_entity_type.field_test_reference
+    - taxonomy.vocabulary.tags
+id: test_entity_type.test_bundle.field_test_reference
+field_name: field_test_reference
+entity_type: test_entity_type
+bundle: test_bundle
+label: 'test reference'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      tags: tags
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

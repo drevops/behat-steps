@@ -1,0 +1,8 @@
+mysite_core.basic_auth_test:
+  path: '/mysite_core/test-basic-auth'
+  options:
+    _auth: [ 'basic_auth' ]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testCurrentUser'
