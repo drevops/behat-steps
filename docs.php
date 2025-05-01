@@ -60,6 +60,8 @@ function extract_info(string $class_name, array $exclude = []): array {
 
   $traits = $reflection->getTraits();
 
+  sort($traits);
+
   $result = [];
   foreach ($traits as $trait) {
     $trait_name = $trait->getShortName();
