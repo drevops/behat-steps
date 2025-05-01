@@ -305,10 +305,10 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "[TEST] User Menu" should exist in the region "sidebar_first"
+   *   Then the block "[TEST] User Menu" should exist in the "sidebar_first" region
    * @endcode
    *
-   * @Then the block :label should exist in the region :region
+   * @Then the block :label should exist in the :region region
    *
    * @throws \Exception
    *   When no block with the specified label is found in the given region.
