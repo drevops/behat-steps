@@ -2,19 +2,19 @@
 
 - [BlockTrait](#blocktrait)
 
-- [BlockContentTrait](#blockcontenttrait)
-
-- [CookieTrait](#cookietrait)
+- [ContentBlockTrait](#contentblocktrait)
 
 - [ContentTrait](#contenttrait)
 
-- [EckTrait](#ecktrait)
+- [CookieTrait](#cookietrait)
 
 - [DraggableviewsTrait](#draggableviewstrait)
 
-- [EmailTrait](#emailtrait)
+- [EckTrait](#ecktrait)
 
 - [ElementTrait](#elementtrait)
+
+- [EmailTrait](#emailtrait)
 
 - [FieldTrait](#fieldtrait)
 
@@ -38,9 +38,9 @@
 
 - [RoleTrait](#roletrait)
 
-- [SelectTrait](#selecttrait)
-
 - [SearchApiTrait](#searchapitrait)
+
+- [SelectTrait](#selecttrait)
 
 - [TaxonomyTrait](#taxonomytrait)
 
@@ -206,57 +206,141 @@ Example:
   Then the block with label "[TEST] Navigation Block" is enabled
 ```
 
-### BlockContentTrait
+### ContentBlockTrait
 
-[Source](src/BlockContentTrait.php), [Example](tests/behat/features/block_content.feature)
+[Source](src/ContentBlockTrait.php), [Example](tests/behat/features/content_block.feature)
 
-#### Verifies that a custom block type exists
+#### Removes content blocks of a specified type with the given descriptions
 
 ```gherkin
-@Given the custom block type ":type" exists
+@Given the following :type content blocks do not exist:
 ```
 Example:
 
 ```gherkin
-Given the custom block type "Search" exists
-```
-
-#### Removes custom blocks of a specified type with the given descriptions
-
-```gherkin
-@Given the following ":type" custom blocks do not exist:
-```
-Example:
-
-```gherkin
-Given the following "basic" custom blocks do not exist:
+Given the following "basic" content blocks do not exist:
 | [TEST] Footer Block  |
 | [TEST] Contact Form  |
 ```
 
-#### Creates custom blocks of the specified type with the given field values
+#### Creates content blocks of the specified type with the given field values
 
 ```gherkin
-@Given the following ":type" custom blocks exist:
+@Given the following :type content blocks exist:
 ```
 Example:
 
 ```gherkin
-  Given the following "basic" custom blocks exist:
+  Given the following "basic" content blocks exist:
   | info                  | status | body                   | created           |
   | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
 ```
 
-#### Navigates to the edit page for a specified custom block
+#### Navigates to the edit page for a specified content block
 
 ```gherkin
-@When I edit the ":type" custom block with description ":description"
+@When I edit the :type content block with the description :description
 ```
 Example:
 
 ```gherkin
-When I edit the "basic" custom block with description "[TEST] Footer Block"
+When I edit the "basic" content block with the description "[TEST] Footer Block"
+```
+
+#### Verifies that a content block type exists
+
+```gherkin
+@Then the content block type :type should exist
+```
+Example:
+
+```gherkin
+Then the content block type "Search" should exist
+```
+
+### ContentTrait
+
+[Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
+
+#### Delete content type
+
+```gherkin
+@Given the content type :content_type does not exist
+```
+Example:
+
+```gherkin
+Given the content type "article" does not exist
+```
+
+#### Remove content defined by provided properties
+
+```gherkin
+@Given the following :content_type content does not exist:
+```
+Example:
+
+```gherkin
+Given the following "article" content does not exist:
+  | title                |
+  | Test article         |
+  | Another test article |
+```
+
+#### Visit a page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content page with the title :title
+```
+Example:
+
+```gherkin
+When I visit the "article" content page with the title "Test article"
+```
+
+#### Visit an edit page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content edit page with the title :title
+```
+Example:
+
+```gherkin
+When I visit the "article" content edit page with the title "Test article"
+```
+
+#### Visit a delete page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content delete page with the title :title
+```
+Example:
+
+```gherkin
+When I visit the "article" content delete page with the title "Test article"
+```
+
+#### Visit a scheduled transitions page of a type with a specified title
+
+```gherkin
+@When I visit the :content_type content scheduled transitions page with the title :title
+```
+Example:
+
+```gherkin
+When I visit the "article" content scheduled transitions page with the title "Test article"
+```
+
+#### Change moderation state of a content with the specified title
+
+```gherkin
+@When I change the moderation state of the :content_type content with the title :title to the :new_state state
+```
+Example:
+
+```gherkin
+When I change the moderation state of the "article" content with the title "Test article" to the "published" state
 ```
 
 ### CookieTrait
@@ -395,88 +479,22 @@ Example:
 Then a cookie with a name containing "user" and a value containing "guest" should not exist
 ```
 
-### ContentTrait
+### DraggableviewsTrait
 
-[Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
+[Source](src/DraggableviewsTrait.php), [Example](tests/behat/features/draggableviews.feature)
 
-#### Delete content type
+#### Save order of the Draggable Order items
 
 ```gherkin
-@Given the content type :content_type does not exist
+@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
 ```
 Example:
 
 ```gherkin
-Given the content type "article" does not exist
-```
-
-#### Remove content defined by provided properties
-
-```gherkin
-@Given the following :content_type content does not exist:
-```
-Example:
-
-```gherkin
-Given the following "article" content does not exist:
-  | title                |
-  | Test article         |
-  | Another test article |
-```
-
-#### Visit a page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content page with the title :title
-```
-Example:
-
-```gherkin
-When I visit the "article" content page with the title "Test article"
-```
-
-#### Visit an edit page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content edit page with the title :title
-```
-Example:
-
-```gherkin
-When I visit the "article" content edit page with the title "Test article"
-```
-
-#### Visit a delete page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content delete page with the title :title
-```
-Example:
-
-```gherkin
-When I visit the "article" content delete page with the title "Test article"
-```
-
-#### Visit a scheduled transitions page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content scheduled transitions page with the title :title
-```
-Example:
-
-```gherkin
-When I visit the "article" content scheduled transitions page with the title "Test article"
-```
-
-#### Change moderation state of a content with the specified title
-
-```gherkin
-@When I change the moderation state of the :content_type content with the title :title to the :new_state state
-```
-Example:
-
-```gherkin
-When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
+  | First Article  |
+  | Second Article |
+  | Third Article  |
 ```
 
 ### EckTrait
@@ -530,22 +548,118 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 @When I edit eck :bundle :entity_type entity with the title :title
 ```
 
-### DraggableviewsTrait
+### ElementTrait
 
-[Source](src/DraggableviewsTrait.php), [Example](tests/behat/features/draggableviews.feature)
+[Source](src/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
-#### Save order of the Draggable Order items
+#### Accept confirmation dialogs appearing on the page
 
 ```gherkin
-@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
+@Given I accept all confirmation dialogs
 ```
 Example:
 
 ```gherkin
-When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
-  | First Article  |
-  | Second Article |
-  | Third Article  |
+Given I accept all confirmation dialogs
+```
+
+#### Do not accept confirmation dialogs appearing on the page
+
+```gherkin
+@Given I do not accept any confirmation dialogs
+```
+Example:
+
+```gherkin
+Given I do not accept any confirmation dialogs
+```
+
+#### Click on the element defined by the selector
+
+```gherkin
+@When I click on the element :selector
+```
+Example:
+
+```gherkin
+When I click on the element ".button"
+```
+
+#### When I trigger the JS event :event on the element :selector
+
+```gherkin
+@When I trigger the JS event :event on the element :selector
+```
+Example:
+
+```gherkin
+When I trigger the JS event "click" on the element "#submit-button"
+```
+
+#### Scroll to an element with ID
+
+```gherkin
+@When I scroll to the element :selector
+```
+Example:
+
+```gherkin
+When I scroll to the element "#footer"
+```
+
+#### Assert an element with selector and attribute with a value exists
+
+```gherkin
+@Then the element :selector with the attribute :attribute and the value :value should exist
+```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
+```
+
+#### Assert an element with selector and attribute containing a value exists
+
+```gherkin
+@Then the element :selector with the attribute :attribute and the value containing :value should exist
+```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
+```
+
+#### Assert an element with selector and attribute with a value exists
+
+```gherkin
+@Then the element :selector with the attribute :attribute and the value :value should not exist
+```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
+```
+
+#### Assert an element with selector and attribute containing a value does not exist
+
+```gherkin
+@Then the element :selector with the attribute :attribute and the value containing :value should not exist
+```
+Example:
+
+```gherkin
+Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
+```
+
+#### Assert the element :selector should be at the top of the viewport
+
+```gherkin
+@Then the element :selector should be at the top of the viewport
+```
+Example:
+
+```gherkin
+Then the element "#header" should be at the top of the viewport
 ```
 
 ### EmailTrait
@@ -815,120 +929,6 @@ Example:
 
 ```gherkin
 Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
-```
-
-### ElementTrait
-
-[Source](src/ElementTrait.php), [Example](tests/behat/features/element.feature)
-
-#### Accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I accept all confirmation dialogs
-```
-Example:
-
-```gherkin
-Given I accept all confirmation dialogs
-```
-
-#### Do not accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I do not accept any confirmation dialogs
-```
-Example:
-
-```gherkin
-Given I do not accept any confirmation dialogs
-```
-
-#### Click on the element defined by the selector
-
-```gherkin
-@When I click on the element :selector
-```
-Example:
-
-```gherkin
-When I click on the element ".button"
-```
-
-#### When I trigger the JS event :event on the element :selector
-
-```gherkin
-@When I trigger the JS event :event on the element :selector
-```
-Example:
-
-```gherkin
-When I trigger the JS event "click" on the element "#submit-button"
-```
-
-#### Scroll to an element with ID
-
-```gherkin
-@When I scroll to the element :selector
-```
-Example:
-
-```gherkin
-When I scroll to the element "#footer"
-```
-
-#### Assert an element with selector and attribute with a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value :value should exist
-```
-Example:
-
-```gherkin
-Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
-```
-
-#### Assert an element with selector and attribute containing a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value containing :value should exist
-```
-Example:
-
-```gherkin
-Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
-```
-
-#### Assert an element with selector and attribute with a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value :value should not exist
-```
-Example:
-
-```gherkin
-Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
-```
-
-#### Assert an element with selector and attribute containing a value does not exist
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value containing :value should not exist
-```
-Example:
-
-```gherkin
-Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
-```
-
-#### Assert the element :selector should be at the top of the viewport
-
-```gherkin
-@Then the element :selector should be at the top of the viewport
-```
-Example:
-
-```gherkin
-Then the element "#header" should be at the top of the viewport
 ```
 
 ### FieldTrait
@@ -1425,6 +1425,22 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 @Given the following roles:
 ```
 
+### SearchApiTrait
+
+[Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
+
+#### Index a node of a specific content type with a specific title
+
+```gherkin
+@When I add the :content_type content with the title :title to the search index
+```
+
+#### Run indexing for a specific number of items
+
+```gherkin
+@When I run search indexing for :count item(s)
+```
+
 ### SelectTrait
 
 [Source](src/SelectTrait.php), [Example](tests/behat/features/select.feature)
@@ -1451,22 +1467,6 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 
 ```gherkin
 @Then the option :option should not be selected within the select element :selector
-```
-
-### SearchApiTrait
-
-[Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
-
-#### Index a node of a specific content type with a specific title
-
-```gherkin
-@When I add the :content_type content with the title :title to the search index
-```
-
-#### Run indexing for a specific number of items
-
-```gherkin
-@When I run search indexing for :count item(s)
 ```
 
 ### TaxonomyTrait

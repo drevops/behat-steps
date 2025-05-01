@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 use DrevOps\BehatSteps\BigPipeTrait;
 use DrevOps\BehatSteps\BlockTrait;
-use DrevOps\BehatSteps\BlockContentTrait;
+use DrevOps\BehatSteps\ContentBlockTrait;
 use DrevOps\BehatSteps\ContentTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
@@ -47,36 +47,36 @@ class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
   use BlockTrait;
-  use BlockContentTrait;
-  use CookieTrait;
+  use ContentBlockTrait;
   use ContentTrait;
   use CookieTrait;
-  use EckTrait;
+  use CookieTrait;
   use DateTrait;
   use DraggableviewsTrait;
-  use EmailTrait;
+  use EckTrait;
   use ElementTrait;
+  use EmailTrait;
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
   use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
-  use MetatagTrait;
   use MenuTrait;
+  use MetatagTrait;
   use OverrideTrait;
   use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
   use RoleTrait;
-  use SelectTrait;
   use SearchApiTrait;
+  use SelectTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
   use VisibilityTrait;
-  use WatchdogTrait;
   use WaitTrait;
+  use WatchdogTrait;
 
   use FeatureContextTrait;
 
