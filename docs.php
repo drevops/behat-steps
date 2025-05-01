@@ -3,6 +3,17 @@
 /**
  * @file
  * Documentation generator.
+ *
+ * This script generates the documentation for the steps in the Behat
+ * features.
+ *
+ * It parses the docblock comments of the classes and methods in the
+ * src directory and generates steps.md file.
+ *
+ * It also validates the steps and checks if they are in the correct
+ * format.
+ *
+ * Run with --fail-on-change to fail if the documentation is not up to date.
  */
 
 declare(strict_types=1);
@@ -13,9 +24,17 @@ require_once __DIR__ . '/tests/behat/bootstrap/FeatureContext.php';
 
 $info = extract_info(FeatureContext::class, [FeatureContextTrait::class]);
 
-print_report($info);
+$errors = validate($info);
 
-$markdown = PHP_EOL . info_to_content($info) . PHP_EOL;
+if (!empty($errors)) {
+  echo 'Errors found:' . PHP_EOL;
+  foreach ($errors as $error) {
+    echo $error;
+  }
+  exit(1);
+}
+
+$markdown = PHP_EOL . render_info($info) . PHP_EOL;
 
 $readme_file = 'steps.md';
 $readme = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $readme_file);
@@ -59,8 +78,10 @@ function extract_info(string $class_name, array $exclude = []): array {
   $reflection = new ReflectionClass($class_name);
 
   $traits = $reflection->getTraits();
-
-  sort($traits);
+  usort(
+    $traits,
+    static fn(\ReflectionClass $a, \ReflectionClass $b): int => strcasecmp($a->getShortName(), $b->getShortName())
+  );
 
   $result = [];
   foreach ($traits as $trait) {
@@ -75,6 +96,29 @@ function extract_info(string $class_name, array $exclude = []): array {
     $methods = $trait->getMethods(ReflectionMethod::IS_PUBLIC);
 
     $info = [];
+
+    $class_description = $trait->getDocComment();
+    if (empty($class_description)) {
+      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    }
+    $clean = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $class_description);
+    $lines = array_values(
+      array_filter(
+        array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $clean))
+      )
+    );
+    if (empty($lines)) {
+      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    }
+    $class_description = trim($lines[0]);
+
+    if (empty($class_description)) {
+      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    }
+    if (str_starts_with($class_description, 'Trait ')) {
+      throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
+    }
+
     foreach ($methods as $method) {
       if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
         continue;
@@ -85,7 +129,11 @@ function extract_info(string $class_name, array $exclude = []): array {
       if ($comment) {
         $parsed = parse_method_comment($comment);
         if ($parsed) {
-          $info[] = $parsed + ['name' => $method->getName()];
+          $info[] = $parsed + [
+            'name' => $method->getName(),
+            'class_description' => $class_description,
+            'class_name' => $trait_name,
+          ];
         }
       }
     }
@@ -194,6 +242,27 @@ function parse_method_comment(string $comment): ?array {
     $return['steps'] = $sorted;
 
     $return['description'] = trim($return['description']);
+
+    if (!empty($return['example'])) {
+      // Remove indentation from the example, using the first line as a
+      // reference.
+      $lines = explode(PHP_EOL, $return['example']);
+      $first_line = '';
+      foreach ($lines as $l) {
+        if ($l !== '') {
+          $first_line = $l;
+          break;
+        }
+      }
+      $indentation = strspn($first_line, ' ');
+      foreach ($lines as $key => $line) {
+        $line = rtrim($line);
+        if (strlen($line) > $indentation) {
+          $lines[$key] = substr($line, $indentation);
+        }
+      }
+      $return['example'] = implode(PHP_EOL, $lines);
+    }
   }
 
   return empty($return['steps']) ? NULL : $return;
@@ -208,10 +277,10 @@ function parse_method_comment(string $comment): ?array {
  * @return string
  *   Markdown table.
  */
-function info_to_content(array $info): string {
+function render_info(array $info): string {
   $output = '';
 
-  $index_output = '';
+  $index_rows = [];
 
   foreach ($info as $trait => $methods) {
     $src_file = sprintf('src/%s.php', $trait);
@@ -227,83 +296,123 @@ function info_to_content(array $info): string {
       throw new \Exception(sprintf('Example file %s does not exist', $example_file));
     }
 
-    $output .= sprintf('### %s', $trait) . PHP_EOL . PHP_EOL;
+    // Section header.
+    $output .= sprintf('## %s', $trait) . PHP_EOL . PHP_EOL;
     $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
-    $index_output .= sprintf('- [%s](#%s)' . PHP_EOL, $trait, strtolower($trait)) . PHP_EOL;
-
     foreach ($methods as $method) {
+      $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+      $class_description = is_string($method['class_description']) ? $method['class_description'] : '';
+      $index_rows[$class_name] = [
+        sprintf('[%s](#%s)', $class_name, strtolower($class_name)),
+        $class_description,
+      ];
+
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
-      $steps = array_reduce($method['steps'], function (string $carry, $item): string {
-        return $carry . sprintf("```gherkin\n%s\n```\n", $item);
+      $method['steps'] = array_reduce($method['steps'], function (string $carry, $item): string {
+        return $carry . sprintf("%s\n", $item);
       }, '');
+      $method['steps'] = rtrim($method['steps'], "\n");
 
-      $steps = rtrim($steps, "\n");
+      $method['description'] = rtrim($method['description'], '.');
 
-      $description = rtrim($method['description'], '.');
+      $template = <<<EOT
+<details>
+  <summary><code>[step]</code></summary>
 
-      $output .= '#### ' . $description . PHP_EOL . PHP_EOL;
-      $output .= $steps . PHP_EOL;
+```gherkin
+[example]
+```
+</details>
 
-      if (!empty($method['example'])) {
-        $example = sprintf("```gherkin\n%s```", $method['example']);
-        $output .= 'Example:' . PHP_EOL . PHP_EOL;
-        $output .= $example . PHP_EOL;
-      }
+EOT;
+
+      $output .= strtr(
+        $template,
+        [
+          '[description]' => $method['description'],
+          '[step]' => $method['steps'],
+          '[example]' => $method['example'],
+        ]
+      );
 
       $output .= PHP_EOL;
     }
   }
 
+  $index_output = array_to_markdown_table(['Class', 'Description'], $index_rows);
+
   return $index_output . PHP_EOL . $output;
 }
 
 /**
- * Print report.
+ * Validate the info.
  *
  * @param array<string, array<int, array<string, array<int, string>|string>>> $info
  *   Array of info items with 'name', 'from', and 'to' keys.
+ *
+ * @return array<string>
+ *   Array of errors.
  */
-function print_report(array $info): void {
-  printf('Report:' . PHP_EOL);
-
-  foreach ($info as $trait => $methods) {
+function validate(array $info): array {
+  $errors = [];
+  foreach ($info as $methods) {
     foreach ($methods as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['name'] = is_string($method['name']) ? $method['name'] : '';
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
+      if (count($method['steps']) > 1) {
+        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Multiple steps found');
+      }
+
       $step = (string) $method['steps'][0];
 
       if (str_starts_with($step, '@Given') && str_ends_with($step, ':') && !str_contains($step, 'following')) {
-        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "following" in the step');
+        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
       }
 
       if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
-        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "I " in the step');
+        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "I " in the step');
       }
 
-      if (str_starts_with($step, '@Then') && !str_contains($method['name'], 'Assert')) {
-        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "Assert" in the method name');
-      }
+      if (str_starts_with($step, '@Then')) {
+        if (!str_contains($method['name'], 'Assert')) {
+          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "Assert" in the method name');
+        }
 
-      if (str_starts_with($step, '@Then') && !str_contains($step, 'should')) {
-        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "should" in the step');
-      }
+        if (str_contains($method['name'], 'Should')) {
+          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should" but should not.');
+        }
 
-      if (str_starts_with($step, '@Then') && !str_contains($step, 'the')) {
-        printf('  %s::%s - %s' . PHP_EOL, $trait, $method['name'], 'Missing "the" in the step');
+        if (!str_contains($step, ' should ')) {
+          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "should" in the step');
+        }
+
+        if (!(str_contains($step, ' the ') || str_contains($step, ' a ') || str_contains($step, ' no '))) {
+          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the", "a" or "no" in the step');
+        }
       }
 
       if (empty($method['example'])) {
-        printf('  %s::%s - Missing example' . PHP_EOL, $trait, $method['name']);
+        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        $errors[] = sprintf('  %s::%s - Missing example' . PHP_EOL, $class_name, $method['name']);
       }
     }
   }
+
+  return $errors;
 }
 
 /**
@@ -366,4 +475,29 @@ function replace_content(string $haystack, string $start, string $end, string $r
   $replacement = $start . PHP_EOL . $replacement . PHP_EOL . $end;
 
   return (string) preg_replace($pattern, $replacement, $haystack);
+}
+
+/**
+ * Convert an array to a markdown table.
+ *
+ * @param array<int, string> $headers
+ *   The headers for the table.
+ * @param array<string, array<int, string>> $rows
+ *   The rows for the table.
+ *
+ * @return string
+ *   The markdown table.
+ */
+function array_to_markdown_table(array $headers, array $rows): string {
+  if (empty($headers) || empty($rows)) {
+    return '';
+  }
+
+  $header_row = '| ' . implode(' | ', $headers) . ' |';
+  $separator_row = '| ' . implode(' | ', array_fill(0, count($headers), '---')) . ' |';
+  $data_rows = array_map(function ($row): string {
+    return '| ' . implode(' | ', $row) . ' |';
+  }, $rows);
+
+  return implode("\n", array_merge([$header_row, $separator_row], $data_rows));
 }

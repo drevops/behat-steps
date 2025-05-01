@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\user\Entity\Role;
 
 /**
- * Trait RoleTrait.
+ * Creates and manages Drupal user roles.
  *
  * Role-related steps.
  *
@@ -18,6 +18,10 @@ trait RoleTrait {
 
   /**
    * Create a single role with specified permissions.
+   *
+   * @code
+   * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+   * @endcode
    *
    * @Given the role :role_name with the permissions :permissions
    */
@@ -49,6 +53,13 @@ trait RoleTrait {
 
   /**
    * Create multiple roles from the specified table.
+   *
+   * @code
+   * Given the following roles:
+   * | name              | permissions                                         |
+   * | Content Editor   | access content, create article content              |
+   * | Content Approver | access content, edit any article content            |
+   * @endcode
    *
    * @Given the following roles:
    */

@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
- * Trait TaxonomyTrait.
+ * Tests Drupal taxonomy terms and vocabularies.
  *
  * Taxonomy term-related steps.
  *
@@ -213,7 +213,6 @@ trait TaxonomyTrait {
     $tid = end($tids);
 
     $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
-    print $path;
 
     $this->getSession()->visit($path);
   }

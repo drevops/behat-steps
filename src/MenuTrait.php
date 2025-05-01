@@ -11,7 +11,7 @@ use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
 
 /**
- * Trait MenuTrait.
+ * Creates and manages Drupal menus and menu items.
  *
  * Menu-related steps.
  *
@@ -39,6 +39,10 @@ trait MenuTrait {
    * @param string $menu_name
    *   The label of the menu to remove.
    *
+   * @code
+   *   Given the menu "Test Menu" does not exist
+   * @endcode
+   *
    * @Given the menu :menu_name does not exist
    */
   public function menuDeleteSingle(string $menu_name): void {
@@ -56,6 +60,13 @@ trait MenuTrait {
    * | label        | description     |
    * | Fish Menu    | Menu of fish    |
    * | ...          | ...             |
+   *
+   * @code
+   * Given the following menus:
+   * | label            | description                    |
+   * | Footer Menu     | Links displayed in the footer  |
+   * | Secondary Menu  | Secondary navigation menu      |
+   * @endcode
    *
    * @Given the following menus:
    */
@@ -83,6 +94,12 @@ trait MenuTrait {
    * | Test Menu    |
    * | ...          |
    *
+   * @code
+   * Given the following menu links do not exist in the menu "Main navigation":
+   * | About Us     |
+   * | Contact      |
+   * @endcode
+   *
    * @Given the following menu links do not exist in the menu :menu_name:
    */
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
@@ -97,12 +114,12 @@ trait MenuTrait {
   /**
    * Create menu links.
    *
-   * Provide menu link data in the following format:
-   *
-   * | title         | enabled | uri                     | parent             |
-   * | Parent Link   | 1       | https://www.example.com |                    |
-   * | Child Link    | 1       | https://www.example.com | Parent Link        |
-   * | ...           | ...     | ...                     | ...                |
+   * @code
+   * Given the following menu links exist in the menu "Main navigation":
+   * | title           | enabled | uri                     | parent       |
+   * | Products        | 1       | /products               |              |
+   * | Latest Products | 1       | /products/latest        | Products     |
+   * @endcode
    *
    * @Given the following menu links exist in the menu :menu_name :
    */
@@ -138,7 +155,6 @@ trait MenuTrait {
    * @AfterScenario
    */
   public function menuCleanAll(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -155,7 +171,7 @@ trait MenuTrait {
   }
 
   /**
-   * Gets a menu by label.
+   * Get a menu by label.
    *
    * @param string $label
    *   The label of the menu.
@@ -181,7 +197,7 @@ trait MenuTrait {
   }
 
   /**
-   * Gets a menu link by title and menu name.
+   * Get a menu link by title and menu name.
    *
    * @param string $title
    *   The title of the menu link.

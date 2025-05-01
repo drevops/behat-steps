@@ -10,7 +10,7 @@ use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
 
 /**
- * Trait ContentTrait.
+ * Works with Drupal content entities.
  *
  * Content-related steps.
  *

@@ -61,7 +61,7 @@ Feature: Check that EmailTrait works
       """
     Then an email should be sent to the "test@example.com"
     And an email should be sent to the "test@example.com"
-    And no emails should be sent to the "test3@example.com"
+    And no emails should have been sent to the "test3@example.com"
     And the email header "Content-Type" should contain:
       """
       text/plain
@@ -159,8 +159,7 @@ Feature: Check that EmailTrait works
       """
 
   @api @email
-  Scenario: As a developer, I want to know that test email system is activated
-  as before and after scenario steps.
+  Scenario: As a developer, I want to know that test email system is activated as before and after scenario steps.
     Given I send test email to "test@example.com" with
       """
       Line one of the test email content
@@ -178,10 +177,9 @@ Feature: Check that EmailTrait works
       """
 
   @api @email
-  Scenario: As a developer, I want to know that test email system queue clearing
-  step is working.
+  Scenario: As a developer, I want to know that test email system queue clearing step is working.
     Given I enable the test email system
-    Given I send test email to "test@example.com" with
+    And I send test email to "test@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -240,7 +238,7 @@ Feature: Check that EmailTrait works
 
   @api @email
   Scenario: As a developer, I want to know that no emails assertions works as expected.
-    Given no emails should be sent
+    Given no emails should have been sent
     When I send test email to "test@example.com" with
       """
       Line one of the test email content
@@ -250,12 +248,12 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the "test@example.com"
 
     When I clear the test email system queue
-    Then no emails should be sent
+    Then no emails should have been sent
 
   @api @email
   Scenario: As a developer, I want to manually enable the test email system and verify it works
-    Given no emails should be sent
-    When I enable the test email system
+    Given no emails should have been sent
+    And I enable the test email system
     And I send test email to "test@example.com" with
       """
       Test email content line one
@@ -282,7 +280,7 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
     When I disable the test email system
-    Then no emails should be sent
+    Then no emails should have been sent
 
   @api @email
   Scenario: As a developer, I want to verify that an email contains an attachment
@@ -317,5 +315,5 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email that should be sent to "test@example.com" retrieved from test record collector.
+      Unable to find email that should be sent to "test@example.com" retrieved from test message collector.
       """

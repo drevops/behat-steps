@@ -11,39 +11,39 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
 
 /**
- * Big Pipe trait.
+ * Handles Drupal's BigPipe progressive rendering.
  *
  * Behat trait for handling BigPipe functionality.
  */
 trait BigPipeTrait {
 
   /**
-   * Flag for JS not supported by driver.
-   *
-   * @var bool
+   * Flag indicating that the driver supports JavaScript.
    */
-  protected $bigPipeNoJS;
+  protected bool $bigPipeJsIsSupported = FALSE;
 
   /**
    * Skip Big Pipe BeforeStep.
    */
-  protected bool $bigPipeBeforeStepSkip = FALSE;
+  protected bool $bigPipeSkipBeforeStep = TRUE;
 
   /**
-   * Prepares Big Pipe NOJS cookie if needed.
+   * Initialize BigPipe settings before scenario.
    *
    * @BeforeScenario
    */
-  public function bigPipeBeforeScenarioInit(BeforeScenarioScope $scope): void {
+  public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    $this->bigPipeSkipBeforeStep = FALSE;
+
     // Allow to skip resetting cookies on step.
     // BeforeStep scope does not have access to scenario where tagging is
     // made.
     if ($scope->getScenario()->hasTag('behat-steps-skip:bigPipeBeforeStep')) {
-      $this->bigPipeBeforeStepSkip = TRUE;
-    }
-    // Allow to skip this by adding a tag.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
+      $this->bigPipeSkipBeforeStep = TRUE;
     }
 
     if (!\Drupal::hasService('big_pipe')) {
@@ -58,13 +58,11 @@ trait BigPipeTrait {
         $driver->start();
       }
       $driver->executeScript('true');
-      $this->bigPipeNoJS = FALSE;
+      $this->bigPipeJsIsSupported = TRUE;
     }
     catch (UnsupportedDriverActionException) {
-      $this->bigPipeNoJS = TRUE;
-      $this
-        ->getSession()
-        ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
+      $this->bigPipeJsIsSupported = FALSE;
+      $this->getSession()->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
     catch (\Exception) {
       // Mute exceptions.
@@ -72,18 +70,18 @@ trait BigPipeTrait {
   }
 
   /**
-   * Prepares Big Pipe NO JS cookie if needed.
+   * Prepare Big Pipe NOJS cookie if needed.
    *
    * @BeforeStep
    */
   public function bigPipeBeforeStep(BeforeStepScope $scope): void {
-    if ($this->bigPipeBeforeStepSkip) {
+    if ($this->bigPipeSkipBeforeStep) {
       return;
     }
+
     try {
-      if ($this->bigPipeNoJS && !$this->getSession()->getCookie(BigPipeStrategy::NOJS_COOKIE)) {
-        $this->getSession()
-          ->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
+      if (!$this->bigPipeJsIsSupported && !$this->getSession()->getCookie(BigPipeStrategy::NOJS_COOKIE)) {
+        $this->getSession()->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
       }
     }
     catch (DriverException) {

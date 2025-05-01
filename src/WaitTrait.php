@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Trait WaitTrait.
+ * Implements timed waits and AJAX completion checks.
  *
  * Wait for a specific time or other actions on the page.
  *
@@ -17,6 +17,11 @@ trait WaitTrait {
 
   /**
    * Wait for a specified number of seconds.
+   *
+   * @code
+   * When I wait for 5 seconds
+   * When I wait for 1 second
+   * @endcode
    *
    * @When I wait for :seconds second(s)
    */
@@ -28,6 +33,11 @@ trait WaitTrait {
    * Wait for the AJAX calls to finish.
    *
    * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
+   *
+   * @code
+   * When I wait for 5 seconds for AJAX to finish
+   * When I wait for 1 second for AJAX to finish
+   * @endcode
    *
    * @When I wait for :seconds second(s) for AJAX to finish
    */

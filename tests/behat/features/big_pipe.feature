@@ -6,7 +6,7 @@ Feature: Check that BigPipeTrait works
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api @behat-steps-skip:bigPipeBeforeScenarioInit
+  @api @behat-steps-skip:bigPipeBeforeScenario
   Scenario: Assert that Big Pipe cookie is not set when skip tag is used
     Given I install a "big_pipe" module
     When I visit "/"

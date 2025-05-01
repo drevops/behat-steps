@@ -13,7 +13,7 @@ use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Trait FileTrait.
+ * Creates and manages Drupal files in tests.
  *
  * File-related steps.
  *
@@ -36,12 +36,11 @@ trait FileTrait {
   protected $filesUnmanagedUris = [];
 
   /**
-   * Ensures private and temp directories exist.
+   * Ensure private and temp directories exist.
    *
    * @BeforeScenario
    */
   public function fileBeforeScenarioInit(BeforeScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -61,6 +60,13 @@ trait FileTrait {
 
   /**
    * Create managed files with properties provided in the table.
+   *
+   * @code
+   * Given the following managed files:
+   * | path         | uri                    | status |
+   * | document.pdf | public://document.pdf  | 1      |
+   * | image.jpg    | public://images/pic.jpg| 1      |
+   * @endcode
    *
    * @Given the following managed files:
    */
@@ -149,7 +155,6 @@ trait FileTrait {
    * @AfterScenario
    */
   public function fileCleanAll(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -232,6 +237,10 @@ trait FileTrait {
   /**
    * Create an unmanaged file.
    *
+   * @code
+   * Given the unmanaged file at the URI "public://sample.txt" exists
+   * @endcode
+   *
    * @Given the unmanaged file at the URI :uri exists
    */
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
@@ -252,6 +261,10 @@ trait FileTrait {
   /**
    * Create an unmanaged file with specified content.
    *
+   * @code
+   * Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
+   * @endcode
+   *
    * @Given the unmanaged file at the URI :uri exists with :content
    */
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
@@ -260,6 +273,10 @@ trait FileTrait {
 
   /**
    * Assert that an unmanaged file with specified URI exists.
+   *
+   * @code
+   * Then an unmanaged file at the URI "public://sample.txt" should exist
+   * @endcode
    *
    * @Then an unmanaged file at the URI :uri should exist
    */
@@ -272,6 +289,10 @@ trait FileTrait {
   /**
    * Assert that an unmanaged file with specified URI does not exist.
    *
+   * @code
+   * Then an unmanaged file at the URI "public://temp.txt" should not exist
+   * @endcode
+   *
    * @Then an unmanaged file at the URI :uri should not exist
    */
   public function fileAssertUnmanagedNotExists(string $uri): void {
@@ -282,6 +303,10 @@ trait FileTrait {
 
   /**
    * Assert that an unmanaged file exists and has specified content.
+   *
+   * @code
+   * Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+   * @endcode
    *
    * @Then an unmanaged file at the URI :uri should contain :content
    */
@@ -300,6 +325,10 @@ trait FileTrait {
 
   /**
    * Assert that an unmanaged file exists and does not have specified content.
+   *
+   * @code
+   * Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+   * @endcode
    *
    * @Then an unmanaged file at the URI :uri should not contain :content
    */

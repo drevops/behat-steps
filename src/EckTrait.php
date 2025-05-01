@@ -9,9 +9,9 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\eck\EckEntityInterface;
 
 /**
- * Trait EckTrait.
+ * Tests Drupal's Entity Construction Kit (ECK) module.
  *
- * Entity Contraction Kit-related steps.
+ * Entity Construction Kit-related steps.
  *
  * @package DrevOps\BehatSteps
  */
@@ -30,7 +30,6 @@ trait EckTrait {
    * @AfterScenario
    */
   public function eckEntitiesCleanAll(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -116,7 +115,6 @@ trait EckTrait {
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('canonical')->toString();
-    print $path;
 
     $this->getSession()->visit($path);
   }
@@ -125,7 +123,7 @@ trait EckTrait {
    * Navigate to edit eck entity page with specified type and title.
    *
    * @code
-   * @When I edit eck "contact" "contact_type" entity with the title "Test contact"
+   * When I edit eck "contact" "contact_type" entity with the title "Test contact"
    * @endcode
    *
    * @When I edit eck :bundle :entity_type entity with the title :title
@@ -143,7 +141,6 @@ trait EckTrait {
     $entity_id = current($entity_ids);
     $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
     $path = $entity->toUrl('edit-form')->toString();
-    print $path;
 
     $this->getSession()->visit($path);
   }

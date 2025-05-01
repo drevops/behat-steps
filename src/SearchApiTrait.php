@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps;
 use Drupal\node\Entity\Node;
 
 /**
- * Trait SearchApiTrait.
+ * Tests Drupal Search API module functionality.
  *
  * Search API-related steps.
  *
@@ -19,6 +19,10 @@ trait SearchApiTrait {
 
   /**
    * Index a node of a specific content type with a specific title.
+   *
+   * @code
+   * When I add the "article" content with the title "Test Article" to the search index
+   * @endcode
    *
    * @When I add the :content_type content with the title :title to the search index
    */
@@ -42,6 +46,11 @@ trait SearchApiTrait {
 
   /**
    * Run indexing for a specific number of items.
+   *
+   * @code
+   * When I run search indexing for 5 items
+   * When I run search indexing for 1 item
+   * @endcode
    *
    * @When I run search indexing for :count item(s)
    */

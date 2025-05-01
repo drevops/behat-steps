@@ -10,7 +10,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Trait Field.
+ * Interacts with and validates form fields.
  *
  * Field-related steps.
  *
@@ -91,9 +91,12 @@ trait FieldTrait {
   }
 
   /**
-   * Fills value for color field.
+   * Fill value for color field.
    *
-   * @When I fill color in :field with :value
+   * @code
+   * When I fill in the color field "#edit-text-color" with the value "#3366FF"
+   * @endcode
+   *
    * @When I fill in the color field :field with the value :value
    */
   public function fieldFillColor(string $field, ?string $value = NULL): mixed {
@@ -112,7 +115,11 @@ JS;
   }
 
   /**
-   * Asserts that a color field has a value.
+   * Assert that a color field has a value.
+   *
+   * @code
+   * Then the color field "#edit-background-color" should have the value "#FF5733"
+   * @endcode
    *
    * @Then the color field :field should have the value :value
    */
@@ -138,6 +145,10 @@ JS;
    *
    * If used with Selenium driver, it will try to find associated WYSIWYG and
    * fill it in. If used with webdriver - it will fill in the field as normal.
+   *
+   * @code
+   * When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+   * @endcode
    *
    * @When I fill in the WYSIWYG field :field with the :value
    */
@@ -197,7 +208,7 @@ JS;
   }
 
   /**
-   * Returns fixed step argument (with \\" replaced back to ").
+   * Return fixed step argument (with \\" replaced back to ").
    */
   protected function fieldFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);

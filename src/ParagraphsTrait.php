@@ -11,7 +11,7 @@ use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
 
 /**
- * Trait ParagraphsTrait.
+ * Tests Drupal Paragraphs module functionality.
  *
  * Paragraphs-related steps.
  *
@@ -32,7 +32,6 @@ trait ParagraphsTrait {
    * @AfterScenario
    */
   public function paragraphsCleanAll(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

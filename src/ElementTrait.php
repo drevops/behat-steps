@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Trait Element.
+ * Interacts with and validates HTML elements.
  *
  * Steps to work with HTML element.
  *

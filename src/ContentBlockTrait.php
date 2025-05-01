@@ -10,7 +10,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\block_content\BlockContentTypeInterface;
 
 /**
- * Provides Behat step definitions for managing content block entities.
+ * Manages content block entities.
  *
  * This trait enables programmatic management of content block
  * entities in Drupal, including creation, validation, and editing operations.
@@ -26,7 +26,7 @@ trait ContentBlockTrait {
   protected static $contentBlockEntities = [];
 
   /**
-   * Cleans up all content block entities created during the scenario.
+   * Clean up all content block entities created during the scenario.
    *
    * This method automatically runs after each scenario to ensure clean test
    * state.
@@ -36,7 +36,6 @@ trait ContentBlockTrait {
    * @AfterScenario
    */
   public function contentBlockAfterScenario(AfterScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -49,7 +48,7 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Verifies that a content block type exists.
+   * Assert that a content block type exists.
    *
    * @code
    * Then the content block type "Search" should exist
@@ -66,9 +65,9 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Removes content blocks of a specified type with the given descriptions.
+   * Remove content blocks of a specified type with the given descriptions.
    *
-   * Deletes all content blocks of the specified type that match any of the
+   * Delete all content blocks of the specified type that match any of the
    * descriptions (titles) provided in the table.
    *
    * @code
@@ -97,10 +96,10 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Navigates to the edit page for a specified content block.
+   * Navigate to the edit page for a specified content block.
    *
-   * Finds a content block by its type and description (admin title) and
-   * navigates to its edit page. Throws an exception if no matching block
+   * Find a content block by its type and description (admin title) and
+   * navigate to its edit page. Throws an exception if no matching block
    * is found.
    *
    * @code
@@ -126,7 +125,7 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Creates content blocks of the specified type with the given field values.
+   * Create content blocks of the specified type with the given field values.
    *
    * This step creates new content block (block_content) entities with
    * the specified field values.
@@ -161,7 +160,7 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Creates a block content entity with the specified type and field values.
+   * Create a block content entity with the specified type and field values.
    *
    * This internal helper method creates and saves a single content block
    * entity.

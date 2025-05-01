@@ -11,7 +11,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
 /**
- * Trait DraggableviewsTrait.
+ * Tests Drupal's Draggable Views module functionality.
  *
  * Draggable Views-related steps.
  *

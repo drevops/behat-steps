@@ -9,7 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Drupal\Core\Database\Database;
 
 /**
- * Trait WatchdogTrait.
+ * Monitors Drupal watchdog entries during test execution.
  *
  * Watchdog-related steps.
  *
@@ -37,7 +37,6 @@ trait WatchdogTrait {
    * @BeforeScenario
    */
   public function watchdogSetScenarioStartTime(BeforeScenarioScope $scope): void {
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -83,7 +82,6 @@ trait WatchdogTrait {
    */
   public function watchdogAssertErrors(AfterScenarioScope $scope): void {
     $database = Database::getConnection();
-    // Allow to skip this by adding a tag.
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

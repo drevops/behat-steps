@@ -41,8 +41,8 @@ Feature: Check that ContentBlockTrait works
       | label_display | 1                    |
       | region        | content              |
       | status        | 1                    |
-    Then block with label "[TEST] Content Block" should exist
-    And block with label "[TEST] Content Block" should exist in the region "content"
+    Then I should see the block with label "[TEST] Content Block"
+    And I should see the block with label "[TEST] Content Block" in the region "content"
     When I visit "/"
     Then I should see "[TEST] Content Block"
     And I should see "[TEST] Body content"
