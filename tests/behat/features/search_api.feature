@@ -48,10 +48,10 @@ Feature: Ensure Search works.
   @api
   Scenario: Assert "When I run search indexing for :count item(s)" works as expected
     Given article content:
-      | title                                        | moderation_state |
-      | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT   | published        |
-      | [MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT   | published        |
-      | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT   | draft            |
+      | title                                     | moderation_state |
+      | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
+      | [MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT | published        |
+      | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT | draft            |
     And I am logged in as a user with the "administrator" role
 
     # Initial search without indexed nodes.
