@@ -77,7 +77,8 @@ commands:
 
   drush:
     usage: Run Drush commands in the CLI service container.
-    cmd: docker compose exec -T cli bash -c "drush -r /app/build/web -l \${LOCALDEV_URL} $*"
+    # Call the built Drush executable from the project build vendor directory.
+    cmd: docker compose exec -T cli bash -c "/app/build/vendor/bin/drush -r /app/build/web -l \${LOCALDEV_URL} $*"
 
   # ----------------------------------------------------------------------------
   # Application commands.

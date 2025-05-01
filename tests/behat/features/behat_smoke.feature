@@ -11,17 +11,17 @@ Feature: Behat feature context smoke tests
     Given I am logged in as a user with the "administer site configuration, administer modules" permissions
     When I go to "/admin/modules"
     And the response status code should be 200
-    Then the "modules[book][enable]" checkbox should be unchecked
+    Then the "modules[ban][enable]" checkbox should be unchecked
 
-    When I install a "book" module
+    When I install a "ban" module
     And I go to "/admin/modules"
     And the response status code should be 200
-    Then the "modules[book][enable]" checkbox should be checked
+    Then the "modules[ban][enable]" checkbox should be checked
 
-    When I uninstall a "book" module
+    When I uninstall a "ban" module
     And I go to "/admin/modules"
     And the response status code should be 200
-    Then the "modules[book][enable]" checkbox should be unchecked
+    Then the "modules[ban][enable]" checkbox should be unchecked
 
   @api
   Scenario: Assert that a cookie presence and absence assertions work
