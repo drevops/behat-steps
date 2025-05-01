@@ -1,40 +1,64 @@
 # Available steps
 
-| Class | Description |
-| --- | --- |
-| [BlockTrait](#blocktrait) | Creates, configures, and tests blocks. |
-| [ContentBlockTrait](#contentblocktrait) | Manages content block entities. |
-| [ContentTrait](#contenttrait) | Works with Drupal content entities. |
-| [CookieTrait](#cookietrait) | Works with browser cookies. |
-| [DraggableviewsTrait](#draggableviewstrait) | Tests Drupal's Draggable Views module functionality. |
-| [EckTrait](#ecktrait) | Tests Drupal's Entity Construction Kit (ECK) module. |
-| [ElementTrait](#elementtrait) | Interacts with and validates HTML elements. |
-| [EmailTrait](#emailtrait) | Tests email functionality in Drupal applications. |
-| [FieldTrait](#fieldtrait) | Interacts with and validates form fields. |
-| [FileDownloadTrait](#filedownloadtrait) | Downloads and validates files during tests. |
-| [FileTrait](#filetrait) | Creates and manages Drupal files in tests. |
-| [KeyboardTrait](#keyboardtrait) | Simulates keyboard interactions in browser tests. |
-| [LinkTrait](#linktrait) | Interacts with and validates HTML links. |
-| [MediaTrait](#mediatrait) | Creates and tests Drupal media entities. |
-| [MenuTrait](#menutrait) | Creates and manages Drupal menus and menu items. |
-| [ParagraphsTrait](#paragraphstrait) | Tests Drupal Paragraphs module functionality. |
-| [PathTrait](#pathtrait) | Tests URL paths and basic authentication. |
-| [ResponseTrait](#responsetrait) | Tests HTTP response headers in web requests. |
-| [RoleTrait](#roletrait) | Creates and manages Drupal user roles. |
-| [SearchApiTrait](#searchapitrait) | Tests Drupal Search API module functionality. |
-| [SelectTrait](#selecttrait) | Tests HTML select elements and their options. |
-| [TaxonomyTrait](#taxonomytrait) | Tests Drupal taxonomy terms and vocabularies. |
-| [UserTrait](#usertrait) | Tests Drupal users, authentication, and profiles. |
-| [VisibilityTrait](#visibilitytrait) | Tests element visibility on web pages. |
-| [WaitTrait](#waittrait) | Implements timed waits and AJAX completion checks. |
-## BlockTrait
+- [BlockTrait](#blocktrait)
+
+- [ContentBlockTrait](#contentblocktrait)
+
+- [ContentTrait](#contenttrait)
+
+- [CookieTrait](#cookietrait)
+
+- [DraggableviewsTrait](#draggableviewstrait)
+
+- [EckTrait](#ecktrait)
+
+- [ElementTrait](#elementtrait)
+
+- [EmailTrait](#emailtrait)
+
+- [FieldTrait](#fieldtrait)
+
+- [FileDownloadTrait](#filedownloadtrait)
+
+- [FileTrait](#filetrait)
+
+- [KeyboardTrait](#keyboardtrait)
+
+- [LinkTrait](#linktrait)
+
+- [MediaTrait](#mediatrait)
+
+- [MenuTrait](#menutrait)
+
+- [ParagraphsTrait](#paragraphstrait)
+
+- [PathTrait](#pathtrait)
+
+- [ResponseTrait](#responsetrait)
+
+- [RoleTrait](#roletrait)
+
+- [SearchApiTrait](#searchapitrait)
+
+- [SelectTrait](#selecttrait)
+
+- [TaxonomyTrait](#taxonomytrait)
+
+- [UserTrait](#usertrait)
+
+- [VisibilityTrait](#visibilitytrait)
+
+- [WaitTrait](#waittrait)
+
+
+### BlockTrait
 
 [Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
 
 #### Creates, configures and places a block in the default theme region
 
 ```gherkin
-@When I create a block of type :label with:
+@When I create a block of type :type with:
 ```
 Example:
 
@@ -48,7 +72,7 @@ Example:
 #### Finds and configures an existing block identified by its label
 
 ```gherkin
-@When I configure the block with the label :label with:
+@When I configure the block :label with:
 ```
 Example:
 
@@ -62,12 +86,12 @@ Example:
 #### Sets a visibility condition for a block
 
 ```gherkin
-@When I configure a visibility condition :condition for the block with label :label
+@When I configure the visibility condition :condition for the block :label with:
 ```
 Example:
 
 ```gherkin
-  When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
+  When I configure the visibility condition "request_path" for the block "[TEST] Block" with:
   | pages | /node/1\r\n/about |
   | negate | 0 |
 ```
@@ -75,111 +99,111 @@ Example:
 #### Removes a visibility condition from the specified block
 
 ```gherkin
-@When I remove the visibility condition :condition from the block with label :label
+@When I remove the visibility condition :condition from the block :label
 ```
 Example:
 
 ```gherkin
-  When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+  When I remove the visibility condition "request_path" from the block "[TEST] Block"
 ```
 
 #### Disables a block specified by its label
 
 ```gherkin
-@When I disable the block with label :label
+@When I disable the block :label
 ```
 Example:
 
 ```gherkin
-  When I disable the block with label "[TEST] Sidebar Block"
+  When I disable the block "[TEST] Sidebar Block"
 ```
 
 #### Enables a block specified by its label
 
 ```gherkin
-@When I enable the block with label :label
+@When I enable the block :label
 ```
 Example:
 
 ```gherkin
-  When I enable the block with label "[TEST] Sidebar Block"
-```
-
-#### Verifies that a block with the specified label exists in a specific region
-
-```gherkin
-@When block with label :label should exist in the region :region
-```
-Example:
-
-```gherkin
-  Then block with label "[TEST] User Menu" should exist in the region "sidebar_first"
-```
-
-#### Verifies that a block does not exist in a specific region
-
-```gherkin
-@When block with label :label should not exist in the region :region
-```
-Example:
-
-```gherkin
-  Then block with label "[TEST] User Menu" should not exist in the region "content"
+  When I enable the block "[TEST] Sidebar Block"
 ```
 
 #### Verifies that a block with the specified label exists in the default theme
 
 ```gherkin
-@Then block with label :label should exist
+@Then the block :label should exist
 ```
 Example:
 
 ```gherkin
-  Then block with label "[TEST] Footer Block" should exist
+  Then the block "[TEST] Footer Block" should exist
+```
+
+#### Verifies that a block with the specified label exists in a specific region
+
+```gherkin
+@Then the block :label should exist in the :region region
+```
+Example:
+
+```gherkin
+  Then the block "[TEST] User Menu" should exist in the "sidebar_first" region
+```
+
+#### Verifies that a block does not exist in a specific region
+
+```gherkin
+@Then the block :label should not exist in the :region region
+```
+Example:
+
+```gherkin
+  Then the block "[TEST] User Menu" should not exist in the "content" region
 ```
 
 #### Verifies that a block has a specific visibility condition configured
 
 ```gherkin
-@Then the block with label :label should have the visibility condition :condition
+@Then the block :label should have the visibility condition :condition
 ```
 Example:
 
 ```gherkin
-  Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+  Then the block "[TEST] Admin Block" should have the visibility condition "user_role"
 ```
 
 #### Asserts that a block does not have a specific visibility condition
 
 ```gherkin
-@Then the block with label :label should not have the visibility condition :condition
+@Then the block :label should not have the visibility condition :condition
 ```
 Example:
 
 ```gherkin
-  Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
+  Then the block "[TEST] Public Block" should not have the visibility condition "user_role"
 ```
 
 #### Verifies that a block with the specified label is disabled (inactive)
 
 ```gherkin
-@Then the block with label :label is disabled
+@Then the block :label should be disabled
 ```
 Example:
 
 ```gherkin
-  Then the block with label "[TEST] Maintenance Block" is disabled
+  Then the block "[TEST] Maintenance Block" should be disabled
 ```
 
 #### Verifies that a block with the specified label is enabled
 
 ```gherkin
-@Then the block with label :label is enabled
+@Then the block :label should be enabled
 ```
 Example:
 
 ```gherkin
-  Then the block with label "[TEST] Navigation Block" is enabled
+  Then the block "[TEST] Navigation Block" should be enabled
 ```
 
 ### ContentBlockTrait
