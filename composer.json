@@ -1,8 +1,8 @@
 {
     "name": "drevops/behat-steps",
-    "type": "library",
     "description": "Collection of steps for Behat",
     "license": "GPL-2.0-or-later",
+    "type": "library",
     "authors": [
         {
             "name": "Alex Skrypnyk",
@@ -28,17 +28,25 @@
             "DrevOps\\BehatSteps\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\BehatSteps\\Tests\\": "tests/phpunit/src/"
+        },
+        "files": [
+            "docs.php"
+        ]
+    },
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpstan/extension-installer": true
-        }
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev",
-            "dev-main": "1.x-dev"
+            "dev-main": "1.x-dev",
+            "dev-master": "1.x-dev"
         }
+    },
+    "require-dev": {
+        "alexskrypnyk/phpunit-helpers": "^0.5.0",
+        "phpunit/phpunit": "^11"
     }
 }

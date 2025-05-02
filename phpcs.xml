@@ -22,6 +22,7 @@
 
     <file>../src</file>
     <file>../tests/behat/bootstrap</file>
+    <file>../tests/phpunit/src</file>
     <file>../docs.php</file>
 
     <!-- Exclude circleci config files. -->
