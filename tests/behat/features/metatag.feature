@@ -1,8 +1,11 @@
 Feature: Check that MetatagTrait works
+  As Behat Steps library developer
+  I want to provide tools to verify metatags on pages
+  So that users can test SEO implementation
 
   @api
   Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
-    Given I visit "/"
+    When I visit "/"
     Then the meta tag should exist with the following attributes:
       | name    | MobileOptimized |
       | content | width           |
@@ -12,7 +15,7 @@ Feature: Check that MetatagTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I visit "/"
+      When I visit "/"
       Then the meta tag should exist with the following attributes:
         | name    | Non_Existing |
         | content | width        |
@@ -25,7 +28,7 @@ Feature: Check that MetatagTrait works
 
   @api
   Scenario: Assert that "Then the meta tag should not exist with the following attributes:" step works as expected
-    Given I visit "/"
+    When I visit "/"
     Then the meta tag should not exist with the following attributes:
       | name    | Non_Existing |
       | content | width        |
@@ -35,7 +38,7 @@ Feature: Check that MetatagTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I visit "/"
+      When I visit "/"
       Then the meta tag should not exist with the following attributes:
         | name    | MobileOptimized |
         | content | width           |

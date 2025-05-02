@@ -1,8 +1,11 @@
 Feature: Check that FileDownloadTrait works
+  As Behat Steps library developer
+  I want to provide tools to test file download functionality
+  So that users can verify file downloads work correctly
 
   Background:
     Given I am logged in as a user with the "administrator" role
-    Given the following managed files:
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
@@ -16,17 +19,17 @@ Feature: Check that FileDownloadTrait works
 
   @api @download
   Scenario: Assert "When I download the file from the URL :url"
-    And I download the file from the URL "/example_text.txt"
+    When I download the file from the URL "/example_text.txt"
 
   @api @javascript @download
   Scenario: Assert in browser "When I download the file from the URL :url"
-    And I download the file from the URL "/example_text.txt"
+    When I download the file from the URL "/example_text.txt"
 
   @api
   Scenario: Assert "When I download the file from the link :link"
     When I visit the "article" content page with the title "[TEST] document page"
     When I download the file from the link "example_text.txt"
-    And the downloaded file should contain:
+    Then the downloaded file should contain:
       """
       Some Text
       """
@@ -35,12 +38,12 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert "Given downloaded file is zip archive that contains files:"
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "example_files.zip"
-    And the downloaded file name should be "example_files.zip"
+    Then the downloaded file name should be "example_files.zip"
     And the downloaded file should be a zip archive containing the files named:
       | example_audio.mp3    |
       | example_image.png    |
       | example_document.pdf |
-    Then the downloaded file should be a zip archive not containing the files partially named:
+    And the downloaded file should be a zip archive not containing the files partially named:
       | example_text.txt |
       | not_existing.png |
 
@@ -54,8 +57,8 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I visit "/"
-      Given I download the file from the URL "/example_text.txt"
+      When I visit "/"
+      And I download the file from the URL "/example_text.txt"
       Then the downloaded file name should contain "nonexistent"
       """
     When I run "behat --no-colors"
@@ -68,8 +71,8 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert the downloaded file should be a zip archive containing the files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "example_files.zip"
-    And the downloaded file name should be "example_files.zip"
-    Then the downloaded file should be a zip archive containing the files partially named:
+    Then the downloaded file name should be "example_files.zip"
+    And the downloaded file should be a zip archive containing the files partially named:
       | example_aud |
       | example_ima |
 
@@ -95,7 +98,7 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert the downloaded file is a zip archive not containing files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "example_files.zip"
-    And the downloaded file name should be "example_files.zip"
-    Then the downloaded file should be a zip archive not containing the files partially named:
+    Then the downloaded file name should be "example_files.zip"
+    And the downloaded file should be a zip archive not containing the files partially named:
       | example_text |
       | not_existing |

@@ -1,4 +1,7 @@
 Feature: Check that ContentTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage Drupal content programmatically
+  So that users can test content functionality reliably
 
   @api
   Scenario: Assert "@Given the content type :content_type does not exist" works as expected.
@@ -9,8 +12,8 @@ Feature: Check that ContentTrait works
     And I press "Save"
     And I visit "/admin/structure/types"
     Then I should see "test_content_type"
-    Given the content type "test_content_type" does not exist
-    When I visit "/admin/structure/types"
+    When the content type "test_content_type" does not exist
+    And I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
   @api
@@ -31,11 +34,11 @@ Feature: Check that ContentTrait works
     Then I should get a 200 HTTP response
     When I go to "content/test-page-title2"
     Then I should get a 200 HTTP response
-    Given the following "page" content does not exist:
+    When the following "page" content does not exist:
       | title              |
       | [TEST] Page title1 |
       | [TEST] Page title2 |
-    When I go to "content/test-page-title1"
+    And I go to "content/test-page-title1"
     Then I should get a 404 HTTP response
     When I go to "content/test-page-title2"
     Then I should get a 404 HTTP response

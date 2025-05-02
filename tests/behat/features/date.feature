@@ -1,4 +1,7 @@
 Feature: Check that DateTrait works
+  As Behat Steps library developer
+  I want to provide tools to use relative dates in tests
+  So that users can create time-based test scenarios independent of current date
 
   @api
   Scenario: Assert that relative date works in value transform

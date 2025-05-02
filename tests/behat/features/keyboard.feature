@@ -1,5 +1,8 @@
 @keyboard
 Feature: Check that KeyboardTrait works
+  As Behat Steps library developer
+  I want to provide tools to interact with web elements using keyboard keys
+  So that users can test keyboard navigation and input
 
   @api @javascript
   Scenario: Assert step definition "When I press the keys :keys on the element :selector" succeeds as expected

@@ -1,5 +1,8 @@
 @api
 Feature: Check that TaxonomyTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage taxonomy terms programmatically
+  So that users can test taxonomy-related functionality
 
   Background:
     Given "tags" terms:
@@ -129,9 +132,9 @@ Feature: Check that TaxonomyTrait works
       | Tag2        |
       | Nonexisting |
     Then the taxonomy term "Tag1" from the vocabulary "tags" should not exist
-    Then the taxonomy term "Tag2" from the vocabulary "tags" should not exist
-    Then the taxonomy term "Nonexisting" from the vocabulary "tags" should not exist
-    Then the taxonomy term "Tag3" from the vocabulary "tags" should exist
+    And the taxonomy term "Tag2" from the vocabulary "tags" should not exist
+    And the taxonomy term "Nonexisting" from the vocabulary "tags" should not exist
+    And the taxonomy term "Tag3" from the vocabulary "tags" should exist
 
   @trait:TaxonomyTrait
   Scenario: Assert negative assertion for "Given the following :vocabulary_machine_name vocabulary terms do not exist" fails with non-existing vocabulary

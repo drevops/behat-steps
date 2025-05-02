@@ -1,29 +1,32 @@
 Feature: Check that LinkTrait works
+  As Behat Steps library developer
+  I want to provide tools to verify link attributes and behaviors
+  So that users can test navigation elements reliably
 
   Scenario: Assert link with href without selector
-    Given I go to "/"
+    When I go to "/"
     Then the link "Drupal" with the href "https://www.drupal.org" should exist
 
   Scenario: Assert link with href with selector
-    Given I go to "/"
+    When I go to "/"
     Then the link "Drupal" with the href "https://www.drupal.org" within the element "#block-system-powered-by,#block-bartik-powered,.block-system-powered-by-block" should exist
 
   Scenario: Assert link with wildcard in href without selector
-    Given I go to "/"
+    When I go to "/"
     Then the link "Drupal" with the href "https://www.drupal*" should exist
 
   Scenario: Assert link with href without selector does not exist
-    Given I go to "/"
+    When I go to "/"
     Then the link "RandomLinkText" with the href "https://www.drupal.org" should not exist
-    Then the link "Drupal" with the href "https://www.randomhref.org" should not exist
+    And the link "Drupal" with the href "https://www.randomhref.org" should not exist
 
   Scenario: Assert link with href with selector does not exist
-    Given I go to "/"
+    When I go to "/"
     Then the link "RandomLinkText" with the href "https://www.randomhref.org" within the element "#block-system-powered-by,#block-bartik-powered" should not exist
-    Then the link "Drupal" with the href "https://www.drupal.org" within the element "#random-selector" should not exist
+    And the link "Drupal" with the href "https://www.drupal.org" within the element "#random-selector" should not exist
 
   Scenario: Assert link with wildcard in href without selector does not exist
-    Given I go to "/"
+    When I go to "/"
     Then the link "Drupal" with the href "https://www.randomhref*" should not exist
 
   @api

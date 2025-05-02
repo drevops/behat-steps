@@ -1,4 +1,7 @@
 Feature: Check that EmailTrait works
+  As Behat Steps library developer
+  I want to provide tools to test email functionality
+  So that users can verify email sending and content in their applications
 
   @api @email
   Scenario: As a developer, I want to know that test email system is automatically
@@ -18,7 +21,7 @@ Feature: Check that EmailTrait works
   @api @email
   Scenario: As a developer, I want to know that email step definitions work as
   expected.
-    Given I send test email to "test@example.com" with
+    When I send test email to "test@example.com" with
       """
       Line one of the test email content
       Line two of the test email content
@@ -195,7 +198,7 @@ Feature: Check that EmailTrait works
       Line four of the test email content
       """
     When I clear the test email system queue
-    And the email field "body" should not contain:
+    Then the email field "body" should not contain:
       """
       Line two of the test email content
       """

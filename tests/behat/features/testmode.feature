@@ -1,4 +1,7 @@
 Feature: Ensure TestmodeTrait works.
+  As Behat Steps library developer
+  I want to provide tools to filter content in test mode
+  So that users can focus on test-specific content in their tests
 
   Background:
     Given article content:
@@ -34,4 +37,4 @@ Feature: Ensure TestmodeTrait works.
     And I should not see the text "Article 5"
     And I should see the text "[MYTEST] Article 6"
     And I should see the text "[MYTEST] Article 7"
-    And save screenshot
+    And I save screenshot

@@ -1,16 +1,19 @@
 @search
-Feature: Ensure Search works.
+Feature: Ensure Search API functionality works
+  As Behat Steps library developer
+  I want to provide tools to index and search content
+  So that users can test search functionality
 
   @api
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected
     When I run search indexing for 10 items
-    Given article content:
+    And article content:
       | title                                        | moderation_state |
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
       | [MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT     | draft            |
     And I am logged in as a user with the "administrator" role
     # Initial search without indexed nodes.
-    When I go to "/search"
+    And I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
     Then I should not see the text "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
@@ -27,7 +30,7 @@ Feature: Ensure Search works.
     And I press "edit-submit-search"
     And I press "edit-submit-search"
     Then I should see the text "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
-    Then I should not see the text "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
+    And I should not see the text "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
   @api @testmode
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected with test mode

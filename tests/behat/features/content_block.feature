@@ -1,13 +1,16 @@
 @api
 Feature: Check that ContentBlockTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage content blocks
+  So that users can test block content and placement functionality
 
   Scenario: Create, manage, and verify content block entities
     Given I am logged in as a user with the "administrator" role
-    Then the content block type "basic" should exist
+    And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Content Block 1 |
       | [TEST] Content Block 2 |
-    And the following "basic" content blocks exist:
+    When the following "basic" content blocks exist:
       | info                   | status | body                  |
       | [TEST] Content Block 1 | 1      | [TEST] Body content 1 |
       | [TEST] Content Block 2 | 1      | [TEST] Body content 2 |
@@ -23,20 +26,20 @@ Feature: Check that ContentBlockTrait works
     And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Editable Block |
-    And the following "basic" content blocks exist:
+    When the following "basic" content blocks exist:
       | info                  | status | body                |
       | [TEST] Editable Block | 1      | Original block body |
-    When I edit the "basic" content block with the description "[TEST] Editable Block"
+    And I edit the "basic" content block with the description "[TEST] Editable Block"
     And I fill in "Body" with "Updated block body content"
     And I press "Save"
     Then I should see the success message "Basic block [TEST] Editable Block has been updated."
 
   Scenario: Create a new basic content block and place it in a region
     Given I am logged in as a user with the "administrator" role
-    And the following "basic" content blocks exist:
+    When the following "basic" content blocks exist:
       | info               | body                | status |
       | [TEST] Basic Block | [TEST] Body content | 1      |
-    When I create a block of type "[TEST] Basic Block" with:
+    And I create a block of type "[TEST] Basic Block" with:
       | label         | [TEST] Content Block |
       | label_display | 1                    |
       | region        | content              |
@@ -49,11 +52,11 @@ Feature: Check that ContentBlockTrait works
 
   Scenario: Verify content block type exists
     Given I am logged in as a user with the "administrator" role
-    Then the content block type "basic" should exist
-    And the following "basic" content blocks exist:
+    And the content block type "basic" should exist
+    When the following "basic" content blocks exist:
       | info                        | body                                      | status |
       | [TEST] Verify Block Content | Testing ContentBlockTrait's functionality | 1      |
-    When I visit "/admin/content/block"
+    And I visit "/admin/content/block"
     Then I should see "[TEST] Verify Block Content"
 
   Scenario: Edit content block
@@ -77,13 +80,13 @@ Feature: Check that ContentBlockTrait works
 
   Scenario: Remove content block
     Given I am logged in as a user with the "administrator" role
-    And the following "basic" content blocks exist:
+    When the following "basic" content blocks exist:
       | info                   | body                       | status |
       | [TEST] Removable Block | Block that will be removed | 1      |
     And I visit "/admin/content/block"
     Then I should see "[TEST] Removable Block"
-    And the following "basic" content blocks do not exist:
+    When the following "basic" content blocks do not exist:
       | info                   |
       | [TEST] Removable Block |
-    When I visit "/admin/content/block"
+    And I visit "/admin/content/block"
     Then I should not see "[TEST] Removable Block"

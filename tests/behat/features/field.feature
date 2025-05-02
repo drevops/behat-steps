@@ -1,19 +1,22 @@
 Feature: Check that FieldTrait works
+  As Behat Steps library developer
+  I want to provide tools to verify form field existence, state, and values
+  So that users can test form interactions reliably
 
   @api
   Scenario: Assert field exists
-    Given I go to "form/test-form"
+    When I go to "form/test-form"
     Then the field "field1" should exist
-    Then the field "Field 1" should exist
+    And the field "Field 1" should exist
 
   @api
   Scenario: Assert field does not exist
-    Given I go to "test-form"
+    When I go to "test-form"
     Then the field "some_random_field" should not exist
 
   @api
   Scenario Outline: Assert field existence
-    Given I go to "form/test-form"
+    When I go to "form/test-form"
     Then the field "<field>" should <existence>
     Examples:
       | field        | existence |
@@ -25,7 +28,7 @@ Feature: Check that FieldTrait works
 
   @api
   Scenario Outline: Assert if field is disabled or enabled
-    Given I go to "form/test-form"
+    When I go to "form/test-form"
     Then the field "<field>" should be "<enabled_or_disabled>"
     Examples:
       | field          | enabled_or_disabled |
@@ -38,16 +41,16 @@ Feature: Check that FieldTrait works
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value.
-    Given I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/relative.html"
     Then the color field "#edit-color-input" should have the value "#000000"
-    And I fill in the color field "#edit-color-input" with the value "#ffffff"
+    When I fill in the color field "#edit-color-input" with the value "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @api @javascript
   Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition.
-    Given I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/relative.html"
     Then the color field "#edit-color-input" should have the value "#000000"
-    And I fill in the color field "#edit-color-input" with the value "#ffffff"
+    When I fill in the color field "#edit-color-input" with the value "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @trait:FieldTrait

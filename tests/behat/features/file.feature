@@ -1,9 +1,12 @@
 Feature: Check that FileTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage files programmatically
+  So that users can test file functionality and operations
 
   @api
-  Scenario: Assert "Given the following managed files:"
-    When I am logged in as a user with the "administrator" role
-    Given the following managed files:
+  Scenario: Assert "When the following managed files:"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
@@ -11,39 +14,39 @@ Feature: Check that FileTrait works
     And the following managed files:
       | uuid                                 | path             |
       | 9cb1b484-db7b-4496-bd63-8c702e207704 | example_text.txt |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
     And "example_text.txt" file object exists
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
-  Scenario: Assert "Given the following managed files: With uri"
-    When I am logged in as a user with the "administrator" role
+  Scenario: Assert "When the following managed files: With uri"
+    Given I am logged in as a user with the "administrator" role
     And no "example_document.pdf" file object exists
     And no "example_image.png" file object exists
     And no "example_audio.mp3" file object exists
-    Given the following managed files:
+    When the following managed files:
       | path                 | uri                                |
       | example_document.pdf | public://test/example_document.pdf |
       | example_image.png    | public://test/example_image.png    |
       | example_audio.mp3    | public://test/example_audio.mp3    |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
 
   @api
-  Scenario: Assert "@Given no managed files: With filename"
-    When I am logged in as a user with the "administrator" role
-    Given the following managed files:
+  Scenario: Assert "When the following managed files do not exist: With filename"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
       | example_audio.mp3    |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
-    Given the following managed files do not exist:
+    When the following managed files do not exist:
       | filename             |
       | example_document.pdf |
       | example_image.png    |
@@ -53,17 +56,17 @@ Feature: Check that FileTrait works
     And no "example_audio.mp3" file object exists
 
   @api
-  Scenario: Assert "@Given no managed files: With uri"
-    When I am logged in as a user with the "administrator" role
-    Given the following managed files:
+  Scenario: Assert "When the following managed files do not exist: With uri"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
       | example_audio.mp3    |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
-    Given the following managed files do not exist:
+    When the following managed files do not exist:
       | uri                           |
       | public://example_document.pdf |
       | public://example_image.png    |
@@ -73,17 +76,17 @@ Feature: Check that FileTrait works
     And no "example_audio.mp3" file object exists
 
   @api
-  Scenario: Assert "@Given no managed files: With status"
-    When I am logged in as a user with the "administrator" role
-    Given the following managed files:
+  Scenario: Assert "When the following managed files do not exist: With status"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
       | example_audio.mp3    |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
-    Given the following managed files do not exist:
+    When the following managed files do not exist:
       | status |
       | 1      |
     Then no "example_document.pdf" file object exists
@@ -91,20 +94,20 @@ Feature: Check that FileTrait works
     And no "example_audio.mp3" file object exists
 
   @api
-  Scenario: Assert "@Given no managed files: With filemime"
-    When I am logged in as a user with the "administrator" role
-    Given the following managed files:
+  Scenario: Assert "When the following managed files do not exist: With filemime"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
       | path                 |
       | example_document.pdf |
       | example_image.png    |
       | example_audio.mp3    |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And "example_image.png" file object exists
     And "example_audio.mp3" file object exists
-    Given the following managed files do not exist:
+    When the following managed files do not exist:
       | filemime  |
       | image/png |
-    And "example_document.pdf" file object exists
+    Then "example_document.pdf" file object exists
     And no "example_image.png" file object exists
     And "example_audio.mp3" file object exists
 
@@ -113,7 +116,7 @@ Feature: Check that FileTrait works
     Given an unmanaged file at the URI "public://test1.txt" should not exist
     When the unmanaged file at the URI "public://test1.txt" exists
     Then an unmanaged file at the URI "public://test1.txt" should exist
-    Then an unmanaged file at the URI "public://test2.txt" should not exist
+    And an unmanaged file at the URI "public://test2.txt" should not exist
 
     Given an unmanaged file at the URI "public://test3.txt" should not exist
     When the unmanaged file at the URI "public://test3.txt" exists with "test content"

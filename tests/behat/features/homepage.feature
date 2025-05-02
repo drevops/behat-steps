@@ -1,16 +1,17 @@
 @smoke @homepage
 Feature: Homepage
-
-  Ensure that homepage is displayed as expected.
+  As Behat Steps library developer
+  I want to provide tools to test homepage access
+  So that users can verify basic site navigation
 
   @api
   Scenario: Anonymous user visits homepage
-    Given I go to the homepage
+    When I go to the homepage
     Then the path should be "/"
     And I save screenshot
 
   @api @javascript
   Scenario: Anonymous user visits homepage using a real browser
-    Given I go to the homepage
+    When I go to the homepage
     Then the path should be "/"
     And I save screenshot
