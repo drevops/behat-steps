@@ -132,12 +132,20 @@ commands:
     usage: Lint docs.
     cmd: ahoy cli "php docs.php"
 
+  test-unit:
+    usage: Run Unit tests.
+    cmd: ahoy cli "./vendor/bin/phpunit -c phpunit.xml --no-coverage $@"
+
+  test-unit-coverage:
+    usage: Run Unit tests with coverage.
+    cmd: ahoy cli "php -d pcov.directory=. ./vendor/bin/phpunit -c phpunit.xml $@"
+
   test-bdd:
     usage: Run BDD tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors $@"
 
   test-bdd-coverage:
-    usage: Run BDD tests.
+    usage: Run BDD tests with coverage.
     cmd: ahoy cli "cd /app/build && php -dpcov.enabled=1 -dpcov.directory=/app/src  vendor/bin/behat -c /app/behat.yml --strict --colors $@"
 
   debug:

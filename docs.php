@@ -14,52 +14,73 @@
  * format.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
+ * Run with --path=path/to/dir to specify a custom path for the output file.
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/build/vendor/autoload.php';
-require_once __DIR__ . '/tests/behat/bootstrap/FeatureContextTrait.php';
-require_once __DIR__ . '/tests/behat/bootstrap/FeatureContext.php';
+// Execute the main function only when the script is run directly, not when included.
+if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
+  $options = getopt('', ['fail-on-change', 'path::']);
+  main($options);
+}
 
-$info = extract_info(FeatureContext::class, [FeatureContextTrait::class]);
+/**
+ * Main function to handle the documentation generation process.
+ *
+ * @param array<string, bool|string|array<int, string>> $options
+ *   Command line options.
+ *
+ * @codeCoverageIgnoreStart
+ */
+function main(array $options = []): void {
+  $base_path = is_string($options['path'] ?? NULL) ? $options['path'] : __DIR__;
 
-$errors = validate($info);
+  require_once $base_path . '/build/vendor/autoload.php';
+  require_once $base_path . '/tests/behat/bootstrap/FeatureContextTrait.php';
+  require_once $base_path . '/tests/behat/bootstrap/FeatureContext.php';
 
-if (!empty($errors)) {
-  echo 'Errors found:' . PHP_EOL;
-  foreach ($errors as $error) {
-    echo $error;
+  $info = extract_info(FeatureContext::class, [FeatureContextTrait::class], $base_path);
+
+  $errors = validate($info);
+
+  if (!empty($errors)) {
+    echo 'Errors found:' . PHP_EOL;
+    foreach ($errors as $error) {
+      echo $error;
+    }
+    exit(1);
   }
-  exit(1);
+
+  $markdown = PHP_EOL . render_info($info, $base_path) . PHP_EOL;
+
+  $readme_file = 'steps.md';
+  $readme = file_get_contents($base_path . DIRECTORY_SEPARATOR . $readme_file);
+
+  if ($readme === FALSE) {
+    printf('Failed to read %s.' . PHP_EOL, $readme_file);
+    exit(1);
+  }
+
+  $readme_replaced = replace_content($readme, '# Available steps', '[//]: # (END)', $markdown);
+
+  if ($readme_replaced === $readme) {
+    echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
+    exit(0);
+  }
+
+  $fail_on_change = isset($options['fail-on-change']);
+  if ($fail_on_change && $readme_replaced !== $readme) {
+    echo 'Documentation is outdated. No changes were made.' . PHP_EOL;
+    exit(1);
+  }
+  else {
+    file_put_contents($base_path . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
+    echo 'Documentation updated.' . PHP_EOL;
+  }
 }
 
-$markdown = PHP_EOL . render_info($info) . PHP_EOL;
-
-$readme_file = 'steps.md';
-$readme = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $readme_file);
-
-if ($readme === FALSE) {
-  printf('Failed to read %s.' . PHP_EOL, $readme_file);
-  exit(1);
-}
-
-$readme_replaced = replace_content($readme, '# Available steps', '[//]: # (END)', $markdown);
-
-if ($readme_replaced === $readme) {
-  echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
-  exit(0);
-}
-
-$fail_on_change = ($argv[1] ?? '') === '--fail-on-change';
-if ($fail_on_change && $readme_replaced !== $readme) {
-  echo 'Documentation is outdated. No changes were made.' . PHP_EOL;
-  exit(1);
-}
-else {
-  file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
-  echo 'Documentation updated.' . PHP_EOL;
-}
+// @codeCoverageIgnoreEnd
 
 /**
  * Parse info from the class.
@@ -68,13 +89,15 @@ else {
  *   The class name.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
+ * @param string $base_path
+ *   Base path for the repository.
  *
  * @return array<string, array<int,array<string, array<int, string>|string>>>
  *   Array of info with 'name', 'steps', 'description', and 'example' keys.
  *
  * @throws \ReflectionException
  */
-function extract_info(string $class_name, array $exclude = []): array {
+function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
   $reflection = new ReflectionClass($class_name);
 
   $traits = $reflection->getTraits();
@@ -129,11 +152,12 @@ function extract_info(string $class_name, array $exclude = []): array {
       if ($comment) {
         $parsed = parse_method_comment($comment);
         if ($parsed) {
-          $info[] = $parsed + [
+          $info_item = [
             'name' => $method->getName(),
             'class_description' => $class_description,
             'class_name' => $trait_name,
           ];
+          $info[] = $parsed + $info_item;
         }
       }
     }
@@ -180,6 +204,10 @@ function extract_info(string $class_name, array $exclude = []): array {
  *   not found in the comment.
  */
 function parse_method_comment(string $comment): ?array {
+  if (empty($comment)) {
+    return NULL;
+  }
+
   $return = [
     'steps' => [],
     'description' => '',
@@ -273,29 +301,34 @@ function parse_method_comment(string $comment): ?array {
  *
  * @param array<string, array<int, array<string, array<int, string>|string>>> $info
  *   Array of info items with 'name', 'from', and 'to' keys.
+ * @param string $base_path
+ *   Base path for the repository.
  *
  * @return string
  *   Markdown table.
  */
-function render_info(array $info): string {
+function render_info(array $info, string $base_path = __DIR__): string {
   $output = '';
 
   $index_rows = [];
 
   foreach ($info as $trait => $methods) {
     $src_file = sprintf('src/%s.php', $trait);
+    $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
 
-    if (!file_exists($src_file)) {
-      throw new \Exception(sprintf('Source file %s does not exist', $src_file));
+    if (!file_exists($src_file_path)) {
+      throw new \Exception(sprintf('Source file %s does not exist', $src_file_path));
     }
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
     $example_file = sprintf('tests/behat/features/%s.feature', $example_name);
+    $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
 
-    if (!file_exists($example_file)) {
-      throw new \Exception(sprintf('Example file %s does not exist', $example_file));
+    // @codeCoverageIgnoreStart
+    if (!file_exists($example_file_path)) {
+      throw new \Exception(sprintf('Example file %s does not exist', $example_file_path));
     }
-
+    // @codeCoverageIgnoreEnd
     // Section header.
     $output .= sprintf('## %s', $trait) . PHP_EOL . PHP_EOL;
     $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
