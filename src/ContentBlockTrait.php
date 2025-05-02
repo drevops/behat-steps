@@ -28,11 +28,6 @@ trait ContentBlockTrait {
   /**
    * Clean up all content block entities created during the scenario.
    *
-   * This method automatically runs after each scenario to ensure clean test
-   * state.
-   * Add the tag @behat-steps-skip:contentBlockAfterScenario to your scenario to
-   * prevent automatic cleanup of content block entities.
-   *
    * @AfterScenario
    */
   public function contentBlockAfterScenario(AfterScenarioScope $scope): void {

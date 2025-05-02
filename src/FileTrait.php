@@ -40,7 +40,7 @@ trait FileTrait {
    *
    * @BeforeScenario
    */
-  public function fileBeforeScenarioInit(BeforeScenarioScope $scope): void {
+  public function fileBeforeScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -154,7 +154,7 @@ trait FileTrait {
    *
    * @AfterScenario
    */
-  public function fileCleanAll(AfterScenarioScope $scope): void {
+  public function fileAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

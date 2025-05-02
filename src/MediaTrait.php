@@ -28,7 +28,7 @@ trait MediaTrait {
    *
    * @AfterScenario
    */
-  public function mediaClean(AfterScenarioScope $scope): void {
+  public function mediaAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

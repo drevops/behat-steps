@@ -29,7 +29,7 @@ trait EckTrait {
    *
    * @AfterScenario
    */
-  public function eckEntitiesCleanAll(AfterScenarioScope $scope): void {
+  public function eckAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
