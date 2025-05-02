@@ -154,7 +154,7 @@ trait MenuTrait {
    *
    * @AfterScenario
    */
-  public function menuCleanAll(AfterScenarioScope $scope): void {
+  public function menuAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }

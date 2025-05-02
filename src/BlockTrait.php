@@ -72,12 +72,12 @@ trait BlockTrait {
    *
    * This method automatically runs after each scenario to ensure clean
    * test state.
-   * Add the tag @behat-steps-skip:blockInstanceCleanAll to your scenario to
+   * Add the tag @behat-steps-skip:AfterScenario to your scenario to
    * prevent automatic cleanup of blocks.
    *
    * @AfterScenario
    */
-  public function blockInstanceCleanAll(AfterScenarioScope $scope): void {
+  public function blockAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
