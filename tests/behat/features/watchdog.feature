@@ -1,12 +1,15 @@
 @errorcleanup
 Feature: Check that WatchdogTrait works
+  As Behat Steps library developer
+  I want to provide tools to monitor Drupal watchdog messages
+  So that users can detect unexpected errors in their tests
 
   @trait:WatchdogTrait
   Scenario: Assert that watchdog fails with an error
     Given some behat configuration
     And scenario steps:
       """
-      Given set watchdog error level "warning"
+      When set watchdog error level "warning"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -19,7 +22,7 @@ Feature: Check that WatchdogTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given set watchdog error level "warning" of type "custom_type"
+      When set watchdog error level "warning" of type "custom_type"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -29,7 +32,7 @@ Feature: Check that WatchdogTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @watchdog:custom_type":
       """
-      Given set watchdog error level "warning" of type "custom_type"
+      When set watchdog error level "warning" of type "custom_type"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -39,8 +42,8 @@ Feature: Check that WatchdogTrait works
 
   @api
   Scenario: Assert that watchdog does not track errors with level below threshold
-    Given set watchdog error level "notice"
+    When set watchdog error level "notice"
 
   @api @error
   Scenario: Assert that watchdog track errors with level above threshold
-    Given set watchdog error level "warning"
+    When set watchdog error level "warning"

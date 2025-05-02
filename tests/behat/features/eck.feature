@@ -1,4 +1,7 @@
 Feature: Check that EckTrait works
+  As Behat Steps library developer
+  I want to be able to manage ECK entities in my tests
+  So that I can verify ECK entity functionality
 
   Background:
     Given the following eck "test_bundle" "test_entity_type" entities do not exist:
@@ -24,7 +27,7 @@ Feature: Check that EckTrait works
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      And I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
+      When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

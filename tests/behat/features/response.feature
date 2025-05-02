@@ -1,7 +1,10 @@
 Feature: Check that ResponseTrait works
+  As Behat Steps library developer
+  I want to provide tools to verify HTTP response headers
+  So that users can test server configuration and content delivery
 
   Scenario: Assert "Then the response should contain the header :header_name" works
-    Given I go to "/"
+    When I go to "/"
     Then the response should contain the header "Content-Type"
 
   @trait:ResponseTrait
@@ -9,7 +12,7 @@ Feature: Check that ResponseTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I go to "/"
+      When I go to "/"
       Then the response should contain the header "NonExistingHeader"
       """
     When I run "behat --no-colors"
@@ -19,7 +22,7 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response should not contain the header :header_name" works
-    Given I go to "/"
+    When I go to "/"
     Then the response should not contain the header "NonExistingHeader"
 
   @trait:ResponseTrait
@@ -37,7 +40,7 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response header :header_name should contain the value :header_value" works
-    Given I go to "/"
+    When I go to "/"
     Then the response header "Content-Type" should contain the value "text/html; charset=utf-8"
 
   @trait:ResponseTrait
@@ -69,7 +72,7 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response header :header_name should not contain the value :header_value" works
-    Given I go to "/"
+    When I go to "/"
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
   @trait:ResponseTrait

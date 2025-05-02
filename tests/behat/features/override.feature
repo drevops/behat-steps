@@ -1,4 +1,7 @@
 Feature: Check that OverrideTrait works
+  As Behat Steps library developer
+  I want to provide tools to override authentication by role
+  So that users can test functionality at different permission levels
 
   @api
   Scenario Outline: Assert override of authentication by role works

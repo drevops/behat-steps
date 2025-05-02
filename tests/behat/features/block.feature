@@ -1,5 +1,8 @@
 @api
 Feature: Check that BlockTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage blocks programmatically
+  So that users can test block placement and visibility functionality
 
   Scenario: Configure and place a system block in a region
     Given I am logged in as a user with the "administrator" role
@@ -27,8 +30,8 @@ Feature: Check that BlockTrait works
     Then I should not see "[TEST] User Account Menu"
     When I enable the block with label "[TEST] User Account Menu"
     Then the block with label "[TEST] User Account Menu" should be enabled
-    And the cache has been cleared
-    When I visit "/"
+    When the cache has been cleared
+    And I visit "/"
     Then I should see "[TEST] User Account Menu"
 
   Scenario: Configure visibility conditions for a block
@@ -47,8 +50,8 @@ Feature: Check that BlockTrait works
     Then I should see "[TEST] User Account Menu"
     When I remove the visibility condition "request_path" from the block with label "[TEST] User Account Menu"
     Then the block with label "[TEST] User Account Menu" should not have the visibility condition "request_path"
-    And the cache has been cleared
-    When I visit "/"
+    When the cache has been cleared
+    And I visit "/"
     Then I should see "[TEST] User Account Menu"
 
   Scenario: Move block from one region to another

@@ -1,5 +1,8 @@
 @user
 Feature: Check that UserTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage users and their properties
+  So that users can test user functionality and permissions
 
   Background:
     Given users:
@@ -13,7 +16,7 @@ Feature: Check that UserTrait works
     Given I am logged in as a user with the "administrator" role
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
-    Given the following users do not exist:
+    When the following users do not exist:
       | name               |
       | authenticated_user |
       | non_existing       |
@@ -25,7 +28,7 @@ Feature: Check that UserTrait works
     Given I am logged in as a user with the "administrator" role
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
-    Given the following users do not exist:
+    When the following users do not exist:
       | mail                             |
       | authenticated_user@myexample.com |
       | non_existing@example.com         |
@@ -33,15 +36,15 @@ Feature: Check that UserTrait works
     And user "non_existing" should not exist
 
   @api
-  Scenario: Assert "Given the password for the user :name is :password" works
+  Scenario: Assert "When the password for the user :name is :password" works
     Given the password for the user "authenticated_user" is "password123"
 
   @trait:UserTrait @api
-  Scenario: Assert "Given the password for the user :name is :password" fails for non-existing user
+  Scenario: Assert "When the password for the user :name is :password" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Given the password for the user "non_existing" is "password123"
+      When the password for the user "non_existing" is "password123"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -50,11 +53,11 @@ Feature: Check that UserTrait works
       """
 
   @trait:UserTrait @api
-  Scenario: Assert "Given the password for the user :name is :password" fails for an existing user with an empty password
+  Scenario: Assert "When the password for the user :name is :password" fails for an existing user with an empty password
     Given some behat configuration
     And scenario steps:
       """
-      Given the password for the user "authenticated_user" is ""
+      When the password for the user "authenticated_user" is ""
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -63,18 +66,18 @@ Feature: Check that UserTrait works
       """
 
   @api
-  Scenario: Assert "Given the last access time for the user :name is :datetime" works
+  Scenario: Assert "When the last access time for the user :name is :datetime" works
     Given the last access time for the user "authenticated_user" is "Friday, 22 November 2024 13:46:14"
-    Given the last access time for the user "authenticated_user" is "1732319174"
-    Given the last access time for the user "authenticated_user" is "-10 years"
-    Given the last access time for the user "authenticated_user" is "[relative:-10 years]"
+    And the last access time for the user "authenticated_user" is "1732319174"
+    And the last access time for the user "authenticated_user" is "-10 years"
+    And the last access time for the user "authenticated_user" is "[relative:-10 years]"
 
   @trait:UserTrait @api
-  Scenario: Assert "Given the last access time for the user :name is :datetime" fails for non-existing user
+  Scenario: Assert "When the last access time for the user :name is :datetime" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Given the last access time for the user "non_existing" is "Friday, 22 November 2024 13:46:14"
+      When the last access time for the user "non_existing" is "Friday, 22 November 2024 13:46:14"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -83,11 +86,11 @@ Feature: Check that UserTrait works
       """
 
   @trait:UserTrait @api
-  Scenario: Assert "Given the last access time for the user :name is :datetime" fails for invalid datetime
+  Scenario: Assert "When the last access time for the user :name is :datetime" fails for invalid datetime
     Given some behat configuration
     And scenario steps:
       """
-      Given the last access time for the user "authenticated_user" is "ten years"
+      When the last access time for the user "authenticated_user" is "ten years"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

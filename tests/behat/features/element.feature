@@ -1,4 +1,7 @@
 Feature: Check that ElementTrait works
+  As Behat Steps library developer
+  I want to provide tools to verify HTML element attributes and properties
+  So that users can test DOM structure and styling
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
     Given I am an anonymous user
@@ -203,7 +206,7 @@ Feature: Check that ElementTrait works
   @javascript @phpserver
   Scenario: Assert click on element
     Given I am on the phpserver test page
-    Then I click on the element "#overlay-off-canvas-trigger"
+    When I click on the element "#overlay-off-canvas-trigger"
 
   @javascript @phpserver
   Scenario: Assert trigger event on element
@@ -216,18 +219,18 @@ Feature: Check that ElementTrait works
   Scenario: Assert Accept/Not Accept confirmation
     Given I am on the phpserver test page
     Then I should see the button "Test confirm"
-    Then I should not see the button "You pressed OK!"
-    Then I accept all confirmation dialogs
-    Then I press the "Test confirm" button
+    And I should not see the button "You pressed OK!"
+    When I accept all confirmation dialogs
+    And I press the "Test confirm" button
     Then I should see the button "You pressed OK!"
 
   @javascript @phpserver
   Scenario: Assert Not Accept confirmation
     Given I am on the phpserver test page
     Then I should see the button "Test confirm"
-    Then I should not see the button "You canceled!"
-    Then I do not accept any confirmation dialogs
-    Then I press the "Test confirm" button
+    And I should not see the button "You canceled!"
+    When I do not accept any confirmation dialogs
+    And I press the "Test confirm" button
     Then I should see the button "You canceled!"
 
   @javascript @phpserver

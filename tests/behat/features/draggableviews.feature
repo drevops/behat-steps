@@ -1,5 +1,8 @@
 @api
 Feature: Check that DraggableviewsTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage the order of items in draggable views
+  So that users can test content ordering functionality
 
   Scenario: Assert save order of the Draggable Order items
     Given "draggableviews_demo" content:

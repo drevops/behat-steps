@@ -1,22 +1,25 @@
 @api @javascript
 Feature: Check that WaitTrait works
+  As Behat Steps library developer
+  I want to provide tools to wait for elements or time periods
+  So that users can synchronize tests with page loading and AJAX events
 
   Scenario: Assert "When I wait for :seconds second(s)"
-    Given I go to the homepage
+    When I go to the homepage
     And I wait for 1 second
     Then I save screenshot
-    And I wait for 2 seconds
+    When I wait for 2 seconds
     Then I save screenshot
-    And I wait for 1 second
+    When I wait for 1 second
     Then I save screenshot
-    And I wait for 2 seconds
+    When I wait for 2 seconds
 
   Scenario: Assert "When I wait for :seconds second(s) for AJAX to finish"
     Given I am logged in as a user with the "administrator" role
-    Then I visit "admin/structure/types/manage/page/form-display"
+    When I visit "admin/structure/types/manage/page/form-display"
     Then I should not see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
-    Then I press the "title_settings_edit" button
-    Then I wait for "5" seconds for AJAX to finish
+    When I press the "title_settings_edit" button
+    And I wait for "5" seconds for AJAX to finish
     Then I should see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
 
   @trait:WaitTrait

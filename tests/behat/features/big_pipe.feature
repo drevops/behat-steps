@@ -1,4 +1,7 @@
 Feature: Check that BigPipeTrait works
+  As Behat Steps library developer
+  I want to provide tools to manage BigPipe cookies
+  So that users can test progressive rendering with and without JavaScript
 
   @api
   Scenario: Assert that Big Pipe cookie is set
@@ -20,7 +23,7 @@ Feature: Check that BigPipeTrait works
     And I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
-    And I am logged in as "administrator_user"
+    When I am logged in as "administrator_user"
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 
@@ -33,6 +36,6 @@ Feature: Check that BigPipeTrait works
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
     # Logging in as a new user removes cookies.
-    And I am logged in as "administrator_user"
-    When I visit "/"
+    When I am logged in as "administrator_user"
+    And I visit "/"
     Then cookie "big_pipe_nojs" does not exist
