@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 
 aliases:
   # Common container configuration.
@@ -74,7 +74,7 @@ jobs:
     <<: *job-build
 
 workflows:
-  version: 2.1
+  version: 2
   main:
     jobs:
       - build_d10
