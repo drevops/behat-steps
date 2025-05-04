@@ -39,7 +39,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "When the password for the user :name is :password" works
     Given the password for the user "authenticated_user" is "password123"
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When the password for the user :name is :password" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -52,7 +52,7 @@ Feature: Check that UserTrait works
       User with name "non_existing" does not exist.
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When the password for the user :name is :password" fails for an existing user with an empty password
     Given some behat configuration
     And scenario steps:
@@ -72,7 +72,7 @@ Feature: Check that UserTrait works
     And the last access time for the user "authenticated_user" is "-10 years"
     And the last access time for the user "authenticated_user" is "[relative:-10 years]"
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When the last access time for the user :name is :datetime" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -85,7 +85,7 @@ Feature: Check that UserTrait works
       User with name "non_existing" does not exist.
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When the last access time for the user :name is :datetime" fails for invalid datetime
     Given some behat configuration
     And scenario steps:
@@ -105,7 +105,7 @@ Feature: Check that UserTrait works
     Given the last login time for the user "authenticated_user" is "-10 years"
     Given the last login time for the user "authenticated_user" is "[relative:-10 years]"
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Given the last login time for the user :name is :datetime" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -118,7 +118,7 @@ Feature: Check that UserTrait works
       User with name "non_existing" does not exist.
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Given the last login time for the user :name is :datetime" fails for invalid datetime
     Given some behat configuration
     And scenario steps:
@@ -137,7 +137,7 @@ Feature: Check that UserTrait works
     When I visit "authenticated_user" user profile page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit :name user profile page" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -157,7 +157,7 @@ Feature: Check that UserTrait works
     When I visit my own user profile page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit my own user profile page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -176,7 +176,7 @@ Feature: Check that UserTrait works
     When I visit "authenticated_user" user profile edit page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit :name user profile edit page" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -196,7 +196,7 @@ Feature: Check that UserTrait works
     When I visit my own user profile edit page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit my own user profile edit page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -215,7 +215,7 @@ Feature: Check that UserTrait works
     When I visit "authenticated_user" user profile delete page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit :name user profile delete page" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -235,7 +235,7 @@ Feature: Check that UserTrait works
     When I visit my own user profile delete page
     Then I should get a 200 HTTP response
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "When I visit my own user profile delete page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -258,7 +258,7 @@ Feature: Check that UserTrait works
     And the user "multiple_roles" should have the role "administrator, content_editor" assigned
     And the user "multiple_roles" should have the role "administrator,content_editor" assigned
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration
     And scenario steps:
@@ -275,7 +275,7 @@ Feature: Check that UserTrait works
       User "single_role" does not have role(s) "content_editor", but has roles "authenticated", "administrator".
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
@@ -292,7 +292,7 @@ Feature: Check that UserTrait works
       User "single_role" does not have role(s) "administrator", "content_editor", but has roles "authenticated", "administrator".
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -314,7 +314,7 @@ Feature: Check that UserTrait works
     And the user "single_role" should not have the roles "content_editor, content_approver" assigned
     And the user "single_role" should not have the role "content_editor,content_approver" assigned
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for having a single role
     Given some behat configuration
     And scenario steps:
@@ -330,7 +330,7 @@ Feature: Check that UserTrait works
       User "single_role" should not have roles(s) "administrator", but has "authenticated", "administrator".
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
@@ -346,7 +346,7 @@ Feature: Check that UserTrait works
       User "single_role" should not have roles(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -363,7 +363,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "Then the user :name should be blocked"
     Then the user "authenticated_user_blocked" should be blocked
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should be blocked" fails for non-blocked user
     Given some behat configuration
     And scenario steps:
@@ -376,7 +376,7 @@ Feature: Check that UserTrait works
       User "authenticated_user" is expected to be blocked, but they are not.
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should be blocked" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -393,7 +393,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "Then the user :name should not be blocked"
     Then the user "authenticated_user" should not be blocked
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should not be blocked" fails for non-blocked user
     Given some behat configuration
     And scenario steps:
@@ -406,7 +406,7 @@ Feature: Check that UserTrait works
       User "authenticated_user_blocked" is expected to not be blocked, but they are.
       """
 
-  @trait:UserTrait @api
+  @api @trait:UserTrait
   Scenario: Assert "Then the user :name should not be blocked" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
