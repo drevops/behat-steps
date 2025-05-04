@@ -22,6 +22,7 @@
             restrictWarnings="true"
             ignoreIndirectDeprecations="true">
         <include>
+            <directory>src</directory>
             <file>docs.php</file>
         </include>
         <exclude>
@@ -32,8 +33,8 @@
               ignoreDeprecatedCodeUnits="true"
               disableCodeCoverageIgnore="false">
         <report>
-            <html outputDirectory=".logs/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
-            <cobertura outputFile=".logs/phpunit/cobertura.xml"/>
+            <html outputDirectory=".logs/coverage/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
+            <cobertura outputFile=".logs/coverage/phpunit/cobertura.xml"/>
         </report>
     </coverage>
     <logging>
