@@ -442,6 +442,7 @@ EOD,
             [
               'class_name' => 'TestTrait',
               'class_description' => 'Test trait description',
+              'class_description_full' => 'Test trait description',
               'name' => 'testMethod',
               'steps' => ['@Given I am on the homepage'],
               'description' => 'Test method description',
@@ -455,6 +456,8 @@ EOD,
 | [TestTrait](#testtrait) | Test trait description |
 ## TestTrait
 
+<details><summary><strong>ℹ About this trait</strong></summary>Test trait description</details>
+
 [Source](src/TestTrait.php), [Example](tests/behat/features/test.feature)
 
 <details>
@@ -463,6 +466,7 @@ EOD,
 ```gherkin
 Given I am on the homepage
 ```
+
 </details>
 
 
@@ -474,6 +478,7 @@ EOD,
             [
               'class_name' => 'FirstTrait',
               'class_description' => 'First trait description',
+              'class_description_full' => 'First trait description',
               'name' => 'firstMethod',
               'steps' => ['@Given I am on the homepage'],
               'description' => 'First method description',
@@ -484,6 +489,7 @@ EOD,
             [
               'class_name' => 'SecondTrait',
               'class_description' => 'Second trait description',
+              'class_description_full' => 'Second trait description',
               'name' => 'secondMethod',
               'steps' => ['@When I click "Submit"'],
               'description' => 'Second method description',
@@ -498,6 +504,8 @@ EOD,
 | [SecondTrait](#secondtrait) | Second trait description |
 ## FirstTrait
 
+<details><summary><strong>ℹ About this trait</strong></summary>First trait description</details>
+
 [Source](src/FirstTrait.php), [Example](tests/behat/features/first.feature)
 
 <details>
@@ -506,9 +514,12 @@ EOD,
 ```gherkin
 Given I am on the homepage
 ```
+
 </details>
 
 ## SecondTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Second trait description</details>
 
 [Source](src/SecondTrait.php), [Example](tests/behat/features/second.feature)
 
@@ -518,6 +529,7 @@ Given I am on the homepage
 ```gherkin
 When I click "Submit"
 ```
+
 </details>
 
 
@@ -529,6 +541,7 @@ EOD,
             [
               'class_name' => 'MultiMethodTrait',
               'class_description' => 'Multi-method trait description',
+              'class_description_full' => 'Multi-method trait description',
               'name' => 'firstMethod',
               'steps' => ['@Given I am on the homepage'],
               'description' => 'First method description',
@@ -537,6 +550,7 @@ EOD,
             [
               'class_name' => 'MultiMethodTrait',
               'class_description' => 'Multi-method trait description',
+              'class_description_full' => 'Multi-method trait description',
               'name' => 'secondMethod',
               'steps' => ['@When I click "Submit"'],
               'description' => 'Second method description',
@@ -550,6 +564,8 @@ EOD,
 | [MultiMethodTrait](#multimethodtrait) | Multi-method trait description |
 ## MultiMethodTrait
 
+<details><summary><strong>ℹ About this trait</strong></summary>Multi-method trait description</details>
+
 [Source](src/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
 
 <details>
@@ -558,6 +574,7 @@ EOD,
 ```gherkin
 Given I am on the homepage
 ```
+
 </details>
 
 <details>
@@ -566,6 +583,7 @@ Given I am on the homepage
 ```gherkin
 When I click "Submit"
 ```
+
 </details>
 
 
@@ -577,6 +595,7 @@ EOD,
             [
               'class_name' => 'StepsTrait',
               'class_description' => 'Steps trait description',
+              'class_description_full' => 'Steps trait description',
               'name' => 'methodWithMultipleSteps',
               'steps' => ['@Given I am on the homepage', '@When I click "Submit"', '@Then I should see "Success"'],
               'description' => 'Method with multiple steps',
@@ -590,6 +609,8 @@ EOD,
 | [StepsTrait](#stepstrait) | Steps trait description |
 ## StepsTrait
 
+<details><summary><strong>ℹ About this trait</strong></summary>Steps trait description</details>
+
 [Source](src/StepsTrait.php), [Example](tests/behat/features/steps.feature)
 
 <details>
@@ -602,6 +623,7 @@ Given I am on the homepage
 When I click "Submit"
 Then I should see "Success"
 ```
+
 </details>
 
 

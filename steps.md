@@ -26,6 +26,9 @@
 | [WaitTrait](#waittrait) | Implements timed waits and AJAX completion checks. |
 ## BlockTrait
 
+<details><summary><strong>ℹ About this trait</strong></summary>Create, configure, and test block.<br />
+ This trait enables programmatic management of blocks in the Drupal system, including configuration, placement in regions, visibility settings, and assertions about block state.</details>
+
 [Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
 
 <details>
@@ -39,6 +42,7 @@ Given the instance of "My block" block exists with the following configuration:
  | status        | 1        |
 
 ```
+
 </details>
 
 <details>
@@ -51,6 +55,7 @@ Given the block "My block" has the following configuration:
 | status        | 1       |
 
 ```
+
 </details>
 
 <details>
@@ -60,6 +65,7 @@ Given the block "My block" has the following configuration:
 Given the block "My block" does not exist
 
 ```
+
 </details>
 
 <details>
@@ -69,6 +75,7 @@ Given the block "My block" does not exist
 Given the block "My block" is enabled
 
 ```
+
 </details>
 
 <details>
@@ -78,6 +85,7 @@ Given the block "My block" is enabled
 Given the block "My block" is disabled
 
 ```
+
 </details>
 
 <details>
@@ -89,6 +97,7 @@ Given the block "My block" has the following "request_path" condition configurat
 | negate | 0                 |
 
 ```
+
 </details>
 
 <details>
@@ -98,6 +107,7 @@ Given the block "My block" has the following "request_path" condition configurat
 Given the block "My block" has the "request_path" condition removed
 
 ```
+
 </details>
 
 <details>
@@ -107,6 +117,7 @@ Given the block "My block" has the "request_path" condition removed
 Then the block "My block" should exist
 
 ```
+
 </details>
 
 <details>
@@ -116,6 +127,7 @@ Then the block "My block" should exist
 Then the block "My block" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -125,6 +137,7 @@ Then the block "My block" should not exist
 Then the block "My block" should exist in the "content" region
 
 ```
+
 </details>
 
 <details>
@@ -134,9 +147,13 @@ Then the block "My block" should exist in the "content" region
 Then the block "My block" should not exist in the "content" region
 
 ```
+
 </details>
 
 ## ContentBlockTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Manages content block entities.<br />
+ This trait enables programmatic management of content block entities in Drupal, including creation, validation, and editing operations. These reusable content blocks can be placed in regions using the BlockTrait.</details>
 
 [Source](src/ContentBlockTrait.php), [Example](tests/behat/features/content_block.feature)
 
@@ -149,6 +166,7 @@ Given the following "basic" content blocks do not exist:
 | [TEST] Contact Form  |
 
 ```
+
 </details>
 
 <details>
@@ -161,6 +179,7 @@ Given the following "basic" content blocks exist:
 | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
 
 ```
+
 </details>
 
 <details>
@@ -170,6 +189,7 @@ Given the following "basic" content blocks exist:
 When I edit the "basic" content block with the description "[TEST] Footer Block"
 
 ```
+
 </details>
 
 <details>
@@ -179,9 +199,14 @@ When I edit the "basic" content block with the description "[TEST] Footer Block"
 Then the content block type "Search" should exist
 
 ```
+
 </details>
 
 ## ContentTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Works with Drupal content entities.<br />
+ Content-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
 
@@ -192,6 +217,7 @@ Then the content block type "Search" should exist
 Given the content type "article" does not exist
 
 ```
+
 </details>
 
 <details>
@@ -204,6 +230,7 @@ Given the following "article" content does not exist:
   | Another test article |
 
 ```
+
 </details>
 
 <details>
@@ -213,6 +240,7 @@ Given the following "article" content does not exist:
 When I visit the "article" content page with the title "Test article"
 
 ```
+
 </details>
 
 <details>
@@ -222,6 +250,7 @@ When I visit the "article" content page with the title "Test article"
 When I visit the "article" content edit page with the title "Test article"
 
 ```
+
 </details>
 
 <details>
@@ -231,6 +260,7 @@ When I visit the "article" content edit page with the title "Test article"
 When I visit the "article" content delete page with the title "Test article"
 
 ```
+
 </details>
 
 <details>
@@ -240,6 +270,7 @@ When I visit the "article" content delete page with the title "Test article"
 When I visit the "article" content scheduled transitions page with the title "Test article"
 
 ```
+
 </details>
 
 <details>
@@ -249,9 +280,14 @@ When I visit the "article" content scheduled transitions page with the title "Te
 When I change the moderation state of the "article" content with the title "Test article" to the "published" state
 
 ```
+
 </details>
 
 ## CookieTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Works with browser cookies.<br />
+ Cookie-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/CookieTrait.php), [Example](tests/behat/features/cookie.feature)
 
@@ -262,6 +298,7 @@ When I change the moderation state of the "article" content with the title "Test
 Then a cookie with the name "session_id" should exist
 
 ```
+
 </details>
 
 <details>
@@ -271,6 +308,7 @@ Then a cookie with the name "session_id" should exist
 Then a cookie with the name "language" and the value "en" should exist
 
 ```
+
 </details>
 
 <details>
@@ -280,6 +318,7 @@ Then a cookie with the name "language" and the value "en" should exist
 Then a cookie with the name "preferences" and a value containing "darkmode" should exist
 
 ```
+
 </details>
 
 <details>
@@ -289,6 +328,7 @@ Then a cookie with the name "preferences" and a value containing "darkmode" shou
 Then a cookie with a name containing "session" should exist
 
 ```
+
 </details>
 
 <details>
@@ -298,6 +338,7 @@ Then a cookie with a name containing "session" should exist
 Then a cookie with a name containing "user" and the value "admin" should exist
 
 ```
+
 </details>
 
 <details>
@@ -307,6 +348,7 @@ Then a cookie with a name containing "user" and the value "admin" should exist
 Then a cookie with a name containing "user" and a value containing "admin" should exist
 
 ```
+
 </details>
 
 <details>
@@ -316,6 +358,7 @@ Then a cookie with a name containing "user" and a value containing "admin" shoul
 Then a cookie with name "old_session" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -325,6 +368,7 @@ Then a cookie with name "old_session" should not exist
 Then a cookie with the name "language" and the value "fr" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -334,6 +378,7 @@ Then a cookie with the name "language" and the value "fr" should not exist
 Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -343,6 +388,7 @@ Then a cookie with the name "preferences" and a value containing "lightmode" sho
 Then a cookie with a name containing "old" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -352,6 +398,7 @@ Then a cookie with a name containing "old" should not exist
 Then a cookie with a name containing "user" and the value "guest" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -361,9 +408,14 @@ Then a cookie with a name containing "user" and the value "guest" should not exi
 Then a cookie with a name containing "user" and a value containing "guest" should not exist
 
 ```
+
 </details>
 
 ## DraggableviewsTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal's Draggable Views module functionality.<br />
+ Draggable Views-related steps.<br />
+ @note This is currently limited to nodes only.</details>
 
 [Source](src/DraggableviewsTrait.php), [Example](tests/behat/features/draggableviews.feature)
 
@@ -377,9 +429,14 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
   | Third Article  |
 
 ```
+
 </details>
 
 ## EckTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal's Entity Construction Kit (ECK) module.<br />
+ Entity Construction Kit-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/EckTrait.php), [Example](tests/behat/features/eck.feature)
 
@@ -393,6 +450,7 @@ Given the following eck "contact" "contact_type" entities exist:
 | ...    | ...                     | ...             | ... |
 
 ```
+
 </details>
 
 <details>
@@ -404,6 +462,7 @@ Given the following eck "contact" "contact_type" entities do not exist:
 | field_a      | Entity label    |
 
 ```
+
 </details>
 
 <details>
@@ -413,6 +472,7 @@ Given the following eck "contact" "contact_type" entities do not exist:
 When I visit eck "contact" "contact_type" entity with the title "Test contact"
 
 ```
+
 </details>
 
 <details>
@@ -422,9 +482,14 @@ When I visit eck "contact" "contact_type" entity with the title "Test contact"
 When I edit eck "contact" "contact_type" entity with the title "Test contact"
 
 ```
+
 </details>
 
 ## ElementTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Interacts with and validates HTML elements.<br />
+ Steps to work with HTML elements.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
@@ -435,6 +500,7 @@ When I edit eck "contact" "contact_type" entity with the title "Test contact"
 Given I accept all confirmation dialogs
 
 ```
+
 </details>
 
 <details>
@@ -444,6 +510,7 @@ Given I accept all confirmation dialogs
 Given I do not accept any confirmation dialogs
 
 ```
+
 </details>
 
 <details>
@@ -453,6 +520,7 @@ Given I do not accept any confirmation dialogs
 When I click on the element ".button"
 
 ```
+
 </details>
 
 <details>
@@ -462,6 +530,7 @@ When I click on the element ".button"
 When I trigger the JS event "click" on the element "#submit-button"
 
 ```
+
 </details>
 
 <details>
@@ -471,6 +540,7 @@ When I trigger the JS event "click" on the element "#submit-button"
 When I scroll to the element "#footer"
 
 ```
+
 </details>
 
 <details>
@@ -480,6 +550,7 @@ When I scroll to the element "#footer"
 Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
 
 ```
+
 </details>
 
 <details>
@@ -489,6 +560,7 @@ Then the element "#main-content" with the attribute "class" and the value "conte
 Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
 
 ```
+
 </details>
 
 <details>
@@ -498,6 +570,7 @@ Then the element "#main-content" with the attribute "class" and the value contai
 Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -507,6 +580,7 @@ Then the element "#main-content" with the attribute "class" and the value "hidde
 Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -516,6 +590,7 @@ Then the element "#main-content" with the attribute "class" and the value contai
 Then the element "#header" should be at the top of the viewport
 
 ```
+
 </details>
 
 <details>
@@ -525,6 +600,7 @@ Then the element "#header" should be at the top of the viewport
 Then the element ".alert-success" should be displayed
 
 ```
+
 </details>
 
 <details>
@@ -534,6 +610,7 @@ Then the element ".alert-success" should be displayed
 Then the element ".error-message" should not be displayed
 
 ```
+
 </details>
 
 <details>
@@ -543,6 +620,7 @@ Then the element ".error-message" should not be displayed
 Then the element ".hero-banner" should be displayed within a viewport
 
 ```
+
 </details>
 
 <details>
@@ -552,6 +630,7 @@ Then the element ".hero-banner" should be displayed within a viewport
 Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
 
 ```
+
 </details>
 
 <details>
@@ -561,6 +640,7 @@ Then the element ".sticky-header" should be displayed within a viewport with a t
 Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
 
 ```
+
 </details>
 
 <details>
@@ -570,9 +650,14 @@ Then the element ".below-fold-content" should not be displayed within a viewport
 Then the element ".visually-hidden" should not be displayed within a viewport
 
 ```
+
 </details>
 
 ## EmailTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests email functionality in Drupal applications.<br />
+ Email-related steps.<br />
+ Behat trait for email interactions.</details>
 
 [Source](src/EmailTrait.php), [Example](tests/behat/features/email.feature)
 
@@ -583,6 +668,7 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 When I clear the test email system queue
 
 ```
+
 </details>
 
 <details>
@@ -592,6 +678,7 @@ When I clear the test email system queue
 When I follow link number "1" in the email with the subject "Account Verification"
 
 ```
+
 </details>
 
 <details>
@@ -601,6 +688,7 @@ When I follow link number "1" in the email with the subject "Account Verificatio
 When I follow link number "1" in the email with the subject containing "Verification"
 
 ```
+
 </details>
 
 <details>
@@ -610,6 +698,7 @@ When I follow link number "1" in the email with the subject containing "Verifica
 When I enable the test email system
 
 ```
+
 </details>
 
 <details>
@@ -619,6 +708,7 @@ When I enable the test email system
 When I disable the test email system
 
 ```
+
 </details>
 
 <details>
@@ -628,6 +718,7 @@ When I disable the test email system
 Then an email should be sent to the "user@example.com"
 
 ```
+
 </details>
 
 <details>
@@ -637,6 +728,7 @@ Then an email should be sent to the "user@example.com"
 Then no emails should have been sent
 
 ```
+
 </details>
 
 <details>
@@ -646,6 +738,7 @@ Then no emails should have been sent
 Then no emails should have been sent to the "user@example.com"
 
 ```
+
 </details>
 
 <details>
@@ -658,6 +751,7 @@ Account details
 """
 
 ```
+
 </details>
 
 <details>
@@ -670,6 +764,7 @@ Your Account Details
 """
 
 ```
+
 </details>
 
 <details>
@@ -683,6 +778,7 @@ Click the link below to verify your account.
 """
 
 ```
+
 </details>
 
 <details>
@@ -695,6 +791,7 @@ verification link
 """
 
 ```
+
 </details>
 
 <details>
@@ -707,6 +804,7 @@ password
 """
 
 ```
+
 </details>
 
 <details>
@@ -719,6 +817,7 @@ Welcome to our site!
 """
 
 ```
+
 </details>
 
 <details>
@@ -731,6 +830,7 @@ verification link
 """
 
 ```
+
 </details>
 
 <details>
@@ -743,6 +843,7 @@ Please verify your account
 """
 
 ```
+
 </details>
 
 <details>
@@ -755,6 +856,7 @@ Account Verification
 """
 
 ```
+
 </details>
 
 <details>
@@ -767,6 +869,7 @@ password
 """
 
 ```
+
 </details>
 
 <details>
@@ -779,6 +882,7 @@ Password Reset
 """
 
 ```
+
 </details>
 
 <details>
@@ -788,6 +892,7 @@ Password Reset
 Then the file "document.pdf" should be attached to the email with the subject "Your document"
 
 ```
+
 </details>
 
 <details>
@@ -797,9 +902,14 @@ Then the file "document.pdf" should be attached to the email with the subject "Y
 Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
 
 ```
+
 </details>
 
 ## FieldTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Interacts with and validates form fields.<br />
+ Field-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
 
@@ -810,6 +920,7 @@ Then the file "report.xlsx" should be attached to the email with the subject con
 When I fill in the color field "#edit-text-color" with the value "#3366FF"
 
 ```
+
 </details>
 
 <details>
@@ -819,6 +930,7 @@ When I fill in the color field "#edit-text-color" with the value "#3366FF"
 When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
 
 ```
+
 </details>
 
 <details>
@@ -829,6 +941,7 @@ Then the field "Body" should exist
 Then the field "field_body" should exist
 
 ```
+
 </details>
 
 <details>
@@ -839,6 +952,7 @@ Then the field "Body" should not exist
 Then the field "field_body" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -851,6 +965,7 @@ Then the field "Tags" should be "enabled"
 Then the field "field_tags" should be "not enabled"
 
 ```
+
 </details>
 
 <details>
@@ -860,6 +975,7 @@ Then the field "field_tags" should be "not enabled"
 Then the color field "#edit-background-color" should have the value "#FF5733"
 
 ```
+
 </details>
 
 <details>
@@ -869,6 +985,7 @@ Then the color field "#edit-background-color" should have the value "#FF5733"
 Then the option "Administrator" should exist within the select element "edit-roles"
 
 ```
+
 </details>
 
 <details>
@@ -878,6 +995,7 @@ Then the option "Administrator" should exist within the select element "edit-rol
 Then the option "Guest" should not exist within the select element "edit-roles"
 
 ```
+
 </details>
 
 <details>
@@ -887,6 +1005,7 @@ Then the option "Guest" should not exist within the select element "edit-roles"
 Then the option "Administrator" should be selected within the select element "edit-roles"
 
 ```
+
 </details>
 
 <details>
@@ -896,9 +1015,14 @@ Then the option "Administrator" should be selected within the select element "ed
 Then the option "Editor" should not be selected within the select element "edit-roles"
 
 ```
+
 </details>
 
 ## FileDownloadTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Downloads and validates files during tests.<br />
+ Steps to work with file downloads.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
 
@@ -910,6 +1034,7 @@ When I download the file from the URL "/sites/default/files/document.pdf"
 When I download the file from the URL "https://example.com/files/report.xlsx"
 
 ```
+
 </details>
 
 <details>
@@ -920,6 +1045,7 @@ When I download the file from the link "Download PDF"
 When I download the file from the link "Get Report"
 
 ```
+
 </details>
 
 <details>
@@ -932,6 +1058,7 @@ Financial Report 2023
 """
 
 ```
+
 </details>
 
 <details>
@@ -941,6 +1068,7 @@ Financial Report 2023
 Then the downloaded file name should be "report.pdf"
 
 ```
+
 </details>
 
 <details>
@@ -950,6 +1078,7 @@ Then the downloaded file name should be "report.pdf"
 Then the downloaded file name should contain "report"
 
 ```
+
 </details>
 
 <details>
@@ -962,6 +1091,7 @@ Then the downloaded file should be a zip archive containing the files named:
 | data.csv     |
 
 ```
+
 </details>
 
 <details>
@@ -974,6 +1104,7 @@ Then the downloaded file should be a zip archive containing the files partially 
 | image  |
 
 ```
+
 </details>
 
 <details>
@@ -986,9 +1117,14 @@ Then the downloaded file should be a zip archive not containing the files partia
 | draft        |
 
 ```
+
 </details>
 
 ## FileTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Creates and manages Drupal files in tests.<br />
+ File-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/FileTrait.php), [Example](tests/behat/features/file.feature)
 
@@ -1002,6 +1138,7 @@ Given the following managed files:
 | image.jpg    | public://images/pic.jpg| 1      |
 
 ```
+
 </details>
 
 <details>
@@ -1018,6 +1155,7 @@ Given no managed files:
  | public://otherfile.jpg |
 
 ```
+
 </details>
 
 <details>
@@ -1027,6 +1165,7 @@ Given no managed files:
 Given the unmanaged file at the URI "public://sample.txt" exists
 
 ```
+
 </details>
 
 <details>
@@ -1036,6 +1175,7 @@ Given the unmanaged file at the URI "public://sample.txt" exists
 Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
 
 ```
+
 </details>
 
 <details>
@@ -1045,6 +1185,7 @@ Given the unmanaged file at the URI "public://data.txt" exists with "Sample cont
 Then an unmanaged file at the URI "public://sample.txt" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1054,6 +1195,7 @@ Then an unmanaged file at the URI "public://sample.txt" should exist
 Then an unmanaged file at the URI "public://temp.txt" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -1063,6 +1205,7 @@ Then an unmanaged file at the URI "public://temp.txt" should not exist
 Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
 
 ```
+
 </details>
 
 <details>
@@ -1072,9 +1215,13 @@ Then an unmanaged file at the URI "public://config.txt" should contain "debug=tr
 Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
 
 ```
+
 </details>
 
 ## KeyboardTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Simulates keyboard interactions in browser tests.<br />
+ Behat trait for keyboard interactions.</details>
 
 [Source](src/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
@@ -1086,6 +1233,7 @@ When I press the key "a"
 When I press the key "tab"
 
 ```
+
 </details>
 
 <details>
@@ -1096,6 +1244,7 @@ When I press the key "a" on the element "#edit-title"
 When I press the key "tab" on the element "#edit-title"
 
 ```
+
 </details>
 
 <details>
@@ -1105,6 +1254,7 @@ When I press the key "tab" on the element "#edit-title"
 When I press the keys "abc"
 
 ```
+
 </details>
 
 <details>
@@ -1114,9 +1264,14 @@ When I press the keys "abc"
 When I press the keys "abc" on the element "#edit-title"
 
 ```
+
 </details>
 
 ## LinkTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Interacts with and validates HTML links.<br />
+ Link-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
@@ -1127,6 +1282,7 @@ When I press the keys "abc" on the element "#edit-title"
 When I click on the link with the title "Return to site content"
 
 ```
+
 </details>
 
 <details>
@@ -1137,6 +1293,7 @@ Then the link "About us" with the href "/about-us" should exist
 Then the link "About us" with the href "/about*" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1147,6 +1304,7 @@ Then the link "About us" with the href "/about-us" within the element ".main-nav
 Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1157,6 +1315,7 @@ Then the link "About us" with the href "/about-us" should not exist
 Then the link "About us" with the href "/about*" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -1167,6 +1326,7 @@ Then the link "About us" with the href "/about-us" within the element ".main-nav
 Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -1176,6 +1336,7 @@ Then the link "About us" with the href "/about*" within the element ".main-nav" 
 Then the link with the title "Return to site content" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1185,6 +1346,7 @@ Then the link with the title "Return to site content" should exist
 Then the link with the title "Some non-existing title" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -1194,6 +1356,7 @@ Then the link with the title "Some non-existing title" should not exist
 Then the link "my-link-title" should be an absolute link
 
 ```
+
 </details>
 
 <details>
@@ -1203,9 +1366,13 @@ Then the link "my-link-title" should be an absolute link
 Then the link "Return to site content" should not be an absolute link
 
 ```
+
 </details>
 
 ## MediaTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Creates and tests Drupal media entities.<br />
+ Trait to handle media entities.</details>
 
 [Source](src/MediaTrait.php), [Example](tests/behat/features/media.feature)
 
@@ -1216,6 +1383,7 @@ Then the link "Return to site content" should not be an absolute link
 Given "video" media type does not exist
 
 ```
+
 </details>
 
 <details>
@@ -1228,6 +1396,7 @@ Given "video" media:
 | ...      | ...      | ...    | ...              |
 
 ```
+
 </details>
 
 <details>
@@ -1240,6 +1409,7 @@ Given the following media "image" do not exist:
 | Another media item |
 
 ```
+
 </details>
 
 <details>
@@ -1249,9 +1419,14 @@ Given the following media "image" do not exist:
 When I edit "document" media "Test document"
 
 ```
+
 </details>
 
 ## MenuTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Creates and manages Drupal menus and menu items.<br />
+ Menu-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/MenuTrait.php), [Example](tests/behat/features/menu.feature)
 
@@ -1262,6 +1437,7 @@ When I edit "document" media "Test document"
 Given the menu "Test Menu" does not exist
 
 ```
+
 </details>
 
 <details>
@@ -1274,6 +1450,7 @@ Given the following menus:
 | Secondary Menu  | Secondary navigation menu      |
 
 ```
+
 </details>
 
 <details>
@@ -1285,6 +1462,7 @@ Given the following menu links do not exist in the menu "Main navigation":
 | Contact      |
 
 ```
+
 </details>
 
 <details>
@@ -1297,9 +1475,14 @@ Given the following menu links exist in the menu "Main navigation":
 | Latest Products | 1       | /products/latest        | Products     |
 
 ```
+
 </details>
 
 ## ParagraphsTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal Paragraphs module functionality.<br />
+ Paragraphs-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/ParagraphsTrait.php), [Example](tests/behat/features/paragraphs.feature)
 
@@ -1314,9 +1497,14 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 | ...                             | ...                  |
 
 ```
+
 </details>
 
 ## PathTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests URL paths and basic authentication.<br />
+ Path-related assertions.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/PathTrait.php), [Example](tests/behat/features/path.feature)
 
@@ -1327,6 +1515,7 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 Given the basic authentication with the username "myusername" and the password "mypassword"
 
 ```
+
 </details>
 
 <details>
@@ -1337,6 +1526,7 @@ Then the path should be "/about-us"
 Then the path should be "<front>"
 
 ```
+
 </details>
 
 <details>
@@ -1347,9 +1537,14 @@ Then the path should not be "/about-us"
 Then the path should not be "<front>"
 
 ```
+
 </details>
 
 ## ResponseTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests HTTP response headers in web requests.<br />
+ Response-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
@@ -1360,6 +1555,7 @@ Then the path should not be "<front>"
 Then the response should contain the header "Connection"
 
 ```
+
 </details>
 
 <details>
@@ -1369,6 +1565,7 @@ Then the response should contain the header "Connection"
 Then the response should not contain the header "Connection"
 
 ```
+
 </details>
 
 <details>
@@ -1378,6 +1575,7 @@ Then the response should not contain the header "Connection"
 Then the response header "Connection" should contain the value "Keep-Alive"
 
 ```
+
 </details>
 
 <details>
@@ -1387,9 +1585,14 @@ Then the response header "Connection" should contain the value "Keep-Alive"
 Then the response header "Connection" should not contain the value "Keep-Alive"
 
 ```
+
 </details>
 
 ## SearchApiTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal Search API module functionality.<br />
+ Search API-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
 
@@ -1400,6 +1603,7 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 When I add the "article" content with the title "Test Article" to the search index
 
 ```
+
 </details>
 
 <details>
@@ -1410,9 +1614,14 @@ When I run search indexing for 5 items
 When I run search indexing for 1 item
 
 ```
+
 </details>
 
 ## TaxonomyTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal taxonomy terms and vocabularies.<br />
+ Taxonomy term-related steps.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/TaxonomyTrait.php), [Example](tests/behat/features/taxonomy.feature)
 
@@ -1425,6 +1634,7 @@ Given the following "fruits" vocabulary terms do not exist:
   | Pear  |
 
 ```
+
 </details>
 
 <details>
@@ -1434,6 +1644,7 @@ Given the following "fruits" vocabulary terms do not exist:
 When I visit the "fruits" vocabulary "Apple" term page
 
 ```
+
 </details>
 
 <details>
@@ -1443,6 +1654,7 @@ When I visit the "fruits" vocabulary "Apple" term page
 When I edit the "fruits" vocabulary "Apple" term page
 
 ```
+
 </details>
 
 <details>
@@ -1452,6 +1664,7 @@ When I edit the "fruits" vocabulary "Apple" term page
 Then the vocabulary "topics" with the name "Topics" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1461,6 +1674,7 @@ Then the vocabulary "topics" with the name "Topics" should exist
 Then the vocabulary "topics" should not exist
 
 ```
+
 </details>
 
 <details>
@@ -1470,6 +1684,7 @@ Then the vocabulary "topics" should not exist
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 
 ```
+
 </details>
 
 <details>
@@ -1479,9 +1694,14 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 ```
+
 </details>
 
 ## UserTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Tests Drupal users, authentication, and profiles.<br />
+ Provides functionality for creating and managing Drupal users, assigning roles, and handling user authentication.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/UserTrait.php), [Example](tests/behat/features/user.feature)
 
@@ -1499,6 +1719,7 @@ Given the following users do not exist:
   | jane@example.com |
 
 ```
+
 </details>
 
 <details>
@@ -1508,6 +1729,7 @@ Given the following users do not exist:
 Given the password for the user "John" is "password"
 
 ```
+
 </details>
 
 <details>
@@ -1518,6 +1740,7 @@ Given the last access time for the user "John" is "Friday, 22 November 2024 13:4
 Given the last access time for the user "John" is "1732319174"
 
 ```
+
 </details>
 
 <details>
@@ -1528,6 +1751,7 @@ Given the last login time for the user "John" is "Friday, 22 November 2024 13:46
 Given the last login time for the user "John" is "1732319174"
 
 ```
+
 </details>
 
 <details>
@@ -1537,6 +1761,7 @@ Given the last login time for the user "John" is "1732319174"
 Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
 
 ```
+
 </details>
 
 <details>
@@ -1549,6 +1774,7 @@ Given the following roles:
 | Content Approver  | access content, edit any article content |
 
 ```
+
 </details>
 
 <details>
@@ -1558,6 +1784,7 @@ Given the following roles:
 When I visit "John" user profile page
 
 ```
+
 </details>
 
 <details>
@@ -1567,6 +1794,7 @@ When I visit "John" user profile page
 When I visit my own user profile page
 
 ```
+
 </details>
 
 <details>
@@ -1576,6 +1804,7 @@ When I visit my own user profile page
 When I visit "John" user profile edit page
 
 ```
+
 </details>
 
 <details>
@@ -1585,6 +1814,7 @@ When I visit "John" user profile edit page
 When I visit my own user profile edit page
 
 ```
+
 </details>
 
 <details>
@@ -1594,6 +1824,7 @@ When I visit my own user profile edit page
 When I visit "John" user profile delete page
 
 ```
+
 </details>
 
 <details>
@@ -1603,6 +1834,7 @@ When I visit "John" user profile delete page
 When I visit my own user profile delete page
 
 ```
+
 </details>
 
 <details>
@@ -1612,6 +1844,7 @@ When I visit my own user profile delete page
 Then the user "John" should have the roles "administrator, editor" assigned
 
 ```
+
 </details>
 
 <details>
@@ -1621,6 +1854,7 @@ Then the user "John" should have the roles "administrator, editor" assigned
 Then the user "John" should not have the roles "administrator, editor" assigned
 
 ```
+
 </details>
 
 <details>
@@ -1630,6 +1864,7 @@ Then the user "John" should not have the roles "administrator, editor" assigned
 Then the user "John" should be blocked
 
 ```
+
 </details>
 
 <details>
@@ -1639,9 +1874,14 @@ Then the user "John" should be blocked
 Then the user "John" should not be blocked
 
 ```
+
 </details>
 
 ## WaitTrait
+
+<details><summary><strong>ℹ About this trait</strong></summary>Implements timed waits and AJAX completion checks.<br />
+ Wait for a specific time or other actions on the page.<br />
+ @package DrevOps\BehatSteps</details>
 
 [Source](src/WaitTrait.php), [Example](tests/behat/features/wait.feature)
 
@@ -1653,6 +1893,7 @@ When I wait for 5 seconds
 When I wait for 1 second
 
 ```
+
 </details>
 
 <details>
@@ -1663,6 +1904,7 @@ When I wait for 5 seconds for AJAX to finish
 When I wait for 1 second for AJAX to finish
 
 ```
+
 </details>
 
 
