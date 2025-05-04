@@ -11,11 +11,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
 /**
- * Tests Drupal's Draggable Views module functionality.
- *
- * Draggable Views-related steps.
- *
- * @note This is currently limited to nodes only.
+ * Order items in the Drupal Draggable Views.
  */
 trait DraggableviewsTrait {
 

@@ -11,11 +11,14 @@ use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
 
 /**
- * Creates and manages Drupal menus and menu items.
+ * Manage Drupal menu systems and menu link rendering.
  *
- * Menu-related steps.
+ * - Assert menu items by label, path, and containment hierarchy.
+ * - Assert menu link visibility and active states in different regions.
+ * - Create and manage menu hierarchies with parent-child relationships.
+ * - Automatically clean up created menu links after scenario completion.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tag: `@behat-steps-skip:menuAfterScenario`
  */
 trait MenuTrait {
 

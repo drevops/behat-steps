@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Interacts with and validates HTML links.
+ * Verify link elements with attribute and content assertions.
  *
- * Link-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Find links by title, URL, text content, and class attributes.
+ * - Test link existence, visibility, and destination accuracy.
+ * - Assert absolute and relative link paths.
  */
 trait LinkTrait {
 

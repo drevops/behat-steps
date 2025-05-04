@@ -13,11 +13,17 @@ use Behat\Mink\Element\NodeElement;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Downloads and validates files during tests.
+ * Test file download functionality with content verification.
  *
- * Steps to work with file downloads.
+ * - Download files through links and URLs with session cookie handling.
+ * - Verify file names, content, and extracted archives.
+ * - Set up download directories and handle file cleanup.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tags: `@behat-steps-skip:fileDownloadBeforeScenario` or
+ * `@behat-steps-skip:fileDownloadAfterScenario`
+ *
+ * Special tags:
+ * - `@download` - enable download handling
  */
 trait FileDownloadTrait {
 

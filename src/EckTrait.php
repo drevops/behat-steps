@@ -9,11 +9,13 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\eck\EckEntityInterface;
 
 /**
- * Tests Drupal's Entity Construction Kit (ECK) module.
+ * Manage Drupal ECK entities with custom type and bundle creation.
  *
- * Entity Construction Kit-related steps.
+ * - Create structured ECK entities with defined field values.
+ * - Assert entity type registration and visit entity pages.
+ * - Automatically clean up created entities after scenario completion.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tag: `@behat-steps-skip:eckAfterScenario`
  */
 trait EckTrait {
 

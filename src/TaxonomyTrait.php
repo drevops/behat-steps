@@ -8,11 +8,11 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
- * Tests Drupal taxonomy terms and vocabularies.
+ * Manage Drupal taxonomy terms with vocabulary organization.
  *
- * Taxonomy term-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Create term vocabulary structures using field values.
+ * - Navigate to term pages
+ * - Verify vocabulary configurations.
  */
 trait TaxonomyTrait {
 

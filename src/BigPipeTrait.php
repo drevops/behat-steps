@@ -11,9 +11,12 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
 
 /**
- * Handles Drupal's BigPipe progressive rendering.
+ * Bypass Drupal BigPipe when rendering pages.
  *
- * Behat trait for handling BigPipe functionality.
+ * Activated by adding `@big_pipe` tag to the scenario.
+ *
+ * Skip processing with tags: `@behat-steps-skip:bigPipeBeforeScenario` or
+ * `@behat-steps-skip:bigPipeBeforeStep`.
  */
 trait BigPipeTrait {
 

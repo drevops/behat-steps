@@ -13,11 +13,14 @@ use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Creates and manages Drupal files in tests.
+ * Manage Drupal file entities with upload and storage operations.
  *
- * File-related steps.
+ * - Create managed and unmanaged files with specific URIs and content.
+ * - Verify file existence, content, and proper storage locations.
+ * - Set up file system directories and clean up created files.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
+ * `@behat-steps-skip:fileAfterScenario`
  */
 trait FileTrait {
 

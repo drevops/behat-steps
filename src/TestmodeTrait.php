@@ -9,21 +9,13 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Drupal\testmode\Testmode;
 
 /**
- * Integrates with Drupal's Testmode module for isolated test execution.
+ * Configure Drupal Testmode module for controlled testing scenarios.
  *
- * What is Testmode?
+ * Skip processing with tags: `@behat-steps-skip:testmodeBeforeScenario` and
+ * `@behat-steps-skip:testmodeAfterScenario`.
  *
- * @see https://www.drupal.org/project/testmode
- *
- * Running a Behat test on the site with existing content may result in
- * FALSE positives because of the live content being mixed with test content.
- *
- * Example: list of 3 featured articles. When the test creates 3 articles and
- * make them featured, there may be existing featured articles that will confuse
- * tests resulting in false positive failure.
- *
- * Include this trait in your FeatureContext.php file to enable Testmode's test
- * mode for tests tagged with 'testmode'.
+ * Special tags:
+ * - `@testmode` - enable for scenario
  */
 trait TestmodeTrait {
 

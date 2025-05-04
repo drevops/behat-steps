@@ -92,101 +92,72 @@ function main(array $options = []): void {
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string, array<int,array<string, array<int, string>|string>>>
+ * @return array<string,array<string, array<int, array<string, array<int,string>|string>>|string>>
  *   Array of info with 'name', 'steps', 'description', and 'example' keys.
  *
  * @throws \ReflectionException
  */
 function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
-  $reflection = new ReflectionClass($class_name);
+  $info = [];
 
+  // Collect all traits in the src directory to validate that they all present
+  // in the $class_name class.
+  $traits_path = $base_path . DIRECTORY_SEPARATOR . 'src';
+  $traits_files = [];
+  if (is_dir($traits_path)) {
+    $files = scandir($traits_path) ?: [];
+    foreach ($files as $file) {
+      if (is_file($traits_path . DIRECTORY_SEPARATOR . $file)) {
+        $traits_files[] = basename($file, '.php');
+      }
+    }
+    sort($traits_files);
+  }
+
+  // Collect all traits in the $class_name class.
+  $reflection = new ReflectionClass($class_name);
   $traits = $reflection->getTraits();
   usort(
     $traits,
     static fn(\ReflectionClass $a, \ReflectionClass $b): int => strcasecmp($a->getShortName(), $b->getShortName())
   );
 
-  $result = [];
+  // Extract info from the traits.
   foreach ($traits as $trait) {
     $trait_name = $trait->getShortName();
+
+    // Mark as processed.
+    if (in_array($trait_name, $traits_files, TRUE)) {
+      unset($traits_files[array_search($trait_name, $traits_files, TRUE)]);
+    }
 
     if (in_array($trait_name, $exclude, TRUE)) {
       continue;
     }
 
-    $trait_prefix = str_replace('Trait', '', $trait_name);
+    $class_info = [
+      'name' => $trait_name,
+      'methods' => [],
+    ];
+    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
     $methods = $trait->getMethods(ReflectionMethod::IS_PUBLIC);
-
-    $info = [];
-
-    $class_description = $trait->getDocComment();
-    if (empty($class_description)) {
-      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
-    }
-    $clean = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $class_description);
-    $lines = array_values(
-      array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $clean))
-    );
-    // Remove first and last empty lines.
-    if (count($lines) > 1 && empty($lines[0])) {
-      array_shift($lines);
-    }
-    if (count($lines) > 1 && empty($lines[count($lines) - 1])) {
-      array_pop($lines);
-    }
-    if (empty($lines)) {
-      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
-    }
-    $lines = array_map(static fn($l): string => trim($l), $lines);
-    $class_description = $lines[0];
-
-    if (empty($class_description)) {
-      throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
-    }
-
-    if (str_starts_with($class_description, 'Trait ')) {
-      throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
-    }
-
-    $class_description_full = '';
-    foreach ($lines as $line) {
-      if (empty(trim($line))) {
-        $class_description_full .= PHP_EOL;
-      }
-      else {
-        // Only add space if we already have content.
-        if (!empty($class_description_full)) {
-          $class_description_full .= ' ';
-        }
-        $class_description_full .= trim($line);
-      }
-    }
-
+    $trait_prefix = str_replace('Trait', '', $trait_name);
     foreach ($methods as $method) {
       if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
         continue;
       }
 
-      $comment = $method->getDocComment();
-
-      if ($comment) {
-        $parsed = parse_method_comment($comment);
-        if ($parsed) {
-          $info_item = [
-            'name' => $method->getName(),
-            'class_description' => $class_description,
-            'class_description_full' => $class_description_full,
-            'class_name' => $trait_name,
-          ];
-          $info[] = $parsed + $info_item;
-        }
+      $parsed_comment = parse_method_comment((string) $method->getDocComment());
+      if ($parsed_comment) {
+        // @phpstan-ignore-next-line
+        $class_info['methods'][] = $parsed_comment + ['name' => $method->getName()];
       }
     }
 
-    if (!empty($info)) {
+    if (!empty($class_info['methods']) && is_array($class_info['methods'])) {
       // Sort info by Given, When, Then.
-      usort($info, static function (array $a, array $b): int {
+      usort($class_info['methods'], static function (array $a, array $b): int {
         $order = ['@Given', '@When', '@Then'];
 
         $get_order_index = function ($step) use ($order): int {
@@ -207,12 +178,72 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
 
         return $a_index <=> $b_index;
       });
-
-      $result[$trait->getShortName()] = $info;
     }
+
+    $info[$trait->getShortName()] = $class_info;
   }
 
-  return $result;
+  if (!empty($traits_files)) {
+    throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+  }
+
+  return $info;
+}
+
+/**
+ * Parse class comment.
+ *
+ * @param string $trait_name
+ *   The trait name.
+ * @param string $comment
+ *   The comment.
+ *
+ * @return array<string, string>
+ *   Array of 'description' and 'description_full' keys.
+ */
+function parse_class_comment(string $trait_name, string $comment): array {
+  if (empty($comment)) {
+    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+  }
+
+  $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
+  $lines = array_values(
+    array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $comment))
+  );
+
+  // Remove first and last empty lines.
+  if (count($lines) > 1 && empty($lines[0])) {
+    array_shift($lines);
+  }
+  if (count($lines) > 1 && empty($lines[count($lines) - 1])) {
+    array_pop($lines);
+  }
+
+  $lines = array_map(static fn($l): string => trim($l), $lines);
+
+  if (empty($lines)) {
+    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+  }
+
+  $description = $lines[0];
+  if (empty($description)) {
+    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+  }
+
+  if (str_starts_with($description, 'Trait ')) {
+    throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
+  }
+
+  $full_description = implode(PHP_EOL, $lines);
+
+  if (substr_count($full_description, '`') % 2 !== 0) {
+    throw new \Exception(sprintf('Class inline code block is not closed for %s', $trait_name));
+  }
+
+  return [
+    'description' => $description,
+    'description_full' => $full_description,
+  ];
 }
 
 /**
@@ -321,7 +352,7 @@ function parse_method_comment(string $comment): ?array {
 /**
  * Convert info to content.
  *
- * @param array<string, array<int, array<string, array<int, string>|string>>> $info
+ * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
  *   Array of info items with 'name', 'from', and 'to' keys.
  * @param string $base_path
  *   Base path for the repository.
@@ -334,7 +365,7 @@ function render_info(array $info, string $base_path = __DIR__): string {
 
   $index_rows = [];
 
-  foreach ($info as $trait => $methods) {
+  foreach ($info as $trait => $class_info) {
     $src_file = sprintf('src/%s.php', $trait);
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
 
@@ -351,23 +382,50 @@ function render_info(array $info, string $base_path = __DIR__): string {
       throw new \Exception(sprintf('Example file %s does not exist', $example_file_path));
     }
     // @codeCoverageIgnoreEnd
-    foreach ($methods as $method) {
-      $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
-      $class_description = is_string($method['class_description']) ? $method['class_description'] : '';
-      $class_description_full = empty($method['class_description_full']) ? '' : (is_string($method['class_description_full']) ? $method['class_description_full'] : '');
+    // @phpstan-ignore-next-line
+    $output .= sprintf('## %s', $class_info['name']) . PHP_EOL . PHP_EOL;
+    $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
-      // Section header.
-      if (empty($index_rows[$class_name])) {
-        $output .= sprintf('## %s', $trait) . PHP_EOL . PHP_EOL;
-        $output .= sprintf('<details><summary><strong>ℹ About this trait</strong></summary>%s</details>', nl2br($class_description_full)) . PHP_EOL . PHP_EOL;
-        $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
+    // Add description as markdown-safe accommodating for lists.
+    $description_full = '';
+    // @phpstan-ignore-next-line
+    $lines = explode(PHP_EOL, $class_info['description_full']);
+    $was_list = FALSE;
+    foreach ($lines as $line) {
+      $is_list = str_starts_with(trim($line), '-');
+
+      if (!$is_list) {
+        if (empty($line) && !$was_list) {
+          $description_full .= $line . '<br/><br/>' . PHP_EOL;
+        }
+        else {
+          $description_full .= $line . PHP_EOL;
+        }
+        $was_list = FALSE;
       }
+      else {
+        if (str_ends_with($description_full, '<br/><br/>' . PHP_EOL)) {
+          $description_full = rtrim($description_full, '<br/><br/>' . PHP_EOL) . PHP_EOL;
+        }
 
-      $index_rows[$class_name] = [
-        sprintf('[%s](#%s)', $class_name, strtolower($class_name)),
-        $class_description,
-      ];
+        $description_full .= $line . PHP_EOL;
+        $was_list = TRUE;
+      }
+    }
 
+    $description_full = preg_replace('/^/m', '>  ', $description_full);
+    $output .= $description_full . PHP_EOL . PHP_EOL;
+
+    // Add to index.
+    // @phpstan-ignore-next-line
+    $index_rows[$class_info['name']] = [
+      // @phpstan-ignore-next-line
+      sprintf('[%s](#%s)', $class_info['name'], strtolower((string) $class_info['name'])),
+      $class_info['description'],
+    ];
+
+    // @phpstan-ignore-next-line
+    foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
@@ -375,9 +433,9 @@ function render_info(array $info, string $base_path = __DIR__): string {
       $method['steps'] = array_reduce($method['steps'], function (string $carry, $item): string {
         return $carry . sprintf("%s\n", $item);
       }, '');
-      $method['steps'] = rtrim($method['steps'], "\n");
+      $method['steps'] = rtrim((string) $method['steps'], "\n");
 
-      $method['description'] = rtrim($method['description'], '.');
+      $method['description'] = rtrim((string) $method['description'], '.');
 
       $template = <<<EOT
 <details>
@@ -404,15 +462,16 @@ EOT;
     }
   }
 
+  // @phpstan-ignore-next-line
   $index_output = array_to_markdown_table(['Class', 'Description'], $index_rows);
 
-  return $index_output . PHP_EOL . $output;
+  return $index_output . PHP_EOL . PHP_EOL . $output;
 }
 
 /**
  * Validate the info.
  *
- * @param array<string, array<int, array<string, array<int, string>|string>>> $info
+ * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
  *   Array of info items with 'name', 'from', and 'to' keys.
  *
  * @return array<string>
@@ -420,54 +479,50 @@ EOT;
  */
 function validate(array $info): array {
   $errors = [];
-  foreach ($info as $methods) {
-    foreach ($methods as $method) {
+
+  foreach ($info as $class_info) {
+    $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
+
+    // @phpstan-ignore-next-line
+    foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['name'] = is_string($method['name']) ? $method['name'] : '';
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
       if (count($method['steps']) > 1) {
-        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Multiple steps found');
       }
 
       $step = (string) $method['steps'][0];
 
       if (str_starts_with($step, '@Given') && str_ends_with($step, ':') && !str_contains($step, 'following')) {
-        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
       }
 
       if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
-        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "I " in the step');
       }
 
       if (str_starts_with($step, '@Then')) {
-        if (!str_contains($method['name'], 'Assert')) {
-          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        if (!str_contains((string) $method['name'], 'Assert')) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "Assert" in the method name');
         }
 
-        if (str_contains($method['name'], 'Should')) {
-          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
+        if (str_contains((string) $method['name'], 'Should')) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should" but should not.');
         }
 
         if (!str_contains($step, ' should ')) {
-          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "should" in the step');
         }
 
         if (!(str_contains($step, ' the ') || str_contains($step, ' a ') || str_contains($step, ' no '))) {
-          $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the", "a" or "no" in the step');
         }
       }
 
       if (empty($method['example'])) {
-        $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
         $errors[] = sprintf('  %s::%s - Missing example' . PHP_EOL, $class_name, $method['name']);
       }
     }

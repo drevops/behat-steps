@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Tests HTTP response headers in web requests.
+ * Verify HTTP responses with status code and header checks.
  *
- * Response-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Assert HTTP header presence and values.
  */
 trait ResponseTrait {
 

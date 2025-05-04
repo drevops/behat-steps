@@ -7,11 +7,21 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Handles relative dates in test steps.
+ * Convert relative date expressions into timestamps or formatted dates.
  *
- * Date-related steps.
+ * Supports values and tables.
  *
- * @package DrevOps\BehatSteps
+ * Possible formats:
+ * - `[relative:OFFSET]`
+ * - `[relative:OFFSET#FORMAT]`
+ *
+ * with:
+ * - `OFFSET`: any format that can be parsed by `strtotime()`.
+ * - `FORMAT`: `date()` format for additional processing.
+ *
+ * Examples:
+ * - `[relative:-1 day]` converted to `1893456000`
+ * - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
  */
 trait DateTrait {
 

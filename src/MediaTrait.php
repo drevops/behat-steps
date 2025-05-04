@@ -10,9 +10,14 @@ use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
 /**
- * Creates and tests Drupal media entities.
+ * Manage Drupal media entities with type-specific field handling.
  *
- * Trait to handle media entities.
+ * - Create structured media items with proper file reference handling.
+ * - Assert media browser functionality and edit media entity fields.
+ * - Support for multiple media types with field value expansion handling.
+ * - Automatically clean up created entities after scenario completion.
+ *
+ * Skip processing with tag: `@behat-steps-skip:mediaAfterScenario`
  */
 trait MediaTrait {
 
