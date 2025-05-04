@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Drupal\block_content\Entity\BlockContent;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\block_content\BlockContentTypeInterface;
+use Drupal\block_content\Entity\BlockContent;
+use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Manages content block entities.
@@ -35,11 +36,15 @@ trait ContentBlockTrait {
       return;
     }
 
-    foreach (static::$contentBlockEntities as $block_content) {
-      $block_content->delete();
+    foreach (static::$contentBlockEntities as $key => $block_content) {
+      try {
+        $block_content->delete();
+      }
+      catch (EntityStorageException) {
+        // Ignore “already deleted” errors to keep teardown resilient.
+      }
+      unset(static::$contentBlockEntities[$key]);
     }
-
-    static::$contentBlockEntities = [];
   }
 
   /**

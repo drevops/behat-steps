@@ -1,793 +1,628 @@
 # Available steps
 
-- [BlockTrait](#blocktrait)
-
-- [ContentBlockTrait](#contentblocktrait)
-
-- [ContentTrait](#contenttrait)
-
-- [CookieTrait](#cookietrait)
-
-- [DraggableviewsTrait](#draggableviewstrait)
-
-- [EckTrait](#ecktrait)
-
-- [ElementTrait](#elementtrait)
-
-- [EmailTrait](#emailtrait)
-
-- [FieldTrait](#fieldtrait)
-
-- [FileDownloadTrait](#filedownloadtrait)
-
-- [FileTrait](#filetrait)
-
-- [KeyboardTrait](#keyboardtrait)
-
-- [LinkTrait](#linktrait)
-
-- [MediaTrait](#mediatrait)
-
-- [MenuTrait](#menutrait)
-
-- [ParagraphsTrait](#paragraphstrait)
-
-- [PathTrait](#pathtrait)
-
-- [ResponseTrait](#responsetrait)
-
-- [RoleTrait](#roletrait)
-
-- [SearchApiTrait](#searchapitrait)
-
-- [SelectTrait](#selecttrait)
-
-- [TaxonomyTrait](#taxonomytrait)
-
-- [UserTrait](#usertrait)
-
-- [VisibilityTrait](#visibilitytrait)
-
-- [WaitTrait](#waittrait)
-
-
-### BlockTrait
+| Class | Description |
+| --- | --- |
+| [BlockTrait](#blocktrait) | Create, configure, and test block. |
+| [ContentBlockTrait](#contentblocktrait) | Manages content block entities. |
+| [ContentTrait](#contenttrait) | Works with Drupal content entities. |
+| [CookieTrait](#cookietrait) | Works with browser cookies. |
+| [DraggableviewsTrait](#draggableviewstrait) | Tests Drupal's Draggable Views module functionality. |
+| [EckTrait](#ecktrait) | Tests Drupal's Entity Construction Kit (ECK) module. |
+| [ElementTrait](#elementtrait) | Interacts with and validates HTML elements. |
+| [EmailTrait](#emailtrait) | Tests email functionality in Drupal applications. |
+| [FieldTrait](#fieldtrait) | Interacts with and validates form fields. |
+| [FileDownloadTrait](#filedownloadtrait) | Downloads and validates files during tests. |
+| [FileTrait](#filetrait) | Creates and manages Drupal files in tests. |
+| [KeyboardTrait](#keyboardtrait) | Simulates keyboard interactions in browser tests. |
+| [LinkTrait](#linktrait) | Interacts with and validates HTML links. |
+| [MediaTrait](#mediatrait) | Creates and tests Drupal media entities. |
+| [MenuTrait](#menutrait) | Creates and manages Drupal menus and menu items. |
+| [ParagraphsTrait](#paragraphstrait) | Tests Drupal Paragraphs module functionality. |
+| [PathTrait](#pathtrait) | Tests URL paths and basic authentication. |
+| [ResponseTrait](#responsetrait) | Tests HTTP response headers in web requests. |
+| [RoleTrait](#roletrait) | Creates and manages Drupal user roles. |
+| [SearchApiTrait](#searchapitrait) | Tests Drupal Search API module functionality. |
+| [SelectTrait](#selecttrait) | Tests HTML select elements and their options. |
+| [TaxonomyTrait](#taxonomytrait) | Tests Drupal taxonomy terms and vocabularies. |
+| [UserTrait](#usertrait) | Tests Drupal users, authentication, and profiles. |
+| [VisibilityTrait](#visibilitytrait) | Tests element visibility on web pages. |
+| [WaitTrait](#waittrait) | Implements timed waits and AJAX completion checks. |
+## BlockTrait
 
 [Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
 
-#### Creates, configures and places a block in the default theme region
+<details>
+  <summary><code>@Given the instance of :admin_label block exists with the following configuration:</code></summary>
 
 ```gherkin
-@When I create a block of type :type with:
+Given the instance of "My block" block exists with the following configuration:
+ | label         | My block |
+ | label_display | 1        |
+ | region        | content  |
+ | status        | 1        |
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the block :label has the following configuration:</code></summary>
 
 ```gherkin
-| label         | [TEST] Welcome Message      |
-| label_display | 1                           |
-| region        | sidebar_first               |
-| status        | 1                           |
-```
+Given the block "My block" has the following configuration:
+| label_display | 1       |
+| region        | content |
+| status        | 1       |
 
-#### Finds and configures an existing block identified by its label
+```
+</details>
+
+<details>
+  <summary><code>@Given the block :label does not exist</code></summary>
 
 ```gherkin
-@When I configure the block :label with:
+Given the block "My block" does not exist
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the block :label is enabled</code></summary>
 
 ```gherkin
- | label         | [TEST] Updated Message      |
- | label_display | 1                           |
- | region        | sidebar_second              |
- | status        | 1                           |
-```
+Given the block "My block" is enabled
 
-#### Sets a visibility condition for a block
+```
+</details>
+
+<details>
+  <summary><code>@Given the block :label is disabled</code></summary>
 
 ```gherkin
-@When I configure the visibility condition :condition for the block :label with:
+Given the block "My block" is disabled
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the block :label has the following :condition condition configuration:</code></summary>
 
 ```gherkin
-  When I configure the visibility condition "request_path" for the block "[TEST] Block" with:
-  | pages | /node/1\r\n/about |
-  | negate | 0 |
-```
+Given the block "My block" has the following "request_path" condition configuration:
+| pages  | /node/1\r\n/about |
+| negate | 0                 |
 
-#### Removes a visibility condition from the specified block
+```
+</details>
+
+<details>
+  <summary><code>@Given the block :label has the :condition condition removed</code></summary>
 
 ```gherkin
-@When I remove the visibility condition :condition from the block :label
+Given the block "My block" has the "request_path" condition removed
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the block :label should exist</code></summary>
 
 ```gherkin
-  When I remove the visibility condition "request_path" from the block "[TEST] Block"
-```
+Then the block "My block" should exist
 
-#### Disables a block specified by its label
+```
+</details>
+
+<details>
+  <summary><code>@Then the block :label should not exist</code></summary>
 
 ```gherkin
-@When I disable the block :label
+Then the block "My block" should not exist
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the block :label should exist in the :region region</code></summary>
 
 ```gherkin
-  When I disable the block "[TEST] Sidebar Block"
-```
+Then the block "My block" should exist in the "content" region
 
-#### Enables a block specified by its label
+```
+</details>
+
+<details>
+  <summary><code>@Then the block :label should not exist in the :region region</code></summary>
 
 ```gherkin
-@When I enable the block :label
+Then the block "My block" should not exist in the "content" region
+
 ```
-Example:
+</details>
 
-```gherkin
-  When I enable the block "[TEST] Sidebar Block"
-```
-
-#### Verifies that a block with the specified label exists in the default theme
-
-```gherkin
-@Then the block :label should exist
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] Footer Block" should exist
-```
-
-#### Verifies that a block with the specified label exists in a specific region
-
-```gherkin
-@Then the block :label should exist in the :region region
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] User Menu" should exist in the "sidebar_first" region
-```
-
-#### Verifies that a block does not exist in a specific region
-
-```gherkin
-@Then the block :label should not exist in the :region region
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] User Menu" should not exist in the "content" region
-```
-
-#### Verifies that a block has a specific visibility condition configured
-
-```gherkin
-@Then the block :label should have the visibility condition :condition
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] Admin Block" should have the visibility condition "user_role"
-```
-
-#### Asserts that a block does not have a specific visibility condition
-
-```gherkin
-@Then the block :label should not have the visibility condition :condition
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] Public Block" should not have the visibility condition "user_role"
-```
-
-#### Verifies that a block with the specified label is disabled (inactive)
-
-```gherkin
-@Then the block :label should be disabled
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] Maintenance Block" should be disabled
-```
-
-#### Verifies that a block with the specified label is enabled
-
-```gherkin
-@Then the block :label should be enabled
-```
-Example:
-
-```gherkin
-  Then the block "[TEST] Navigation Block" should be enabled
-```
-
-### ContentBlockTrait
+## ContentBlockTrait
 
 [Source](src/ContentBlockTrait.php), [Example](tests/behat/features/content_block.feature)
 
-#### Removes content blocks of a specified type with the given descriptions
-
-```gherkin
-@Given the following :type content blocks do not exist:
-```
-Example:
+<details>
+  <summary><code>@Given the following :type content blocks do not exist:</code></summary>
 
 ```gherkin
 Given the following "basic" content blocks do not exist:
 | [TEST] Footer Block  |
 | [TEST] Contact Form  |
-```
 
-#### Creates content blocks of the specified type with the given field values
+```
+</details>
+
+<details>
+  <summary><code>@Given the following :type content blocks exist:</code></summary>
 
 ```gherkin
-@Given the following :type content blocks exist:
-```
-Example:
+Given the following "basic" content blocks exist:
+| info                  | status | body                   | created           |
+| [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
+| [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
 
-```gherkin
-  Given the following "basic" content blocks exist:
-  | info                  | status | body                   | created           |
-  | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
-  | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
 ```
+</details>
 
-#### Navigates to the edit page for a specified content block
-
-```gherkin
-@When I edit the :type content block with the description :description
-```
-Example:
+<details>
+  <summary><code>@When I edit the :type content block with the description :description</code></summary>
 
 ```gherkin
 When I edit the "basic" content block with the description "[TEST] Footer Block"
-```
 
-#### Verifies that a content block type exists
-
-```gherkin
-@Then the content block type :type should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the content block type :type should exist</code></summary>
 
 ```gherkin
 Then the content block type "Search" should exist
-```
 
-### ContentTrait
+```
+</details>
+
+## ContentTrait
 
 [Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
 
-#### Delete content type
-
-```gherkin
-@Given the content type :content_type does not exist
-```
-Example:
+<details>
+  <summary><code>@Given the content type :content_type does not exist</code></summary>
 
 ```gherkin
 Given the content type "article" does not exist
-```
 
-#### Remove content defined by provided properties
-
-```gherkin
-@Given the following :content_type content does not exist:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the following :content_type content does not exist:</code></summary>
 
 ```gherkin
 Given the following "article" content does not exist:
   | title                |
   | Test article         |
   | Another test article |
-```
 
-#### Visit a page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content page with the title :title
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit the :content_type content page with the title :title</code></summary>
 
 ```gherkin
 When I visit the "article" content page with the title "Test article"
-```
 
-#### Visit an edit page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content edit page with the title :title
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit the :content_type content edit page with the title :title</code></summary>
 
 ```gherkin
 When I visit the "article" content edit page with the title "Test article"
-```
 
-#### Visit a delete page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content delete page with the title :title
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit the :content_type content delete page with the title :title</code></summary>
 
 ```gherkin
 When I visit the "article" content delete page with the title "Test article"
-```
 
-#### Visit a scheduled transitions page of a type with a specified title
-
-```gherkin
-@When I visit the :content_type content scheduled transitions page with the title :title
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit the :content_type content scheduled transitions page with the title :title</code></summary>
 
 ```gherkin
 When I visit the "article" content scheduled transitions page with the title "Test article"
-```
 
-#### Change moderation state of a content with the specified title
-
-```gherkin
-@When I change the moderation state of the :content_type content with the title :title to the :new_state state
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I change the moderation state of the :content_type content with the title :title to the :new_state state</code></summary>
 
 ```gherkin
 When I change the moderation state of the "article" content with the title "Test article" to the "published" state
-```
 
-### CookieTrait
+```
+</details>
+
+## CookieTrait
 
 [Source](src/CookieTrait.php), [Example](tests/behat/features/cookie.feature)
 
-#### Check if a cookie exists
-
-```gherkin
-@Then a cookie with the name :name should exist
-```
-Example:
+<details>
+  <summary><code>@Then a cookie with the name :name should exist</code></summary>
 
 ```gherkin
 Then a cookie with the name "session_id" should exist
-```
 
-#### Check if a cookie exists with a specific value
-
-```gherkin
-@Then a cookie with the name :name and the value :value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with the name :name and the value :value should exist</code></summary>
 
 ```gherkin
 Then a cookie with the name "language" and the value "en" should exist
-```
 
-#### Check if a cookie exists with a value containing a partial value
-
-```gherkin
-@Then a cookie with the name :name and a value containing :partial_value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should exist</code></summary>
 
 ```gherkin
 Then a cookie with the name "preferences" and a value containing "darkmode" should exist
-```
 
-#### Check if a cookie with a partial name exists
-
-```gherkin
-@Then a cookie with a name containing :partial_name should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name should exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "session" should exist
-```
 
-#### Check if a cookie with a partial name and value exists
-
-```gherkin
-@Then a cookie with a name containing :partial_name and the value :value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name and the value :value should exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "user" and the value "admin" should exist
-```
 
-#### Check if a cookie with a partial name and partial value exists
-
-```gherkin
-@Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name and a value containing :partial_value should exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "user" and a value containing "admin" should exist
-```
 
-#### Check if a cookie does not exist
-
-```gherkin
-@Then a cookie with the name :name should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with the name :name should not exist</code></summary>
 
 ```gherkin
 Then a cookie with name "old_session" should not exist
-```
 
-#### Check if a cookie with a specific value does not exist
-
-```gherkin
-@Then a cookie with the name :name and the value :value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with the name :name and the value :value should not exist</code></summary>
 
 ```gherkin
 Then a cookie with the name "language" and the value "fr" should not exist
-```
 
-#### Check if a cookie with a value containing a partial value does not exist
-
-```gherkin
-@Then a cookie with the name :name and a value containing :partial_value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should not exist</code></summary>
 
 ```gherkin
 Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
-```
 
-#### Check if a cookie with a partial name does not exist
-
-```gherkin
-@Then a cookie with a name containing :partial_name should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name should not exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "old" should not exist
-```
 
-#### Check if a cookie with a partial name and value does not exist
-
-```gherkin
-@Then a cookie with a name containing :partial_name and the value :value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name and the value :value should not exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "user" and the value "guest" should not exist
-```
 
-#### Check if a cookie with a partial name and partial value does not exist
-
-```gherkin
-@Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist</code></summary>
 
 ```gherkin
 Then a cookie with a name containing "user" and a value containing "guest" should not exist
-```
 
-### DraggableviewsTrait
+```
+</details>
+
+## DraggableviewsTrait
 
 [Source](src/DraggableviewsTrait.php), [Example](tests/behat/features/draggableviews.feature)
 
-#### Save order of the Draggable Order items
-
-```gherkin
-@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
-```
-Example:
+<details>
+  <summary><code>@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:</code></summary>
 
 ```gherkin
 When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
   | First Article  |
   | Second Article |
   | Third Article  |
-```
 
-### EckTrait
+```
+</details>
+
+## EckTrait
 
 [Source](src/EckTrait.php), [Example](tests/behat/features/eck.feature)
 
-#### Create eck entities
-
-```gherkin
-@Given the following eck :bundle :entity_type entities exist:
-```
-Example:
+<details>
+  <summary><code>@Given the following eck :bundle :entity_type entities exist:</code></summary>
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities exist:
 | title  | field_marine_animal     | field_fish_type | ... |
 | Snook  | Fish                    | Marine fish     | 10  |
 | ...    | ...                     | ...             | ... |
-```
 
-#### Remove custom entities by field
-
-```gherkin
-@Given the following eck :bundle :entity_type entities do not exist:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the following eck :bundle :entity_type entities do not exist:</code></summary>
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities do not exist:
 | field        | value           |
 | field_a      | Entity label    |
-```
 
-#### Navigate to view entity page with specified type and title
-
-```gherkin
-@When I visit eck :bundle :entity_type entity with the title :title
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit eck :bundle :entity_type entity with the title :title</code></summary>
 
 ```gherkin
 When I visit eck "contact" "contact_type" entity with the title "Test contact"
-```
 
-#### Navigate to edit eck entity page with specified type and title
+```
+</details>
+
+<details>
+  <summary><code>@When I edit eck :bundle :entity_type entity with the title :title</code></summary>
 
 ```gherkin
-@When I edit eck "contact" "contact_type" entity with the title "Test contact"
-```
-```gherkin
-@When I edit eck :bundle :entity_type entity with the title :title
-```
+When I edit eck "contact" "contact_type" entity with the title "Test contact"
 
-### ElementTrait
+```
+</details>
+
+## ElementTrait
 
 [Source](src/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
-#### Accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I accept all confirmation dialogs
-```
-Example:
+<details>
+  <summary><code>@Given I accept all confirmation dialogs</code></summary>
 
 ```gherkin
 Given I accept all confirmation dialogs
-```
 
-#### Do not accept confirmation dialogs appearing on the page
-
-```gherkin
-@Given I do not accept any confirmation dialogs
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given I do not accept any confirmation dialogs</code></summary>
 
 ```gherkin
 Given I do not accept any confirmation dialogs
-```
 
-#### Click on the element defined by the selector
-
-```gherkin
-@When I click on the element :selector
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I click on the element :selector</code></summary>
 
 ```gherkin
 When I click on the element ".button"
-```
 
-#### When I trigger the JS event :event on the element :selector
-
-```gherkin
-@When I trigger the JS event :event on the element :selector
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I trigger the JS event :event on the element :selector</code></summary>
 
 ```gherkin
 When I trigger the JS event "click" on the element "#submit-button"
-```
 
-#### Scroll to an element with ID
-
-```gherkin
-@When I scroll to the element :selector
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I scroll to the element :selector</code></summary>
 
 ```gherkin
 When I scroll to the element "#footer"
-```
 
-#### Assert an element with selector and attribute with a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value :value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the attribute :attribute and the value :value should exist</code></summary>
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
-```
 
-#### Assert an element with selector and attribute containing a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value containing :value should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the attribute :attribute and the value containing :value should exist</code></summary>
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
-```
 
-#### Assert an element with selector and attribute with a value exists
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value :value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the attribute :attribute and the value :value should not exist</code></summary>
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
-```
 
-#### Assert an element with selector and attribute containing a value does not exist
-
-```gherkin
-@Then the element :selector with the attribute :attribute and the value containing :value should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the attribute :attribute and the value containing :value should not exist</code></summary>
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
-```
 
-#### Assert the element :selector should be at the top of the viewport
-
-```gherkin
-@Then the element :selector should be at the top of the viewport
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be at the top of the viewport</code></summary>
 
 ```gherkin
 Then the element "#header" should be at the top of the viewport
-```
 
-### EmailTrait
+```
+</details>
+
+## EmailTrait
 
 [Source](src/EmailTrait.php), [Example](tests/behat/features/email.feature)
 
-#### Clear test email system queue
-
-```gherkin
-@When I clear the test email system queue
-```
-Example:
+<details>
+  <summary><code>@When I clear the test email system queue</code></summary>
 
 ```gherkin
 When I clear the test email system queue
+
 ```
+</details>
 
-#### Enable the test email system
-
-```gherkin
-@When I enable the test email system
-```
-Example:
-
-```gherkin
-When I enable the test email system
-```
-
-#### Follow a specific link number in an email with the given subject
-
-```gherkin
-@When I follow link number :link_number in the email with the subject :subject
-```
-Example:
+<details>
+  <summary><code>@When I follow link number :link_number in the email with the subject :subject</code></summary>
 
 ```gherkin
 When I follow link number "1" in the email with the subject "Account Verification"
-```
 
-#### Follow a specific link number in an email whose subject contains the given substring
-
-```gherkin
-@When I follow link number :link_number in the email with the subject containing :subject
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I follow link number :link_number in the email with the subject containing :subject</code></summary>
 
 ```gherkin
 When I follow link number "1" in the email with the subject containing "Verification"
-```
 
-#### Disable test email system
+```
+</details>
+
+<details>
+  <summary><code>@When I enable the test email system</code></summary>
 
 ```gherkin
-@When I disable the test email system
+When I enable the test email system
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I disable the test email system</code></summary>
 
 ```gherkin
 When I disable the test email system
-```
 
-#### Assert that an email should be sent to an address
-
-```gherkin
-@Then an email should be sent to the :address
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should be sent to the :address</code></summary>
 
 ```gherkin
 Then an email should be sent to the "user@example.com"
-```
 
-#### Assert that no email messages should be sent
+```
+</details>
+
+<details>
+  <summary><code>@Then no emails should have been sent</code></summary>
 
 ```gherkin
-@Then no emails should be sent
+Then no emails should have been sent
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then no emails should have been sent to the :address</code></summary>
 
 ```gherkin
-Then no emails should be sent
+Then no emails should have been sent to the "user@example.com"
+
 ```
+</details>
 
-#### Assert that no email messages should be sent to a specified address
-
-```gherkin
-@Then no emails should be sent to the :address
-```
-Example:
-
-```gherkin
-Then no emails should be sent to the "user@example.com"
-```
-
-#### Assert that the email message header should contain specified content
-
-```gherkin
-@Then the email header :header should contain:
-```
-Example:
+<details>
+  <summary><code>@Then the email header :header should contain:</code></summary>
 
 ```gherkin
 Then the email header "Subject" should contain:
 """
 Account details
 """
-```
 
-#### Assert that the email message header should be the exact specified content
-
-```gherkin
-@Then the email header :header should exactly be:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the email header :header should exactly be:</code></summary>
 
 ```gherkin
 Then the email header "Subject" should exactly be:
 """
 Your Account Details
 """
-```
 
-#### Assert that an email should be sent to an address with the exact content in the body
-
-```gherkin
-@Then an email should be sent to the address :address with the content:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should be sent to the address :address with the content:</code></summary>
 
 ```gherkin
 Then an email should be sent to the address "user@example.com" with the content:
@@ -795,273 +630,295 @@ Then an email should be sent to the address "user@example.com" with the content:
 Welcome to our site!
 Click the link below to verify your account.
 """
-```
 
-#### Assert that an email should be sent to an address with the body containing specific content
-
-```gherkin
-@Then an email should be sent to the address :address with the content containing:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should be sent to the address :address with the content containing:</code></summary>
 
 ```gherkin
 Then an email should be sent to the address "user@example.com" with the content containing:
 """
 verification link
 """
-```
 
-#### Assert that an email should be sent to an address with the body not containing specific content
-
-```gherkin
-@Then an email should be sent to the address :address with the content not containing:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should be sent to the address :address with the content not containing:</code></summary>
 
 ```gherkin
 Then an email should be sent to the address "user@example.com" with the content not containing:
 """
 password
 """
-```
 
-#### Assert that an email should not be sent to an address with the exact content in the body
-
-```gherkin
-@Then an email should not be sent to the address :address with the content:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should not be sent to the address :address with the content:</code></summary>
 
 ```gherkin
 Then an email should not be sent to the address "wrong@example.com" with the content:
 """
 Welcome to our site!
 """
-```
 
-#### Assert that an email should not be sent to an address with the body containing specific content
-
-```gherkin
-@Then an email should not be sent to the address :address with the content containing:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then an email should not be sent to the address :address with the content containing:</code></summary>
 
 ```gherkin
 Then an email should not be sent to the address "wrong@example.com" with the content containing:
 """
 verification link
 """
-```
 
-#### Assert that the email field should contain a value
-
-```gherkin
-@Then the email field :field should contain:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the email field :field should contain:</code></summary>
 
 ```gherkin
 Then the email field "body" should contain:
 """
 Please verify your account
 """
-```
 
-#### Assert that the email field should exactly match a value
-
-```gherkin
-@Then the email field :field should be:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the email field :field should be:</code></summary>
 
 ```gherkin
 Then the email field "subject" should be:
 """
 Account Verification
 """
-```
 
-#### Assert that the email field should not contain a value
-
-```gherkin
-@Then the email field :field should not contain:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the email field :field should not contain:</code></summary>
 
 ```gherkin
 Then the email field "body" should not contain:
 """
 password
 """
-```
 
-#### Assert that the email field should not exactly match a value
-
-```gherkin
-@Then the email field :field should not be:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the email field :field should not be:</code></summary>
 
 ```gherkin
 Then the email field "subject" should not be:
 """
 Password Reset
 """
-```
 
-#### Assert that a file is attached to an email message with specified subject
-
-```gherkin
-@Then the file :file_name should be attached to the email with the subject :subject
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the file :file_name should be attached to the email with the subject :subject</code></summary>
 
 ```gherkin
 Then the file "document.pdf" should be attached to the email with the subject "Your document"
-```
 
-#### Assert that a file is attached to an email message with a subject containing the specified substring
-
-```gherkin
-@Then the file :file_name should be attached to the email with the subject containing :subject
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the file :file_name should be attached to the email with the subject containing :subject</code></summary>
 
 ```gherkin
 Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
-```
 
-### FieldTrait
+```
+</details>
+
+## FieldTrait
 
 [Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
 
-#### Fills value for color field
+<details>
+  <summary><code>@When I fill in the color field :field with the value :value</code></summary>
 
 ```gherkin
-@When I fill color in :field with :value
-```
-```gherkin
-@When I fill in the color field :field with the value :value
-```
+When I fill in the color field "#edit-text-color" with the value "#3366FF"
 
-#### Set value for WYSIWYG field
-
-```gherkin
-@When I fill in the WYSIWYG field :field with the :value
 ```
+</details>
 
-#### Assert that field exists on the page using id,name,label or value
+<details>
+  <summary><code>@When I fill in the WYSIWYG field :field with the :value</code></summary>
 
 ```gherkin
-@Then the field :name should exist
+When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the field :name should exist</code></summary>
 
 ```gherkin
 Then the field "Body" should exist
 Then the field "field_body" should exist
-```
 
-#### Assert that field does not exist on the page using id,name,label or value
-
-```gherkin
-@Then the field :name should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the field :name should not exist</code></summary>
 
 ```gherkin
 Then the field "Body" should not exist
 Then the field "field_body" should not exist
-```
 
-#### Assert whether the field has a state
-
-```gherkin
-@Then the field :name should be :enabled_or_disabled
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the field :name should be :enabled_or_disabled</code></summary>
 
 ```gherkin
 Then the field "Body" should be "disabled"
 Then the field "field_body" should be "disabled"
 Then the field "Tags" should be "enabled"
 Then the field "field_tags" should be "not enabled"
-```
 
-#### Asserts that a color field has a value
+```
+</details>
+
+<details>
+  <summary><code>@Then the color field :field should have the value :value</code></summary>
 
 ```gherkin
-@Then the color field :field should have the value :value
-```
+Then the color field "#edit-background-color" should have the value "#FF5733"
 
-### FileDownloadTrait
+```
+</details>
+
+## FileDownloadTrait
 
 [Source](src/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
 
-#### Download a file from the specified URL
+<details>
+  <summary><code>@When I download the file from the URL :url</code></summary>
 
 ```gherkin
-@When I download the file from the URL :url
-```
+When I download the file from the URL "/sites/default/files/document.pdf"
+When I download the file from the URL "https://example.com/files/report.xlsx"
 
-#### Download the file from the specified HTML link
+```
+</details>
+
+<details>
+  <summary><code>@When I download the file from the link :link</code></summary>
 
 ```gherkin
-@When I download the file from the link :link
-```
+When I download the file from the link "Download PDF"
+When I download the file from the link "Get Report"
 
-#### Assert the contents of the download file
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file should contain:</code></summary>
 
 ```gherkin
-@Then the downloaded file should contain:
-```
+Then the downloaded file should contain:
+"""
+Financial Report 2023
+"""
 
-#### Assert the file name of the downloaded file
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file name should be :name</code></summary>
 
 ```gherkin
-@Then the downloaded file name should be :name
-```
+Then the downloaded file name should be "report.pdf"
 
-#### Assert the downloaded file name contains a specific string
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file name should contain :name</code></summary>
 
 ```gherkin
-@Then the downloaded file name should contain :name
-```
+Then the downloaded file name should contain "report"
 
-#### Assert the downloaded file should be a zip archive containing specific files
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file should be a zip archive containing the files named:</code></summary>
 
 ```gherkin
-@Then the downloaded file should be a zip archive containing the files named:
-```
+Then the downloaded file should be a zip archive containing the files named:
+| document.pdf |
+| image.jpg    |
+| data.csv     |
 
-#### Assert the downloaded file should be a zip archive containing files with partial names
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file should be a zip archive containing the files partially named:</code></summary>
 
 ```gherkin
-@Then the downloaded file should be a zip archive containing the files partially named:
-```
+Then the downloaded file should be a zip archive containing the files partially named:
+| report |
+| data   |
+| image  |
 
-#### Assert the downloaded file is a zip archive not containing files with partial names
+```
+</details>
+
+<details>
+  <summary><code>@Then the downloaded file should be a zip archive not containing the files partially named:</code></summary>
 
 ```gherkin
-@Then the downloaded file should be a zip archive not containing the files partially named:
-```
+Then the downloaded file should be a zip archive not containing the files partially named:
+| confidential |
+| private      |
+| draft        |
 
-### FileTrait
+```
+</details>
+
+## FileTrait
 
 [Source](src/FileTrait.php), [Example](tests/behat/features/file.feature)
 
-#### Create managed files with properties provided in the table
+<details>
+  <summary><code>@Given the following managed files:</code></summary>
 
 ```gherkin
-@Given the following managed files:
-```
+Given the following managed files:
+| path         | uri                    | status |
+| document.pdf | public://document.pdf  | 1      |
+| image.jpg    | public://images/pic.jpg| 1      |
 
-#### Delete managed files defined by provided properties/fields
-
-```gherkin
-@Given the following managed files do not exist:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the following managed files do not exist:</code></summary>
 
 ```gherkin
 Given no managed files:
@@ -1072,247 +929,295 @@ Given no managed files:
  | uri                    |
  | public://myfile.jpg    |
  | public://otherfile.jpg |
-```
 
-#### Create an unmanaged file
+```
+</details>
+
+<details>
+  <summary><code>@Given the unmanaged file at the URI :uri exists</code></summary>
 
 ```gherkin
-@Given the unmanaged file at the URI :uri exists
-```
+Given the unmanaged file at the URI "public://sample.txt" exists
 
-#### Create an unmanaged file with specified content
+```
+</details>
+
+<details>
+  <summary><code>@Given the unmanaged file at the URI :uri exists with :content</code></summary>
 
 ```gherkin
-@Given the unmanaged file at the URI :uri exists with :content
-```
+Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
 
-#### Assert that an unmanaged file with specified URI exists
+```
+</details>
+
+<details>
+  <summary><code>@Then an unmanaged file at the URI :uri should exist</code></summary>
 
 ```gherkin
-@Then an unmanaged file at the URI :uri should exist
-```
+Then an unmanaged file at the URI "public://sample.txt" should exist
 
-#### Assert that an unmanaged file with specified URI does not exist
+```
+</details>
+
+<details>
+  <summary><code>@Then an unmanaged file at the URI :uri should not exist</code></summary>
 
 ```gherkin
-@Then an unmanaged file at the URI :uri should not exist
-```
+Then an unmanaged file at the URI "public://temp.txt" should not exist
 
-#### Assert that an unmanaged file exists and has specified content
+```
+</details>
+
+<details>
+  <summary><code>@Then an unmanaged file at the URI :uri should contain :content</code></summary>
 
 ```gherkin
-@Then an unmanaged file at the URI :uri should contain :content
-```
+Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
 
-#### Assert that an unmanaged file exists and does not have specified content
+```
+</details>
+
+<details>
+  <summary><code>@Then an unmanaged file at the URI :uri should not contain :content</code></summary>
 
 ```gherkin
-@Then an unmanaged file at the URI :uri should not contain :content
-```
+Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
 
-### KeyboardTrait
+```
+</details>
+
+## KeyboardTrait
 
 [Source](src/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
-#### Press multiple keyboard keys, optionally on element
+<details>
+  <summary><code>@When I press the key :key</code></summary>
 
 ```gherkin
-@When I press the keys :keys
-```
-```gherkin
-@When I press the keys :keys on the element :selector
-```
+When I press the key "a"
+When I press the key "tab"
 
-#### Press keyboard key, optionally on element
+```
+</details>
+
+<details>
+  <summary><code>@When I press the key :key on the element :selector</code></summary>
 
 ```gherkin
-@When I press the key :char
-```
-```gherkin
-@When I press the key :char on the element :selector
-```
+When I press the key "a" on the element "#edit-title"
+When I press the key "tab" on the element "#edit-title"
 
-### LinkTrait
+```
+</details>
+
+<details>
+  <summary><code>@When I press the keys :keys</code></summary>
+
+```gherkin
+When I press the keys "abc"
+
+```
+</details>
+
+<details>
+  <summary><code>@When I press the keys :keys on the element :selector</code></summary>
+
+```gherkin
+When I press the keys "abc" on the element "#edit-title"
+
+```
+</details>
+
+## LinkTrait
 
 [Source](src/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
-#### Click on the link with a title
-
-```gherkin
-@When I click on the link with the title :title
-```
-Example:
+<details>
+  <summary><code>@When I click on the link with the title :title</code></summary>
 
 ```gherkin
 When I click on the link with the title "Return to site content"
-```
 
-#### Assert presence of a link with a href
+```
+</details>
 
-```gherkin
-@Then the link :link with the href :href should exist
-```
-```gherkin
-@Then the link :link with the href :href within the element :locator should exist
-```
-Example:
+<details>
+  <summary><code>@Then the link :link with the href :href should exist</code></summary>
 
 ```gherkin
 Then the link "About us" with the href "/about-us" should exist
+Then the link "About us" with the href "/about*" should exist
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the link :link with the href :href within the element :selector should exist</code></summary>
+
+```gherkin
 Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
 Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
-```
 
-#### Assert link with a href does not exist
+```
+</details>
 
-```gherkin
-@Then the link :link with the href :href should not exist
-```
-```gherkin
-@Then the link :link with the href :href within the element :locator should not exist
-```
-Example:
+<details>
+  <summary><code>@Then the link :link with the href :href should not exist</code></summary>
 
 ```gherkin
 Then the link "About us" with the href "/about-us" should not exist
-Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
-Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
-```
+Then the link "About us" with the href "/about*" should not exist
 
-#### Assert that a link with a title exists
+```
+</details>
+
+<details>
+  <summary><code>@Then the link :link with the href :href within the element :selector should not exist</code></summary>
 
 ```gherkin
-@Then the link with the title :title should exist
+Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
+Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
+
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the link with the title :title should exist</code></summary>
 
 ```gherkin
 Then the link with the title "Return to site content" should exist
-```
 
-#### Assert that a link with a title does not exist
-
-```gherkin
-@Then the link with the title :title should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the link with the title :title should not exist</code></summary>
 
 ```gherkin
 Then the link with the title "Some non-existing title" should not exist
-```
 
-#### Assert that the link with a text is absolute
+```
+</details>
+
+<details>
+  <summary><code>@Then the link :link should be an absolute link</code></summary>
 
 ```gherkin
-@Then the link :link should be an absolute link
-```
-Example:
+Then the link "my-link-title" should be an absolute link
 
-```gherkin
-Then the link "Drupal" should be an absolute link
 ```
+</details>
 
-#### Assert that the link is not an absolute
-
-```gherkin
-@Then the link :link should not be an absolute link
-```
-Example:
+<details>
+  <summary><code>@Then the link :link should not be an absolute link</code></summary>
 
 ```gherkin
 Then the link "Return to site content" should not be an absolute link
-```
 
-### MediaTrait
+```
+</details>
+
+## MediaTrait
 
 [Source](src/MediaTrait.php), [Example](tests/behat/features/media.feature)
 
-#### Remove media type
+<details>
+  <summary><code>@Given :media_type media type does not exist</code></summary>
 
 ```gherkin
-@Given "video" media type does not exist
-```
-```gherkin
-@Given :media_type media type does not exist
-```
+Given "video" media type does not exist
 
-#### Creates media of a given type
-
-```gherkin
-@Given the following media :media_type exist:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the following media :media_type exist:</code></summary>
 
 ```gherkin
 Given "video" media:
 | name     | field1   | field2 | field3           |
 | My media | file.jpg | value  | value            |
 | ...      | ...      | ...    | ...              |
-```
 
-#### Remove media defined by provided properties
-
-```gherkin
-@Given the following media :media_type do not exist:
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the following media :media_type do not exist:</code></summary>
 
 ```gherkin
 Given the following media "image" do not exist:
 | name               |
 | Media item         |
 | Another media item |
-```
 
-#### Navigate to edit media with specified type and name
-
-```gherkin
-@When I edit the media :media_type with the name :name
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I edit the media :media_type with the name :name</code></summary>
 
 ```gherkin
 When I edit "document" media "Test document"
-```
 
-### MenuTrait
+```
+</details>
+
+## MenuTrait
 
 [Source](src/MenuTrait.php), [Example](tests/behat/features/menu.feature)
 
-#### Remove a single menu by its label if it exists
+<details>
+  <summary><code>@Given the menu :menu_name does not exist</code></summary>
 
 ```gherkin
-@Given the menu :menu_name does not exist
-```
+Given the menu "Test Menu" does not exist
 
-#### Create a menu if one does not exist
+```
+</details>
+
+<details>
+  <summary><code>@Given the following menus:</code></summary>
 
 ```gherkin
-@Given the following menus:
-```
+Given the following menus:
+| label            | description                    |
+| Footer Menu     | Links displayed in the footer  |
+| Secondary Menu  | Secondary navigation menu      |
 
-#### Remove menu links by title
+```
+</details>
+
+<details>
+  <summary><code>@Given the following menu links do not exist in the menu :menu_name:</code></summary>
 
 ```gherkin
-@Given the following menu links do not exist in the menu :menu_name:
-```
+Given the following menu links do not exist in the menu "Main navigation":
+| About Us     |
+| Contact      |
 
-#### Create menu links
+```
+</details>
+
+<details>
+  <summary><code>@Given the following menu links exist in the menu :menu_name :</code></summary>
 
 ```gherkin
-@Given the following menu links exist in the menu :menu_name :
-```
+Given the following menu links exist in the menu "Main navigation":
+| title           | enabled | uri                     | parent       |
+| Products        | 1       | /products               |              |
+| Latest Products | 1       | /products/latest        | Products     |
 
-### ParagraphsTrait
+```
+</details>
+
+## ParagraphsTrait
 
 [Source](src/ParagraphsTrait.php), [Example](tests/behat/features/paragraphs.feature)
 
-#### Create a paragraph of the given type with fields within an existing entity
-
-```gherkin
-@Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:
-```
-Example:
+<details>
+  <summary><code>@Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:</code></summary>
 
 ```gherkin
 Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
@@ -1320,248 +1225,246 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 | field_paragraph_longtext:value  | My paragraph message |
 | field_paragraph_longtext:format | full_html            |
 | ...                             | ...                  |
-```
 
-### PathTrait
+```
+</details>
+
+## PathTrait
 
 [Source](src/PathTrait.php), [Example](tests/behat/features/path.feature)
 
-#### Set basic authentication for the current session
-
-```gherkin
-@Given the basic authentication with the username :username and the password :password
-```
-Example:
+<details>
+  <summary><code>@Given the basic authentication with the username :username and the password :password</code></summary>
 
 ```gherkin
 Given the basic authentication with the username "myusername" and the password "mypassword"
-```
 
-#### Assert that the current page is a specified path
-
-```gherkin
-@Then the path should be :path
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the path should be :path</code></summary>
 
 ```gherkin
 Then the path should be "/about-us"
 Then the path should be "<front>"
-```
 
-#### Assert that the current page is not a specified path
-
-```gherkin
-@Then the path should not be :path
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the path should not be :path</code></summary>
 
 ```gherkin
 Then the path should not be "/about-us"
 Then the path should not be "<front>"
-```
 
-### ResponseTrait
+```
+</details>
+
+## ResponseTrait
 
 [Source](src/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
-#### Assert that a response contains a header with specified name
-
-```gherkin
-@Then the response should contain the header :header_name
-```
-Example:
+<details>
+  <summary><code>@Then the response should contain the header :header_name</code></summary>
 
 ```gherkin
 Then the response should contain the header "Connection"
-```
 
-#### Assert that a response does not contain a header with a specified name
-
-```gherkin
-@Then the response should not contain the header :header_name
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the response should not contain the header :header_name</code></summary>
 
 ```gherkin
 Then the response should not contain the header "Connection"
-```
 
-#### Assert that a response contains a header with a specified name and value
-
-```gherkin
-@Then the response header :header_name should contain the value :header_value
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the response header :header_name should contain the value :header_value</code></summary>
 
 ```gherkin
 Then the response header "Connection" should contain the value "Keep-Alive"
-```
 
-#### Assert a response does not contain a header with a specified name and value
-
-```gherkin
-@Then the response header :header_name should not contain the value :header_value
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the response header :header_name should not contain the value :header_value</code></summary>
 
 ```gherkin
 Then the response header "Connection" should not contain the value "Keep-Alive"
-```
 
-### RoleTrait
+```
+</details>
+
+## RoleTrait
 
 [Source](src/RoleTrait.php), [Example](tests/behat/features/role.feature)
 
-#### Create a single role with specified permissions
+<details>
+  <summary><code>@Given the role :role_name with the permissions :permissions</code></summary>
 
 ```gherkin
-@Given the role :role_name with the permissions :permissions
-```
+Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
 
-#### Create multiple roles from the specified table
+```
+</details>
+
+<details>
+  <summary><code>@Given the following roles:</code></summary>
 
 ```gherkin
-@Given the following roles:
-```
+Given the following roles:
+| name              | permissions                                         |
+| Content Editor   | access content, create article content              |
+| Content Approver | access content, edit any article content            |
 
-### SearchApiTrait
+```
+</details>
+
+## SearchApiTrait
 
 [Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
 
-#### Index a node of a specific content type with a specific title
+<details>
+  <summary><code>@When I add the :content_type content with the title :title to the search index</code></summary>
 
 ```gherkin
-@When I add the :content_type content with the title :title to the search index
-```
+When I add the "article" content with the title "Test Article" to the search index
 
-#### Run indexing for a specific number of items
+```
+</details>
+
+<details>
+  <summary><code>@When I run search indexing for :count item(s)</code></summary>
 
 ```gherkin
-@When I run search indexing for :count item(s)
-```
+When I run search indexing for 5 items
+When I run search indexing for 1 item
 
-### SelectTrait
+```
+</details>
+
+## SelectTrait
 
 [Source](src/SelectTrait.php), [Example](tests/behat/features/select.feature)
 
-#### Assert that a select has an option
+<details>
+  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
 
 ```gherkin
-@Then the option :option should exist within the select element :selector
-```
+Then the option "Administrator" should exist within the select element "edit-roles"
 
-#### Assert that a select does not have an option
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
 
 ```gherkin
-@Then the option :option should not exist within the select element :selector
-```
+Then the option "Guest" should not exist within the select element "edit-roles"
 
-#### Assert that a select option is selected
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
 
 ```gherkin
-@Then the option :option should be selected within the select element :selector
-```
+Then the option "Administrator" should be selected within the select element "edit-roles"
 
-#### Assert that a select option is not selected
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
 
 ```gherkin
-@Then the option :option should not be selected within the select element :selector
-```
+Then the option "Editor" should not be selected within the select element "edit-roles"
 
-### TaxonomyTrait
+```
+</details>
+
+## TaxonomyTrait
 
 [Source](src/TaxonomyTrait.php), [Example](tests/behat/features/taxonomy.feature)
 
-#### Remove terms from a specified vocabulary
-
-```gherkin
-@Given the following :vocabulary_machine_name vocabulary terms do not exist:
-```
-Example:
+<details>
+  <summary><code>@Given the following :vocabulary_machine_name vocabulary terms do not exist:</code></summary>
 
 ```gherkin
 Given the following "fruits" vocabulary terms do not exist:
   | Apple |
   | Pear  |
-```
 
-#### Visit specified vocabulary term page
-
-```gherkin
-@When I visit the :vocabulary_machine_name vocabulary :term_name term page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
 
 ```gherkin
 When I visit the "fruits" vocabulary "Apple" term page
-```
 
-#### Edit specified vocabulary term page
-
-```gherkin
-@When I edit the :vocabulary_machine_name vocabulary :term_name term page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I edit the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
 
 ```gherkin
 When I edit the "fruits" vocabulary "Apple" term page
-```
 
-#### Assert that a vocabulary with a specific name exists
-
-```gherkin
-@Then the vocabulary :machine_name with the name :name should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the vocabulary :machine_name with the name :name should exist</code></summary>
 
 ```gherkin
 Then the vocabulary "topics" with the name "Topics" should exist
-```
 
-#### Assert that a vocabulary with a specific name does not exist
-
-```gherkin
-@Then the vocabulary :machine_name should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the vocabulary :machine_name should not exist</code></summary>
 
 ```gherkin
 Then the vocabulary "topics" should not exist
-```
 
-#### Assert that a taxonomy term exist by name
-
-```gherkin
-@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist</code></summary>
 
 ```gherkin
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
-```
 
-#### Assert that a taxonomy term does not exist by name
-
-```gherkin
-@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist</code></summary>
 
 ```gherkin
 Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
-```
 
-### UserTrait
+```
+</details>
+
+## UserTrait
 
 [Source](src/UserTrait.php), [Example](tests/behat/features/user.feature)
 
-#### Remove users specified in a table
-
-```gherkin
-@Given the following users do not exist:
-```
-Example:
+<details>
+  <summary><code>@Given the following users do not exist:</code></summary>
 
 ```gherkin
 Given the following users do not exist:
@@ -1572,208 +1475,210 @@ Given the following users do not exist:
   | mail             |
   | john@example.com |
   | jane@example.com |
-```
 
-#### Set a password for a user
-
-```gherkin
-@Given the password for the user :name is :password
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the password for the user :name is :password</code></summary>
 
 ```gherkin
 Given the password for the user "John" is "password"
-```
 
-#### Set last access time for a user
-
-```gherkin
-@Given the last access time for the user :name is :datetime
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the last access time for the user :name is :datetime</code></summary>
 
 ```gherkin
 Given the last access time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last access time for the user "John" is "1732319174"
-```
 
-#### Set last login time for a user
-
-```gherkin
-@Given the last login time for the user :name is :datetime
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Given the last login time for the user :name is :datetime</code></summary>
 
 ```gherkin
 Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last login time for the user "John" is "1732319174"
-```
 
-#### Visit the profile page of the specified user
-
-```gherkin
-@When I visit :name user profile page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit :name user profile page</code></summary>
 
 ```gherkin
 When I visit "John" user profile page
-```
 
-#### Visit the profile page of the current user
-
-```gherkin
-@When I visit my own user profile page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit my own user profile page</code></summary>
 
 ```gherkin
 When I visit my own user profile page
-```
 
-#### Visit the profile edit page of the specified user
-
-```gherkin
-@When I visit :name user profile edit page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit :name user profile edit page</code></summary>
 
 ```gherkin
 When I visit "John" user profile edit page
-```
 
-#### Visit the profile edit page of the current user
-
-```gherkin
-@When I visit my own user profile edit page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit my own user profile edit page</code></summary>
 
 ```gherkin
 When I visit my own user profile edit page
-```
 
-#### Visit the profile delete page of the specified user
-
-```gherkin
-@When I visit :name user profile delete page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit :name user profile delete page</code></summary>
 
 ```gherkin
 When I visit "John" user profile delete page
-```
 
-#### Visit the profile delete page of the current user
-
-```gherkin
-@When I visit my own user profile delete page
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@When I visit my own user profile delete page</code></summary>
 
 ```gherkin
 When I visit my own user profile delete page
-```
 
-#### Assert that a user has roles assigned
-
-```gherkin
-@Then the user :name should have the role(s) :roles assigned
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the user :name should have the role(s) :roles assigned</code></summary>
 
 ```gherkin
 Then the user "John" should have the roles "administrator, editor" assigned
-```
 
-#### Assert that a user does not have roles assigned
-
-```gherkin
-@Then the user :name should not have the role(s) :roles assigned
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the user :name should not have the role(s) :roles assigned</code></summary>
 
 ```gherkin
 Then the user "John" should not have the roles "administrator, editor" assigned
-```
 
-#### Assert that a user is blocked
-
-```gherkin
-@Then the user :name should be blocked
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the user :name should be blocked</code></summary>
 
 ```gherkin
 Then the user "John" should be blocked
-```
 
-#### Assert that a user is not blocked
-
-```gherkin
-@Then the user :name should not be blocked
 ```
-Example:
+</details>
+
+<details>
+  <summary><code>@Then the user :name should not be blocked</code></summary>
 
 ```gherkin
 Then the user "John" should not be blocked
-```
 
-### VisibilityTrait
+```
+</details>
+
+## VisibilityTrait
 
 [Source](src/VisibilityTrait.php), [Example](tests/behat/features/visibility.feature)
 
-#### Assert that element with specified CSS is visible on page
+<details>
+  <summary><code>@Then the element :selector should be displayed</code></summary>
 
 ```gherkin
-@Then the element :selector should be displayed
-```
+Then the element ".alert-success" should be displayed
 
-#### Assert that element with specified CSS is visible on page
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed</code></summary>
 
 ```gherkin
-@Then the element :selector should not be displayed
-```
+Then the element ".error-message" should not be displayed
 
-#### Assert that element with specified CSS is displayed within a viewport
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be displayed within a viewport</code></summary>
 
 ```gherkin
-@Then the element :selector should be displayed within a viewport
-```
+Then the element ".hero-banner" should be displayed within a viewport
 
-#### Assert that element with specified CSS is displayed within a viewport with a top offset
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :number pixels</code></summary>
 
 ```gherkin
-@Then the element :selector should be displayed within a viewport with a top offset of :number pixels
-```
+Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
 
-#### Assert that element with specified CSS is not displayed within a viewport with a top offset
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels</code></summary>
 
 ```gherkin
-@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
-```
+Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
 
-#### Assert that element with specified CSS is visually hidden on page
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed within a viewport</code></summary>
 
 ```gherkin
-@Then the element :selector should not be displayed within a viewport
-```
+Then the element ".visually-hidden" should not be displayed within a viewport
 
-### WaitTrait
+```
+</details>
+
+## WaitTrait
 
 [Source](src/WaitTrait.php), [Example](tests/behat/features/wait.feature)
 
-#### Wait for a specified number of seconds
+<details>
+  <summary><code>@When I wait for :seconds second(s)</code></summary>
 
 ```gherkin
-@When I wait for :seconds second(s)
-```
+When I wait for 5 seconds
+When I wait for 1 second
 
-#### Wait for the AJAX calls to finish
+```
+</details>
+
+<details>
+  <summary><code>@When I wait for :seconds second(s) for AJAX to finish</code></summary>
 
 ```gherkin
-@When I wait for :seconds second(s) for AJAX to finish
+When I wait for 5 seconds for AJAX to finish
+When I wait for 1 second for AJAX to finish
+
 ```
+</details>
 
 
 
