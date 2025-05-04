@@ -1,24 +1,27 @@
-@api
 Feature: Check that PathTrait works
   As Behat Steps library developer
   I want to test path-related functionality
   So that I can verify proper URL paths in my application
 
+  @api
   Scenario: User is at the path without prefixed slash.
     Given I am an anonymous user
     When I go to "user/login"
     Then the path should be "user/login"
 
+  @api
   Scenario: User is at the path with prefixed slash
     Given I am an anonymous user
     When I go to "/user/login"
     Then the path should be "/user/login"
 
+  @api
   Scenario: User is at the '<front>' path.
     Given I am an anonymous user
     When I go to "/"
     Then the path should be "/"
 
+  @api
   Scenario: Current page is not specified path.
     Given I am an anonymous user
     When I go to "/user/login"
@@ -57,6 +60,7 @@ Feature: Check that PathTrait works
       Current path should not be "/user/login"
       """
 
+  @api
   Scenario: Assert "When the basic authentication with the username :username and the password :password"
     Given users:
       | name       | mail               | pass       |
