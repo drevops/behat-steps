@@ -126,20 +126,41 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     }
     $clean = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $class_description);
     $lines = array_values(
-      array_filter(
-        array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $clean))
-      )
+      array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $clean))
     );
+    // Remove first and last empty lines.
+    if (count($lines) > 1 && empty($lines[0])) {
+      array_shift($lines);
+    }
+    if (count($lines) > 1 && empty($lines[count($lines) - 1])) {
+      array_pop($lines);
+    }
     if (empty($lines)) {
       throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
     }
-    $class_description = trim($lines[0]);
+    $lines = array_map(static fn($l): string => trim($l), $lines);
+    $class_description = $lines[0];
 
     if (empty($class_description)) {
       throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
     }
+
     if (str_starts_with($class_description, 'Trait ')) {
       throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
+    }
+
+    $class_description_full = '';
+    foreach ($lines as $line) {
+      if (empty(trim($line))) {
+        $class_description_full .= PHP_EOL;
+      }
+      else {
+        // Only add space if we already have content.
+        if (!empty($class_description_full)) {
+          $class_description_full .= ' ';
+        }
+        $class_description_full .= trim($line);
+      }
     }
 
     foreach ($methods as $method) {
@@ -155,6 +176,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
           $info_item = [
             'name' => $method->getName(),
             'class_description' => $class_description,
+            'class_description_full' => $class_description_full,
             'class_name' => $trait_name,
           ];
           $info[] = $parsed + $info_item;
@@ -329,13 +351,18 @@ function render_info(array $info, string $base_path = __DIR__): string {
       throw new \Exception(sprintf('Example file %s does not exist', $example_file_path));
     }
     // @codeCoverageIgnoreEnd
-    // Section header.
-    $output .= sprintf('## %s', $trait) . PHP_EOL . PHP_EOL;
-    $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
-
     foreach ($methods as $method) {
       $class_name = is_string($method['class_name']) ? $method['class_name'] : '';
       $class_description = is_string($method['class_description']) ? $method['class_description'] : '';
+      $class_description_full = empty($method['class_description_full']) ? '' : (is_string($method['class_description_full']) ? $method['class_description_full'] : '');
+
+      // Section header.
+      if (empty($index_rows[$class_name])) {
+        $output .= sprintf('## %s', $trait) . PHP_EOL . PHP_EOL;
+        $output .= sprintf('<details><summary><strong>ℹ About this trait</strong></summary>%s</details>', nl2br($class_description_full)) . PHP_EOL . PHP_EOL;
+        $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
+      }
+
       $index_rows[$class_name] = [
         sprintf('[%s](#%s)', $class_name, strtolower($class_name)),
         $class_description,
@@ -359,6 +386,7 @@ function render_info(array $info, string $base_path = __DIR__): string {
 ```gherkin
 [example]
 ```
+
 </details>
 
 EOT;
