@@ -102,7 +102,7 @@ trait DateTrait {
         $timestamp = date($matches[3], $timestamp);
       }
 
-      if (empty($timestamp)) {
+      if (empty(trim(strval($timestamp)))) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
 
@@ -114,7 +114,9 @@ trait DateTrait {
    * Get the current timestamp.
    */
   protected static function dateNow(): int {
+    // @codeCoverageIgnoreStart
     return time();
+    // @codeCoverageIgnoreEnd
   }
 
 }

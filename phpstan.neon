@@ -28,9 +28,15 @@ parameters:
 
   ignoreErrors:
     -
-      # Since tests and data providers do not have to have parameter docblocks,
-      # it is not possible to specify the type of the parameter, so we ignore
-      # this error.
-      message: '#.*no value type specified in iterable type.*#'
+      messages:
+        # Since tests and data providers do not have to have parameter docblocks,
+        # it is not possible to specify the type of the parameter, so we ignore
+        # this error.
+        - '#.*no value type specified in iterable type.*#'
+        # Unit tests are not aware of the classes which are not loaded during tests.
+        - '#.*Call to an undefined method.*Session\(\).*#'
+        - '#.*Cannot call method.*getWebDriverSession\(\).*#'
+        - '#.*Cannot call method.*getClient\(\).*#'
+        - '#.*Cannot call method.*getCurrentUrl\(\).*#'
       paths:
         - tests/phpunit/*
