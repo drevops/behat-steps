@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
+use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 
 /**
  * Tests Drupal users, authentication, and profiles.
  *
- * User-related steps.
+ * Provides functionality for creating and managing Drupal users,
+ * assigning roles, and handling user authentication.
  *
  * @package DrevOps\BehatSteps
  */
@@ -346,6 +348,64 @@ trait UserTrait {
     }
 
     $this->visitPath('/user/' . $uid . $action_subpath);
+  }
+
+  /**
+   * Create a single role with specified permissions.
+   *
+   * @code
+   * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+   * @endcode
+   *
+   * @Given the role :role_name with the permissions :permissions
+   */
+  public function userCreateRole(string $role_name, string $permissions): void {
+    $permissions = array_map(trim(...), explode(',', $permissions));
+
+    $rid = strtolower($role_name);
+    $role_name = trim($role_name);
+
+    $existing_role = Role::load($rid);
+    if ($existing_role) {
+      $existing_role->delete();
+    }
+
+    /** @var \Drupal\user\RoleInterface $role */
+    $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
+      'id' => $rid,
+      'label' => $role_name,
+    ]);
+    $saved = $role->save();
+
+    if ($saved !== SAVED_NEW) {
+      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
+    }
+    $this->roles[(string) $role->id()] = (string) $role->id();
+
+    user_role_grant_permissions($role->id(), $permissions);
+  }
+
+  /**
+   * Create multiple roles from the specified table.
+   *
+   * @code
+   * Given the following roles:
+   * | name              | permissions                              |
+   * | Content Editor    | access content, create article content   |
+   * | Content Approver  | access content, edit any article content |
+   * @endcode
+   *
+   * @Given the following roles:
+   */
+  public function userCreateRoles(TableNode $table): void {
+    foreach ($table->getHash() as $hash) {
+      if (!isset($hash['name'])) {
+        throw new \RuntimeException('Missing required column "name"');
+      }
+
+      $permissions = $hash['permissions'] ?: '';
+      $this->userCreateRole($hash['name'], $permissions);
+    }
   }
 
 }

@@ -20,7 +20,6 @@
 | [ParagraphsTrait](#paragraphstrait) | Tests Drupal Paragraphs module functionality. |
 | [PathTrait](#pathtrait) | Tests URL paths and basic authentication. |
 | [ResponseTrait](#responsetrait) | Tests HTTP response headers in web requests. |
-| [RoleTrait](#roletrait) | Creates and manages Drupal user roles. |
 | [SearchApiTrait](#searchapitrait) | Tests Drupal Search API module functionality. |
 | [TaxonomyTrait](#taxonomytrait) | Tests Drupal taxonomy terms and vocabularies. |
 | [UserTrait](#usertrait) | Tests Drupal users, authentication, and profiles. |
@@ -1390,31 +1389,6 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 ```
 </details>
 
-## RoleTrait
-
-[Source](src/RoleTrait.php), [Example](tests/behat/features/role.feature)
-
-<details>
-  <summary><code>@Given the role :role_name with the permissions :permissions</code></summary>
-
-```gherkin
-Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
-
-```
-</details>
-
-<details>
-  <summary><code>@Given the following roles:</code></summary>
-
-```gherkin
-Given the following roles:
-| name              | permissions                                         |
-| Content Editor   | access content, create article content              |
-| Content Approver | access content, edit any article content            |
-
-```
-</details>
-
 ## SearchApiTrait
 
 [Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
@@ -1552,6 +1526,27 @@ Given the last access time for the user "John" is "1732319174"
 ```gherkin
 Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last login time for the user "John" is "1732319174"
+
+```
+</details>
+
+<details>
+  <summary><code>@Given the role :role_name with the permissions :permissions</code></summary>
+
+```gherkin
+Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+
+```
+</details>
+
+<details>
+  <summary><code>@Given the following roles:</code></summary>
+
+```gherkin
+Given the following roles:
+| name              | permissions                              |
+| Content Editor    | access content, create article content   |
+| Content Approver  | access content, edit any article content |
 
 ```
 </details>
