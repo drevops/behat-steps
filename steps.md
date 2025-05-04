@@ -2,7 +2,7 @@
 
 | Class | Description |
 | --- | --- |
-| [BlockTrait](#blocktrait) | Creates, configures, and tests blocks. |
+| [BlockTrait](#blocktrait) | Create, configure, and test block. |
 | [ContentBlockTrait](#contentblocktrait) | Manages content block entities. |
 | [ContentTrait](#contenttrait) | Works with Drupal content entities. |
 | [CookieTrait](#cookietrait) | Works with browser cookies. |
@@ -32,127 +32,109 @@
 [Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
 
 <details>
-  <summary><code>@When I create a block of type :label with:</code></summary>
+  <summary><code>@Given the instance of :admin_label block exists with the following configuration:</code></summary>
 
 ```gherkin
-| label         | [TEST] Welcome Message      |
-| label_display | 1                           |
-| region        | sidebar_first               |
-| status        | 1                           |
+Given the instance of "My block" block exists with the following configuration:
+ | label         | My block |
+ | label_display | 1        |
+ | region        | content  |
+ | status        | 1        |
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I configure the block with the label :label with:</code></summary>
+  <summary><code>@Given the block :label has the following configuration:</code></summary>
 
 ```gherkin
-When I configure the block with the label :label with:
- | label         | [TEST] Updated Message      |
- | label_display | 1                           |
- | region        | sidebar_second              |
- | status        | 1                           |
+Given the block "My block" has the following configuration:
+| label_display | 1       |
+| region        | content |
+| status        | 1       |
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I configure a visibility condition :condition for the block with label :label</code></summary>
+  <summary><code>@Given the block :label does not exist</code></summary>
 
 ```gherkin
-When I configure a visibility condition "request_path" for the block with label "[TEST] Block"
-| pages | /node/1\r\n/about |
-| negate | 0 |
+Given the block "My block" does not exist
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I remove the visibility condition :condition from the block with label :label</code></summary>
+  <summary><code>@Given the block :label is enabled</code></summary>
 
 ```gherkin
-When I remove the visibility condition "request_path" from the block with label "[TEST] Block"
+Given the block "My block" is enabled
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I disable the block with label :label</code></summary>
+  <summary><code>@Given the block :label is disabled</code></summary>
 
 ```gherkin
-When I disable the block with label "[TEST] Sidebar Block"
+Given the block "My block" is disabled
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I enable the block with label :label</code></summary>
+  <summary><code>@Given the block :label has the following :condition condition configuration:</code></summary>
 
 ```gherkin
-When I enable the block with label "[TEST] Sidebar Block"
+Given the block "My block" has the following "request_path" condition configuration:
+| pages  | /node/1\r\n/about |
+| negate | 0                 |
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I should see the block with label :label in the region :region</code></summary>
+  <summary><code>@Given the block :label has the :condition condition removed</code></summary>
 
 ```gherkin
-Then I should see the block with label "[TEST] User Menu" in the region "sidebar_first"
+Given the block "My block" has the "request_path" condition removed
 
 ```
 </details>
 
 <details>
-  <summary><code>@When I should not see the block with label :label in the region :region</code></summary>
+  <summary><code>@Then the block :label should exist</code></summary>
 
 ```gherkin
-Then I should not see the block with label "[TEST] User Menu" in the region "content"
+Then the block "My block" should exist
 
 ```
 </details>
 
 <details>
-  <summary><code>@Then I should see the block with label :label</code></summary>
+  <summary><code>@Then the block :label should not exist</code></summary>
 
 ```gherkin
-Then I should see the block with label "[TEST] Footer Block"
+Then the block "My block" should not exist
 
 ```
 </details>
 
 <details>
-  <summary><code>@Then the block with label :label should have the visibility condition :condition</code></summary>
+  <summary><code>@Then the block :label should exist in the :region region</code></summary>
 
 ```gherkin
-Then the block with label "[TEST] Admin Block" should have the visibility condition "user_role"
+Then the block "My block" should exist in the "content" region
 
 ```
 </details>
 
 <details>
-  <summary><code>@Then the block with label :label should not have the visibility condition :condition</code></summary>
+  <summary><code>@Then the block :label should not exist in the :region region</code></summary>
 
 ```gherkin
-Then the block with label "[TEST] Public Block" should not have the visibility condition "user_role"
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the block with label :label should be disabled</code></summary>
-
-```gherkin
-Then the block with label "[TEST] Maintenance Block" should be disabled
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the block with label :label should be enabled</code></summary>
-
-```gherkin
-Then the block with label "[TEST] Navigation Block" should be enabled
+Then the block "My block" should not exist in the "content" region
 
 ```
 </details>
