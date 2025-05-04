@@ -31,7 +31,6 @@ use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
 use DrevOps\BehatSteps\RoleTrait;
 use DrevOps\BehatSteps\SearchApiTrait;
-use DrevOps\BehatSteps\SelectTrait;
 use DrevOps\BehatSteps\TaxonomyTrait;
 use DrevOps\BehatSteps\TestmodeTrait;
 use DrevOps\BehatSteps\UserTrait;
@@ -69,7 +68,6 @@ class FeatureContext extends DrupalContext {
   use ResponseTrait;
   use RoleTrait;
   use SearchApiTrait;
-  use SelectTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;

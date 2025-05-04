@@ -22,7 +22,6 @@
 | [ResponseTrait](#responsetrait) | Tests HTTP response headers in web requests. |
 | [RoleTrait](#roletrait) | Creates and manages Drupal user roles. |
 | [SearchApiTrait](#searchapitrait) | Tests Drupal Search API module functionality. |
-| [SelectTrait](#selecttrait) | Tests HTML select elements and their options. |
 | [TaxonomyTrait](#taxonomytrait) | Tests Drupal taxonomy terms and vocabularies. |
 | [UserTrait](#usertrait) | Tests Drupal users, authentication, and profiles. |
 | [WaitTrait](#waittrait) | Implements timed waits and AJAX completion checks. |
@@ -864,6 +863,42 @@ Then the color field "#edit-background-color" should have the value "#FF5733"
 ```
 </details>
 
+<details>
+  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
+
+```gherkin
+Then the option "Administrator" should exist within the select element "edit-roles"
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
+
+```gherkin
+Then the option "Guest" should not exist within the select element "edit-roles"
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
+
+```gherkin
+Then the option "Administrator" should be selected within the select element "edit-roles"
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
+
+```gherkin
+Then the option "Editor" should not be selected within the select element "edit-roles"
+
+```
+</details>
+
 ## FileDownloadTrait
 
 [Source](src/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
@@ -1399,46 +1434,6 @@ When I add the "article" content with the title "Test Article" to the search ind
 ```gherkin
 When I run search indexing for 5 items
 When I run search indexing for 1 item
-
-```
-</details>
-
-## SelectTrait
-
-[Source](src/SelectTrait.php), [Example](tests/behat/features/select.feature)
-
-<details>
-  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
-
-```gherkin
-Then the option "Administrator" should exist within the select element "edit-roles"
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
-
-```gherkin
-Then the option "Guest" should not exist within the select element "edit-roles"
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
-
-```gherkin
-Then the option "Administrator" should be selected within the select element "edit-roles"
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
-
-```gherkin
-Then the option "Editor" should not be selected within the select element "edit-roles"
 
 ```
 </details>

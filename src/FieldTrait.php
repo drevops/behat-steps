@@ -208,7 +208,110 @@ JS;
   }
 
   /**
-   * Return fixed step argument (with \\" replaced back to ").
+   * Assert that a select has an option.
+   *
+   * @code
+   * Then the option "Administrator" should exist within the select element "edit-roles"
+   * @endcode
+   *
+   * @Then the option :option should exist within the select element :selector
+   */
+  public function fieldAssertSelectOptionExists(string $selector, string $option): void {
+    $selectElement = $this->getSession()->getPage()->findField($selector);
+    if (is_null($selectElement)) {
+      throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
+    }
+
+    $optionElement = $selectElement->find('named', ['option', $option]);
+    if (is_null($optionElement)) {
+      throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $selector));
+    }
+  }
+
+  /**
+   * Assert that a select does not have an option.
+   *
+   * @code
+   * Then the option "Guest" should not exist within the select element "edit-roles"
+   * @endcode
+   *
+   * @Then the option :option should not exist within the select element :selector
+   */
+  public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
+    $selectElement = $this->getSession()->getPage()->findField($selector);
+    if (is_null($selectElement)) {
+      throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
+    }
+
+    $optionElement = $selectElement->find('named', ['option', $option]);
+    if (!is_null($optionElement)) {
+      throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $selector));
+    }
+  }
+
+  /**
+   * Assert that a select option is selected.
+   *
+   * @code
+   * Then the option "Administrator" should be selected within the select element "edit-roles"
+   * @endcode
+   *
+   * @Then the option :option should be selected within the select element :selector
+   */
+  public function fieldAssertSelectOptionSelected(string $value, string $selector): void {
+    $selectField = $this->getSession()->getPage()->findField($selector);
+    $currentUrl = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
+
+    if (!$selectField) {
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
+    }
+
+    $optionField = $selectField->find('named', [
+      'option',
+      $value,
+    ]);
+
+    if (!$optionField) {
+      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $selector, $path));
+    }
+
+    if (!$optionField->isSelected()) {
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $path));
+    }
+  }
+
+  /**
+   * Assert that a select option is not selected.
+   *
+   * @code
+   * Then the option "Editor" should not be selected within the select element "edit-roles"
+   * @endcode
+   *
+   * @Then the option :option should not be selected within the select element :selector
+   */
+  public function fieldAssertSelectOptionNotSelected(string $value, string $selector): void {
+    $selectField = $this->getSession()->getPage()->findField($selector);
+    $currentUrl = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
+
+    if (!$selectField) {
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
+    }
+
+    $optionField = $selectField->find('named', ['option', $value]);
+
+    if (!$optionField) {
+      throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s', $value, $selector, $path));
+    }
+
+    if ($optionField->isSelected()) {
+      throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be', $value, $selector, $path));
+    }
+  }
+
+  /**
+   * Return fixed step argument (with \" replaced back to ").
    */
   protected function fieldFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
