@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps;
 /**
  * Interacts with and validates HTML elements.
  *
- * Steps to work with HTML element.
+ * Steps to work with HTML elements.
  *
  * @package DrevOps\BehatSteps
  */
@@ -81,7 +81,7 @@ trait ElementTrait {
    *
    * @throws \Exception
    */
-  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, $is_exact, $is_inverted): void {
+  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -253,6 +253,190 @@ JS;
       var element = document.querySelector('" . $selector . "');
       element.scrollIntoView( true );
     ");
+  }
+
+  /**
+   * Assert that element with specified CSS is visible on page.
+   *
+   * @code
+   * Then the element ".alert-success" should be displayed
+   * @endcode
+   *
+   * @Then the element :selector should be displayed
+   */
+  public function elementAssertIsVisible(string $selector): void {
+    $page = $this->getSession()->getPage();
+    $nodes = $page->findAll('css', $selector);
+
+    if ($nodes === []) {
+      throw new \Exception(sprintf(
+        'Element defined by "%s" selector is not present on the page.',
+        $selector
+      ));
+    }
+
+    foreach ($nodes as $node) {
+      if ($node->isVisible()) {
+        // Success – at least one match is visible.
+        return;
+      }
+    }
+
+    throw new \Exception(sprintf(
+      'None of the elements defined by "%s" selector are visible on the page.',
+      $selector
+    ));
+  }
+
+  /**
+   * Assert that element with specified CSS is not visible on page.
+   *
+   * @code
+   * Then the element ".error-message" should not be displayed
+   * @endcode
+   *
+   * @Then the element :selector should not be displayed
+   */
+  public function elementAssertIsNotVisible(string $selector): void {
+    $element = $this->getSession()->getPage();
+    $nodes = $element->findAll('css', $selector);
+
+    foreach ($nodes as $node) {
+      if ($node->isVisible()) {
+        throw new \Exception(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector));
+      }
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is displayed within a viewport.
+   *
+   * @code
+   * Then the element ".hero-banner" should be displayed within a viewport
+   * @endcode
+   *
+   * @Then the element :selector should be displayed within a viewport
+   */
+  public function elementAssertIsVisuallyVisible(string $selector): void {
+    $this->elementAssertIsVisible($selector);
+
+    if (!$this->elementIsVisuallyVisible($selector, 0)) {
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector));
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is displayed within a viewport with a top offset.
+   *
+   * @code
+   * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+   * @endcode
+   *
+   * @Then the element :selector should be displayed within a viewport with a top offset of :number pixels
+   */
+  public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $number): void {
+    $this->elementAssertIsVisible($selector);
+    if (!$this->elementIsVisuallyVisible($selector, $number)) {
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $number));
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is not displayed within a viewport with a top offset.
+   *
+   * @code
+   * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+   * @endcode
+   *
+   * @Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
+   */
+  public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $number): void {
+    if ($this->elementIsVisuallyVisible($selector, $number)) {
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number));
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is visually hidden on page.
+   *
+   * Visually hidden means either:
+   * - element is not rendered in the layout (i.e., CSS is "display: none").
+   * - element is rendered in the layout, but not visible to the viewer (i.e.,
+   *   when one of the screen reader-only techniques is used).
+   *
+   * @code
+   * Then the element ".visually-hidden" should not be displayed within a viewport
+   * @endcode
+   *
+   * @Then the element :selector should not be displayed within a viewport
+   */
+  public function elementAssertIsVisuallyHidden(string $selector, int $offset = 0): void {
+    if ($this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector));
+    }
+  }
+
+  /**
+   * Assert that an element is displayed within a viewport using different FE techniques.
+   *
+   * @param string $selector
+   *   CSS query selector.
+   * @param int $offset
+   *   (optional) Vertical element offset in pixels. Defaults to 0.
+   *
+   * @return bool
+   *   TRUE if an element is displayed within a viewport, FALSE if not.
+   */
+  protected function elementIsVisuallyVisible(string $selector, int $offset) {
+    // The contents of this JS function should be copied as-is from the <script>
+    // section in the bottom of the tests/behat/fixtures/relative.html file.
+    $scriptFunction = <<<JS
+      function isElemVisible(selector, offset = 0) {
+        var failures = [];
+        document.querySelectorAll(selector).forEach(function (el) {
+          // Inject a style to disable scrollbars for more consistent results.
+          if (document.querySelectorAll('head #relative_style').length === 0) {
+            document.querySelector('head').insertAdjacentHTML(
+              'beforeend',
+              '<style id="relative_style" type="text/css">::-webkit-scrollbar{display: none;}</style>'
+            );
+          }
+
+          // Scroll to the element top, accounting for an offset.
+          window.scroll({ top: el.offsetTop + offset });
+
+          // Gather visibility constraints.
+          const isVisible  = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+          const hasHeight  = el.clientHeight > 1 || el.offsetHeight > 1;
+          const notClipped = !(
+            getComputedStyle(el).clip === 'rect(0px 0px 0px 0px)' &&
+            getComputedStyle(el).position === 'absolute'
+          );
+          const rect       = el.getBoundingClientRect();
+          onScreen = !(
+            rect.left + rect.width <= 0 ||
+            rect.top + rect.height <= 0 ||
+            rect.left >= window.innerWidth ||
+            rect.top >= window.innerHeight
+          );
+
+          if (!isVisible || !hasHeight || !notClipped || !onScreen) {
+            failures.push(el);
+          }
+        });
+
+        return failures.length === 0;
+      }
+    JS;
+    // Include and call visibility assertion function.
+    $script = <<<JS
+      (function() {
+        {$scriptFunction}
+        return isElemVisible('{$selector}', {$offset});
+      })();
+    JS;
+
+    return $this->getSession()->evaluateScript($script);
   }
 
   /**

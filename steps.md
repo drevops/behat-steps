@@ -25,7 +25,6 @@
 | [SelectTrait](#selecttrait) | Tests HTML select elements and their options. |
 | [TaxonomyTrait](#taxonomytrait) | Tests Drupal taxonomy terms and vocabularies. |
 | [UserTrait](#usertrait) | Tests Drupal users, authentication, and profiles. |
-| [VisibilityTrait](#visibilitytrait) | Tests element visibility on web pages. |
 | [WaitTrait](#waittrait) | Implements timed waits and AJAX completion checks. |
 ## BlockTrait
 
@@ -517,6 +516,60 @@ Then the element "#main-content" with the attribute "class" and the value contai
 
 ```gherkin
 Then the element "#header" should be at the top of the viewport
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be displayed</code></summary>
+
+```gherkin
+Then the element ".alert-success" should be displayed
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed</code></summary>
+
+```gherkin
+Then the element ".error-message" should not be displayed
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be displayed within a viewport</code></summary>
+
+```gherkin
+Then the element ".hero-banner" should be displayed within a viewport
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :number pixels</code></summary>
+
+```gherkin
+Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels</code></summary>
+
+```gherkin
+Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+
+```
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be displayed within a viewport</code></summary>
+
+```gherkin
+Then the element ".visually-hidden" should not be displayed within a viewport
 
 ```
 </details>
@@ -1594,64 +1647,6 @@ Then the user "John" should be blocked
 
 ```gherkin
 Then the user "John" should not be blocked
-
-```
-</details>
-
-## VisibilityTrait
-
-[Source](src/VisibilityTrait.php), [Example](tests/behat/features/visibility.feature)
-
-<details>
-  <summary><code>@Then the element :selector should be displayed</code></summary>
-
-```gherkin
-Then the element ".alert-success" should be displayed
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the element :selector should not be displayed</code></summary>
-
-```gherkin
-Then the element ".error-message" should not be displayed
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the element :selector should be displayed within a viewport</code></summary>
-
-```gherkin
-Then the element ".hero-banner" should be displayed within a viewport
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :number pixels</code></summary>
-
-```gherkin
-Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels</code></summary>
-
-```gherkin
-Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
-
-```
-</details>
-
-<details>
-  <summary><code>@Then the element :selector should not be displayed within a viewport</code></summary>
-
-```gherkin
-Then the element ".visually-hidden" should not be displayed within a viewport
 
 ```
 </details>

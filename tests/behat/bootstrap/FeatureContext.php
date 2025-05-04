@@ -35,7 +35,6 @@ use DrevOps\BehatSteps\SelectTrait;
 use DrevOps\BehatSteps\TaxonomyTrait;
 use DrevOps\BehatSteps\TestmodeTrait;
 use DrevOps\BehatSteps\UserTrait;
-use DrevOps\BehatSteps\VisibilityTrait;
 use DrevOps\BehatSteps\WaitTrait;
 use DrevOps\BehatSteps\WatchdogTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -74,7 +73,6 @@ class FeatureContext extends DrupalContext {
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
-  use VisibilityTrait;
   use WaitTrait;
   use WatchdogTrait;
 

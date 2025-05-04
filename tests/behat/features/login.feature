@@ -6,14 +6,14 @@ Feature: Login
 
   @api
   Scenario: Administrator user logs in
-    Given I am logged in as a user with the "administer site configuration, access administration pages" permissions
+    Given I am logged in as a user with the "Administrator" role
     When I go to "admin"
     Then I should be on "/admin"
     And I save screenshot
 
   @api @javascript
   Scenario: Administrator user logs in using a real browser
-    Given I am logged in as a user with the "administer site configuration, access administration pages" permissions
+    Given I am logged in as a user with the "Administrator" role
     When I go to "admin"
     Then I should be on "/admin"
     And I save screenshot
