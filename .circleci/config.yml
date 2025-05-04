@@ -32,7 +32,11 @@ job-build: &job-build
         command: ahoy lint-docs || [ "${CI_LINT_DOCS_IGNORE_FAILURE:-0}" -eq 1 ]
 
     - run:
-        name: Run tests with coverage
+        name: Run Unit tests with coverage
+        command: ahoy test-unit-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+
+    - run:
+        name: Run BDD tests with coverage
         command: ahoy test-bdd-coverage || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
     - run:

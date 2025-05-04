@@ -20,14 +20,14 @@
     <!-- Lint code against min PHP version specified in composer.json. -->
     <config name="testVersion" value="8.2"/>
 
-    <file>../src</file>
-    <file>../tests/behat/bootstrap</file>
-    <file>../tests/phpunit/src</file>
-    <file>../docs.php</file>
+    <file>src</file>
+    <file>tests/behat/bootstrap</file>
+    <file>tests/phpunit/src</file>
+    <file>docs.php</file>
 
     <!-- Exclude circleci config files. -->
-    <exclude-pattern>../circle\.yml</exclude-pattern>
-    <exclude-pattern>../\.circle\/config\.yml</exclude-pattern>
+    <exclude-pattern>circle\.yml</exclude-pattern>
+    <exclude-pattern>.circle\/config\.yml</exclude-pattern>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
