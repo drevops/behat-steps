@@ -1,7 +1,7 @@
 Feature: Check that ElementTrait works
   As Behat Steps library developer
-  I want to provide tools to verify HTML element attributes and properties
-  So that users can test DOM structure and styling
+  I want to provide tools to verify HTML element attributes, properties, and visibility
+  So that users can test DOM structure, styling, and UI element behaviors correctly
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
     Given I am an anonymous user
@@ -238,3 +238,107 @@ Feature: Check that ElementTrait works
     Given I am on the phpserver test page
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
+
+  # Element visibility tests (merged from visibility.feature)
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
+    When I am on the phpserver test page
+    Then the element "#top" should be displayed
+
+  # Here and below: skipped because of Behat hanging in the child process.
+  @trait:ElementTrait @skipped
+  Scenario: Assert step definition "Then the element :selector should be displayed" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      When I am on the phpserver test page
+      Then the element "#hidden" should not be displayed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element defined by "#hidden" selector is not visible on the page.
+      """
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should not be displayed" succeeds as expected
+    When I am on the phpserver test page
+    Then the element "#hidden" should not be displayed
+
+  @trait:ElementTrait @skipped
+  Scenario: Assert step definition "Then the element :selector should not be displayed" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should not be displayed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element defined by "#top" selector is visible on the page, but should not be.
+      """
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :number pixels" succeeds as expected
+    Given I am on the phpserver test page
+    Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" succeeds as expected
+    Given I am on the phpserver test page
+    Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
+
+  @api @javascript @phpserver @skipped
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should be displayed within a viewport with a top offset of 1000 pixels
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 1000 pixels.
+      """
+
+  @api @javascript @phpserver
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" and "Then the element :selector should not be displayed within a viewport" succeeds as expected
+    Given I am on the phpserver test page
+    Then the element "#top" should be displayed within a viewport
+    # Accessibility elements visible to screen readers are visible to normal
+    # visibility assertion, but visually hidden.
+    And the element "#sr-only" should be displayed
+    And the element "#sr-only" should not be displayed within a viewport
+    And the element "#sr-only-focusable" should not be displayed within a viewport
+
+  @trait:ElementTrait @skipped
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/relative.html"
+      Then the element "#sr-only" should be displayed within a viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#sr-only" selector is not displayed within a viewport.
+      """
+
+  @trait:ElementTrait @skipped
+  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport" fails as expected
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/relative.html"
+      Then the element "#top" should not be displayed within a viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
+      """
