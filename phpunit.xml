@@ -13,9 +13,6 @@
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnPhpunitDeprecations="true">
-    <php>
-        <env name="SCRIPT_RUN_SKIP" value="1"/>
-    </php>
     <testsuites>
         <testsuite name="default">
             <directory>tests/phpunit/src/</directory>

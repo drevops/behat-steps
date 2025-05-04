@@ -12,7 +12,6 @@
 
 declare(strict_types=1);
 
-use DrupalFinder\DrupalFinderComposerRuntime;
 use DrupalRector\Set\Drupal10SetList;
 use DrupalRector\Set\Drupal8SetList;
 use DrupalRector\Set\Drupal9SetList;
@@ -30,8 +29,7 @@ use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
-  $drupalFinder = new DrupalFinderComposerRuntime();
-  $drupalRoot = $drupalFinder->getDrupalRoot();
+  $drupalRoot = 'build/web';
 
   $rectorConfig->autoloadPaths([
     $drupalRoot . '/core',
@@ -56,10 +54,6 @@ return static function (RectorConfig $rectorConfig): void {
     SetList::DEAD_CODE,
     SetList::INSTANCEOF,
     SetList::TYPE_DECLARATION,
-    // Provided by Drupal Rector.
-    Drupal8SetList::DRUPAL_8,
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
   ]);
 
   $rectorConfig->rule(DeclareStrictTypesRector::class);

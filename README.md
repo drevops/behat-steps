@@ -131,7 +131,24 @@ Use `ahoy --help` to see the list of available commands.
 
 ### Running tests
 
-The source code of traits is tested by running Behat tests in the same way they
+There are two types of tests in this repository: unit tests and Behat tests.
+
+#### Unit tests
+
+Unit tests are run using PHPUnit installed in the root of the repository and
+are independent of the Drupal version. This allows us to use the latest
+features of PHPUnit.
+
+```bash
+ahoy test-unit          # Run all unit tests
+
+ahoy test-unit-coverage # Run tests with code coverage
+```
+
+#### Behat tests
+
+Behat tests are used as functional/integration tests to validate the
+functionality of the traits. These Behat tests run in the same way they
 would be run in your project: traits are included
 into [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php)
 and then ran on the
@@ -141,11 +158,11 @@ using [test features](tests/behat/features).
 Run `ahoy build` to setup a fixture Drupal site in the `build` directory.
 
 ```bash
-ahoy test-bdd                # Run all tests
+ahoy test-bdd                # Run all Behat tests
 
-ahoy test-bdd path/to/file   # Run all scenarios in specific feature file
+ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
 
-ahoy test-bdd -- --tags=wip  # Run all scenarios tagged with `@wip` tag
+ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
 #### Debugging tests

@@ -25,8 +25,28 @@ echo "  > Validating fixture Composer configuration."
 composer validate --ansi --no-check-all
 
 echo "  > Merging configuration from module's composer.json."
-# Do not add `JSON_UNESCAPED_SLASHES` as it will break the relative path replacement below.
-php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('/app/composer.json'), true),json_decode(file_get_contents('/app/build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
+php -r '
+$package = json_decode(file_get_contents("/app/composer.json"), true);
+$fixture = json_decode(file_get_contents("/app/build/composer.json"), true);
+
+// Cherry-pick the required properties from the base composer.json.
+$package_filtered["require-dev"] = $package["require"];
+
+// Deps required to run Behat tests.
+$package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_filter($package["require-dev"], function ($ver, $name) {
+  return in_array($name, [
+    "drevops/behat-phpserver",
+    "drevops/behat-screenshot",
+    "dvdoug/behat-code-coverage",
+  ]);
+}, ARRAY_FILTER_USE_BOTH));
+unset($package_filtered["require-dev"]["php"]);
+
+$package_filtered["autoload"] = $package["autoload"];
+$package_filtered["autoload-dev"]["psr-4"]["DrevOps\\BehatSteps\\"] = "../src/";
+
+echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."
 sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
@@ -34,7 +54,6 @@ sed "${sed_opts[@]}" 's|"DrevOps\\\\BehatSteps\\\\": "src/"|"DrevOps\\\\BehatSte
 
 echo "  > Show compiled composer.json."
 cat composer.json
-
 echo "  > Validating merged fixture Composer configuration."
 composer validate --ansi --no-check-all
 

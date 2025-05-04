@@ -9,22 +9,22 @@ parameters:
   phpVersion: 80224
 
   paths:
-    - ../src
-    - ../tests/behat/bootstrap
-    - ../tests/phpunit/src
-    - ../docs.php
+    - src
+    - tests/behat/bootstrap
+    - tests/phpunit/src
+    - docs.php
 
   excludePaths:
     - vendor/*
     - node_modules/*
-    - ../tests/behat/bootstrap/BehatCliContext.php
+    - tests/behat/bootstrap/BehatCliContext.php
 
   scanFiles:
-    - ../vendor/behat/behat/bin/behat
+    - vendor/behat/behat/bin/behat
 
   scanDirectories:
-    - ../vendor/phpunit/phpunit
-    - ../vendor/alexskrypnyk/phpunit-helpers
+    - vendor/phpunit/phpunit
+    - vendor/alexskrypnyk/phpunit-helpers
 
   ignoreErrors:
     -
@@ -33,4 +33,4 @@ parameters:
       # this error.
       message: '#.*no value type specified in iterable type.*#'
       paths:
-        - ../tests/phpunit/*
+        - tests/phpunit/*

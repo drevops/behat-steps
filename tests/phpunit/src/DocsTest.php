@@ -20,7 +20,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('replace_content')]
 class DocsTest extends UnitTestCase {
 
-  #[DataProvider('dataProverParseMethodComment')]
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    require_once __DIR__ . '/../../../docs.php';
+  }
+
+  #[DataProvider('dataProviderParseMethodComment')]
   public function testParseMethodComment(string $comment, ?array $expected, ?string $exception = NULL): void {
     if ($exception) {
       $this->expectException(\Exception::class);
@@ -32,7 +41,7 @@ class DocsTest extends UnitTestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public static function dataProverParseMethodComment(): array {
+  public static function dataProviderParseMethodComment(): array {
     return [
       'empty' => [
         '',
@@ -398,8 +407,8 @@ EOD,
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
     // Ensure directories exist.
-    @mkdir($trait_dir, 0777, TRUE);
-    @mkdir($features_dir, 0777, TRUE);
+    mkdir($trait_dir, 0777, TRUE);
+    mkdir($features_dir, 0777, TRUE);
 
     // Create sample files that the function will check for existence.
     foreach ($info as $trait => $methods) {
