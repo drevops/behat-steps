@@ -11,11 +11,19 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
 
 /**
- * Tests email functionality in Drupal applications.
+ * Test Drupal email functionality with content verification.
  *
- * Email-related steps.
+ * - Capture and examine outgoing emails with header and body validation.
+ * - Follow links and test attachments within email content.
+ * - Configure mail handler systems for proper test isolation.
  *
- * Behat trait for email interactions.
+ * Skip processing with tags: `@behat-steps-skip:emailBeforeScenario` or
+ * `@behat-steps-skip:emailAfterScenario`
+ *
+ * Special tags:
+ * - `@email` - enable email tracking using a default handler
+ * - `@email:{type}` - enable email tracking using a `{type}` handler
+ * - `@debug` (enable detailed logs)
  */
 trait EmailTrait {
 

@@ -7,11 +7,10 @@ namespace DrevOps\BehatSteps;
 use Drupal\node\Entity\Node;
 
 /**
- * Tests Drupal Search API module functionality.
+ * Assert Drupal Search API with index and query operations.
  *
- * Search API-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Add content to an index
+ * - Run indexing for a specific number of items.
  */
 trait SearchApiTrait {
 

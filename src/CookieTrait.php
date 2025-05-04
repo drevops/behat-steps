@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Works with browser cookies.
+ * Verify and inspect browser cookies.
  *
- * Cookie-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Assert cookie existence and values with exact or partial matching.
+ * - Support both WebDriver and BrowserKit drivers for test compatibility.
  */
 trait CookieTrait {
 

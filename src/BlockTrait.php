@@ -10,11 +10,13 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\block\Entity\Block;
 
 /**
- * Create, configure, and test block.
+ * Manage Drupal blocks.
  *
- * This trait enables programmatic management of blocks in the Drupal system,
- * including configuration, placement in regions, visibility settings, and
- * assertions about block state.
+ * - Create and configure blocks with custom visibility conditions.
+ * - Place blocks in regions and verify their rendering in the page.
+ * - Automatically clean up created blocks after scenario completion.
+ *
+ * Skip processing with tag: `@behat-steps-skip:blockAfterScenario`
  */
 trait BlockTrait {
 

@@ -11,11 +11,13 @@ use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Entity\EntityStorageException;
 
 /**
- * Manages content block entities.
+ * Manage Drupal content blocks.
  *
- * This trait enables programmatic management of content block
- * entities in Drupal, including creation, validation, and editing operations.
- * These reusable content blocks can be placed in regions using the BlockTrait.
+ * - Define reusable custom block content with structured field data.
+ * - Create, edit, and verify block_content entities by type and description.
+ * - Automatically clean up created entities after scenario completion.
+ *
+ * Skip processing with tag: `@behat-steps-skip:contentBlockAfterScenario`
  */
 trait ContentBlockTrait {
 

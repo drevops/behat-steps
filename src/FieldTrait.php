@@ -10,11 +10,11 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Interacts with and validates form fields.
+ * Manipulate Drupal form fields and verify widget functionality.
  *
- * Field-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Set field values for various input types including selects and WYSIWYG.
+ * - Assert field existence, state, and selected options.
+ * - Support for specialized widgets like color pickers and rich text editors.
  */
 trait FieldTrait {
 

@@ -7,11 +7,9 @@ namespace DrevOps\BehatSteps;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Tests HTML meta tags in page markup.
+ * Assert `<meta>` tags in page markup.
  *
- * Steps to work with Metatag.
- *
- * @package DrevOps\BehatSteps
+ * - Assert presence and content of meta tags with proper attribute handling.
  */
 trait MetatagTrait {
 

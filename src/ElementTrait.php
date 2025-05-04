@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Interacts with and validates HTML elements.
+ * Interact with HTML elements using CSS selectors and DOM attributes.
  *
- * Steps to work with HTML elements.
- *
- * @package DrevOps\BehatSteps
+ * - Assert element visibility, attribute values, and viewport positioning.
+ * - Execute JavaScript-based interactions with element state verification.
+ * - Handle confirmation dialogs and scrolling operations.
  */
 trait ElementTrait {
 

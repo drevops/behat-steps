@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 /**
- * Tests URL paths and basic authentication.
+ * Navigate and verify paths with URL validation.
  *
- * Path-related assertions.
- *
- * @package DrevOps\BehatSteps
+ * - Assert current page location with front page special handling.
+ * - Configure basic authentication for protected path access.
  */
 trait PathTrait {
 

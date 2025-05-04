@@ -11,11 +11,14 @@ use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
 
 /**
- * Tests Drupal Paragraphs module functionality.
+ * Manage Drupal paragraphs entities with structured field data.
  *
- * Paragraphs-related steps.
+ * - Create paragraph items with type-specific field values.
+ * - Test nested paragraph structures and reference field handling.
+ * - Attach paragraphs to various entity types with parent-child relationships.
+ * - Automatically clean up created paragraph items after scenario completion.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tag: `@behat-steps-skip:paragraphsAfterScenario`
  */
 trait ParagraphsTrait {
 
@@ -39,6 +42,7 @@ trait ParagraphsTrait {
     foreach (static::$paragraphEntities as $paragraph) {
       $paragraph->delete();
     }
+
     static::$paragraphEntities = [];
   }
 

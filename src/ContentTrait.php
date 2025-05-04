@@ -10,11 +10,11 @@ use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
 
 /**
- * Works with Drupal content entities.
+ * Manage Drupal content with workflow and moderation support.
  *
- * Content-related steps.
- *
- * @package DrevOps\BehatSteps
+ * - Create, find, and manipulate nodes with structured field data.
+ * - Navigate to node pages by title and manage editorial workflows.
+ * - Support content moderation transitions and scheduled publishing.
  */
 trait ContentTrait {
 

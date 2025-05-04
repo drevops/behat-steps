@@ -9,11 +9,18 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Drupal\Core\Database\Database;
 
 /**
- * Monitors Drupal watchdog entries during test execution.
+ * Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
  *
- * Watchdog-related steps.
+ * - Check for Watchdog messages after scenario completion.
+ * - Optionally check only for specific message types.
+ * - Optionally skip error checking for specific scenarios.
  *
- * @package DrevOps\BehatSteps
+ * Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
+ * `@behat-steps-skip:watchdogAfterScenario`
+ *
+ * Special tags:
+ * - `@watchdog:{type}` - limit watchdog messages to specific types.
+ * - `@error` - add to scenarios that are expected to trigger an error.
  */
 trait WatchdogTrait {
 

@@ -8,9 +8,11 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Simulates keyboard interactions in browser tests.
+ * Simulate keyboard interactions in Drupal browser testing.
  *
- * Behat trait for keyboard interactions.
+ * - Trigger key press events including special keys and key combinations.
+ * - Assert keyboard navigation and shortcut functionality.
+ * - Support for targeted key presses on specific page elements.
  */
 trait KeyboardTrait {
 

@@ -7,11 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
- * Implements timed waits and AJAX completion checks.
- *
- * Wait for a specific time or other actions on the page.
- *
- * @package DrevOps\BehatSteps
+ * Wait for a period of time or for AJAX to finish.
  */
 trait WaitTrait {
 

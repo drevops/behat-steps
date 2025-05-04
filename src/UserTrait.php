@@ -10,12 +10,13 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 
 /**
- * Tests Drupal users, authentication, and profiles.
+ * Manage Drupal users with role and permission assignments.
  *
- * Provides functionality for creating and managing Drupal users,
- * assigning roles, and handling user authentication.
- *
- * @package DrevOps\BehatSteps
+ * - Create user accounts
+ * - Create user roles
+ * - Visit user profile pages for editing and deletion.
+ * - Assert user roles and permissions.
+ * - Assert user account status (active/inactive).
  */
 trait UserTrait {
 
