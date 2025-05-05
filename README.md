@@ -22,9 +22,48 @@
 
 ## Available steps
 
-Our list of available steps is constantly growing, so we maintain it in a
-separate file. You can find the list of all available steps in the
-[List of available steps](steps.md)
+### Index of Generic steps
+
+| Class | Description |
+| --- | --- |
+| [CookieTrait](steps.md#cookietrait) | Verify and inspect browser cookies. |
+| [DateTrait](steps.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [ElementTrait](steps.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FileDownloadTrait](steps.md#filedownloadtrait) | Test file download functionality with content verification. |
+| [KeyboardTrait](steps.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [LinkTrait](steps.md#linktrait) | Verify link elements with attribute and content assertions. |
+| [PathTrait](steps.md#pathtrait) | Navigate and verify paths with URL validation. |
+| [ResponseTrait](steps.md#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [WaitTrait](steps.md#waittrait) | Wait for a period of time or for AJAX to finish. |
+
+### Index of Drupal steps
+
+| Class | Description |
+| --- | --- |
+| [Drupal\BigPipeTrait](steps.md#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
+| [Drupal\BlockTrait](steps.md#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\ContentBlockTrait](steps.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
+| [Drupal\ContentTrait](steps.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
+| [Drupal\DraggableviewsTrait](steps.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\EckTrait](steps.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EmailTrait](steps.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\FieldTrait](steps.md#drupalfieldtrait) | Manipulate Drupal form fields and verify widget functionality. |
+| [Drupal\FileTrait](steps.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\MediaTrait](steps.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
+| [Drupal\MenuTrait](steps.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MetatagTrait](steps.md#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
+| [Drupal\OverrideTrait](steps.md#drupaloverridetrait) | Override Drupal Extension behaviors. |
+| [Drupal\ParagraphsTrait](steps.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\SearchApiTrait](steps.md#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\TaxonomyTrait](steps.md#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
+| [Drupal\TestmodeTrait](steps.md#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
+| [Drupal\UserTrait](steps.md#drupalusertrait) | Manage Drupal users with role and permission assignments. |
+| [Drupal\WatchdogTrait](steps.md#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+
+
+
+
+[//]: # (END)
 
 ## Installation
 
