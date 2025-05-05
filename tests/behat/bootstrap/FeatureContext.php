@@ -7,34 +7,34 @@
 
 declare(strict_types=1);
 
-use DrevOps\BehatSteps\BigPipeTrait;
-use DrevOps\BehatSteps\BlockTrait;
-use DrevOps\BehatSteps\ContentBlockTrait;
-use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\Drupal\BigPipeTrait;
+use DrevOps\BehatSteps\Drupal\BlockTrait;
+use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
+use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
-use DrevOps\BehatSteps\DraggableviewsTrait;
-use DrevOps\BehatSteps\EckTrait;
+use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
+use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\ElementTrait;
-use DrevOps\BehatSteps\EmailTrait;
-use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\Drupal\EmailTrait;
+use DrevOps\BehatSteps\Drupal\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
-use DrevOps\BehatSteps\FileTrait;
+use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
-use DrevOps\BehatSteps\MediaTrait;
-use DrevOps\BehatSteps\MenuTrait;
-use DrevOps\BehatSteps\MetatagTrait;
-use DrevOps\BehatSteps\OverrideTrait;
-use DrevOps\BehatSteps\ParagraphsTrait;
+use DrevOps\BehatSteps\Drupal\MediaTrait;
+use DrevOps\BehatSteps\Drupal\MenuTrait;
+use DrevOps\BehatSteps\Drupal\MetatagTrait;
+use DrevOps\BehatSteps\Drupal\OverrideTrait;
+use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
-use DrevOps\BehatSteps\SearchApiTrait;
-use DrevOps\BehatSteps\TaxonomyTrait;
-use DrevOps\BehatSteps\TestmodeTrait;
-use DrevOps\BehatSteps\UserTrait;
+use DrevOps\BehatSteps\Drupal\SearchApiTrait;
+use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\Drupal\TestmodeTrait;
+use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\WaitTrait;
-use DrevOps\BehatSteps\WatchdogTrait;
+use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 
 /**
@@ -46,7 +46,6 @@ class FeatureContext extends DrupalContext {
   use BlockTrait;
   use ContentBlockTrait;
   use ContentTrait;
-  use CookieTrait;
   use CookieTrait;
   use DateTrait;
   use DraggableviewsTrait;

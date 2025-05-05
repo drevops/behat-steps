@@ -1,39 +1,39 @@
 # Available steps
 
-| Class | Description |
-| --- | --- |
-| [BigPipeTrait](#bigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
-| [BlockTrait](#blocktrait) | Manage Drupal blocks. |
-| [ContentBlockTrait](#contentblocktrait) | Manage Drupal content blocks. |
-| [ContentTrait](#contenttrait) | Manage Drupal content with workflow and moderation support. |
-| [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
-| [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
-| [DraggableviewsTrait](#draggableviewstrait) | Order items in the Drupal Draggable Views. |
-| [EckTrait](#ecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
-| [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
-| [EmailTrait](#emailtrait) | Test Drupal email functionality with content verification. |
-| [FieldTrait](#fieldtrait) | Manipulate Drupal form fields and verify widget functionality. |
-| [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
-| [FileTrait](#filetrait) | Manage Drupal file entities with upload and storage operations. |
-| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
-| [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
-| [MediaTrait](#mediatrait) | Manage Drupal media entities with type-specific field handling. |
-| [MenuTrait](#menutrait) | Manage Drupal menu systems and menu link rendering. |
-| [MetatagTrait](#metatagtrait) | Assert `<meta>` tags in page markup. |
-| [OverrideTrait](#overridetrait) | Override Drupal Extension behaviors. |
-| [ParagraphsTrait](#paragraphstrait) | Manage Drupal paragraphs entities with structured field data. |
-| [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
-| [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
-| [SearchApiTrait](#searchapitrait) | Assert Drupal Search API with index and query operations. |
-| [TaxonomyTrait](#taxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
-| [TestmodeTrait](#testmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
-| [UserTrait](#usertrait) | Manage Drupal users with role and permission assignments. |
-| [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
-| [WatchdogTrait](#watchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| Class | Context | Description |
+| --- | --- | --- |
+| [BigPipeTrait](#bigpipetrait) | Drupal | Bypass Drupal BigPipe when rendering pages. |
+| [BlockTrait](#blocktrait) | Drupal | Manage Drupal blocks. |
+| [ContentBlockTrait](#contentblocktrait) | Drupal | Manage Drupal content blocks. |
+| [ContentTrait](#contenttrait) | Drupal | Manage Drupal content with workflow and moderation support. |
+| [CookieTrait](#cookietrait) | Generic | Verify and inspect browser cookies. |
+| [DateTrait](#datetrait) | Generic | Convert relative date expressions into timestamps or formatted dates. |
+| [DraggableviewsTrait](#draggableviewstrait) | Drupal | Order items in the Drupal Draggable Views. |
+| [EckTrait](#ecktrait) | Drupal | Manage Drupal ECK entities with custom type and bundle creation. |
+| [ElementTrait](#elementtrait) | Generic | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [EmailTrait](#emailtrait) | Drupal | Test Drupal email functionality with content verification. |
+| [FieldTrait](#fieldtrait) | Drupal | Manipulate Drupal form fields and verify widget functionality. |
+| [FileDownloadTrait](#filedownloadtrait) | Generic | Test file download functionality with content verification. |
+| [FileTrait](#filetrait) | Drupal | Manage Drupal file entities with upload and storage operations. |
+| [KeyboardTrait](#keyboardtrait) | Generic | Simulate keyboard interactions in Drupal browser testing. |
+| [LinkTrait](#linktrait) | Generic | Verify link elements with attribute and content assertions. |
+| [MediaTrait](#mediatrait) | Drupal | Manage Drupal media entities with type-specific field handling. |
+| [MenuTrait](#menutrait) | Drupal | Manage Drupal menu systems and menu link rendering. |
+| [MetatagTrait](#metatagtrait) | Drupal | Assert `<meta>` tags in page markup. |
+| [OverrideTrait](#overridetrait) | Drupal | Override Drupal Extension behaviors. |
+| [ParagraphsTrait](#paragraphstrait) | Drupal | Manage Drupal paragraphs entities with structured field data. |
+| [PathTrait](#pathtrait) | Generic | Navigate and verify paths with URL validation. |
+| [ResponseTrait](#responsetrait) | Generic | Verify HTTP responses with status code and header checks. |
+| [SearchApiTrait](#searchapitrait) | Drupal | Assert Drupal Search API with index and query operations. |
+| [TaxonomyTrait](#taxonomytrait) | Drupal | Manage Drupal taxonomy terms with vocabulary organization. |
+| [TestmodeTrait](#testmodetrait) | Drupal | Configure Drupal Testmode module for controlled testing scenarios. |
+| [UserTrait](#usertrait) | Drupal | Manage Drupal users with role and permission assignments. |
+| [WaitTrait](#waittrait) | Generic | Wait for a period of time or for AJAX to finish. |
+| [WatchdogTrait](#watchdogtrait) | Drupal | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 
 ## BigPipeTrait
 
-[Source](src/BigPipeTrait.php), [Example](tests/behat/features/big_pipe.feature)
+[Source](src/Drupal/BigPipeTrait.php), [Example](tests/behat/features/drupal_big_pipe.feature)
 
 >  Bypass Drupal BigPipe when rendering pages.
 >  <br/><br/>
@@ -45,7 +45,7 @@
 
 ## BlockTrait
 
-[Source](src/BlockTrait.php), [Example](tests/behat/features/block.feature)
+[Source](src/Drupal/BlockTrait.php), [Example](tests/behat/features/drupal_block.feature)
 
 >  Manage Drupal blocks.
 >  - Create and configure blocks with custom visibility conditions.
@@ -176,7 +176,7 @@ Then the block "My block" should not exist in the "content" region
 
 ## ContentBlockTrait
 
-[Source](src/ContentBlockTrait.php), [Example](tests/behat/features/content_block.feature)
+[Source](src/Drupal/ContentBlockTrait.php), [Example](tests/behat/features/drupal_content_block.feature)
 
 >  Manage Drupal content blocks.
 >  - Define reusable custom block content with structured field data.
@@ -233,7 +233,7 @@ Then the content block type "Search" should exist
 
 ## ContentTrait
 
-[Source](src/ContentTrait.php), [Example](tests/behat/features/content.feature)
+[Source](src/Drupal/ContentTrait.php), [Example](tests/behat/features/drupal_content.feature)
 
 >  Manage Drupal content with workflow and moderation support.
 >  - Create, find, and manipulate nodes with structured field data.
@@ -466,7 +466,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DraggableviewsTrait
 
-[Source](src/DraggableviewsTrait.php), [Example](tests/behat/features/draggableviews.feature)
+[Source](src/Drupal/DraggableviewsTrait.php), [Example](tests/behat/features/drupal_draggableviews.feature)
 
 >  Order items in the Drupal Draggable Views.
 
@@ -486,7 +486,7 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 
 ## EckTrait
 
-[Source](src/EckTrait.php), [Example](tests/behat/features/eck.feature)
+[Source](src/Drupal/EckTrait.php), [Example](tests/behat/features/drupal_eck.feature)
 
 >  Manage Drupal ECK entities with custom type and bundle creation.
 >  - Create structured ECK entities with defined field values.
@@ -713,7 +713,7 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 
 ## EmailTrait
 
-[Source](src/EmailTrait.php), [Example](tests/behat/features/email.feature)
+[Source](src/Drupal/EmailTrait.php), [Example](tests/behat/features/drupal_email.feature)
 
 >  Test Drupal email functionality with content verification.
 >  - Capture and examine outgoing emails with header and body validation.
@@ -975,7 +975,7 @@ Then the file "report.xlsx" should be attached to the email with the subject con
 
 ## FieldTrait
 
-[Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
+[Source](src/Drupal/FieldTrait.php), [Example](tests/behat/features/drupal_field.feature)
 
 >  Manipulate Drupal form fields and verify widget functionality.
 >  - Set field values for various input types including selects and WYSIWYG.
@@ -1200,7 +1200,7 @@ Then the downloaded file should be a zip archive not containing the files partia
 
 ## FileTrait
 
-[Source](src/FileTrait.php), [Example](tests/behat/features/file.feature)
+[Source](src/Drupal/FileTrait.php), [Example](tests/behat/features/drupal_file.feature)
 
 >  Manage Drupal file entities with upload and storage operations.
 >  - Create managed and unmanaged files with specific URIs and content.
@@ -1459,7 +1459,7 @@ Then the link "Return to site content" should not be an absolute link
 
 ## MediaTrait
 
-[Source](src/MediaTrait.php), [Example](tests/behat/features/media.feature)
+[Source](src/Drupal/MediaTrait.php), [Example](tests/behat/features/drupal_media.feature)
 
 >  Manage Drupal media entities with type-specific field handling.
 >  - Create structured media items with proper file reference handling.
@@ -1518,7 +1518,7 @@ When I edit "document" media "Test document"
 
 ## MenuTrait
 
-[Source](src/MenuTrait.php), [Example](tests/behat/features/menu.feature)
+[Source](src/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
 >  Manage Drupal menu systems and menu link rendering.
 >  - Assert menu items by label, path, and containment hierarchy.
@@ -1579,7 +1579,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 ## MetatagTrait
 
-[Source](src/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
+[Source](src/Drupal/MetatagTrait.php), [Example](tests/behat/features/drupal_metatag.feature)
 
 >  Assert `<meta>` tags in page markup.
 >  - Assert presence and content of meta tags with proper attribute handling.
@@ -1587,7 +1587,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 ## OverrideTrait
 
-[Source](src/OverrideTrait.php), [Example](tests/behat/features/override.feature)
+[Source](src/Drupal/OverrideTrait.php), [Example](tests/behat/features/drupal_override.feature)
 
 >  Override Drupal Extension behaviors.
 >  - Automated entity deletion before creation to avoid duplicates.
@@ -1603,7 +1603,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 ## ParagraphsTrait
 
-[Source](src/ParagraphsTrait.php), [Example](tests/behat/features/paragraphs.feature)
+[Source](src/Drupal/ParagraphsTrait.php), [Example](tests/behat/features/drupal_paragraphs.feature)
 
 >  Manage Drupal paragraphs entities with structured field data.
 >  - Create paragraph items with type-specific field values.
@@ -1719,7 +1719,7 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 
 ## SearchApiTrait
 
-[Source](src/SearchApiTrait.php), [Example](tests/behat/features/search_api.feature)
+[Source](src/Drupal/SearchApiTrait.php), [Example](tests/behat/features/drupal_search_api.feature)
 
 >  Assert Drupal Search API with index and query operations.
 >  - Add content to an index
@@ -1749,7 +1749,7 @@ When I run search indexing for 1 item
 
 ## TaxonomyTrait
 
-[Source](src/TaxonomyTrait.php), [Example](tests/behat/features/taxonomy.feature)
+[Source](src/Drupal/TaxonomyTrait.php), [Example](tests/behat/features/drupal_taxonomy.feature)
 
 >  Manage Drupal taxonomy terms with vocabulary organization.
 >  - Create term vocabulary structures using field values.
@@ -1831,7 +1831,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 ## TestmodeTrait
 
-[Source](src/TestmodeTrait.php), [Example](tests/behat/features/testmode.feature)
+[Source](src/Drupal/TestmodeTrait.php), [Example](tests/behat/features/drupal_testmode.feature)
 
 >  Configure Drupal Testmode module for controlled testing scenarios.
 >  <br/><br/>
@@ -1844,7 +1844,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 ## UserTrait
 
-[Source](src/UserTrait.php), [Example](tests/behat/features/user.feature)
+[Source](src/Drupal/UserTrait.php), [Example](tests/behat/features/drupal_user.feature)
 
 >  Manage Drupal users with role and permission assignments.
 >  - Create user accounts
@@ -2057,7 +2057,7 @@ When I wait for 1 second for AJAX to finish
 
 ## WatchdogTrait
 
-[Source](src/WatchdogTrait.php), [Example](tests/behat/features/watchdog.feature)
+[Source](src/Drupal/WatchdogTrait.php), [Example](tests/behat/features/drupal_watchdog.feature)
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 >  - Check for Watchdog messages after scenario completion.
