@@ -24,6 +24,10 @@ job-build: &job-build
         no_output_timeout: 30m
 
     - run:
+        name: Validate Composer configuration normalized
+        command: ahoy cli composer normalize --dry-run || [ "${CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
+
+    - run:
         name: Lint code
         command: ahoy lint || [ "${CI_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 

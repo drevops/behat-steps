@@ -149,8 +149,6 @@ Feature: Check that FieldTrait works
     Then I should see "[TEST-JS-Driver] body"
     And I should see "[TEST-JS-Driver] description"
 
-  # Select field functionality
-
   @api
   Scenario: Assert that a select has/has not an option
     Given I am logged in as a user with the "administrator" role
