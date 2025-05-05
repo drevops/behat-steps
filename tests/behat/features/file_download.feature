@@ -76,7 +76,7 @@ Feature: Check that FileDownloadTrait works
       | example_aud |
       | example_ima |
 
-  @api @trait:FileDownloadTrait,ContentTrait
+  @api @trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the files partially named" fails with an error
     Given some behat configuration
     And scenario steps:

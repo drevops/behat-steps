@@ -107,8 +107,18 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
   if (is_dir($traits_path)) {
     $files = scandir($traits_path) ?: [];
     foreach ($files as $file) {
-      if (is_file($traits_path . DIRECTORY_SEPARATOR . $file)) {
+      $file_path = $traits_path . DIRECTORY_SEPARATOR . $file;
+      if (is_file($file_path)) {
         $traits_files[] = basename($file, '.php');
+      }
+      elseif (is_dir($file_path) && $file !== '.' && $file !== '..') {
+        // Check subdirectories, like src/Drupal.
+        $subdir_files = scandir($file_path) ?: [];
+        foreach ($subdir_files as $subdir_file) {
+          if (is_file($file_path . DIRECTORY_SEPARATOR . $subdir_file)) {
+            $traits_files[] = basename($subdir_file, '.php');
+          }
+        }
       }
     }
     sort($traits_files);
@@ -135,8 +145,27 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
       continue;
     }
 
+    // Determine the context based on the directory structure.
+    // Get the trait source file path and determine its directory.
+    $trait_class = $trait->getName();
+    $trait_reflection = new ReflectionClass($trait_class);
+    $trait_file_path = $trait_reflection->getFileName();
+
+    if ($trait_file_path) {
+      $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, '', $trait_file_path);
+      $path_parts = explode(DIRECTORY_SEPARATOR, $relative_path);
+      // If the file is in a subdirectory, use that as the context, otherwise use 'Generic'.
+      $context = count($path_parts) > 1 ? $path_parts[0] : 'Generic';
+    }
+    else {
+      // Fallback to the old method if file path can't be determined.
+      $trait_namespace = $trait->getNamespaceName();
+      $context = str_contains($trait_namespace, '\\Drupal') ? 'Drupal' : 'Generic';
+    }
+
     $class_info = [
       'name' => $trait_name,
+      'context' => $context,
       'methods' => [],
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
@@ -366,15 +395,29 @@ function render_info(array $info, string $base_path = __DIR__): string {
   $index_rows = [];
 
   foreach ($info as $trait => $class_info) {
+    // Check if the file exists in the root src directory.
     $src_file = sprintf('src/%s.php', $trait);
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+
+    // Fallback to the context-specific sub-directory, whatever it is.
+    if (!file_exists($src_file_path)) {
+      $context_dir = $class_info['context'];
+      // @phpstan-ignore-next-line
+      $src_file = sprintf('src/%s/%s.php', $context_dir, $trait);
+      $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+    }
 
     if (!file_exists($src_file_path)) {
       throw new \Exception(sprintf('Source file %s does not exist', $src_file_path));
     }
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-    $example_file = sprintf('tests/behat/features/%s.feature', $example_name);
+    // @phpstan-ignore-next-line
+    $prefix = strtolower($class_info['context']) !== 'generic'
+      // @phpstan-ignore-next-line
+      ? strtolower($class_info['context']) . '_'
+      : '';
+    $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
     $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
 
     // @codeCoverageIgnoreStart
@@ -421,6 +464,7 @@ function render_info(array $info, string $base_path = __DIR__): string {
     $index_rows[$class_info['name']] = [
       // @phpstan-ignore-next-line
       sprintf('[%s](#%s)', $class_info['name'], strtolower((string) $class_info['name'])),
+      $class_info['context'],
       $class_info['description'],
     ];
 
@@ -463,7 +507,7 @@ EOT;
   }
 
   // @phpstan-ignore-next-line
-  $index_output = array_to_markdown_table(['Class', 'Description'], $index_rows);
+  $index_output = array_to_markdown_table(['Class', 'Context', 'Description'], $index_rows);
 
   return $index_output . PHP_EOL . PHP_EOL . $output;
 }

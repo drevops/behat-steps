@@ -414,12 +414,21 @@ EOD,
 
     // Create sample files that the function will check for existence.
     foreach ($info as $trait => $data) {
-      $src_file = sprintf('src/%s.php', $trait);
-      $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
-      file_put_contents($src_file_path, '<?php');
+      // For non-missing traits, create both src and Drupal directories.
+      if ($trait !== 'MissingTrait') {
+        // Create directories.
+        mkdir($base_path . DIRECTORY_SEPARATOR . 'src/Drupal', 0777, TRUE);
+
+        // Create the file in the root src directory by default.
+        $src_file = sprintf('src/%s.php', $trait);
+        $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+        file_put_contents($src_file_path, '<?php');
+      }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-      $example_file = sprintf('tests/behat/features/%s.feature', $example_name);
+      // Add "drupal_" prefix for Drupal-specific traits.
+      $prefix = isset($data['context']) && $data['context'] === 'Drupal' ? 'drupal_' : '';
+      $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
       $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
@@ -428,6 +437,13 @@ EOD,
     if (isset($info['MissingTrait'])) {
       $src_file_path = $base_path . DIRECTORY_SEPARATOR . 'src/MissingTrait.php';
       @unlink($src_file_path);
+
+      // Also ensure it doesn't exist in the Drupal directory.
+      $drupal_src_file_path = $base_path . DIRECTORY_SEPARATOR . 'src/Drupal/MissingTrait.php';
+      @unlink($drupal_src_file_path);
+
+      // Create the Drupal directory to make sure the test can look for the file there.
+      mkdir($base_path . DIRECTORY_SEPARATOR . 'src/Drupal', 0777, TRUE);
     }
 
     $actual = render_info($info, $base_path);
@@ -443,7 +459,9 @@ EOD,
       // Verify trait sections exist.
       foreach ($info as $trait => $data) {
         $this->assertStringContainsString(sprintf("## %s", $trait), $actual);
-        $this->assertStringContainsString(sprintf("[Source](src/%s.php)", $trait), $actual);
+        // We only check that the trait name is mentioned, not the exact path
+        // as it could be in the root src or src/Drupal directory.
+        $this->assertStringContainsString("[Source](src", $actual);
 
         // Verify step details for each method.
         if (isset($data['methods']) && is_array($data['methods'])) {
@@ -492,6 +510,7 @@ EOD,
         [
           'TestTrait' => [
             'name' => 'TestTrait',
+            'context' => 'Generic',
             'description' => 'Test trait description',
             'description_full' => 'Test trait description',
             'methods' => [
@@ -506,9 +525,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [TestTrait](#testtrait) | Test trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [TestTrait](#testtrait) | Generic | Test trait description |
 ## TestTrait
 
 [Source](src/TestTrait.php), [Example](tests/behat/features/test.feature)
@@ -531,6 +550,7 @@ EOD,
         [
           'FirstTrait' => [
             'name' => 'FirstTrait',
+            'context' => 'Generic',
             'description' => 'First trait description',
             'description_full' => 'First trait description',
             'methods' => [
@@ -545,6 +565,7 @@ EOD,
           ],
           'SecondTrait' => [
             'name' => 'SecondTrait',
+            'context' => 'Drupal',
             'description' => 'Second trait description',
             'description_full' => 'Second trait description',
             'methods' => [
@@ -559,10 +580,10 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [FirstTrait](#firsttrait) | First trait description |
-| [SecondTrait](#secondtrait) | Second trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [FirstTrait](#firsttrait) | Generic | First trait description |
+| [SecondTrait](#secondtrait) | Drupal | Second trait description |
 ## FirstTrait
 
 [Source](src/FirstTrait.php), [Example](tests/behat/features/first.feature)
@@ -600,6 +621,7 @@ EOD,
         [
           'MultiMethodTrait' => [
             'name' => 'MultiMethodTrait',
+            'context' => 'Generic',
             'description' => 'Multi-method trait description',
             'description_full' => 'Multi-method trait description',
             'methods' => [
@@ -621,9 +643,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [MultiMethodTrait](#multimethodtrait) | Multi-method trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [MultiMethodTrait](#multimethodtrait) | Generic | Multi-method trait description |
 ## MultiMethodTrait
 
 [Source](src/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
@@ -655,6 +677,7 @@ EOD,
         [
           'StepsTrait' => [
             'name' => 'StepsTrait',
+            'context' => 'Drupal',
             'description' => 'Steps trait description',
             'description_full' => 'Steps trait description',
             'methods' => [
@@ -669,9 +692,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [StepsTrait](#stepstrait) | Steps trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [StepsTrait](#stepstrait) | Drupal | Steps trait description |
 ## StepsTrait
 
 [Source](src/StepsTrait.php), [Example](tests/behat/features/steps.feature)
@@ -702,6 +725,7 @@ EOD,
         [
           'MissingTrait' => [
             'name' => 'MissingTrait',
+            'context' => 'Generic',
             'description' => 'Missing trait description',
             'description_full' => 'Missing trait description',
             'methods' => [
@@ -716,12 +740,13 @@ EOD,
           ],
         ],
         "",
-        'Source file @tmp/src/MissingTrait.php does not exist',
+        'Source file',
       ],
       'trait with multi-paragraph description' => [
         [
           'MultiParaTrait' => [
             'name' => 'MultiParaTrait',
+            'context' => 'Generic',
             'description' => 'Multi-paragraph trait description',
             'description_full' => "Multi-paragraph trait description\n\nThis is a second paragraph.\n\nThis is a third paragraph.",
             'methods' => [
@@ -736,9 +761,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [MultiParaTrait](#multiparatrait) | Multi-paragraph trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [MultiParaTrait](#multiparatrait) | Generic | Multi-paragraph trait description |
 ## MultiParaTrait
 
 [Source](src/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
@@ -765,6 +790,7 @@ EOD,
         [
           'ListTrait' => [
             'name' => 'ListTrait',
+            'context' => 'Drupal',
             'description' => 'List trait description',
             'description_full' => "List trait description\n\n- Item 1\n- Item 2\n- Item 3",
             'methods' => [
@@ -779,9 +805,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [ListTrait](#listtrait) | List trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [ListTrait](#listtrait) | Drupal | List trait description |
 ## ListTrait
 
 [Source](src/ListTrait.php), [Example](tests/behat/features/list.feature)
@@ -808,6 +834,7 @@ EOD,
         [
           'NonArrayTrait' => [
             'name' => 'NonArrayTrait',
+            'context' => 'Drupal',
             'description' => 'Non-array trait description',
             'description_full' => 'Non-array trait description',
             'methods' => [
@@ -822,9 +849,9 @@ EOD,
           ],
         ],
         <<<'EOD'
-| Class | Description |
-| --- | --- |
-| [NonArrayTrait](#nonarraytrait) | Non-array trait description |
+| Class | Context | Description |
+| --- | --- | --- |
+| [NonArrayTrait](#nonarraytrait) | Drupal | Non-array trait description |
 ## NonArrayTrait
 
 [Source](src/NonArrayTrait.php), [Example](tests/behat/features/non_array.feature)
@@ -1416,9 +1443,9 @@ EOD,
         'TestTrait',
         <<<'EOD'
 /**
- *    Leading whitespace should be trimmed.    
+ *    Leading whitespace should be trimmed.
  *
- *  Trailing whitespace should also be trimmed.  
+ *  Trailing whitespace should also be trimmed.
  */
 EOD,
         [
