@@ -239,7 +239,6 @@ Feature: Check that ElementTrait works
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
 
-  # Element visibility tests (merged from visibility.feature)
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
     When I am on the phpserver test page

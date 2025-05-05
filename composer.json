@@ -62,10 +62,6 @@
         "sort-packages": true
     },
     "extra": {
-        "branch-alias": {
-            "dev-main": "1.x-dev",
-            "dev-master": "1.x-dev"
-        },
         "patches": {
             "mglaman/phpstan-drupal": {
                 "Support for custom Drupal root": "https://patch-diff.githubusercontent.com/raw/mglaman/phpstan-drupal/pull/873.diff"
