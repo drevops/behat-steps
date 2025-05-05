@@ -52,29 +52,37 @@ function main(array $options = []): void {
     exit(1);
   }
 
-  $markdown = PHP_EOL . render_info($info, $base_path) . PHP_EOL;
+  $steps_markdown = PHP_EOL . render_info($info, $base_path) . PHP_EOL;
+  $readme_markdown = PHP_EOL . render_info($info, $base_path, 'steps.md') . PHP_EOL;
 
-  $readme_file = 'steps.md';
-  $readme = file_get_contents($base_path . DIRECTORY_SEPARATOR . $readme_file);
+  $steps_file = 'steps.md';
+  $steps_contents = file_get_contents($base_path . DIRECTORY_SEPARATOR . $steps_file);
+  if ($steps_contents === FALSE) {
+    printf('Failed to read %s.' . PHP_EOL, $steps_file);
+    exit(1);
+  }
+  $steps_replaced = replace_content($steps_contents, '# Available steps', '[//]: # (END)', $steps_markdown);
 
-  if ($readme === FALSE) {
+  $readme_file = 'README.md';
+  $readme_contents = file_get_contents($base_path . DIRECTORY_SEPARATOR . $readme_file);
+  if ($readme_contents === FALSE) {
     printf('Failed to read %s.' . PHP_EOL, $readme_file);
     exit(1);
   }
+  $readme_replaced = replace_content($readme_contents, '## Available steps', '[//]: # (END)', $readme_markdown);
 
-  $readme_replaced = replace_content($readme, '# Available steps', '[//]: # (END)', $markdown);
-
-  if ($readme_replaced === $readme) {
+  if ($steps_replaced === $steps_contents && $readme_replaced === $readme_contents) {
     echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
     exit(0);
   }
 
   $fail_on_change = isset($options['fail-on-change']);
-  if ($fail_on_change && $readme_replaced !== $readme) {
+  if ($fail_on_change && ($steps_replaced !== $steps_contents || $readme_replaced !== $readme_contents)) {
     echo 'Documentation is outdated. No changes were made.' . PHP_EOL;
     exit(1);
   }
   else {
+    file_put_contents($base_path . DIRECTORY_SEPARATOR . $steps_file, $steps_replaced);
     file_put_contents($base_path . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
     echo 'Documentation updated.' . PHP_EOL;
   }
@@ -112,7 +120,6 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
         $traits_files[] = basename($file, '.php');
       }
       elseif (is_dir($file_path) && $file !== '.' && $file !== '..') {
-        // Check subdirectories, like src/Drupal.
         $subdir_files = scandir($file_path) ?: [];
         foreach ($subdir_files as $subdir_file) {
           if (is_file($file_path . DIRECTORY_SEPARATOR . $subdir_file)) {
@@ -151,20 +158,18 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     $trait_reflection = new ReflectionClass($trait_class);
     $trait_file_path = $trait_reflection->getFileName();
 
-    if ($trait_file_path) {
-      $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, '', $trait_file_path);
-      $path_parts = explode(DIRECTORY_SEPARATOR, $relative_path);
-      // If the file is in a subdirectory, use that as the context, otherwise use 'Generic'.
-      $context = count($path_parts) > 1 ? $path_parts[0] : 'Generic';
+    if (!$trait_file_path) {
+      throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
     }
-    else {
-      // Fallback to the old method if file path can't be determined.
-      $trait_namespace = $trait->getNamespaceName();
-      $context = str_contains($trait_namespace, '\\Drupal') ? 'Drupal' : 'Generic';
-    }
+
+    $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, '', $trait_file_path);
+    $path_parts = explode(DIRECTORY_SEPARATOR, $relative_path);
+    // If the file is in a subdirectory, use that as the context, otherwise use 'Generic'.
+    $context = count($path_parts) > 1 ? $path_parts[0] : 'Generic';
 
     $class_info = [
       'name' => $trait_name,
+      'name_contextual' => ($context !== 'Generic' ? $context . '\\' : '') . $trait_name,
       'context' => $context,
       'methods' => [],
     ];
@@ -389,19 +394,20 @@ function parse_method_comment(string $comment): ?array {
  * @return string
  *   Markdown table.
  */
-function render_info(array $info, string $base_path = __DIR__): string {
-  $output = '';
+function render_info(array $info, string $base_path = __DIR__, ?string $path_for_links = NULL): string {
+  $content_output = [];
 
   $index_rows = [];
 
-  foreach ($info as $trait => $class_info) {
+  foreach ($info as $trait => $trait_info) {
     // Check if the file exists in the root src directory.
     $src_file = sprintf('src/%s.php', $trait);
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+    $context = $trait_info['context'];
 
     // Fallback to the context-specific sub-directory, whatever it is.
     if (!file_exists($src_file_path)) {
-      $context_dir = $class_info['context'];
+      $context_dir = $context;
       // @phpstan-ignore-next-line
       $src_file = sprintf('src/%s/%s.php', $context_dir, $trait);
       $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
@@ -413,9 +419,9 @@ function render_info(array $info, string $base_path = __DIR__): string {
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
     // @phpstan-ignore-next-line
-    $prefix = strtolower($class_info['context']) !== 'generic'
+    $prefix = strtolower($context) !== 'generic'
       // @phpstan-ignore-next-line
-      ? strtolower($class_info['context']) . '_'
+      ? strtolower($context) . '_'
       : '';
     $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
     $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
@@ -426,13 +432,16 @@ function render_info(array $info, string $base_path = __DIR__): string {
     }
     // @codeCoverageIgnoreEnd
     // @phpstan-ignore-next-line
-    $output .= sprintf('## %s', $class_info['name']) . PHP_EOL . PHP_EOL;
-    $output .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
+    $content_output[$context] = $content_output[$context] ?? '';
+    // @phpstan-ignore-next-line
+    $content_output[$context] .= sprintf('## %s', $trait_info['name_contextual']) . PHP_EOL . PHP_EOL;
+    // @phpstan-ignore-next-line
+    $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
     // Add description as markdown-safe accommodating for lists.
     $description_full = '';
     // @phpstan-ignore-next-line
-    $lines = explode(PHP_EOL, $class_info['description_full']);
+    $lines = explode(PHP_EOL, $trait_info['description_full']);
     $was_list = FALSE;
     foreach ($lines as $line) {
       $is_list = str_starts_with(trim($line), '-');
@@ -457,19 +466,23 @@ function render_info(array $info, string $base_path = __DIR__): string {
     }
 
     $description_full = preg_replace('/^/m', '>  ', $description_full);
-    $output .= $description_full . PHP_EOL . PHP_EOL;
-
+    // @phpstan-ignore-next-line
+    $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // Add to index.
     // @phpstan-ignore-next-line
-    $index_rows[$class_info['name']] = [
+    $index_rows_path = '#' . preg_replace('/[^A-Za-z0-9_\-]/', '', strtolower((string) $trait_info['name_contextual']));
+    if ($path_for_links) {
+      $index_rows_path = $path_for_links . $index_rows_path;
+    }
+    // @phpstan-ignore-next-line
+    $index_rows[$context][] = [
       // @phpstan-ignore-next-line
-      sprintf('[%s](#%s)', $class_info['name'], strtolower((string) $class_info['name'])),
-      $class_info['context'],
-      $class_info['description'],
+      sprintf('[%s](%s)', $trait_info['name_contextual'], $index_rows_path),
+      $trait_info['description'],
     ];
 
     // @phpstan-ignore-next-line
-    foreach ($class_info['methods'] as $method) {
+    foreach ($trait_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
@@ -485,6 +498,10 @@ function render_info(array $info, string $base_path = __DIR__): string {
 <details>
   <summary><code>[step]</code></summary>
 
+<br/>
+[description]
+<br/><br/>
+
 ```gherkin
 [example]
 ```
@@ -493,7 +510,8 @@ function render_info(array $info, string $base_path = __DIR__): string {
 
 EOT;
 
-      $output .= strtr(
+      // @phpstan-ignore-next-line
+      $content_output[$context] .= strtr(
         $template,
         [
           '[description]' => $method['description'],
@@ -502,14 +520,44 @@ EOT;
         ]
       );
 
-      $output .= PHP_EOL;
+      // @phpstan-ignore-next-line
+      $content_output[$context] .= PHP_EOL;
     }
   }
 
-  // @phpstan-ignore-next-line
-  $index_output = array_to_markdown_table(['Class', 'Context', 'Description'], $index_rows);
+  // Make sure 'Generic' key exists.
+  $index_rows['Generic'] = $index_rows['Generic'] ?? [];
+  $index_rows = array_merge(
+    ['Generic' => $index_rows['Generic']],
+    array_diff_key($index_rows, ['Generic' => []])
+  );
 
-  return $index_output . PHP_EOL . PHP_EOL . $output;
+  $index_output = '';
+  foreach ($index_rows as $index_rows_context_name => $index_rows_contextual) {
+    $index_output .= sprintf('### Index of %s steps', $index_rows_context_name) . PHP_EOL . PHP_EOL;
+    // @phpstan-ignore-next-line
+    $index_output .= array_to_markdown_table(['Class', 'Description'], $index_rows_contextual) . PHP_EOL . PHP_EOL;
+  }
+
+  // Make sure 'Generic' key exists.
+  $content_output['Generic'] = $content_output['Generic'] ?? '';
+  $content_output = array_merge(
+    ['Generic' => $content_output['Generic']],
+    array_diff_key($content_output, ['Generic' => []])
+  );
+  $content_output = implode(PHP_EOL . PHP_EOL, $content_output);
+
+  $output = '';
+
+  $output .= $index_output . PHP_EOL;
+
+  // Render content if this is not a path for links.
+  if (!$path_for_links) {
+    $output .= '---' . PHP_EOL . PHP_EOL;
+    $output .= $content_output . PHP_EOL;
+  }
+
+  return $output;
 }
 
 /**

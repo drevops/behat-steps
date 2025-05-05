@@ -414,6 +414,11 @@ EOD,
 
     // Create sample files that the function will check for existence.
     foreach ($info as $trait => $data) {
+      // Update test data to include name_contextual if it doesn't exist.
+      if (!isset($data['name_contextual'])) {
+        $context = $data['context'] ?? 'Generic';
+        $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
+      }
       // For non-missing traits, create both src and Drupal directories.
       if ($trait !== 'MissingTrait') {
         // Create directories.
@@ -452,13 +457,17 @@ EOD,
     if ($exception === NULL && !empty($info)) {
       // Verify index table exists.
       foreach ($info as $trait => $data) {
-        $this->assertStringContainsString(sprintf("[%s](#%s)", $trait, strtolower($trait)), $actual);
+        // Use name_contextual instead of trait name for the link.
+        $name_contextual = $data['name_contextual'] ?? $trait;
+        $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
+        $this->assertStringContainsString(sprintf("[%s](#%s)", $name_contextual, $link_id), $actual);
         $this->assertStringContainsString($data['description'], $actual);
       }
 
       // Verify trait sections exist.
       foreach ($info as $trait => $data) {
-        $this->assertStringContainsString(sprintf("## %s", $trait), $actual);
+        $name_contextual = $data['name_contextual'] ?? $trait;
+        $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
         // We only check that the trait name is mentioned, not the exact path
         // as it could be in the root src or src/Drupal directory.
         $this->assertStringContainsString("[Source](src", $actual);
@@ -500,7 +509,10 @@ EOD,
       }
     }
     elseif (empty($info)) {
-      $this->assertEmpty(trim($actual));
+      // With the updated implementation, even empty info now returns index headers.
+      // Just check that it doesn't contain any actual trait data.
+      $this->assertStringNotContainsString('<details>', $actual);
+      $this->assertStringNotContainsString('[Source]', $actual);
     }
   }
 
@@ -719,7 +731,7 @@ EOD,
       ],
       'empty info' => [
         [],
-        "\n",
+        "### Index of Generic steps\n\n\n",
       ],
       'with missing source file' => [
         [
