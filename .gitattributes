@@ -8,10 +8,14 @@
 /.gitattributes      export-ignore
 /.github             export-ignore
 /.gitignore          export-ignore
+/CONTRIBUTING.md     export-ignore
+/MIGRATION.md        export-ignore
+/STEPS.md            export-ignore
 /behat.yml           export-ignore
 /docker-compose.yml  export-ignore
 /docs.php            export-ignore
 /gherkinlint.json    export-ignore
+/logo.png            export-ignore
 /phpcs.xml           export-ignore
 /phpstan.neon        export-ignore
 /phpunit.xml         export-ignore
