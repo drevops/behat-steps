@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="" rel="noopener"><img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Behat+steps&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Behat steps logo"></a>
+  <a href="" rel="noopener"><img width=200px height=200px src="logo.png" alt="Behat Steps steps logo"></a>
 </p>
 
 <h1 align="center">A collection of Behat steps</h1>
@@ -41,41 +41,44 @@ from the community.
 
 ### Index of Generic steps
 
-| Class                                           | Description                                                           |
-|-------------------------------------------------|-----------------------------------------------------------------------|
-| [CookieTrait](STEPS.md#cookietrait)             | Verify and inspect browser cookies.                                   |
-| [DateTrait](STEPS.md#datetrait)                 | Convert relative date expressions into timestamps or formatted dates. |
-| [ElementTrait](STEPS.md#elementtrait)           | Interact with HTML elements using CSS selectors and DOM attributes.   |
-| [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification.           |
-| [KeyboardTrait](STEPS.md#keyboardtrait)         | Simulate keyboard interactions in Drupal browser testing.             |
-| [LinkTrait](STEPS.md#linktrait)                 | Verify link elements with attribute and content assertions.           |
-| [PathTrait](STEPS.md#pathtrait)                 | Navigate and verify paths with URL validation.                        |
-| [ResponseTrait](STEPS.md#responsetrait)         | Verify HTTP responses with status code and header checks.             |
-| [WaitTrait](STEPS.md#waittrait)                 | Wait for a period of time or for AJAX to finish.                      |
+| Class | Description |
+| --- | --- |
+| [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
+| [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
+| [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
+| [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
+| [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
 
 ### Index of Drupal steps
 
-| Class                                                            | Description                                                                |
-|------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait)               | Bypass Drupal BigPipe when rendering pages.                                |
-| [Drupal\BlockTrait](STEPS.md#drupalblocktrait)                   | Manage Drupal blocks.                                                      |
-| [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait)     | Manage Drupal content blocks.                                              |
-| [Drupal\ContentTrait](STEPS.md#drupalcontenttrait)               | Manage Drupal content with workflow and moderation support.                |
-| [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views.                                 |
-| [Drupal\EckTrait](STEPS.md#drupalecktrait)                       | Manage Drupal ECK entities with custom type and bundle creation.           |
-| [Drupal\EmailTrait](STEPS.md#drupalemailtrait)                   | Test Drupal email functionality with content verification.                 |
-| [Drupal\FieldTrait](STEPS.md#drupalfieldtrait)                   | Manipulate Drupal form fields and verify widget functionality.             |
-| [Drupal\FileTrait](STEPS.md#drupalfiletrait)                     | Manage Drupal file entities with upload and storage operations.            |
-| [Drupal\MediaTrait](STEPS.md#drupalmediatrait)                   | Manage Drupal media entities with type-specific field handling.            |
-| [Drupal\MenuTrait](STEPS.md#drupalmenutrait)                     | Manage Drupal menu systems and menu link rendering.                        |
-| [Drupal\MetatagTrait](STEPS.md#drupalmetatagtrait)               | Assert `<meta>` tags in page markup.                                       |
-| [Drupal\OverrideTrait](STEPS.md#drupaloverridetrait)             | Override Drupal Extension behaviors.                                       |
-| [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait)         | Manage Drupal paragraphs entities with structured field data.              |
-| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait)           | Assert Drupal Search API with index and query operations.                  |
-| [Drupal\TaxonomyTrait](STEPS.md#drupaltaxonomytrait)             | Manage Drupal taxonomy terms with vocabulary organization.                 |
-| [Drupal\TestmodeTrait](STEPS.md#drupaltestmodetrait)             | Configure Drupal Testmode module for controlled testing scenarios.         |
-| [Drupal\UserTrait](STEPS.md#drupalusertrait)                     | Manage Drupal users with role and permission assignments.                  |
-| [Drupal\WatchdogTrait](STEPS.md#drupalwatchdogtrait)             | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| Class | Description |
+| --- | --- |
+| [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
+| [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
+| [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
+| [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\FieldTrait](STEPS.md#drupalfieldtrait) | Manipulate Drupal form fields and verify widget functionality. |
+| [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
+| [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MetatagTrait](STEPS.md#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
+| [Drupal\OverrideTrait](STEPS.md#drupaloverridetrait) | Override Drupal Extension behaviors. |
+| [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\TaxonomyTrait](STEPS.md#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
+| [Drupal\TestmodeTrait](STEPS.md#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
+| [Drupal\UserTrait](STEPS.md#drupalusertrait) | Manage Drupal users with role and permission assignments. |
+| [Drupal\WatchdogTrait](STEPS.md#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+
+
+
 
 [//]: # (END)
 
