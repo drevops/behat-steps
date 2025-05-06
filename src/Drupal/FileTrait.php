@@ -106,7 +106,7 @@ trait FileTrait {
       throw new \RuntimeException('"path" property is required');
     }
 
-    $path = ltrim($stub->path, '/');
+    $path = ltrim((string) $stub->path, '/');
 
     // Get fixture file path.
     if (!empty($this->getMinkParameter('files_path'))) {
@@ -123,7 +123,7 @@ trait FileTrait {
     $destination = 'public://' . basename($path);
     if (!empty($stub->uri)) {
       $destination = $stub->uri;
-      $directory = dirname($destination);
+      $directory = dirname((string) $destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
         throw new \RuntimeException('Unable to prepare directory ' . $directory);

@@ -125,40 +125,38 @@ trait KeyboardTrait {
     ];
 
     // Convert provided character sequence to special keys.
-    if (is_string($char)) {
-      if (strlen($char) < 1) {
-        throw new \Exception('keyPress($char) was invoked but the $char parameter was empty.');
+    if (strlen($char) < 1) {
+      throw new \Exception('keyPress($char) was invoked but the $char parameter was empty.');
+    }
+    // Consider provided characters string longer then 1 to be a keyboard key.
+    elseif (strlen($char) > 1) {
+      if (!array_key_exists(strtolower($char), $keys)) {
+        throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
       }
-      // Consider provided characters string longer then 1 to be a keyboard key.
-      elseif (strlen($char) > 1) {
-        if (!array_key_exists(strtolower($char), $keys)) {
-          throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
-        }
 
-        // Special case for tab key triggered in window without target element
-        // focused: Syn (JS library that provides synthetic events) can tab only
-        // from another element that can receive focus, so we inject such
-        // element as a very first element after opening <body> tag. This
-        // element is visually hidden, but compatible with screen readers. Then
-        // we trigger key on this element to make sure that an element that
-        // supposed to get the very first focus from tab index actually gets it.
-        // Note that injecting element and triggering key press on it does not
-        // make it focused itself.
-        if (is_null($selector) && $char === 'tab') {
-          $selector = '#injected-focusable';
+      // Special case for tab key triggered in window without target element
+      // focused: Syn (JS library that provides synthetic events) can tab only
+      // from another element that can receive focus, so we inject such
+      // element as a very first element after opening <body> tag. This
+      // element is visually hidden, but compatible with screen readers. Then
+      // we trigger key on this element to make sure that an element that
+      // supposed to get the very first focus from tab index actually gets it.
+      // Note that injecting element and triggering key press on it does not
+      // make it focused itself.
+      if (is_null($selector) && $char === 'tab') {
+        $selector = '#injected-focusable';
 
-          $script = <<<JS
-            (function() {
-              if (document.querySelectorAll('body #injected-focusable').length === 0) {
-                document.querySelector('body').insertAdjacentHTML('afterbegin', '<a id="injected-focusable" style="position: absolute;width: 1px;height: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0,0,0,0);border: 0;"></a>');
-              }
-            })();
-          JS;
-          $this->getSession()->getDriver()->evaluateScript($script);
-        }
-
-        $char = $keys[strtolower($char)];
+        $script = <<<JS
+          (function() {
+            if (document.querySelectorAll('body #injected-focusable').length === 0) {
+              document.querySelector('body').insertAdjacentHTML('afterbegin', '<a id="injected-focusable" style="position: absolute;width: 1px;height: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0,0,0,0);border: 0;"></a>');
+            }
+          })();
+        JS;
+        $this->getSession()->getDriver()->evaluateScript($script);
       }
+
+      $char = $keys[strtolower($char)];
     }
 
     $selector = $selector ?: 'html';
