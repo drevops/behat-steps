@@ -78,11 +78,11 @@ Example: To skip `beforeScenario` hook from `ElementTrait`, add `@behat-steps-sk
 - Method names and class properties: `camelCase`
 
 ## Documentation
-- List of all available steps: [steps.md](steps.md)
+- List of all available steps: [STEPS.md](STEPS.md)
 - Migration guide for upgrading from 2.x: [MIGRATION.md](MIGRATION.md)
 
 ### Updating Steps Documentation
-The [steps.md](steps.md) documentation is automatically generated from the source code using the [docs.php](docs.php) file. After making changes to step definitions or adding new ones, you should regenerate the documentation:
+The [STEPS.md](STEPS.md) documentation is automatically generated from the source code using the [docs.php](docs.php) file. After making changes to step definitions or adding new ones, you should regenerate the documentation:
 
 1. Using Ahoy (recommended):
    ```bash
@@ -91,7 +91,7 @@ The [steps.md](steps.md) documentation is automatically generated from the sourc
 
 2. Direct PHP execution:
    ```bash
-   php docs.php > steps.md
+   php docs.php > STEPS.md
    ```
 
 3. Linting the documentation:

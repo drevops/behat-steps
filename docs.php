@@ -8,7 +8,7 @@
  * features.
  *
  * It parses the docblock comments of the classes and methods in the
- * src directory and generates steps.md file.
+ * src directory and generates STEPS.md file.
  *
  * It also validates the steps and checks if they are in the correct
  * format.
@@ -53,9 +53,9 @@ function main(array $options = []): void {
   }
 
   $steps_markdown = PHP_EOL . render_info($info, $base_path) . PHP_EOL;
-  $readme_markdown = PHP_EOL . render_info($info, $base_path, 'steps.md') . PHP_EOL;
+  $readme_markdown = PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL;
 
-  $steps_file = 'steps.md';
+  $steps_file = 'STEPS.md';
   $steps_contents = file_get_contents($base_path . DIRECTORY_SEPARATOR . $steps_file);
   if ($steps_contents === FALSE) {
     printf('Failed to read %s.' . PHP_EOL, $steps_file);
