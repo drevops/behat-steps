@@ -169,7 +169,6 @@ trait ContentTrait {
     ksort($nids);
 
     $nid = end($nids);
-    /** @var \Drupal\node\Entity\Node $node */
     $node = Node::load($nid);
 
     if (!$node instanceof NodeInterface) {

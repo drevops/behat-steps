@@ -18,6 +18,7 @@ parameters:
     - vendor/*
     - node_modules/*
     - tests/behat/bootstrap/BehatCliContext.php
+    - tests/behat/bootstrap/BehatCliTrait.php
 
   scanFiles:
     - vendor/behat/behat/bin/behat
@@ -40,3 +41,6 @@ parameters:
         - '#.*Cannot call method.*getCurrentUrl\(\).*#'
       paths:
         - tests/phpunit/*
+
+    # @see https://github.com/mglaman/phpstan-drupal/issues/825
+    - '#Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) with false will always evaluate to true.#'

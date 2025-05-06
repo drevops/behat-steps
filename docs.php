@@ -241,9 +241,8 @@ function parse_class_comment(string $trait_name, string $comment): array {
   }
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
-  $lines = array_values(
-    array_map(static fn($l): string => ltrim($l, " *\t"), explode(PHP_EOL, (string) $comment))
-  );
+  $lines = explode(PHP_EOL, (string) $comment);
+  $lines = array_map(static fn($l): string => ltrim($l, " *\t"), $lines);
 
   // Remove first and last empty lines.
   if (count($lines) > 1 && empty($lines[0])) {
