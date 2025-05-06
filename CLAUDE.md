@@ -1,18 +1,23 @@
-# DrevOps Behat Steps - Claude Memory
+# Behat Steps - Claude Memory
 
 ## Project Context
-This repository contains Behat step definitions for Drupal projects, organized as traits that can be included in Behat contexts. The steps provide reusable testing functionality for Drupal components and features.
+This repository contains Behat step definitions for PHP projects (with specialized support for Drupal), organized as traits that can be included in Behat contexts. The steps provide reusable testing functionality for generic PHP components and Drupal-specific features.
 
 ## Source files location
 
 Source files are located in the `src` directory. Each trait is organized into a separate file, and the steps are defined within those files.
 
 
-## Installation & Requirements
+## Installation & Requirements for cosnuming this library
 ```bash
 composer require --dev drevops/behat-steps:^3
 ```
-## Development Commands
+
+## Development of this project
+
+> **Note:** These commands are for developing this Behat steps library itself, not for using it in your project.
+
+### Development Commands
 - `ahoy build` - Setup a fixture Drupal site in the `build` directory
 - `ahoy test-bdd` - Run all BDD tests
 - `ahoy test-bdd path/to/file` - Run all scenarios in specific feature file
@@ -74,11 +79,12 @@ Some traits provide `beforeScenario` hook implementations that can be disabled b
 Example: To skip `beforeScenario` hook from `ElementTrait`, add `@behat-steps-skip:ElementTrait` tag to the feature.
 
 ## Code Style Conventions
+- Code is written using Drupal coding standards
 - Local variables and method arguments: `snake_case`
 - Method names and class properties: `camelCase`
 
 ## Documentation
-- List of all available steps: [STEPS.md](STEPS.md)
+- List of all available steps is produced from trait and method comments and exported into [STEPS.md](STEPS.md)
 - Migration guide for upgrading from 2.x: [MIGRATION.md](MIGRATION.md)
 
 ### Updating Steps Documentation
