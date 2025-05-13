@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use DrevOps\BehatSteps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
+use DrevOps\BehatSteps\CheckboxTrait;
 use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
 use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\CookieTrait;
@@ -44,6 +45,7 @@ class FeatureContext extends DrupalContext {
 
   use BigPipeTrait;
   use BlockTrait;
+  use CheckboxTrait;
   use ContentBlockTrait;
   use ContentTrait;
   use CookieTrait;
