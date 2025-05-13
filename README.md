@@ -46,6 +46,7 @@ from the community.
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FieldTrait](STEPS.md#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
@@ -64,7 +65,6 @@ from the community.
 | [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
 | [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
-| [Drupal\FieldTrait](STEPS.md#drupalfieldtrait) | Manipulate Drupal form fields and verify widget functionality. |
 | [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
@@ -94,7 +94,7 @@ composer require --dev drevops/behat-steps:^3
 > and clarity. Please refer to the [migration map](MIGRATION.md) to see the
 > changes. An automated migration script is not included, but an AI-guided migration prompt is provided below.
 
-<details> 
+<details>
 <summary><strong>🤖 Expand to get an AI prompt for features migration</strong></summary>
 
 Copy and paste below into your agentic AI client chat.
@@ -129,13 +129,11 @@ The namespace structure has changed in version 3.0.1. You'll need to update your
 For example, change:
 
     use DrevOps\BehatSteps\ContentTrait;
-    use DrevOps\BehatSteps\FieldTrait;
     use DrevOps\BehatSteps\FileTrait;
 
 To:
 
     use DrevOps\BehatSteps\Drupal\ContentTrait;
-    use DrevOps\BehatSteps\Drupal\FieldTrait;
     use DrevOps\BehatSteps\Drupal\FileTrait;
 
 Non-Drupal traits remain in the root namespace:
@@ -199,16 +197,16 @@ Examine your feature files (typically in tests/behat/features/) and update step 
 
 There are two ways to see all available steps in the new package:
 
-1. **STEPS.md File (Recommended)**: 
+1. **STEPS.md File (Recommended)**:
    - This is the most comprehensive and user-friendly reference
    - Contains examples and descriptions for each step
    - Located at `vendor/drevops/behat-steps/STEPS.md`
 
 2. **Behat Definitions Command**:
    - Use the Behat definitions command appropriate for your system:
-   
+
        vendor/bin/behat --definitions=i
-   
+
    - This will show all available step definitions but with less context than STEPS.md
 
 Always refer to STEPS.md first, as it provides clearer examples and more detailed information about each step.
@@ -258,7 +256,7 @@ After:
 
     Scenario: User submits a form
       Given I am on the homepage
-      And I click "Contact" 
+      And I click "Contact"
       When I fill in "Name" with "Test User"
       And I press "Send message"
       Then I should not see an "#edit-submit" element

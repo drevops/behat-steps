@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Drupal;
+namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-use DrevOps\BehatSteps\KeyboardTrait;
 
 /**
- * Manipulate Drupal form fields and verify widget functionality.
+ * Manipulate form fields and verify widget functionality.
  *
  * - Set field values for various input types including selects and WYSIWYG.
  * - Assert field existence, state, and selected options.

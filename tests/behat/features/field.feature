@@ -53,7 +53,7 @@ Feature: Check that FieldTrait works
     When I fill in the color field "#edit-color-input" with the value "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
-  @trait:Drupal\FieldTrait
+  @trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :field should exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -67,7 +67,7 @@ Feature: Check that FieldTrait works
       Form field with id|name|label|value "No existing field" not found.
       """
 
-  @trait:Drupal\FieldTrait
+  @trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :name should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -81,7 +81,7 @@ Feature: Check that FieldTrait works
       A field "Field 1" appears on this page, but it should not.
       """
 
-  @trait:Drupal\FieldTrait
+  @trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -95,7 +95,7 @@ Feature: Check that FieldTrait works
       A field "field1" appears on this page, but it should not.
       """
 
-  @trait:Drupal\FieldTrait
+  @trait:FieldTrait
   Scenario: Assert that "the field :field should be enabled" fails when it is disabled
     Given some behat configuration
     And scenario steps:
@@ -109,7 +109,7 @@ Feature: Check that FieldTrait works
       A field "field3disabled" should not be disabled, but it is.
       """
 
-  @trait:Drupal\FieldTrait
+  @trait:FieldTrait
   Scenario: Assert that "the field :field1 should be disabled" fails when it is not disabled
     Given some behat configuration
     And scenario steps:
@@ -170,7 +170,7 @@ Feature: Check that FieldTrait works
     Then the option "Australia/Sydney" should exist within the select element "date_default_timezone"
     And the option "Australia/Sydney" should not be selected within the select element "date_default_timezone"
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -185,7 +185,7 @@ Feature: Check that FieldTrait works
       Element "non_existent_select" is not found.
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -200,7 +200,7 @@ Feature: Check that FieldTrait works
       Option "INVALID_OPTION" is not found in select "date_default_timezone".
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select element :selector" for existing option
     Given some behat configuration
     And scenario steps:
@@ -215,7 +215,7 @@ Feature: Check that FieldTrait works
       Option "UTC" is found in select "date_default_timezone", but should not.
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -230,7 +230,7 @@ Feature: Check that FieldTrait works
       The select "non_existent_select" was not found on the page /admin/config/regional/settings
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -245,7 +245,7 @@ Feature: Check that FieldTrait works
       The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for selected option
     Given some behat configuration
     And scenario steps:
@@ -260,7 +260,7 @@ Feature: Check that FieldTrait works
       The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -275,7 +275,7 @@ Feature: Check that FieldTrait works
       Element "non_existent_select" is not found.
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -290,7 +290,7 @@ Feature: Check that FieldTrait works
       No option is selected in the date_default_timezone select on the page /admin/config/regional/settings
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-selected option
     Given some behat configuration
     And scenario steps:
@@ -305,7 +305,7 @@ Feature: Check that FieldTrait works
       The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings
       """
 
-  @api @trait:Drupal\FieldTrait
+  @api @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
