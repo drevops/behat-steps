@@ -17,7 +17,7 @@ use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\Drupal\EmailTrait;
-use DrevOps\BehatSteps\Drupal\FieldTrait;
+use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
 use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\KeyboardTrait;

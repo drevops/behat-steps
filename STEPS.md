@@ -7,6 +7,7 @@
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
@@ -25,7 +26,6 @@
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
 | [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
-| [Drupal\FieldTrait](#drupalfieldtrait) | Manipulate Drupal form fields and verify widget functionality. |
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
@@ -468,6 +468,161 @@ Assert that element with specified CSS is visually hidden on page
 
 ```gherkin
 Then the element ".visually-hidden" should not be displayed within a viewport
+
+```
+
+</details>
+
+## FieldTrait
+
+[Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
+
+>  Manipulate form fields and verify widget functionality.
+>  - Set field values for various input types including selects and WYSIWYG.
+>  - Assert field existence, state, and selected options.
+>  - Support for specialized widgets like color pickers and rich text editors.
+
+
+<details>
+  <summary><code>@When I fill in the color field :field with the value :value</code></summary>
+
+<br/>
+Fill value for color field
+<br/><br/>
+
+```gherkin
+When I fill in the color field "#edit-text-color" with the value "#3366FF"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the WYSIWYG field :field with the :value</code></summary>
+
+<br/>
+Set value for WYSIWYG field
+<br/><br/>
+
+```gherkin
+When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :name should exist</code></summary>
+
+<br/>
+Assert that field exists on the page using id,name,label or value
+<br/><br/>
+
+```gherkin
+Then the field "Body" should exist
+Then the field "field_body" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :name should not exist</code></summary>
+
+<br/>
+Assert that field does not exist on the page using id,name,label or value
+<br/><br/>
+
+```gherkin
+Then the field "Body" should not exist
+Then the field "field_body" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :name should be :enabled_or_disabled</code></summary>
+
+<br/>
+Assert whether the field has a state
+<br/><br/>
+
+```gherkin
+Then the field "Body" should be "disabled"
+Then the field "field_body" should be "disabled"
+Then the field "Tags" should be "enabled"
+Then the field "field_tags" should be "not enabled"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the color field :field should have the value :value</code></summary>
+
+<br/>
+Assert that a color field has a value
+<br/><br/>
+
+```gherkin
+Then the color field "#edit-background-color" should have the value "#FF5733"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
+
+<br/>
+Assert that a select has an option
+<br/><br/>
+
+```gherkin
+Then the option "Administrator" should exist within the select element "edit-roles"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
+
+<br/>
+Assert that a select does not have an option
+<br/><br/>
+
+```gherkin
+Then the option "Guest" should not exist within the select element "edit-roles"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
+
+<br/>
+Assert that a select option is selected
+<br/><br/>
+
+```gherkin
+Then the option "Administrator" should be selected within the select element "edit-roles"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
+
+<br/>
+Assert that a select option is not selected
+<br/><br/>
+
+```gherkin
+Then the option "Editor" should not be selected within the select element "edit-roles"
 
 ```
 
@@ -1788,161 +1943,6 @@ Assert that a file is attached to an email message with a subject containing the
 
 ```gherkin
 Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
-
-```
-
-</details>
-
-## Drupal\FieldTrait
-
-[Source](src/Drupal/FieldTrait.php), [Example](tests/behat/features/drupal_field.feature)
-
->  Manipulate Drupal form fields and verify widget functionality.
->  - Set field values for various input types including selects and WYSIWYG.
->  - Assert field existence, state, and selected options.
->  - Support for specialized widgets like color pickers and rich text editors.
-
-
-<details>
-  <summary><code>@When I fill in the color field :field with the value :value</code></summary>
-
-<br/>
-Fill value for color field
-<br/><br/>
-
-```gherkin
-When I fill in the color field "#edit-text-color" with the value "#3366FF"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@When I fill in the WYSIWYG field :field with the :value</code></summary>
-
-<br/>
-Set value for WYSIWYG field
-<br/><br/>
-
-```gherkin
-When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the field :name should exist</code></summary>
-
-<br/>
-Assert that field exists on the page using id,name,label or value
-<br/><br/>
-
-```gherkin
-Then the field "Body" should exist
-Then the field "field_body" should exist
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the field :name should not exist</code></summary>
-
-<br/>
-Assert that field does not exist on the page using id,name,label or value
-<br/><br/>
-
-```gherkin
-Then the field "Body" should not exist
-Then the field "field_body" should not exist
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the field :name should be :enabled_or_disabled</code></summary>
-
-<br/>
-Assert whether the field has a state
-<br/><br/>
-
-```gherkin
-Then the field "Body" should be "disabled"
-Then the field "field_body" should be "disabled"
-Then the field "Tags" should be "enabled"
-Then the field "field_tags" should be "not enabled"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the color field :field should have the value :value</code></summary>
-
-<br/>
-Assert that a color field has a value
-<br/><br/>
-
-```gherkin
-Then the color field "#edit-background-color" should have the value "#FF5733"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
-
-<br/>
-Assert that a select has an option
-<br/><br/>
-
-```gherkin
-Then the option "Administrator" should exist within the select element "edit-roles"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
-
-<br/>
-Assert that a select does not have an option
-<br/><br/>
-
-```gherkin
-Then the option "Guest" should not exist within the select element "edit-roles"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
-
-<br/>
-Assert that a select option is selected
-<br/><br/>
-
-```gherkin
-Then the option "Administrator" should be selected within the select element "edit-roles"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
-
-<br/>
-Assert that a select option is not selected
-<br/><br/>
-
-```gherkin
-Then the option "Editor" should not be selected within the select element "edit-roles"
 
 ```
 
