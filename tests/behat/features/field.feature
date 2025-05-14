@@ -319,3 +319,18 @@ Feature: Check that FieldTrait works
       """
       The select "non_existent_select" was not found on the page /admin/config/regional/settings
       """
+
+  @phpserver
+  Scenario: Assert that checkboxes are checked and unchecked
+    Given I am on the phpserver test page
+    Then the field "Checkbox unchecked" should exist
+    And the field "Checkbox checked" should exist
+
+    And the checkbox "Checkbox unchecked" should not be checked
+    And the checkbox "Checkbox checked" should be checked
+
+    When I check the checkbox "Checkbox unchecked"
+    Then the checkbox "Checkbox unchecked" should be checked
+
+    When I check the checkbox "Checkbox checked"
+    Then the checkbox "Checkbox checked" should be checked

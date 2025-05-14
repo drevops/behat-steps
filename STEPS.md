@@ -512,6 +512,36 @@ When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <str
 </details>
 
 <details>
+  <summary><code>@When I check the checkbox :selector</code></summary>
+
+<br/>
+Check the checkbox
+<br/><br/>
+
+```gherkin
+When I check the checkbox "Checkbox label"
+When I check the checkbox "edit-field-terms-0-value"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I uncheck the checkbox :selector</code></summary>
+
+<br/>
+Uncheck the checkbox
+<br/><br/>
+
+```gherkin
+When I uncheck the checkbox "Checkbox label"
+When I uncheck the checkbox "edit-field-terms-0-value"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the field :name should exist</code></summary>
 
 <br/>
