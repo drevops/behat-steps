@@ -43,7 +43,6 @@ from the community.
 
 | Class | Description |
 | --- | --- |
-| [CheckboxTrait](STEPS.md#checkboxtrait) | Interact with checkbox form elements. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |

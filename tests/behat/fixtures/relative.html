@@ -339,7 +339,7 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
     #log {
       position: fixed;
       padding: 20px;
-      background: #ccc;
+      background: #cccccc;
       top: 0;
       right: 0;
     }
@@ -377,10 +377,14 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
     inner Main content
     <div id="main-inner-custom">
       inner Main content custom
-      <input type="text" name="input1" id="input1" />
-      <input type="text" name="input2" id="input2" />
-      <input type="checkbox" name="input3" id="input3" value="Test checkbox" />
-      <label for="input3">Test checkbox</label>
+      <form action="">
+        <input type="text" name="input1" id="input1"/>
+        <input type="text" name="input2" id="input2"/>
+        <input type="checkbox" name="input3" id="input3" value="Checkbox unchecked"/>
+        <label for="input3">Checkbox unchecked</label>
+        <input type="checkbox" name="input4" id="input4" value="Checkbox checked" checked/>
+        <label for="input4">Checkbox checked</label>
+      </form>
     </div>
   </div>
 </div>
@@ -501,7 +505,7 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
 
 <button id="trigger-confirm" onclick="testConfirm()">Test confirm</button>
 <div>
-  <input type="color" id="edit-color-input" name="color_input" value="#000000" />
+  <input type="color" id="edit-color-input" name="color_input" value="#000000"/>
   <label for="edit-color-input">Color</label>
 </div>
 
@@ -510,7 +514,8 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
     let text = "Press a button!\nEither OK or Cancel.";
     if (confirm(text) === true) {
       text = "You pressed OK!";
-    } else {
+    }
+    else {
       text = "You canceled!";
     }
     document.getElementById("trigger-confirm").innerHTML = text;

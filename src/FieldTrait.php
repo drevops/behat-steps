@@ -311,6 +311,44 @@ JS;
   }
 
   /**
+   * Check the checkbox.
+   *
+   * @param string $selector
+   *   The checkbox input id, name or label.
+   *
+   * @code
+   *   When I check the checkbox "Checkbox label"
+   *   When I check the checkbox "edit-field-terms-0-value"
+   * @endcode
+   *
+   * @When I check the checkbox :selector
+   */
+  public function fieldCheckboxCheck(string $selector): void {
+    $selector = $this->fieldFixStepArgument($selector);
+
+    $this->getSession()->getPage()->checkField($selector);
+  }
+
+  /**
+   * Uncheck the checkbox.
+   *
+   * @param string $selector
+   *   The checkbox input id, name or label.
+   *
+   * @code
+   *   When I uncheck the checkbox "Checkbox label"
+   *   When I uncheck the checkbox "edit-field-terms-0-value"
+   * @endcode
+   *
+   * @When I uncheck the checkbox :selector
+   */
+  public function fieldCheckboxUncheck(string $selector): void {
+    $selector = $this->fieldFixStepArgument($selector);
+
+    $this->getSession()->getPage()->uncheckField($selector);
+  }
+
+  /**
    * Return fixed step argument (with \" replaced back to ").
    */
   protected function fieldFixStepArgument(string $argument): string {

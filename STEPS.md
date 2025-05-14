@@ -4,7 +4,6 @@
 
 | Class | Description |
 | --- | --- |
-| [CheckboxTrait](#checkboxtrait) | Interact with checkbox form elements. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
@@ -41,43 +40,6 @@
 
 
 ---
-
-## CheckboxTrait
-
-[Source](src/CheckboxTrait.php), [Example](tests/behat/features/checkbox.feature)
-
->  Interact with checkbox form elements.
->  - Ensure checkboxes are checked or unchecked regardless of current state.
->  - Provides intuitive steps for conditional checkbox manipulation.
-
-
-<details>
-  <summary><code>@Given I ensure the box :label is checked</code></summary>
-
-<br/>
-Check the box only if it's unchecked
-<br/><br/>
-
-```gherkin
-Given I ensure the box "Accept terms and conditions" is checked
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Given I ensure the box :label is unchecked</code></summary>
-
-<br/>
-Uncheck the box only if it's checked
-<br/><br/>
-
-```gherkin
-Given I ensure the box "Subscribe to newsletter" is unchecked
-
-```
-
-</details>
 
 ## CookieTrait
 
@@ -544,6 +506,36 @@ Set value for WYSIWYG field
 
 ```gherkin
 When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I check the checkbox :selector</code></summary>
+
+<br/>
+Check the checkbox
+<br/><br/>
+
+```gherkin
+When I check the checkbox "Checkbox label"
+When I check the checkbox "edit-field-terms-0-value"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I uncheck the checkbox :selector</code></summary>
+
+<br/>
+Uncheck the checkbox
+<br/><br/>
+
+```gherkin
+When I uncheck the checkbox "Checkbox label"
+When I uncheck the checkbox "edit-field-terms-0-value"
 
 ```
 
