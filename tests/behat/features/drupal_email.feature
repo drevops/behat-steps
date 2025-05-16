@@ -162,7 +162,7 @@ Feature: Check that EmailTrait works
       """
 
   @api @email
-  Scenario: As a developer, I want to know that test email system is activated as before and after scenario steps.
+  Scenario: As a developer, I want to know that test email system is activated as before and after scenario steps
     Given I send test email to "test@example.com" with
       """
       Line one of the test email content
@@ -180,7 +180,7 @@ Feature: Check that EmailTrait works
       """
 
   @api @email
-  Scenario: As a developer, I want to know that test email system queue clearing step is working.
+  Scenario: As a developer, I want to know that test email system queue clearing step is working
     Given I enable the test email system
     And I send test email to "test@example.com" with
       """
@@ -240,7 +240,7 @@ Feature: Check that EmailTrait works
     Then I should be on "https://example.com/reset-password"
 
   @api @email
-  Scenario: As a developer, I want to know that no emails assertions works as expected.
+  Scenario: As a developer, I want to know that no emails assertions works as expected
     Given no emails should have been sent
     When I send test email to "test@example.com" with
       """
@@ -308,7 +308,7 @@ Feature: Check that EmailTrait works
     And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that an email was sent to an address.
+  Scenario: Assert that an email was sent to an address
     Given some behat configuration
     And scenario steps tagged with "@api @email":
       """

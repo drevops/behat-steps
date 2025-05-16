@@ -40,14 +40,14 @@ Feature: Check that FieldTrait works
       | Field 3        | disabled            |
 
   @api @javascript
-  Scenario: Assert fills in form color field with specified id|name|label|value.
+  Scenario: Assert fills in form color field with specified id|name|label|value
     When I visit "/sites/default/files/relative.html"
     Then the color field "#edit-color-input" should have the value "#000000"
     When I fill in the color field "#edit-color-input" with the value "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @api @javascript
-  Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition.
+  Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition
     When I visit "/sites/default/files/relative.html"
     Then the color field "#edit-color-input" should have the value "#000000"
     When I fill in the color field "#edit-color-input" with the value "#ffffff"

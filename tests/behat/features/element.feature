@@ -234,7 +234,7 @@ Feature: Check that ElementTrait works
     Then I should see the button "You canceled!"
 
   @javascript @phpserver
-  Scenario: Assert scroll to an element with selector.
+  Scenario: Assert scroll to an element with selector
     Given I am on the phpserver test page
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
