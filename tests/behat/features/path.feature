@@ -4,31 +4,32 @@ Feature: Check that PathTrait works
   So that I can verify proper URL paths in my application
 
   @api
-  Scenario: User is at the path without prefixed slash.
+  Scenario Outline: Assert that the path is the same as the given path
     Given I am an anonymous user
-    When I go to "user/login"
-    Then the path should be "user/login"
+    When I go to "<src>"
+    Then the path should be "<dst>"
+    Examples:
+      | src         | dst         |
+      | /           | /           |
+      | /           | <front>     |
+      | <front>     | /           |
+      | <front>     | <front>     |
+      | /user/login | /user/login |
+      | user/login  | user/login  |
 
   @api
-  Scenario: User is at the path with prefixed slash
+  Scenario Outline: Assert that the path is not the same as the given path
     Given I am an anonymous user
-    When I go to "/user/login"
-    Then the path should be "/user/login"
-
-  @api
-  Scenario: User is at the '<front>' path.
-    Given I am an anonymous user
-    When I go to "/"
-    Then the path should be "/"
-
-  @api
-  Scenario: Current page is not specified path.
-    Given I am an anonymous user
-    When I go to "/user/login"
-    Then the path should be "/user/login"
-
-    When I go to "/"
-    Then the path should not be "/user/login"
+    When I go to "<src>"
+    Then the path should not be "<dst>"
+    Examples:
+      | src     | dst     |
+      | /       | /user   |
+      | /user   | /       |
+      | user    | /       |
+      | <front> | /user   |
+      | /user   | <front> |
+      | user    | <front> |
 
   @trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should be :path" fails
@@ -46,6 +47,36 @@ Feature: Check that PathTrait works
       """
 
   @trait:PathTrait
+  Scenario: Assert that negative assertion for "Then the path should be :path" fails for "<front>"
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I go to "/user/login"
+      Then the path should be "<front>"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Current path is "/user/login", but expected is "<front>"
+      """
+
+  @trait:PathTrait
+  Scenario: Assert that negative assertion for "Then the path should be :path" fails for "/"
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I go to "/user/login"
+      Then the path should be "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Current path is "/user/login", but expected is "/"
+      """
+
+  @trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should not be :path" fails
     Given some behat configuration
     And scenario steps:
@@ -58,6 +89,36 @@ Feature: Check that PathTrait works
     Then it should fail with an error:
       """
       Current path should not be "/user/login"
+      """
+
+  @trait:PathTrait
+  Scenario: Assert that negative assertion for "Then the path should not be :path" fails for "/"
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I go to "/"
+      Then the path should not be "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Current path should not be "/"
+      """
+
+  @trait:PathTrait
+  Scenario: Assert that negative assertion for "Then the path should not be :path" fails for "<front>"
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I go to "/"
+      Then the path should not be "<front>"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Current path should not be "<front>"
       """
 
   @api

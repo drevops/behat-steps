@@ -1040,6 +1040,7 @@ Assert that the current page is a specified path
 
 ```gherkin
 Then the path should be "/about-us"
+Then the path should be "/"
 Then the path should be "<front>"
 
 ```
@@ -1055,6 +1056,7 @@ Assert that the current page is not a specified path
 
 ```gherkin
 Then the path should not be "/about-us"
+Then the path should not be "/"
 Then the path should not be "<front>"
 
 ```
