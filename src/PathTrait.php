@@ -19,6 +19,7 @@ trait PathTrait {
    *
    * @code
    * Then the path should be "/about-us"
+   * Then the path should be "/"
    * Then the path should be "<front>"
    * @endcode
    *
@@ -37,9 +38,10 @@ trait PathTrait {
       throw new \Exception('Current path is not a valid URL');
     }
 
-    $current_path = $current_path === '' ? '<front>' : $current_path;
+    $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
+    $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
-    if (ltrim((string) $current_path, '/') !== ltrim($path, '/')) {
+    if (ltrim((string) $normalized_current_path, '/') !== ltrim($normalized_path, '/')) {
       throw new \Exception(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
     }
   }
@@ -51,6 +53,7 @@ trait PathTrait {
    *
    * @code
    * Then the path should not be "/about-us"
+   * Then the path should not be "/"
    * Then the path should not be "<front>"
    * @endcode
    *
@@ -69,10 +72,11 @@ trait PathTrait {
       throw new \Exception('Current path is not a valid URL');
     }
 
-    $current_path = $current_path === '/' ? '<front>' : $current_path;
+    $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
+    $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
-    if (ltrim((string) $current_path, '/') === ltrim($path, '/')) {
-      throw new \Exception(sprintf('Current path should not be "%s"', $current_path));
+    if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
+      throw new \Exception(sprintf('Current path should not be "%s"', $path));
     }
 
     return TRUE;
