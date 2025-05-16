@@ -4,7 +4,7 @@ Feature: Check that ContentTrait works
   So that users can test content functionality reliably
 
   @api
-  Scenario: Assert "@Given the content type :content_type does not exist" works as expected.
+  Scenario: Assert "@Given the content type :content_type does not exist" works as expected
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/types/add"
     And I fill in "Name" with "test_content_type"
@@ -17,14 +17,14 @@ Feature: Check that ContentTrait works
     Then I should not see "test_content_type"
 
   @api
-  Scenario: Assert "@Given the content type :content_type does not exist" works as expected on non-existing content type.
+  Scenario: Assert "@Given the content type :content_type does not exist" works as expected on non-existing content type
     Given the content type "test_content_type" does not exist
     And I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
   @api
-  Scenario: Assert "@Given the following :content_type content does not exist:" works as expected.
+  Scenario: Assert "@Given the following :content_type content does not exist:" works as expected
     Given page content:
       | title              |
       | [TEST] Page title1 |
@@ -44,7 +44,7 @@ Feature: Check that ContentTrait works
     Then I should get a 404 HTTP response
 
   @api
-  Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected.
+  Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected
     Given page content:
       | title             |
       | [TEST] Page title |
@@ -53,7 +53,7 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Page title"
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content type.
+  Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
@@ -67,7 +67,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content.
+  Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
@@ -81,7 +81,7 @@ Feature: Check that ContentTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :content_type content edit page with the title :title" works as expected.
+  Scenario: Assert "When I visit the :content_type content edit page with the title :title" works as expected
     Given page content:
       | title             |
       | [TEST] Page title |
@@ -90,7 +90,7 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Page title"
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content type.
+  Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
@@ -104,7 +104,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content.
+  Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
@@ -118,7 +118,7 @@ Feature: Check that ContentTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :content_type content delete page with the title :title" works as expected.
+  Scenario: Assert "When I visit the :content_type content delete page with the title :title" works as expected
     Given page content:
       | title             |
       | [TEST] Page title |
@@ -127,7 +127,7 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Page title"
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content type.
+  Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
@@ -141,7 +141,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content.
+  Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
@@ -155,7 +155,7 @@ Feature: Check that ContentTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :content_type content scheduled transitions page with the title :title" works as expected.
+  Scenario: Assert "When I visit the :content_type content scheduled transitions page with the title :title" works as expected
     Given page content:
       | title             |
       | [TEST] Page title |
@@ -164,7 +164,7 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Page title"
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content type.
+  Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
@@ -178,7 +178,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content.
+  Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
@@ -192,7 +192,7 @@ Feature: Check that ContentTrait works
       """
 
   @api
-  Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected.
+  Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
     Given page content:
       | title             | moderation_state |
       | [TEST] Page title | draft            |
@@ -204,7 +204,7 @@ Feature: Check that ContentTrait works
     Then the response status code should be 200
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content type.
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
@@ -218,7 +218,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content.
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
@@ -232,7 +232,7 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for a node without moderation state enabled.
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for a node without moderation state enabled
     Given some behat configuration
     And scenario steps:
       """

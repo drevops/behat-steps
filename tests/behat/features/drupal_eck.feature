@@ -15,14 +15,14 @@ Feature: Check that EckTrait works
       | [TEST] ECK test1 | Test text field | T2                   |
 
   @api
-  Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected.
+  Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected
     Given I am logged in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
 
   @api @trait:Drupal\EckTrait
-  Scenario: Assert navigate "I visit eck :bundle :entity_type entity with the title :title" works as expected.
+  Scenario: Assert navigate "I visit eck :bundle :entity_type entity with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
       """
@@ -36,13 +36,13 @@ Feature: Check that EckTrait works
       """
 
   @api
-  Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected.
+  Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected
     Given I am logged in as a user with the "administrator" role
     When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
   @api @trait:Drupal\EckTrait
-  Scenario: Assert negative "When I edit eck :bundle :entity_type entity with the title :title" works as expected.
+  Scenario: Assert negative "When I edit eck :bundle :entity_type entity with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
       """

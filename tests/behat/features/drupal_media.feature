@@ -60,7 +60,7 @@ Feature: Check that MediaTrait works
     Then I should not see "test_media_type"
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I edit the media :media_type with the name :name" fails with an error.
+  Scenario: Assert that negative assertion for "When I edit the media :media_type with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
