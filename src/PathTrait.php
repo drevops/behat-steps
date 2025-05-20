@@ -9,6 +9,7 @@ namespace DrevOps\BehatSteps;
  *
  * - Assert current page location with front page special handling.
  * - Configure basic authentication for protected path access.
+ * - Validate URL query parameters with expected values.
  */
 trait PathTrait {
 
@@ -80,6 +81,57 @@ trait PathTrait {
     }
 
     return TRUE;
+  }
+
+  /**
+   * Assert that current URL has a query parameter with specific value.
+   *
+   * @code
+   * Then current url should have the "filter" param with "recent" value
+   * @endcode
+   *
+   * @Then current url should have the :param param with :value value
+   */
+  public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
+    $this->pathAssertUrlParameterValue($param, $value, TRUE);
+  }
+
+  /**
+   * Assert that current URL doesn't have a query parameter with specific value.
+   *
+   * @code
+   * Then current url should not have the "filter" param with "recent" value
+   * @endcode
+   *
+   * @Then current url should not have the :param param with :value value
+   */
+  public function pathAssertUrlNotHasParameterWithValue(string $param, string $value): void {
+    $this->pathAssertUrlParameterValue($param, $value, FALSE);
+  }
+
+  /**
+   * Helper method for URL parameter assertions.
+   *
+   * @param string $param
+   *   The parameter name.
+   * @param string $value
+   *   The expected parameter value.
+   * @param bool $should_have
+   *   TRUE if the parameter should have the value, FALSE otherwise.
+   */
+  protected function pathAssertUrlParameterValue(string $param, string $value, bool $should_have): void {
+    $url = $this->getSession()->getCurrentUrl();
+    $url_query = parse_url((string) $url, PHP_URL_QUERY) ?? '';
+    $url_query = is_string($url_query) ? $url_query : '';
+    $queries = [];
+    parse_str($url_query, $queries);
+
+    if (!(isset($queries[$param]) && $queries[$param] === $value) && $should_have) {
+      throw new \RuntimeException(sprintf('The param "%s" with value "%s" is not in the URL', $param, $value));
+    }
+    elseif (isset($queries[$param]) && $queries[$param] === $value && !$should_have) {
+      throw new \RuntimeException(sprintf('The param "%s" with value "%s" is in the URL but it should not be', $param, $value));
+    }
   }
 
   /**
