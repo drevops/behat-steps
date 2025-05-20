@@ -1524,6 +1524,20 @@ When I visit the "article" content scheduled transitions page with the title "Te
 </details>
 
 <details>
+  <summary><code>@When I visit the revisions page for the :content_type titled :title</code></summary>
+
+<br/>
+Visit a revisions page of a type with a specified title
+<br/><br/>
+
+```gherkin
+When I visit the revisions page for the "article" titled "Test article"
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I change the moderation state of the :content_type content with the title :title to the :new_state state</code></summary>
 
 <br/>
