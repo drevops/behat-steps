@@ -481,6 +481,7 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 >  - Set field values for various input types including selects and WYSIWYG.
 >  - Assert field existence, state, and selected options.
 >  - Support for specialized widgets like color pickers and rich text editors.
+>  - Support for datetime field widgets with date, time, and datetime options.
 
 
 <details>
@@ -506,6 +507,34 @@ Set value for WYSIWYG field
 
 ```gherkin
 When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the datetime field :label with date :date and time :time</code></summary>
+
+<br/>
+Fill a datetime field with both date and time values
+<br/><br/>
+
+```gherkin
+When I fill in the datetime field "Event datetime" with date "2024-07-15" and time "14:30:00"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the date field :label with date :date</code></summary>
+
+<br/>
+Fill a datetime field with date value
+<br/><br/>
+
+```gherkin
+When I fill in the date field "Event datetime" with date "2024-07-15"
 
 ```
 

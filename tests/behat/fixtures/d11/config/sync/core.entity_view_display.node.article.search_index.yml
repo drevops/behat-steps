@@ -7,6 +7,8 @@ dependencies:
     - core.entity_view_mode.node.search_index
     - field.field.node.article.body
     - field.field.node.article.comment
+    - field.field.node.article.field_date_and_time
+    - field.field.node.article.field_date_only
     - field.field.node.article.field_file
     - field.field.node.article.field_image
     - field.field.node.article.field_tags
@@ -51,6 +53,8 @@ content:
     weight: 1
     region: content
 hidden:
+  field_date_and_time: true
+  field_date_only: true
   field_file: true
   field_image: true
   links: true
