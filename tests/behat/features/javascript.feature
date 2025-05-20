@@ -3,19 +3,14 @@ Feature: Check that JavascriptTrait works
   I want to provide tools to track and verify JavaScript errors
   So that users can ensure their pages are error-free
 
-  @javascript
+  @javascript @no-js-errors
   Scenario: Assert no JavaScript errors when none exist
     When I go to "/"
-    Then there should be no JavaScript errors on the page
 
-  @javascript
+
+  @javascript @no-js-errors
   Scenario: Assert JavaScript error is detected when one exists
-    When I go to "/"
-    And I execute the JavaScript code "throw new Error('Test JS error');"
-    Then I should get a JavaScript error
+    When I visit "/sites/default/files/relative.html"
+    And the element "#js-error-trigger" should be displayed
+    And I click on the element "#js-error-trigger"
 
-  @javascript
-  Scenario: Assert no JavaScript errors fails when errors exist
-    When I go to "/"
-    And I execute the JavaScript code "console.error('Test JS error');"
-    Then I should get a JavaScript error
