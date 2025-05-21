@@ -9,6 +9,7 @@ namespace DrevOps\BehatSteps;
  *
  * - Assert current page location with front page special handling.
  * - Configure basic authentication for protected path access.
+ * - Validate URL query parameters with expected values.
  */
 trait PathTrait {
 
@@ -80,6 +81,106 @@ trait PathTrait {
     }
 
     return TRUE;
+  }
+
+  /**
+   * Assert that current URL has a query parameter.
+   *
+   * @code
+   * Then current url should have the "filter" parameter
+   * @endcode
+   *
+   * @Then current url should have the :param parameter
+   */
+  public function pathAssertUrlHasParameter(string $param): void {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (empty($q[$param])) {
+      throw new \Exception(sprintf('The param "%s" is not in the URL', $param));
+    }
+  }
+
+  /**
+   * Assert that current URL has a query parameter with a specific value.
+   *
+   * @code
+   * Then current url should have the "filter" parameter with the "recent" value
+   * @endcode
+   *
+   * @Then current url should have the :param parameter with the :value value
+   */
+  public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
+    $this->pathAssertUrlHasParameter($param);
+
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    $actual_value = $q[$param] ?? '';
+
+    if ($actual_value !== $value) {
+      throw new \Exception(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value));
+    }
+  }
+
+  /**
+   * Assert that current URL doesn't have a query parameter with specific value.
+   *
+   * @code
+   * Then current url should not have the "filter" parameter
+   * @endcode
+   *
+   * @Then current url should not have the :param parameter
+   */
+  public function pathAssertUrlHasNoParameter(string $param): void {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (!empty($q[$param])) {
+      throw new \Exception(sprintf('The param "%s" is in the URL but should not be', $param));
+    }
+  }
+
+  /**
+   * Assert that current URL doesn't have a query parameter with specific value.
+   *
+   * @code
+   * Then current url should not have the "filter" parameter with the "recent" value
+   * @endcode
+   *
+   * @Then current url should not have the :param parameter with the :value value
+   */
+  public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (empty($q[$param])) {
+      return;
+    }
+
+    if ($q[$param] === $value) {
+      throw new \Exception(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value));
+    }
   }
 
   /**

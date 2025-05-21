@@ -1015,6 +1015,7 @@ Then the link "Return to site content" should not be an absolute link
 >  Navigate and verify paths with URL validation.
 >  - Assert current page location with front page special handling.
 >  - Configure basic authentication for protected path access.
+>  - Validate URL query parameters with expected values.
 
 
 <details>
@@ -1058,6 +1059,62 @@ Assert that the current page is not a specified path
 Then the path should not be "/about-us"
 Then the path should not be "/"
 Then the path should not be "<front>"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should have the :param parameter</code></summary>
+
+<br/>
+Assert that current URL has a query parameter
+<br/><br/>
+
+```gherkin
+Then current url should have the "filter" parameter
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should have the :param parameter with the :value value</code></summary>
+
+<br/>
+Assert that current URL has a query parameter with a specific value
+<br/><br/>
+
+```gherkin
+Then current url should have the "filter" parameter with the "recent" value
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should not have the :param parameter</code></summary>
+
+<br/>
+Assert that current URL doesn't have a query parameter with specific value
+<br/><br/>
+
+```gherkin
+Then current url should not have the "filter" parameter
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should not have the :param parameter with the :value value</code></summary>
+
+<br/>
+Assert that current URL doesn't have a query parameter with specific value
+<br/><br/>
+
+```gherkin
+Then current url should not have the "filter" parameter with the "recent" value
 
 ```
 
