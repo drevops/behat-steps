@@ -355,4 +355,23 @@ JS;
     return str_replace('\\"', '"', $argument);
   }
 
+  /**
+   * Disable browser validation for the form for validating errors.
+   *
+   * @Given browser validation for the form :selector is disabled
+   */
+  public function disableFormBrowserValidation(string $selector): void {
+    $escapedSelector = addslashes($selector);
+
+    $js = <<<JS
+        var form = document.querySelector("{$escapedSelector}");
+        if (form) {
+            form.setAttribute('novalidate', 'novalidate');
+        } else {
+            throw new Error("Form with selector {$escapedSelector} not found");
+        }
+JS;
+    $this->getSession()->executeScript($js);
+  }
+
 }
