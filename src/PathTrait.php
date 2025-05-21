@@ -84,53 +84,102 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL has a query parameter with specific value.
+   * Assert that current URL has a query parameter.
    *
    * @code
-   * Then current url should have the "filter" param with "recent" value
+   * Then current url should have the "filter" parameter
    * @endcode
    *
-   * @Then current url should have the :param param with :value value
+   * @Then current url should have the :param parameter
+   */
+  public function pathAssertUrlHasParameter(string $param): void {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (empty($q[$param])) {
+      throw new \Exception(sprintf('The param "%s" is not in the URL', $param));
+    }
+  }
+
+  /**
+   * Assert that current URL has a query parameter with a specific value.
+   *
+   * @code
+   * Then current url should have the "filter" parameter with the "recent" value
+   * @endcode
+   *
+   * @Then current url should have the :param parameter with the :value value
    */
   public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
-    $this->pathAssertUrlParameterValue($param, $value, TRUE);
+    $this->pathAssertUrlHasParameter($param);
+
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    $actual_value = $q[$param] ?? '';
+
+    if ($actual_value !== $value) {
+      throw new \Exception(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value));
+    }
   }
 
   /**
    * Assert that current URL doesn't have a query parameter with specific value.
    *
    * @code
-   * Then current url should not have the "filter" param with "recent" value
+   * Then current url should not have the "filter" parameter
    * @endcode
    *
-   * @Then current url should not have the :param param with :value value
+   * @Then current url should not have the :param parameter
    */
-  public function pathAssertUrlNotHasParameterWithValue(string $param, string $value): void {
-    $this->pathAssertUrlParameterValue($param, $value, FALSE);
+  public function pathAssertUrlHasNoParameter(string $param): void {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (!empty($q[$param])) {
+      throw new \Exception(sprintf('The param "%s" is in the URL but should not be', $param));
+    }
   }
 
   /**
-   * Helper method for URL parameter assertions.
+   * Assert that current URL doesn't have a query parameter with specific value.
    *
-   * @param string $param
-   *   The parameter name.
-   * @param string $value
-   *   The expected parameter value.
-   * @param bool $should_have
-   *   TRUE if the parameter should have the value, FALSE otherwise.
+   * @code
+   * Then current url should not have the "filter" parameter with the "recent" value
+   * @endcode
+   *
+   * @Then current url should not have the :param parameter with the :value value
    */
-  protected function pathAssertUrlParameterValue(string $param, string $value, bool $should_have): void {
+  public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
     $url = $this->getSession()->getCurrentUrl();
-    $url_query = parse_url((string) $url, PHP_URL_QUERY) ?? '';
-    $url_query = is_string($url_query) ? $url_query : '';
-    $queries = [];
-    parse_str($url_query, $queries);
 
-    if (!(isset($queries[$param]) && $queries[$param] === $value) && $should_have) {
-      throw new \RuntimeException(sprintf('The param "%s" with value "%s" is not in the URL', $param, $value));
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $q = [];
+    parse_str($url_query, $q);
+
+    if (empty($q[$param])) {
+      return;
     }
-    elseif (isset($queries[$param]) && $queries[$param] === $value && !$should_have) {
-      throw new \RuntimeException(sprintf('The param "%s" with value "%s" is in the URL but it should not be', $param, $value));
+
+    if ($q[$param] === $value) {
+      throw new \Exception(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value));
     }
   }
 

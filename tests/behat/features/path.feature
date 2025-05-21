@@ -122,18 +122,21 @@ Feature: Check that PathTrait works
       """
 
   @api
-  Scenario: Assert that URL has query parameter with specific value
+  Scenario: Assert that URL has query parameter with a specific value
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
-    Then current url should have the "status" param with "1" value
-    And current url should have the "type" param with "article" value
+    Then current url should have the "status" parameter
+    And current url should have the "status" parameter with the "1" value
+    And current url should have the "type" parameter
+    And current url should have the "type" parameter with the "article" value
 
   @api
   Scenario: Assert that URL does not have query parameter with specific value
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
-    Then current url should not have the "status" param with "0" value
-    And current url should not have the "type" param with "page" value
+    Then current url should not have the "status" parameter with the "0" value
+    And current url should not have the "other" parameter
+    And current url should not have the "type" parameter with the "page" value
 
   @trait:PathTrait
   Scenario: Assert failure when URL should have parameter but doesn't
@@ -142,12 +145,27 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should have the "filter" param with "recent" value
+      Then current url should have the "filter" parameter with the "recent" value
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      The param "filter" with value "recent" is not in the URL
+      The param "filter" is not in the URL
+      """
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL parameter has wrong value
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit "/admin/content?status=1&type=article"
+      Then current url should have the "status" parameter with the "2" value
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The param "status" is in the URL but with the wrong value "1"
       """
 
   @trait:PathTrait
@@ -157,12 +175,27 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should not have the "status" param with "1" value
+      Then current url should not have the "status" parameter with the "1" value
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      The param "status" with value "1" is in the URL but it should not be
+      The param "status" with value "1" is in the URL but should not be
+      """
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL contains parameter that should not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit "/admin/content?status=1&type=article"
+      Then current url should not have the "status" parameter
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The param "status" is in the URL but should not be
       """
 
   @api

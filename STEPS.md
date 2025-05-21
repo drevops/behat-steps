@@ -1065,28 +1065,56 @@ Then the path should not be "<front>"
 </details>
 
 <details>
-  <summary><code>@Then current url should have the :param param with :value value</code></summary>
+  <summary><code>@Then current url should have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL has a query parameter with specific value
+Assert that current URL has a query parameter
 <br/><br/>
 
 ```gherkin
-Then current url should have the "filter" param with "recent" value
+Then current url should have the "filter" parameter
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then current url should not have the :param param with :value value</code></summary>
+  <summary><code>@Then current url should have the :param parameter with the :value value</code></summary>
+
+<br/>
+Assert that current URL has a query parameter with a specific value
+<br/><br/>
+
+```gherkin
+Then current url should have the "filter" parameter with the "recent" value
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should not have the :param parameter</code></summary>
 
 <br/>
 Assert that current URL doesn't have a query parameter with specific value
 <br/><br/>
 
 ```gherkin
-Then current url should not have the "filter" param with "recent" value
+Then current url should not have the "filter" parameter
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then current url should not have the :param parameter with the :value value</code></summary>
+
+<br/>
+Assert that current URL doesn't have a query parameter with specific value
+<br/><br/>
+
+```gherkin
+Then current url should not have the "filter" parameter with the "recent" value
 
 ```
 
