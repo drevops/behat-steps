@@ -247,3 +247,31 @@ Feature: Check that ContentTrait works
       """
       State "published" is not defined in the workflow for "landing_page" content type.
       """
+
+  @api
+  Scenario: Assert "When I visit the :content_type content revisions page with the title :title" works as expected
+    Given article content:
+      | title                | body        |
+      | [TEST] Article title | First draft |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Article title"
+    And I fill in "Body" with "Updated content"
+    And I press "Save"
+    When I visit the "article" content revisions page with the title "[TEST] Article title"
+    Then I should see "[TEST] Article title"
+    And I should see "Revisions"
+    And I should see "Current revision"
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "When I visit the :content_type content revisions page with the title :title" works as expected for non-existing content type
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the "article" content edit page with the title "[TEST] No existing title"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "article" content with title "[TEST] No existing title".
+      """

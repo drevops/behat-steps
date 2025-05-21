@@ -110,6 +110,19 @@ trait ContentTrait {
   }
 
   /**
+   * Visit a revisions page of a type with a specified title.
+   *
+   * @code
+   * When I visit the "article" content revisions page with the title "Test article"
+   * @endcode
+   *
+   * @When I visit the :content_type content revisions page with the title :title
+   */
+  public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
+    $this->contentVisitActionPageWithTitle($content_type, $title, '/revisions');
+  }
+
+  /**
    * Visit the action page of the content with a specified title.
    *
    * @param string $content_type
