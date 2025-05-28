@@ -463,7 +463,7 @@ JS;
   }
 
   /**
-   * Assert that element is following another element.
+   * Assert that one element appears after another in the DOM.
    *
    * @code
    * Then the element "body" should be after the element "head"
@@ -505,7 +505,7 @@ JS;
   }
 
   /**
-   * Assert the text is placed after another text on the page.
+   * Assert that one text string appears after another on the page.
    *
    * @code
    * Then the text "Welcome" should be after the text "Home"
