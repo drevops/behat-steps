@@ -473,6 +473,34 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 
 </details>
 
+<details>
+  <summary><code>@Then the element ":selector1" should be after the element ":selector2"</code></summary>
+
+<br/>
+Assert that element is following another element
+<br/><br/>
+
+```gherkin
+Then the element "body" should be after the element "head"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the text ":text1" should be after the text ":text2"</code></summary>
+
+<br/>
+Assert the text is placed after another text on the page
+<br/><br/>
+
+```gherkin
+Then the text "Welcome" should be after the text "Home"
+
+```
+
+</details>
+
 ## FieldTrait
 
 [Source](src/FieldTrait.php), [Example](tests/behat/features/field.feature)
