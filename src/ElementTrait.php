@@ -471,7 +471,7 @@ JS;
    *
    * @Then the element ":selector1" should be after the element ":selector2"
    */
-  public function assertElementAfterElement(string $selector1, string $selector2): void {
+  public function elementAssertAfterElement(string $selector1, string $selector2): void {
     $session = $this->getSession();
     $page = $session->getPage();
 
@@ -513,7 +513,7 @@ JS;
    *
    * @Then the text ":text1" should be after the text ":text2"
    */
-  public function assertTextAfterText(string $text1, string $text2): void {
+  public function elementAssertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
 
     $pos1 = strpos((string) $content, $text1);
