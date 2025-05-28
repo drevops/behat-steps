@@ -136,12 +136,20 @@ trait MenuTrait {
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
       // Add uri to correct property.
-      $menu_link_hash['link']['uri'] = $menu_link_hash['uri'];
-      unset($menu_link_hash['uri']);
+      if (isset($menu_link_hash['uri'])) {
+        $menu_link_hash['link'] = [];
+        $menu_link_hash['link']['uri'] = (string) $menu_link_hash['uri'];
+        unset($menu_link_hash['uri']);
+      }
       // Create parent property in format required.
-      if (!empty($menu_link_hash['parent'])) {
+      if (!empty($menu_link_hash['parent']) && is_string($menu_link_hash['parent'])) {
         $parent_link = $this->loadMenuLinkByTitle($menu_link_hash['parent'], $menu_name);
-        $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
+        if ($parent_link instanceof MenuLinkContent) {
+          $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
+        }
+        else {
+          unset($menu_link_hash['parent']);
+        }
       }
       else {
         unset($menu_link_hash['parent']);
