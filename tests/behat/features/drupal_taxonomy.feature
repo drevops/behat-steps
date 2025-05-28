@@ -230,3 +230,31 @@ Feature: Check that TaxonomyTrait works
       | [TEST] Remove  |
     When I delete the "tags" vocabulary "[TEST] Remove" term page
     Then the taxonomy term "[TEST] Remove" from the vocabulary "tags" should not exist
+
+  @api @trait:Drupal\TaxonomyTrait
+  Scenario: Assert negative assertion for "When I delete the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I delete the "nonexisting" vocabulary "Tag1" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The vocabulary "nonexisting" does not exist.
+      """
+
+  @api @trait:Drupal\TaxonomyTrait
+  Scenario: Assert negative assertion for "When I delete the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I delete the "tags" vocabulary "Nonexisting" term page
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find the term "Nonexisting" in the vocabulary "tags".
+      """

@@ -252,6 +252,11 @@ trait TaxonomyTrait {
    * @When I delete the :vocabulary_machine_name vocabulary :term_name term page
    */
   public function taxonomyDeleteTerm(string $vocabulary_machine_name, string $term_name): void {
+    $vocabulary = Vocabulary::load($vocabulary_machine_name);
+    if (!$vocabulary) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
     $terms = \Drupal::entityTypeManager()
       ->getStorage('taxonomy_term')
       ->loadByProperties([
@@ -262,7 +267,7 @@ trait TaxonomyTrait {
     $term = reset($terms);
 
     if (!$term) {
-      throw new \Exception("The term '$term_name' in vocabulary '$vocabulary_machine_name' was not found.");
+      throw new \Exception(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
     }
     $term->delete();
   }
