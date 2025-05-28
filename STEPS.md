@@ -474,7 +474,7 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 </details>
 
 <details>
-  <summary><code>@Then the element ":selector1" should be after the element ":selector2"</code></summary>
+  <summary><code>@Then the element :selector1 should be after the element :selector2</code></summary>
 
 <br/>
 Assert that one element appears after another in the DOM
@@ -488,7 +488,7 @@ Then the element "body" should be after the element "head"
 </details>
 
 <details>
-  <summary><code>@Then the text ":text1" should be after the text ":text2"</code></summary>
+  <summary><code>@Then the text :text1 should be after the text :text2</code></summary>
 
 <br/>
 Assert that one text string appears after another on the page

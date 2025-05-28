@@ -469,7 +469,7 @@ JS;
    * Then the element "body" should be after the element "head"
    * @endcode
    *
-   * @Then the element ":selector1" should be after the element ":selector2"
+   * @Then the element :selector1 should be after the element :selector2
    */
   public function elementAssertAfterElement(string $selector1, string $selector2): void {
     $session = $this->getSession();
@@ -511,7 +511,7 @@ JS;
    * Then the text "Welcome" should be after the text "Home"
    * @endcode
    *
-   * @Then the text ":text1" should be after the text ":text2"
+   * @Then the text :text1 should be after the text :text2
    */
   public function elementAssertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
