@@ -485,10 +485,13 @@ JS;
       throw new \Exception("Element with selector '$selector2' not found.");
     }
 
+    $selector1_escaped = json_encode($selector1);
+    $selector2_escaped = json_encode($selector2);
+
     $js = <<<JS
     (function() {
-      var el1 = document.querySelector("$selector1");
-      var el2 = document.querySelector("$selector2");
+      var el1 = document.querySelector("$selector1_escaped");
+      var el2 = document.querySelector("$selector2_escaped");
       if (!el1 || !el2) return -1;
       return el2.compareDocumentPosition(el1);
     })();
