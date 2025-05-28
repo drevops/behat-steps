@@ -50,8 +50,8 @@ trait DateTrait {
     $rows = [];
     foreach ($table->getRows() as $hash) {
       $row = [];
-      foreach ($hash as $column => $cell) {
-        $row[$column] = self::dateRelativeProcessValue($cell);
+      foreach ($hash as $cell) {
+        $row[] = self::dateRelativeProcessValue($cell);
       }
       $rows[] = $row;
     }
