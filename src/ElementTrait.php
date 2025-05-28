@@ -462,4 +462,42 @@ JS;
     return $driver->evaluateScript($script);
   }
 
+  /**
+   * Assert that element is following another element.
+   *
+   * @code
+   * Then the element "body" should be after the element "head"
+   * @endcode
+   *
+   * @Then the element ":selector1" should be after the element ":selector2"
+   */
+  public function assertElementAfterElement($selector1, $selector2) {
+    $session = $this->getSession();
+    $page = $session->getPage();
+
+    $element1 = $page->find('css', $selector1);
+    $element2 = $page->find('css', $selector2);
+
+    if (!$element1 || !$element2) {
+      throw new \Exception("One or both elements not found.");
+    }
+
+    $js = <<<JS
+    (function() {
+      var el1 = document.querySelector("$selector1");
+      var el2 = document.querySelector("$selector2");
+      if (!el1 || !el2) return -1;
+      return el2.compareDocumentPosition(el1);
+    })();
+  JS;
+
+    $position = $session->evaluateScript($js);
+
+    // If position == 4, then el1 follows el2 in the DOM.
+    // @link https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
+    if (($position & 4) !== 4) {
+      throw new \Exception("Element '$selector1' is not after '$selector2'");
+    }
+  }
+
 }

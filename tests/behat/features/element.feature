@@ -342,7 +342,12 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """
 
-  @api @text
+  @api
   Scenario: Text is after another text
     When I go to the homepage
     Then the text "Powered by Drupal" should be after the text "Welcome"
+
+  @api @javascript
+  Scenario: Assert "Then the element :selector1 should be after the element :selector2" works as expected
+    When I go to the homepage
+    Then the element "body" should be after the element "head"
