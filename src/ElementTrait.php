@@ -479,30 +479,28 @@ JS;
     $element2 = $page->find('css', $selector2);
 
     if (!$element1) {
-      throw new \Exception("Element with selector '$selector1' not found.");
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
     }
     if (!$element2) {
-      throw new \Exception("Element with selector '$selector2' not found.");
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
     }
 
     $selector1_escaped = json_encode($selector1);
     $selector2_escaped = json_encode($selector2);
 
-    $js = <<<JS
-    (function() {
-      var el1 = document.querySelector("$selector1_escaped");
-      var el2 = document.querySelector("$selector2_escaped");
+    $js = "(function() {
+      var el1 = document.querySelector({$selector1_escaped});
+      var el2 = document.querySelector({$selector2_escaped});
       if (!el1 || !el2) return -1;
       return el2.compareDocumentPosition(el1);
-    })();
-  JS;
+    })();";
 
     $position = $session->evaluateScript($js);
 
     // If position == 4, then el1 follows el2 in the DOM.
     // @link https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
     if (($position & 4) !== 4) {
-      throw new \Exception("Element '$selector1' is not after '$selector2' in DOM order");
+      throw new \Exception(sprintf("Element '%s' is not after '%s' in DOM order", $selector1, $selector2));
     }
   }
 
@@ -518,15 +516,15 @@ JS;
   public function assertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
 
-    $pos1 = strpos($content, $text1);
-    $pos2 = strpos($content, $text2);
+    $pos1 = strpos((string) $content, $text1);
+    $pos2 = strpos((string) $content, $text2);
 
     if ($pos1 === FALSE || $pos2 === FALSE) {
       throw new \Exception("One or both texts not found.");
     }
 
     if ($pos1 <= $pos2) {
-      throw new \Exception("Text '$text1' appears before '$text2'");
+      throw new \Exception(sprintf("Text '%s' appears before '%s'", $text1, $text2));
     }
   }
 
