@@ -2514,6 +2514,20 @@ When I edit the "fruits" vocabulary "Apple" term page
 </details>
 
 <details>
+  <summary><code>@When I delete the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
+
+<br/>
+Remove taxonomy term
+<br/><br/>
+
+```gherkin
+When I delete the "tags" vocabulary "[TEST] Remove" term page
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the vocabulary :machine_name with the name :name should exist</code></summary>
 
 <br/>

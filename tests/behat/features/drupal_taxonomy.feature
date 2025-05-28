@@ -222,3 +222,11 @@ Feature: Check that TaxonomyTrait works
       """
       Unable to find the term "Nonexisting" in the vocabulary "tags".
       """
+
+  @api
+  Scenario: Assert "When I delete the :vocabulary_machine_name vocabulary :term_name term page" works
+    Given "tags" terms:
+      | name           |
+      | [TEST] Remove  |
+    When I delete the "tags" vocabulary "[TEST] Remove" term page
+    Then the taxonomy term "[TEST] Remove" from the vocabulary "tags" should not exist

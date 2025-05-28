@@ -242,4 +242,29 @@ trait TaxonomyTrait {
     return $query->execute();
   }
 
+  /**
+   * Remove taxonomy term.
+   *
+   * @code
+   * When I delete the "tags" vocabulary "[TEST] Remove" term page
+   * @endcode
+   *
+   * @When I delete the :vocabulary_machine_name vocabulary :term_name term page
+   */
+  public function taxonomyDeleteTerm(string $vocabulary_machine_name, string $term_name): void {
+    $terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties([
+        'name' => $term_name,
+        'vid' => $vocabulary_machine_name,
+      ]);
+
+    $term = reset($terms);
+
+    if (!$term) {
+      throw new \Exception("The term '$term_name' in vocabulary '$vocabulary_machine_name' was not found.");
+    }
+    $term->delete();
+  }
+
 }
