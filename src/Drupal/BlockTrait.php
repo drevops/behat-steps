@@ -141,7 +141,12 @@ trait BlockTrait {
           break;
 
         case 'region':
-          $block->setRegion($value);
+          if (is_string($value)) {
+            $block->setRegion($value);
+          }
+          else {
+            throw new \InvalidArgumentException('Expected region as string.');
+          }
           break;
 
         case 'status':
