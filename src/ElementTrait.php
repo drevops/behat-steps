@@ -471,7 +471,7 @@ JS;
    *
    * @Then the element ":selector1" should be after the element ":selector2"
    */
-  public function assertElementAfterElement($selector1, $selector2) {
+  public function assertElementAfterElement(string $selector1, string $selector2): void {
     $session = $this->getSession();
     $page = $session->getPage();
 
@@ -497,6 +497,30 @@ JS;
     // @link https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
     if (($position & 4) !== 4) {
       throw new \Exception("Element '$selector1' is not after '$selector2'");
+    }
+  }
+
+  /**
+   * Assert the text is placed after another text on the page.
+   *
+   * @code
+   * Then the text "Welcome" should be after the text "Home"
+   * @endcode
+   *
+   * @Then the text ":text1" should be after the text ":text2"
+   */
+  public function assertTextAfterText(string $text1, string $text2): void {
+    $content = $this->getSession()->getPage()->getText();
+
+    $pos1 = strpos($content, $text1);
+    $pos2 = strpos($content, $text2);
+
+    if ($pos1 === FALSE || $pos2 === FALSE) {
+      throw new \Exception("One or both texts not found.");
+    }
+
+    if ($pos1 < $pos2) {
+      throw new \Exception("Text '$text1' appears before '$text2'");
     }
   }
 

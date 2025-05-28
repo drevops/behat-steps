@@ -83,28 +83,4 @@ class FeatureContext extends DrupalContext {
     return strtotime('2024-07-15 12:00:00');
   }
 
-  /**
-   * Assert the text is placed after another text on the page.
-   *
-   * @code
-   * Then the text "Welcome" should be after the text "Home"
-   * @endcode
-   *
-   * @Then the text ":text1" should be after the text ":text2"
-   */
-  public function assertTextAfterText($text1, $text2) {
-    $content = $this->getSession()->getPage()->getText();
-
-    $pos1 = strpos($content, $text1);
-    $pos2 = strpos($content, $text2);
-
-    if ($pos1 === FALSE || $pos2 === FALSE) {
-      throw new \Exception("One or both texts not found.");
-    }
-
-    if ($pos1 < $pos2) {
-      throw new \Exception("Text '$text1' appears before '$text2'");
-    }
-  }
-
 }
