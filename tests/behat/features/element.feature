@@ -351,3 +351,31 @@ Feature: Check that ElementTrait works
   Scenario: Assert "Then the element :selector1 should be after the element :selector2" works as expected
     When I go to the homepage
     Then the element "body" should be after the element "head"
+
+  @trait:ElementTrait @skipped
+  Scenario: Assert element order fails when first element is before second
+    Given some behat configuration
+    And scenario steps:
+    """
+    When I go to the homepage
+    Then the element "head" should be after the element "body"
+    """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+    """
+    Element 'head' is not after 'body' in DOM order
+    """
+
+  @trait:ElementTrait @skipped
+  Scenario: Assert text order fails when first text is before second
+    Given some behat configuration
+    And scenario steps:
+    """
+    When I go to the homepage
+    Then the text "Welcome" should be after the text "Powered by Drupal"
+    """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+    """
+    Text 'Welcome' appears before 'Powered by Drupal'
+    """

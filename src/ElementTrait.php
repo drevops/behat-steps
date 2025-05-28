@@ -478,8 +478,11 @@ JS;
     $element1 = $page->find('css', $selector1);
     $element2 = $page->find('css', $selector2);
 
-    if (!$element1 || !$element2) {
-      throw new \Exception("One or both elements not found.");
+    if (!$element1) {
+      throw new \Exception("Element with selector '$selector1' not found.");
+    }
+    if (!$element2) {
+      throw new \Exception("Element with selector '$selector2' not found.");
     }
 
     $js = <<<JS
@@ -496,7 +499,7 @@ JS;
     // If position == 4, then el1 follows el2 in the DOM.
     // @link https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
     if (($position & 4) !== 4) {
-      throw new \Exception("Element '$selector1' is not after '$selector2'");
+      throw new \Exception("Element '$selector1' is not after '$selector2' in DOM order");
     }
   }
 
@@ -519,7 +522,7 @@ JS;
       throw new \Exception("One or both texts not found.");
     }
 
-    if ($pos1 < $pos2) {
+    if ($pos1 <= $pos2) {
       throw new \Exception("Text '$text1' appears before '$text2'");
     }
   }
