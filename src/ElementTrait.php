@@ -519,8 +519,11 @@ JS;
     $pos1 = strpos((string) $content, $text1);
     $pos2 = strpos((string) $content, $text2);
 
-    if ($pos1 === FALSE || $pos2 === FALSE) {
-      throw new \Exception("One or both texts not found.");
+    if ($pos1 === FALSE) {
+      throw new \Exception(sprintf("Text was not found: '%s'.", $text1));
+    }
+    if ($pos2 === FALSE) {
+      throw new \Exception(sprintf("Text was not found: '%s'.", $text2));
     }
 
     if ($pos1 <= $pos2) {
