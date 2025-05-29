@@ -267,7 +267,7 @@ trait TaxonomyTrait {
     $term = reset($terms);
 
     if (!$term) {
-      throw new \Exception(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
     }
     $term->delete();
   }
