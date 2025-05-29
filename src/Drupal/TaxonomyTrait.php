@@ -257,14 +257,20 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
     }
 
-    $terms = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadByProperties([
-        'name' => $term_name,
-        'vid' => $vocabulary_machine_name,
-      ]);
+    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
+      'name' => $term_name,
+    ]);
 
-    $term = reset($terms);
+    if (empty($tids)) {
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
+    }
+
+    // Use the term created last.
+    ksort($tids);
+    $tid = end($tids);
+    $term = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->load($tid);
 
     if (!$term) {
       throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
