@@ -489,8 +489,8 @@ JS;
     $text2 = $element2->getOuterHtml();
     $content = $this->getSession()->getPage()->getOuterHtml();
 
-    $pos1 = strpos((string) $content, $text1);
-    $pos2 = strpos((string) $content, $text2);
+    $pos1 = strpos((string) $content, (string) $text1);
+    $pos2 = strpos((string) $content, (string) $text2);
 
     if ($pos1 === FALSE) {
       throw new \Exception(sprintf("Element was not found: '%s'.", $selector1));
