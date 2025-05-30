@@ -320,6 +320,34 @@ When I scroll to the element "#footer"
 </details>
 
 <details>
+  <summary><code>@Then the element :selector1 should appear after the element :selector2</code></summary>
+
+<br/>
+Assert that one element appears after another on the page
+<br/><br/>
+
+```gherkin
+Then the element "body" should appear after the element "head"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the text :text1 should appear after the text :text2</code></summary>
+
+<br/>
+Assert that one text string appears after another on the page
+<br/><br/>
+
+```gherkin
+Then the text "Welcome" should appear after the text "Home"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector with the attribute :attribute and the value :value should exist</code></summary>
 
 <br/>
@@ -468,34 +496,6 @@ Assert that element with specified CSS is visually hidden on page
 
 ```gherkin
 Then the element ".visually-hidden" should not be displayed within a viewport
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the element :selector1 should be after the element :selector2</code></summary>
-
-<br/>
-Assert that one element appears after another in the DOM
-<br/><br/>
-
-```gherkin
-Then the element "body" should be after the element "head"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the text :text1 should be after the text :text2</code></summary>
-
-<br/>
-Assert that one text string appears after another on the page
-<br/><br/>
-
-```gherkin
-Then the text "Welcome" should be after the text "Home"
 
 ```
 

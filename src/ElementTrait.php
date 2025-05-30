@@ -14,6 +14,75 @@ namespace DrevOps\BehatSteps;
 trait ElementTrait {
 
   /**
+   * Assert that one element appears after another on the page.
+   *
+   * @code
+   * Then the element "body" should appear after the element "head"
+   * @endcode
+   *
+   * @Then the element :selector1 should appear after the element :selector2
+   */
+  public function elementAssertAfterElement(string $selector1, string $selector2): void {
+    $session = $this->getSession();
+    $page = $session->getPage();
+
+    $element1 = $page->find('css', $selector1);
+    $element2 = $page->find('css', $selector2);
+
+    if (!$element1) {
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
+    }
+    if (!$element2) {
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
+    }
+
+    $text1 = $element1->getOuterHtml();
+    $text2 = $element2->getOuterHtml();
+    $content = $this->getSession()->getPage()->getOuterHtml();
+
+    $pos1 = strpos((string) $content, (string) $text1);
+    $pos2 = strpos((string) $content, (string) $text2);
+
+    if ($pos1 === FALSE) {
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
+    }
+    if ($pos2 === FALSE) {
+      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
+    }
+
+    if ($pos1 <= $pos2) {
+      throw new \Exception(sprintf("Element '%s' appears before '%s'", $selector1, $selector2));
+    }
+  }
+
+  /**
+   * Assert that one text string appears after another on the page.
+   *
+   * @code
+   * Then the text "Welcome" should appear after the text "Home"
+   * @endcode
+   *
+   * @Then the text :text1 should appear after the text :text2
+   */
+  public function elementAssertTextAfterText(string $text1, string $text2): void {
+    $content = $this->getSession()->getPage()->getText();
+
+    $pos1 = strpos((string) $content, $text1);
+    $pos2 = strpos((string) $content, $text2);
+
+    if ($pos1 === FALSE) {
+      throw new \Exception(sprintf("Text was not found: '%s'.", $text1));
+    }
+    if ($pos2 === FALSE) {
+      throw new \Exception(sprintf("Text was not found: '%s'.", $text2));
+    }
+
+    if ($pos1 <= $pos2) {
+      throw new \Exception(sprintf("Text '%s' appears before '%s'", $text1, $text2));
+    }
+  }
+
+  /**
    * Assert an element with selector and attribute with a value exists.
    *
    * @code
@@ -460,99 +529,6 @@ JS;
     $script = str_replace('{{SCRIPT}}', $script, $scriptWrapper);
 
     return $driver->evaluateScript($script);
-  }
-
-  /**
-   * Assert that one element appears after another in the DOM.
-   *
-   * @code
-   * Then the element "body" should be after the element "head"
-   * @endcode
-   *
-   * @Then the element :selector1 should be after the element :selector2
-   */
-  public function elementAssertAfterElement(string $selector1, string $selector2): void {
-    $session = $this->getSession();
-    $page = $session->getPage();
-
-    $element1 = $page->find('css', $selector1);
-    $element2 = $page->find('css', $selector2);
-
-    if (!$element1) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
-    }
-    if (!$element2) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
-    }
-
-    $text1 = $element1->getOuterHtml();
-    $text2 = $element2->getOuterHtml();
-    $content = $this->getSession()->getPage()->getOuterHtml();
-
-    $this->elementAssertOrderedPositions(
-      (string) $text1,
-      (string) $text2,
-      $content,
-      sprintf("Element with selector '%s' not found.", $selector1),
-      sprintf("Element with selector '%s' not found.", $selector2),
-      sprintf("Element '%s' appears before '%s'", $selector1, $selector2)
-    );
-  }
-
-  /**
-   * Assert that one text string appears after another on the page.
-   *
-   * @code
-   * Then the text "Welcome" should be after the text "Home"
-   * @endcode
-   *
-   * @Then the text :text1 should be after the text :text2
-   */
-  public function elementAssertTextAfterText(string $text1, string $text2): void {
-    $content = $this->getSession()->getPage()->getText();
-
-    $this->elementAssertOrderedPositions(
-      $text1,
-      $text2,
-      $content,
-      sprintf("Text was not found: '%s'.", $text1),
-      sprintf("Text was not found: '%s'.", $text2),
-      sprintf("Text '%s' appears before '%s'", $text1, $text2)
-    );
-  }
-
-  /**
-   * Assert that one item appears after another within content.
-   *
-   * @param string $item1
-   *   The first item to find (should appear after item2).
-   * @param string $item2
-   *   The second item to find (should appear before item1).
-   * @param string $content
-   *   The content to search within.
-   * @param string $not_found_item1_message
-   *   Exception message when item1 is not found.
-   * @param string $not_found_item2_message
-   *   Exception message when item2 is not found.
-   * @param string $wrong_order_message
-   *   Exception message when items are in wrong order.
-   *
-   * @throws \Exception
-   */
-  protected function elementAssertOrderedPositions(string $item1, string $item2, string $content, string $not_found_item1_message, string $not_found_item2_message, string $wrong_order_message): void {
-    $pos1 = strpos($content, $item1);
-    $pos2 = strpos($content, $item2);
-
-    if ($pos1 === FALSE) {
-      throw new \Exception($not_found_item1_message);
-    }
-    if ($pos2 === FALSE) {
-      throw new \Exception($not_found_item2_message);
-    }
-
-    if ($pos1 <= $pos2) {
-      throw new \Exception($wrong_order_message);
-    }
   }
 
 }
