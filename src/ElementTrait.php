@@ -485,22 +485,22 @@ JS;
       throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
     }
 
-    $selector1_escaped = json_encode($selector1);
-    $selector2_escaped = json_encode($selector2);
+    $text1 = $element1->getOuterHtml();
+    $text2 = $element2->getOuterHtml();
+    $content = $this->getSession()->getPage()->getOuterHtml();
 
-    $js = "(function() {
-      var el1 = document.querySelector({$selector1_escaped});
-      var el2 = document.querySelector({$selector2_escaped});
-      if (!el1 || !el2) return -1;
-      return el2.compareDocumentPosition(el1);
-    })();";
+    $pos1 = strpos((string) $content, $text1);
+    $pos2 = strpos((string) $content, $text2);
 
-    $position = $session->evaluateScript($js);
+    if ($pos1 === FALSE) {
+      throw new \Exception(sprintf("Element was not found: '%s'.", $selector1));
+    }
+    if ($pos2 === FALSE) {
+      throw new \Exception(sprintf("Element was not found: '%s'.", $selector2));
+    }
 
-    // If position == 4, then el1 follows el2 in the DOM.
-    // @link https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
-    if (($position & 4) !== 4) {
-      throw new \Exception(sprintf("Element '%s' is not after '%s' in DOM order", $selector1, $selector2));
+    if ($pos1 <= $pos2) {
+      throw new \Exception(sprintf("Element '%s' appears before '%s'", $selector1, $selector2));
     }
   }
 

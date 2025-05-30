@@ -347,7 +347,7 @@ Feature: Check that ElementTrait works
     When I go to the homepage
     Then the text "Powered by Drupal" should be after the text "Welcome"
 
-  @api @javascript
+  @api
   Scenario: Assert "Then the element :selector1 should be after the element :selector2" works as expected
     When I go to the homepage
     Then the element "body" should be after the element "head"
