@@ -489,11 +489,14 @@ JS;
     $text2 = $element2->getOuterHtml();
     $content = $this->getSession()->getPage()->getOuterHtml();
 
-    $pos1 = strpos((string) $content, (string) $text1);
-    $pos2 = strpos((string) $content, (string) $text2);
-    if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf("Element '%s' appears before '%s'", $selector1, $selector2));
-    }
+    $this->elementAssertOrderedPositions(
+      (string) $text1,
+      (string) $text2,
+      $content,
+      sprintf("Element with selector '%s' not found.", $selector1),
+      sprintf("Element with selector '%s' not found.", $selector2),
+      sprintf("Element '%s' appears before '%s'", $selector1, $selector2)
+    );
   }
 
   /**
@@ -508,18 +511,47 @@ JS;
   public function elementAssertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
 
-    $pos1 = strpos((string) $content, $text1);
-    $pos2 = strpos((string) $content, $text2);
+    $this->elementAssertOrderedPositions(
+      $text1,
+      $text2,
+      $content,
+      sprintf("Text was not found: '%s'.", $text1),
+      sprintf("Text was not found: '%s'.", $text2),
+      sprintf("Text '%s' appears before '%s'", $text1, $text2)
+    );
+  }
+
+  /**
+   * Assert that one item appears after another within content.
+   *
+   * @param string $item1
+   *   The first item to find (should appear after item2).
+   * @param string $item2
+   *   The second item to find (should appear before item1).
+   * @param string $content
+   *   The content to search within.
+   * @param string $not_found_item1_message
+   *   Exception message when item1 is not found.
+   * @param string $not_found_item2_message
+   *   Exception message when item2 is not found.
+   * @param string $wrong_order_message
+   *   Exception message when items are in wrong order.
+   *
+   * @throws \Exception
+   */
+  protected function elementAssertOrderedPositions(string $item1, string $item2, string $content, string $not_found_item1_message, string $not_found_item2_message, string $wrong_order_message): void {
+    $pos1 = strpos($content, $item1);
+    $pos2 = strpos($content, $item2);
 
     if ($pos1 === FALSE) {
-      throw new \Exception(sprintf("Text was not found: '%s'.", $text1));
+      throw new \Exception($not_found_item1_message);
     }
     if ($pos2 === FALSE) {
-      throw new \Exception(sprintf("Text was not found: '%s'.", $text2));
+      throw new \Exception($not_found_item2_message);
     }
 
     if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf("Text '%s' appears before '%s'", $text1, $text2));
+      throw new \Exception($wrong_order_message);
     }
   }
 
