@@ -491,14 +491,6 @@ JS;
 
     $pos1 = strpos((string) $content, (string) $text1);
     $pos2 = strpos((string) $content, (string) $text2);
-
-    if ($pos1 === FALSE) {
-      throw new \Exception(sprintf("Element was not found: '%s'.", $selector1));
-    }
-    if ($pos2 === FALSE) {
-      throw new \Exception(sprintf("Element was not found: '%s'.", $selector2));
-    }
-
     if ($pos1 <= $pos2) {
       throw new \Exception(sprintf("Element '%s' appears before '%s'", $selector1, $selector2));
     }
