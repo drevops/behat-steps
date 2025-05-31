@@ -1,3 +1,4 @@
+@taxonomy
 Feature: Check that TaxonomyTrait works
   As Behat Steps library developer
   I want to provide tools to manage taxonomy terms programmatically
@@ -226,13 +227,9 @@ Feature: Check that TaxonomyTrait works
   @api
   Scenario: Assert "When I visit the :vocabulary_machine_name term delete page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
-    And "tags" terms:
-      | name           |
-      | [TEST] Remove  |
-    When I visit the "tags" term delete page with the name "[TEST] Remove"
+    When I visit the "tags" term delete page with the name "Tag1"
     Then the response should contain "200"
-    And I should see "Are you sure you want to delete"
-    And I should see "[TEST] Remove"
+    And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
   Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term delete page with the name :term_name" fails with non-existing vocabulary

@@ -2486,42 +2486,42 @@ Given the following "fruits" vocabulary terms do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
+  <summary><code>@When I visit the :vocabulary_machine_name term page with the name :term_name</code></summary>
 
 <br/>
 Visit specified vocabulary term page
 <br/><br/>
 
 ```gherkin
-When I visit the "fruits" vocabulary "Apple" term page
+When I visit the "fruits" term page with the name "Apple"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I edit the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
+  <summary><code>@When I visit the :vocabulary_machine_name term edit page with the name :term_name</code></summary>
 
 <br/>
-Edit specified vocabulary term page
+Visit specified vocabulary term edit page
 <br/><br/>
 
 ```gherkin
-When I edit the "fruits" vocabulary "Apple" term page
+When I visit the "fruits" term edit page with the name "Apple"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I delete the :vocabulary_machine_name vocabulary :term_name term page</code></summary>
+  <summary><code>@When I visit the :vocabulary_machine_name term delete page with the name :term_name</code></summary>
 
 <br/>
-Remove taxonomy term
+Visit specified vocabulary term delete page
 <br/><br/>
 
 ```gherkin
-When I delete the "tags" vocabulary "[TEST] Remove" term page
+When I visit the "tags" term delete page with the name "[TEST] Remove"
 
 ```
 

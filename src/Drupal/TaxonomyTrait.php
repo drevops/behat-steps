@@ -162,27 +162,7 @@ trait TaxonomyTrait {
    * @When I visit the :vocabulary_machine_name term page with the name :term_name
    */
   public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
-    $vocab = Vocabulary::load($vocabulary_machine_name);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
-    }
-
-    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
-      'name' => $term_name,
-    ]);
-
-    if (empty($tids)) {
-      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
-    }
-
-    // Use the term created last.
-    ksort($tids);
-    $tid = end($tids);
-
-    $path = $this->locatePath('/taxonomy/term/' . $tid);
-
-    $this->getSession()->visit($path);
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name);
   }
 
   /**
@@ -195,26 +175,7 @@ trait TaxonomyTrait {
    * @When I visit the :vocabulary_machine_name term edit page with the name :term_name
    */
   public function taxonomyVisitTermEditPageWithName(string $vocabulary_machine_name, string $term_name): void {
-    $vocab = Vocabulary::load($vocabulary_machine_name);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
-    }
-
-    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
-      'name' => $term_name,
-    ]);
-
-    if (empty($tids)) {
-      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
-    }
-
-    ksort($tids);
-    $tid = end($tids);
-
-    $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
-
-    $this->getSession()->visit($path);
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/edit');
   }
 
   /**
@@ -227,6 +188,20 @@ trait TaxonomyTrait {
    * @When I visit the :vocabulary_machine_name term delete page with the name :term_name
    */
   public function taxonomyVisitTermDeletePageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/delete');
+  }
+
+  /**
+   * Visit the action page of the term with a specified name.
+   *
+   * @param string $vocabulary_machine_name
+   *   The term vocabulary machine name.
+   * @param string $term_name
+   *   The name of the term.
+   * @param string $action_subpath
+   *   The operation to perform, e.g., '/delete', '/edit', etc.
+   */
+  protected function taxonomyVisitActionPageWithName(string $vocabulary_machine_name, string $term_name, string $action_subpath = ''): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
 
     if (!$vocab) {
@@ -244,7 +219,7 @@ trait TaxonomyTrait {
     ksort($tids);
     $tid = end($tids);
 
-    $path = $this->locatePath('/taxonomy/term/' . $tid . '/delete');
+    $path = $this->locatePath('/taxonomy/term/' . $tid . $action_subpath);
 
     $this->getSession()->visit($path);
   }
