@@ -341,3 +341,41 @@ Feature: Check that ElementTrait works
       """
       Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """
+
+  @api
+  Scenario: Text appears after another text
+    When I go to the homepage
+    Then the text "Powered by Drupal" should appear after the text "Welcome"
+
+  @api
+  Scenario: Assert "Then the element :selector1 should appear after the element :selector2" works as expected
+    When I go to the homepage
+    Then the element "body" should appear after the element "head"
+
+  @trait:ElementTrait
+  Scenario: Assert element order fails when first element is before second
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the element "head" should appear after the element "body"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element 'head' appears before 'body'
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert text order fails when first text is before second
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the text "Welcome" should appear after the text "Powered by Drupal"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Text 'Welcome' appears before 'Powered by Drupal'
+      """
