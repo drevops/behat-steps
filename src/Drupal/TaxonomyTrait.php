@@ -156,10 +156,10 @@ trait TaxonomyTrait {
    * Visit specified vocabulary term page.
    *
    * @code
-   * When I visit the "fruits" vocabulary "Apple" term page
+   * When I visit the "fruits" term page with the name "Apple"
    * @endcode
    *
-   * @When I visit the :vocabulary_machine_name vocabulary :term_name term page
+   * @When I visit the :vocabulary_machine_name term page with the name :term_name
    */
   public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
@@ -186,15 +186,15 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Edit specified vocabulary term page.
+   * Visit specified vocabulary term edit page.
    *
    * @code
-   * When I edit the "fruits" vocabulary "Apple" term page
+   * When I visit the "fruits" term edit page with the name "Apple"
    * @endcode
    *
-   * @When I edit the :vocabulary_machine_name vocabulary :term_name term page
+   * @When I visit the :vocabulary_machine_name term edit page with the name :term_name
    */
-  public function taxonomyEditTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
+  public function taxonomyVisitTermEditPageWithName(string $vocabulary_machine_name, string $term_name): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
 
     if (!$vocab) {
@@ -213,6 +213,38 @@ trait TaxonomyTrait {
     $tid = end($tids);
 
     $path = $this->locatePath('/taxonomy/term/' . $tid . '/edit');
+
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Visit specified vocabulary term delete page.
+   *
+   * @code
+   * When I visit the "tags" term delete page with the name "[TEST] Remove"
+   * @endcode
+   *
+   * @When I visit the :vocabulary_machine_name term delete page with the name :term_name
+   */
+  public function taxonomyVisitTermDeletePageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $vocab = Vocabulary::load($vocabulary_machine_name);
+
+    if (!$vocab) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
+    }
+
+    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
+      'name' => $term_name,
+    ]);
+
+    if (empty($tids)) {
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
+    }
+
+    ksort($tids);
+    $tid = end($tids);
+
+    $path = $this->locatePath('/taxonomy/term/' . $tid . '/delete');
 
     $this->getSession()->visit($path);
   }
@@ -240,42 +272,6 @@ trait TaxonomyTrait {
     }
 
     return $query->execute();
-  }
-
-  /**
-   * Remove taxonomy term.
-   *
-   * @code
-   * When I delete the "tags" vocabulary "[TEST] Remove" term page
-   * @endcode
-   *
-   * @When I delete the :vocabulary_machine_name vocabulary :term_name term page
-   */
-  public function taxonomyDeleteTerm(string $vocabulary_machine_name, string $term_name): void {
-    $vocabulary = Vocabulary::load($vocabulary_machine_name);
-    if (!$vocabulary) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary_machine_name));
-    }
-
-    $tids = $this->taxonomyLoadMultiple($vocabulary_machine_name, [
-      'name' => $term_name,
-    ]);
-
-    if (empty($tids)) {
-      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
-    }
-
-    // Use the term created last.
-    ksort($tids);
-    $tid = end($tids);
-    $term = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->load($tid);
-
-    if (!$term) {
-      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary_machine_name));
-    }
-    $term->delete();
   }
 
 }

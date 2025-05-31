@@ -154,19 +154,19 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :vocabulary_machine_name vocabulary :term_name term page" works
+  Scenario: Assert "When I visit the :vocabulary_machine_name term page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
-    When I visit the "tags" vocabulary "Tag1" term page
+    When I visit the "tags" term page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit the "nonexisting" vocabulary "Tag1" term page
+      When I visit the "nonexisting" term page with the name "Tag1"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -175,12 +175,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit the "tags" vocabulary "Nonexisting" term page
+      When I visit the "tags" term page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -189,19 +189,19 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I edit the :vocabulary_machine_name vocabulary :term_name term page" works
+  Scenario: Assert "When I visit the :vocabulary_machine_name term edit page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
-    When I edit the "tags" vocabulary "Tag1" term page
+    When I visit the "tags" term edit page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I edit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term edit page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I edit the "nonexisting" vocabulary "Tag1" term page
+      When I visit the "nonexisting" term edit page with the name "Tag1"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -210,12 +210,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I edit the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term edit page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I edit the "tags" vocabulary "Nonexisting" term page
+      When I visit the "tags" term edit page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -224,20 +224,23 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I delete the :vocabulary_machine_name vocabulary :term_name term page" works
-    Given "tags" terms:
+  Scenario: Assert "When I visit the :vocabulary_machine_name term delete page with the name :term_name" works
+    Given I am logged in as a user with the "administrator" role
+    And "tags" terms:
       | name           |
       | [TEST] Remove  |
-    When I delete the "tags" vocabulary "[TEST] Remove" term page
-    Then the taxonomy term "[TEST] Remove" from the vocabulary "tags" should not exist
+    When I visit the "tags" term delete page with the name "[TEST] Remove"
+    Then the response should contain "200"
+    And I should see "Are you sure you want to delete"
+    And I should see "[TEST] Remove"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I delete the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term delete page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I delete the "nonexisting" vocabulary "Tag1" term page
+      When I visit the "nonexisting" term delete page with the name "Tag1"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -246,12 +249,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I delete the :vocabulary_machine_name vocabulary :term_name term page" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term delete page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I delete the "tags" vocabulary "Nonexisting" term page
+      When I visit the "tags" term delete page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
