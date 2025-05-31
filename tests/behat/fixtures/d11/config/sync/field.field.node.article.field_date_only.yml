@@ -1,0 +1,21 @@
+uuid: 60dc4216-4910-400f-bb93-e66186384875
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_only
+    - node.type.article
+  module:
+    - datetime
+id: node.article.field_date_only
+field_name: field_date_only
+entity_type: node
+bundle: article
+label: 'Date only'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime
