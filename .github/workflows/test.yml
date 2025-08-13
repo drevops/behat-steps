@@ -30,11 +30,12 @@ jobs:
         drupal_version: [10, 11]
 
     container:
-      image: drevops/ci-runner:25.7.0
+      image: drevops/ci-runner:25.8.0@sha256:d6ba40fc4248ce291302a2cf212de9b80da5433f2fdf29be09ed59659df9e18d
 
       env:
         TERM: xterm-256color
         DRUPAL_VERSION: ${{ matrix.drupal_version }}
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
     steps:
       - name: Check out code
@@ -62,7 +63,7 @@ jobs:
         run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION:-10} -T cli bash .github/provision.sh
 
       - name: Validate Composer configuration is normalized
-        run: ahoy cli composer normalize --dry-run
+        run: docker compose exec composer normalize --dry-run
         continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
 
       - name: Lint code
