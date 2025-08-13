@@ -1,0 +1,118 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CI: "1"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        drupal_version: [10, 11]
+
+    container:
+      image: drevops/ci-runner:25.9.0
+
+      env:
+        TERM: xterm-256color
+        DRUPAL_VERSION: ${{ matrix.drupal_version }}
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Process the codebase to run in CI
+        run: |
+          sed -i -e "/###/d" docker-compose.yml
+          sed -i -e "s/##//" docker-compose.yml
+          cat docker-compose.yml
+
+      - name: Build stack
+        run: |
+          docker compose up -d
+          docker cp -L . "$(docker compose ps -q cli)":/app/
+        timeout-minutes: 30
+
+      - name: Install development dependencies
+        run: |
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+            COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+
+      - name: Provision application
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -T cli bash .github/provision.sh
+
+      - name: Validate Composer configuration is normalized
+        run: docker compose exec -T cli composer normalize --dry-run
+        continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+
+      - name: Install Ahoy CLI
+        run: |
+          version=2.4.0 && \
+          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          chmod +x /usr/local/bin/ahoy && \
+          ahoy --version
+
+      - name: Lint code
+        run: ahoy lint
+        continue-on-error: ${{ vars.CI_LINT_IGNORE_FAILURE == '1' }}
+
+      - name: Lint documentation
+        run: ahoy lint-docs
+        continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
+
+      - name: Run Unit tests with coverage
+        run: ahoy test-unit-coverage
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
+      - name: Run BDD tests with coverage
+        run: ahoy test-bdd-coverage
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
+      - name: Process test logs and artifacts
+        if: always()
+        run: |
+          mkdir -p .logs
+          if docker compose ps --services --filter "status=running" | \
+            grep -q cli && docker compose exec -T cli test -d /app/.logs; then
+            docker compose cp cli:/app/.logs/. ".logs/"
+          fi
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-artifacts-drupal-${{ matrix.drupal_version }}
+          path: .logs
+          include-hidden-files: true
+          retention-days: 30
+
+      - name: Upload code coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/') }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: .logs/coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

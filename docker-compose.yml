@@ -58,7 +58,7 @@ services:
     depends_on:
       - cli
     networks:
-      - amazeeio-network
+      - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
       - default
 
   mariadb:
@@ -89,9 +89,9 @@ services:
       - mariadb
     command: mariadb:3306
 
-networks:
-  amazeeio-network:
-    external: true
+networks:           ### Use external networks locally. Automatically removed in CI.
+  amazeeio-network: ### Automatically removed in CI.
+    external: true  ### Automatically removed in CI.
 
 volumes:
   app: {}

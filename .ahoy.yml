@@ -7,7 +7,6 @@ commands:
     usage: Build or rebuild project.
     cmd: |
       ahoy clean
-      (docker network prune -f > /dev/null && docker network inspect amazeeio-network > /dev/null || docker network create amazeeio-network)
       ahoy up -- --build --force-recreate
       docker cp -L . "$(docker compose ps -q cli)":/app/ || true
       [ ! -d vendor ] && ahoy cli "composer install --prefer-dist --no-progress --no-suggest --no-interaction"
