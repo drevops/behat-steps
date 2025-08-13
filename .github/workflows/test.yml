@@ -44,6 +44,7 @@ jobs:
         run: |
           sed -i -e "/###/d" docker-compose.yml
           sed -i -e "s/##//" docker-compose.yml
+          cat docker-compose.yml
 
       - name: Build
         run: ahoy build
