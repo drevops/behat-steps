@@ -187,7 +187,6 @@ trait MediaTrait {
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
-    $method->setAccessible(TRUE);
 
     $method->invokeArgs($core, func_get_args());
   }

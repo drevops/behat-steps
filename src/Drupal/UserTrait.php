@@ -217,7 +217,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(function ($value): string {
+    $roles = array_map(function (string $value): string {
       return trim($value);
     }, $roles);
 
@@ -239,7 +239,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(function ($value): string {
+    $roles = array_map(function (string $value): string {
       return trim($value);
     }, $roles);
 
