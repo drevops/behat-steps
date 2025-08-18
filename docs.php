@@ -242,7 +242,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  $lines = array_map(static fn($l): string => ltrim($l, " *\t"), $lines);
+  $lines = array_map(static fn(string $l): string => ltrim($l, " *\t"), $lines);
 
   // Remove first and last empty lines.
   if (count($lines) > 1 && empty($lines[0])) {
@@ -252,7 +252,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  $lines = array_map(static fn($l): string => trim($l), $lines);
+  $lines = array_map(static fn(string $l): string => trim($l), $lines);
 
   if (empty($lines)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
@@ -702,7 +702,7 @@ function array_to_markdown_table(array $headers, array $rows): string {
 
   $header_row = '| ' . implode(' | ', $headers) . ' |';
   $separator_row = '| ' . implode(' | ', array_fill(0, count($headers), '---')) . ' |';
-  $data_rows = array_map(function ($row): string {
+  $data_rows = array_map(function (array $row): string {
     return '| ' . implode(' | ', $row) . ' |';
   }, $rows);
 

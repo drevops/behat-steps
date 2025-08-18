@@ -34,7 +34,7 @@ trait BehatCliTrait {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);
-        $tags = array_map(function ($value): string {
+        $tags = array_map(function (string $value): string {
           return trim(str_replace('\\\\', '\\', $value));
         }, $tags);
         $traits = array_merge($traits, $tags);

@@ -195,9 +195,7 @@ trait KeyboardTrait {
     // element.
     $reflector = new \ReflectionClass($driver);
     $with_syn_reflection = $reflector->getMethod('withSyn');
-    $with_syn_reflection->setAccessible(TRUE);
     $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
-    $execute_js_on_xpath_reflection->setAccessible(TRUE);
     $withSynResult = $with_syn_reflection->invoke($driver);
 
     $execute_js_on_xpath_reflection->invokeArgs($withSynResult, [
