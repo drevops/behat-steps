@@ -215,9 +215,6 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the "test@example.com"
 
     And I follow link number "<number>" in the email with the subject "Test Email"
-      """
-      Test Email
-      """
     Then the response status code should be 200
     And I should see "Example Domain"
     Examples:
