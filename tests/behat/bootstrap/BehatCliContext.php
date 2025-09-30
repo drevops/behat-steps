@@ -12,6 +12,7 @@
  *  - added using a BehatCliTrait.php
  *  - updated iSetEnvironmentVariable() to support adding of more variables
  *    instead of replacing.
+ *  - fixed getOutput() to correctly handle new lines
  *
  * DO NOT MODIFY THIS FILE IN ANY WAY TO KEEP IT SYNCED WITH UPSTREAM!
  */
@@ -466,6 +467,12 @@ EOL;
         // replace error messages that changed in PHP8
         $output = str_replace('Warning: Undefined array key','Notice: Undefined offset:', $output);
         $output = preg_replace('/Class "([^"]+)" not found/', 'Class \'$1\' not found', $output);
+
+        // Remove " (on line X)" from failed scenarios output as line numbers may vary
+        $output = preg_replace('/ \(on line \d+\)/', '', $output);
+
+        // Unescape literal \n characters to actual newlines
+        $output = str_replace('\\n', "\n", $output);
 
         return trim(preg_replace("/ +$/m", '', $output));
     }
