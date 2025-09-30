@@ -184,12 +184,11 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
 
       $parsed_comment = parse_method_comment((string) $method->getDocComment());
       if ($parsed_comment) {
-        // @phpstan-ignore-next-line
         $class_info['methods'][] = $parsed_comment + ['name' => $method->getName()];
       }
     }
 
-    if (!empty($class_info['methods']) && is_array($class_info['methods'])) {
+    if (!empty($class_info['methods'])) {
       // Sort info by Given, When, Then.
       usort($class_info['methods'], static function (array $a, array $b): int {
         $order = ['@Given', '@When', '@Then'];
