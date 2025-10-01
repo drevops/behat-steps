@@ -308,4 +308,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to
 this project.
 
 ---
-_Repository created using https://getscaffold.dev/ project scaffold template_
+_This repository was created using the [Scaffold](https://getscaffold.dev/) project template_
