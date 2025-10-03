@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Process the codebase to run in CI
         run: |
@@ -108,7 +108,7 @@ jobs:
           retention-days: 30
 
       - name: Upload code coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: ${{ env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/') }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
