@@ -124,7 +124,7 @@ trait MenuTrait {
    * | Latest Products | 1       | /products/latest        | Products     |
    * @endcode
    *
-   * @Given the following menu links exist in the menu :menu_name :
+   * @Given the following menu links exist in the menu :menu_name:
    */
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
