@@ -192,18 +192,20 @@ JS;
     $this->getSession()
       ->executeScript(
         "
-        const textareaElement = document.querySelector(\"#{$element_id}\");
-        const domEditableElement = textareaElement.nextElementSibling.querySelector('.ck-editor__editable');
-        if (domEditableElement.ckeditorInstance) {
-          const editorInstance = domEditableElement.ckeditorInstance;
-          if (editorInstance) {
-            editorInstance.setData(\"{$value}\");
+          (() => {
+          const textareaElement = document.querySelector(\"#{$element_id}\");
+          const domEditableElement = textareaElement.nextElementSibling.querySelector('.ck-editor__editable');
+          if (domEditableElement.ckeditorInstance) {
+            const editorInstance = domEditableElement.ckeditorInstance;
+            if (editorInstance) {
+              editorInstance.setData(\"{$value}\");
+            } else {
+              throw new Exception('Could not get the editor instance!');
+            }
           } else {
-            throw new Exception('Could not get the editor instance!');
+            throw new Exception('Could not find the element!');
           }
-        } else {
-          throw new Exception('Could not find the element!');
-        }
+        })();
         ");
   }
 
