@@ -90,7 +90,7 @@ commands:
 
   provision:
     usage: Provision a fixture test site.
-    cmd: ahoy cli ./.circleci/provision.sh
+    cmd: ahoy cli ./.github/provision.sh
 
   clean:
     usage: Remove containers and all build files.

@@ -430,7 +430,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     }
     // @codeCoverageIgnoreEnd
     // @phpstan-ignore-next-line
-    $content_output[$context] = $content_output[$context] ?? '';
+    $content_output[$context] ??= '';
     // @phpstan-ignore-next-line
     $content_output[$context] .= sprintf('## %s', $trait_info['name_contextual']) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
@@ -485,9 +485,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
-      $method['steps'] = array_reduce($method['steps'], function (string $carry, $item): string {
-        return $carry . sprintf("%s\n", $item);
-      }, '');
+      $method['steps'] = array_reduce($method['steps'], fn(string $carry, $item): string => $carry . sprintf("%s\n", $item), '');
       $method['steps'] = rtrim((string) $method['steps'], "\n");
 
       $method['description'] = rtrim((string) $method['description'], '.');
@@ -524,7 +522,7 @@ EOT;
   }
 
   // Make sure 'Generic' key exists.
-  $index_rows['Generic'] = $index_rows['Generic'] ?? [];
+  $index_rows['Generic'] ??= [];
   $index_rows = array_merge(
     ['Generic' => $index_rows['Generic']],
     array_diff_key($index_rows, ['Generic' => []])
@@ -538,7 +536,7 @@ EOT;
   }
 
   // Make sure 'Generic' key exists.
-  $content_output['Generic'] = $content_output['Generic'] ?? '';
+  $content_output['Generic'] ??= '';
   $content_output = array_merge(
     ['Generic' => $content_output['Generic']],
     array_diff_key($content_output, ['Generic' => []])
@@ -633,9 +631,7 @@ function validate(array $info): array {
  *   The converted string.
  */
 function camel_to_snake(string $string, string $separator = '_'): string {
-  $string = preg_replace_callback('/([^0-9])(\d+)/', static function (array $matches) use ($separator): string {
-    return $matches[1] . $separator . $matches[2];
-  }, $string);
+  $string = preg_replace_callback('/([^0-9])(\d+)/', static fn(array $matches): string => $matches[1] . $separator . $matches[2], $string);
 
   $replacements = [];
   foreach (mb_str_split((string) $string) as $key => $char) {
@@ -701,9 +697,7 @@ function array_to_markdown_table(array $headers, array $rows): string {
 
   $header_row = '| ' . implode(' | ', $headers) . ' |';
   $separator_row = '| ' . implode(' | ', array_fill(0, count($headers), '---')) . ' |';
-  $data_rows = array_map(function (array $row): string {
-    return '| ' . implode(' | ', $row) . ' |';
-  }, $rows);
+  $data_rows = array_map(fn(array $row): string => '| ' . implode(' | ', $row) . ' |', $rows);
 
   return implode("\n", array_merge([$header_row, $separator_row], $data_rows));
 }

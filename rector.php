@@ -4,16 +4,19 @@
  * @file
  * Rector configuration.
  *
- * Usage:
- * ./vendor/bin/rector process .
+ * Rector automatically refactors PHP code to:
+ * - Upgrade deprecated Drupal APIs
+ * - Modernize PHP syntax to leverage new language features
+ * - Improve code quality and maintainability
  *
- * @see https://github.com/palantirnet/drupal-rector/blob/main/rector.php
+ * @see https://github.com/palantirnet/drupal-rector
+ * @see https://getrector.com/documentation
+ * @see https://getrector.com/documentation/set-lists
  */
 
 declare(strict_types=1);
 
 use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal8SetList;
 use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
@@ -22,44 +25,26 @@ use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
+use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
+use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
+use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php81\Rector\Array_\FirstClassCallableRector;
-use Rector\Set\ValueObject\SetList;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
-return static function (RectorConfig $rectorConfig): void {
-  $drupalRoot = 'build/web';
-
-  $rectorConfig->autoloadPaths([
-    $drupalRoot . '/core',
-    $drupalRoot . '/modules',
-    $drupalRoot . '/themes',
-    $drupalRoot . '/profiles',
-  ]);
-
-  $rectorConfig->paths([
-    $drupalRoot . '/../../src',
-    $drupalRoot . '/../../tests/behat/bootstrap',
-    $drupalRoot . '/../../docs.php',
-  ]);
-
-  $rectorConfig->sets([
-    // Provided by Rector.
-    SetList::PHP_80,
-    SetList::PHP_81,
-    SetList::PHP_82,
-    SetList::CODE_QUALITY,
-    SetList::CODING_STYLE,
-    SetList::DEAD_CODE,
-    SetList::INSTANCEOF,
-    SetList::TYPE_DECLARATION,
-  ]);
-
-  $rectorConfig->rule(DeclareStrictTypesRector::class);
-
-  $rectorConfig->skip([
-    // Rules added by Rector's rule sets.
+return RectorConfig::configure()
+  ->withPaths([
+    '/app/docs.php',
+    '/app/src',
+    '/app/tests/behat/bootstrap',
+    '/app/tests/behat/fixtures/d10/web/modules/custom',
+    '/app/tests/behat/fixtures/d11/web/modules/custom',
+    '/app/tests/phpunit/src',
+  ])
+  ->withSkip([
+    // Specific rules to skip based on project coding standards.
     ChangeSwitchToMatchRector::class,
     CountArrayToEmptyArrayComparisonRector::class,
     DisallowedEmptyRuleFixerRector::class,
@@ -68,23 +53,50 @@ return static function (RectorConfig $rectorConfig): void {
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
+    RenameForeachValueVariableToMatchExprVariableRector::class,
+    RenameParamToMatchTypeRector::class,
+    RenameVariableToMatchMethodCallReturnTypeRector::class,
+    RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
-    // Dependencies.
+    // Directories to skip.
     '*/vendor/*',
     '*/node_modules/*',
-    $drupalRoot . '/../../tests/behat/bootstrap/BehatCliContext.php',
-  ]);
-
-  $rectorConfig->fileExtensions([
-    'engine',
-    'inc',
-    'install',
-    'module',
+    __DIR__ . '/tests/behat/bootstrap/BehatCliContext.php',
+  ])
+  // PHP version upgrade sets - modernizes syntax to PHP 8.2.
+  // Includes all rules from PHP 5.3 through 8.2.
+  ->withPhpSets(php82: TRUE)
+  // Code quality improvement sets.
+  ->withPreparedSets(
+    codeQuality: TRUE,
+    codingStyle: TRUE,
+    deadCode: TRUE,
+    naming: TRUE,
+    privatization: TRUE,
+    typeDeclarations: TRUE,
+  )
+  // Additional rules.
+  ->withRules([
+    DeclareStrictTypesRector::class,
+  ])
+  // Configure Drupal autoloading.
+  ->withAutoloadPaths((function (): array {
+    return [
+      '/app/build/web/core',
+      '/app/build/web/modules',
+      '/app/build/web/themes',
+      '/app/build/web/profiles',
+    ];
+  })())
+  // Drupal file extensions.
+  ->withFileExtensions([
     'php',
+    'module',
+    'install',
     'profile',
     'theme',
-  ]);
-
-  $rectorConfig->importNames(TRUE, FALSE);
-  $rectorConfig->importShortClasses(FALSE);
-};
+    'inc',
+    'engine',
+  ])
+  // Import configuration.
+  ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);

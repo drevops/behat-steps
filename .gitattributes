@@ -1,6 +1,5 @@
 # Ignore files for distribution archives.
 /.ahoy.yml           export-ignore
-/.circleci           export-ignore
 /.docker             export-ignore
 /.dockerignore       export-ignore
 /.editorconfig       export-ignore
