@@ -4,11 +4,13 @@
  * Code for the mysite core feature.
  */
 
+declare(strict_types=1);
+
 /**
  * Implements hook_form_alter().
  */
-function mysite_core_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  if ($form_id == 'search_block_form' && \Drupal::currentUser()->isAuthenticated()) {
+function mysite_core_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, string $form_id): void {
+  if ($form_id === 'search_block_form' && \Drupal::currentUser()->isAuthenticated()) {
     // Set test cookie to retrieve from tests, but only for authenticated user.
     setcookie('testcookiename', 'testcookievalue');
   }
@@ -17,7 +19,7 @@ function mysite_core_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $fo
 /**
  * Implements hook_mail().
  */
-function mysite_core_mail($key, &$message, $params) {
+function mysite_core_mail(string $key, array &$message, array $params): void {
   switch ($key) {
     case 'test_email':
       // Add test subject to all test emails.
@@ -28,5 +30,5 @@ function mysite_core_mail($key, &$message, $params) {
       break;
   }
 
-  $message['body'][] = strval($params['body']) ?? '';
+  $message['body'][] = strval($params['body'] ?? '');
 }

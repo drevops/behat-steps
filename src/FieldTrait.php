@@ -34,7 +34,7 @@ trait FieldTrait {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($name);
+    $field = $field ?: $page->findById($name);
 
     if ($field === NULL) {
       $exception = new ElementNotFoundException($this->getSession()
@@ -60,7 +60,7 @@ trait FieldTrait {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
     // Try to resolve by ID.
-    $field = $field ? $field : $page->findById($name);
+    $field = $field ?: $page->findById($name);
 
     if ($field !== NULL) {
       throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $name));

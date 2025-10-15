@@ -5,13 +5,15 @@
  * Install file for core.
  */
 
+declare(strict_types=1);
+
 /**
  * Implements hook_install().
  */
-function mysite_core_install() {
+function mysite_core_install(): void {
   $functions = get_defined_functions();
   foreach ($functions['user'] as $function) {
-    if (strpos($function, 'mysite_core_update_') === 0) {
+    if (str_starts_with($function, 'mysite_core_update_')) {
       call_user_func($function);
     }
   }
