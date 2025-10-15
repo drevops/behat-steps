@@ -119,7 +119,7 @@ trait TaxonomyTrait {
         'vid' => $vocabulary_machine_name,
       ]);
 
-    if (count($found) == 0) {
+    if (count($found) === 0) {
       throw new \Exception(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary_machine_name));
     }
   }
