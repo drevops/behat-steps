@@ -34,9 +34,7 @@ trait BehatCliTrait {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);
-        $tags = array_map(function (string $value): string {
-          return trim(str_replace('\\\\', '\\', $value));
-        }, $tags);
+        $tags = array_map(fn(string $value): string => trim(str_replace('\\\\', '\\', $value)), $tags);
         $traits = array_merge($traits, $tags);
         break;
       }
@@ -114,7 +112,7 @@ trait BehatCliTrait {
         else {
           // Not found in base namespace, let's check subdirectories
           // Get a list of directories under src/.
-          $base_dir = dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'src';
+          $base_dir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
           $dirs = array_filter(glob($base_dir . DIRECTORY_SEPARATOR . '*'), 'is_dir');
 
           // Convert directory names to potential namespace parts.
@@ -326,7 +324,7 @@ EOL;
   /**
    * Helper to print file comments.
    */
-  protected static function behatCliPrintFileContents(string $filename, $title = '') {
+  protected static function behatCliPrintFileContents(string $filename, string $title = '') {
     if (!is_readable($filename)) {
       throw new \RuntimeException(sprintf('Unable to access file "%s"', $filename));
     }

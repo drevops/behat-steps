@@ -6,6 +6,9 @@ namespace Drupal\mysite_core\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 
+/**
+ * Controller for providing test content.
+ */
 class TestContent extends ControllerBase {
 
   /**
@@ -19,4 +22,5 @@ class TestContent extends ControllerBase {
 
     return ['#markup' => $account->getAccountName()];
   }
+
 }

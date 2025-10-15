@@ -9,10 +9,12 @@ parameters:
   phpVersion: 80224
 
   paths:
+    - docs.php
     - src
     - tests/behat/bootstrap
+    - tests/behat/fixtures/d10/web/modules/custom
+    - tests/behat/fixtures/d11/web/modules/custom
     - tests/phpunit/src
-    - docs.php
 
   excludePaths:
     - vendor/*
@@ -27,12 +29,12 @@ parameters:
     - vendor/phpunit/phpunit
     - vendor/alexskrypnyk/phpunit-helpers
 
+  # Prefer type checking over docblocks, which can easily become outdated.
+  treatPhpDocTypesAsCertain: false
+
   ignoreErrors:
     -
       messages:
-        # Since tests and data providers do not have to have parameter docblocks,
-        # it is not possible to specify the type of the parameter, so we ignore
-        # this error.
         - '#.*no value type specified in iterable type.*#'
         # Unit tests are not aware of the classes which are not loaded during tests.
         - '#.*Call to an undefined method.*Session\(\).*#'
@@ -40,7 +42,18 @@ parameters:
         - '#.*Cannot call method.*getClient\(\).*#'
         - '#.*Cannot call method.*getCurrentUrl\(\).*#'
       paths:
+        # Fixtures have hook implementations that do not have full type
+        # information specified in comment docblocks.
+        - tests/behat/fixtures/d10/web/modules/custom
+        - tests/behat/fixtures/d11/web/modules/custom
+        # Since tests and data providers do not have to have parameter docblocks,
+        # it is not possible to specify the type of the parameter, so we ignore
+        # this error.
         - tests/phpunit/*
+      reportUnmatched: false
 
     # @see https://github.com/mglaman/phpstan-drupal/issues/825
-    - '#Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) with false will always evaluate to true.#'
+    -
+      messages:
+        - '#Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) with false will always evaluate to true.#'
+      reportUnmatched: false
