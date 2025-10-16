@@ -440,6 +440,11 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
   Show
   off-canvas overlay
 </button>
+
+<button id="js-error-trigger" onclick="throw new Error('Test JS error');">
+  Trigger error
+</button>
+
 <div id="overlay-off-canvas"></div>
 
 <div id="over-container">
