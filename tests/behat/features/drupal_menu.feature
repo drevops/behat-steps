@@ -37,7 +37,7 @@ Feature: Check that MenuTrait works
     When the following menus:
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
-    And the following menu links exist in the menu "[TEST] menu 1 title" :
+    And the following menu links exist in the menu "[TEST] menu 1 title":
       | title             | enabled | uri                     | parent            |
       | Parent Link Title | 1       | https://www.example.com |                   |
       | Child Link Title  | 1       | https://www.example.com | Parent Link Title |

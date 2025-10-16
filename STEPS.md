@@ -2350,7 +2350,7 @@ Given the following menu links do not exist in the menu "Main navigation":
 </details>
 
 <details>
-  <summary><code>@Given the following menu links exist in the menu :menu_name :</code></summary>
+  <summary><code>@Given the following menu links exist in the menu :menu_name:</code></summary>
 
 <br/>
 Create menu links
