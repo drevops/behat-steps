@@ -5,6 +5,8 @@ dependencies:
   config:
     - field.field.node.article.body
     - field.field.node.article.comment
+    - field.field.node.article.field_date_and_time
+    - field.field.node.article.field_date_only
     - field.field.node.article.field_file
     - field.field.node.article.field_image
     - field.field.node.article.field_tags
@@ -14,6 +16,7 @@ dependencies:
   module:
     - comment
     - content_moderation
+    - datetime
     - file
     - image
     - path
@@ -44,6 +47,18 @@ content:
   created:
     type: datetime_timestamp
     weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_date_and_time:
+    type: datetime_default
+    weight: 26
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_date_only:
+    type: datetime_default
+    weight: 27
     region: content
     settings: {  }
     third_party_settings: {  }

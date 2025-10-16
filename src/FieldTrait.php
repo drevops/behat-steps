@@ -15,6 +15,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  * - Set field values for various input types including selects and WYSIWYG.
  * - Assert field existence, state, and selected options.
  * - Support for specialized widgets like color pickers and rich text editors.
+ * - Support for datetime field widgets with date, time, and datetime options.
  */
 trait FieldTrait {
 
@@ -205,6 +206,61 @@ JS;
           throw new Exception('Could not find the element!');
         }
         ");
+  }
+
+  /**
+   * Fill a datetime field with both date and time values.
+   *
+   * @code
+   * When I fill in the datetime field "Event datetime" with date "2024-07-15" and time "14:30:00"
+   * @endcode
+   *
+   * @When I fill in the datetime field :label with date :date and time :time
+   */
+  public function fieldFillDateTime(string $label, string $date, string $time): void {
+    $this->fieldFillDateTimeField($label, 'date', $date);
+    $this->fieldFillDateTimeField($label, 'time', $time);
+  }
+
+  /**
+   * Fill a datetime field with date value.
+   *
+   * @code
+   * When I fill in the date field "Event datetime" with date "2024-07-15"
+   * @endcode
+   *
+   * @When I fill in the date field :label with date :date
+   */
+  public function fieldFillDate(string $label, string $date): void {
+    $this->fieldFillDateTimeField($label, 'date', $date);
+  }
+
+  /**
+   * Helper method to fill datetime field components.
+   *
+   * @param string $label
+   *   The field label.
+   * @param string $field
+   *   The field component: 'date' or 'time'.
+   * @param string $value
+   *   The value to set.
+   *
+   * @throws \Exception
+   *   If the field is not found.
+   */
+  protected function fieldFillDateTimeField(string $label, string $field, string $value): void {
+    $xpath = sprintf(
+      '//*[self::span or self::label or self::h4][contains(normalize-space(.), "%s")]/ancestor::div[contains(@class,"form-item") or contains(@class,"field--widget-datetime-default")]//input[contains(@name,"[%s]")]',
+      $label,
+      $field
+    );
+
+    $page = $this->getSession()->getPage();
+    $element = $page->find('xpath', $xpath);
+    if (!$element) {
+      throw new \Exception(sprintf('Date field with label "%s" value not found', $label));
+    }
+    $element->setValue($value);
   }
 
   /**
