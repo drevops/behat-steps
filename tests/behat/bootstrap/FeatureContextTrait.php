@@ -47,6 +47,19 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Sleep for the given number of seconds.
+   *
+   * @code
+   * When sleep for 5 seconds
+   * @endcode
+   *
+   * @When sleep for :seconds second(s)
+   */
+  public function testSleepForSeconds(int|string $seconds): void {
+    sleep((int) $seconds);
+  }
+
+  /**
    * Clean watchdog after feature with an error.
    *
    * @AfterFeature @errorcleanup

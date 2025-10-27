@@ -13,6 +13,7 @@
  *  - updated iSetEnvironmentVariable() to support adding of more variables
  *    instead of replacing.
  *  - fixed getOutput() to correctly handle new lines
+ *  - forward pcov settings if enabled
  *
  * DO NOT MODIFY THIS FILE IN ANY WAY TO KEEP IT SYNCED WITH UPSTREAM!
  */
@@ -269,7 +270,7 @@ EOL;
     }
 
     // Forward pcov settings if enabled.
-    if ($this->behatCliIsCoverageEnabled()) {
+    if (static::behatCliIsCoverageEnabled()) {
       $php .= ' -dpcov.enabled=1 -dpcov.directory=' . ini_get('pcov.directory');
     }
 

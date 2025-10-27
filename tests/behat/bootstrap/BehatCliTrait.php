@@ -243,6 +243,7 @@ default:
       contexts:
         - FeatureContext
         - Drupal\DrupalExtension\Context\MinkContext
+        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
         - DrevOps\BehatPhpServer\PhpServerContext:
             webroot: '%paths.base%/tests/behat/fixtures'
             protocol: http
@@ -276,9 +277,22 @@ default:
       api_driver: drupal
       drupal:
         drupal_root: /app/build/web
+
+    # Capture HTML and JPG screenshots on demand and on failure.
+    DrevOps\BehatScreenshotExtension:
+      dir: '%paths.base%/.logs/screenshots'
+      purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
+      on_failed: true
+      always_fullscreen: true
+      fullscreen_algorithm: resize # 'stitch' (only if GD ext available) or 'resize'
+      info_types:
+        - url
+        - feature
+        - step
+        - datetime
 EOL;
 
-    if ($this->behatCliIsCoverageEnabled()) {
+    if (static::behatCliIsCoverageEnabled()) {
       $coverage_content = <<<'EOL'
 
     DVDoug\Behat\CodeCoverage\Extension:
@@ -336,6 +350,18 @@ EOL;
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
     Assert::assertStringContainsString(' (' . $exception . ')', $this->getOutput());
+  }
+
+  /**
+   * Checks whether last command output does not contain provided string.
+   *
+   * @param \Behat\Gherkin\Node\PyStringNode $text
+   *   PyString text instance.
+   *
+   * @Then the output should not contain:
+   */
+  public function theOutputShouldNotContain(PyStringNode $text): void {
+    Assert::assertStringNotContainsString($this->getExpectedOutput($text), $this->getOutput());
   }
 
   /**
