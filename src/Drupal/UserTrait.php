@@ -217,7 +217,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(fn(string $value): string => trim($value), $roles);
+    $roles = array_map(trim(...), $roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
       throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
@@ -237,7 +237,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     $roles = explode(',', $roles);
-    $roles = array_map(fn(string $value): string => trim($value), $roles);
+    $roles = array_map(trim(...), $roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
       throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));

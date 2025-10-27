@@ -113,7 +113,7 @@ trait BehatCliTrait {
           // Not found in base namespace, let's check subdirectories
           // Get a list of directories under src/.
           $base_dir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
-          $dirs = array_filter(glob($base_dir . DIRECTORY_SEPARATOR . '*'), 'is_dir');
+          $dirs = array_filter(glob($base_dir . DIRECTORY_SEPARATOR . '*'), is_dir(...));
 
           // Convert directory names to potential namespace parts.
           foreach ($dirs as $dir) {
