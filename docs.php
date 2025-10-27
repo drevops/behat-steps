@@ -251,7 +251,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  $lines = array_map(static fn(string $l): string => trim($l), $lines);
+  $lines = array_map(trim(...), $lines);
 
   if (empty($lines)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
@@ -485,7 +485,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
-      $method['steps'] = array_reduce($method['steps'], fn(string $carry, $item): string => $carry . sprintf("%s\n", $item), '');
+      $method['steps'] = array_reduce($method['steps'], fn(string $carry, string $item): string => $carry . sprintf("%s\n", $item), '');
       $method['steps'] = rtrim((string) $method['steps'], "\n");
 
       $method['description'] = rtrim((string) $method['description'], '.');

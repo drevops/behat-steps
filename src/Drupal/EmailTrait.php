@@ -116,7 +116,7 @@ trait EmailTrait {
    */
   public function emailAssertMessageSentTo(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = array_map('trim', explode(',', (string) $message['to']));
+      $to = array_map(trim(...), explode(',', (string) $message['to']));
 
       if (in_array($address, $to)) {
         return;
@@ -153,20 +153,20 @@ trait EmailTrait {
    */
   public function emailAssertNoMessagesSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = array_map('trim', explode(',', (string) $message['to']));
+      $to = array_map(trim(...), explode(',', (string) $message['to']));
       if (in_array($address, $to)) {
         throw new \Exception(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address));
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
-        $cc = array_map('trim', explode(',', (string) ($message['headers']['Cc'] ?? $message['headers']['cc'])));
+        $cc = array_map(trim(...), explode(',', (string) ($message['headers']['Cc'] ?? $message['headers']['cc'])));
         if (in_array($address, $cc)) {
           throw new \Exception(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
         }
       }
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
-        $bcc = array_map('trim', explode(',', (string) ($message['headers']['Bcc'] ?? $message['headers']['bcc'])));
+        $bcc = array_map(trim(...), explode(',', (string) ($message['headers']['Bcc'] ?? $message['headers']['bcc'])));
         if (in_array($address, $bcc)) {
           throw new \Exception(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
         }
@@ -654,7 +654,7 @@ trait EmailTrait {
 
     $messages = [];
     if ($query instanceof StatementInterface) {
-      $messages = array_map('unserialize', $query->fetchAllKeyed());
+      $messages = array_map(unserialize(...), $query->fetchAllKeyed());
     }
     $messages = $messages['system.test_mail_collector'] ?? [];
 
