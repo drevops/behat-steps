@@ -9,6 +9,7 @@
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
+| [JavascriptTrait](#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
@@ -827,6 +828,43 @@ Then the downloaded file should be a zip archive not containing the files partia
 ```
 
 </details>
+
+## JavascriptTrait
+
+[Source](src/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
+
+>  Automatically detect JavaScript errors during test execution.
+>  - Collects JavaScript errors from `window.onerror` and `console.error`.
+>  - Automatically asserts no errors at end of scenarios with `@javascript` tag.
+>  - Errors collected only when URL changes (navigation occurs).
+>  - Use `@js-errors` tag to bypass error checking when errors are expected.
+>  
+>  Skip processing with tags: `@behat-steps-skip:javascriptBeforeScenario`,
+>  `@behat-steps-skip:javascriptAfterScenario`,
+>  `@behat-steps-skip:javascriptBeforeStep`,
+>  `@behat-steps-skip:javascriptAfterStep`
+>  <br/><br/>
+>  Or skip all hooks: `@behat-steps-skip:JavascriptTrait`
+>  <br/><br/>
+>  Special tags:
+>  - `@js-errors` - bypasses error assertion (allows errors)
+>  
+>  @code
+>  @javascript
+>  Scenario: Navigation without JS errors
+>  Given I visit "/home"
+>  When I click on "About"
+>  Then I should see "About Us"
+>  # Automatically fails if JS errors detected
+>  @endcode
+>  <br/><br/>
+>  @code
+>  @javascript @js-errors
+>  Scenario: Legacy page with known errors
+>  Given I visit "/legacy-page"
+>  # Errors collected but not asserted - test passes
+>  @endcode
+
 
 ## KeyboardTrait
 

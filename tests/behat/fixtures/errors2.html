@@ -1,0 +1,51 @@
+<!--
+This is a second fixture document with different JavaScript errors.
+Used to test that errors are tracked separately by page URL.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Second Page with Different Errors - Behat Steps Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #fff3cd;
+    }
+    h1 {
+      color: #856404;
+    }
+    .content {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Second Page with Different JavaScript Errors</h1>
+  <div class="content">
+    <p>This is a different page with different JavaScript errors.</p>
+    <p id="status">Error page 2</p>
+  </div>
+
+  <script>
+    // Throw different errors than errors.html
+    // Console error with different message
+    console.error('Second page console error - different from first page');
+
+    // Throw different error on interval
+    var errorCount = 0;
+    var errorInterval = setInterval(function() {
+      if (errorCount === 0) {
+        // Different error message to distinguish from errors.html
+        throw new Error('Second page error - different from first page');
+      }
+      errorCount++;
+
+      if (errorCount > 1) {
+        clearInterval(errorInterval);
+      }
+    }, 20);
+  </script>
+</body>
+</html>

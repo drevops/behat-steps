@@ -1,0 +1,55 @@
+<!--
+This is a fixture document used to test JavaScript error detection in Behat Steps.
+
+It intentionally contains various types of JavaScript errors to test the
+JavascriptTrait error collection functionality.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Page with JavaScript Errors - Behat Steps Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    .content {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Page with JavaScript Errors</h1>
+  <div class="content">
+    <p>This page intentionally contains JavaScript errors for testing purposes.</p>
+    <p id="message">Initial message</p>
+    <button id="trigger-error">Click to trigger error</button>
+  </div>
+
+  <script>
+    // Throw errors naturally - the error collector will catch them when injected
+    // Console error
+    console.error('This is a console.error message for testing');
+
+    // Throw errors on a short interval so they're caught after collector injection
+    // This simulates real-world scenarios where errors might happen at any time
+    var errorCount = 0;
+    var errorInterval = setInterval(function() {
+      if (errorCount === 0) {
+        // First error - throw immediately
+        throw new Error('Intentional test error from errors.html');
+      }
+      errorCount++;
+
+      // Stop after first error to avoid spam
+      if (errorCount > 1) {
+        clearInterval(errorInterval);
+      }
+    }, 20); // Check every 20ms for 100ms window
+  </script>
+</body>
+</html>
