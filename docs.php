@@ -441,8 +441,35 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $lines = explode(PHP_EOL, $trait_info['description_full']);
     $was_list = FALSE;
+    $in_code_block = FALSE;
+    $code_block = '';
     foreach ($lines as $line) {
-      $is_list = str_starts_with(trim($line), '-');
+      $trimmed_line = trim($line);
+
+      // Handle @code tag - start collecting code block.
+      if (str_starts_with($trimmed_line, '@code')) {
+        $in_code_block = TRUE;
+        $code_block = '';
+        continue;
+      }
+
+      // Handle @endcode tag - wrap collected code in markdown code block.
+      if (str_starts_with($trimmed_line, '@endcode')) {
+        $in_code_block = FALSE;
+        $description_full .= '```' . PHP_EOL;
+        $description_full .= rtrim($code_block) . PHP_EOL;
+        $description_full .= '```' . PHP_EOL;
+        $code_block = '';
+        continue;
+      }
+
+      // If inside code block, collect lines without processing.
+      if ($in_code_block) {
+        $code_block .= $line . PHP_EOL;
+        continue;
+      }
+
+      $is_list = str_starts_with($trimmed_line, '-');
 
       if (!$is_list) {
         if (empty($line) && !$was_list) {

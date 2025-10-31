@@ -882,6 +882,52 @@ Non-array trait description
 
 EOD,
       ],
+      'trait with @code block in description' => [
+        [
+          'CodeBlockTrait' => [
+            'name' => 'CodeBlockTrait',
+            'context' => 'Generic',
+            'description' => 'Code block trait description',
+            'description_full' => "Code block trait description\n\n@code\nGiven I am on the homepage\nWhen I click \"Submit\"\n@endcode",
+            'methods' => [
+              [
+                'class_name' => 'CodeBlockTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given I am on the homepage'],
+                'description' => 'Test method description',
+                'example' => 'Given I am on the homepage',
+              ],
+            ],
+          ],
+        ],
+        <<<'EOD'
+| Class | Context | Description |
+| --- | --- | --- |
+| [CodeBlockTrait](#codeblocktrait) | Generic | Code block trait description |
+## CodeBlockTrait
+
+[Source](src/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
+
+>  Code block trait description
+>
+>  ```
+>  Given I am on the homepage
+>  When I click "Submit"
+>  ```
+>
+
+<details>
+  <summary><code>@Given I am on the homepage</code></summary>
+
+```gherkin
+Given I am on the homepage
+```
+
+</details>
+
+
+EOD,
+      ],
     ];
   }
 
@@ -1503,6 +1549,86 @@ EOD,
         [
           'description' => 'Description with different comment markers.',
           'description_full' => 'Description with different comment markers.',
+        ],
+      ],
+      'with @code block' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * @code
+ * Given I am on the homepage
+ * When I click "Submit"
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'Given I am on the homepage' . PHP_EOL . 'When I click "Submit"' . PHP_EOL . '@endcode',
+        ],
+      ],
+      'with multiple @code blocks' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * First example:
+ *
+ * @code
+ * Given I am on the homepage
+ * @endcode
+ *
+ * Second example:
+ *
+ * @code
+ * When I click "Submit"
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . 'First example:' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'Given I am on the homepage' . PHP_EOL . '@endcode' . PHP_EOL . PHP_EOL . 'Second example:' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'When I click "Submit"' . PHP_EOL . '@endcode',
+        ],
+      ],
+      'with @code block and lists' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * Features:
+ * - Feature 1
+ * - Feature 2
+ *
+ * @code
+ * Given I am on the homepage
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . 'Features:' . PHP_EOL . '- Feature 1' . PHP_EOL . '- Feature 2' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'Given I am on the homepage' . PHP_EOL . '@endcode',
+        ],
+      ],
+      'with @code block with empty lines' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * @code
+ * Given I am on the homepage
+ *
+ * When I click "Submit"
+ * Then I should see "Success"
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'Given I am on the homepage' . PHP_EOL . PHP_EOL . 'When I click "Submit"' . PHP_EOL . 'Then I should see "Success"' . PHP_EOL . '@endcode',
         ],
       ],
     ];
