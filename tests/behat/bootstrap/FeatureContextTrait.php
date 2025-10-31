@@ -11,6 +11,7 @@
 declare(strict_types=1);
 
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Database\Database;
@@ -22,6 +23,28 @@ use Symfony\Component\BrowserKit\Cookie;
  * Defines application features from the specific context.
  */
 trait FeatureContextTrait {
+
+  /**
+   * Stop Mink sessions before scenarios that will spawn sub-processes.
+   *
+   * When a @javascript scenario runs in the parent process, Mink keeps the
+   * Selenium2/Chrome connection open (via resetSessions()). This causes
+   * child processes to hang when they try to establish their own connection.
+   * This hook ensures all sessions are properly stopped before sub-process
+   * scenarios run.
+   *
+   * @BeforeScenario
+   */
+  public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
+    $has_trait_tag = (bool) array_filter($scope->getScenario()->getTags(), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
+
+    // Stop all Mink sessions before sub-process scenarios to prevent
+    // connection interference between parent and child processes.
+    // @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession().
+    if ($has_trait_tag) {
+      $this->getMink()->stopSessions();
+    }
+  }
 
   /**
    * Clean watchdog after feature with an error.

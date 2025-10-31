@@ -72,8 +72,8 @@ echo "  > Installing Drupal site."
 echo "  > Running post-install commands defined in the composer.json for each specific fixture."
 composer run-script drupal-post-install
 
-echo "  > Copying test fixture."
-cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/relative.html
+echo "  > Copying test fixtures."
+find /app/tests/behat/fixtures/ -maxdepth 1 -type f -exec cp {} /app/build/web/sites/default/files/ \;
 
 echo "  > Bootstrapping site."
 /app/build/vendor/bin/drush -r /app/build/web --uri=http://nginx status --fields=bootstrap | grep -q "Successful" && echo "    Success" || ( echo "ERROR: Unable to bootstrap a site" && exit 1 )

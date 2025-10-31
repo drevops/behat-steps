@@ -1,0 +1,53 @@
+<!--
+This is a fixture document used to test JavaScript error detection in Behat Steps.
+
+It contains NO JavaScript errors and should pass JS error checking.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Clean Page 2 - Behat Steps Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1 {
+      color: #28a745;
+    }
+    .content {
+      margin: 20px 0;
+    }
+    .success {
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clean Page 2 Without JavaScript Errors</h1>
+  <div class="content">
+    <p>This page contains valid JavaScript code and should not trigger any errors.</p>
+    <p id="message" class="success">Page 2 JavaScript is working correctly!</p>
+    <button id="update-message">Click to update message</button>
+  </div>
+
+  <script>
+    // Valid JavaScript code
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Page 2 loaded successfully');
+
+      var button = document.getElementById('update-message');
+      var message = document.getElementById('message');
+
+      if (button && message) {
+        button.addEventListener('click', function() {
+          message.textContent = 'Message on page 2 updated successfully!';
+          console.log('Button clicked successfully');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
