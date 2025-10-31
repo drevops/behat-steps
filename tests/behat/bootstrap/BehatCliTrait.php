@@ -179,15 +179,15 @@ EOL;
     $content = strtr($content, $tokens);
     $content = preg_replace('/\{\{[^\}]+\}\}/', '', $content);
 
-    $filename = $this->workingDir . DIRECTORY_SEPARATOR . 'features/bootstrap/FeatureContext.php';
-    $this->createFile($filename, $content);
+    $filename = 'features/bootstrap/FeatureContext.php';
+    $this->createFileInWorkingDir($filename, $content);
 
     $feature_context_trait_content = file_get_contents(__DIR__ . '/FeatureContextTrait.php');
     if ($feature_context_trait_content === FALSE) {
       throw new \RuntimeException(sprintf('Unable to access file "%s"', __DIR__ . '/FeatureContextTrait.php'));
     }
-    $feature_context_trait = $this->workingDir . DIRECTORY_SEPARATOR . 'features/bootstrap/FeatureContextTrait.php';
-    $this->createFile($feature_context_trait, $feature_context_trait_content);
+    $feature_context_trait = 'features/bootstrap/FeatureContextTrait.php';
+    $this->createFileInWorkingDir($feature_context_trait, $feature_context_trait_content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'FeatureContext.php');
@@ -224,8 +224,8 @@ EOL;
     $content = strtr($content, $tokens);
     $content = preg_replace('/\{\{[^\}]+\}\}/', '', $content);
 
-    $filename = $this->workingDir . DIRECTORY_SEPARATOR . 'features/stub.feature';
-    $this->createFile($filename, $content);
+    $filename = 'features/stub.feature';
+    $this->createFileInWorkingDir($filename, $content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'Feature Stub');
@@ -278,8 +278,8 @@ default:
         drupal_root: /app/build/web
 EOL;
 
-    $filename = $this->workingDir . DIRECTORY_SEPARATOR . 'behat.yml';
-    $this->createFile($filename, $content);
+    $filename = 'behat.yml';
+    $this->createFileInWorkingDir($filename, $content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'Behat Config');
@@ -290,8 +290,7 @@ EOL;
    * @Then it should fail with an error:
    */
   public function behatCliAssertFailWithError(PyStringNode $message): void {
-    $this->itShouldFail('fail');
-    Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
+    $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \Exception for all assertion exceptions. Non-assertion
     // exceptions should be thrown as \RuntimeException.
     Assert::assertStringContainsString(' (Exception)', $this->getOutput());
@@ -302,8 +301,7 @@ EOL;
    * @Then it should fail with an exception:
    */
   public function behatCliAssertFailWithException(PyStringNode $message): void {
-    $this->itShouldFail('fail');
-    Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
+    $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
     Assert::assertStringContainsString(' (RuntimeException)', $this->getOutput());
@@ -314,8 +312,7 @@ EOL;
    * @Then it should fail with a :exception exception:
    */
   public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $message): void {
-    $this->itShouldFail('fail');
-    Assert::assertStringContainsString(trim((string) $message), $this->getOutput());
+    $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
     Assert::assertStringContainsString(' (' . $exception . ')', $this->getOutput());
