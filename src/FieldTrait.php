@@ -71,13 +71,13 @@ trait FieldTrait {
    * Assert whether the field has a state.
    *
    * @code
-   * Then the field "Body" should be "disabled"
-   * Then the field "field_body" should be "disabled"
-   * Then the field "Tags" should be "enabled"
-   * Then the field "field_tags" should be "not enabled"
+   * Then the field "Body" should have "disabled" state
+   * Then the field "field_body" should have "disabled" state
+   * Then the field "Tags" should have "enabled" state
+   * Then the field "field_tags" should have "not enabled" state
    * @endcode
    *
-   * @Then the field :name should be :enabled_or_disabled
+   * @Then the field :name should have :enabled_or_disabled state
    */
   public function fieldAssertState(string $name, string $enabled_or_disabled): void {
     $field = $this->fieldAssertExists($name);
