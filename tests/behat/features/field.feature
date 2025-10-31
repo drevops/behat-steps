@@ -4,6 +4,67 @@ Feature: Check that FieldTrait works
   So that users can test form interactions reliably
 
   @api
+  Scenario: Assert that a field is empty
+    When I go to "form/test-form"
+    Then the field "field1" should be empty
+
+  @api
+  Scenario: Assert that a field is not empty
+    When I go to "form/test-form"
+    And I fill in "field1" with "Test value"
+    Then the field "field1" should not be empty
+
+  @api
+  Scenario: Assert that a field with "0" is not empty
+    When I go to "form/test-form"
+    And I fill in "field1" with "0"
+    Then the field "field1" should not be empty
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the :field field should be empty" for field with "0"
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      And I fill in "field1" with "0"
+      Then the field "field1" should be empty
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The field "field1" is not empty, but should be.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the :field field should be empty" for non-empty field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      And I fill in "field1" with "Some text"
+      Then the field "field1" should be empty
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The field "field1" is not empty, but should be.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the :field field should not be empty" for empty field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "form/test-form"
+      Then the field "field1" should not be empty
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The field "field1" is empty, but should not be.
+      """
+
+  @api
   Scenario: Assert field exists
     When I go to "form/test-form"
     Then the field "field1" should exist

@@ -571,6 +571,34 @@ When I uncheck the checkbox "edit-field-terms-0-value"
 </details>
 
 <details>
+  <summary><code>@Then the field :field should be empty</code></summary>
+
+<br/>
+Assert that field is empty
+<br/><br/>
+
+```gherkin
+Then the field "Name" should be empty
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should not be empty</code></summary>
+
+<br/>
+Assert that a field is not empty
+<br/><br/>
+
+```gherkin
+Then the field "Name" should not be empty
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the field :name should exist</code></summary>
 
 <br/>
