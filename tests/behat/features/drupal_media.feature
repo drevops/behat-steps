@@ -72,3 +72,28 @@ Feature: Check that MediaTrait works
       """
       Unable to find document media "Non-existent media"
       """
+
+  @api
+  Scenario: Assert that mediaCreate() deletes existing media before creating
+    Given the following managed files:
+      | path              |
+      | example_image.png |
+
+    # Create initial media
+    And the following media "image" exist:
+      | name                | field_media_image |
+      | Duplicate test item | example_image.png |
+
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/content/media"
+    Then I should see the text "Duplicate test item"
+
+    # Create media again with the same name - should replace the first one
+    When the following media "image" exist:
+      | name                | field_media_image |
+      | Duplicate test item | example_image.png |
+
+    And I visit "/admin/content/media"
+    Then I should see the text "Duplicate test item"
+    # Verify only one media item exists by checking there's exactly one row in the table
+    And I should see 1 ".view-media td:contains('Duplicate test item')" elements
