@@ -278,6 +278,26 @@ default:
         drupal_root: /app/build/web
 EOL;
 
+    if ($this->behatCliIsCoverageEnabled()) {
+      $coverage_content = <<<'EOL'
+
+    DVDoug\Behat\CodeCoverage\Extension:
+      filter:
+        include:
+          directories:
+            /app/src: ~
+      reports:
+        text:
+          showColors: true
+          showOnlySummary: true
+        html:
+          target: /app/.logs/coverage/behat_cli/.coverage-html
+        cobertura:
+          target: /app/.logs/coverage/behat_cli/cobertura.xml
+EOL;
+      $content .= $coverage_content;
+    }
+
     $filename = 'behat.yml';
     $this->createFileInWorkingDir($filename, $content);
 
@@ -341,6 +361,13 @@ EOL;
   protected static function behatCliIsDebug(): bool {
     // Change to TRUE to see debug messages for this trait.
     return FALSE;
+  }
+
+  /**
+   * Helper to check if code coverage is enabled.
+   */
+  protected static function behatCliIsCoverageEnabled(): bool {
+    return ini_get('pcov.enabled') === '1' && !empty(ini_get('pcov.directory'));
   }
 
   /**

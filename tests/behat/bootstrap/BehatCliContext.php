@@ -268,6 +268,11 @@ EOL;
       $php .= ' -d error_reporting=' . $this->errorLevel;
     }
 
+    // Forward pcov settings if enabled.
+    if ($this->behatCliIsCoverageEnabled()) {
+      $php .= ' -dpcov.enabled=1 -dpcov.directory=' . ini_get('pcov.directory');
+    }
+
     $cmd = sprintf(
       '%s %s %s %s',
       $php,
