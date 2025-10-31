@@ -21,6 +21,44 @@ trait FieldTrait {
   use KeyboardTrait;
 
   /**
+   * Assert that field is empty.
+   *
+   * @code
+   * Then the field "Name" should be empty
+   * @endcode
+   *
+   * @Then the field :field should be empty
+   */
+  public function fieldAssertEmpty(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    $value = $field_element->getValue();
+
+    if ($value !== NULL && $value !== '') {
+      throw new \Exception(sprintf('The field "%s" is not empty, but should be.', $field));
+    }
+  }
+
+  /**
+   * Assert that a field is not empty.
+   *
+   * @code
+   * Then the field "Name" should not be empty
+   * @endcode
+   *
+   * @Then the field :field should not be empty
+   */
+  public function fieldAssertNotEmpty(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    $value = $field_element->getValue();
+
+    if ($value === NULL || $value === '') {
+      throw new \Exception(sprintf('The field "%s" is empty, but should not be.', $field));
+    }
+  }
+
+  /**
    * Assert that field exists on the page using id,name,label or value.
    *
    * @code
