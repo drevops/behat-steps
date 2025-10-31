@@ -7,7 +7,7 @@
 set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
-DRUPAL_VERSION="${DRUPAL_VERSION:-10}"
+DRUPAL_VERSION="${DRUPAL_VERSION:-11}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site."
 
