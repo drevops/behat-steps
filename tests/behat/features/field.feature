@@ -29,7 +29,7 @@ Feature: Check that FieldTrait works
   @api
   Scenario Outline: Assert if field is disabled or enabled
     When I go to "form/test-form"
-    Then the field "<field>" should be "<enabled_or_disabled>"
+    Then the field "<field>" should have "<enabled_or_disabled>" state
     Examples:
       | field          | enabled_or_disabled |
       | field1         | enabled             |
@@ -96,12 +96,12 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that "the field :field should be enabled" fails when it is disabled
+  Scenario: Assert that "the field :field should have enabled state" fails when it is disabled
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then the field "field3disabled" should be "enabled"
+      Then the field "field3disabled" should have "enabled" state
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -110,12 +110,12 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that "the field :field1 should be disabled" fails when it is not disabled
+  Scenario: Assert that "the field :field should have disabled state" fails when it is not disabled
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "form/test-form"
-      Then the field "field1" should be "disabled"
+      Then the field "field1" should have "disabled" state
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
