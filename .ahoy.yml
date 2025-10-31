@@ -17,7 +17,7 @@ commands:
     usage: Print information about this project.
     cmd: |
       echo "  Project                  : " $(ahoy cli echo \${PROJECT})
-      echo "  Drupal version           : " $(ahoy cli echo \${DRUPAL_VERSION:-10})
+      echo "  Drupal version           : " $(ahoy cli echo \${DRUPAL_VERSION:-11})
       echo "  Site local URL           : " $(ahoy cli echo \$LOCALDEV_URL)
       echo "  Path to project          : " $(ahoy cli echo /app)
       echo "  Path to web root         : " $(ahoy cli echo /app/build/web)
@@ -69,7 +69,7 @@ commands:
 
   cli:
     usage: Start a shell inside CLI container or run a command.
-    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION:-10} -T cli bash -c "$*"; else docker compose exec cli bash; fi
+    cmd: if \[ "${#}" -ne 0 \]; then docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION:-11} -T cli bash -c "$*"; else docker compose exec cli bash; fi
 
   composer:
     usage: Run Composer commands in the CLI service container.
@@ -152,7 +152,7 @@ commands:
 
   update-fixtures:
     usage: Update fixture files for Drupal.
-    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d${DRUPAL_VERSION:-10}/.rsync-exclude build/ tests/behat/fixtures/d${DRUPAL_VERSION:-10}/
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/behat/fixtures/d${DRUPAL_VERSION:-11}/
 
 entrypoint:
   - bash
