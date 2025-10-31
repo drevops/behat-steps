@@ -1,0 +1,58 @@
+<!--
+This is a fixture document used to test JavaScript error detection in Behat Steps.
+
+It intentionally contains various types of JavaScript errors to test the
+JavascriptTrait error collection functionality.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Page with JavaScript Errors - Behat Steps Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    .content {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Page 1 with JavaScript Errors</h1>
+  <div class="content">
+    <p>This page intentionally contains JavaScript errors for testing purposes.</p>
+    <p id="message">Initial message</p>
+    <button id="trigger-error">Click to trigger error</button>
+  </div>
+
+  <script>
+    // Errors at different times after page load to replicate real page behavior.
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('#trigger-error').addEventListener('click', function() {
+        console.error('Error page 1 - console.error triggered by button');
+      });
+
+      setTimeout(function() {
+        console.error('Error page 1 - console.error triggered after 100ms');
+      }, 100);
+
+      setTimeout(function() {
+        console.error('Error page 1 - console.error triggered after 1000ms');
+      }, 1000);
+
+      setTimeout(function() {
+        console.error('Error page 1 - console.error triggered after 2000ms');
+      }, 2000);
+
+      setTimeout(function() {
+        throw new Error('Error page 1 - Uncaught error triggered after 3000ms');
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
