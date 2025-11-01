@@ -47,8 +47,8 @@ trait ContentTrait {
    *
    * @Given the following :content_type content does not exist:
    */
-  public function contentDelete(string $type, TableNode $nodesTable): void {
-    foreach ($nodesTable->getHash() as $node_hash) {
+  public function contentDelete(string $type, TableNode $table): void {
+    foreach ($table->getHash() as $node_hash) {
       $nids = $this->contentLoadMultiple($type, $node_hash);
 
       $controller = \Drupal::entityTypeManager()->getStorage('node');
