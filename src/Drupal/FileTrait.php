@@ -103,7 +103,7 @@ trait FileTrait {
    */
   protected function fileCreateEntity(\StdClass $stub): FileInterface {
     if (empty($stub->path)) {
-      throw new \RuntimeException('"path" property is required');
+      throw new \RuntimeException('The "path" property is required.');
     }
 
     $path = ltrim((string) $stub->path, '/');
@@ -117,7 +117,7 @@ trait FileTrait {
     }
 
     if (!is_readable($path)) {
-      throw new \RuntimeException('Unable to find file ' . $path);
+      throw new \RuntimeException('Unable to find file "' . $path . '".');
     }
 
     $destination = 'public://' . basename($path);
@@ -126,13 +126,13 @@ trait FileTrait {
       $directory = dirname((string) $destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory ' . $directory);
+        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
       }
     }
 
     $content = file_get_contents($path);
     if ($content === FALSE) {
-      throw new \RuntimeException('Unable to read file ' . $path);
+      throw new \RuntimeException('Unable to read file "' . $path . '".');
     }
 
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
@@ -204,7 +204,7 @@ trait FileTrait {
     $field_name = array_shift($field_values);
 
     if (is_numeric($field_name)) {
-      throw new \RuntimeException('The first column should be the field name');
+      throw new \RuntimeException('The first column should be the field name.');
     }
 
     $field_name = (string) $field_name;
@@ -252,7 +252,7 @@ trait FileTrait {
     if (!file_exists($directory)) {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory ' . $directory);
+        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
       }
     }
 
@@ -285,7 +285,7 @@ trait FileTrait {
    */
   public function fileAssertUnmanagedExists(string $uri): void {
     if (!@file_exists($uri)) {
-      throw new \Exception(sprintf('The file %s does not exist.', $uri));
+      throw new \Exception(sprintf('The file "%s" does not exist.', $uri));
     }
   }
 
@@ -300,7 +300,7 @@ trait FileTrait {
    */
   public function fileAssertUnmanagedNotExists(string $uri): void {
     if (@file_exists($uri)) {
-      throw new \Exception(sprintf('The file %s exists but it should not.', $uri));
+      throw new \Exception(sprintf('The file "%s" exists but it should not.', $uri));
     }
   }
 
@@ -318,7 +318,7 @@ trait FileTrait {
 
     $file_content = @file_get_contents($uri);
     if ($file_content === FALSE) {
-      throw new \Exception(sprintf('Unable to read file %s.', $uri));
+      throw new \Exception(sprintf('Unable to read file "%s".', $uri));
     }
 
     if (!str_contains($file_content, $content)) {
@@ -340,7 +340,7 @@ trait FileTrait {
 
     $file_content = @file_get_contents($uri);
     if ($file_content === FALSE) {
-      throw new \Exception(sprintf('Unable to read file %s.', $uri));
+      throw new \Exception(sprintf('Unable to read file "%s".', $uri));
     }
 
     if (str_contains($file_content, $content)) {

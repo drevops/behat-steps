@@ -130,7 +130,7 @@ trait MenuTrait {
     $menu = $this->loadMenuByLabel($menu_name);
 
     if (!$menu instanceof MenuInterface) {
-      throw new \RuntimeException(sprintf('Menu "%s" not found', $menu_name));
+      throw new \RuntimeException(sprintf('Menu "%s" was not found.', $menu_name));
     }
 
     foreach ($table->getHash() as $menu_link_hash) {

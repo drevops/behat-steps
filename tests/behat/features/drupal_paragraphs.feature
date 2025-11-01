@@ -33,7 +33,7 @@ Feature: Check that ParagraphsTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The entity type "node" and bundle "landing_page" does not have a field "field_non_existing_paragraph"
+      The entity type "node" with bundle "landing_page" does not have a field "field_non_existing_paragraph".
       """
 
   @api @trait:Drupal\ParagraphsTrait

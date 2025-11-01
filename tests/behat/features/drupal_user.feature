@@ -327,7 +327,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" should not have roles(s) "administrator", but has "authenticated", "administrator".
+      User "single_role" should not have role(s) "administrator", but has "authenticated", "administrator".
       """
 
   @api @trait:Drupal\UserTrait
@@ -343,7 +343,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" should not have roles(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
+      User "single_role" should not have role(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
       """
 
   @api @trait:Drupal\UserTrait

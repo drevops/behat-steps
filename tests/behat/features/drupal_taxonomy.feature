@@ -60,7 +60,7 @@ Feature: Check that TaxonomyTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The vocabulary "tags" exist, but it should not.
+      The vocabulary "tags" exists, but it should not.
       """
 
   @api

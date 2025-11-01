@@ -62,7 +62,7 @@ trait ContentBlockTrait {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new \Exception(sprintf('"%s" content block type does not exist', $type));
+      throw new \Exception(sprintf('Content block type "%s" does not exist.', $type));
     }
   }
 

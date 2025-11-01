@@ -119,7 +119,7 @@ trait MediaTrait {
     ]);
 
     if (empty($mids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s media "%s"', $media_type, $name));
+      throw new \RuntimeException(sprintf('Unable to find "%s" media with the name "%s".', $media_type, $name));
     }
 
     $mid = current($mids);

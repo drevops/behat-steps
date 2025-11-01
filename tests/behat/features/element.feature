@@ -372,7 +372,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element 'head' appears before 'body'
+      Element "head" appears before "body".
       """
 
   @trait:ElementTrait
@@ -386,5 +386,5 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Text 'Welcome' appears before 'Powered by Drupal'
+      Text "Welcome" appears before "Powered by Drupal".
       """

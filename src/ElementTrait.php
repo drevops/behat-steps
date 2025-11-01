@@ -30,10 +30,10 @@ trait ElementTrait {
     $element2 = $page->find('css', $selector2);
 
     if (!$element1) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
+      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector1));
     }
     if (!$element2) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
+      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector2));
     }
 
     $text1 = $element1->getOuterHtml();
@@ -44,14 +44,14 @@ trait ElementTrait {
     $pos2 = strpos((string) $content, (string) $text2);
 
     if ($pos1 === FALSE) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector1));
+      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector1));
     }
     if ($pos2 === FALSE) {
-      throw new \Exception(sprintf("Element with selector '%s' not found.", $selector2));
+      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector2));
     }
 
     if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf("Element '%s' appears before '%s'", $selector1, $selector2));
+      throw new \Exception(sprintf('Element "%s" appears before "%s".', $selector1, $selector2));
     }
   }
 
@@ -71,14 +71,14 @@ trait ElementTrait {
     $pos2 = strpos((string) $content, $text2);
 
     if ($pos1 === FALSE) {
-      throw new \Exception(sprintf("Text was not found: '%s'.", $text1));
+      throw new \Exception(sprintf('Text was not found: "%s".', $text1));
     }
     if ($pos2 === FALSE) {
-      throw new \Exception(sprintf("Text was not found: '%s'.", $text2));
+      throw new \Exception(sprintf('Text was not found: "%s".', $text2));
     }
 
     if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf("Text '%s' appears before '%s'", $text1, $text2));
+      throw new \Exception(sprintf('Text "%s" appears before "%s".', $text1, $text2));
     }
   }
 
@@ -207,7 +207,7 @@ trait ElementTrait {
   public function elementAssertElementAtTopOfViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
     if (!$result) {
-      throw new \Exception(sprintf("Element with selector '%s' is not at the top of the viewport.", $selector));
+      throw new \Exception(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector));
     }
   }
 
@@ -256,7 +256,7 @@ trait ElementTrait {
     $element = $this->getSession()->getPage()->find('css', $selector);
 
     if (!$element) {
-      throw new \RuntimeException(sprintf('Element with selector "%s" not found on the page', $selector));
+      throw new \RuntimeException(sprintf('Element with selector "%s" not found on the page.', $selector));
     }
 
     $element->click();

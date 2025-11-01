@@ -288,7 +288,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      The select "non_existent_select" was not found on the page /admin/config/regional/settings
+      The select "non_existent_select" was not found on the page /admin/config/regional/settings.
       """
 
   @api @trait:FieldTrait
@@ -303,7 +303,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings
+      The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings.
       """
 
   @api @trait:FieldTrait
@@ -318,7 +318,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be
+      The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be.
       """
 
   @api @trait:FieldTrait
@@ -348,7 +348,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      No option is selected in the date_default_timezone select on the page /admin/config/regional/settings
+      No option is selected in the date_default_timezone select on the page /admin/config/regional/settings.
       """
 
   @api @trait:FieldTrait
@@ -363,7 +363,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings
+      The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings.
       """
 
   @api @trait:FieldTrait
@@ -378,7 +378,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Exception" exception:
       """
-      The select "non_existent_select" was not found on the page /admin/config/regional/settings
+      The select "non_existent_select" was not found on the page /admin/config/regional/settings.
       """
 
   @phpserver

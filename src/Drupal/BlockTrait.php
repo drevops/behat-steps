@@ -349,7 +349,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region !== $region) {
-      throw new \Exception(sprintf('Block "%s" is in region "%s" but should be in "%s"', $label, $actual_region, $region));
+      throw new \Exception(sprintf('Block "%s" is in region "%s" but should be in "%s".', $label, $actual_region, $region));
     }
   }
 
@@ -377,7 +377,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region === $region) {
-      throw new \Exception(sprintf('Block "%s" is in region "%s" but should not be', $label, $region));
+      throw new \Exception(sprintf('Block "%s" is in region "%s" but should not be.', $label, $region));
     }
   }
 
