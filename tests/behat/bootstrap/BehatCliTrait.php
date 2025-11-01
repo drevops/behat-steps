@@ -305,9 +305,9 @@ EOL;
           showColors: true
           showOnlySummary: true
         html:
-          target: /app/.logs/coverage/behat_cli/.coverage-html
+          target: /app/.logs/coverage/subprocess/.coverage-html
         cobertura:
-          target: /app/.logs/coverage/behat_cli/cobertura.xml
+          target: /app/.logs/coverage/subprocess/cobertura.xml
 EOL;
       $content .= $coverage_content;
     }
