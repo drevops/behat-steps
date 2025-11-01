@@ -196,9 +196,9 @@ trait KeyboardTrait {
     $reflector = new \ReflectionClass($driver);
     $with_syn_reflection = $reflector->getMethod('withSyn');
     $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
-    $withSynResult = $with_syn_reflection->invoke($driver);
+    $with_syn_result = $with_syn_reflection->invoke($driver);
 
-    $execute_js_on_xpath_reflection->invokeArgs($withSynResult, [
+    $execute_js_on_xpath_reflection->invokeArgs($with_syn_result, [
       $xpath,
       sprintf("syn.key({{ELEMENT}}, '%s');", $key),
     ]);
