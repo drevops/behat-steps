@@ -28,7 +28,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set (Exception)
+      The cookie with name "testname" was not set. (Exception)
       """
 
   Scenario: Assert step definition "a cookie with( the) name :name and value :value should exist" works as expected
@@ -56,7 +56,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set (Exception)
+      The cookie with name "testname" was not set. (Exception)
       """
 
   @trait:CookieTrait
@@ -71,7 +71,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testothername" was set with value "testothervalue", but it should be "testvalue" (Exception)
+      The cookie with name "testothername" was set with value "testothervalue", but it should be "testvalue". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should exist" works as expected
@@ -99,7 +99,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set (Exception)
+      The cookie with name "testname" was not set. (Exception)
       """
 
   @trait:CookieTrait
@@ -114,7 +114,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value "testothervalue", but it should contain "estva" (Exception)
+      The cookie with name "testname" was set with value "testothervalue", but it should contain "estva". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name should exist" works as expected
@@ -140,7 +140,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set (Exception)
+      The cookie with name containing "estna" was not set. (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should exist" works as expected
@@ -166,7 +166,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set (Exception)
+      The cookie with name containing "estna" was not set. (Exception)
       """
 
   @trait:CookieTrait
@@ -181,7 +181,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was set with value "prefixtestvaluesuffix", but it should be "testvalue" (Exception)
+      The cookie with name containing "estna" was set with value "prefixtestvaluesuffix", but it should be "testvalue". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should exist" works as expected
@@ -207,7 +207,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set (Exception)
+      The cookie with name containing "estna" was not set. (Exception)
       """
 
   @trait:CookieTrait
@@ -222,7 +222,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was set with value "testothervalue", but it should contain "estval" (Exception)
+      The cookie with name containing "estna" was set with value "testothervalue", but it should contain "estval". (Exception)
       """
 
   #
@@ -252,7 +252,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set but it should not be (Exception)
+      The cookie with name "testname" was set but it should not be. (Exception)
       """
 
   Scenario: Assert step definition "a cookie with the name :name and the value :value should not exist" works as expected
@@ -278,7 +278,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value "testvalue", but it should not be "testvalue" (Exception)
+      The cookie with name "testname" was set with value "testvalue", but it should not be "testvalue". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should not exist" works as expected
@@ -304,7 +304,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value containing "testvalue", but it should not contain "testval" (Exception)
+      The cookie with name "testname" was set with value containing "testvalue", but it should not contain "testval". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name should not exist" works as expected
@@ -330,7 +330,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set but it should not be (Exception)
+      The cookie with name containing "testname" was set but it should not be. (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should not exist" works as expected
@@ -356,7 +356,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set with value "testvalue", but it should not be "testvalue" (Exception)
+      The cookie with name containing "testname" was set with value "testvalue", but it should not be "testvalue". (Exception)
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should not exist" works as expected
@@ -382,5 +382,5 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set with value containing "mytestvalue", but it should not contain "testval"
+      The cookie with name containing "testname" was set with value containing "mytestvalue", but it should not contain "testval".
       """

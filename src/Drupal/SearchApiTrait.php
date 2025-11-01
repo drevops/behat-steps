@@ -31,7 +31,7 @@ trait SearchApiTrait {
     ]);
 
     if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find %s page "%s"', $type, $title));
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $type, $title));
     }
 
     ksort($nids);
@@ -62,7 +62,7 @@ trait SearchApiTrait {
     $indexes = $index_storage->loadByProperties(['status' => TRUE]);
 
     if (empty($indexes)) {
-      throw new \RuntimeException('No active search indexes found');
+      throw new \RuntimeException('No active search indexes found.');
     }
 
     foreach ($indexes as $index) {

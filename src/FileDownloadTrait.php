@@ -103,11 +103,11 @@ trait FileDownloadTrait {
     ]);
 
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
-      throw new \RuntimeException('Unable to download file from URL ' . $url);
+      throw new \RuntimeException('Unable to download file from URL ' . $url . '.');
     }
     $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($file_data === FALSE) {
-      throw new \RuntimeException('Unable to load content for downloaded file from temporary local file');
+      throw new \RuntimeException('Unable to load content for downloaded file from temporary local file.');
     }
 
     $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
@@ -139,7 +139,7 @@ trait FileDownloadTrait {
     $link_element = $page->findLink($link);
 
     if (!$link_element) {
-      throw new \Exception(sprintf('No link "%s" is present on the page, but expected to be present', $link));
+      throw new \Exception(sprintf('No link "%s" is present on the page, but expected to be present.', $link));
     }
 
     return $link_element;
@@ -196,7 +196,7 @@ trait FileDownloadTrait {
     }
 
     if ($name != $this->fileDownloadDownloadedFileInfo['file_name']) {
-      throw new \Exception(sprintf('Downloaded file %s, but expected %s', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+      throw new \Exception(sprintf('Downloaded file "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
     }
   }
 
@@ -215,7 +215,7 @@ trait FileDownloadTrait {
     }
 
     if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $name)) {
-      throw new \Exception(sprintf('Downloaded file name "%s" does not contain "%s"', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+      throw new \Exception(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
     }
   }
 
@@ -237,7 +237,7 @@ trait FileDownloadTrait {
     $errors = [];
     foreach ($files->getColumn(0) as $line) {
       if ($zip->locateName($line) === FALSE) {
-        $errors[] = sprintf('Unable to find file "%s" in archive', $line);
+        $errors[] = sprintf('Unable to find file "%s" in archive.', $line);
       }
     }
 
@@ -272,7 +272,7 @@ trait FileDownloadTrait {
         }
       }
       if (!$found) {
-        $errors[] = sprintf('Unable to find any file partially named "%s" in archive', $partialName);
+        $errors[] = sprintf('Unable to find any file partially named "%s" in archive.', $partialName);
       }
     }
 
@@ -301,7 +301,7 @@ trait FileDownloadTrait {
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
         if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partialName)) {
-          $errors[] = sprintf('Found file partially named "%s" in archive but should not', $partialName);
+          $errors[] = sprintf('Found file partially named "%s" in archive but should not.', $partialName);
           break;
         }
       }
@@ -317,7 +317,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadOpenZip(): \ZipArchive {
     if (!class_exists('\ZipArchive')) {
-      throw new \RuntimeException('ZIP extension is not enabled for PHP');
+      throw new \RuntimeException('ZIP extension is not enabled for PHP.');
     }
 
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
@@ -380,7 +380,7 @@ trait FileDownloadTrait {
     ];
 
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
-      throw new \RuntimeException('Invalid download URL provided: ' . $url);
+      throw new \RuntimeException('Invalid download URL provided: ' . $url . '.');
     }
 
     $ch = curl_init($url);
@@ -390,7 +390,7 @@ trait FileDownloadTrait {
     curl_close($ch);
 
     if (!$content) {
-      throw new \RuntimeException('Unable to save temp file from URL ' . $url);
+      throw new \RuntimeException('Unable to save temp file from URL ' . $url . '.');
     }
 
     // Extract meta information from headers.
@@ -406,7 +406,7 @@ trait FileDownloadTrait {
 
     $file_path = empty($headers['file_name']) ? tempnam($dir, 'behat') : $dir . DIRECTORY_SEPARATOR . $headers['file_name'];
     if (!$file_path) {
-      throw new \RuntimeException('Unable to create temp file for downloaded content');
+      throw new \RuntimeException('Unable to create temp file for downloaded content.');
     }
 
     $file_name = basename($file_path);
@@ -414,7 +414,7 @@ trait FileDownloadTrait {
     // Write file contents.
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
-      throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path);
+      throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path . '.');
     }
 
     return ['file_name' => $file_name, 'file_path' => $file_path] + $headers;

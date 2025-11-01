@@ -176,26 +176,26 @@ trait CookieTrait {
 
     if ($cookie === NULL) {
       if ($is_partial_name) {
-        throw new \Exception(sprintf('The cookie with name containing "%s" was not set', $name));
+        throw new \Exception(sprintf('The cookie with name containing "%s" was not set.', $name));
       }
 
-      throw new \Exception(sprintf('The cookie with name "%s" was not set', $name));
+      throw new \Exception(sprintf('The cookie with name "%s" was not set.', $name));
     }
 
     if ($value !== NULL) {
       if ($is_partial_value) {
         if (!str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
-            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should contain "%s"', $name, $cookie['value'], $value));
+            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value));
           }
-          throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should contain "%s"', $name, $cookie['value'], $value));
+          throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value));
         }
       }
       elseif ($cookie['value'] !== $value) {
         if ($is_partial_name) {
-          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should be "%s"', $name, $cookie['value'], $value));
+          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value));
         }
-        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should be "%s"', $name, $cookie['value'], $value));
+        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value));
       }
     }
   }
@@ -214,23 +214,23 @@ trait CookieTrait {
       if ($is_partial_value) {
         if (str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
-            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value containing "%s", but it should not contain "%s"', $name, $cookie['value'], $value));
+            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value));
           }
-          throw new \Exception(sprintf('The cookie with name "%s" was set with value containing "%s", but it should not contain "%s"', $name, $cookie['value'], $value));
+          throw new \Exception(sprintf('The cookie with name "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value));
         }
       }
       elseif ($cookie['value'] === $value) {
         if ($is_partial_name) {
-          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should not be "%s"', $name, $cookie['value'], $value));
+          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value));
         }
-        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should not be "%s"', $name, $cookie['value'], $value));
+        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value));
       }
     }
     else {
       if ($is_partial_name) {
-        throw new \Exception(sprintf('The cookie with name containing "%s" was set but it should not be', $name));
+        throw new \Exception(sprintf('The cookie with name containing "%s" was set but it should not be.', $name));
       }
-      throw new \Exception(sprintf('The cookie with name "%s" was set but it should not be', $name));
+      throw new \Exception(sprintf('The cookie with name "%s" was set but it should not be.', $name));
     }
   }
 

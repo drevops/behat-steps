@@ -34,7 +34,7 @@ trait DraggableviewsTrait {
       $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
 
       if (empty($node)) {
-        throw new \RuntimeException(sprintf('Unable to find the node "%s"', $title));
+        throw new \RuntimeException(sprintf('Unable to find the node "%s".', $title));
       }
 
       $entity_id = $node->id();

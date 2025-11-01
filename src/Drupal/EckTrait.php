@@ -111,7 +111,7 @@ trait EckTrait {
     ]);
 
     if (empty($entity_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s"', $entity_type, $title));
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
     $entity_id = current($entity_ids);
@@ -137,7 +137,7 @@ trait EckTrait {
     ]);
 
     if (empty($entity_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s"', $entity_type, $title));
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
     $entity_id = current($entity_ids);

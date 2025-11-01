@@ -70,7 +70,7 @@ Feature: Check that MediaTrait works
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
       """
-      Unable to find document media "Non-existent media"
+      Unable to find "document" media with the name "Non-existent media".
       """
 
   @api

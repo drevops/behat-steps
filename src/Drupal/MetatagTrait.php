@@ -45,7 +45,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new \Exception('Meta tag with specified attributes was not found: ' . json_encode($attributes));
+      throw new \Exception('Meta tag with specified attributes was not found: ' . json_encode($attributes) . '.');
     }
   }
 
@@ -72,7 +72,7 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        throw new \Exception('Meta tag with specified attributes should not exist: ' . json_encode($attributes));
+        throw new \Exception('Meta tag with specified attributes should not exist: ' . json_encode($attributes) . '.');
       }
     }
   }

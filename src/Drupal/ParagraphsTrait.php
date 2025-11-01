@@ -190,7 +190,7 @@ trait ParagraphsTrait {
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
 
     if (!array_key_exists($field_name, $field_info)) {
-      throw new \RuntimeException(sprintf('The entity type "%s" and bundle "%s" does not have a field "%s"', $entity_type, $bundle, $field_name));
+      throw new \RuntimeException(sprintf('The entity type "%s" with bundle "%s" does not have a field "%s".', $entity_type, $bundle, $field_name));
     }
   }
 

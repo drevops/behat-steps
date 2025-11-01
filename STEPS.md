@@ -1087,7 +1087,7 @@ Then the link "my-link-title" should be an absolute link
   <summary><code>@Then the link :link should not be an absolute link</code></summary>
 
 <br/>
-Assert that the link is not an absolute
+Assert that the link is not absolute
 <br/><br/>
 
 ```gherkin

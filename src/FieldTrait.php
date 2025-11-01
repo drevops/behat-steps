@@ -303,7 +303,7 @@ JS;
     $path = parse_url((string) $current_url, PHP_URL_PATH);
 
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s.', $selector, $path));
     }
 
     $option_field = $select_field->find('named', [
@@ -312,11 +312,11 @@ JS;
     ]);
 
     if (!$option_field) {
-      throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $selector, $path));
+      throw new \Exception(sprintf('No option is selected in the %s select on the page %s.', $selector, $path));
     }
 
     if (!$option_field->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $path));
+      throw new \Exception(sprintf('The option "%s" was not selected on the page %s.', $value, $path));
     }
   }
 
@@ -335,17 +335,17 @@ JS;
     $path = parse_url((string) $current_url, PHP_URL_PATH);
 
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
+      throw new \Exception(sprintf('The select "%s" was not found on the page %s.', $selector, $path));
     }
 
     $option_field = $select_field->find('named', ['option', $value]);
 
     if (!$option_field) {
-      throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s', $value, $selector, $path));
+      throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $value, $selector, $path));
     }
 
     if ($option_field->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be', $value, $selector, $path));
+      throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $value, $selector, $path));
     }
   }
 
