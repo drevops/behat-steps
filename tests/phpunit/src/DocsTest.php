@@ -1309,7 +1309,7 @@ EOD,
    */
   public function testExtractInfo(): void {
     // Set up a mock structure to test extract_info's result processing.
-    $mockInfo = [
+    $mock_info = [
       'TestTrait' => [
         [
           'name' => 'testMethod',
@@ -1323,14 +1323,14 @@ EOD,
     ];
 
     // Validate the mock structure.
-    $this->assertArrayHasKey('TestTrait', $mockInfo);
-    $this->assertCount(1, $mockInfo['TestTrait']);
+    $this->assertArrayHasKey('TestTrait', $mock_info);
+    $this->assertCount(1, $mock_info['TestTrait']);
 
-    $methodInfo = $mockInfo['TestTrait'][0];
-    $this->assertEquals('testMethod', $methodInfo['name']);
-    $this->assertEquals('Test description', $methodInfo['class_description']);
-    $this->assertEquals('TestTrait', $methodInfo['class_name']);
-    $this->assertContains('@Given I am on the homepage', $methodInfo['steps']);
+    $method_info = $mock_info['TestTrait'][0];
+    $this->assertEquals('testMethod', $method_info['name']);
+    $this->assertEquals('Test description', $method_info['class_description']);
+    $this->assertEquals('TestTrait', $method_info['class_name']);
+    $this->assertContains('@Given I am on the homepage', $method_info['steps']);
   }
 
   /**

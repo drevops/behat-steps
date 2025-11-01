@@ -134,8 +134,8 @@ trait BehatCliTrait {
           }
         }
       }
-      $trait_name__parts = explode('\\', (string) $trait);
-      $trait_name = end($trait_name__parts);
+      $trait_name_parts = explode('\\', (string) $trait);
+      $trait_name = end($trait_name_parts);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);
     }
 
