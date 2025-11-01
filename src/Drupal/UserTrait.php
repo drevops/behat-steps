@@ -40,14 +40,14 @@ trait UserTrait {
    * @Given the following users do not exist:
    */
   public function userDelete(TableNode $usersTable): void {
-    foreach ($usersTable->getHash() as $userHash) {
+    foreach ($usersTable->getHash() as $user_hash) {
       $users = [];
 
-      if (isset($userHash['mail'])) {
-        $users = $this->userLoadMultiple(['mail' => $userHash['mail']]);
+      if (isset($user_hash['mail'])) {
+        $users = $this->userLoadMultiple(['mail' => $user_hash['mail']]);
       }
-      elseif (isset($userHash['name'])) {
-        $users = $this->userLoadMultiple(['name' => $userHash['name']]);
+      elseif (isset($user_hash['name'])) {
+        $users = $this->userLoadMultiple(['name' => $user_hash['name']]);
       }
 
       foreach ($users as $user) {

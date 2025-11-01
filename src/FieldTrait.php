@@ -256,13 +256,13 @@ JS;
    * @Then the option :option should exist within the select element :selector
    */
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
-    $selectElement = $this->getSession()->getPage()->findField($selector);
-    if (is_null($selectElement)) {
+    $select_element = $this->getSession()->getPage()->findField($selector);
+    if (is_null($select_element)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
-    $optionElement = $selectElement->find('named', ['option', $option]);
-    if (is_null($optionElement)) {
+    $option_element = $select_element->find('named', ['option', $option]);
+    if (is_null($option_element)) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $selector));
     }
   }
@@ -277,13 +277,13 @@ JS;
    * @Then the option :option should not exist within the select element :selector
    */
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
-    $selectElement = $this->getSession()->getPage()->findField($selector);
-    if (is_null($selectElement)) {
+    $select_element = $this->getSession()->getPage()->findField($selector);
+    if (is_null($select_element)) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
-    $optionElement = $selectElement->find('named', ['option', $option]);
-    if (!is_null($optionElement)) {
+    $option_element = $select_element->find('named', ['option', $option]);
+    if (!is_null($option_element)) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $selector));
     }
   }
@@ -298,24 +298,24 @@ JS;
    * @Then the option :option should be selected within the select element :selector
    */
   public function fieldAssertSelectOptionSelected(string $value, string $selector): void {
-    $selectField = $this->getSession()->getPage()->findField($selector);
-    $currentUrl = $this->getSession()->getCurrentUrl();
-    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    $current_url = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $current_url, PHP_URL_PATH);
 
-    if (!$selectField) {
+    if (!$select_field) {
       throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
     }
 
-    $optionField = $selectField->find('named', [
+    $option_field = $select_field->find('named', [
       'option',
       $value,
     ]);
 
-    if (!$optionField) {
+    if (!$option_field) {
       throw new \Exception(sprintf('No option is selected in the %s select on the page %s', $selector, $path));
     }
 
-    if (!$optionField->isSelected()) {
+    if (!$option_field->isSelected()) {
       throw new \Exception(sprintf('The option "%s" was not selected on the page %s', $value, $path));
     }
   }
@@ -330,21 +330,21 @@ JS;
    * @Then the option :option should not be selected within the select element :selector
    */
   public function fieldAssertSelectOptionNotSelected(string $value, string $selector): void {
-    $selectField = $this->getSession()->getPage()->findField($selector);
-    $currentUrl = $this->getSession()->getCurrentUrl();
-    $path = parse_url((string) $currentUrl, PHP_URL_PATH);
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    $current_url = $this->getSession()->getCurrentUrl();
+    $path = parse_url((string) $current_url, PHP_URL_PATH);
 
-    if (!$selectField) {
+    if (!$select_field) {
       throw new \Exception(sprintf('The select "%s" was not found on the page %s', $selector, $path));
     }
 
-    $optionField = $selectField->find('named', ['option', $value]);
+    $option_field = $select_field->find('named', ['option', $value]);
 
-    if (!$optionField) {
+    if (!$option_field) {
       throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s', $value, $selector, $path));
     }
 
-    if ($optionField->isSelected()) {
+    if ($option_field->isSelected()) {
       throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be', $value, $selector, $path));
     }
   }
