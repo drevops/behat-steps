@@ -92,7 +92,7 @@ trait TaxonomyTrait {
     $vocab = Vocabulary::load($machine_name);
 
     if ($vocab) {
-      throw new \Exception(sprintf('The vocabulary "%s" exist, but it should not.', $machine_name));
+      throw new \Exception(sprintf('The vocabulary "%s" exists, but it should not.', $machine_name));
     }
   }
 

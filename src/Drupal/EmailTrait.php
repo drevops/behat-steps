@@ -607,7 +607,7 @@ trait EmailTrait {
   protected static function emailSetMailSystemDefault(string $type, mixed $value): void {
     \Drupal::configFactory()->getEditable('system.mail')->set('interface.' . $type, $value)->save();
 
-    // Maisystem module completely takes over default interface, so we need to
+    // Mailsystem module completely takes over default interface, so we need to
     // update it as well if the module is installed.
     // @note: For some unknown reasons, we do not need to reset this back to
     // the original values after the test. The values in the configuration

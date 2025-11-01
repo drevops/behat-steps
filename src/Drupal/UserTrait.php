@@ -240,7 +240,7 @@ trait UserTrait {
     $roles = array_map(trim(...), $roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
-      throw new \Exception(sprintf('User "%s" should not have roles(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
+      throw new \Exception(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
     }
   }
 
