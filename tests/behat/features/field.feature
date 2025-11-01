@@ -334,3 +334,13 @@ Feature: Check that FieldTrait works
 
     When I check the checkbox "Checkbox checked"
     Then the checkbox "Checkbox checked" should be checked
+
+  @api @javascript @validation
+  Scenario: Disable browser validation for article creation form
+    Given I am logged in as a user with the "administrator" role
+    When I go to "node/add/article"
+    And browser validation for the form "#node-article-form" is disabled
+     # Try to submit without filling in required fields.
+    And I press "Save"
+     # Server-side validation errors should appear.
+    Then I should see "Title field is required"

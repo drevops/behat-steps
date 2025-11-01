@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
-use Behat\Mink\Exception\ElementHtmlException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
@@ -37,8 +36,7 @@ trait FieldTrait {
     $field = $field ?: $page->findById($name);
 
     if ($field === NULL) {
-      $exception = new ElementNotFoundException($this->getSession()
-        ->getDriver(), 'form field', 'id|name|label|value', $name);
+      $exception = new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $name);
 
       throw new \Exception($exception->getMessage());
     }
@@ -100,18 +98,20 @@ trait FieldTrait {
    * @When I fill in the color field :field with the value :value
    */
   public function fieldFillColor(string $field, ?string $value = NULL): mixed {
-    $js = <<<JS
-        (function() {
-            var element = document.querySelector('{$field}');
-            if (!element) {
-                throw new Error('Element not found: {$field}');
-            }
-            element.value = '{$value}';
-            var event = new Event('change', { bubbles: true });
-            element.dispatchEvent(event);
-        })();
+    $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
+    $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
+    $script = <<<JS
+      (function() {
+        var element = document.querySelector({$field_js});
+        if (!element) {
+          throw new Error('Element not found: ' + {$field_js});
+        }
+        element.value = {$value_js};
+        var event = new Event('change', { bubbles: true });
+        element.dispatchEvent(event);
+      })();
 JS;
-    return $this->getSession()->evaluateScript($js);
+    return $this->getSession()->evaluateScript($script);
   }
 
   /**
@@ -124,16 +124,17 @@ JS;
    * @Then the color field :field should have the value :value
    */
   public function fieldAssertColorFieldHasValue(string $field, string $value): void {
-    $js = <<<JS
-        (function() {
-            var element = document.querySelector('{$field}');
-            if (!element) {
-                throw new Error('Element not found: {$field}');
-            }
-            return element.value;
-        })();
+    $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
+    $script = <<<JS
+      (function() {
+        var element = document.querySelector({$field_js});
+        if (!element) {
+          throw new Error('Element not found: ' + {$field_js});
+        }
+        return element.value;
+      })();
 JS;
-    $actual = $this->getSession()->evaluateScript($js);
+    $actual = $this->getSession()->evaluateScript($script);
 
     if ($actual != $value) {
       throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
@@ -174,37 +175,37 @@ JS;
 
     $element_id = $element->getAttribute('id');
     if (empty($element_id)) {
-      throw new ElementHtmlException('ID is empty', $driver, $element);
+      throw new \Exception('WYSIWYG field must have an ID attribute.');
     }
+
+    $element_id_js = json_encode($element_id, JSON_UNESCAPED_SLASHES);
+    $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
 
     $parent_element = $element->getParent();
 
-    // Support Ckeditor 4.
+    // Support CKEditor 4.
     $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
     if ($is_ckeditor_4) {
-      $this->getSession()
-        ->executeScript(sprintf('CKEDITOR.instances["%s"].setData("%s");', $element_id, $value));
-
-      return;
+      $script = <<<JS
+        CKEDITOR.instances[{$element_id_js}].setData({$value_js});
+JS;
     }
-
-    // Support Ckeditor 5.
-    $this->getSession()
-      ->executeScript(
-        "
-        const textareaElement = document.querySelector(\"#{$element_id}\");
-        const domEditableElement = textareaElement.nextElementSibling.querySelector('.ck-editor__editable');
-        if (domEditableElement.ckeditorInstance) {
-          const editorInstance = domEditableElement.ckeditorInstance;
-          if (editorInstance) {
-            editorInstance.setData(\"{$value}\");
-          } else {
-            throw new Exception('Could not get the editor instance!');
+    // Support CKEditor 5.
+    else {
+      $script = <<<JS
+        (function() {
+          const element = document.querySelector('#' + {$element_id_js})?.nextElementSibling.querySelector('.ck-editor__editable');
+          if (!element) {
+            throw new Error('CKEditor editable area not found for element with ID ' + {$element_id_js});
           }
-        } else {
-          throw new Exception('Could not find the element!');
-        }
-        ");
+          if (!element.ckeditorInstance) {
+            throw new Error('CKEditor instance not found for element with ID ' + {$element_id_js});
+          }
+          element.ckeditorInstance.setData({$value_js});
+        })();
+JS;
+    }
+    $this->getSession()->executeScript($script);
   }
 
   /**
@@ -361,17 +362,18 @@ JS;
    * @Given browser validation for the form :selector is disabled
    */
   public function disableFormBrowserValidation(string $selector): void {
-    $escapedSelector = addslashes($selector);
+    $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 
-    $js = <<<JS
-        var form = document.querySelector("{$escapedSelector}");
-        if (form) {
-            form.setAttribute('novalidate', 'novalidate');
-        } else {
-            throw new Error("Form with selector {$escapedSelector} not found");
+    $script = <<<JS
+      (function() {
+        var form = document.querySelector({$selector_js});
+        if (!form) {
+          throw new Error('Form with selector ' + {$selector_js} + ' not found');
         }
+        form.setAttribute('novalidate', 'novalidate');
+      })();
 JS;
-    $this->getSession()->executeScript($js);
+    $this->getSession()->executeScript($script);
   }
 
 }
