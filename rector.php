@@ -20,6 +20,7 @@ use DrupalRector\Set\Drupal10SetList;
 use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
+use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
 use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
@@ -45,6 +46,7 @@ return RectorConfig::configure()
   ])
   ->withSkip([
     // Specific rules to skip based on project coding standards.
+    CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CountArrayToEmptyArrayComparisonRector::class,
     DisallowedEmptyRuleFixerRector::class,

@@ -62,10 +62,10 @@ trait MetatagTrait {
       $attributes[$attribute] = $value;
     }
 
-    foreach ($meta_tags as $metaTag) {
+    foreach ($meta_tags as $meta_tag) {
       $all_attributes_matched = TRUE;
       foreach ($attributes as $attribute => $value) {
-        if ($metaTag->getAttribute($attribute) !== $value) {
+        if ($meta_tag->getAttribute($attribute) !== $value) {
           $all_attributes_matched = FALSE;
           break;
         }

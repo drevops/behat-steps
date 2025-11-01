@@ -262,17 +262,17 @@ trait FileDownloadTrait {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
-    foreach ($files->getColumn(0) as $partialName) {
+    foreach ($files->getColumn(0) as $partial_name) {
       $found = FALSE;
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partialName)) {
+        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
           $found = TRUE;
           break;
         }
       }
       if (!$found) {
-        $errors[] = sprintf('Unable to find any file partially named "%s" in archive.', $partialName);
+        $errors[] = sprintf('Unable to find any file partially named "%s" in archive.', $partial_name);
       }
     }
 
@@ -297,11 +297,11 @@ trait FileDownloadTrait {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
-    foreach ($files->getColumn(0) as $partialName) {
+    foreach ($files->getColumn(0) as $partial_name) {
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partialName)) {
-          $errors[] = sprintf('Found file partially named "%s" in archive but should not.', $partialName);
+        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
+          $errors[] = sprintf('Found file partially named "%s" in archive but should not.', $partial_name);
           break;
         }
       }
