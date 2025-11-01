@@ -72,11 +72,11 @@ trait MediaTrait {
    *
    * @Given the following media :media_type exist:
    */
-  public function mediaCreate(string $media_type, TableNode $nodesTable): void {
+  public function mediaCreate(string $media_type, TableNode $table): void {
     // Delete entities before creating them.
-    $this->mediaDelete($media_type, $nodesTable);
+    $this->mediaDelete($media_type, $table);
 
-    foreach ($nodesTable->getHash() as $node_hash) {
+    foreach ($table->getHash() as $node_hash) {
       $node = (object) $node_hash;
       $node->bundle = $media_type;
       $this->mediaCreateSingle($node);

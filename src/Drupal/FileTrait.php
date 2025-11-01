@@ -73,8 +73,8 @@ trait FileTrait {
    *
    * @Given the following managed files:
    */
-  public function fileCreateManaged(TableNode $nodesTable): void {
-    foreach ($nodesTable->getHash() as $node_hash) {
+  public function fileCreateManaged(TableNode $table): void {
+    foreach ($table->getHash() as $node_hash) {
       $node = (object) $node_hash;
       $this->fileCreateManagedSingle($node);
     }
@@ -196,10 +196,10 @@ trait FileTrait {
    *
    * @Given the following managed files do not exist:
    */
-  public function fileDeleteManagedFiles(TableNode $nodesTable): void {
+  public function fileDeleteManagedFiles(TableNode $table): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
-    $field_values = $nodesTable->getColumn(0);
+    $field_values = $table->getColumn(0);
     // Get field name of the column header.
     $field_name = array_shift($field_values);
 

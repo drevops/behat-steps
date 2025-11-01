@@ -39,8 +39,8 @@ trait UserTrait {
    *
    * @Given the following users do not exist:
    */
-  public function userDelete(TableNode $usersTable): void {
-    foreach ($usersTable->getHash() as $user_hash) {
+  public function userDelete(TableNode $table): void {
+    foreach ($table->getHash() as $user_hash) {
       $users = [];
 
       if (isset($user_hash['mail'])) {
