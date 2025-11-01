@@ -30,8 +30,8 @@ We provide a set of generic traits that can be used in any PHP project, with
 special support for Drupal through additional step definitions. All methods are
 properly namespaced, so they won’t conflict with your existing custom step definitions.
 
-Our goal is to make this a go-to library for Behat steps. We maintain strong
-test coverage to avoid false positives and negatives, and follow [clear
+Our goal is to make this a go-to library for Behat steps. We maintain solid
+[test coverage](tests/behat/features) to avoid false positives and negatives, and follow [clear
 guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 
 We actively maintain this package and welcome [contributions](CONTRIBUTING.md)
