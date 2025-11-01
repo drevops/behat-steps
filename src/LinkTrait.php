@@ -193,7 +193,7 @@ trait LinkTrait {
   }
 
   /**
-   * Assert that the link is not an absolute.
+   * Assert that the link is not absolute.
    *
    * @code
    * Then the link "Return to site content" should not be an absolute link
