@@ -509,6 +509,15 @@ cp /app/tests/behat/fixtures/relative.html /app/build/web/sites/default/files/re
   <label for="edit-color-input">Color</label>
 </div>
 
+<!-- Elements for testing selectors with quotes -->
+<div id="quote-test-container">
+  <button data-action="save" data-value="test's value" id="btn-single-quote">Button with single quote</button>
+  <button data-action="delete" data-value='test"value' id="btn-double-quote">Button with double quote</button>
+  <button data-action="edit" data-value="normal" id="btn-normal">Button normal</button>
+  <div data-test-id="special'chars" class="test-element">Element with single quote in data attr</div>
+  <div data-test-id='special"chars' class="test-element">Element with double quote in data attr</div>
+</div>
+
 <script>
   function testConfirm() {
     let text = "Press a button!\nEither OK or Cancel.";

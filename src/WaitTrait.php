@@ -49,22 +49,22 @@ trait WaitTrait {
       throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver', $driver::class));
     }
 
-    $condition = <<<JS
-    (function() {
-      function isAjaxing(instance) {
-        return instance && instance.ajaxing === true;
-      }
-      var not_ajaxing = (typeof Drupal === 'undefined' || typeof Drupal.ajax === 'undefined' || typeof Drupal.ajax.instances === 'undefined' || !Drupal.ajax.instances.some(isAjaxing))
-      return (
-        // Assert no AJAX request is running (via jQuery or Drupal) and no
-        // animation is running.
-        (typeof jQuery === 'undefined' || (jQuery.active === 0 && jQuery(':animated').length === 0)) &&
-        not_ajaxing
-      );
-    }());
+    $script = <<<JS
+      (function() {
+        function isAjaxing(instance) {
+          return instance && instance.ajaxing === true;
+        }
+        var notAjaxing = (typeof Drupal === 'undefined' || typeof Drupal.ajax === 'undefined' || typeof Drupal.ajax.instances === 'undefined' || !Drupal.ajax.instances.some(isAjaxing))
+        return (
+          // Assert no AJAX request is running (via jQuery or Drupal) and no
+          // animation is running.
+          (typeof jQuery === 'undefined' || (jQuery.active === 0 && jQuery(':animated').length === 0)) &&
+          notAjaxing
+        );
+      }());
 JS;
 
-    $result = $this->getSession()->wait($seconds * 1000, $condition);
+    $result = $this->getSession()->wait($seconds * 1000, $script);
 
     if (!$result) {
       throw new \RuntimeException('Unable to complete an AJAX request.');

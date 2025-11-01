@@ -239,6 +239,15 @@ Feature: Check that ElementTrait works
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
 
+  @javascript @phpserver
+  Scenario: Assert selectors with quotes in attribute values work correctly
+    Given I am on the phpserver test page
+    When I scroll to the element "button[data-action='save']"
+    Then the element "button[data-action='save']" should be at the top of the viewport
+    When I scroll to the element "button[data-action='delete']"
+    Then the element "button[data-action='delete']" should be at the top of the viewport
+    When I trigger the JS event "click" on the element "button[data-action='edit']"
+
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
     When I am on the phpserver test page

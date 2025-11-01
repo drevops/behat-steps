@@ -205,14 +205,7 @@ trait ElementTrait {
    * @Then the element :selector should be at the top of the viewport
    */
   public function elementAssertElementAtTopOfViewport(string $selector): void {
-    $script = <<<JS
-        (function() {
-            var element = document.querySelector('{$selector}');
-            var rect = element.getBoundingClientRect();
-            return (rect.top >= 0 && rect.top <= window.innerHeight);
-        })();
-JS;
-    $result = $this->getSession()->evaluateScript($script);
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
     if (!$result) {
       throw new \Exception(sprintf("Element with selector '%s' is not at the top of the viewport.", $selector));
     }
@@ -230,9 +223,7 @@ JS;
    * @javascript
    */
   public function elementAcceptConfirmation(): void {
-    $this->getSession()
-      ->getDriver()
-      ->executeScript('window.confirm = function(){return true;}');
+    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
   }
 
   /**
@@ -247,9 +238,7 @@ JS;
    * @javascript
    */
   public function elementDeclineConfirmation(): void {
-    $this->getSession()
-      ->getDriver()
-      ->executeScript('window.confirm = function(){return false;}');
+    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
   }
 
   /**
@@ -264,16 +253,13 @@ JS;
    * @javascript
    */
   public function elementClick(string $selector): void {
-    $selector = $this
-      ->getSession()
-      ->getPage()
-      ->find('css', $selector);
+    $element = $this->getSession()->getPage()->find('css', $selector);
 
-    if (!$selector) {
+    if (!$element) {
       throw new \RuntimeException(sprintf('Element with selector "%s" not found on the page', $selector));
     }
 
-    $selector->click();
+    $element->click();
   }
 
   /**
@@ -286,19 +272,8 @@ JS;
    * @When I trigger the JS event :event on the element :selector
    */
   public function elementTriggerEvent(string $event, string $selector): void {
-    $script = "return (function(el) {
-            if (el) {
-              el.{$event}();
-              return true;
-            }
-            return false;
-        })({{ELEMENT}});";
-
-    $result = $this->elementExecuteJs($selector, $script);
-
-    if (!$result) {
-      throw new \RuntimeException(sprintf('Unable to trigger "%s" event on an element "%s" with JavaScript', $event, $selector));
-    }
+    $event_js = json_encode($event, JSON_UNESCAPED_SLASHES);
+    $this->elementExecuteJs($selector, sprintf('var event = new Event(%s, { bubbles: true }); {{ELEMENT}}.dispatchEvent(event); return true;', $event_js));
   }
 
   /**
@@ -311,17 +286,7 @@ JS;
    * @When I scroll to the element :selector
    */
   public function elementScrollTo(string $selector): void {
-    $page = $this->getSession()->getPage();
-    $element = $page->find('css', $selector);
-
-    if (!$element) {
-      throw new \RuntimeException(sprintf('Cannot scroll to element "%s" as it was not found on the page', $selector));
-    }
-
-    $this->getSession()->executeScript("
-      var element = document.querySelector('" . $selector . "');
-      element.scrollIntoView( true );
-    ");
+    $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
   }
 
   /**
@@ -457,9 +422,10 @@ JS;
    *   TRUE if an element is displayed within a viewport, FALSE if not.
    */
   protected function elementIsVisuallyVisible(string $selector, int $offset) {
+    $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
     // The contents of this JS function should be copied as-is from the <script>
     // section in the bottom of the tests/behat/fixtures/relative.html file.
-    $scriptFunction = <<<JS
+    $script_function = <<<JS
       function isElemVisible(selector, offset = 0) {
         var failures = [];
         document.querySelectorAll(selector).forEach(function (el) {
@@ -500,8 +466,8 @@ JS;
     // Include and call visibility assertion function.
     $script = <<<JS
       (function() {
-        {$scriptFunction}
-        return isElemVisible('{$selector}', {$offset});
+        {$script_function}
+        return isElemVisible({$selector_js}, {$offset});
       })();
     JS;
 
@@ -521,14 +487,25 @@ JS;
    *   The result of script evaluation. Script has to explicitly return a value.
    */
   protected function elementExecuteJs(string $selector, string $script) {
-    $driver = $this->getSession()->getDriver();
-    $scriptWrapper = "return (function() {
-            {{SCRIPT}}
-          }());";
-    $script = str_replace('{{ELEMENT}}', sprintf("document.querySelector('%s')", $selector), $script);
-    $script = str_replace('{{SCRIPT}}', $script, $scriptWrapper);
+    if (!str_contains($script, '{{ELEMENT}}')) {
+      throw new \InvalidArgumentException('The script must contain the {{ELEMENT}} token to reference the element.');
+    }
 
-    return $driver->evaluateScript($script);
+    $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
+
+    $script_wrapper = <<<JS
+      return (function() {
+        var element = document.querySelector({$selector_js});
+        if (!element) {
+          throw new Error('Element with selector ' + {$selector_js} + ' not found.');
+        }
+        {{SCRIPT}}
+      }());
+JS;
+    $script = str_replace('{{ELEMENT}}', 'element', $script);
+    $script = str_replace('{{SCRIPT}}', $script, $script_wrapper);
+
+    return $this->getSession()->getDriver()->evaluateScript($script);
   }
 
 }

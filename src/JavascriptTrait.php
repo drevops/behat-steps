@@ -172,69 +172,69 @@ trait JavascriptTrait {
    * Inject JavaScript error collector into the page.
    */
   protected function javascriptInjectCollector(): void {
-    $script = <<<'JS'
-(function() {
-  // Initialize error collector
-  if (typeof window.jsErrors === 'undefined') {
-    window.jsErrors = [];
-  }
+    $script = <<<JS
+      (function() {
+        // Initialize error collector
+        if (typeof window.jsErrors === 'undefined') {
+          window.jsErrors = [];
+        }
 
-  // Only initialize once
-  if (!window.jsErrorsInitialized) {
-    window.jsErrorsInitialized = true;
+        // Only initialize once
+        if (!window.jsErrorsInitialized) {
+          window.jsErrorsInitialized = true;
 
-    // Preserve existing window.onerror handler
-    var previousOnError = window.onerror;
-    window.onerror = function(message, source, lineno, colno, error) {
-      window.jsErrors.push({
-        message: message,
-        source: source,
-        line: lineno,
-        column: colno,
-        timestamp: new Date().toISOString()
-      });
+          // Preserve existing window.onerror handler
+          var previousOnError = window.onerror;
+          window.onerror = function(message, source, lineno, colno, error) {
+            window.jsErrors.push({
+              message: message,
+              source: source,
+              line: lineno,
+              column: colno,
+              timestamp: new Date().toISOString()
+            });
 
-      // Call previous handler if it exists
-      if (typeof previousOnError === 'function') {
-        return previousOnError.apply(this, arguments);
-      }
+            // Call previous handler if it exists
+            if (typeof previousOnError === 'function') {
+              return previousOnError.apply(this, arguments);
+            }
 
-      // Don't suppress default error handling
-      return false;
-    };
+            // Don't suppress default error handling
+            return false;
+          };
 
-    // Capture unhandled Promise rejections
-    window.addEventListener('unhandledrejection', function(event) {
-      var reason = event.reason;
-      var message = reason && reason.message ? reason.message : String(reason);
-      var source = reason && reason.fileName ? reason.fileName : 'unhandledrejection';
-      var line = reason && reason.lineNumber ? reason.lineNumber : 0;
-      var column = reason && reason.columnNumber ? reason.columnNumber : 0;
+          // Capture unhandled Promise rejections
+          window.addEventListener('unhandledrejection', function(event) {
+            var reason = event.reason;
+            var message = reason && reason.message ? reason.message : String(reason);
+            var source = reason && reason.fileName ? reason.fileName : 'unhandledrejection';
+            var line = reason && reason.lineNumber ? reason.lineNumber : 0;
+            var column = reason && reason.columnNumber ? reason.columnNumber : 0;
 
-      window.jsErrors.push({
-        message: 'Unhandled Promise rejection: ' + message,
-        source: source,
-        line: line,
-        column: column,
-        timestamp: new Date().toISOString()
-      });
-    });
+            window.jsErrors.push({
+              message: 'Unhandled Promise rejection: ' + message,
+              source: source,
+              line: line,
+              column: column,
+              timestamp: new Date().toISOString()
+            });
+          });
 
-    // Preserve and wrap console.error
-    var oldError = console.error;
-    console.error = function() {
-      window.jsErrors.push({
-        message: Array.prototype.slice.call(arguments).join(' '),
-        source: 'console.error',
-        line: 0,
-        column: 0,
-        timestamp: new Date().toISOString()
-      });
-      // Always call original console.error
-      oldError.apply(console, arguments);
-    };
-  }
-})();
+          // Preserve and wrap console.error
+          var oldError = console.error;
+          console.error = function() {
+            window.jsErrors.push({
+              message: Array.prototype.slice.call(arguments).join(' '),
+              source: 'console.error',
+              line: 0,
+              column: 0,
+              timestamp: new Date().toISOString()
+            });
+            // Always call original console.error
+            oldError.apply(console, arguments);
+          };
+        }
+      })();
 JS;
 
     $this->getSession()->executeScript($script);
@@ -247,10 +247,8 @@ JS;
    *   The current page URL.
    */
   protected function javascriptCollectFromPage(string $url): void {
-    $script = 'return typeof window.jsErrors !== "undefined" ? window.jsErrors : [];';
-
     try {
-      $errors = $this->getSession()->evaluateScript($script);
+      $errors = $this->getSession()->evaluateScript('return typeof window.jsErrors !== "undefined" ? window.jsErrors : [];');
 
       if (!empty($errors)) {
         // Store errors in registry under this URL.
