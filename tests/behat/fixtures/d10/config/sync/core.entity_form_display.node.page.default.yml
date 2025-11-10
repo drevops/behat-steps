@@ -4,11 +4,17 @@ status: true
 dependencies:
   config:
     - field.field.node.page.body
+    - field.field.node.page.field_date_only
+    - field.field.node.page.field_daterange
+    - field.field.node.page.field_daterange_date_only
+    - field.field.node.page.field_datetime
     - field.field.node.page.field_description
     - node.type.page
     - workflows.workflow.editorial
   module:
     - content_moderation
+    - datetime
+    - datetime_range
     - path
     - text
 _core:
@@ -31,6 +37,30 @@ content:
   created:
     type: datetime_timestamp
     weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_date_only:
+    type: datetime_default
+    weight: 122
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_daterange:
+    type: daterange_default
+    weight: 123
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_daterange_date_only:
+    type: daterange_default
+    weight: 124
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_datetime:
+    type: datetime_default
+    weight: 125
     region: content
     settings: {  }
     third_party_settings: {  }

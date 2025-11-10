@@ -36,5 +36,9 @@ content:
     weight: 101
     region: content
 hidden:
+  field_date_only: true
+  field_daterange: true
+  field_daterange_date_only: true
+  field_datetime: true
   field_description: true
   search_api_excerpt: true
