@@ -35,6 +35,7 @@ use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\ResponsiveTrait;
 use DrevOps\BehatSteps\WaitTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 
@@ -66,6 +67,7 @@ class FeatureContext extends DrupalContext {
   use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
+  use ResponsiveTrait;
   use SearchApiTrait;
   use TaxonomyTrait;
   use TestmodeTrait;

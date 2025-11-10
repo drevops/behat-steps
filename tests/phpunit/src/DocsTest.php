@@ -1631,6 +1631,102 @@ EOD,
           'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'Given I am on the homepage' . PHP_EOL . PHP_EOL . 'When I click "Submit"' . PHP_EOL . 'Then I should see "Success"' . PHP_EOL . '@endcode',
         ],
       ],
+      'with @code block with indented PHP code' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * @code
+ * class FeatureContext extends DrupalContext {
+ *   use ResponsiveTrait;
+ *
+ *   public function setupCustomBreakpoints(): void {
+ *     $this->responsiveSetBreakpoints([
+ *       'iphone_12' => '390x844',
+ *       '4k' => '3840x2160',
+ *     ]);
+ *   }
+ * }
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'class FeatureContext extends DrupalContext {' . PHP_EOL . '  use ResponsiveTrait;' . PHP_EOL . PHP_EOL . '  public function setupCustomBreakpoints(): void {' . PHP_EOL . '    $this->responsiveSetBreakpoints([' . PHP_EOL . "      'iphone_12' => '390x844'," . PHP_EOL . "      '4k' => '3840x2160'," . PHP_EOL . '    ]);' . PHP_EOL . '  }' . PHP_EOL . '}' . PHP_EOL . '@endcode',
+        ],
+      ],
+      'with @code block with 4-space indentation' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * @code
+ * if ($condition) {
+ *     // 4 spaces indentation
+ *     doSomething();
+ *     if ($nested) {
+ *         // 8 spaces indentation
+ *         doNestedThing();
+ *     }
+ * }
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'if ($condition) {' . PHP_EOL . '    // 4 spaces indentation' . PHP_EOL . '    doSomething();' . PHP_EOL . '    if ($nested) {' . PHP_EOL . '        // 8 spaces indentation' . PHP_EOL . '        doNestedThing();' . PHP_EOL . '    }' . PHP_EOL . '}' . PHP_EOL . '@endcode',
+        ],
+      ],
+      'with @code block with mixed content and indentation' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * Regular text before code.
+ *
+ * @code
+ * class Example {
+ *   private $value;
+ *
+ *   public function __construct() {
+ *     $this->value = [
+ *       'key1' => 'value1',
+ *       'key2' => 'value2',
+ *     ];
+ *   }
+ * }
+ * @endcode
+ *
+ * Regular text after code.
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . 'Regular text before code.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'class Example {' . PHP_EOL . '  private $value;' . PHP_EOL . PHP_EOL . '  public function __construct() {' . PHP_EOL . '    $this->value = [' . PHP_EOL . "      'key1' => 'value1'," . PHP_EOL . "      'key2' => 'value2'," . PHP_EOL . '    ];' . PHP_EOL . '  }' . PHP_EOL . '}' . PHP_EOL . '@endcode' . PHP_EOL . PHP_EOL . 'Regular text after code.',
+        ],
+      ],
+      'with @code block preserving trailing spaces in code' => [
+        'TestTrait',
+        <<<'EOD'
+/**
+ * Test trait description.
+ *
+ * @code
+ * // Line with trailing content
+ * function test() {
+ *   return true;
+ * }
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'Test trait description.',
+          'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . '// Line with trailing content' . PHP_EOL . 'function test() {' . PHP_EOL . '  return true;' . PHP_EOL . '}' . PHP_EOL . '@endcode',
+        ],
+      ],
     ];
   }
 
