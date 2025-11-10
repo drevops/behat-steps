@@ -241,7 +241,8 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  $lines = array_map(static fn(string $l): string => ltrim($l, " *\t"), $lines);
+  // Remove docblock asterisk and up to one space, but preserve remaining indentation.
+  $lines = array_map(static fn(string $l): string => preg_replace('/^\s*\* ?/', '', $l), $lines);
 
   // Remove first and last empty lines.
   if (count($lines) > 1 && empty($lines[0])) {
@@ -251,7 +252,23 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  $lines = array_map(trim(...), $lines);
+  // Trim lines, but preserve indentation within @code blocks.
+  $in_code_block = FALSE;
+  $lines = array_map(static function (string $l) use (&$in_code_block): string {
+    if (str_starts_with(trim($l), '@code')) {
+      $in_code_block = TRUE;
+      return trim($l);
+    }
+    elseif (str_starts_with(trim($l), '@endcode')) {
+      $in_code_block = FALSE;
+      return trim($l);
+    }
+    elseif ($in_code_block) {
+      // Preserve indentation within code blocks.
+      return rtrim($l);
+    }
+    return trim($l);
+  }, $lines);
 
   if (empty($lines)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
