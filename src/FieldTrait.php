@@ -414,4 +414,142 @@ JS;
     $this->getSession()->executeScript($script);
   }
 
+  /**
+   * Fill in datetime field with date and optionally time.
+   *
+   * Leave time empty if not needed.
+   *
+   * @code
+   * When I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
+   * When I fill in the datetime field "Event date" with date "2024-01-15" and time ""
+   * @endcode
+   *
+   * @When I fill in the datetime field :label with date :date and time :time
+   */
+  public function fieldFillDatetime(string $label, string $date, string $time): void {
+    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+    if ($time !== '') {
+      $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+    }
+  }
+
+  /**
+   * Fill in the date part of a datetime field.
+   *
+   * @code
+   * When I fill in the date part of the datetime field "Event date" with "2024-01-15"
+   * @endcode
+   *
+   * @When I fill in the date part of the datetime field :label with :date
+   */
+  public function fieldFillDatetimeDate(string $label, string $date): void {
+    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+  }
+
+  /**
+   * Fill in the time part of a datetime field.
+   *
+   * @code
+   * When I fill in the time part of the datetime field "Event date" with "14:30:00"
+   * @endcode
+   *
+   * @When I fill in the time part of the datetime field :label with :time
+   */
+  public function fieldFillDatetimeTime(string $label, string $time): void {
+    $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+  }
+
+  /**
+   * Fill in start datetime field with date and optionally time.
+   *
+   * For date range fields. Leave time empty if not needed.
+   *
+   * @code
+   * When I fill in the start datetime field "Event period" with date "2024-01-15" and time "14:30:00"
+   * When I fill in the start datetime field "Event period" with date "2024-01-15" and time ""
+   * @endcode
+   *
+   * @When I fill in the start datetime field :label with date :date and time :time
+   */
+  public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
+    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+    if ($time !== '') {
+      $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+    }
+  }
+
+  /**
+   * Fill in end datetime field with date and optionally time.
+   *
+   * For date range fields. Leave time empty if not needed.
+   *
+   * @code
+   * When I fill in the end datetime field "Event period" with date "2024-01-20" and time "18:00:00"
+   * When I fill in the end datetime field "Event period" with date "2024-01-20" and time ""
+   * @endcode
+   *
+   * @When I fill in the end datetime field :label with date :date and time :time
+   */
+  public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
+    $this->fieldFillDatetimeHelper($label, 'end_value', 'date', $date);
+    if ($time !== '') {
+      $this->fieldFillDatetimeHelper($label, 'end_value', 'time', $time);
+    }
+  }
+
+  /**
+   * Helper method to fill datetime field parts.
+   *
+   * @param string $label
+   *   The field label text.
+   * @param string $part
+   *   The field part: 'value' for single/start or 'end_value' for end.
+   * @param string $field
+   *   The field type: 'date' or 'time'.
+   * @param string $value
+   *   The value to set.
+   *
+   * @throws \Exception
+   */
+  protected function fieldFillDatetimeHelper(string $label, string $part, string $field, string $value): void {
+    // Try to find by label element first.
+    $xpath = sprintf(
+      '//label[contains(text(), "%s")]/..//input[contains(@name, "[%s][%s]")]',
+      $label,
+      $part,
+      $field
+    );
+
+    $page = $this->getSession()->getPage();
+    $element = $page->find('xpath', $xpath);
+
+    // If not found, try to find by span (Drupal field label pattern).
+    if ($element === NULL) {
+      $xpath = sprintf(
+        '//span[contains(text(), "%s")]/../..//input[contains(@name, "[%s][%s]")]',
+        $label,
+        $part,
+        $field
+      );
+      $element = $page->find('xpath', $xpath);
+    }
+
+    // If still not found, try a more generic approach.
+    if ($element === NULL) {
+      $xpath = sprintf(
+        '//*[contains(text(), "%s")]/ancestor::div[contains(@class, "field--")]//input[contains(@name, "[%s][%s]")]',
+        $label,
+        $part,
+        $field
+      );
+      $element = $page->find('xpath', $xpath);
+    }
+
+    if ($element === NULL) {
+      throw new \Exception(sprintf('Datetime field "%s" with part "%s" and field "%s" not found.', $label, $part, $field));
+    }
+
+    $element->setValue($value);
+  }
+
 }

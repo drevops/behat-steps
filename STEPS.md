@@ -572,6 +572,79 @@ When I uncheck the checkbox "edit-field-terms-0-value"
 </details>
 
 <details>
+  <summary><code>@When I fill in the datetime field :label with date :date and time :time</code></summary>
+
+<br/>
+Fill in datetime field with date and optionally time
+<br/><br/>
+
+```gherkin
+When I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
+When I fill in the datetime field "Event date" with date "2024-01-15" and time ""
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the date part of the datetime field :label with :date</code></summary>
+
+<br/>
+Fill in the date part of a datetime field
+<br/><br/>
+
+```gherkin
+When I fill in the date part of the datetime field "Event date" with "2024-01-15"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the time part of the datetime field :label with :time</code></summary>
+
+<br/>
+Fill in the time part of a datetime field
+<br/><br/>
+
+```gherkin
+When I fill in the time part of the datetime field "Event date" with "14:30:00"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the start datetime field :label with date :date and time :time</code></summary>
+
+<br/>
+Fill in start datetime field with date and optionally time
+<br/><br/>
+
+```gherkin
+When I fill in the start datetime field "Event period" with date "2024-01-15" and time "14:30:00"
+When I fill in the start datetime field "Event period" with date "2024-01-15" and time ""
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the end datetime field :label with date :date and time :time</code></summary>
+
+<br/>
+Fill in end datetime field with date and optionally time
+<br/><br/>
+
+```gherkin
+When I fill in the end datetime field "Event period" with date "2024-01-20" and time "18:00:00"
+When I fill in the end datetime field "Event period" with date "2024-01-20" and time ""
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the field :field should be empty</code></summary>
 
 <br/>

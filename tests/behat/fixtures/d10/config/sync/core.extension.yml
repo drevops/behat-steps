@@ -15,6 +15,7 @@ module:
   contextual: 0
   ctools: 0
   datetime: 0
+  datetime_range: 0
   dblog: 0
   draggableviews: 0
   draggableviews_demo: 0

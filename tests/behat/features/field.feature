@@ -405,3 +405,147 @@ Feature: Check that FieldTrait works
     And I press "Save"
      # Server-side validation errors should appear.
     Then I should see "Title field is required"
+
+  @api @datetime
+  Scenario: Fill datetime field with date and time
+    Given page content:
+      | title                     |
+      | [TEST] Datetime test page |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Datetime test page"
+    And I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
+    And I press "Save"
+    Then I should see the text "Page [TEST] Datetime test page has been updated."
+
+  @api @datetime
+  Scenario: Fill datetime field using separate date and time steps
+    Given page content:
+      | title                          |
+      | [TEST] Datetime separate steps |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
+    And I fill in the date part of the datetime field "Event date" with "2024-02-20"
+    And I fill in the time part of the datetime field "Event date" with "15:45:00"
+    And I press "Save"
+    Then I should see the text "Page [TEST] Datetime separate steps has been updated."
+
+  @api @datetime
+  Scenario: Fill date-only field
+    Given page content:
+      | title                      |
+      | [TEST] Date only test page |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Date only test page"
+    And I fill in the datetime field "Event date only" with date "2024-03-10" and time ""
+    And I press "Save"
+    Then I should see the text "Page [TEST] Date only test page has been updated."
+
+  @api @datetime
+  Scenario: Fill date-only field using date part step
+    Given page content:
+      | title                        |
+      | [TEST] Date part test page   |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Date part test page"
+    And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
+    And I press "Save"
+    Then I should see the text "Page [TEST] Date part test page has been updated."
+
+  @api @datetime
+  Scenario: Fill daterange field with start and end dates
+    Given page content:
+      | title                        |
+      | [TEST] Daterange test page   |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Daterange test page"
+    And I fill in the start datetime field "Event period" with date "2024-06-01" and time "09:00:00"
+    And I fill in the end datetime field "Event period" with date "2024-06-05" and time "17:00:00"
+    And I press "Save"
+    Then I should see the text "Page [TEST] Daterange test page has been updated."
+
+  @api @datetime
+  Scenario: Fill daterange date-only field
+    Given page content:
+      | title                                |
+      | [TEST] Daterange date only test page |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "page" content edit page with the title "[TEST] Daterange date only test page"
+    And I fill in the start datetime field "Event period date only" with date "2024-07-10" and time ""
+    And I fill in the end datetime field "Event period date only" with date "2024-07-15" and time ""
+    And I press "Save"
+    Then I should see the text "Page [TEST] Daterange date only test page has been updated."
+
+  @trait:FieldTrait @datetime
+  Scenario: Assert negative "fill in the datetime field" for non-existent field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the datetime field "Non-existent field" with date "2024-01-01" and time "12:00:00"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Datetime field "Non-existent field" with part "value" and field "date" not found.
+      """
+
+  @trait:FieldTrait @datetime
+  Scenario: Assert negative "fill in the date part of the datetime field" for non-existent field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the date part of the datetime field "Non-existent field" with "2024-01-01"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Datetime field "Non-existent field" with part "value" and field "date" not found.
+      """
+
+  @trait:FieldTrait @datetime
+  Scenario: Assert negative "fill in the time part of the datetime field" for non-existent field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the time part of the datetime field "Non-existent field" with "12:00:00"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Datetime field "Non-existent field" with part "value" and field "time" not found.
+      """
+
+  @trait:FieldTrait @datetime
+  Scenario: Assert negative "fill in the start datetime field" for non-existent field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the start datetime field "Non-existent range" with date "2024-01-01" and time ""
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Datetime field "Non-existent range" with part "value" and field "date" not found.
+      """
+
+  @trait:FieldTrait @datetime
+  Scenario: Assert negative "fill in the end datetime field" for non-existent field
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the end datetime field "Non-existent range" with date "2024-01-05" and time ""
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Datetime field "Non-existent range" with part "end_value" and field "date" not found.
+      """
