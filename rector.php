@@ -38,6 +38,7 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 return RectorConfig::configure()
   ->withPaths([
     '/app/docs.php',
+    '/app/scripts',
     '/app/src',
     '/app/tests/behat/bootstrap',
     '/app/tests/behat/fixtures/d10/web/modules/custom',

@@ -293,7 +293,9 @@ default:
 EOL;
 
     if (static::behatCliIsCoverageEnabled()) {
-      $coverage_content = <<<'EOL'
+      // Generate unique coverage filename for this subprocess to avoid conflicts.
+      $coverage_id = md5($this->workingDir);
+      $coverage_content = <<<EOL
 
     DVDoug\Behat\CodeCoverage\Extension:
       filter:
@@ -304,10 +306,8 @@ EOL;
         text:
           showColors: true
           showOnlySummary: true
-        html:
-          target: /app/.logs/coverage/behat_cli/.coverage-html
-        cobertura:
-          target: /app/.logs/coverage/behat_cli/cobertura.xml
+        php:
+          target: /app/.logs/coverage/behat_cli/phpcov/{$coverage_id}.php
 EOL;
       $content .= $coverage_content;
     }

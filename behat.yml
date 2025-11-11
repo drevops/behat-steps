@@ -87,7 +87,5 @@ default:
         text:
           showColors: true
           showOnlySummary: true
-        html:
-          target: '%paths.base%/.logs/coverage/behat/.coverage-html'
-        cobertura:
-          target: '%paths.base%/.logs/coverage/behat/cobertura.xml'
+        php:
+          target: '%paths.base%/.logs/coverage/behat/phpcov.php'

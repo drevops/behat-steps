@@ -23,6 +23,7 @@
     <config name="testVersion" value="8.2"/>
 
     <file>docs.php</file>
+    <file>scripts</file>
     <file>src</file>
     <file>tests/behat/bootstrap</file>
     <file>tests/behat/fixtures/d10/web/modules/custom</file>
