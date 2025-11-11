@@ -10,6 +10,7 @@ parameters:
 
   paths:
     - docs.php
+    - scripts
     - src
     - tests/behat/bootstrap
     - tests/behat/fixtures/d10/web/modules/custom

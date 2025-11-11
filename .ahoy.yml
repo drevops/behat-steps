@@ -144,7 +144,9 @@ commands:
 
   test-bdd-coverage:
     usage: Run BDD tests with coverage.
-    cmd: ahoy cli "cd /app/build && php -dpcov.enabled=1 -dpcov.directory=/app/src vendor/bin/behat -c /app/behat.yml --strict --colors $@"
+    cmd: |
+      ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/behat -c /app/behat.yml --strict --colors $@"
+      ahoy cli "php /app/scripts/merge-coverage.php"
 
   debug:
     usage: Enable PHP Xdebug.

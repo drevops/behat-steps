@@ -271,7 +271,7 @@ EOL;
 
     // Forward pcov settings if enabled.
     if (static::behatCliIsCoverageEnabled()) {
-      $php .= ' -dpcov.enabled=1 -dpcov.directory=' . ini_get('pcov.directory');
+      $php .= ' -d pcov.enabled=1 -d pcov.directory=' . ini_get('pcov.directory');
     }
 
     $cmd = sprintf(
