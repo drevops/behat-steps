@@ -443,8 +443,8 @@ Feature: Check that FieldTrait works
   @api @datetime
   Scenario: Fill date-only field using date part step
     Given page content:
-      | title                        |
-      | [TEST] Date part test page   |
+      | title                      |
+      | [TEST] Date part test page |
     And I am logged in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Date part test page"
     And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
@@ -454,8 +454,8 @@ Feature: Check that FieldTrait works
   @api @datetime
   Scenario: Fill daterange field with start and end dates
     Given page content:
-      | title                        |
-      | [TEST] Daterange test page   |
+      | title                      |
+      | [TEST] Daterange test page |
     And I am logged in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Daterange test page"
     And I fill in the start datetime field "Event period" with date "2024-06-01" and time "09:00:00"

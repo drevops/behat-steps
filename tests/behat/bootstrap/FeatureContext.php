@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
 use DrevOps\BehatSteps\Drupal\MetatagTrait;
+use DrevOps\BehatSteps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Drupal\OverrideTrait;
 use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
@@ -64,6 +65,7 @@ class FeatureContext extends DrupalContext {
   use MediaTrait;
   use MenuTrait;
   use MetatagTrait;
+  use ModuleTrait;
   use OverrideTrait;
   use ParagraphsTrait;
   use PathTrait;

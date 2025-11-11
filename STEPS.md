@@ -33,6 +33,7 @@
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\MetatagTrait](#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
+| [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
@@ -2847,6 +2848,142 @@ Given the following menu links exist in the menu "Main navigation":
 >  Assert `<meta>` tags in page markup.
 >  - Assert presence and content of meta tags with proper attribute handling.
 
+
+## Drupal\ModuleTrait
+
+[Source](src/Drupal/ModuleTrait.php), [Example](tests/behat/features/drupal_module.feature)
+
+>  Enable and disable Drupal modules with automatic state restoration.
+>  <br/><br/>
+>  Supports automatic module management via scenario tags.
+>  <br/><br/>
+>  Skip processing with tags: `@behat-steps-skip:moduleBeforeScenario` and
+>  `@behat-steps-skip:moduleAfterScenario`.
+>  <br/><br/>
+>  Special tags:
+>  - `@module:module_name` - enable module for scenario
+>  - `@module:!module_name` - disable module for scenario
+
+
+<details>
+  <summary><code>@Given the :module module is enabled</code></summary>
+
+<br/>
+Enable a module
+<br/><br/>
+
+```gherkin
+Given the "ctools" module is enabled
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the :module module is disabled</code></summary>
+
+<br/>
+Disable a module
+<br/><br/>
+
+```gherkin
+Given the "shield" module is disabled
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following modules are enabled:</code></summary>
+
+<br/>
+Enable multiple modules
+<br/><br/>
+
+```gherkin
+Given the following modules are enabled:
+  | ctools |
+  | views  |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following modules are disabled:</code></summary>
+
+<br/>
+Disable multiple modules
+<br/><br/>
+
+```gherkin
+Given the following modules are disabled:
+  | shield           |
+  | stage_file_proxy |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :module module should be enabled</code></summary>
+
+<br/>
+Assert that a module is enabled
+<br/><br/>
+
+```gherkin
+Then the "ctools" module should be enabled
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :module module should be disabled</code></summary>
+
+<br/>
+Assert that a module is disabled
+<br/><br/>
+
+```gherkin
+Then the "shield" module should be disabled
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following modules should be enabled:</code></summary>
+
+<br/>
+Assert that multiple modules are enabled
+<br/><br/>
+
+```gherkin
+Then the following modules should be enabled:
+  | ctools |
+  | views  |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following modules should be disabled:</code></summary>
+
+<br/>
+Assert that multiple modules are disabled
+<br/><br/>
+
+```gherkin
+Then the following modules should be disabled:
+  | shield           |
+  | stage_file_proxy |
+
+```
+
+</details>
 
 ## Drupal\OverrideTrait
 
