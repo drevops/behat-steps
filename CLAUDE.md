@@ -106,3 +106,45 @@ The [STEPS.md](STEPS.md) documentation is automatically generated from the sourc
    ```
 
 This ensures that the documentation remains in sync with the actual code implementation.
+
+## Implementation Patterns and Learnings
+
+### Working with Drupal Compound Fields
+- Drupal compound fields (like datetime, daterange) have multiple sub-inputs that cannot be targeted with standard `findField()`
+- Use XPath-based selectors to locate specific sub-inputs within compound fields
+- Implement fallback strategies: try label elements first, then span elements, then generic class-based searches
+- Compound field structure example: `field_name[0][value][date]` and `field_name[0][value][time]`
+- Date range fields use `[value]` for start and `[end_value]` for end components
+
+### Field Configuration Management
+- New field configurations must be added to **both** d10 and d11 fixtures
+- Field configs include: field storage, field instance, and form display updates
+- When adding fields, update `core.entity_form_display.node.page.default.yml` with:
+  - Field references in dependencies config section
+  - Module dependencies (e.g., `datetime`, `datetime_range`)
+  - Widget configuration with type, weight, region, and settings
+- After creating configs in `build/config/sync`, copy to both fixture directories
+- Use `ahoy drush cim -y` to import configurations into the build environment
+
+### Test Organization and Tagging
+- Consolidate related tests into existing feature files rather than creating new ones
+- Use descriptive tags (e.g., `@datetime`) to allow selective test execution
+- Negative tests using `@trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
+- Avoid using custom steps in negative tests that may not be available in BehatCLI context
+
+### Step Definition Constraints
+- Documentation tool (`docs.php`) does not support multiple `@When` annotations per method
+- Use a single step annotation and document alternative usage in `@code` examples
+- Optional parameters should use empty string defaults, not PHP optional parameters
+- Always provide both imperative (content) and continuous (activeForm) task descriptions
+
+### Field Naming Conventions
+- Use descriptive field names without "test" prefix (e.g., `field_datetime` not `field_test_datetime`)
+- Field labels should be user-friendly: "Event date", "Event period", etc.
+- Machine names follow Drupal conventions: `field_{description}`
+
+### Documentation and Code Quality
+- Always run `ahoy update-docs` after adding/modifying step definitions
+- Use `ahoy lint-docs` to verify documentation format
+- Run `ahoy lint` to ensure code passes all quality checks (PHPStan, Rector, Gherkinlint)
+- Run BDD tests with specific tags during development: `ahoy test-bdd -- --tags="@tagname"`
