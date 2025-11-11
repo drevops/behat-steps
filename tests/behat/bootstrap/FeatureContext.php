@@ -37,6 +37,7 @@ use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
 use DrevOps\BehatSteps\ResponsiveTrait;
 use DrevOps\BehatSteps\WaitTrait;
+use DrevOps\BehatSteps\XmlTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 
 /**
@@ -74,6 +75,7 @@ class FeatureContext extends DrupalContext {
   use UserTrait;
   use WaitTrait;
   use WatchdogTrait;
+  use XmlTrait;
 
   use FeatureContextTrait;
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:custom="http://example.com/custom" xmlns:test="http://example.com/test">
+  <custom:element>Custom Value</custom:element>
+  <test:element>Test Value</test:element>
+  <regular>Regular Value</regular>
+</root>
