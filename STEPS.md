@@ -16,6 +16,7 @@
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
+| [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
 
 ### Index of Drupal steps
 
@@ -1485,6 +1486,238 @@ Wait for the AJAX calls to finish
 ```gherkin
 When I wait for 5 seconds for AJAX to finish
 When I wait for 1 second for AJAX to finish
+
+```
+
+</details>
+
+## XmlTrait
+
+[Source](src/XmlTrait.php), [Example](tests/behat/features/xml.feature)
+
+>  Assert XML responses with element and attribute checks.
+>  - Assert response is valid XML format.
+>  - Assert XML element existence and content.
+>  - Assert XML attribute values.
+>  - Assert XML structure and namespace usage.
+
+
+<details>
+  <summary><code>@Then the response should be in XML format</code></summary>
+
+<br/>
+Assert that a response is valid XML
+<br/><br/>
+
+```gherkin
+Then the response should be in XML format
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should not be in XML format</code></summary>
+
+<br/>
+Assert that a response is not valid XML
+<br/><br/>
+
+```gherkin
+Then the response should not be in XML format
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should exist</code></summary>
+
+<br/>
+Assert that an XML element exists
+<br/><br/>
+
+```gherkin
+Then the XML element "//book" should exist
+Then the XML element "/library/book[@id='123']" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should not exist</code></summary>
+
+<br/>
+Assert that an XML element does not exist
+<br/><br/>
+
+```gherkin
+Then the XML element "//nonexistent" should not exist
+Then the XML element "/library/book[@id='999']" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should be equal to :text</code></summary>
+
+<br/>
+Assert that an XML element content equals specified text
+<br/><br/>
+
+```gherkin
+Then the XML element "//title" should be equal to "The Great Adventure"
+Then the XML element "/library/book[1]/author" should be equal to "John Doe"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should not be equal to :text</code></summary>
+
+<br/>
+Assert that an XML element content does not equal specified text
+<br/><br/>
+
+```gherkin
+Then the XML element "//title" should not be equal to "Wrong Title"
+Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should contain :text</code></summary>
+
+<br/>
+Assert that an XML element contains specified text
+<br/><br/>
+
+```gherkin
+Then the XML element "//description" should contain "sample book"
+Then the XML element "/library/book[1]/description" should contain "detailed"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should not contain :text</code></summary>
+
+<br/>
+Assert that an XML element does not contain specified text
+<br/><br/>
+
+```gherkin
+Then the XML element "//description" should not contain "nonexistent"
+Then the XML element "/library/book[1]/title" should not contain "wrong"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute on element :element should exist</code></summary>
+
+<br/>
+Assert that an XML attribute exists on an element
+<br/><br/>
+
+```gherkin
+Then the XML attribute "id" on element "//book" should exist
+Then the XML attribute "category" on element "/library/book[1]" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute on element :element should not exist</code></summary>
+
+<br/>
+Assert that an XML attribute does not exist on an element
+<br/><br/>
+
+```gherkin
+Then the XML attribute "nonexistent" on element "//book" should not exist
+Then the XML attribute "missing" on element "/library/book[1]" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute on element :element should be equal to :text</code></summary>
+
+<br/>
+Assert that an XML attribute value equals specified text
+<br/><br/>
+
+```gherkin
+Then the XML attribute "id" on element "//book" should be equal to "123"
+Then the XML attribute "category" on element "/library/book[1]" should be equal to "fiction"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute on element :element should not be equal to :text</code></summary>
+
+<br/>
+Assert that an XML attribute value does not equal specified text
+<br/><br/>
+
+```gherkin
+Then the XML attribute "id" on element "//book" should not be equal to "999"
+Then the XML attribute "category" on element "/library/book[1]" should not be equal to "science"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML element :element should have :count element(s)</code></summary>
+
+<br/>
+Assert that an XML element has a specific number of child elements
+<br/><br/>
+
+```gherkin
+Then the XML element "//library" should have "3" elements
+Then the XML element "/library" should have "3" elements
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML should use the namespace :namespace</code></summary>
+
+<br/>
+Assert that the XML uses a specific namespace
+<br/><br/>
+
+```gherkin
+Then the XML should use the namespace "http://example.com/custom"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML should not use the namespace :namespace</code></summary>
+
+<br/>
+Assert that the XML does not use a specific namespace
+<br/><br/>
+
+```gherkin
+Then the XML should not use the namespace "http://example.com/nonexistent"
 
 ```
 

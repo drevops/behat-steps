@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <book id="123" category="fiction">
+    <title>The Great Adventure</title>
+    <author>John Doe</author>
+    <description>This is a sample book description with detailed content.</description>
+    <published>2023</published>
+  </book>
+  <book id="456" category="non-fiction">
+    <title>Learning XML</title>
+    <author>Jane Smith</author>
+    <description>A comprehensive guide to XML.</description>
+    <published>2024</published>
+  </book>
+  <book id="789" category="fiction">
+    <title>Another Story</title>
+    <author>Bob Johnson</author>
+  </book>
+</library>

@@ -1,4 +1,3 @@
-@d10
 Feature: Check that ResponsiveTrait works
   As Behat Steps library developer
   I want to provide tools to test responsive layouts with viewport control

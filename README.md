@@ -55,6 +55,7 @@ from the community.
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
 | [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
+| [XmlTrait](STEPS.md#xmltrait) | Assert XML responses with element and attribute checks. |
 
 ### Index of Drupal steps
 
