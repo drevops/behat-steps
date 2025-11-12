@@ -60,7 +60,7 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - name: Provision application
-        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -T cli bash .github/provision.sh
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -T cli bash scripts/provision.sh
 
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
