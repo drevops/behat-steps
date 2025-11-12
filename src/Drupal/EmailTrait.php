@@ -45,10 +45,11 @@ trait EmailTrait {
    * @BeforeScenario
    */
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     if (!$scope->getScenario()->hasTag('email')) {
       return;
     }
@@ -363,10 +364,11 @@ trait EmailTrait {
    * @Then the email field :field should not contain:
    */
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
+    // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
-
+    // @codeCoverageIgnoreEnd
     $string = strval($string);
     $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
 
@@ -417,13 +419,14 @@ trait EmailTrait {
     if (isset($message['params']['body']) && is_string($message['params']['body'])) {
       $body = $message['params']['body'];
     }
+    // @codeCoverageIgnoreStart
     elseif (is_string($message['body'])) {
       $body = $message['body'];
     }
     else {
       throw new \Exception('No body found in email');
     }
-
+    // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
@@ -466,13 +469,14 @@ trait EmailTrait {
     if (isset($message['params']['body']) && is_string($message['params']['body'])) {
       $body = $message['params']['body'];
     }
+    // @codeCoverageIgnoreStart
     elseif (is_string($message['body'])) {
       $body = $message['body'];
     }
     else {
       throw new \Exception('No body found in email');
     }
-
+    // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
@@ -612,12 +616,14 @@ trait EmailTrait {
     // @note: For some unknown reasons, we do not need to reset this back to
     // the original values after the test. The values in the configuration
     // will not be overridden.
+    // @codeCoverageIgnoreStart
     if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
         ->set('defaults.formatter', $value)
         ->save();
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -693,10 +699,11 @@ trait EmailTrait {
    *   Email message or NULL if not found.
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
+    // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
-
+    // @codeCoverageIgnoreEnd
     $string = (string) $string;
     $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
 

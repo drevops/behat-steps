@@ -418,3 +418,53 @@ Feature: Check that UserTrait works
       """
       User with name "non_existing" does not exist.
       """
+
+  @api
+  Scenario: Assert "Given the role :role_name with the permissions :permissions" works
+    Given the role "Content Manager" with the permissions "access content, create article content"
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/people/roles"
+    Then I should see "Content Manager"
+
+  @api
+  Scenario: Assert "Given the role :role_name with the permissions :permissions" replaces existing role
+    Given the role "Editor" with the permissions "access content"
+    And the role "Editor" with the permissions "access content, create article content"
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/people/roles"
+    Then I should see "Editor"
+
+  @api
+  Scenario: Assert "Given the following roles:" works with table
+    Given the following roles:
+      | name              | permissions                              |
+      | Content Editor    | access content, create article content   |
+      | Content Approver  | access content, edit any article content |
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/people/roles"
+    Then I should see "Content Editor"
+    And I should see "Content Approver"
+
+  @api
+  Scenario: Assert "Given the following roles:" works with empty permissions
+    Given the following roles:
+      | name            | permissions |
+      | Limited Editor  |             |
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/people/roles"
+    Then I should see "Limited Editor"
+
+  @api @trait:Drupal\UserTrait
+  Scenario: Assert "Given the following roles:" fails when name column is missing
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following roles:
+        | role        | permissions         |
+        | Test Role   | access content      |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Missing required column "name"
+      """

@@ -127,3 +127,17 @@ Feature: Behat CLI context
       1 scenario (1 failed)
       3 steps (1 passed, 1 failed, 1 skipped)
       """
+
+  Scenario: Test nested PyStrings using triple single quotes
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given a file named "test.txt" with:
+        '''
+        Line one of content
+        Line two of content
+        Line three of content
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should pass

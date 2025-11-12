@@ -374,9 +374,11 @@ trait UserTrait {
     ]);
     $saved = $role->save();
 
+    // @codeCoverageIgnoreStart
     if ($saved !== SAVED_NEW) {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
+    // @codeCoverageIgnoreEnd
     $this->roles[(string) $role->id()] = (string) $role->id();
 
     user_role_grant_permissions($role->id(), $permissions);

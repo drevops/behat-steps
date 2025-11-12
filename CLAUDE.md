@@ -138,6 +138,67 @@ This ensures that the documentation remains in sync with the actual code impleme
 - Optional parameters should use empty string defaults, not PHP optional parameters
 - Always provide both imperative (content) and continuous (activeForm) task descriptions
 
+### Nested PyStrings in @trait Scenarios
+When writing @trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.
+
+**Problem**: Standard escaped PyString delimiters `\"\"\"` don't work because:
+1. Gherkin parser captures the outer PyString as literal text including the escaped quotes
+2. BehatCliContext writes this literal text to a generated feature file
+3. Gherkin parser fails when parsing the generated file with malformed PyString syntax
+
+**Solution**: Use **triple single quotes `'''`** for inner PyStrings:
+```gherkin
+@trait:SomeTrait
+Scenario: Test error condition
+  Given some behat configuration
+  And scenario steps tagged with "@api @email":
+    """
+    When I send test email to "test@example.com" with:
+      '''
+      Email body content here
+      '''
+    Then an email should be sent
+    """
+```
+
+**How it works**: `BehatCliTrait.php:203` converts `'''` → `"""` after extracting the PyString but before writing the generated feature file, ensuring proper Gherkin syntax.
+
+**Example test**: See `tests/behat/features/behatcli.feature:131` for a demonstration of nested PyStrings.
+
+### Coverage Reports: Two Files to Always Check
+
+**CRITICAL**: When running `ahoy test-bdd-coverage <path>`, TWO separate cobertura.xml files are generated:
+
+1. **`.logs/coverage/behat/cobertura.xml`**
+   - Contains coverage from **@api tests only** (direct execution)
+   - Shows what regular Behat scenarios cover
+   - Example: EmailTrait shows 83.63%
+
+2. **`.logs/coverage/behat_cli/cobertura.xml`**
+   - Contains **MERGED coverage** (API tests + @trait subprocess tests)
+   - This is the **TRUE total coverage** to report
+   - Example: EmailTrait shows 90.06% (correctly higher)
+
+**How it works**:
+- During test execution, @trait scenarios spawn subprocess Behat runs
+- Each subprocess generates a coverage file in `.logs/coverage/behat_cli/phpcov/*.php`
+- After tests complete, `scripts/merge-coverage.php` merges all subprocess coverage with the main behat coverage
+- The merged result is written to `behat_cli/cobertura.xml`
+
+**Important**: The `ahoy test-bdd-coverage` command automatically cleans up old subprocess coverage files before running tests to prevent pollution from stale data. Always check the `behat_cli/cobertura.xml` (merged) file for the accurate total coverage percentage.
+
+**Assessing coverage after running tests**:
+```bash
+# Run tests with coverage
+ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+
+# Check API-only coverage
+grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
+
+# Check MERGED coverage (THIS IS THE TRUE COVERAGE)
+grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
+```
+
 ### Field Naming Conventions
 - Use descriptive field names without "test" prefix (e.g., `field_datetime` not `field_test_datetime`)
 - Field labels should be user-friendly: "Event date", "Event period", etc.
