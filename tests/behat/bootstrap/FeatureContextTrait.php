@@ -220,6 +220,76 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Send a test email with CC.
+   *
+   * @When I send test email to :to with cc :cc with
+   * @When I send test email to :to with cc :cc with:
+   */
+  public function testSendEmailWithCc(string $to, string $cc, PyStringNode $string): void {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email_with_cc',
+      $to,
+      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      [
+        'subject' => 'Test Email',
+        'body' => strval($string),
+        'headers' => [
+          'Cc' => $cc,
+        ],
+      ],
+      NULL
+    );
+  }
+
+  /**
+   * Send a test email with BCC.
+   *
+   * @When I send test email to :to with bcc :bcc with
+   * @When I send test email to :to with bcc :bcc with:
+   */
+  public function testSendEmailWithBcc(string $to, string $bcc, PyStringNode $string): void {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email_with_bcc',
+      $to,
+      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      [
+        'subject' => 'Test Email',
+        'body' => strval($string),
+        'headers' => [
+          'Bcc' => $bcc,
+        ],
+      ],
+      NULL
+    );
+  }
+
+  /**
+   * Send a test email with both CC and BCC.
+   *
+   * @When I send test email to :to with cc :cc and bcc :bcc with
+   * @When I send test email to :to with cc :cc and bcc :bcc with:
+   */
+  public function testSendEmailWithCcAndBcc(string $to, string $cc, string $bcc, PyStringNode $string): void {
+    \Drupal::service('plugin.manager.mail')->mail(
+      'mysite_core',
+      'test_email_with_cc_bcc',
+      $to,
+      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      [
+        'subject' => 'Test Email',
+        'body' => strval($string),
+        'headers' => [
+          'Cc' => $cc,
+          'Bcc' => $bcc,
+        ],
+      ],
+      NULL
+    );
+  }
+
+  /**
    * Send a test email with an attachment.
    *
    * @When I send test email to :email with subject :subject and attachment :attachment and body:

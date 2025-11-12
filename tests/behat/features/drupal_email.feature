@@ -304,6 +304,51 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the "test@example.com"
     And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
 
+  @api @email
+  Scenario: As a developer, I want error when no emails sent but some expected
+    Given no emails should have been sent
+    When I send test email to "test@example.com" with:
+      """
+      Test content
+      """
+    Then an email should be sent to the "test@example.com"
+
+  @api @email
+  Scenario: As a developer, I want to verify no emails sent to address assertion passes when address not used
+    When I send test email to "test@example.com" with:
+      """
+      Test content
+      """
+    Then no emails should have been sent to the "wrong@example.com"
+
+  @api @email
+  Scenario: As a developer, I want to verify no emails sent to CC address assertion passes when address not used
+    When I send test email to "to@example.com" with cc "cc@example.com" with:
+      """
+      Test content with CC
+      """
+    Then no emails should have been sent to the "wrong@example.com"
+
+  @api @email
+  Scenario: As a developer, I want to verify no emails sent to BCC address assertion passes when address not used
+    When I send test email to "to@example.com" with bcc "bcc@example.com" with:
+      """
+      Test content with BCC
+      """
+    Then no emails should have been sent to the "wrong@example.com"
+
+  @api @email @debug
+  Scenario: As a developer, I want to verify email debug output is triggered with @debug tag
+    When I send test email to "test@example.com" with:
+      """
+      Debug test content
+      """
+    Then an email should be sent to the "test@example.com"
+    And the email field "body" should contain:
+      """
+      Debug test content
+      """
+
   @trait:Drupal\EmailTrait
   Scenario: Assert that an email was sent to an address
     Given some behat configuration
@@ -316,4 +361,342 @@ Feature: Check that EmailTrait works
     Then it should fail with an error:
       """
       Unable to find email that should be sent to "test@example.com" retrieved from test message collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that clearing email queue without @email tag fails
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I clear the test email system queue
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Clearing testing email system queue can be done only when email testing system is activated.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that no emails sent to CC address fails when email WAS sent to that CC address
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "to@example.com" with cc "cc@example.com" with:
+        '''
+        Test content with CC
+        '''
+      Then no emails should have been sent to the "cc@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      An email was cc'ed to "cc@example.com" retrieved from test email collector, but it should not have been.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that no emails sent to BCC address fails when email WAS sent to that BCC address
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "to@example.com" with bcc "bcc@example.com" with:
+        '''
+        Test content with BCC
+        '''
+      Then no emails should have been sent to the "bcc@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      An email was bcc'ed to "bcc@example.com" retrieved from test email collector, but it should not have been.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link in email fails when email subject not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with a link: http://example.com
+        '''
+      Then I follow link number "1" in the email with the subject "Wrong Subject"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link in email fails when no links found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with no links
+        '''
+      Then I follow link number "1" in the email with the subject "Test Email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No links were found in the email with subject "Test Email"
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link in email fails when link number too high
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with one link: http://example.com
+        '''
+      Then I follow link number "5" in the email with the subject "Test Email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link with number 5 was not found among 1 links
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link by subject substring fails when subject not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with a link: http://example.com
+        '''
+      Then I follow link number 1 in the email with the subject containing "Nonexistent"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link by subject substring fails when no links found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with no links
+        '''
+      Then I follow link number 1 in the email with the subject containing "Test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No links were found in the email with subject containing "Test"
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link by subject substring fails when link number too high
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with one link: http://example.com
+        '''
+      Then I follow link number 3 in the email with the subject containing "Email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link with number 3 was not found among 1 links
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that no emails sent fails when emails WERE sent
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then no emails should have been sent
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No emails should have been sent, but some were found:
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that no emails sent to address fails when email WAS sent to that address
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then no emails should have been sent to the "test@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      An email was sent to "test@example.com" retrieved from test email collector, but it should not have been.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that email header contains fails when header not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the email header "X-Nonexistent-Header" should contain:
+        '''
+        Some value
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find an email where the header "X-Nonexistent-Header" should contain text "Some value" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that email field contains fails when field not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the email field "body" should contain:
+        '''
+        Nonexistent content
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find an email where the field "body" should contain text "Nonexistent content" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that email field should not contain fails when field DOES contain value
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content with specific text
+        '''
+      Then the email field "body" should not contain:
+        '''
+        specific text
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Found an email where the field "body" contains text "specific text" retrieved from test email collector, but it should not.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment assertion fails when email subject not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the file "test.pdf" should be attached to the email with the subject "Wrong Subject"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment assertion fails when no attachments found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content without attachments
+        '''
+      Then the file "test.pdf" should be attached to the email with the subject "Test Email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No attachments were found in the email with subject Test Email
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment with subject substring fails when email not found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the file "test.pdf" should be attached to the email with the subject containing "Nonexistent"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment with subject substring fails when no attachments found
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content without attachments
+        '''
+      Then the file "test.pdf" should be attached to the email with the subject containing "Test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No attachments were found in the email with subject containing "Test"
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that behat-steps-skip tag for AfterScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @email @behat-steps-skip:emailAfterScenario":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then an email should be sent to the "test@example.com"
+      When I disable the test email system
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @api @email @email:default
+  Scenario: As a developer, I want to verify custom email handler type tag is processed
+    When I send test email to "test@example.com" with:
+      """
+      Test content with custom handler type
+      """
+    Then an email should be sent to the "test@example.com"
+    And the email field "body" should contain:
+      """
+      Test content with custom handler type
       """

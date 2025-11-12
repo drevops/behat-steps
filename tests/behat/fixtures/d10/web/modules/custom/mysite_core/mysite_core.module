@@ -31,4 +31,11 @@ function mysite_core_mail(string $key, array &$message, array $params): void {
   }
 
   $message['body'][] = strval($params['body'] ?? '');
+
+  // Transfer headers from params to message.
+  if (!empty($params['headers'])) {
+    foreach ($params['headers'] as $header_name => $header_value) {
+      $message['headers'][$header_name] = $header_value;
+    }
+  }
 }
