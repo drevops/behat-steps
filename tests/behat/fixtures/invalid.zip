@@ -1,0 +1,3 @@
+This is not a valid ZIP file but has a .zip extension.
+It contains plain text instead of proper ZIP structure.
+This file is intentionally corrupted for testing error handling.

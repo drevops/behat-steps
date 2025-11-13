@@ -209,3 +209,10 @@ grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat_cli/cobe
 - Use `ahoy lint-docs` to verify documentation format
 - Run `ahoy lint` to ensure code passes all quality checks (PHPStan, Rector, Gherkinlint)
 - Run BDD tests with specific tags during development: `ahoy test-bdd -- --tags="@tagname"`
+
+**IMPORTANT: Never Modify Code Quality Tool Configurations**
+- **NEVER** modify `phpstan.neon`, `phpcs.xml`, `rector.php`, or other code quality tool configs to make lint pass
+- If linting errors occur, fix the actual code to address the issues
+- Do not add ignores or suppressions to configuration files
+- If errors seem legitimate and can't be fixed, ask for guidance instead
+- Code quality standards must be maintained consistently across the project

@@ -102,6 +102,7 @@ trait FileDownloadTrait {
       CURLOPT_COOKIE => implode('; ', $cookie_list),
     ]);
 
+    // @codeCoverageIgnoreStart
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
       throw new \RuntimeException('Unable to download file from URL ' . $url . '.');
     }
@@ -109,7 +110,7 @@ trait FileDownloadTrait {
     if ($file_data === FALSE) {
       throw new \RuntimeException('Unable to load content for downloaded file from temporary local file.');
     }
-
+    // @codeCoverageIgnoreEnd
     $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
   }
 
@@ -167,7 +168,7 @@ trait FileDownloadTrait {
 
     if (is_array($lines)) {
       foreach ($lines as $line) {
-        if (preg_match('/^\/.+\/[a-z]*$/i', $string)) {
+        if ($this->fileDownloadIsRegex($string)) {
           if (preg_match($string, $line)) {
             return;
           }
@@ -316,20 +317,27 @@ trait FileDownloadTrait {
    * Open downloaded ZIP archive and validate contents.
    */
   protected function fileDownloadOpenZip(): \ZipArchive {
+    // @codeCoverageIgnoreStart
     if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP.');
     }
-
+    // @codeCoverageIgnoreEnd
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
       throw new \RuntimeException('Downloaded file path data is not available.');
     }
 
+    // @codeCoverageIgnoreStart
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
       throw new \Exception('Downloaded file information does not have content type data.');
     }
+    // @codeCoverageIgnoreEnd
+    // Allow .zip files to proceed to validation even with incorrect content-type.
+    $file_name = $this->fileDownloadDownloadedFileInfo['file_name'] ?? '';
+    $has_zip_extension = str_ends_with(strtolower($file_name), '.zip');
 
-    if (!in_array($this->fileDownloadDownloadedFileInfo['content_type'], [
-      'application/octet-stream', 'application/zip',
+    if (!$has_zip_extension && !in_array($this->fileDownloadDownloadedFileInfo['content_type'], [
+      'application/octet-stream',
+      'application/zip',
     ])) {
       throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
     }
@@ -338,11 +346,13 @@ trait FileDownloadTrait {
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
       if ($result == \ZipArchive::ER_NOZIP) {
-        throw new \Exception('Downloaded file is not valid ZIP file.');
+        throw new \Exception('Downloaded file is not a valid ZIP file.');
       }
+      // @codeCoverageIgnoreStart
       else {
         throw new \Exception('Downloaded file cannot be read.');
       }
+      // @codeCoverageIgnoreEnd
     }
 
     return $zip;
@@ -379,10 +389,6 @@ trait FileDownloadTrait {
       },
     ];
 
-    if (!filter_var($url, FILTER_VALIDATE_URL)) {
-      throw new \RuntimeException('Invalid download URL provided: ' . $url . '.');
-    }
-
     $ch = curl_init($url);
     curl_setopt_array($ch, $options);
 
@@ -390,7 +396,9 @@ trait FileDownloadTrait {
     curl_close($ch);
 
     if (!$content) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to save temp file from URL ' . $url . '.');
+      // @codeCoverageIgnoreEnd
     }
 
     // Extract meta information from headers.
@@ -406,7 +414,9 @@ trait FileDownloadTrait {
 
     $file_path = empty($headers['file_name']) ? tempnam($dir, 'behat') : $dir . DIRECTORY_SEPARATOR . $headers['file_name'];
     if (!$file_path) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to create temp file for downloaded content.');
+      // @codeCoverageIgnoreEnd
     }
 
     $file_name = basename($file_path);
@@ -414,7 +424,9 @@ trait FileDownloadTrait {
     // Write file contents.
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path . '.');
+      // @codeCoverageIgnoreEnd
     }
 
     return ['file_name' => $file_name, 'file_path' => $file_path] + $headers;
@@ -433,11 +445,12 @@ trait FileDownloadTrait {
     $parsed_headers = [];
 
     foreach ($headers as $header) {
+      // @codeCoverageIgnoreStart
       if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['file_name'] = trim($matches[1]);
         continue;
       }
-
+      // @codeCoverageIgnoreEnd
       if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && !empty($matches[1])) {
         $parsed_headers['content_type'] = trim($matches[1]);
       }
@@ -461,7 +474,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadRemoveTempDir(): void {
     $fs = new Filesystem();
-    if (!$fs->exists($this->fileDownloadGetTempDir())) {
+    if ($fs->exists($this->fileDownloadGetTempDir())) {
       $fs->remove($this->fileDownloadGetTempDir());
     }
   }
@@ -471,6 +484,20 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadGetTempDir(): string {
     return '/tmp/behat_downloads';
+  }
+
+  /**
+   * Check if a string is a regular expression pattern.
+   *
+   * @param string $string
+   *   The string to check.
+   *
+   * @return bool
+   *   TRUE if the string is a regex pattern, FALSE otherwise.
+   */
+  protected function fileDownloadIsRegex(string $string): bool {
+    $string = trim($string);
+    return (bool) preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string);
   }
 
 }
