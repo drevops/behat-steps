@@ -33,13 +33,13 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseBreakpoint')]
-  public function testParseBreakpoint(string $dimensions, array $expected, ?string $exception = NULL): void {
+  public function testExtractDimensions(string $dimensions, array $expected, ?string $exception = NULL): void {
     if ($exception) {
       $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
-    $result = $this->testObject->testResponsiveParseBreakpoint($dimensions);
+    $result = $this->testObject->testResponsiveExtractDimensions($dimensions);
     $this->assertEquals($expected, $result);
   }
 
@@ -319,8 +319,8 @@ class ResponsiveTraitTestImplementation {
   /**
    * Expose protected method for testing.
    */
-  public function testResponsiveParseBreakpoint(string $dimensions): array {
-    return $this->responsiveParseBreakpoint($dimensions);
+  public function testResponsiveExtractDimensions(string $dimensions, ?string $name = NULL): array {
+    return $this->responsiveExtractDimensions($dimensions, $name);
   }
 
   /**
