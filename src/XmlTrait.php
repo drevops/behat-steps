@@ -71,11 +71,6 @@ trait XmlTrait {
   public function xmlAssertResponseIsXml(): void {
     $content = $this->getSession()->getPage()->getContent();
     $this->xmlLoadDocument($content);
-
-    $errors = libxml_get_errors();
-    if (!empty($errors)) {
-      throw new \Exception(sprintf('The response is not valid XML. Errors: %s', $this->xmlFormatErrors($errors)));
-    }
   }
 
   /**
@@ -159,7 +154,9 @@ trait XmlTrait {
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
       throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
     }
 
     $actual_text = trim($node->textContent);
@@ -188,7 +185,9 @@ trait XmlTrait {
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
       throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
     }
 
     $actual_text = trim($node->textContent);
@@ -217,7 +216,9 @@ trait XmlTrait {
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
       throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
     }
 
     $actual_text = $node->textContent;
@@ -246,7 +247,9 @@ trait XmlTrait {
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
       throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
     }
 
     $actual_text = $node->textContent;
@@ -381,7 +384,9 @@ trait XmlTrait {
 
     $parent_node = $nodes->item(0);
     if (!$parent_node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
       throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
     }
 
     $child_elements = 0;
@@ -494,7 +499,9 @@ trait XmlTrait {
    */
   protected function xmlExtractNamespaces(): array {
     if ($this->xmlDocument === NULL) {
-      return [];
+      // @codeCoverageIgnoreStart
+      throw new \Exception('No XML document is loaded.');
+      // @codeCoverageIgnoreEnd
     }
 
     $namespaces = [];
