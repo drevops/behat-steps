@@ -277,12 +277,10 @@ trait CookieTrait {
       array_walk($cookies, function (array &$cookie): void {
         $cookie['value'] = rawurldecode((string) $cookie['value']);
       });
-
-      return $cookies;
     }
 
     // BrowserKit-based drivers like GoutteDriver.
-    if (method_exists($driver, 'getClient')) {
+    elseif (method_exists($driver, 'getClient')) {
       /** @var \Symfony\Component\BrowserKit\CookieJar $cookie_jar */
       $cookie_jar = $driver->getClient()->getCookieJar();
 
@@ -295,59 +293,22 @@ trait CookieTrait {
       $cookies = [];
       foreach ($cookies_objs as $cookie_obj) {
         if (!in_array($cookie_obj->getName(), $cookies_names)) {
+          // @codeCoverageIgnoreStart
           continue;
+          // @codeCoverageIgnoreEnd
         }
+
         $cookies[] = [
           'name' => $cookie_obj->getName(),
           'value' => $cookie_obj->getValue(),
           'secure' => $cookie_obj->isSecure(),
         ];
       }
-
-      return $cookies;
     }
-
-    // Fallback to parsing headers.
-    $cookies = [];
-    $headers = $driver->getResponseHeaders();
-    foreach ($headers as $header_name => $header_value) {
-      if (strtolower((string) $header_name) !== 'set-cookie') {
-        continue;
-      }
-
-      // Only support parsed cookies from a string header.
-      if (is_string($header_value)) {
-        $cookies = self::cookieParseHeader($header_value);
-      }
-      break;
-    }
-
-    return $cookies;
-  }
-
-  /**
-   * Parse a cookie header string.
-   *
-   * @param string $string
-   *   The cookie header string.
-   *
-   * @return array<int, array<string, mixed>>
-   *   An array of cookies.
-   */
-  protected static function cookieParseHeader(string $string): array {
-    $cookies = [];
-
-    $parts = explode(';', $string);
-    foreach ($parts as $part) {
-      $part = trim($part);
-      if (str_contains($part, '=')) {
-        $cookie = [];
-        [$name, $value] = explode('=', $part, 2);
-        $cookie['name'] = $name;
-        $cookie['value'] = rawurldecode($value);
-        $cookie['secure'] = FALSE;
-        $cookies[] = $cookie;
-      }
+    else {
+      // @codeCoverageIgnoreStart
+      throw new \Exception('Unsupported driver for cookie retrieval.');
+      // @codeCoverageIgnoreEnd
     }
 
     return $cookies;
