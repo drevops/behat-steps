@@ -24,6 +24,20 @@ Feature: Check that WaitTrait works
     Then I should see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
 
   @trait:WaitTrait
+  Scenario: Assert that "When I wait for :seconds second(s) for AJAX to finish" fails when AJAX does not complete in time
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript":
+      """
+      When I visit "/sites/default/files/ajax-timeout.html"
+      And I wait for "2" seconds for AJAX to finish
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to complete an AJAX request.
+      """
+
+  @trait:WaitTrait
   Scenario: Assert that negative assertion for "When I wait for :seconds second(s) for AJAX to finish" can be used only with JS-capable driver
     Given some behat configuration
     And scenario steps tagged with "@api":

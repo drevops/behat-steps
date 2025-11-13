@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX Timeout Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>AJAX Timeout Test Page</h1>
+    <p>This page simulates a long-running AJAX request.</p>
+
+    <script>
+        // Simulate Drupal AJAX system
+        window.Drupal = {
+            ajax: {
+                instances: [
+                    { ajaxing: true }
+                ]
+            }
+        };
+
+        // Also simulate jQuery being active
+        jQuery.active = 1;
+
+        // Keep AJAX active for 3 seconds, then allow it to complete
+        setTimeout(function() {
+            window.Drupal.ajax.instances[0].ajaxing = false;
+            jQuery.active = 0;
+        }, 3000);
+    </script>
+</body>
+</html>
+
