@@ -7,6 +7,10 @@ Feature: Check that XmlTrait works
     When I go to "/sites/default/files/valid.xml"
     Then the response should be in XML format
 
+  Scenario: Assert "Then the response should be in XML format" works with XML that has warnings
+    When I go to "/sites/default/files/xml-with-warnings.xml"
+    Then the response should be in XML format
+
   @trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be in XML format" fails with an error
     Given some behat configuration
@@ -385,3 +389,73 @@ Feature: Check that XmlTrait works
     And the XML element "//count" should be equal to "3"
     When I go to "/sites/default/files/valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the XML element :element should not be equal to :text" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/valid.xml"
+      Then the XML element "//nonexistent" should not be equal to "test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the XML element :element should not contain :text" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/valid.xml"
+      Then the XML element "//nonexistent" should not contain "test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the XML attribute :attribute on element :element should not exist" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/valid.xml"
+      Then the XML attribute "id" on element "//nonexistent" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the XML attribute :attribute on element :element should not be equal to :text" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/valid.xml"
+      Then the XML attribute "id" on element "//nonexistent" should not be equal to "123"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the XML attribute :attribute on element :element should not be equal to :text" fails with an error for missing attribute
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/valid.xml"
+      Then the XML attribute "nonexistent" on element "//book[@id='123']" should not be equal to "test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
+      """

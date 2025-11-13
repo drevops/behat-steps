@@ -31,6 +31,18 @@ composer require --dev drevops/behat-steps:^3
 - `ahoy lint-fix` - Fix linting issues (if docker-compose.yml exists, otherwise use `composer lint-fix`)
 - `ahoy test-unit` - Run unit tests (if docker-compose.yml exists, otherwise use `composer test`)
 
+### Fixture Files Management
+
+**CRITICAL: Always copy fixture files to all three locations**
+
+When creating or updating fixture files in `tests/behat/fixtures/`, you **MUST**
+immediately copy them to `build/web/sites/default/files/`
+
+**Example:**
+```bash
+cp tests/behat/fixtures/example.xml build/web/sites/default/files/example.xml
+```
+
 ## Steps Format Guidelines
 - **General Guidelines**:
   - Use tuple format instead of regular expressions
