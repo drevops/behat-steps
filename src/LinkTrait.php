@@ -60,10 +60,6 @@ trait LinkTrait {
       throw new \Exception(sprintf('The link "%s" is not found', $text));
     }
 
-    if (!$link->hasAttribute('href')) {
-      throw new \Exception('The link does not contain a href attribute');
-    }
-
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
@@ -116,10 +112,6 @@ trait LinkTrait {
 
     $link = $element->findLink($text);
     if (!$link) {
-      return;
-    }
-
-    if (!$link->hasAttribute('href')) {
       return;
     }
 
