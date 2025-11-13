@@ -29,6 +29,17 @@ class DocsTest extends UnitTestCase {
     parent::setUp();
 
     require_once __DIR__ . '/../../../docs.php';
+
+    // Pre-load all fixture traits so they're available for eval().
+    // Note: We don't pre-load Drupal subdirectory traits because they need to
+    // be loaded from the test's temporary directory to get the correct context.
+    $fixtures_dir = __DIR__ . '/../fixtures/docs';
+    $fixture_files = glob($fixtures_dir . '/*.php');
+    if ($fixture_files !== FALSE) {
+      foreach ($fixture_files as $fixture_file) {
+        require_once $fixture_file;
+      }
+    }
   }
 
   #[DataProvider('dataProviderParseMethodComment')]
@@ -931,6 +942,101 @@ EOD,
     ];
   }
 
+  #[DataProvider('dataProviderRenderInfoWithPathForLinks')]
+  public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
+    $base_path = static::$tmp;
+
+    // Create temporary files for testing.
+    $trait_dir = $base_path . DIRECTORY_SEPARATOR . 'src';
+    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+
+    // Ensure directories exist.
+    mkdir($trait_dir, 0777, TRUE);
+    mkdir($features_dir, 0777, TRUE);
+
+    // Create sample files that the function will check for existence.
+    foreach ($info as $trait => $data) {
+      // Update test data to include name_contextual if it doesn't exist.
+      if (!isset($data['name_contextual'])) {
+        $context = $data['context'] ?? 'Generic';
+        $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
+      }
+
+      // Create the src file.
+      $src_file = sprintf('src/%s.php', $trait);
+      $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+      file_put_contents($src_file_path, '<?php');
+
+      // Create the feature file.
+      $example_name = camel_to_snake(str_replace('Trait', '', $trait));
+      $prefix = isset($data['context']) && $data['context'] === 'Drupal' ? 'drupal_' : '';
+      $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
+      $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+      file_put_contents($example_file_path, 'Feature: Test');
+    }
+
+    $actual = render_info($info, $base_path, $path_for_links);
+
+    // Verify that the path_for_links is used in the index.
+    foreach ($info as $trait => $data) {
+      $name_contextual = $data['name_contextual'] ?? $trait;
+      $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
+      $expected_link = sprintf("%s#%s", $path_for_links, $link_id);
+      $this->assertStringContainsString($expected_link, $actual);
+    }
+
+    // When path_for_links is set, the actual content (not index) should not be rendered.
+    $this->assertStringNotContainsString('<details>', $actual);
+    $this->assertStringNotContainsString('[Source]', $actual);
+  }
+
+  public static function dataProviderRenderInfoWithPathForLinks(): array {
+    return [
+      'with STEPS.md path' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'context' => 'Generic',
+            'description' => 'Test trait description',
+            'description_full' => 'Test trait description',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given I am on the homepage'],
+                'description' => 'Test method description',
+                'example' => 'Given I am on the homepage',
+              ],
+            ],
+          ],
+        ],
+        'STEPS.md',
+        '',
+      ],
+      'with custom path' => [
+        [
+          'FirstTrait' => [
+            'name' => 'FirstTrait',
+            'context' => 'Generic',
+            'description' => 'First trait description',
+            'description_full' => 'First trait description',
+            'methods' => [
+              [
+                'class_name' => 'FirstTrait',
+                'name' => 'firstMethod',
+                'steps' => ['@Given I am on the homepage'],
+                'description' => 'First method description',
+                'example' => 'Given I am on the homepage',
+              ],
+            ],
+          ],
+        ],
+        'docs/REFERENCE.md',
+        '',
+      ],
+    ];
+  }
+
   #[DataProvider('dataProviderValidate')]
   public function testValidate(array $info, array $expected): void {
     $actual = validate($info);
@@ -1302,35 +1408,263 @@ EOD,
   }
 
   /**
-   * Test the extract_info function.
-   *
-   * This test mocks a simplified version of extract_info to test its behavior
-   * with controlled inputs rather than dynamically creating classes.
+   * Test the extract_info function with actual reflection.
    */
-  public function testExtractInfo(): void {
-    // Set up a mock structure to test extract_info's result processing.
-    $mock_info = [
-      'TestTrait' => [
-        [
-          'name' => 'testMethod',
-          'class_description' => 'Test description',
-          'class_name' => 'TestTrait',
-          'steps' => ['@Given I am on the homepage'],
-          'description' => 'Method description',
-          'example' => 'Example code',
-        ],
+  #[DataProvider('dataProviderExtractInfo')]
+  public function testExtractInfo(
+    array $trait_names,
+    array $exclude,
+    array $expected_trait_names,
+  ): void {
+    $setup = $this->setupExtractInfoTest($trait_names);
+
+    // Call extract_info.
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $result = extract_info($class_name, $exclude, $setup['base_path']);
+
+    foreach ($expected_trait_names as $expected_trait) {
+      if (!in_array($expected_trait, $exclude, TRUE)) {
+        $this->assertArrayHasKey($expected_trait, $result);
+        $this->assertEquals($expected_trait, $result[$expected_trait]['name']);
+      }
+      else {
+        $this->assertArrayNotHasKey($expected_trait, $result);
+      }
+    }
+  }
+
+  /**
+   * Get the fixtures directory path.
+   */
+  private function getFixturesDir(): string {
+    return __DIR__ . '/../fixtures/docs';
+  }
+
+  /**
+   * Setup test environment and return paths.
+   *
+   * @return array{base_path: string, src_dir: string}
+   */
+  private function setupTestEnvironment(): array {
+    $base_path = static::$tmp;
+    $src_dir = $base_path . DIRECTORY_SEPARATOR . 'src';
+    mkdir($src_dir, 0777, TRUE);
+
+    return [
+      'base_path' => $base_path,
+      'src_dir' => $src_dir,
+    ];
+  }
+
+  /**
+   * Copy a fixture trait file to the test src directory.
+   *
+   * @param string $trait_name
+   *   The trait name (e.g., 'SampleTrait').
+   * @param string $src_dir
+   *   The target src directory.
+   * @param string|null $subdirectory
+   *   Optional subdirectory within src (e.g., 'Drupal').
+   *
+   * @return string
+   *   The path to the copied file.
+   */
+  private function copyFixtureTrait(string $trait_name, string $src_dir, ?string $subdirectory = NULL): string {
+    $fixtures_dir = $this->getFixturesDir();
+
+    // Determine source and target paths.
+    if ($subdirectory) {
+      $fixture_file = $fixtures_dir . DIRECTORY_SEPARATOR . $subdirectory . DIRECTORY_SEPARATOR . $trait_name . '.php';
+      $target_dir = $src_dir . DIRECTORY_SEPARATOR . $subdirectory;
+      if (!is_dir($target_dir)) {
+        mkdir($target_dir, 0777, TRUE);
+      }
+      $target_file = $target_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    }
+    else {
+      $fixture_file = $fixtures_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+      $target_file = $src_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    }
+
+    if (file_exists($fixture_file)) {
+      copy($fixture_file, $target_file);
+    }
+
+    return $target_file;
+  }
+
+  /**
+   * Copy multiple fixture traits to the test src directory.
+   *
+   * @param array<string> $trait_names
+   *   Array of trait names.
+   * @param string $src_dir
+   *   The target src directory.
+   */
+  private function copyFixtureTraits(array $trait_names, string $src_dir): void {
+    foreach ($trait_names as $trait_name) {
+      $this->copyFixtureTrait($trait_name, $src_dir);
+    }
+  }
+
+  /**
+   * Setup a complete extract_info test environment.
+   *
+   * Sets up directories, copies fixtures, and creates test context.
+   *
+   * @param array<string> $trait_names
+   *   Array of trait names to use.
+   * @param string|null $subdirectory
+   *   Optional subdirectory for traits (e.g., 'Drupal').
+   *
+   * @return array{base_path: string, src_dir: string, class_name: string}
+   */
+  private function setupExtractInfoTest(array $trait_names, ?string $subdirectory = NULL): array {
+    $paths = $this->setupTestEnvironment();
+
+    // Copy fixture files.
+    if ($subdirectory && count($trait_names) === 1) {
+      $target_file = $this->copyFixtureTrait($trait_names[0], $paths['src_dir'], $subdirectory);
+      // Load the trait from test directory for correct path reflection.
+      require_once $target_file;
+    }
+    else {
+      $this->copyFixtureTraits($trait_names, $paths['src_dir']);
+    }
+
+    // Create test context with unique name.
+    $class_name = $this->createTestContext($trait_names, 'TestContext' . uniqid());
+
+    return [
+      'base_path' => $paths['base_path'],
+      'src_dir' => $paths['src_dir'],
+      'class_name' => $class_name,
+    ];
+  }
+
+  /**
+   * Create a test context class that uses specified traits.
+   */
+  private function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
+    if (!class_exists($class_name, FALSE)) {
+      // Add namespace prefix to trait names.
+      $namespaced_traits = array_map(function ($trait_name): string {
+        // Check if trait is in Drupal subdirectory namespace.
+        if ($trait_name === 'DrupalTrait') {
+          return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\Drupal\\' . $trait_name;
+        }
+        return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\' . $trait_name;
+      }, $trait_names);
+      $use_traits = implode(', ', $namespaced_traits);
+      $class_code = sprintf('class %s { use %s; }', $class_name, $use_traits);
+      // @phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
+      eval($class_code);
+    }
+    return $class_name;
+  }
+
+  public static function dataProviderExtractInfo(): array {
+    return [
+      'single trait with step' => [
+        ['SampleTrait'],
+        [],
+        ['SampleTrait'],
+      ],
+      'multiple traits with steps' => [
+        ['FirstTrait', 'SecondTrait'],
+        [],
+        ['FirstTrait', 'SecondTrait'],
+      ],
+      'with excluded trait' => [
+        ['IncludedTrait', 'ExcludedTrait'],
+        ['ExcludedTrait'],
+        ['IncludedTrait'],
       ],
     ];
+  }
 
-    // Validate the mock structure.
-    $this->assertArrayHasKey('TestTrait', $mock_info);
-    $this->assertCount(1, $mock_info['TestTrait']);
+  /**
+   * Test extract_info with trait having multiple methods (tests sorting).
+   */
+  public function testExtractInfoMultipleMethods(): void {
+    $trait_name = 'MultiMethodTrait';
+    $setup = $this->setupExtractInfoTest([$trait_name]);
 
-    $method_info = $mock_info['TestTrait'][0];
-    $this->assertEquals('testMethod', $method_info['name']);
-    $this->assertEquals('Test description', $method_info['class_description']);
-    $this->assertEquals('TestTrait', $method_info['class_name']);
-    $this->assertContains('@Given I am on the homepage', $method_info['steps']);
+    // Call extract_info.
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $result = extract_info($class_name, [], $setup['base_path']);
+
+    // Verify the result includes methods in correct order (Given, When, Then).
+    $this->assertArrayHasKey($trait_name, $result);
+    $this->assertIsArray($result[$trait_name]['methods']);
+    $this->assertCount(3, $result[$trait_name]['methods']);
+
+    // Check order: Given, When, Then.
+    $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][0]);
+    $this->assertStringContainsString('@Given', $result[$trait_name]['methods'][0]['steps'][0]);
+    $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][1]);
+    $this->assertStringContainsString('@When', $result[$trait_name]['methods'][1]['steps'][0]);
+    $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][2]);
+    $this->assertStringContainsString('@Then', $result[$trait_name]['methods'][2]['steps'][0]);
+  }
+
+  /**
+   * Test extract_info with missing trait file.
+   */
+  public function testExtractInfoMissingTrait(): void {
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessageMatches('/The following traits were not found in the class/');
+
+    $paths = $this->setupTestEnvironment();
+
+    // Copy fixture file that won't be used by the class.
+    $this->copyFixtureTrait('UnusedTrait', $paths['src_dir']);
+
+    // Create an empty test context with unique name (doesn't use the trait).
+    $class_name = 'TestContextEmpty' . uniqid();
+    // @phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
+    eval(sprintf('class %s {}', $class_name));
+
+    // Call extract_info - should throw exception about unused trait file.
+    /** @var class-string $class_name */
+    extract_info($class_name, [], $paths['base_path']);
+  }
+
+  /**
+   * Test extract_info with subdirectory traits (Drupal context).
+   */
+  public function testExtractInfoWithSubdirectory(): void {
+    $trait_name = 'DrupalTrait';
+    $setup = $this->setupExtractInfoTest([$trait_name], 'Drupal');
+
+    // Call extract_info.
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $result = extract_info($class_name, [], $setup['base_path']);
+
+    // Verify the result includes the Drupal context.
+    $this->assertArrayHasKey($trait_name, $result);
+    $this->assertEquals('Drupal', $result[$trait_name]['context']);
+    $this->assertEquals('Drupal\\' . $trait_name, $result[$trait_name]['name_contextual']);
+  }
+
+  /**
+   * Test extract_info with trait without matching methods.
+   */
+  public function testExtractInfoNoMatchingMethods(): void {
+    $trait_name = 'NoMatchTrait';
+    $setup = $this->setupExtractInfoTest([$trait_name]);
+
+    // Call extract_info.
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $result = extract_info($class_name, [], $setup['base_path']);
+
+    // Trait is in result but has empty methods array because no methods match naming convention.
+    $this->assertArrayHasKey($trait_name, $result);
+    $this->assertEmpty($result[$trait_name]['methods']);
   }
 
   /**
@@ -1708,6 +2042,12 @@ EOD,
           'description_full' => 'Test trait description.' . PHP_EOL . PHP_EOL . 'Regular text before code.' . PHP_EOL . PHP_EOL . '@code' . PHP_EOL . 'class Example {' . PHP_EOL . '  private $value;' . PHP_EOL . PHP_EOL . '  public function __construct() {' . PHP_EOL . '    $this->value = [' . PHP_EOL . "      'key1' => 'value1'," . PHP_EOL . "      'key2' => 'value2'," . PHP_EOL . '    ];' . PHP_EOL . '  }' . PHP_EOL . '}' . PHP_EOL . '@endcode' . PHP_EOL . PHP_EOL . 'Regular text after code.',
         ],
       ],
+      'only whitespace lines - empty after processing' => [
+        'TestTrait',
+        "/**\n*/",
+        [],
+        'Class comment for TestTrait is empty',
+      ],
       'with @code block preserving trailing spaces in code' => [
         'TestTrait',
         <<<'EOD'
@@ -1728,6 +2068,25 @@ EOD,
         ],
       ],
     ];
+  }
+
+  /**
+   * Test extract_info with empty class comment.
+   *
+   * This test verifies that an exception is thrown when a trait has a class
+   * docblock comment but all lines are empty after filtering.
+   */
+  public function testExtractInfoEmptyClassComment(): void {
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('Class comment for EmptyCommentTrait is empty');
+
+    $trait_name = 'EmptyCommentTrait';
+    $setup = $this->setupExtractInfoTest([$trait_name]);
+
+    // Call extract_info - should throw exception.
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    extract_info($class_name, [], $setup['base_path']);
   }
 
 }

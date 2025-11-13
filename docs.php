@@ -20,10 +20,12 @@
 declare(strict_types=1);
 
 // Execute the main function only when the script is run directly, not when included.
+// @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
   $options = getopt('', ['fail-on-change', 'path::']);
   main($options);
 }
+// @codeCoverageIgnoreEnd
 
 /**
  * Main function to handle the documentation generation process.
@@ -158,10 +160,11 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     $trait_reflection = new ReflectionClass($trait_class);
     $trait_file_path = $trait_reflection->getFileName();
 
+    // @codeCoverageIgnoreStart
     if (!$trait_file_path) {
       throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
     }
-
+    // @codeCoverageIgnoreEnd
     $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, '', $trait_file_path);
     $path_parts = explode(DIRECTORY_SEPARATOR, $relative_path);
     // If the file is in a subdirectory, use that as the context, otherwise use 'Generic'.
@@ -200,7 +203,9 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
             }
           }
 
+          // @codeCoverageIgnoreStart
           return PHP_INT_MAX;
+          // @codeCoverageIgnoreEnd
         };
 
         $a_step = $a['steps'][0] ?? '';
@@ -270,10 +275,11 @@ function parse_class_comment(string $trait_name, string $comment): array {
     return trim($l);
   }, $lines);
 
+  // @codeCoverageIgnoreStart
   if (empty($lines)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
   }
-
+  // @codeCoverageIgnoreEnd
   $description = $lines[0];
   if (empty($description)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
