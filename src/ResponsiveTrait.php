@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Driver\Selenium2Driver;
 
@@ -88,11 +89,30 @@ trait ResponsiveTrait {
    */
   public function responsiveSetBreakpoints(array $breakpoints): void {
     foreach ($breakpoints as $name => $dimensions) {
-      if (!preg_match('/^(\d+)x(\d+)$/i', $dimensions)) {
-        throw new \RuntimeException(sprintf("Invalid breakpoint format for '%s': '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $name, $dimensions));
-      }
+      // Validate format by extracting dimensions.
+      $this->responsiveExtractDimensions($dimensions, $name);
       $this->responsiveCustomBreakpoints[$name] = $dimensions;
     }
+  }
+
+  /**
+   * Set custom responsive breakpoints from a table.
+   *
+   * @code
+   * Given the following responsive breakpoints:
+   *   | name       | dimensions |
+   *   | iphone_12  | 390x844    |
+   *   | 4k_display | 3840x2160  |
+   * @endcode
+   *
+   * @Given the following responsive breakpoints:
+   */
+  public function responsiveSetBreakpointsFromTable(TableNode $table): void {
+    $breakpoints = [];
+    foreach ($table->getHash() as $row) {
+      $breakpoints[$row['name']] = $row['dimensions'];
+    }
+    $this->responsiveSetBreakpoints($breakpoints);
   }
 
   /**
@@ -219,7 +239,7 @@ trait ResponsiveTrait {
    */
   protected function responsiveResizeToBreakpoint(string $breakpoint): void {
     $dimensions = $this->responsiveGetBreakpoint($breakpoint);
-    $parsed = $this->responsiveParseBreakpoint($dimensions);
+    $parsed = $this->responsiveExtractDimensions($dimensions);
     $this->responsiveResize($parsed['width'], $parsed['height']);
   }
 
@@ -259,10 +279,12 @@ trait ResponsiveTrait {
   }
 
   /**
-   * Parse breakpoint dimensions.
+   * Extract and validate dimensions from breakpoint string.
    *
    * @param string $dimensions
    *   Dimensions in WIDTHxHEIGHT format.
+   * @param string|null $name
+   *   Optional breakpoint name for error messages.
    *
    * @return array<string, int>
    *   Array with 'width' and 'height' keys.
@@ -270,8 +292,11 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If format is invalid.
    */
-  protected function responsiveParseBreakpoint(string $dimensions): array {
+  protected function responsiveExtractDimensions(string $dimensions, ?string $name = NULL): array {
     if (!preg_match('/^(\d+)x(\d+)$/i', $dimensions, $matches)) {
+      if ($name) {
+        throw new \RuntimeException(sprintf("Invalid breakpoint format for '%s': '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $name, $dimensions));
+      }
       throw new \RuntimeException(sprintf("Invalid breakpoint format: '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $dimensions));
     }
 
@@ -294,10 +319,11 @@ trait ResponsiveTrait {
     $default_width = 1280;
     $default_height = 800;
 
+    // @codeCoverageIgnoreStart
     if (!$driver instanceof Selenium2Driver) {
       return ['width' => $default_width, 'height' => $default_height];
     }
-
+    // @codeCoverageIgnoreEnd
     try {
       $width = $this->getSession()->evaluateScript('return window.innerWidth;');
       $height = $this->getSession()->evaluateScript('return window.innerHeight;');
@@ -307,9 +333,11 @@ trait ResponsiveTrait {
         'height' => $height ?: $default_height,
       ];
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       return ['width' => $default_width, 'height' => $default_height];
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -330,14 +358,18 @@ trait ResponsiveTrait {
     try {
       // Ensure session is started before resizing.
       if (!$this->getSession()->isStarted()) {
+        // @codeCoverageIgnoreStart
         $this->getSession()->start();
+        // @codeCoverageIgnoreEnd
       }
 
       $this->getSession()->resizeWindow($width, $height, 'current');
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // Silently fail if resize not supported.
     }
+    // @codeCoverageIgnoreEnd
   }
 
 }

@@ -1396,6 +1396,23 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 
 
 <details>
+  <summary><code>@Given the following responsive breakpoints:</code></summary>
+
+<br/>
+Set custom responsive breakpoints from a table
+<br/><br/>
+
+```gherkin
+Given the following responsive breakpoints:
+  | name       | dimensions |
+  | iphone_12  | 390x844    |
+  | 4k_display | 3840x2160  |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I set the viewport to the :breakpoint breakpoint</code></summary>
 
 <br/>
