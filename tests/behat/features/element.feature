@@ -388,3 +388,191 @@ Feature: Check that ElementTrait works
       """
       Text "Welcome" appears before "Powered by Drupal".
       """
+
+  @trait:ElementTrait
+  Scenario: Assert element order fails when first element is not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the element "#nonexistent" should appear after the element "body"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element with selector "#nonexistent" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element order fails when second element is not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the element "body" should appear after the element "#nonexistent"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element with selector "#nonexistent" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert text order fails when first text is not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the text "NonExistentText123" should appear after the text "Welcome"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Text was not found: "NonExistentText123".
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert text order fails when second text is not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to the homepage
+      Then the text "Welcome" should appear after the text "NonExistentText123"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Text was not found: "NonExistentText123".
+      """
+
+  @javascript @phpserver
+  Scenario: Assert click on element works
+    Given I am on the phpserver test page
+    When I click on the element "#overlay-trigger"
+    Then I should see an ".overlay-visible" element
+
+  @trait:ElementTrait
+  Scenario: Assert click on element fails when element not found
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      When I click on the element "#nonexistent-element"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Element with selector "#nonexistent-element" not found on the page.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert scroll to element not at top of viewport fails
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#bottom" should be at the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element with selector "#bottom" is not at the top of the viewport.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element visibility fails when element is not present
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#nonexistent" should be displayed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element defined by "#nonexistent" selector is not present on the page.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element visibility fails when no elements are visible
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#hidden" should be displayed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      None of the elements defined by "#hidden" selector are visible on the page.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element not visible fails when element is visible
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should not be displayed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element defined by "#top" selector is visible on the page, but should not be.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element visually visible fails when not in viewport
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#sr-only" should be displayed within a viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#sr-only" selector is not displayed within a viewport.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element visually visible with offset fails when not in viewport
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should be displayed within a viewport with a top offset of 10000 pixels
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 10000 pixels.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element not visually visible with offset fails when visible
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should not be displayed within a viewport with a top offset of 0 pixels
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is displayed within a viewport with a top offset of 0 pixels, but should not be.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert element visually hidden fails when visible in viewport
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript @phpserver":
+      """
+      Given I am on the phpserver test page
+      Then the element "#top" should not be displayed within a viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
+      """

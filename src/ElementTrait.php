@@ -43,13 +43,14 @@ trait ElementTrait {
     $pos1 = strpos((string) $content, (string) $text1);
     $pos2 = strpos((string) $content, (string) $text2);
 
+    // @codeCoverageIgnoreStart
     if ($pos1 === FALSE) {
       throw new \Exception(sprintf('Element with selector "%s" not found.', $selector1));
     }
     if ($pos2 === FALSE) {
       throw new \Exception(sprintf('Element with selector "%s" not found.', $selector2));
     }
-
+    // @codeCoverageIgnoreEnd
     if ($pos1 <= $pos2) {
       throw new \Exception(sprintf('Element "%s" appears before "%s".', $selector1, $selector2));
     }
@@ -487,10 +488,11 @@ trait ElementTrait {
    *   The result of script evaluation. Script has to explicitly return a value.
    */
   protected function elementExecuteJs(string $selector, string $script) {
+    // @codeCoverageIgnoreStart
     if (!str_contains($script, '{{ELEMENT}}')) {
       throw new \InvalidArgumentException('The script must contain the {{ELEMENT}} token to reference the element.');
     }
-
+    // @codeCoverageIgnoreEnd
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 
     $script_wrapper = <<<JS
