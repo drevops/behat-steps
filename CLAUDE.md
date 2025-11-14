@@ -200,6 +200,24 @@ Scenario: Test error condition
 **Important**: The `ahoy test-bdd-coverage` command automatically cleans up old subprocess coverage files before running tests to prevent pollution from stale data. Always check the `behat_cli/cobertura.xml` (merged) file for the accurate total coverage percentage.
 
 **Assessing coverage after running tests**:
+
+**RECOMMENDED**: Use the `scripts/check-coverage.php` script for easy coverage assessment:
+```bash
+# Run tests with coverage
+ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+
+# Check coverage using the script (uses MERGED coverage by default)
+php scripts/check-coverage.php SomeTrait
+
+# Output shows:
+# Class: DrevOps\BehatSteps\SomeTrait
+# Line rate: 0.95901639344262 (95.90%)
+#
+# Uncovered lines:
+# 47, 50, 210, 259, 491
+```
+
+**Manual method** (if script is not available):
 ```bash
 # Run tests with coverage
 ahoy test-bdd-coverage tests/behat/features/some_feature.feature
@@ -210,6 +228,25 @@ grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat/cobertur
 # Check MERGED coverage (THIS IS THE TRUE COVERAGE)
 grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
 ```
+
+**Coverage Check Script Usage**:
+```bash
+# Check coverage for a trait (uses merged coverage by default)
+php scripts/check-coverage.php <TraitName>
+
+# Check coverage using a specific coverage file
+php scripts/check-coverage.php <TraitName> <path/to/cobertura.xml>
+
+# Examples:
+php scripts/check-coverage.php ElementTrait
+php scripts/check-coverage.php ResponsiveTrait .logs/coverage/behat/cobertura.xml
+```
+
+**IMPORTANT**: Always use `php scripts/check-coverage.php` when you need to assess coverage for a trait. This script:
+- Automatically uses the correct merged coverage file (`.logs/coverage/behat_cli/cobertura.xml`)
+- Shows the line rate as both decimal and percentage
+- Lists all uncovered line numbers
+- Handles both Docker and local path conventions
 
 ### Field Naming Conventions
 - Use descriptive field names without "test" prefix (e.g., `field_datetime` not `field_test_datetime`)
