@@ -46,9 +46,11 @@ trait BlockTrait {
       try {
         $block->delete();
       }
+      // @codeCoverageIgnoreStart
       catch (EntityStorageException) {
-        // Ignore “already deleted” errors to keep teardown resilient.
+        // Ignore "already deleted" errors to keep teardown resilient.
       }
+      // @codeCoverageIgnoreEnd
       unset(static::$blockInstances[$key]);
     }
   }
@@ -144,9 +146,11 @@ trait BlockTrait {
           if (is_string($value)) {
             $block->setRegion($value);
           }
+          // @codeCoverageIgnoreStart
           else {
             throw new \InvalidArgumentException('Expected region as string.');
           }
+          // @codeCoverageIgnoreEnd
           break;
 
         case 'status':

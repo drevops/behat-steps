@@ -245,3 +245,15 @@ Feature: Check that BlockTrait works
       """
       Could not create block with admin label "Non-existent Block Type"
       """
+
+  @api @behat-steps-skip:blockAfterScenario
+  Scenario: Blocks are not automatically cleaned up when skip tag is used
+    Given the instance of "User account menu" block exists with the following configuration:
+      | label         | [TEST] Skip Cleanup Block |
+      | label_display | 1                         |
+      | region        | content                   |
+      | status        | 1                         |
+    Then the block "[TEST] Skip Cleanup Block" should exist
+    # Block will not be auto-deleted due to skip tag
+    # Manual cleanup
+    Given the block "[TEST] Skip Cleanup Block" does not exist
