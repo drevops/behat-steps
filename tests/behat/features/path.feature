@@ -199,6 +199,12 @@ Feature: Check that PathTrait works
       """
 
   @api
+  Scenario: Assert URL parameter with value doesn't exist when parameter is absent
+    Given I am logged in as a user with the "administrator" role
+    When I visit "/admin/content?status=1"
+    Then current url should not have the "nonexistent" parameter with the "value" value
+
+  @api
   Scenario: Assert "When the basic authentication with the username :username and the password :password"
     Given users:
       | name       | mail               | pass       |

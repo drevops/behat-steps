@@ -29,16 +29,18 @@ trait PathTrait {
   public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
 
+    // @codeCoverageIgnoreStart
     if (empty($current_path)) {
       throw new \Exception('Current path is empty');
     }
-
+    // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
+    // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
       throw new \Exception('Current path is not a valid URL');
     }
-
+    // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
@@ -63,16 +65,18 @@ trait PathTrait {
   public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
 
+    // @codeCoverageIgnoreStart
     if (empty($current_path)) {
       throw new \Exception('Current path is empty');
     }
-
+    // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
+    // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
       throw new \Exception('Current path is not a valid URL');
     }
-
+    // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
