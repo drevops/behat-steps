@@ -168,3 +168,16 @@ Feature: Check that ContentBlockTrait works
     When the following "basic" content blocks do not exist:
       | [TEST] Content Block That Doesn't Exist |
     Then I should not see the text "[TEST] Content Block That Doesn't Exist"
+
+  @api @behat-steps-skip:contentBlockAfterScenario
+  Scenario: Content blocks are not automatically cleaned up when skip tag is used
+    Given the following "basic" content blocks exist:
+      | info                       | body                | status |
+      | [TEST] Skip Cleanup Block  | Skip cleanup test   | 1      |
+    And I am logged in as a user with the "administrator" role
+    When I visit "/admin/content/block"
+    Then I should see "[TEST] Skip Cleanup Block"
+    # Content block will not be auto-deleted due to skip tag
+    # Manual cleanup
+    When the following "basic" content blocks do not exist:
+      | [TEST] Skip Cleanup Block |
