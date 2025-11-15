@@ -116,18 +116,21 @@ trait JavascriptTrait {
 
     $driver = $this->getSession()->getDriver();
 
+    // @codeCoverageIgnoreStart
     if (!$driver instanceof Selenium2Driver) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     try {
       $this->javascriptCurrentUrl = $this->getSession()->getCurrentUrl();
 
       $this->javascriptInjectCollector();
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // Silently fail if session not started yet.
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -146,10 +149,11 @@ trait JavascriptTrait {
 
     $driver = $this->getSession()->getDriver();
 
+    // @codeCoverageIgnoreStart
     if (!$driver instanceof Selenium2Driver) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     try {
       // Get current URL.
       $current_url = $this->getSession()->getCurrentUrl();
@@ -163,9 +167,11 @@ trait JavascriptTrait {
 
       $this->javascriptCollectFromPage($current_url);
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // Silently fail if there are issues.
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -264,9 +270,11 @@ JS;
         $this->getSession()->executeScript('window.jsErrors = [];');
       }
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // Silently fail if script evaluation fails.
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
