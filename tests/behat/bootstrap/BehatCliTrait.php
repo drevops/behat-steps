@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
-use PHPUnit\Framework\Assert;
 
 /**
  * Trait BehatCliTrait.
@@ -327,8 +326,12 @@ EOL;
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \Exception for all assertion exceptions. Non-assertion
     // exceptions should be thrown as \RuntimeException.
-    Assert::assertStringContainsString(' (Exception)', $this->getOutput());
-    Assert::assertStringNotContainsString(' (RuntimeException)', $this->getOutput());
+    if (!str_contains($this->getOutput(), ' (Exception)')) {
+      throw new \RuntimeException('The output does not contain an "(Exception)" string as expected.');
+    }
+    if (str_contains($this->getOutput(), ' (RuntimeException)')) {
+      throw new \RuntimeException('The output contains "(RuntimeException)" string but it should not.');
+    }
   }
 
   /**
@@ -338,8 +341,12 @@ EOL;
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
-    Assert::assertStringContainsString(' (RuntimeException)', $this->getOutput());
-    Assert::assertStringNotContainsString(' (Exception)', $this->getOutput());
+    if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
+      throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
+    }
+    if (str_contains($this->getOutput(), ' (Exception)')) {
+      throw new \RuntimeException('The output contains "(Exception)" string but it should not.');
+    }
   }
 
   /**
@@ -349,7 +356,9 @@ EOL;
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
     // exceptions should be thrown as \Exception.
-    Assert::assertStringContainsString(' (' . $exception . ')', $this->getOutput());
+    if (!str_contains($this->getOutput(), ' (' . $exception . ')')) {
+      throw new \RuntimeException(sprintf('The output does not contain an "(%s)" string as expected.', $exception));
+    }
   }
 
   /**
@@ -361,7 +370,9 @@ EOL;
    * @Then the output should not contain:
    */
   public function theOutputShouldNotContain(PyStringNode $text): void {
-    Assert::assertStringNotContainsString($this->getExpectedOutput($text), $this->getOutput());
+    if (str_contains($this->getOutput(), $this->getExpectedOutput($text))) {
+      throw new \RuntimeException(sprintf('Output contains "%s" but should not.', $this->getExpectedOutput($text)));
+    }
   }
 
   /**

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WYSIWYG Test Page</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+        }
+        #no-id-editor {
+            width: 100%;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WYSIWYG Editor Test Page</h1>
+
+    <form>
+        <div class="form-group">
+            <label for="editor1">Body (CKEditor 5 with ID)</label>
+            <textarea id="editor1" name="body">Initial content</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="editor2">Description (CKEditor 5 with ID)</label>
+            <textarea id="editor2" name="description">Description content</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Editor without ID</label>
+          <textarea name="noid">CKEditor 5 without id</textarea>
+        </div>
+    </form>
+
+    <script>
+        // Initialize CKEditor 5 for textarea with ID
+        ClassicEditor
+            .create(document.querySelector('#editor1'))
+            .catch(error => {
+                console.error(error);
+            });
+
+        ClassicEditor
+            .create(document.querySelector('#editor2'))
+            .catch(error => {
+                console.error(error);
+            });
+
+        // Initialize CKEditor 5 for div without proper ID on textarea
+        ClassicEditor
+            .create(document.querySelector('#no-id-editor'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+</body>
+</html>
