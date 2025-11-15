@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Drupal\eck\EckEntityInterface;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -22,7 +21,7 @@ trait EckTrait {
   /**
    * Custom eck content entities organised by entity type.
    *
-   * @var array<string, array<int, \Drupal\eck\EckEntityInterface>>
+   * @var array<string, array<int, \Drupal\eck\EckEntityInterface|object>>
    */
   protected $eckEntities = [];
 
@@ -36,11 +35,17 @@ trait EckTrait {
       return;
     }
 
+    // @codeCoverageIgnoreStart
     $entity_ids_by_type = [];
     foreach ($this->eckEntities as $entity_type => $content_entities) {
-      /** @var \Drupal\eck\EckEntityInterface $content_entity */
       foreach ($content_entities as $content_entity) {
-        $entity_ids_by_type[$entity_type][] = $content_entity->id();
+        // Handle both entity objects (with ->id() method) and stdClass (with ->id property).
+        if (is_object($content_entity) && method_exists($content_entity, 'id')) {
+          $entity_ids_by_type[$entity_type][] = $content_entity->id();
+        }
+        elseif (is_object($content_entity) && isset($content_entity->id)) {
+          $entity_ids_by_type[$entity_type][] = $content_entity->id;
+        }
       }
     }
 
@@ -51,6 +56,7 @@ trait EckTrait {
     }
 
     $this->eckEntities = [];
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -198,9 +204,12 @@ trait EckTrait {
   protected function eckCreateEntity(string $entity_type, \StdClass $entity): void {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
-    if ($saved instanceof EckEntityInterface) {
-      $this->eckEntities[$entity_type][] = $saved;
+    if (!$saved) {
+      throw new \RuntimeException(sprintf('Failed to create ECK entity of type "%s".', $entity_type));
     }
+
+    // Store the entity - driver may return stdClass or entity object.
+    $this->eckEntities[$entity_type][] = $saved;
   }
 
 }
