@@ -49,10 +49,11 @@ trait BigPipeTrait {
       $this->bigPipeSkipBeforeStep = TRUE;
     }
 
+    // @codeCoverageIgnoreStart
     if (!\Drupal::hasService('big_pipe')) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     try {
       // Check if JavaScript can be executed by the driver and add a cookie
       // if it cannot.
@@ -67,9 +68,11 @@ trait BigPipeTrait {
       $this->bigPipeJsIsSupported = FALSE;
       $this->getSession()->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
+    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // Mute exceptions.
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
