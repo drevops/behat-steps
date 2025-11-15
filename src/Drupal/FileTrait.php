@@ -44,12 +44,14 @@ trait FileTrait {
    * @BeforeScenario
    */
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     $fs = new Filesystem();
 
+    // @codeCoverageIgnoreStart
     $dir = \Drupal::service('file_system')->realpath('private://');
     if ($dir && !$fs->exists($dir)) {
       $fs->mkdir($dir);
@@ -59,6 +61,7 @@ trait FileTrait {
     if ($dir && !$fs->exists($dir)) {
       $fs->mkdir($dir);
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -102,10 +105,11 @@ trait FileTrait {
    *   Created file entity.
    */
   protected function fileCreateEntity(\StdClass $stub): FileInterface {
+    // @codeCoverageIgnoreStart
     if (empty($stub->path)) {
       throw new \RuntimeException('The "path" property is required.');
     }
-
+    // @codeCoverageIgnoreEnd
     $path = ltrim((string) $stub->path, '/');
 
     // Get fixture file path.
@@ -116,25 +120,29 @@ trait FileTrait {
       }
     }
 
+    // @codeCoverageIgnoreStart
     if (!is_readable($path)) {
       throw new \RuntimeException('Unable to find file "' . $path . '".');
     }
-
+    // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
     if (!empty($stub->uri)) {
       $destination = $stub->uri;
       $directory = dirname((string) $destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      // @codeCoverageIgnoreStart
       if (!$dir) {
         throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
       }
+      // @codeCoverageIgnoreEnd
     }
 
     $content = file_get_contents($path);
+    // @codeCoverageIgnoreStart
     if ($content === FALSE) {
       throw new \RuntimeException('Unable to read file "' . $path . '".');
     }
-
+    // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
     $fields = get_object_vars($stub);
 
@@ -158,10 +166,11 @@ trait FileTrait {
    * @AfterScenario
    */
   public function fileAfterScenario(AfterScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($this->fileEntities as $file) {
       $file->delete();
     }
@@ -203,10 +212,11 @@ trait FileTrait {
     // Get field name of the column header.
     $field_name = array_shift($field_values);
 
+    // @codeCoverageIgnoreStart
     if (is_numeric($field_name)) {
       throw new \RuntimeException('The first column should be the field name.');
     }
-
+    // @codeCoverageIgnoreEnd
     $field_name = (string) $field_name;
 
     foreach ($field_values as $field_value) {
@@ -249,13 +259,14 @@ trait FileTrait {
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
     $directory = \Drupal::service('file_system')->dirname($uri);
 
+    // @codeCoverageIgnoreStart
     if (!file_exists($directory)) {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
         throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
       }
     }
-
+    // @codeCoverageIgnoreEnd
     file_put_contents($uri, $content);
 
     $this->filesUnmanagedUris[] = $uri;
@@ -317,10 +328,11 @@ trait FileTrait {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
+    // @codeCoverageIgnoreStart
     if ($file_content === FALSE) {
       throw new \Exception(sprintf('Unable to read file "%s".', $uri));
     }
-
+    // @codeCoverageIgnoreEnd
     if (!str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" does not contain "%s".', $file_content, $content));
     }
@@ -339,10 +351,11 @@ trait FileTrait {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
+    // @codeCoverageIgnoreStart
     if ($file_content === FALSE) {
       throw new \Exception(sprintf('Unable to read file "%s".', $uri));
     }
-
+    // @codeCoverageIgnoreEnd
     if (str_contains($file_content, $content)) {
       throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));
     }
