@@ -43,4 +43,3 @@ Feature: Check that OverrideTrait works
       | [TEST] override_user_01 | override_user_01@example.com  | 1      |
     When I go to "/admin/people"
     Then I should see the text "[TEST] override_user_01"
-
