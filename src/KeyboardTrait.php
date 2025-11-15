@@ -69,10 +69,11 @@ trait KeyboardTrait {
   public function keyboardPressKeysOnElement(string $keys, ?string $selector): void {
     $chars = preg_split('//u', $keys, -1, PREG_SPLIT_NO_EMPTY);
 
+    // @codeCoverageIgnoreStart
     if ($chars === FALSE) {
       throw new \RuntimeException('Unable to split provided string into characters.');
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($chars as $char) {
       $this->keyboardPressKeyOnElementSingle($char, $selector);
     }
@@ -159,15 +160,56 @@ trait KeyboardTrait {
       $char = $keys[strtolower($char)];
     }
 
-    $selector = $selector ?: 'html';
-    $this->assertSession()->elementExists('css', $selector);
-    $element = $this->getSession()->getPage()->find('css', $selector);
+    // When no selector is provided, use the currently focused element.
+    // This allows chaining key presses: first call with selector to focus and
+    // type, then subsequent calls without selector to continue typing.
+    if ($selector === NULL) {
+      $script = <<<'JS'
+        (function() {
+          var el = document.activeElement;
+          if (!el || el === document.body || el === document.documentElement) {
+            return null;
+          }
 
-    if (!$element) {
-      throw new \RuntimeException(sprintf('Unable to find an element with "%s" selector.', $selector));
+          function getPathTo(element) {
+            if (element.id !== '')
+              return 'id("' + element.id + '")';
+            if (element === document.body)
+              return '/html/body';
+
+            var ix = 0;
+            var siblings = element.parentNode.childNodes;
+            for (var i = 0; i < siblings.length; i++) {
+              var sibling = siblings[i];
+              if (sibling === element)
+                return getPathTo(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + (ix + 1) + ']';
+              if (sibling.nodeType === 1 && sibling.tagName === element.tagName)
+                ix++;
+            }
+          }
+
+          return getPathTo(el);
+        })()
+JS;
+      $xpath = $this->getSession()->evaluateScript($script);
+
+      if (!$xpath) {
+        throw new \RuntimeException('No element is currently focused. Please focus an element first using a step with a selector.');
+      }
+
+      $this->keyboardTriggerKey($xpath, $char);
     }
+    else {
+      $this->assertSession()->elementExists('css', $selector);
+      $element = $this->getSession()->getPage()->find('css', $selector);
 
-    $this->keyboardTriggerKey($element->getXpath(), $char);
+      // @codeCoverageIgnoreStart
+      if (!$element) {
+        throw new \RuntimeException(sprintf('Unable to find an element with "%s" selector.', $selector));
+      }
+      // @codeCoverageIgnoreEnd
+      $this->keyboardTriggerKey($element->getXpath(), $char);
+    }
   }
 
   /**
@@ -187,10 +229,11 @@ trait KeyboardTrait {
    */
   protected function keyboardTriggerKey(string $xpath, string $key): void {
     $driver = $this->getSession()->getDriver();
+    // @codeCoverageIgnoreStart
     if (!$driver instanceof Selenium2Driver) {
       throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
     }
-
+    // @codeCoverageIgnoreEnd
     // Use reflection to re-use Syn library injection and execution of JS on
     // element.
     $reflector = new \ReflectionClass($driver);
