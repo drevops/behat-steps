@@ -86,3 +86,16 @@ Feature: Ensure Search API functionality works
     Then I should see the text "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
     And I should see the text "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see the text "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
+
+  @api @trait:Drupal\SearchApiTrait
+  Scenario: Assert "When I add the :content_type content with the title :title to the search index" fails when content not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I add the "article" content with the title "Non-existent article" to the search index
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "article" page "Non-existent article".
+      """

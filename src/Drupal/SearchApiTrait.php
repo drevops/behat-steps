@@ -61,10 +61,11 @@ trait SearchApiTrait {
     /** @var \Drupal\search_api\IndexInterface[] $indexes */
     $indexes = $index_storage->loadByProperties(['status' => TRUE]);
 
+    // @codeCoverageIgnoreStart
     if (empty($indexes)) {
       throw new \RuntimeException('No active search indexes found.');
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($indexes as $index) {
       $index->indexItems($limit);
     }
