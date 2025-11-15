@@ -39,3 +39,9 @@ Feature: Check that BigPipeTrait works
     When I am logged in as "administrator_user"
     And I visit "/"
     Then cookie "big_pipe_nojs" does not exist
+
+  @api @javascript
+  Scenario: Assert that Big Pipe cookie is not set when JavaScript is supported
+    Given I install a "big_pipe" module
+    When I visit "/"
+    Then cookie "big_pipe_nojs" does not exist
