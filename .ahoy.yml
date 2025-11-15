@@ -23,6 +23,8 @@ commands:
       echo "  Path to web root         : " $(ahoy cli echo /app/build/web)
       echo "  DB port on host          : " $(docker port $(docker compose ps -q mariadb) 3306 | cut -d : -f 2)
       echo "  Xdebug                   : " $(ahoy cli php -v|grep -q Xdebug && echo "Enabled" || echo "Disabled")
+      echo "  Selenium VNC URL on host : http://localhost:$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)/?autoconnect=1&password=secret"
+
       if [ -n "$1" ]; then
         echo "  One-time login           : " $(ahoy login -- --no-browser)
       fi
