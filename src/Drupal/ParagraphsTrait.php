@@ -35,10 +35,11 @@ trait ParagraphsTrait {
    * @AfterScenario
    */
   public function paragraphsAfterScenario(AfterScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     foreach (static::$paragraphEntities as $paragraph) {
       $paragraph->delete();
     }
