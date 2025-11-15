@@ -42,9 +42,11 @@ trait ContentBlockTrait {
       try {
         $block_content->delete();
       }
+      // @codeCoverageIgnoreStart
       catch (EntityStorageException) {
-        // Ignore “already deleted” errors to keep teardown resilient.
+        // Ignore "already deleted" errors to keep teardown resilient.
       }
+      // @codeCoverageIgnoreEnd
       unset(static::$contentBlockEntities[$key]);
     }
   }
