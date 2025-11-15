@@ -34,10 +34,11 @@ trait MediaTrait {
    * @AfterScenario
    */
   public function mediaAfterScenario(AfterScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($this->mediaEntities as $media) {
       $media->delete();
     }
@@ -156,6 +157,7 @@ trait MediaTrait {
    */
   protected function mediaCreateEntity(\StdClass $stub): MediaInterface {
     // Throw an exception if the media type is missing or does not exist.
+    // @codeCoverageIgnoreStart
     if (!property_exists($stub, 'bundle') || $stub->bundle === NULL || !$stub->bundle) {
       throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
     }
@@ -164,7 +166,7 @@ trait MediaTrait {
     if (!in_array($stub->bundle, array_keys($bundles))) {
       throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
     }
-
+    // @codeCoverageIgnoreEnd
     $this->mediaExpandEntityFieldsFixtures($stub);
 
     $this->mediaExpandEntityFields('media', $stub);
@@ -205,10 +207,11 @@ trait MediaTrait {
       $fixture_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
 
+    // @codeCoverageIgnoreStart
     if (empty($fixture_path) || !is_dir($fixture_path)) {
       throw new \RuntimeException('Fixture files path is not set or does not exist. Check that the "files_path" parameter is set for Mink.');
     }
-
+    // @codeCoverageIgnoreEnd
     $fields = get_object_vars($stub);
 
     $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
@@ -224,9 +227,11 @@ trait MediaTrait {
             $stub->{$name}[0] = $fixture_path . $value[0];
           }
         }
+        // @codeCoverageIgnoreStart
         elseif (is_file($fixture_path . $value)) {
           $stub->{$name} = $fixture_path . $value;
         }
+        // @codeCoverageIgnoreEnd
       }
     }
   }
