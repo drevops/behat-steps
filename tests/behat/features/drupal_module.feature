@@ -181,3 +181,37 @@ Feature: Check that ModuleTrait works
       """
       Cannot enable module "nonexistent_module_xyz": module is not installed.
       """
+
+  @api @trait:Drupal\ModuleTrait
+  Scenario: Assert "Then the following modules should be enabled:" fails when module is disabled
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "/"
+      And the following modules are disabled:
+        | help |
+      Then the following modules should be enabled:
+        | help |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The module "help" is not enabled, but it should be.
+      """
+
+  @api @trait:Drupal\ModuleTrait
+  Scenario: Assert "Then the following modules should be disabled:" fails when module is enabled
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I go to "/"
+      And the following modules are enabled:
+        | help |
+      Then the following modules should be disabled:
+        | help |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The module "help" is enabled, but it should not be.
+      """

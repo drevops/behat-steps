@@ -35,10 +35,11 @@ trait ModuleTrait {
    * @BeforeScenario
    */
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     $tags = $scope->getScenario()->getTags();
     foreach ($tags as $tag) {
       if (str_starts_with($tag, 'module:')) {
@@ -249,14 +250,16 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleEnable(string $module): void {
+    // @codeCoverageIgnoreStart
     if ($this->moduleIsEnabled($module)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     if (!$this->moduleIsPresent($module)) {
       throw new \RuntimeException(sprintf('Cannot enable module "%s": module is not installed.', $module));
     }
 
+    // @codeCoverageIgnoreStart
     try {
       \Drupal::service('module_installer')->install([$module]);
       drupal_flush_all_caches();
@@ -264,6 +267,7 @@ trait ModuleTrait {
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to enable module "%s": %s', $module, $e->getMessage()), $e->getCode(), $e);
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -273,10 +277,12 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleDisable(string $module): void {
+    // @codeCoverageIgnoreStart
     if (!$this->moduleIsEnabled($module)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
+    // @codeCoverageIgnoreStart
     try {
       \Drupal::service('module_installer')->uninstall([$module]);
       drupal_flush_all_caches();
@@ -284,6 +290,7 @@ trait ModuleTrait {
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to disable module "%s": %s', $module, $e->getMessage()), $e->getCode(), $e);
     }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
