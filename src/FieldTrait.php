@@ -75,7 +75,6 @@ trait FieldTrait {
 
     if ($field === NULL) {
       $exception = new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $name);
-
       throw new \Exception($exception->getMessage());
     }
 
@@ -198,7 +197,8 @@ JS;
     $page = $this->getSession()->getPage();
     $element = $page->findField($field);
     if ($element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
+      $exception = new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
+      throw new \Exception($exception->getMessage());
     }
 
     $driver = $this->getSession()->getDriver();

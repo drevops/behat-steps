@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WYSIWYG CKEditor 4 Test Page</title>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WYSIWYG CKEditor 4 Test Page</h1>
+
+    <form>
+        <div class="form-group">
+            <label for="editor1">Body (CKEditor 4)</label>
+            <textarea id="editor1" name="body">Initial CKEditor 4 content</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="editor2">Description (CKEditor 4)</label>
+            <textarea id="editor2" name="description">Description for CKEditor 4</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Editor without ID</label>
+            <textarea name="noid">CKEditor 4 without id</textarea>
+        </div>
+    </form>
+
+    <script>
+        // Initialize CKEditor 4 for both textareas
+        CKEDITOR.replace('editor1');
+        CKEDITOR.replace('editor2');
+    </script>
+</body>
+</html>

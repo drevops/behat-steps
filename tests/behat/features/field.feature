@@ -393,6 +393,9 @@ Feature: Check that FieldTrait works
     When I check the checkbox "Checkbox unchecked"
     Then the checkbox "Checkbox unchecked" should be checked
 
+    When I uncheck the checkbox "Checkbox unchecked"
+    Then the checkbox "Checkbox unchecked" should not be checked
+
     When I check the checkbox "Checkbox checked"
     Then the checkbox "Checkbox checked" should be checked
 
@@ -548,4 +551,61 @@ Feature: Check that FieldTrait works
     Then it should fail with an error:
       """
       Datetime field "Non-existent range" with part "end_value" and field "date" not found.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative color field value assertion when values don't match
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript":
+      """
+      Given I visit "/sites/default/files/relative.html"
+      Then the color field "#edit-color-input" should have the value "#000000"
+      When I fill in the color field "#edit-color-input" with the value "#ffffff"
+      Then the color field "#edit-color-input" should have the value "#000000"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Color field "#edit-color-input" expected a value "#000000" but has a value "#ffffff".
+      """
+
+  @api @javascript
+  Scenario: Fill in WYSIWYG field with CKEditor 5
+    When I visit "/sites/default/files/wysiwyg-ckeditor5.html"
+    And I fill in the WYSIWYG field "Body" with the "Updated CKEditor 5 body content"
+    And I fill in the WYSIWYG field "Description" with the "Updated CKEditor 5 description"
+
+  # Non-commercial version of CKEditor 4 throw an error about being insecure.
+  @api @javascript @js-errors
+  Scenario: Fill in WYSIWYG field with CKEditor 4
+    When I visit "/sites/default/files/wysiwyg-ckeditor4.html"
+    And I fill in the WYSIWYG field "Body" with the "Updated CKEditor 4 body content"
+    And I fill in the WYSIWYG field "Description" with the "Updated CKEditor 4 description"
+
+  @trait:FieldTrait
+  Scenario: Assert negative WYSIWYG field not found
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      When I visit "/sites/default/files/wysiwyg-ckeditor5.html"
+      When I fill in the WYSIWYG field "Non-existent WYSIWYG" with the "test content"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Form field with id|name|label|value|placeholder "Non-existent WYSIWYG" not found.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative WYSIWYG field without an ID
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      When I visit "/sites/default/files/wysiwyg-ckeditor5.html"
+      When I fill in the WYSIWYG field "noid" with the "test content"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      WYSIWYG field must have an ID attribute.
       """
