@@ -51,9 +51,11 @@ trait OverrideTrait {
     // assertAuthenticatedByRole() will create a user with 'authenticated role'
     // even if 'anonymous user' role is provided.
     if ($role === 'anonymous user' || $role === 'anonymous') {
+      // @codeCoverageIgnoreStart
       if (!empty($this->userManager->getCurrentUser())) {
         $this->logout();
       }
+      // @codeCoverageIgnoreEnd
     }
     else {
       parent::assertAuthenticatedByRole($role);
