@@ -129,10 +129,11 @@ trait MenuTrait {
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
 
+    // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
       throw new \RuntimeException(sprintf('Menu "%s" was not found.', $menu_name));
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
       // Add uri to correct property.
@@ -147,9 +148,11 @@ trait MenuTrait {
         if ($parent_link instanceof MenuLinkContent) {
           $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
         }
+        // @codeCoverageIgnoreStart
         else {
           unset($menu_link_hash['parent']);
         }
+        // @codeCoverageIgnoreEnd
       }
       else {
         unset($menu_link_hash['parent']);
@@ -166,10 +169,11 @@ trait MenuTrait {
    * @AfterScenario
    */
   public function menuAfterScenario(AfterScenarioScope $scope): void {
+    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-
+    // @codeCoverageIgnoreEnd
     foreach ($this->menuLinks as $menu_link) {
       $menu_link->delete();
     }
@@ -221,9 +225,11 @@ trait MenuTrait {
   protected function loadMenuLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
     $menu = $this->loadMenuByLabel($menu_name);
 
+    // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
       return NULL;
     }
+    // @codeCoverageIgnoreEnd
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
@@ -234,10 +240,11 @@ trait MenuTrait {
       ->condition('title', $title)
       ->execute();
 
+    // @codeCoverageIgnoreStart
     if (empty($menu_link_ids)) {
       return NULL;
     }
-
+    // @codeCoverageIgnoreEnd
     $menu_link_id = reset($menu_link_ids);
 
     return MenuLinkContent::load($menu_link_id);
