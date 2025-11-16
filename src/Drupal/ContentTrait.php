@@ -184,10 +184,11 @@ trait ContentTrait {
     $nid = end($nids);
     $node = Node::load($nid);
 
+    // @codeCoverageIgnoreStart
     if (!$node instanceof NodeInterface) {
       throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
     }
-
+    // @codeCoverageIgnoreEnd
     $state_is_valid = FALSE;
     $workflows = Workflow::loadMultiple();
     foreach ($workflows as $workflow) {
