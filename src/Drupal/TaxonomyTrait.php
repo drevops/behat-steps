@@ -50,22 +50,7 @@ trait TaxonomyTrait {
    */
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
-
-    // Convert to the format expected by createTerms().
-    $horizontal_table = new TableNode([]);
-    if (!empty($entities)) {
-      // Get field names from first entity.
-      $field_names = array_keys($entities[0]);
-      $rows = [$field_names];
-
-      // Add each entity as a row.
-      foreach ($entities as $entity) {
-        $rows[] = array_values($entity);
-      }
-
-      $horizontal_table = new TableNode($rows);
-    }
-
+    $horizontal_table = $this->helperBuildHorizontalTable($entities);
     $this->createTerms($vocabulary, $horizontal_table);
   }
 

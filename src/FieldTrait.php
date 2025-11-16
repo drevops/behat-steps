@@ -17,6 +17,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  */
 trait FieldTrait {
 
+  use HelperTrait;
   use KeyboardTrait;
 
   /**
@@ -191,8 +192,8 @@ JS;
    * @When I fill in the WYSIWYG field :field with the :value
    */
   public function fieldFillWysiwyg(string $field, string $value): void {
-    $field = $this->fieldFixStepArgument($field);
-    $value = $this->fieldFixStepArgument($value);
+    $field = $this->helperFixStepArgument($field);
+    $value = $this->helperFixStepArgument($value);
 
     $page = $this->getSession()->getPage();
     $element = $page->findField($field);
@@ -363,7 +364,7 @@ JS;
    * @When I check the checkbox :selector
    */
   public function fieldCheckboxCheck(string $selector): void {
-    $selector = $this->fieldFixStepArgument($selector);
+    $selector = $this->helperFixStepArgument($selector);
 
     $this->getSession()->getPage()->checkField($selector);
   }
@@ -382,16 +383,9 @@ JS;
    * @When I uncheck the checkbox :selector
    */
   public function fieldCheckboxUncheck(string $selector): void {
-    $selector = $this->fieldFixStepArgument($selector);
+    $selector = $this->helperFixStepArgument($selector);
 
     $this->getSession()->getPage()->uncheckField($selector);
-  }
-
-  /**
-   * Return fixed step argument (with \" replaced back to ").
-   */
-  protected function fieldFixStepArgument(string $argument): string {
-    return str_replace('\\"', '"', $argument);
   }
 
   /**

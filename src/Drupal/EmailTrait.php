@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
 
@@ -26,6 +27,8 @@ use Drupal\Core\Database\StatementInterface;
  * - `@debug` (enable detailed logs)
  */
 trait EmailTrait {
+
+  use HelperTrait;
 
   /**
    * List of email handler types.
@@ -117,7 +120,7 @@ trait EmailTrait {
    */
   public function emailAssertMessageSentTo(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = array_map(trim(...), explode(',', (string) $message['to']));
+      $to = $this->helperSplitCommaSeparated((string) $message['to']);
 
       if (in_array($address, $to)) {
         return;
@@ -154,20 +157,20 @@ trait EmailTrait {
    */
   public function emailAssertNoMessagesSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = array_map(trim(...), explode(',', (string) $message['to']));
+      $to = $this->helperSplitCommaSeparated((string) $message['to']);
       if (in_array($address, $to)) {
         throw new \Exception(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address));
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
-        $cc = array_map(trim(...), explode(',', (string) ($message['headers']['Cc'] ?? $message['headers']['cc'])));
+        $cc = $this->helperSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
         if (in_array($address, $cc)) {
           throw new \Exception(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
         }
       }
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
-        $bcc = array_map(trim(...), explode(',', (string) ($message['headers']['Bcc'] ?? $message['headers']['bcc'])));
+        $bcc = $this->helperSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
         if (in_array($address, $bcc)) {
           throw new \Exception(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
         }
@@ -189,13 +192,13 @@ trait EmailTrait {
    */
   public function emailAssertMessageHeaderContains(string $header, PyStringNode $string, bool $exact = FALSE): void {
     $string_value = (string) $string;
-    $string_value = $exact ? $string_value : trim((string) preg_replace('/\s+/', ' ', $string_value));
+    $string_value = $exact ? $string_value : $this->helperNormalizeWhitespace($string_value);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $header_value = $message['headers'][$header] ?? '';
-      $header_value = $exact ? $header_value : trim((string) preg_replace('/\s+/', ' ', (string) $header_value));
+      $header_value = $exact ? $header_value : $this->helperNormalizeWhitespace((string) $header_value);
 
-      if (str_contains((string) $header_value, $string_value)) {
+      if (str_contains((string) $header_value, (string) $string_value)) {
         return;
       }
     }
@@ -370,13 +373,13 @@ trait EmailTrait {
     }
     // @codeCoverageIgnoreEnd
     $string = strval($string);
-    $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
+    $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $value = $message[$field] ?? '';
-      $field_string = $exact ? $value : trim((string) preg_replace('/\s+/', ' ', (string) $value));
+      $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
 
-      if (str_contains((string) $field_string, $string)) {
+      if (str_contains((string) $field_string, (string) $string)) {
         throw new \Exception(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string));
       }
     }
@@ -705,13 +708,13 @@ trait EmailTrait {
     }
     // @codeCoverageIgnoreEnd
     $string = (string) $string;
-    $string = $exact ? $string : trim((string) preg_replace('/\s+/', ' ', $string));
+    $string = $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $field_string = $message[$field] ?? '';
-      $field_string = $exact ? $field_string : trim((string) preg_replace('/\s+/', ' ', (string) $field_string));
+      $field_string = $this->helperNormalizeWhitespace((string) $field_string);
 
-      if (str_contains((string) $field_string, $string)) {
+      if (str_contains((string) $field_string, (string) $string)) {
         return $message;
       }
     }

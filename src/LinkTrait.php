@@ -13,6 +13,8 @@ namespace DrevOps\BehatSteps;
  */
 trait LinkTrait {
 
+  use HelperTrait;
+
   /**
    * Assert a link with a href exists.
    *
@@ -133,7 +135,7 @@ trait LinkTrait {
    * @Then the link with the title :title should exist
    */
   public function linkAssertWithTitleExists(string $title): void {
-    $title = $this->linkFixStepArgument($title);
+    $title = $this->helperFixStepArgument($title);
 
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
@@ -152,7 +154,7 @@ trait LinkTrait {
    * @Then the link with the title :title should not exist
    */
   public function linkAssertWithTitleNotExists(string $title): void {
-    $title = $this->linkFixStepArgument($title);
+    $title = $this->helperFixStepArgument($title);
 
     $item = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
@@ -217,7 +219,7 @@ trait LinkTrait {
    * @When I click on the link with the title :title
    */
   public function linkClickWithTitle(string $title): void {
-    $title = $this->linkFixStepArgument($title);
+    $title = $this->helperFixStepArgument($title);
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if (!$element) {
@@ -225,13 +227,6 @@ trait LinkTrait {
     }
 
     $element->click();
-  }
-
-  /**
-   * Return fixed step argument (with \\" replaced back to ").
-   */
-  protected function linkFixStepArgument(string $argument): string {
-    return str_replace('\\"', '"', $argument);
   }
 
 }

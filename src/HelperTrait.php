@@ -88,4 +88,82 @@ trait HelperTrait {
     return $entities;
   }
 
+  /**
+   * Convert vertical format entities to horizontal TableNode.
+   *
+   * Converts an array of entities (from helperTransposeVerticalTable) back
+   * to horizontal format TableNode expected by DrupalExtension methods.
+   *
+   * @param array<int, array<string, string>> $entities
+   *   Array of entity data arrays from helperTransposeVerticalTable().
+   *
+   * @return \Behat\Gherkin\Node\TableNode
+   *   TableNode in horizontal format (first row is headers, subsequent rows
+   *   are values). Returns empty TableNode if input is empty.
+   */
+  protected function helperBuildHorizontalTable(array $entities): TableNode {
+    // @codeCoverageIgnoreStart
+    if (empty($entities)) {
+      return new TableNode([]);
+    }
+    // @codeCoverageIgnoreEnd
+    // Get field names from first entity.
+    $field_names = array_keys($entities[0]);
+    $rows = [$field_names];
+
+    // Add each entity as a row.
+    foreach ($entities as $entity) {
+      $rows[] = array_values($entity);
+    }
+
+    return new TableNode($rows);
+  }
+
+  /**
+   * Unescape quoted strings in step arguments.
+   *
+   * Converts `\"` back to `"` in Behat step arguments.
+   *
+   * @param string $argument
+   *   The step argument to process.
+   *
+   * @return string
+   *   The unescaped argument.
+   */
+  protected function helperFixStepArgument(string $argument): string {
+    return str_replace('\\"', '"', $argument);
+  }
+
+  /**
+   * Normalize whitespace in text for comparison.
+   *
+   * Collapses multiple whitespace characters (spaces, tabs, newlines) into
+   * single spaces and trims leading/trailing whitespace.
+   *
+   * @param string $text
+   *   The text to normalize.
+   *
+   * @return string
+   *   The normalized text.
+   */
+  protected function helperNormalizeWhitespace(string $text): string {
+    return trim((string) preg_replace('/\s+/', ' ', $text));
+  }
+
+  /**
+   * Split comma-separated string and trim values.
+   *
+   * Splits a comma-separated string into an array and trims whitespace
+   * from each value.
+   *
+   * @param string $text
+   *   The comma-separated string.
+   *
+   * @return array<int, string>
+   *   Array of trimmed values.
+   */
+  protected function helperSplitCommaSeparated(string $text): array {
+    return array_map(trim(...), explode(',', $text));
+  }
+
 }
