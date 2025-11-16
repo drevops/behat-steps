@@ -97,3 +97,47 @@ Feature: Check that MediaTrait works
     Then I should see the text "Duplicate test item"
     # Verify only one media item exists by checking there's exactly one row in the table
     And I should see 1 ".view-media td:contains('Duplicate test item')" elements
+
+  @api
+  Scenario: Create single media with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following managed files:
+      | path              |
+      | example_image.png |
+    And the following image media with fields:
+      | name              | [TEST] Vertical Image |
+      | field_media_image | example_image.png     |
+    When I go to "/admin/content/media"
+    Then I should see "[TEST] Vertical Image"
+
+  @api
+  Scenario: Create multiple media with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following managed files:
+      | path              |
+      | example_image.png |
+    And the following image media with fields:
+      | name              | [TEST] V-Image 1  | [TEST] V-Image 2  | [TEST] V-Image 3  |
+      | field_media_image | example_image.png | example_image.png | example_image.png |
+    When I go to "/admin/content/media"
+    Then I should see "[TEST] V-Image 1"
+    And I should see "[TEST] V-Image 2"
+    And I should see "[TEST] V-Image 3"
+
+  @api
+  Scenario: Assert that mediaCreateWithFields() deletes existing media before creating
+    Given the following managed files:
+      | path              |
+      | example_image.png |
+    And the following image media with fields:
+      | name              | [TEST] Duplicate vertical |
+      | field_media_image | example_image.png         |
+    And I am logged in as a user with the "administrator" role
+    And I visit "/admin/content/media"
+    Then I should see the text "[TEST] Duplicate vertical"
+    When the following image media with fields:
+      | name              | [TEST] Duplicate vertical |
+      | field_media_image | example_image.png         |
+    And I visit "/admin/content/media"
+    Then I should see the text "[TEST] Duplicate vertical"
+    And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements

@@ -34,6 +34,7 @@ use DrevOps\BehatSteps\FileDownloadTrait;
 use DrevOps\BehatSteps\JavascriptTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
+use DrevOps\BehatSteps\HelperTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
 use DrevOps\BehatSteps\ResponsiveTrait;
@@ -75,6 +76,7 @@ class FeatureContext extends DrupalContext {
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
+  use HelperTrait;
   use WaitTrait;
   use WatchdogTrait;
   use XmlTrait;

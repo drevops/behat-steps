@@ -172,8 +172,8 @@ Feature: Check that ContentBlockTrait works
   @api @behat-steps-skip:contentBlockAfterScenario
   Scenario: Content blocks are not automatically cleaned up when skip tag is used
     Given the following "basic" content blocks exist:
-      | info                       | body                | status |
-      | [TEST] Skip Cleanup Block  | Skip cleanup test   | 1      |
+      | info                      | body              | status |
+      | [TEST] Skip Cleanup Block | Skip cleanup test | 1      |
     And I am logged in as a user with the "administrator" role
     When I visit "/admin/content/block"
     Then I should see "[TEST] Skip Cleanup Block"
@@ -181,3 +181,27 @@ Feature: Check that ContentBlockTrait works
     # Manual cleanup
     When the following "basic" content blocks do not exist:
       | [TEST] Skip Cleanup Block |
+
+  @api
+  Scenario: Create single content block with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following basic content blocks with fields:
+      | info   | [TEST] Vertical Block        |
+      | body   | Created with vertical format |
+      | status | 1                            |
+    When I go to "admin/content/block"
+    Then I should see "[TEST] Vertical Block"
+    When I edit the "basic" content block with the description "[TEST] Vertical Block"
+    Then the "Body" field should contain "Created with vertical format"
+
+  @api
+  Scenario: Create multiple content blocks with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following basic content blocks with fields:
+      | info   | [TEST] Vertical Block 1 | [TEST] Vertical Block 2 | [TEST] Vertical Block 3 |
+      | body   | First vertical block    | Second vertical block   | Third vertical block    |
+      | status | 1                       | 1                       | 1                       |
+    When I go to "admin/content/block"
+    Then I should see "[TEST] Vertical Block 1"
+    And I should see "[TEST] Vertical Block 2"
+    And I should see "[TEST] Vertical Block 3"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -19,6 +20,8 @@ use Drupal\user\UserInterface;
  * - Assert user account status (active/inactive).
  */
 trait UserTrait {
+
+  use HelperTrait;
 
   /**
    * Remove users specified in a table.
@@ -55,6 +58,45 @@ trait UserTrait {
         $this->getUserManager()->removeUser($user->getAccountName());
       }
     }
+  }
+
+  /**
+   * Create users with vertical field format.
+   *
+   * Supports both single and multiple entity creation using vertical table
+   * format where fields are listed in rows instead of columns.
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Vertical format table with field names in first column.
+   *
+   * @Given the following users with fields:
+   *
+   * @code
+   * Given the following users with fields:
+   *   | name  | [TEST] user1         | [TEST] user2         |
+   *   | mail  | user1@example.com    | user2@example.com    |
+   *   | roles | editor               | author               |
+   * @endcode
+   */
+  public function userCreateWithFields(TableNode $table): void {
+    $entities = $this->helperTransposeVerticalTable($table);
+
+    // Convert to the format expected by createUsers().
+    $horizontal_table = new TableNode([]);
+    if (!empty($entities)) {
+      // Get field names from first entity.
+      $field_names = array_keys($entities[0]);
+      $rows = [$field_names];
+
+      // Add each entity as a row.
+      foreach ($entities as $entity) {
+        $rows[] = array_values($entity);
+      }
+
+      $horizontal_table = new TableNode($rows);
+    }
+
+    $this->createUsers($horizontal_table);
   }
 
   /**

@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -20,6 +21,8 @@ use Drupal\media\MediaInterface;
  * Skip processing with tag: `@behat-steps-skip:mediaAfterScenario`
  */
 trait MediaTrait {
+
+  use HelperTrait;
 
   /**
    * Array of created media entities.
@@ -81,6 +84,53 @@ trait MediaTrait {
       $node = (object) $node_hash;
       $node->bundle = $media_type;
       $this->mediaCreateSingle($node);
+    }
+  }
+
+  /**
+   * Create media entities with vertical field format.
+   *
+   * Supports both single and multiple entity creation using vertical table
+   * format where fields are listed in rows instead of columns.
+   *
+   * @param string $bundle
+   *   The media bundle machine name.
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Vertical format table with field names in first column.
+   *
+   * @Given the following :bundle media with fields:
+   *
+   * @code
+   * Given the following image media with fields:
+   *   | name              | [TEST] Image 1       | [TEST] Image 2       |
+   *   | field_media_image | image1.jpg           | image2.jpg           |
+   * @endcode
+   */
+  public function mediaCreateWithFields(string $bundle, TableNode $table): void {
+    $entities = $this->helperTransposeVerticalTable($table);
+
+    // Convert to the format expected by mediaDelete().
+    $horizontal_table = new TableNode([]);
+    if (!empty($entities)) {
+      // Get field names from first entity.
+      $field_names = array_keys($entities[0]);
+      $rows = [$field_names];
+
+      // Add each entity as a row.
+      foreach ($entities as $entity) {
+        $rows[] = array_values($entity);
+      }
+
+      $horizontal_table = new TableNode($rows);
+    }
+
+    // Delete entities before creating them.
+    $this->mediaDelete($bundle, $horizontal_table);
+
+    foreach ($entities as $entity_data) {
+      $stub = (object) $entity_data;
+      $stub->bundle = $bundle;
+      $this->mediaCreateSingle($stub);
     }
   }
 
