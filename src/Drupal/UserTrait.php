@@ -80,22 +80,7 @@ trait UserTrait {
    */
   public function userCreateWithFields(TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
-
-    // Convert to the format expected by createUsers().
-    $horizontal_table = new TableNode([]);
-    if (!empty($entities)) {
-      // Get field names from first entity.
-      $field_names = array_keys($entities[0]);
-      $rows = [$field_names];
-
-      // Add each entity as a row.
-      foreach ($entities as $entity) {
-        $rows[] = array_values($entity);
-      }
-
-      $horizontal_table = new TableNode($rows);
-    }
-
+    $horizontal_table = $this->helperBuildHorizontalTable($entities);
     $this->createUsers($horizontal_table);
   }
 
@@ -258,8 +243,7 @@ trait UserTrait {
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = explode(',', $roles);
-    $roles = array_map(trim(...), $roles);
+    $roles = $this->helperSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
       throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
@@ -278,8 +262,7 @@ trait UserTrait {
   public function userAssertHasNoRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = explode(',', $roles);
-    $roles = array_map(trim(...), $roles);
+    $roles = $this->helperSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
       throw new \Exception(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
@@ -399,7 +382,7 @@ trait UserTrait {
    * @Given the role :role_name with the permissions :permissions
    */
   public function userCreateRole(string $role_name, string $permissions): void {
-    $permissions = array_map(trim(...), explode(',', $permissions));
+    $permissions = $this->helperSplitCommaSeparated($permissions);
 
     $rid = strtolower($role_name);
     $role_name = trim($role_name);
