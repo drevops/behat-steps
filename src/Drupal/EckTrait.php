@@ -205,7 +205,9 @@ trait EckTrait {
     $this->parseEntityFields($entity_type, $entity);
     $saved = $this->getDriver()->createEntity($entity_type, $entity);
     if (!$saved) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('Failed to create ECK entity of type "%s".', $entity_type));
+      // @codeCoverageIgnoreEnd
     }
 
     // Store the entity - driver may return stdClass or entity object.
