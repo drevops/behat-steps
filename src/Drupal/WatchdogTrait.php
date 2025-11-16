@@ -27,7 +27,7 @@ trait WatchdogTrait {
   /**
    * Start time for each scenario.
    *
-   * @var int
+   * @var int|null
    */
   protected $watchdogScenarioStartTime;
 
@@ -100,6 +100,11 @@ trait WatchdogTrait {
     }
 
     if (!$database->schema()->tableExists('watchdog')) {
+      throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
+    }
+
+    // If watchdogSetScenario was skipped, the start time won't be set.
+    if (!isset($this->watchdogScenarioStartTime)) {
       return;
     }
 

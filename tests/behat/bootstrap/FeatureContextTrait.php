@@ -72,6 +72,18 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Clear watchdog table.
+   *
+   * @Given the watchdog is cleared
+   */
+  public function testClearWatchdogTable(): void {
+    $database = Database::getConnection();
+    if ($database->schema()->tableExists('watchdog')) {
+      $database->truncate('watchdog')->execute();
+    }
+  }
+
+  /**
    * Assert that a user exists.
    *
    * @Then user :name should exist
