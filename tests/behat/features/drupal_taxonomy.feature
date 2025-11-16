@@ -258,3 +258,23 @@ Feature: Check that TaxonomyTrait works
       """
       Unable to find the term "Nonexisting" in the vocabulary "tags".
       """
+
+  @api
+  Scenario: Create single taxonomy term with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following tags terms with fields:
+      | name        | [TEST] Vertical Tag  |
+      | description | Vertical format term |
+    When I go to "admin/structure/taxonomy/manage/tags/overview"
+    Then I should see "[TEST] Vertical Tag"
+
+  @api
+  Scenario: Create multiple taxonomy terms with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following tags terms with fields:
+      | name        | [TEST] V-Tag 1      | [TEST] V-Tag 2       | [TEST] V-Tag 3      |
+      | description | First vertical term | Second vertical term | Third vertical term |
+    When I go to "admin/structure/taxonomy/manage/tags/overview"
+    Then I should see "[TEST] V-Tag 1"
+    And I should see "[TEST] V-Tag 2"
+    And I should see "[TEST] V-Tag 3"

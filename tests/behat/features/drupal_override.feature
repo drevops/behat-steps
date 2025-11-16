@@ -32,14 +32,14 @@ Feature: Check that OverrideTrait works
   @api
   Scenario: Assert override of createUsers deletes existing users before creation
     Given users:
-      | name                    | mail                          | status |
-      | [TEST] override_user_01 | override_user_01@example.com  | 1      |
+      | name                    | mail                         | status |
+      | [TEST] override_user_01 | override_user_01@example.com | 1      |
     When I am logged in as a user with the "administrator" role
     And I go to "/admin/people"
     Then I should see the text "[TEST] override_user_01"
     # Create the same user again - override should delete first then recreate
     Given users:
-      | name                    | mail                          | status |
-      | [TEST] override_user_01 | override_user_01@example.com  | 1      |
+      | name                    | mail                         | status |
+      | [TEST] override_user_01 | override_user_01@example.com | 1      |
     When I go to "/admin/people"
     Then I should see the text "[TEST] override_user_01"

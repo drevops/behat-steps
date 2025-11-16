@@ -110,9 +110,9 @@ Feature: Check that ResponsiveTrait works
   @javascript
   Scenario: Custom breakpoints can be registered and used
     Given the following responsive breakpoints:
-      | name        | dimensions |
-      | iphone_12   | 390x844    |
-      | 4k_display  | 3840x2160  |
+      | name       | dimensions |
+      | iphone_12  | 390x844    |
+      | 4k_display | 3840x2160  |
     When I am on "/sites/default/files/clean1.html"
     And I set the viewport to the "iphone_12" breakpoint
     And I set the viewport to the "4k_display" breakpoint

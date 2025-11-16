@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Entity\EntityStorageException;
@@ -20,6 +21,8 @@ use Drupal\Core\Entity\EntityStorageException;
  * Skip processing with tag: `@behat-steps-skip:contentBlockAfterScenario`
  */
 trait ContentBlockTrait {
+
+  use HelperTrait;
 
   /**
    * Array of created block_content entities.
@@ -160,6 +163,34 @@ trait ContentBlockTrait {
   public function contentBlockCreate(string $type, TableNode $content_block_table): void {
     foreach ($content_block_table->getHash() as $hash) {
       $this->contentBlockCreateSingle($type, $hash);
+    }
+  }
+
+  /**
+   * Create content blocks with vertical field format.
+   *
+   * Supports both single and multiple entity creation using vertical table
+   * format where fields are listed in rows instead of columns.
+   *
+   * @param string $type
+   *   The content block type machine name.
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Vertical format table with field names in first column.
+   *
+   * @Given the following :type content blocks with fields:
+   *
+   * @code
+   * Given the following basic content blocks with fields:
+   *   | info   | [TEST] Block 1        | [TEST] Block 2        |
+   *   | body   | First block content   | Second block content  |
+   *   | status | 1                     | 1                     |
+   * @endcode
+   */
+  public function contentBlockCreateWithFields(string $type, TableNode $table): void {
+    $entities = $this->helperTransposeVerticalTable($table);
+
+    foreach ($entities as $entity_data) {
+      $this->contentBlockCreateSingle($type, $entity_data);
     }
   }
 

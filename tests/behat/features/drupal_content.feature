@@ -275,3 +275,25 @@ Feature: Check that ContentTrait works
       """
       Unable to find "article" content with title "[TEST] No existing title".
       """
+
+  @api
+  Scenario: Create single node with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following page content with fields:
+      | title  | [TEST] Vertical Page    |
+      | body   | Vertical format content |
+      | status | 1                       |
+    When I go to "/admin/content"
+    Then I should see "[TEST] Vertical Page"
+
+  @api
+  Scenario: Create multiple nodes with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following page content with fields:
+      | title  | [TEST] V-Page 1    | [TEST] V-Page 2     | [TEST] V-Page 3    |
+      | body   | First page content | Second page content | Third page content |
+      | status | 1                  | 1                   | 1                  |
+    When I go to "/admin/content"
+    Then I should see "[TEST] V-Page 1"
+    And I should see "[TEST] V-Page 2"
+    And I should see "[TEST] V-Page 3"

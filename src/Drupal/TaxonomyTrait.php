@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -16,6 +17,8 @@ use Drupal\taxonomy\Entity\Vocabulary;
  */
 trait TaxonomyTrait {
 
+  use HelperTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -24,6 +27,46 @@ trait TaxonomyTrait {
     // Delete entities before creating them.
     $this->taxonomyDeleteTerms($vocabulary, $table);
     parent::createTerms($vocabulary, $table);
+  }
+
+  /**
+   * Create taxonomy terms with vertical field format.
+   *
+   * Supports both single and multiple entity creation using vertical table
+   * format where fields are listed in rows instead of columns.
+   *
+   * @param string $vocabulary
+   *   The vocabulary machine name.
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Vertical format table with field names in first column.
+   *
+   * @Given the following :vocabulary terms with fields:
+   *
+   * @code
+   * Given the following tags terms with fields:
+   *   | name        | [TEST] Behat    | [TEST] Testing  |
+   *   | description | Testing tag     | QA tag          |
+   * @endcode
+   */
+  public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
+    $entities = $this->helperTransposeVerticalTable($table);
+
+    // Convert to the format expected by createTerms().
+    $horizontal_table = new TableNode([]);
+    if (!empty($entities)) {
+      // Get field names from first entity.
+      $field_names = array_keys($entities[0]);
+      $rows = [$field_names];
+
+      // Add each entity as a row.
+      foreach ($entities as $entity) {
+        $rows[] = array_values($entity);
+      }
+
+      $horizontal_table = new TableNode($rows);
+    }
+
+    $this->createTerms($vocabulary, $horizontal_table);
   }
 
   /**

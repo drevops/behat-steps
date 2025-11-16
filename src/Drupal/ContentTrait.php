@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
@@ -17,6 +18,8 @@ use Drupal\workflows\Entity\Workflow;
  * - Support content moderation transitions and scheduled publishing.
  */
 trait ContentTrait {
+
+  use HelperTrait;
 
   /**
    * Delete content type.
@@ -55,6 +58,47 @@ trait ContentTrait {
       $entities = $controller->loadMultiple($nids);
       $controller->delete($entities);
     }
+  }
+
+  /**
+   * Create content with vertical field format.
+   *
+   * Supports both single and multiple entity creation using vertical table
+   * format where fields are listed in rows instead of columns.
+   *
+   * @param string $type
+   *   The content type machine name.
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Vertical format table with field names in first column.
+   *
+   * @Given the following :type content with fields:
+   *
+   * @code
+   * Given the following page content with fields:
+   *   | title  | [TEST] Page 1        | [TEST] Page 2        |
+   *   | body   | First page content   | Second page content  |
+   *   | status | 1                    | 1                    |
+   * @endcode
+   */
+  public function contentCreateWithFields(string $type, TableNode $table): void {
+    $entities = $this->helperTransposeVerticalTable($table);
+
+    // Convert to the format expected by createNodes().
+    $horizontal_table = new TableNode([]);
+    if (!empty($entities)) {
+      // Get field names from first entity.
+      $field_names = array_keys($entities[0]);
+      $rows = [$field_names];
+
+      // Add each entity as a row.
+      foreach ($entities as $entity) {
+        $rows[] = array_values($entity);
+      }
+
+      $horizontal_table = new TableNode($rows);
+    }
+
+    $this->createNodes($type, $horizontal_table);
   }
 
   /**

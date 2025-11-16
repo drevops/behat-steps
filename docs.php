@@ -42,7 +42,7 @@ function main(array $options = []): void {
   require_once $base_path . '/tests/behat/bootstrap/FeatureContextTrait.php';
   require_once $base_path . '/tests/behat/bootstrap/FeatureContext.php';
 
-  $info = extract_info(FeatureContext::class, [FeatureContextTrait::class], $base_path);
+  $info = extract_info(FeatureContext::class, [FeatureContextTrait::class, 'HelperTrait'], $base_path);
 
   $errors = validate($info);
 

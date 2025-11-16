@@ -1976,6 +1976,23 @@ Given the following "basic" content blocks exist:
 </details>
 
 <details>
+  <summary><code>@Given the following :type content blocks with fields:</code></summary>
+
+<br/>
+Create content blocks with vertical field format
+<br/><br/>
+
+```gherkin
+Given the following basic content blocks with fields:
+  | info   | [TEST] Block 1        | [TEST] Block 2        |
+  | body   | First block content   | Second block content  |
+  | status | 1                     | 1                     |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I edit the :type content block with the description :description</code></summary>
 
 <br/>
@@ -2039,6 +2056,23 @@ Given the following "article" content does not exist:
   | title                |
   | Test article         |
   | Another test article |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following :type content with fields:</code></summary>
+
+<br/>
+Create content with vertical field format
+<br/><br/>
+
+```gherkin
+Given the following page content with fields:
+  | title  | [TEST] Page 1        | [TEST] Page 2        |
+  | body   | First page content   | Second page content  |
+  | status | 1                    | 1                    |
 
 ```
 
@@ -2751,6 +2785,22 @@ Given "video" media:
 </details>
 
 <details>
+  <summary><code>@Given the following :bundle media with fields:</code></summary>
+
+<br/>
+Create media entities with vertical field format
+<br/><br/>
+
+```gherkin
+Given the following image media with fields:
+  | name              | [TEST] Image 1       | [TEST] Image 2       |
+  | field_media_image | image1.jpg           | image2.jpg           |
+
+```
+
+</details>
+
+<details>
   <summary><code>@Given the following media :media_type do not exist:</code></summary>
 
 <br/>
@@ -3098,6 +3148,22 @@ When I run search indexing for 1 item
 
 
 <details>
+  <summary><code>@Given the following :vocabulary terms with fields:</code></summary>
+
+<br/>
+Create taxonomy terms with vertical field format
+<br/><br/>
+
+```gherkin
+Given the following tags terms with fields:
+  | name        | [TEST] Behat    | [TEST] Testing  |
+  | description | Testing tag     | QA tag          |
+
+```
+
+</details>
+
+<details>
   <summary><code>@Given the following :vocabulary_machine_name vocabulary terms do not exist:</code></summary>
 
 <br/>
@@ -3252,6 +3318,23 @@ Given the following users do not exist:
   | mail             |
   | john@example.com |
   | jane@example.com |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following users with fields:</code></summary>
+
+<br/>
+Create users with vertical field format
+<br/><br/>
+
+```gherkin
+Given the following users with fields:
+  | name  | [TEST] user1         | [TEST] user2         |
+  | mail  | user1@example.com    | user2@example.com    |
+  | roles | editor               | author               |
 
 ```
 

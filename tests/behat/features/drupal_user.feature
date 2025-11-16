@@ -437,9 +437,9 @@ Feature: Check that UserTrait works
   @api
   Scenario: Assert "Given the following roles:" works with table
     Given the following roles:
-      | name              | permissions                              |
-      | Content Editor    | access content, create article content   |
-      | Content Approver  | access content, edit any article content |
+      | name             | permissions                              |
+      | Content Editor   | access content, create article content   |
+      | Content Approver | access content, edit any article content |
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/people/roles"
     Then I should see "Content Editor"
@@ -448,8 +448,8 @@ Feature: Check that UserTrait works
   @api
   Scenario: Assert "Given the following roles:" works with empty permissions
     Given the following roles:
-      | name            | permissions |
-      | Limited Editor  |             |
+      | name           | permissions |
+      | Limited Editor |             |
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/people/roles"
     Then I should see "Limited Editor"
@@ -468,3 +468,25 @@ Feature: Check that UserTrait works
       """
       Missing required column "name"
       """
+
+  @api
+  Scenario: Create single user with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following users with fields:
+      | name   | [TEST] vertical_user |
+      | mail   | vertical@example.com |
+      | status | 1                    |
+    When I go to "/admin/people"
+    Then I should see "[TEST] vertical_user"
+
+  @api
+  Scenario: Create multiple users with vertical field format
+    Given I am logged in as a user with the "administrator" role
+    And the following users with fields:
+      | name   | [TEST] vuser1      | [TEST] vuser2      | [TEST] vuser3      |
+      | mail   | vuser1@example.com | vuser2@example.com | vuser3@example.com |
+      | status | 1                  | 1                  | 1                  |
+    When I go to "/admin/people"
+    Then I should see "[TEST] vuser1"
+    And I should see "[TEST] vuser2"
+    And I should see "[TEST] vuser3"

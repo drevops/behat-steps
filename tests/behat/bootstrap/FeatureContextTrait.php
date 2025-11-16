@@ -10,6 +10,7 @@
 
 declare(strict_types=1);
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
@@ -428,6 +429,26 @@ trait FeatureContextTrait {
    */
   public function goToPhpServerTestPage(): void {
     $this->getSession()->visit('http://cli:8888/relative.html');
+  }
+
+  /**
+   * Test helperTransposeVerticalTable method.
+   *
+   * @When I call helperTransposeVerticalTable with:
+   */
+  public function testCallHelperTransposeVerticalTable(TableNode $table): void {
+    $result = $this->helperTransposeVerticalTable($table);
+
+    if (empty($result)) {
+      throw new \Exception('helperTransposeVerticalTable returned empty result.');
+    }
+
+    // Validate result structure.
+    foreach ($result as $entity) {
+      if (!is_array($entity)) {
+        throw new \Exception('helperTransposeVerticalTable returned invalid entity data.');
+      }
+    }
   }
 
 }
