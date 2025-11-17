@@ -513,7 +513,28 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 >  - Set field values for various input types including selects and WYSIWYG.
 >  - Assert field existence, state, and selected options.
 >  - Support for specialized widgets like color pickers and rich text editors.
+>  - Disable browser validation for forms with deferred execution.
+>  - Use @disable-form-validation tag to automatically disable validation for all forms.
+>  
+>  Skip processing with tag: `@behat-steps-skip:FieldTrait`
 
+
+<details>
+  <summary><code>@Given browser validation for the form :selector is disabled</code></summary>
+
+<br/>
+Disable browser validation for the form for validating errors
+<br/><br/>
+
+```gherkin
+Given browser validation for the form "#node-article-form" is disabled
+When I go to "node/add/article"
+And I press "Save"
+Then I should see "Title field is required"
+
+```
+
+</details>
 
 <details>
   <summary><code>@When I fill in the color field :field with the value :value</code></summary>

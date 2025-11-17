@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\AfterStepScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -14,11 +17,105 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  * - Set field values for various input types including selects and WYSIWYG.
  * - Assert field existence, state, and selected options.
  * - Support for specialized widgets like color pickers and rich text editors.
+ * - Disable browser validation for forms with deferred execution.
+ * - Use @disable-form-validation tag to automatically disable validation for all forms.
+ *
+ * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  */
 trait FieldTrait {
 
   use HelperTrait;
   use KeyboardTrait;
+
+  /**
+   * Registry of form selectors that should have validation disabled.
+   *
+   * @var array<int, string>
+   */
+  protected array $fieldFormValidationRegistry = [];
+
+  /**
+   * Whether form validation disabling is enabled for current scenario.
+   */
+  protected bool $fieldFormValidationEnabled = FALSE;
+
+  /**
+   * Whether @disable-form-validation tag is present on current scenario.
+   */
+  protected bool $fieldDisableAllFormValidation = FALSE;
+
+  /**
+   * Initialize form validation registry for scenarios.
+   *
+   * @BeforeScenario
+   */
+  public function fieldBeforeScenario(BeforeScenarioScope $scope): void {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
+      $this->fieldFormValidationEnabled = FALSE;
+      $this->fieldFormValidationRegistry = [];
+      $this->fieldDisableAllFormValidation = FALSE;
+      return;
+    }
+
+    $this->fieldFormValidationEnabled = TRUE;
+    $this->fieldFormValidationRegistry = [];
+
+    // Check for @disable-form-validation tag.
+    $this->fieldDisableAllFormValidation = $scope->getScenario()->hasTag('disable-form-validation');
+  }
+
+  /**
+   * Apply form validation disabling after each step.
+   *
+   * @AfterStep
+   */
+  public function fieldAfterStep(AfterStepScope $scope): void {
+    if ($scope->getFeature()->hasTag('behat-steps-skip:FieldTrait')) {
+      // @codeCoverageIgnoreStart
+      return;
+      // @codeCoverageIgnoreEnd
+    }
+
+    if (!$this->fieldFormValidationEnabled) {
+      return;
+    }
+
+    if (!$this->helperIsJavascriptSupported()) {
+      return;
+    }
+
+    // Handle @disable-form-validation tag - disable all forms on page.
+    if ($this->fieldDisableAllFormValidation) {
+      $this->fieldDisableFormValidation();
+      return;
+    }
+
+    // Handle selector-based registry - disable specific forms.
+    if (!empty($this->fieldFormValidationRegistry)) {
+      foreach ($this->fieldFormValidationRegistry as $selector) {
+        $this->fieldDisableFormValidation($selector);
+      }
+    }
+  }
+
+  /**
+   * Clean up form validation registry after scenario.
+   *
+   * @AfterScenario
+   */
+  public function fieldAfterScenario(AfterScenarioScope $scope): void {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
+      $this->fieldFormValidationEnabled = FALSE;
+      $this->fieldFormValidationRegistry = [];
+      $this->fieldDisableAllFormValidation = FALSE;
+      return;
+    }
+
+    // Clean up for next scenario.
+    $this->fieldFormValidationRegistry = [];
+    $this->fieldFormValidationEnabled = FALSE;
+    $this->fieldDisableAllFormValidation = FALSE;
+  }
 
   /**
    * Assert that field is empty.
@@ -391,20 +488,55 @@ JS;
   /**
    * Disable browser validation for the form for validating errors.
    *
+   * The form selector is registered and validation disabling will be
+   * automatically applied after each step when the form becomes available.
+   *
+   * @code
+   * Given browser validation for the form "#node-article-form" is disabled
+   * When I go to "node/add/article"
+   * And I press "Save"
+   * Then I should see "Title field is required"
+   * @endcode
+   *
    * @Given browser validation for the form :selector is disabled
    */
-  public function disableFormBrowserValidation(string $selector): void {
+  public function fieldDisableFormBrowserValidation(string $selector): void {
+    // Add selector to registry for deferred execution.
+    if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
+      $this->fieldFormValidationRegistry[] = $selector;
+    }
+
+    // Try to apply immediately if we're already on a page with JS support.
+    if ($this->helperIsJavascriptSupported()) {
+      $this->fieldDisableFormValidation($selector);
+    }
+  }
+
+  /**
+   * Disable browser validation for forms.
+   *
+   * @param string|null $selector
+   *   The CSS selector for form(s). If NULL, disables all forms on page.
+   *
+   * @throws \Exception
+   *   If no forms are found.
+   */
+  protected function fieldDisableFormValidation(?string $selector = NULL): void {
+    $selector ??= 'form';
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 
     $script = <<<JS
       (function() {
-        var form = document.querySelector({$selector_js});
-        if (!form) {
-          throw new Error('Form with selector ' + {$selector_js} + ' not found');
+        var forms = document.querySelectorAll({$selector_js});
+        if (forms.length > 0) {
+          forms.forEach(function(form) {
+            form.setAttribute('novalidate', 'novalidate');
+          });
         }
-        form.setAttribute('novalidate', 'novalidate');
+        return forms.length;
       })();
 JS;
+
     $this->getSession()->executeScript($script);
   }
 
