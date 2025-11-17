@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Mink\Exception\UnsupportedDriverActionException;
-
 /**
  * Wait for a period of time or for AJAX to finish.
  */
 trait WaitTrait {
+
+  use HelperTrait;
 
   /**
    * Wait for a specified number of seconds.
@@ -40,12 +40,8 @@ trait WaitTrait {
   public function waitForAjaxToFinish(string|int $seconds): void {
     $seconds = intval($seconds);
 
-    $driver = $this->getSession()->getDriver();
-
-    try {
-      $driver->evaluateScript('true');
-    }
-    catch (UnsupportedDriverActionException) {
+    if (!$this->helperIsJavascriptSupported()) {
+      $driver = $this->getSession()->getDriver();
       throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver', $driver::class));
     }
 
