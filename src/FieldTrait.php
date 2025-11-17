@@ -9,7 +9,6 @@ use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
  * Manipulate form fields and verify widget functionality.
@@ -299,15 +298,13 @@ JS;
       throw new \Exception($exception->getMessage());
     }
 
-    $driver = $this->getSession()->getDriver();
-    try {
-      $driver->evaluateScript('true');
-    }
-    catch (UnsupportedDriverActionException) {
-      // For non-JS drivers process field in a standard way.
+    // For non-JS drivers process field in a standard way.
+    if (!$this->helperIsJavascriptSupported()) {
       $element->setValue($value);
       return;
     }
+
+    $driver = $this->getSession()->getDriver();
 
     $element_id = $element->getAttribute('id');
     if (empty($element_id)) {
@@ -515,11 +512,10 @@ JS;
   /**
    * Disable browser validation for forms.
    *
+   * Silently handles cases where forms don't exist yet (deferred execution).
+   *
    * @param string|null $selector
    *   The CSS selector for form(s). If NULL, disables all forms on page.
-   *
-   * @throws \Exception
-   *   If no forms are found.
    */
   protected function fieldDisableFormValidation(?string $selector = NULL): void {
     $selector ??= 'form';
@@ -533,7 +529,6 @@ JS;
             form.setAttribute('novalidate', 'novalidate');
           });
         }
-        return forms.length;
       })();
 JS;
 
