@@ -7,109 +7,109 @@ Feature: Check that FileTrait works
   Scenario: Assert "When the following managed files:"
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
-      | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
+      | path         |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
     And the following managed files:
-      | uuid                                 | path             |
-      | 9cb1b484-db7b-4496-bd63-8c702e207704 | example_text.txt |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
-    And "example_text.txt" file object exists
+      | uuid                                 | path     |
+      | 9cb1b484-db7b-4496-bd63-8c702e207704 | text.txt |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
+    And "text.txt" file object exists
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
   Scenario: Assert "When the following managed files: With uri"
     Given I am logged in as a user with the "administrator" role
-    And no "example_document.pdf" file object exists
-    And no "example_image.png" file object exists
-    And no "example_audio.mp3" file object exists
+    And no "document.pdf" file object exists
+    And no "image.png" file object exists
+    And no "audio.mp3" file object exists
     When the following managed files:
-      | path                 | uri                                |
-      | example_document.pdf | public://test/example_document.pdf |
-      | example_image.png    | public://test/example_image.png    |
-      | example_audio.mp3    | public://test/example_audio.mp3    |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+      | path         | uri                        |
+      | document.pdf | public://test/document.pdf |
+      | image.png    | public://test/image.png    |
+      | audio.mp3    | public://test/audio.mp3    |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
 
   @api
   Scenario: Assert "When the following managed files do not exist: With filename"
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
-      | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+      | path         |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
     When the following managed files do not exist:
-      | filename             |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-    Then no "example_document.pdf" file object exists
-    And no "example_image.png" file object exists
-    And no "example_audio.mp3" file object exists
+      | filename     |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
+    Then no "document.pdf" file object exists
+    And no "image.png" file object exists
+    And no "audio.mp3" file object exists
 
   @api
   Scenario: Assert "When the following managed files do not exist: With uri"
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
-      | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+      | path         |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
     When the following managed files do not exist:
-      | uri                           |
-      | public://example_document.pdf |
-      | public://example_image.png    |
-      | public://example_audio.mp3    |
-    Then no "example_document.pdf" file object exists
-    And no "example_image.png" file object exists
-    And no "example_audio.mp3" file object exists
+      | uri                   |
+      | public://document.pdf |
+      | public://image.png    |
+      | public://audio.mp3    |
+    Then no "document.pdf" file object exists
+    And no "image.png" file object exists
+    And no "audio.mp3" file object exists
 
   @api
   Scenario: Assert "When the following managed files do not exist: With status"
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
-      | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+      | path         |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
     When the following managed files do not exist:
       | status |
       | 1      |
-    Then no "example_document.pdf" file object exists
-    And no "example_image.png" file object exists
-    And no "example_audio.mp3" file object exists
+    Then no "document.pdf" file object exists
+    And no "image.png" file object exists
+    And no "audio.mp3" file object exists
 
   @api
   Scenario: Assert "When the following managed files do not exist: With filemime"
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
-      | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-    Then "example_document.pdf" file object exists
-    And "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+      | path         |
+      | document.pdf |
+      | image.png    |
+      | audio.mp3    |
+    Then "document.pdf" file object exists
+    And "image.png" file object exists
+    And "audio.mp3" file object exists
     When the following managed files do not exist:
       | filemime  |
       | image/png |
-    Then "example_document.pdf" file object exists
-    And no "example_image.png" file object exists
-    And "example_audio.mp3" file object exists
+    Then "document.pdf" file object exists
+    And no "image.png" file object exists
+    And "audio.mp3" file object exists
 
   @api
   Scenario: Assert unmanaged files step definitions

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comprehensive Fields Test Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .form-container { margin: 30px 0; padding: 20px; border: 2px solid #ccc; border-radius: 8px; }
+    .form-container h2 { margin-top: 0; color: #333; border-bottom: 2px solid #666; padding-bottom: 10px; }
+    .field-group { margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 4px; }
+    label { display: block; margin: 10px 0 5px 0; font-weight: bold; color: #555; }
+    input, select, textarea { padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+    input[type="text"], input[type="email"], input[type="password"], textarea { min-width: 300px; }
+    select { min-width: 200px; }
+    button { margin: 15px 5px 0 0; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .validation-message { color: red; display: none; margin-top: 10px; padding: 10px; background: #ffebee; border-radius: 4px; }
+    .success-message { color: green; display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 4px; }
+    .field-description { font-size: 0.9em; color: #666; font-style: italic; }
+    .inline-fields { display: flex; gap: 20px; align-items: center; }
+    .inline-fields > div { flex: 1; }
+  </style>
+</head>
+<body>
+  <h1>Comprehensive Fields Test Page</h1>
+  <p class="field-description">This fixture consolidates all field types for testing FieldTrait and DateTrait</p>
+
+  <!-- ========================================
+       FORM 1: Basic Form Fields (from form1.html + additional)
+       ======================================== -->
+  <div class="form-container">
+    <h2>Basic Form Fields</h2>
+    <form id="test-form" action="/submit" method="post">
+      <!-- Text inputs with various states -->
+      <div class="field-group">
+        <h3>Text Inputs</h3>
+
+        <label for="field1">Field 1 (text, enabled, empty):</label>
+        <input type="text" id="field1" name="field1" placeholder="Enter text">
+
+        <label for="field2">Field 2 (text, enabled, with value):</label>
+        <input type="text" id="field2" name="field2" value="Initial value">
+
+        <label for="field3disabled">Field 3 (text, disabled):</label>
+        <input type="text" id="field3disabled" name="field3disabled" value="Disabled field" disabled>
+
+        <label for="hidden-field">Hidden Field:</label>
+        <input type="hidden" id="hidden-field" name="hidden_field" value="hidden_value">
+      </div>
+
+      <!-- Password field -->
+      <div class="field-group">
+        <h3>Password Field</h3>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+      </div>
+
+      <!-- Email field -->
+      <div class="field-group">
+        <h3>Email Field</h3>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email">
+      </div>
+
+      <!-- Textarea -->
+      <div class="field-group">
+        <h3>Textarea</h3>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4"></textarea>
+      </div>
+
+      <!-- Color input -->
+      <div class="field-group">
+        <h3>Color Field</h3>
+        <label for="edit-color-input">Color Picker:</label>
+        <input type="color" id="edit-color-input" name="color_input" value="#000000">
+        <span class="field-description">Test color field interactions</span>
+      </div>
+
+      <!-- Checkboxes -->
+      <div class="field-group">
+        <h3>Checkboxes</h3>
+        <div>
+          <input type="checkbox" id="checkbox-unchecked" name="checkbox_unchecked" value="1">
+          <label for="checkbox-unchecked" style="display: inline; font-weight: normal;">Checkbox unchecked</label>
+        </div>
+        <div>
+          <input type="checkbox" id="checkbox-checked" name="checkbox_checked" value="1" checked>
+          <label for="checkbox-checked" style="display: inline; font-weight: normal;">Checkbox checked</label>
+        </div>
+      </div>
+
+      <!-- Radio buttons -->
+      <div class="field-group">
+        <h3>Radio Buttons</h3>
+        <div>
+          <input type="radio" id="radio1" name="radio_group" value="option1">
+          <label for="radio1" style="display: inline; font-weight: normal;">Option 1</label>
+        </div>
+        <div>
+          <input type="radio" id="radio2" name="radio_group" value="option2" checked>
+          <label for="radio2" style="display: inline; font-weight: normal;">Option 2 (selected)</label>
+        </div>
+        <div>
+          <input type="radio" id="radio3" name="radio_group" value="option3">
+          <label for="radio3" style="display: inline; font-weight: normal;">Option 3</label>
+        </div>
+      </div>
+
+      <button type="submit">Submit Basic Form</button>
+    </form>
+  </div>
+
+  <!-- ========================================
+       FORM 2: Select Fields (from selects.html)
+       ======================================== -->
+  <div class="form-container">
+    <h2>Select Fields</h2>
+    <form id="select-form" action="/submit-select" method="post">
+      <!-- Single select -->
+      <div class="field-group">
+        <h3>Single Select</h3>
+        <label for="single-select">Single select field:</label>
+        <select id="single-select" name="single_select">
+          <option value="">- Select -</option>
+          <option value="choice_1">Choice 1</option>
+          <option value="choice_2">Choice 2</option>
+          <option value="choice_3">Choice 3</option>
+        </select>
+      </div>
+
+      <!-- Multi-select -->
+      <div class="field-group">
+        <h3>Multi-Select</h3>
+        <label for="multi-select-options">Multi-select options:</label>
+        <select id="multi-select-options" name="multi_select_options[]" multiple size="5">
+          <option value="option_a">Option A</option>
+          <option value="option_b">Option B</option>
+          <option value="option_c">Option C</option>
+        </select>
+        <span class="field-description">Hold Ctrl/Cmd to select multiple options</span>
+      </div>
+
+      <button type="submit">Submit Select Form</button>
+    </form>
+  </div>
+
+  <!-- ========================================
+       FORM 3: HTML5 Date/Time Fields (NEW - for DateTrait)
+       ======================================== -->
+  <div class="form-container">
+    <h2>HTML5 Date & Time Fields</h2>
+    <form id="datetime-form" action="/submit-datetime" method="post">
+      <!-- Date field -->
+      <div class="field-group">
+        <h3>Date Field</h3>
+        <label for="date-field">Event date only:</label>
+        <input type="date" id="date-field" name="date_field">
+        <span class="field-description">Date only (no time)</span>
+        <div id="date-display" class="field-description"></div>
+      </div>
+
+      <!-- Time field -->
+      <div class="field-group">
+        <h3>Time Field</h3>
+        <label for="time-field">Event time only:</label>
+        <input type="time" id="time-field" name="time_field">
+        <span class="field-description">Time only (no date)</span>
+        <div id="time-display" class="field-description"></div>
+      </div>
+
+      <!-- Datetime-local field (single field with date and time) -->
+      <div class="field-group">
+        <h3>DateTime Field</h3>
+        <label for="datetime-field">Event date and time:</label>
+        <input type="datetime-local" id="datetime-field" name="datetime_field">
+        <span class="field-description">Combined date and time</span>
+        <div id="datetime-display" class="field-description"></div>
+      </div>
+
+      <!-- Date range (two date fields for start and end) -->
+      <div class="field-group">
+        <h3>Date Range Fields</h3>
+        <div class="inline-fields">
+          <div>
+            <label for="daterange-start">Event period start:</label>
+            <input type="date" id="daterange-start" name="daterange_start">
+          </div>
+          <div>
+            <label for="daterange-end">Event period end:</label>
+            <input type="date" id="daterange-end" name="daterange_end">
+          </div>
+        </div>
+        <span class="field-description">Date range without time</span>
+      </div>
+
+      <!-- DateTime range (two datetime-local fields for start and end) -->
+      <div class="field-group">
+        <h3>DateTime Range Fields</h3>
+        <div class="inline-fields">
+          <div>
+            <label for="datetimerange-start">Event period start (with time):</label>
+            <input type="datetime-local" id="datetimerange-start" name="datetimerange_start">
+          </div>
+          <div>
+            <label for="datetimerange-end">Event period end (with time):</label>
+            <input type="datetime-local" id="datetimerange-end" name="datetimerange_end">
+          </div>
+        </div>
+        <span class="field-description">DateTime range with time</span>
+      </div>
+
+      <button type="submit">Submit DateTime Form</button>
+    </form>
+  </div>
+
+  <!-- ========================================
+       FORM 4: Browser Validation Testing (from form1.html)
+       ======================================== -->
+  <div class="form-container">
+    <h2>Browser Validation Testing</h2>
+    <p class="field-description">Forms with required fields for testing validation disabling</p>
+
+    <!-- Login form with required fields -->
+    <div class="field-group">
+      <h3>Login Form (Required Fields)</h3>
+      <form id="login-form" action="/login" method="post">
+        <label for="username">Username (required):</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="login-password">Password (required):</label>
+        <input type="password" id="login-password" name="password" required>
+
+        <button type="submit">Submit 1</button>
+        <div class="validation-message" id="login-error">Login form error: Please fill in all required fields.</div>
+      </form>
+    </div>
+
+    <!-- Contact form with required fields -->
+    <div class="field-group">
+      <h3>Contact Form (Required Fields)</h3>
+      <form id="contact-form" action="/contact" method="post">
+        <label for="contact-name">Name (required):</label>
+        <input type="text" id="contact-name" name="name" required>
+
+        <label for="contact-email">Email (required):</label>
+        <input type="email" id="contact-email" name="email" required>
+
+        <label for="contact-message">Message (required):</label>
+        <textarea id="contact-message" name="message" required></textarea>
+
+        <button type="submit">Submit 2</button>
+        <div class="validation-message" id="contact-error">Contact form error: Please fill in all required fields.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================
+       Display Area for Testing Values
+       ======================================== -->
+  <div class="form-container">
+    <h2>Form Values Display</h2>
+    <div id="values-display" style="padding: 10px; background: #f0f0f0; border-radius: 4px;">
+      <p><em>Fill in fields above to see values displayed here</em></p>
+    </div>
+  </div>
+
+  <!-- ========================================
+       JavaScript for Form Interactions
+       ======================================== -->
+  <script>
+    // Login form validation
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('login-password').value;
+      if (!username || !password) {
+        document.getElementById('login-error').style.display = 'block';
+      } else {
+        document.getElementById('login-error').style.display = 'none';
+      }
+    });
+
+    // Contact form validation
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var name = document.getElementById('contact-name').value;
+      var email = document.getElementById('contact-email').value;
+      var message = document.getElementById('contact-message').value;
+      if (!name || !email || !message) {
+        document.getElementById('contact-error').style.display = 'block';
+      } else {
+        document.getElementById('contact-error').style.display = 'none';
+      }
+    });
+
+    // Date/Time field display updates
+    function updateDateDisplay() {
+      var dateField = document.getElementById('date-field');
+      var timeField = document.getElementById('time-field');
+      var datetimeField = document.getElementById('datetime-field');
+
+      if (dateField.value) {
+        document.getElementById('date-display').textContent = 'Selected date: ' + dateField.value;
+      }
+      if (timeField.value) {
+        document.getElementById('time-display').textContent = 'Selected time: ' + timeField.value;
+      }
+      if (datetimeField.value) {
+        document.getElementById('datetime-display').textContent = 'Selected datetime: ' + datetimeField.value;
+      }
+    }
+
+    document.getElementById('date-field').addEventListener('change', updateDateDisplay);
+    document.getElementById('time-field').addEventListener('change', updateDateDisplay);
+    document.getElementById('datetime-field').addEventListener('change', updateDateDisplay);
+
+    // Prevent default form submissions for test forms
+    document.getElementById('test-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Basic form submitted (prevented for testing)');
+    });
+
+    document.getElementById('select-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Select form submitted (prevented for testing)');
+    });
+
+    document.getElementById('datetime-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('DateTime form submitted (prevented for testing)');
+    });
+
+    // Update values display
+    function updateValuesDisplay() {
+      var display = document.getElementById('values-display');
+      var html = '<h3>Current Form Values:</h3>';
+
+      // Basic fields
+      html += '<p><strong>Field 1:</strong> ' + (document.getElementById('field1').value || '(empty)') + '</p>';
+      html += '<p><strong>Field 2:</strong> ' + (document.getElementById('field2').value || '(empty)') + '</p>';
+      html += '<p><strong>Color:</strong> ' + document.getElementById('edit-color-input').value + '</p>';
+
+      // Checkboxes
+      html += '<p><strong>Checkbox unchecked:</strong> ' + document.getElementById('checkbox-unchecked').checked + '</p>';
+      html += '<p><strong>Checkbox checked:</strong> ' + document.getElementById('checkbox-checked').checked + '</p>';
+
+      // Select
+      var singleSelect = document.getElementById('single-select');
+      html += '<p><strong>Single select:</strong> ' + (singleSelect.value || '(none)') + '</p>';
+
+      // Date/Time
+      html += '<p><strong>Date field:</strong> ' + (document.getElementById('date-field').value || '(empty)') + '</p>';
+      html += '<p><strong>Time field:</strong> ' + (document.getElementById('time-field').value || '(empty)') + '</p>';
+      html += '<p><strong>DateTime field:</strong> ' + (document.getElementById('datetime-field').value || '(empty)') + '</p>';
+
+      display.innerHTML = html;
+    }
+
+    // Update display on any field change
+    document.querySelectorAll('input, select, textarea').forEach(function(element) {
+      element.addEventListener('change', updateValuesDisplay);
+      element.addEventListener('input', updateValuesDisplay);
+    });
+
+    // Initial display
+    updateValuesDisplay();
+  </script>
+</body>
+</html>

@@ -6,17 +6,17 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Assert "When I attach the file :file to :field_name media field"
     Given the following managed files:
-      | path                 |
-      | example_document.pdf |
+      | path         |
+      | document.pdf |
 
     When the following media "image" do not exist:
       | name             | field_media_image |
-      | Test media image | example_image.png |
+      | Test media image | image.png         |
 
     And the following media "image" exist:
       | name              | field_media_image |
-      | Test media image  | example_image.png |
-      | Test media image2 | example_image.png |
+      | Test media image  | image.png         |
+      | Test media image2 | image.png         |
 
     And the following media "image" do not exist:
       | name              |
@@ -24,7 +24,7 @@ Feature: Check that MediaTrait works
 
     And the following media "document" exist:
       | name                | field_media_document |
-      | Test media document | example_document.pdf |
+      | Test media document | document.pdf         |
 
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/content/media"
@@ -35,11 +35,11 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Assert navigate to edit media with specified type and name
     Given the following managed files:
-      | path                 |
-      | example_document.pdf |
+      | path         |
+      | document.pdf |
     And the following media "document" exist:
       | name                | field_media_document |
-      | Test media document | example_document.pdf |
+      | Test media document | document.pdf         |
     And I am logged in as a user with the "administrator" role
     When I edit the media "document" with the name "Test media document"
     Then I should see "Edit Document Test media document"
@@ -76,13 +76,13 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Assert that mediaCreate() deletes existing media before creating
     Given the following managed files:
-      | path              |
-      | example_image.png |
+      | path      |
+      | image.png |
 
     # Create initial media
     And the following media "image" exist:
       | name                | field_media_image |
-      | Duplicate test item | example_image.png |
+      | Duplicate test item | image.png         |
 
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/content/media"
@@ -91,7 +91,7 @@ Feature: Check that MediaTrait works
     # Create media again with the same name - should replace the first one
     When the following media "image" exist:
       | name                | field_media_image |
-      | Duplicate test item | example_image.png |
+      | Duplicate test item | image.png         |
 
     And I visit "/admin/content/media"
     Then I should see the text "Duplicate test item"
@@ -102,11 +102,11 @@ Feature: Check that MediaTrait works
   Scenario: Create single media with vertical field format
     Given I am logged in as a user with the "administrator" role
     And the following managed files:
-      | path              |
-      | example_image.png |
+      | path      |
+      | image.png |
     And the following image media with fields:
       | name              | [TEST] Vertical Image |
-      | field_media_image | example_image.png     |
+      | field_media_image | image.png             |
     When I go to "/admin/content/media"
     Then I should see "[TEST] Vertical Image"
 
@@ -114,11 +114,11 @@ Feature: Check that MediaTrait works
   Scenario: Create multiple media with vertical field format
     Given I am logged in as a user with the "administrator" role
     And the following managed files:
-      | path              |
-      | example_image.png |
+      | path      |
+      | image.png |
     And the following image media with fields:
-      | name              | [TEST] V-Image 1  | [TEST] V-Image 2  | [TEST] V-Image 3  |
-      | field_media_image | example_image.png | example_image.png | example_image.png |
+      | name              | [TEST] V-Image 1 | [TEST] V-Image 2 | [TEST] V-Image 3 |
+      | field_media_image | image.png        | image.png        | image.png        |
     When I go to "/admin/content/media"
     Then I should see "[TEST] V-Image 1"
     And I should see "[TEST] V-Image 2"
@@ -127,17 +127,17 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Assert that mediaCreateWithFields() deletes existing media before creating
     Given the following managed files:
-      | path              |
-      | example_image.png |
+      | path      |
+      | image.png |
     And the following image media with fields:
       | name              | [TEST] Duplicate vertical |
-      | field_media_image | example_image.png         |
+      | field_media_image | image.png                 |
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/content/media"
     Then I should see the text "[TEST] Duplicate vertical"
     When the following image media with fields:
       | name              | [TEST] Duplicate vertical |
-      | field_media_image | example_image.png         |
+      | field_media_image | image.png                 |
     And I visit "/admin/content/media"
     Then I should see the text "[TEST] Duplicate vertical"
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements

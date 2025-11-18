@@ -156,8 +156,12 @@ commands:
     cmd: ahoy cli php -v | grep -q Xdebug || XDEBUG_ENABLE=true ahoy up cli php nginx && ahoy cli php -v | grep -q Xdebug && echo "Enabled debug configuration. Use 'ahoy up' to disable."
 
   update-fixtures:
-    usage: Update fixture files for Drupal.
+    usage: Update fixture files for Drupal from the current build.
     cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/behat/fixtures/d${DRUPAL_VERSION:-11}/
+
+  copy-files:
+    usage: Update fixture files to the current build.
+    cmd: find tests/behat/fixtures/ -maxdepth 1 -type f -exec cp {} build/web/sites/default/files/ \;
 
 entrypoint:
   - bash

@@ -4,7 +4,7 @@ Feature: Check that ResponseTrait works
   So that users can test server configuration and content delivery
 
   Scenario: Assert "Then the response should contain the header :header_name" works
-    When I go to "/"
+    When I go to "/sites/default/files/elements.html"
     Then the response should contain the header "Content-Type"
 
   @trait:ResponseTrait
@@ -12,7 +12,7 @@ Feature: Check that ResponseTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/"
+      When I go to "/sites/default/files/elements.html"
       Then the response should contain the header "NonExistingHeader"
       """
     When I run "behat --no-colors"
@@ -22,7 +22,7 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response should not contain the header :header_name" works
-    When I go to "/"
+    When I go to "/sites/default/files/elements.html"
     Then the response should not contain the header "NonExistingHeader"
 
   @trait:ResponseTrait
@@ -40,8 +40,8 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response header :header_name should contain the value :header_value" works
-    When I go to "/"
-    Then the response header "Content-Type" should contain the value "text/html; charset=utf-8"
+    When I go to "/sites/default/files/elements.html"
+    Then the response header "Content-Type" should contain the value "text/html"
 
   @trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response header :header_name should contain the value :header_value" fails with an exception for missing header
@@ -72,7 +72,7 @@ Feature: Check that ResponseTrait works
       """
 
   Scenario: Assert "Then the response header :header_name should not contain the value :header_value" works
-    When I go to "/"
+    When I go to "/sites/default/files/elements.html"
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
   @trait:ResponseTrait

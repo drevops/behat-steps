@@ -5,7 +5,7 @@ Feature: Check that ResponsiveTrait works
 
   @javascript
   Scenario: Resize viewport to default breakpoints
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to the "mobile_portrait" breakpoint
     And I set the viewport to the "mobile_landscape" breakpoint
     And I set the viewport to the "tablet_portrait" breakpoint
@@ -15,33 +15,33 @@ Feature: Check that ResponsiveTrait works
 
   @javascript
   Scenario: Set custom viewport dimensions
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to "1920" by "1080"
     And I set the viewport to "800" by "600"
     And I set the viewport to "1366" by "768"
 
   @javascript
   Scenario: Set individual viewport width and height
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to "1024" by "768"
     And I set the viewport width to "1280"
     And I set the viewport height to "1024"
 
   @javascript @breakpoint:tablet_landscape
   Scenario: Tag-based breakpoint control
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
 
   @javascript @breakpoint:mobile_portrait
   Scenario: Tag-based mobile breakpoint
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
 
   @javascript @breakpoint:desktop
   Scenario: Tag-based desktop breakpoint
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
 
   @javascript
   Scenario: Test multiple breakpoints in sequence
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to the "mobile_portrait" breakpoint
     And I set the viewport to the "tablet_portrait" breakpoint
     And I set the viewport to the "desktop" breakpoint
@@ -53,7 +53,7 @@ Feature: Check that ResponsiveTrait works
       """
       @javascript
       Scenario: Test invalid breakpoint
-        When I am on "/sites/default/files/clean1.html"
+        When I am on "/sites/default/files/javascript_clean1.html"
         And I set the viewport to the "non_existent_breakpoint" breakpoint
       """
     When I run "behat --no-colors"
@@ -69,7 +69,7 @@ Feature: Check that ResponsiveTrait works
       """
       @javascript @breakpoint:invalid_breakpoint_tag
       Scenario: Test invalid breakpoint tag
-        When I am on "/sites/default/files/clean1.html"
+        When I am on "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -84,7 +84,7 @@ Feature: Check that ResponsiveTrait works
       """
       @breakpoint:mobile_portrait
       Scenario: Test missing javascript tag
-        When I am on "/sites/default/files/clean1.html"
+        When I am on "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -99,7 +99,7 @@ Feature: Check that ResponsiveTrait works
       """
       @javascript @breakpoint:mobile_portrait @breakpoint:desktop
       Scenario: Test multiple breakpoint tags
-        When I am on "/sites/default/files/clean1.html"
+        When I am on "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -113,7 +113,7 @@ Feature: Check that ResponsiveTrait works
       | name       | dimensions |
       | iphone_12  | 390x844    |
       | 4k_display | 3840x2160  |
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to the "iphone_12" breakpoint
     And I set the viewport to the "4k_display" breakpoint
 
@@ -125,7 +125,7 @@ Feature: Check that ResponsiveTrait works
       Given the following responsive breakpoints:
         | name     | dimensions |
         | invalid  | 1920-1080  |
-      When I am on "/sites/default/files/clean1.html"
+      When I am on "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -141,7 +141,7 @@ Feature: Check that ResponsiveTrait works
       Given the following responsive breakpoints:
         | name     | dimensions |
         | invalid  | 1920xABC   |
-      When I am on "/sites/default/files/clean1.html"
+      When I am on "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -154,11 +154,11 @@ Feature: Check that ResponsiveTrait works
     Given the following responsive breakpoints:
       | name            | dimensions |
       | mobile_portrait | 375x812    |
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to the "mobile_portrait" breakpoint
 
   Scenario: Viewport steps without JavaScript driver should not throw exceptions
-    When I am on "/sites/default/files/clean1.html"
+    When I am on "/sites/default/files/javascript_clean1.html"
     And I set the viewport to the "mobile_portrait" breakpoint
     And I set the viewport to "1920" by "1080"
     And I set the viewport width to "1280"
@@ -167,4 +167,4 @@ Feature: Check that ResponsiveTrait works
   @javascript
   Scenario: Resize before visiting any page should start session
     When I set the viewport to "1920" by "1080"
-    And I am on "/sites/default/files/clean1.html"
+    And I am on "/sites/default/files/javascript_clean1.html"

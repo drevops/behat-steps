@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>Element Testing Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 1000px; margin: 20px auto; padding: 20px; }
+    .section { margin: 30px 0; padding: 20px; border: 2px solid #ccc; border-radius: 8px; }
+    h2 { color: #333; border-bottom: 2px solid #666; padding-bottom: 10px; }
+    .hidden { display: none; }
+    .visible { display: block; }
+    #element-with-attributes { color: blue; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Element Testing Page</h1>
+
+  <!-- Section: Basic Element Existence -->
+  <div class="section">
+    <h2>Basic Elements</h2>
+    <div id="test-element">This is a test element with ID</div>
+    <div class="test-class">This element has a class</div>
+    <span data-test="custom-attribute">Element with custom data attribute</span>
+  </div>
+
+  <!-- Section: Element with Attributes -->
+  <div class="section">
+    <h2>Elements with Attributes</h2>
+    <div id="element-with-attributes" data-custom="test-value" aria-label="Test Label">
+      Element with multiple attributes
+    </div>
+    <a href="#" id="link-element" title="Test Link" rel="nofollow">Test Link</a>
+  </div>
+
+  <!-- Section: Visibility Testing -->
+  <div class="section">
+    <h2>Visibility Testing</h2>
+    <div id="visible-element" class="visible">This element is visible</div>
+    <div id="hidden-element" class="hidden">This element is hidden</div>
+    <div id="display-none-element" style="display: none;">This element has display: none</div>
+  </div>
+
+  <!-- Section: Element Ordering -->
+  <div class="section">
+    <h2>Element Ordering</h2>
+    <ul id="ordered-list">
+      <li class="list-item">First item</li>
+      <li class="list-item">Second item</li>
+      <li class="list-item">Third item</li>
+    </ul>
+  </div>
+
+  <!-- Section: Empty Content -->
+  <div class="section">
+    <h2>Content Testing</h2>
+    <div id="empty-element"></div>
+    <div id="element-with-text">This element has text content</div>
+    <div id="element-with-whitespace">   </div>
+  </div>
+
+  <!-- Section: Navigation Elements -->
+  <div class="section">
+    <h2>Navigation</h2>
+    <a href="/path1">Link 1</a>
+    <a href="/path2">Link 2</a>
+    <a href="/path3">Link 3</a>
+  </div>
+
+  <!-- Section: Text Ordering -->
+  <div class="section">
+    <h2>Text Ordering</h2>
+    <p>Welcome to our site</p>
+    <footer>
+      <p>Copyright 2024</p>
+    </footer>
+  </div>
+</body>
+</html>

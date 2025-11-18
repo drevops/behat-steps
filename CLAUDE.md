@@ -24,7 +24,8 @@ composer require --dev drevops/behat-steps:^3
 - `ahoy test-bdd -- --tags=wip` - Run all scenarios tagged with `@wip` tag
 - `ahoy debug` - Enable debugging
 - `ahoy drush cex -y` - Export configuration
-- `ahoy update-fixtures` - Copy configuration changes from build directory to fixtures
+- `ahoy update-fixtures` - Update fixture files for Drupal from the current build
+- `ahoy copy-files` - Update fixture files to the current build
 - `ahoy update-docs` - Update documentation
 - `ahoy lint-docs` - Check documentation for errors
 - `ahoy lint` - Run linting (if docker-compose.yml exists, otherwise use `composer lint`)

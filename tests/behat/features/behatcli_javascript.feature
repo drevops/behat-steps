@@ -6,14 +6,14 @@ Feature: Behat CLI context Javascript steps
 
   @javascript
   Scenario: Test @javascript session can be started for the scenario
-    Given I visit "/sites/default/files/clean1.html"
+    Given I visit "/sites/default/files/javascript_clean1.html"
 
   @trait:PathTrait
   Scenario: Test @javascript session can be started for an assertion
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I visit "/sites/default/files/clean1.html"
+      Given I visit "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -23,11 +23,11 @@ Feature: Behat CLI context Javascript steps
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I visit "/sites/default/files/clean1.html"
+      Given I visit "/sites/default/files/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should pass
 
   @javascript
   Scenario: Test @javascript session can be started for the scenario in the third run
-    Given I visit "/sites/default/files/clean1.html"
+    Given I visit "/sites/default/files/javascript_clean1.html"
