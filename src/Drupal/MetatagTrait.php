@@ -54,7 +54,7 @@ trait MetatagTrait {
    *
    * @Then the meta tag should not exist with the following attributes:
    */
-  public function assertMetaTagWithAttributesDoesNotExists(TableNode $table): void {
+  public function assertMetaTagWithAttributesNotExists(TableNode $table): void {
     $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');
 
     $attributes = [];

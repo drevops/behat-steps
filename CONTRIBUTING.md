@@ -43,6 +43,14 @@ of tests. Follow these guidelines:
 We have some automated check for the steps format.
 Run `ahoy lint-docs` to validate the format of the steps.
 
+## Assertion Method Naming Conventions
+
+- **Existence assertions**:
+  - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `vocabularyAssertNotExists()`)
+  - Plural subjects → `Exist` or `NotExist` (e.g., `termsAssertExist()`)
+- **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
+- Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
+
 ## Local environment setup
 
 Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
