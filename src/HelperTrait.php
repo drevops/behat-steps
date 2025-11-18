@@ -170,12 +170,18 @@ trait HelperTrait {
   /**
    * Check if JavaScript is supported by the current driver.
    *
+   * Ensures the driver is started before checking JavaScript capability.
+   *
    * @return bool
    *   TRUE if JavaScript is supported, FALSE otherwise.
    */
   protected function helperIsJavascriptSupported(): bool {
     try {
       $driver = $this->getSession()->getDriver();
+      // Ensure driver is started before checking JS capability.
+      if (!$driver->isStarted()) {
+        $driver->start();
+      }
       $driver->evaluateScript('true');
       return TRUE;
     }
