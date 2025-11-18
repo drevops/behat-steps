@@ -30,7 +30,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "drevops/behat-phpserver": "^2.1.1",
         "drevops/behat-screenshot": "^2.1",
-        "drevops/phpcs-standard": "^0.2",
+        "drevops/phpcs-standard": "^0.3",
         "drupal/coder": "^8.3.28",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
         "ergebnis/composer-normalize": "^2.47",
