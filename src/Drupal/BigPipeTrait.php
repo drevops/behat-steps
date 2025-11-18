@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Mink\Exception\DriverException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
 
 /**
@@ -19,6 +19,8 @@ use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
  * `@behat-steps-skip:bigPipeBeforeStep`.
  */
 trait BigPipeTrait {
+
+  use HelperTrait;
 
   /**
    * Flag indicating that the driver supports JavaScript.
@@ -54,25 +56,11 @@ trait BigPipeTrait {
       return;
     }
     // @codeCoverageIgnoreEnd
-    try {
-      // Check if JavaScript can be executed by the driver and add a cookie
-      // if it cannot.
-      $driver = $this->getSession()->getDriver();
-      if (!$driver->isStarted()) {
-        $driver->start();
-      }
-      $driver->executeScript('true');
-      $this->bigPipeJsIsSupported = TRUE;
-    }
-    catch (UnsupportedDriverActionException) {
-      $this->bigPipeJsIsSupported = FALSE;
+    // Check if JavaScript is supported and set cookie if it is not.
+    $this->bigPipeJsIsSupported = $this->helperIsJavascriptSupported();
+    if (!$this->bigPipeJsIsSupported) {
       $this->getSession()->setCookie(BigPipeStrategy::NOJS_COOKIE, 'true');
     }
-    // @codeCoverageIgnoreStart
-    catch (\Exception) {
-      // Mute exceptions.
-    }
-    // @codeCoverageIgnoreEnd
   }
 
   /**

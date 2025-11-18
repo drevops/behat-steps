@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Gherkin\Node\TableNode;
 
 /**
@@ -164,6 +165,29 @@ trait HelperTrait {
    */
   protected function helperSplitCommaSeparated(string $text): array {
     return array_map(trim(...), explode(',', $text));
+  }
+
+  /**
+   * Check if JavaScript is supported by the current driver.
+   *
+   * Ensures the driver is started before checking JavaScript capability.
+   *
+   * @return bool
+   *   TRUE if JavaScript is supported, FALSE otherwise.
+   */
+  protected function helperIsJavascriptSupported(): bool {
+    try {
+      $driver = $this->getSession()->getDriver();
+      // Ensure driver is started before checking JS capability.
+      if (!$driver->isStarted()) {
+        $driver->start();
+      }
+      $driver->evaluateScript('true');
+      return TRUE;
+    }
+    catch (UnsupportedDriverActionException | \Exception) {
+      return FALSE;
+    }
   }
 
 }

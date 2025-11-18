@@ -399,15 +399,117 @@ Feature: Check that FieldTrait works
     When I check the checkbox "Checkbox checked"
     Then the checkbox "Checkbox checked" should be checked
 
-  @api @javascript @validation
-  Scenario: Disable browser validation for article creation form
-    Given I am logged in as a user with the "administrator" role
-    When I go to "node/add/article"
-    And browser validation for the form "#node-article-form" is disabled
-     # Try to submit without filling in required fields.
-    And I press "Save"
-     # Server-side validation errors should appear.
-    Then I should see "Title field is required"
+  @javascript
+  Scenario: Disable browser validation for form after visiting page
+    When I visit "/sites/default/files/form1.html"
+    And browser validation for the form "#login-form" is disabled
+    And I press "Submit 1"
+    # Server-side validation message should appear
+    Then I should see "Please fill in all required fields"
+
+  @javascript
+  Scenario: Disable browser validation as the VERY FIRST step (fixes issue #423)
+    # This is the VERY FIRST step - no page visited yet - this is the core issue being fixed
+    Given browser validation for the form "#login-form" is disabled
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    # Server-side validation message should appear (browser validation was disabled)
+    Then I should see "Please fill in all required fields"
+
+  @javascript
+  Scenario: Disable browser validation for multiple forms
+    Given browser validation for the form "#login-form" is disabled
+    And browser validation for the form "#contact-form" is disabled
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    Then I should see "Please fill in all required fields"
+
+  @javascript @behat-steps-skip:FieldTrait
+  Scenario: Skip FieldTrait hooks with behat-steps-skip tag
+    Given browser validation for the form "#login-form" is disabled
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    # With the skip tag, validation disabling should not be applied
+    # Browser validation will catch the empty fields before form submission
+    Then I should not see "Please fill in all required fields"
+
+  @trait:FieldTrait
+  Scenario: Negative test for scenario-level behat-steps-skip tag
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @behat-steps-skip:FieldTrait":
+      """
+      Given browser validation for the form "#login-form" is disabled
+      When I visit "/sites/default/files/form1.html"
+      And I press "Submit 1"
+      Then I should not see "Please fill in all required fields"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  Scenario: Validation step works without JavaScript driver
+    Given browser validation for the form "#login-form" is disabled
+    When I visit "/sites/default/files/form1.html"
+    # Without JavaScript, the registry stores the selector but AfterStep returns early
+    # The step should not throw an error
+    Then the field "username" should exist
+
+  @javascript @disable-form-validation
+  Scenario: Tag disables all forms on page automatically
+    When I visit "/sites/default/files/form1.html"
+    # Try to submit login form without filling fields
+    And I press "Submit 1"
+    Then I should see "Please fill in all required fields"
+    # Try to submit contact form without filling fields
+    When I press "Submit 2"
+    Then I should see "Please fill in all required fields"
+
+  @javascript @disable-form-validation
+  Scenario: Tag validation disabled across page navigation
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    Then I should see "Please fill in all required fields"
+    # Navigate to second page
+    When I follow "Go to Second Page"
+    And I press "Submit"
+    # Validation should still be disabled on the second page
+    Then I should see "Please fill in all required fields"
+
+  @javascript @disable-form-validation
+  Scenario: Tag works before visiting any page
+    # No page visited yet - tag should still work when we visit pages
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    Then I should see "Please fill in all required fields"
+
+  @javascript
+  Scenario: Without tag browser validation blocks submission
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    # Browser validation will block, so we won't see the error message
+    Then I should not see "Please fill in all required fields"
+
+  @javascript
+  Scenario: Selector-based approach still works independently
+    Given browser validation for the form "#login-form" is disabled
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    Then I should see "Login form error: Please fill in all required fields"
+    # Contact form should still have browser validation
+    When I press "Submit 2"
+    Then I should not see "Contact form error: Please fill in all required fields"
+
+  @javascript @disable-form-validation @behat-steps-skip:FieldTrait
+  Scenario: Skip tag overrides disable-form-validation tag
+    When I visit "/sites/default/files/form1.html"
+    And I press "Submit 1"
+    # With skip tag, validation disabling should not be applied
+    Then I should not see "Please fill in all required fields"
+
+  @disable-form-validation
+  Scenario: Tag works gracefully without JavaScript driver
+    When I visit "/sites/default/files/form1.html"
+    # Without JavaScript, the tag should not throw an error
+    Then the field "username" should exist
 
   @api @datetime
   Scenario: Fill datetime field with date and time

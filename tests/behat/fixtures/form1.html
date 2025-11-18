@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multiple Forms Test Page</title>
+  <style>
+    .form-container { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+    .validation-message { color: red; display: none; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Multiple Forms Test Page</h1>
+
+  <!-- Form 1: Login Form (required fields) -->
+  <div class="form-container">
+    <h2>Login Form</h2>
+    <form id="login-form" action="/login" method="post">
+      <div>
+        <label for="username">Username (required):</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div>
+        <label for="password">Password (required):</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit">Submit 1</button>
+      <div class="validation-message" id="login-error">Login form error: Please fill in all required fields.</div>
+    </form>
+  </div>
+
+  <!-- Form 2: Contact Form (required fields) -->
+  <div class="form-container">
+    <h2>Contact Form</h2>
+    <form id="contact-form" action="/contact" method="post">
+      <div>
+        <label for="contact-name">Name (required):</label>
+        <input type="text" id="contact-name" name="name" required>
+      </div>
+      <div>
+        <label for="contact-email">Email (required):</label>
+        <input type="email" id="contact-email" name="email" required>
+      </div>
+      <div>
+        <label for="message">Message (required):</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button type="submit">Submit 2</button>
+      <div class="validation-message" id="contact-error">Contact form error: Please fill in all required fields.</div>
+    </form>
+  </div>
+
+  <!-- Form 3: Newsletter Form (optional field - NOT required) -->
+  <div class="form-container">
+    <h2>Newsletter Form</h2>
+    <form id="newsletter-form" action="/newsletter" method="post">
+      <div>
+        <label for="newsletter-email">Email (optional):</label>
+        <input type="email" id="newsletter-email" name="email">
+      </div>
+      <button type="submit">Submit 3</button>
+      <div class="validation-message" id="newsletter-success" style="color: green;">Subscribed successfully!</div>
+    </form>
+  </div>
+
+  <p><a href="form2.html">Go to Second Page</a></p>
+
+  <script>
+    // Login form validation
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      if (!username || !password) {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
+
+    // Contact form validation
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var name = document.getElementById('contact-name').value;
+      var email = document.getElementById('contact-email').value;
+      var message = document.getElementById('message').value;
+      if (!name || !email || !message) {
+        document.getElementById('contact-error').style.display = 'block';
+      }
+    });
+
+    // Newsletter form (no validation needed, always success)
+    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('newsletter-success').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
