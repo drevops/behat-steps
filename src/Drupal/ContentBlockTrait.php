@@ -63,7 +63,7 @@ trait ContentBlockTrait {
    *
    * @Then the content block type :type should exist
    */
-  public function contentBlockAssertTypeExist(string $type): void {
+  public function contentBlockAssertTypeExists(string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {

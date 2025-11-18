@@ -94,7 +94,7 @@ trait TaxonomyTrait {
    *
    * @Then the vocabulary :machine_name with the name :name should exist
    */
-  public function taxonomyAssertVocabularyExist(string $machine_name, string $name): void {
+  public function taxonomyAssertVocabularyExists(string $machine_name, string $name): void {
     $vocab = Vocabulary::load($machine_name);
 
     if (!$vocab) {
@@ -116,7 +116,7 @@ trait TaxonomyTrait {
    *
    * @Then the vocabulary :machine_name should not exist
    */
-  public function taxonomyAssertVocabularyNotExist(string $machine_name): void {
+  public function taxonomyAssertVocabularyNotExists(string $machine_name): void {
     $vocab = Vocabulary::load($machine_name);
 
     if ($vocab) {
