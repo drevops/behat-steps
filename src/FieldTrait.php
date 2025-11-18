@@ -471,13 +471,8 @@ JS;
       throw new \Exception(sprintf('The select "%s" was not found.', $selector));
     }
 
-    // Get current values.
-    $current_values = $select_field->getValue();
-
-    // Ensure we have an array.
-    if (!is_array($current_values)) {
-      $current_values = $current_values ? [$current_values] : [];
-    }
+    // Check if it's a multi-select field.
+    $is_multiple = $select_field->hasAttribute('multiple');
 
     // Find the option element to get its value.
     $option_element = $select_field->find('named', ['option', $option]);
@@ -487,16 +482,33 @@ JS;
 
     $option_value = $option_element->getValue();
     // Option value should always be a string or null.
+    // @codeCoverageIgnoreStart
     if (is_array($option_value) || is_bool($option_value)) {
       throw new \Exception(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
     }
+    // @codeCoverageIgnoreEnd
     $option_value = (string) $option_value;
 
-    // Remove the option value from current selections.
-    $new_values = array_diff($current_values, [$option_value]);
+    if ($is_multiple) {
+      // For multi-select, remove the specific option from current selections.
+      $current_values = $select_field->getValue();
 
-    // Set the new values.
-    $select_field->setValue($new_values);
+      // Ensure we have an array.
+      // @codeCoverageIgnoreStart
+      if (!is_array($current_values)) {
+        $current_values = $current_values ? [$current_values] : [];
+      }
+      // @codeCoverageIgnoreEnd
+      // Remove the option value from current selections.
+      $new_values = array_diff($current_values, [$option_value]);
+
+      // Set the new values.
+      $select_field->setValue($new_values);
+    }
+    else {
+      // For single select, just clear it by setting empty string.
+      $select_field->setValue('');
+    }
   }
 
   /**
