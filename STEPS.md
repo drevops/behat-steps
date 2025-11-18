@@ -565,6 +565,36 @@ When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <str
 </details>
 
 <details>
+  <summary><code>@When I unselect :option from :selector</code></summary>
+
+<br/>
+Unselect an option from a select field
+<br/><br/>
+
+```gherkin
+When I unselect "Administrator" from "edit-roles"
+When I unselect "Option B" from "field_multi_select"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I clear the select :selector</code></summary>
+
+<br/>
+Clear all selections from a select field
+<br/><br/>
+
+```gherkin
+When I clear the select "edit-roles"
+When I clear the select "field_multi_select"
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I check the checkbox :selector</code></summary>
 
 <br/>

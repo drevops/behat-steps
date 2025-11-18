@@ -711,3 +711,87 @@ Feature: Check that FieldTrait works
       """
       WYSIWYG field must have an ID attribute.
       """
+
+  @select
+  Scenario: Unselect option from multi-select field
+    When I visit "/sites/default/files/selects.html"
+    And I additionally select "Option A" from "Multi-select options"
+    And I additionally select "Option B" from "Multi-select options"
+    And I additionally select "Option C" from "Multi-select options"
+    Then the option "Option A" should be selected within the select element "Multi-select options"
+    And the option "Option B" should be selected within the select element "Multi-select options"
+    And the option "Option C" should be selected within the select element "Multi-select options"
+    When I unselect "Option B" from "Multi-select options"
+    Then the option "Option A" should be selected within the select element "Multi-select options"
+    And the option "Option B" should not be selected within the select element "Multi-select options"
+    And the option "Option C" should be selected within the select element "Multi-select options"
+
+  @select
+  Scenario: Clear all selections from multi-select field
+    When I visit "/sites/default/files/selects.html"
+    And I additionally select "Option A" from "Multi-select options"
+    And I additionally select "Option B" from "Multi-select options"
+    Then the option "Option A" should be selected within the select element "Multi-select options"
+    And the option "Option B" should be selected within the select element "Multi-select options"
+    When I clear the select "Multi-select options"
+    Then the option "Option A" should not be selected within the select element "Multi-select options"
+    And the option "Option B" should not be selected within the select element "Multi-select options"
+    And the option "Option C" should not be selected within the select element "Multi-select options"
+
+  @select
+  Scenario: Clear single select field
+    When I visit "/sites/default/files/selects.html"
+    And I select "Choice 1" from "Single select field"
+    Then the option "Choice 1" should be selected within the select element "Single select field"
+    When I clear the select "Single select field"
+    Then the option "Choice 1" should not be selected within the select element "Single select field"
+
+  @select
+  Scenario: Unselect option from single select field
+    When I visit "/sites/default/files/selects.html"
+    And I select "Choice 2" from "Single select field"
+    Then the option "Choice 2" should be selected within the select element "Single select field"
+    When I unselect "Choice 2" from "Single select field"
+    Then the option "Choice 2" should not be selected within the select element "Single select field"
+
+  @trait:FieldTrait
+  Scenario: Assert negative "When I unselect :option from :selector" for non-existent select
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/selects.html"
+      When I unselect "Option A" from "Non-existent select"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The select "Non-existent select" was not found.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "When I unselect :option from :selector" for non-existent option
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/selects.html"
+      When I unselect "Invalid Option" from "Multi-select options"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The option "Invalid Option" was not found in the select "Multi-select options".
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "When I clear the select :selector" for non-existent select
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/selects.html"
+      When I clear the select "Non-existent select"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The select "Non-existent select" was not found.
+      """

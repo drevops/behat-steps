@@ -445,6 +445,109 @@ JS;
   }
 
   /**
+   * Unselect an option from a select field.
+   *
+   * This is useful for multi-select fields where you want to remove a specific
+   * option while keeping other selections.
+   *
+   * @param string $option
+   *   The option label or value to unselect.
+   * @param string $selector
+   *   The select field id, name or label.
+   *
+   * @code
+   *   When I unselect "Administrator" from "edit-roles"
+   *   When I unselect "Option B" from "field_multi_select"
+   * @endcode
+   *
+   * @When I unselect :option from :selector
+   */
+  public function fieldUnselectOption(string $option, string $selector): void {
+    $option = $this->helperFixStepArgument($option);
+    $selector = $this->helperFixStepArgument($selector);
+
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    if (!$select_field) {
+      throw new \Exception(sprintf('The select "%s" was not found.', $selector));
+    }
+
+    // Check if it's a multi-select field.
+    $is_multiple = $select_field->hasAttribute('multiple');
+
+    // Find the option element to get its value.
+    $option_element = $select_field->find('named', ['option', $option]);
+    if (!$option_element) {
+      throw new \Exception(sprintf('The option "%s" was not found in the select "%s".', $option, $selector));
+    }
+
+    $option_value = $option_element->getValue();
+    // Option value should always be a string or null.
+    // @codeCoverageIgnoreStart
+    if (is_array($option_value) || is_bool($option_value)) {
+      throw new \Exception(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
+    }
+    // @codeCoverageIgnoreEnd
+    $option_value = (string) $option_value;
+
+    if ($is_multiple) {
+      // For multi-select, remove the specific option from current selections.
+      $current_values = $select_field->getValue();
+
+      // Ensure we have an array.
+      // @codeCoverageIgnoreStart
+      if (!is_array($current_values)) {
+        $current_values = $current_values ? [$current_values] : [];
+      }
+      // @codeCoverageIgnoreEnd
+      // Remove the option value from current selections.
+      $new_values = array_diff($current_values, [$option_value]);
+
+      // Set the new values.
+      $select_field->setValue($new_values);
+    }
+    else {
+      // For single select, just clear it by setting empty string.
+      $select_field->setValue('');
+    }
+  }
+
+  /**
+   * Clear all selections from a select field.
+   *
+   * This works for both single and multi-select fields.
+   *
+   * @param string $selector
+   *   The select field id, name or label.
+   *
+   * @code
+   *   When I clear the select "edit-roles"
+   *   When I clear the select "field_multi_select"
+   * @endcode
+   *
+   * @When I clear the select :selector
+   */
+  public function fieldClearSelect(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    if (!$select_field) {
+      throw new \Exception(sprintf('The select "%s" was not found.', $selector));
+    }
+
+    // Check if it's a multi-select field.
+    $is_multiple = $select_field->hasAttribute('multiple');
+
+    if ($is_multiple) {
+      // For multi-select, set to empty array.
+      $select_field->setValue([]);
+    }
+    else {
+      // For single select, set to empty string.
+      $select_field->setValue('');
+    }
+  }
+
+  /**
    * Check the checkbox.
    *
    * @param string $selector
