@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cookie Testing Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    .container { padding: 20px; border: 2px solid #ccc; border-radius: 8px; background: #f9f9f9; }
+    h1 { color: #333; }
+    #cookie-display { margin-top: 20px; padding: 15px; background: white; border-radius: 4px; }
+    .cookie-item { padding: 5px; margin: 5px 0; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cookie Testing Page</h1>
+    <p>This page is used for testing cookie assertions in CookieTrait.</p>
+
+    <div id="cookie-display">
+      <h3>Current Cookies:</h3>
+      <div id="cookies-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Display all cookies on the page
+    function displayCookies() {
+      const cookiesList = document.getElementById('cookies-list');
+      const cookies = document.cookie.split(';');
+
+      if (!document.cookie) {
+        cookiesList.innerHTML = '<p><em>No cookies set</em></p>';
+        return;
+      }
+
+      let html = '';
+      cookies.forEach(cookie => {
+        const [name, value] = cookie.trim().split('=');
+        html += `<div class="cookie-item"><strong>${name}:</strong> ${value}</div>`;
+      });
+      cookiesList.innerHTML = html;
+    }
+
+    // Initial display
+    displayCookies();
+
+    // Update display every second
+    setInterval(displayCookies, 1000);
+  </script>
+</body>
+</html>

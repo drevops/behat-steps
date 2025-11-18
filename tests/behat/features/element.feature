@@ -5,7 +5,7 @@ Feature: Check that ElementTrait works
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
     Given I am an anonymous user
-    When I visit "/"
+    When I visit "/sites/default/files/elements.html"
     Then the element "html" with the attribute "dir" and the value "ltr" should exist
 
   @trait:ElementTrait
@@ -14,7 +14,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -29,7 +29,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -44,7 +44,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "dir" and the value "lt" should exist
       """
     When I run "behat --no-colors"
@@ -55,7 +55,7 @@ Feature: Check that ElementTrait works
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should exist" works as expected
     Given I am an anonymous user
-    When I visit "/"
+    When I visit "/sites/default/files/elements.html"
     Then the element "html" with the attribute "dir" and the value containing "lt" should exist
 
   @trait:ElementTrait
@@ -64,7 +64,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -79,7 +79,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -94,7 +94,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "dir" and the value containing "ltr1" should exist
       """
     When I run "behat --no-colors"
@@ -105,7 +105,7 @@ Feature: Check that ElementTrait works
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should not exist" works as expected
     Given I am an anonymous user
-    When I visit "/"
+    When I visit "/sites/default/files/elements.html"
     Then the element "html" with the attribute "dir" and the value "nonexistingvalue" should not exist
 
   @trait:ElementTrait
@@ -114,7 +114,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -129,7 +129,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -144,7 +144,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -155,7 +155,7 @@ Feature: Check that ElementTrait works
 
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should not exist" works as expected
     Given I am an anonymous user
-    When I visit "/"
+    When I visit "/sites/default/files/elements.html"
     Then the element "html" with the attribute "dir" and the value containing "nonexistingvalue" should not exist
 
   @trait:ElementTrait
@@ -164,7 +164,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -179,7 +179,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -194,7 +194,7 @@ Feature: Check that ElementTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      When I visit "/"
+      When I visit "/sites/default/files/elements.html"
       Then the element "html" with the attribute "dir" and the value containing "lt" should not exist
       """
     When I run "behat --no-colors"
@@ -327,7 +327,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/relative.html"
+      When I visit "/sites/default/files/elements_relative.html"
       Then the element "#sr-only" should be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -342,7 +342,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/relative.html"
+      When I visit "/sites/default/files/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -353,12 +353,12 @@ Feature: Check that ElementTrait works
 
   @api
   Scenario: Text appears after another text
-    When I go to the homepage
-    Then the text "Powered by Drupal" should appear after the text "Welcome"
+    When I visit "/sites/default/files/elements.html"
+    Then the text "Copyright 2024" should appear after the text "Welcome"
 
   @api
   Scenario: Assert "Then the element :selector1 should appear after the element :selector2" works as expected
-    When I go to the homepage
+    When I visit "/sites/default/files/elements.html"
     Then the element "body" should appear after the element "head"
 
   @trait:ElementTrait
@@ -366,7 +366,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
+      When I visit "/sites/default/files/elements.html"
       Then the element "head" should appear after the element "body"
       """
     When I run "behat --no-colors"
@@ -380,13 +380,13 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
-      Then the text "Welcome" should appear after the text "Powered by Drupal"
+      When I visit "/sites/default/files/elements.html"
+      Then the text "Welcome" should appear after the text "Copyright 2024"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Text "Welcome" appears before "Powered by Drupal".
+      Text "Welcome" appears before "Copyright 2024".
       """
 
   @trait:ElementTrait
@@ -394,7 +394,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
+      When I visit "/sites/default/files/elements.html"
       Then the element "#nonexistent" should appear after the element "body"
       """
     When I run "behat --no-colors"
@@ -408,7 +408,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
+      When I visit "/sites/default/files/elements.html"
       Then the element "body" should appear after the element "#nonexistent"
       """
     When I run "behat --no-colors"
@@ -422,7 +422,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
+      When I visit "/sites/default/files/elements.html"
       Then the text "NonExistentText123" should appear after the text "Welcome"
       """
     When I run "behat --no-colors"
@@ -436,7 +436,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to the homepage
+      When I visit "/sites/default/files/elements.html"
       Then the text "Welcome" should appear after the text "NonExistentText123"
       """
     When I run "behat --no-colors"

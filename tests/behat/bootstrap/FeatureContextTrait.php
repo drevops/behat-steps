@@ -428,7 +428,7 @@ trait FeatureContextTrait {
    * @When /^(?:|I )go to (?:|the )phpserver test page$/
    */
   public function goToPhpServerTestPage(): void {
-    $this->getSession()->visit('http://cli:8888/relative.html');
+    $this->getSession()->visit('http://cli:8888/elements_relative.html');
   }
 
   /**

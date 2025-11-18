@@ -28,7 +28,7 @@ Feature: Check that WaitTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript":
       """
-      When I visit "/sites/default/files/ajax-timeout.html"
+      When I visit "/sites/default/files/ajax_timeout.html"
       And I wait for "2" seconds for AJAX to finish
       """
     When I run "behat --no-colors"

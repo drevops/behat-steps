@@ -7,7 +7,7 @@ Feature: Check that KeyboardTrait works
   @api @javascript
   Scenario: Assert step definition "When I press the keys :keys on the element :selector" succeeds as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/elements_relative.html"
     Then the "input1" field should not contain "hello"
     When I press the keys "hello" on the element "#input1"
     Then the "input1" field should contain "hello"
@@ -15,7 +15,7 @@ Feature: Check that KeyboardTrait works
   @api @javascript
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/elements_relative.html"
     Then the "input1" field should not contain "hello"
     When I press the key "h" on the element "#input1"
     And I press the key "e" on the element "#input1"
@@ -30,7 +30,7 @@ Feature: Check that KeyboardTrait works
     And scenario steps:
       """
       Given I am an anonymous user
-      And I visit "/sites/default/files/relative.html"
+      And I visit "/sites/default/files/elements_relative.html"
       When I press the key "h" on the element "#input1"
       """
     When I run "behat --no-colors"
@@ -42,7 +42,7 @@ Feature: Check that KeyboardTrait works
   @api @javascript
   Scenario: Assert step definition "When I press the key :char" succeeds as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/elements_relative.html"
     Then the element "#sr-only-focusable" should not be displayed within a viewport
     When I press the key "tab"
     Then the element "#sr-only-focusable" should be displayed within a viewport
@@ -50,7 +50,7 @@ Feature: Check that KeyboardTrait works
   @api @javascript
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected with "tab" key
     Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/elements_relative.html"
     Then the "input2" field should not contain "h"
     When I press the key "tab" on the element "#input1"
     And I press the key "h" on the element "#input2"
@@ -59,7 +59,7 @@ Feature: Check that KeyboardTrait works
   @api @javascript
   Scenario: Assert step definition "When I press the keys :keys" succeeds as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/relative.html"
+    When I visit "/sites/default/files/elements_relative.html"
     And I fill in "input1" with ""
     Then the "input1" field should not contain "helloworld"
     When I press the keys "hello" on the element "#input1"
@@ -72,7 +72,7 @@ Feature: Check that KeyboardTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      And I visit "/sites/default/files/relative.html"
+      And I visit "/sites/default/files/elements_relative.html"
       When I press the key "" on the element "#input1"
       """
     When I run "behat --no-colors"
@@ -87,7 +87,7 @@ Feature: Check that KeyboardTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      And I visit "/sites/default/files/relative.html"
+      And I visit "/sites/default/files/elements_relative.html"
       When I press the key "unsupportedkey" on the element "#input1"
       """
     When I run "behat --no-colors"
@@ -102,7 +102,7 @@ Feature: Check that KeyboardTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      And I visit "/sites/default/files/relative.html"
+      And I visit "/sites/default/files/elements_relative.html"
       When I press the key "h" on the element "#non-existent-element"
       """
     When I run "behat --no-colors"
@@ -117,7 +117,7 @@ Feature: Check that KeyboardTrait works
     And scenario steps tagged with "@api @javascript":
       """
       Given I am an anonymous user
-      And I visit "/sites/default/files/relative.html"
+      And I visit "/sites/default/files/elements_relative.html"
       When I press the keys "abc"
       """
     When I run "behat --no-colors"

@@ -7,28 +7,28 @@ Feature: Check that FileDownloadTrait works
     Given I am logged in as a user with the "administrator" role
     When the following managed files:
       | path                 |
-      | example_document.pdf |
-      | example_image.png    |
-      | example_audio.mp3    |
-      | example_text.txt     |
-      | example_files.zip    |
+      | document.pdf         |
+      | image.png            |
+      | audio.mp3            |
+      | text.txt             |
+      | archive_multiple.zip |
     And article content:
-      | title                | field_file        |
-      | [TEST] document page | example_text.txt  |
-      | [TEST] zip page      | example_files.zip |
+      | title                | field_file           |
+      | [TEST] document page | text.txt             |
+      | [TEST] zip page      | archive_multiple.zip |
 
   @api @download
   Scenario: Assert "When I download the file from the URL :url"
-    When I download the file from the URL "/example_text.txt"
+    When I download the file from the URL "/text.txt"
 
   @api @javascript @download
   Scenario: Assert in browser "When I download the file from the URL :url"
-    When I download the file from the URL "/example_text.txt"
+    When I download the file from the URL "/text.txt"
 
   @api @download
   Scenario: Assert "When I download the file from the link :link"
     When I visit the "article" content page with the title "[TEST] document page"
-    When I download the file from the link "example_text.txt"
+    When I download the file from the link "text.txt"
     Then the downloaded file should contain:
       """
       Some Text
@@ -44,7 +44,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/example_text.txt"
+      And I download the file from the URL "/text.txt"
       Then the downloaded file should contain:
         '''
         /nonexistent.*pattern/
@@ -59,20 +59,20 @@ Feature: Check that FileDownloadTrait works
   @api @download
   Scenario: Assert "Given downloaded file is zip archive that contains files:"
     When I visit the "article" content page with the title "[TEST] zip page"
-    When I download the file from the link "example_files.zip"
-    Then the downloaded file name should be "example_files.zip"
+    When I download the file from the link "archive_multiple.zip"
+    Then the downloaded file name should be "archive_multiple.zip"
     And the downloaded file should be a zip archive containing the files named:
-      | example_audio.mp3    |
-      | example_image.png    |
-      | example_document.pdf |
+      | audio.mp3    |
+      | image.png    |
+      | document.pdf |
     And the downloaded file should be a zip archive not containing the files partially named:
-      | example_text.txt |
+      | text.txt         |
       | not_existing.png |
 
   @api @download
   Scenario: Assert the downloaded file name contains a specific string
-    When I download the file from the URL "/example_text.txt"
-    Then the downloaded file name should contain "example"
+    When I download the file from the URL "/text.txt"
+    Then the downloaded file name should contain "text"
 
   @api @trait:FileDownloadTrait
   Scenario: Assert that negative assertion for "The downloaded file name should contain :name" fails with an error
@@ -80,20 +80,20 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/example_text.txt"
+      And I download the file from the URL "/text.txt"
       Then the downloaded file name should contain "nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file name "example_text.txt" does not contain "nonexistent"
+      Downloaded file name "text.txt" does not contain "nonexistent"
       """
 
   @api @download
   Scenario: Assert the downloaded file should be a zip archive containing the files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
-    When I download the file from the link "example_files.zip"
-    Then the downloaded file name should be "example_files.zip"
+    When I download the file from the link "archive_multiple.zip"
+    Then the downloaded file name should be "archive_multiple.zip"
     And the downloaded file should be a zip archive containing the files partially named:
       | example_aud |
       | example_ima |
@@ -105,8 +105,8 @@ Feature: Check that FileDownloadTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
-      When I download the file from the link "example_files.zip"
-      And the downloaded file name should be "example_files.zip"
+      When I download the file from the link "archive_multiple.zip"
+      And the downloaded file name should be "archive_multiple.zip"
       Then the downloaded file should be a zip archive containing the files partially named:
         | nonexistent_file |
       """
@@ -119,8 +119,8 @@ Feature: Check that FileDownloadTrait works
   @api @download
   Scenario: Assert the downloaded file is a zip archive not containing files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
-    When I download the file from the link "example_files.zip"
-    Then the downloaded file name should be "example_files.zip"
+    When I download the file from the link "archive_multiple.zip"
+    Then the downloaded file name should be "archive_multiple.zip"
     And the downloaded file should be a zip archive not containing the files partially named:
       | example_text |
       | not_existing |
@@ -145,13 +145,13 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/example_text.txt"
+      And I download the file from the URL "/text.txt"
       Then the downloaded file name should be "wrong_name.txt"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file "example_text.txt", but expected "wrong_name.txt"
+      Downloaded file "text.txt", but expected "wrong_name.txt"
       """
 
   @api @trait:FileDownloadTrait
@@ -160,7 +160,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/example_text.txt"
+      And I download the file from the URL "/text.txt"
       Then the downloaded file should contain:
         '''
         nonexistent content string
@@ -179,7 +179,7 @@ Feature: Check that FileDownloadTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
-      When I download the file from the link "example_files.zip"
+      When I download the file from the link "archive_multiple.zip"
       Then the downloaded file should be a zip archive containing the files named:
         | nonexistent1.txt |
         | nonexistent2.txt |
@@ -197,7 +197,7 @@ Feature: Check that FileDownloadTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
-      When I download the file from the link "example_files.zip"
+      When I download the file from the link "archive_multiple.zip"
       Then the downloaded file should be a zip archive not containing the files partially named:
         | example_audio |
       """
@@ -276,12 +276,12 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert that invalid ZIP file fails with an error
     Given some behat configuration
     And the following managed files:
-      | path        |
-      | invalid.zip |
+      | path                |
+      | archive_invalid.zip |
     And scenario steps tagged with "@download":
       """
       Given I am logged in as a user with the "administrator" role
-      When I download the file from the URL "/invalid.zip"
+      When I download the file from the URL "/archive_invalid.zip"
       Then the downloaded file should be a zip archive containing the files named:
         | test.txt |
       """
@@ -312,7 +312,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/example_text.txt"
+      And I download the file from the URL "/text.txt"
       Then the downloaded file should be a zip archive containing the files named:
         | test.txt |
       """

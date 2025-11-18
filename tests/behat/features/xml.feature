@@ -4,11 +4,11 @@ Feature: Check that XmlTrait works
   So that users can test API endpoints returning XML
 
   Scenario: Assert "Then the response should be in XML format" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the response should be in XML format
 
   Scenario: Assert "Then the response should be in XML format" works with XML that has warnings
-    When I go to "/sites/default/files/xml-with-warnings.xml"
+    When I go to "/sites/default/files/xml_with_warnings.xml"
     Then the response should be in XML format
 
   @trait:XmlTrait
@@ -16,7 +16,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/invalid.xml"
+      When I go to "/sites/default/files/xml_invalid.xml"
       Then the response should be in XML format
       """
     When I run "behat --no-colors"
@@ -26,7 +26,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the response should not be in XML format" works
-    When I go to "/sites/default/files/invalid.xml"
+    When I go to "/sites/default/files/xml_invalid.xml"
     Then the response should not be in XML format
 
   @trait:XmlTrait
@@ -34,7 +34,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the response should not be in XML format
       """
     When I run "behat --no-colors"
@@ -44,15 +44,15 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should exist" works with absolute path
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "/library/book" should exist
 
   Scenario: Assert "Then the XML element :element should exist" works with relative path
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book" should exist
 
   Scenario: Assert "Then the XML element :element should exist" works with predicate
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']" should exist
 
   @trait:XmlTrait
@@ -60,7 +60,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should exist
       """
     When I run "behat --no-colors"
@@ -70,7 +70,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should not exist" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//nonexistent" should not exist
 
   @trait:XmlTrait
@@ -78,7 +78,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//book" should not exist
       """
     When I run "behat --no-colors"
@@ -88,7 +88,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should be equal to :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
 
   @trait:XmlTrait
@@ -96,7 +96,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should be equal to "test"
       """
     When I run "behat --no-colors"
@@ -110,7 +110,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//book[@id='123']/title" should be equal to "Wrong Title"
       """
     When I run "behat --no-colors"
@@ -120,7 +120,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should not be equal to :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should not be equal to "Wrong Title"
 
   @trait:XmlTrait
@@ -128,7 +128,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//book[@id='123']/title" should not be equal to "The Great Adventure"
       """
     When I run "behat --no-colors"
@@ -138,7 +138,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should contain :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/description" should contain "sample book"
 
   @trait:XmlTrait
@@ -146,7 +146,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should contain "test"
       """
     When I run "behat --no-colors"
@@ -160,7 +160,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//book[@id='123']/title" should contain "nonexistent"
       """
     When I run "behat --no-colors"
@@ -170,7 +170,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should not contain :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should not contain "nonexistent"
 
   @trait:XmlTrait
@@ -178,7 +178,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//book[@id='123']/description" should not contain "sample book"
       """
     When I run "behat --no-colors"
@@ -188,7 +188,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML attribute :attribute on element :element should exist" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML attribute "id" on element "//book[@id='123']" should exist
 
   @trait:XmlTrait
@@ -196,7 +196,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//nonexistent" should exist
       """
     When I run "behat --no-colors"
@@ -210,7 +210,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "nonexistent" on element "//book[@id='123']" should exist
       """
     When I run "behat --no-colors"
@@ -220,7 +220,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML attribute :attribute on element :element should not exist" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML attribute "nonexistent" on element "//book[@id='123']" should not exist
 
   @trait:XmlTrait
@@ -228,7 +228,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//book[@id='123']" should not exist
       """
     When I run "behat --no-colors"
@@ -238,11 +238,11 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML attribute :attribute on element :element should be equal to :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML attribute "id" on element "//book[@id='123']" should be equal to "123"
 
   Scenario: Assert "Then the XML attribute :attribute on element :element should be equal to :text" works with category
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML attribute "category" on element "//book[@id='123']" should be equal to "fiction"
 
   @trait:XmlTrait
@@ -250,7 +250,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//nonexistent" should be equal to "123"
       """
     When I run "behat --no-colors"
@@ -264,7 +264,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "nonexistent" on element "//book[@id='123']" should be equal to "test"
       """
     When I run "behat --no-colors"
@@ -278,7 +278,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//book[@id='123']" should be equal to "999"
       """
     When I run "behat --no-colors"
@@ -288,7 +288,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML attribute :attribute on element :element should not be equal to :text" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML attribute "id" on element "//book[@id='123']" should not be equal to "999"
 
   @trait:XmlTrait
@@ -296,7 +296,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//book[@id='123']" should not be equal to "123"
       """
     When I run "behat --no-colors"
@@ -306,11 +306,11 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML element :element should have :count element(s)" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//library" should have "3" elements
 
   Scenario: Assert "Then the XML element :element should have :count element(s)" works with simple.xml
-    When I go to "/sites/default/files/simple.xml"
+    When I go to "/sites/default/files/xml_simple.xml"
     Then the XML element "//root" should have "5" elements
 
   @trait:XmlTrait
@@ -318,7 +318,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should have "3" elements
       """
     When I run "behat --no-colors"
@@ -332,7 +332,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//library" should have "5" elements
       """
     When I run "behat --no-colors"
@@ -342,11 +342,11 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML should use the namespace :namespace" works
-    When I go to "/sites/default/files/namespaced.xml"
+    When I go to "/sites/default/files/xml_namespaced.xml"
     Then the XML should use the namespace "http://example.com/custom"
 
   Scenario: Assert "Then the XML should use the namespace :namespace" works with test namespace
-    When I go to "/sites/default/files/namespaced.xml"
+    When I go to "/sites/default/files/xml_namespaced.xml"
     Then the XML should use the namespace "http://example.com/test"
 
   @trait:XmlTrait
@@ -354,7 +354,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/namespaced.xml"
+      When I go to "/sites/default/files/xml_namespaced.xml"
       Then the XML should use the namespace "http://example.com/nonexistent"
       """
     When I run "behat --no-colors"
@@ -364,7 +364,7 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert "Then the XML should not use the namespace :namespace" works
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML should not use the namespace "http://example.com/nonexistent"
 
   @trait:XmlTrait
@@ -372,7 +372,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/namespaced.xml"
+      When I go to "/sites/default/files/xml_namespaced.xml"
       Then the XML should not use the namespace "http://example.com/custom"
       """
     When I run "behat --no-colors"
@@ -382,12 +382,12 @@ Feature: Check that XmlTrait works
       """
 
   Scenario: Assert that XML document is reloaded when navigating between different XML files
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
-    When I go to "/sites/default/files/simple.xml"
+    When I go to "/sites/default/files/xml_simple.xml"
     Then the XML element "//root" should have "5" elements
     And the XML element "//count" should be equal to "3"
-    When I go to "/sites/default/files/valid.xml"
+    When I go to "/sites/default/files/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
 
   @trait:XmlTrait
@@ -395,7 +395,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should not be equal to "test"
       """
     When I run "behat --no-colors"
@@ -409,7 +409,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML element "//nonexistent" should not contain "test"
       """
     When I run "behat --no-colors"
@@ -423,7 +423,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//nonexistent" should not exist
       """
     When I run "behat --no-colors"
@@ -437,7 +437,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "id" on element "//nonexistent" should not be equal to "123"
       """
     When I run "behat --no-colors"
@@ -451,7 +451,7 @@ Feature: Check that XmlTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I go to "/sites/default/files/valid.xml"
+      When I go to "/sites/default/files/xml_valid.xml"
       Then the XML attribute "nonexistent" on element "//book[@id='123']" should not be equal to "test"
       """
     When I run "behat --no-colors"

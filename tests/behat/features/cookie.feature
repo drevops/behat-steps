@@ -4,14 +4,14 @@ Feature: Check that CookieTrait works
   So that users can test session management and user preferences
 
   Scenario: Assert step definition "a cookie with( the) name :name should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     And I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" should exist
     And a cookie with the name "testname" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with( the) name :name should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     And I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" should exist
     And a cookie with the name "testname" should exist
@@ -21,7 +21,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testothervalue"
       Then a cookie with the name "testname" should exist
       """
@@ -32,14 +32,14 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with( the) name :name and value :value should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and the value "testvalue" should exist
     And a cookie with the name "testname" and the value "testvalue" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with( the) name :name and value :value should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and the value "testvalue" should exist
     And a cookie with the name "testname" and the value "testvalue" should exist
@@ -49,7 +49,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testothervalue"
       Then a cookie with the name "testname" and the value "testvalue" should exist
       """
@@ -64,7 +64,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testothervalue"
       Then a cookie with the name "testothername" and the value "testvalue" should exist
       """
@@ -75,14 +75,14 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and a value containing "estva" should exist
     And a cookie with the name "testname" and a value containing "estva" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and a value containing "estva" should exist
     And a cookie with the name "testname" and a value containing "estva" should exist
@@ -92,7 +92,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testvalue"
       Then a cookie with the name "testname" and a value containing "estva" should exist
       """
@@ -107,7 +107,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "testothervalue"
       Then a cookie with the name "testname" and a value containing "estva" should exist
       """
@@ -118,13 +118,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" should exist
 
@@ -133,7 +133,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testvalue"
       Then a cookie with a name containing "estna" should exist
       """
@@ -144,13 +144,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and the value "testvalue" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and the value "testvalue" should exist
 
@@ -159,7 +159,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testvalue"
       Then a cookie with a name containing "estna" and the value "testvalue" should exist
       """
@@ -174,7 +174,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "prefixtestvaluesuffix"
       Then a cookie with a name containing "estna" and the value "testvalue" should exist
       """
@@ -185,13 +185,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and a value containing "estval" should exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and a value containing "estval" should exist
 
@@ -200,7 +200,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testothername" and value "testvalue"
       Then a cookie with a name containing "estna" and a value containing "estval" should exist
       """
@@ -215,7 +215,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "testothervalue"
       Then a cookie with a name containing "estna" and a value containing "estval" should exist
       """
@@ -230,13 +230,13 @@ Feature: Check that CookieTrait works
   #
 
   Scenario: Assert step definition "a cookie with the name :name should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with the name "testname" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with the name :name should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with the name "testname" should not exist
 
@@ -245,7 +245,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "testvalue"
       Then a cookie with the name "testname" should not exist
       """
@@ -256,13 +256,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with the name :name and the value :value should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and the value "testvalue" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with the name :name and the value :value should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and the value "testvalue" should not exist
 
@@ -271,7 +271,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "testvalue"
       Then a cookie with the name "testname" and the value "testvalue" should not exist
       """
@@ -282,13 +282,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and a value containing "testval" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with the name :name and a value containing :partial_value should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and a value containing "testval" should not exist
 
@@ -297,7 +297,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "testname" and value "testvalue"
       Then a cookie with the name "testname" and a value containing "testval" should not exist
       """
@@ -308,13 +308,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "testvalue"
     Then a cookie with a name containing "testname" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "testvalue"
     Then a cookie with a name containing "testname" should not exist
 
@@ -323,7 +323,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "mytestname" and value "testvalue"
       Then a cookie with a name containing "testname" should not exist
       """
@@ -334,13 +334,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "mytestname" and value "othervalue"
     Then a cookie with a name containing "testname" and the value "testvalue" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name and the value :value should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "mytestname" and value "othervalue"
     Then a cookie with a name containing "testname" and the value "testvalue" should not exist
 
@@ -349,7 +349,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "mytestname" and value "testvalue"
       Then a cookie with a name containing "testname" and the value "testvalue" should not exist
       """
@@ -360,13 +360,13 @@ Feature: Check that CookieTrait works
       """
 
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should not exist" works as expected
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with a name containing "testname" and a value containing "testval" should not exist
 
   @javascript
   Scenario: Assert step definition "a cookie with a name containing :partial_name and a value containing :partial_value should not exist" works as expected with real browser
-    When I visit "/"
+    When I visit "/sites/default/files/cookies.html"
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with a name containing "testname" and a value containing "testval" should not exist
 
@@ -375,7 +375,7 @@ Feature: Check that CookieTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I visit "/"
+      When I visit "/sites/default/files/cookies.html"
       When I set a test cookie with name "mytestname" and value "mytestvalue"
       Then a cookie with a name containing "testname" and a value containing "testval" should not exist
       """
