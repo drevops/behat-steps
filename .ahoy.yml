@@ -157,7 +157,7 @@ commands:
 
   update-fixtures:
     usage: Update fixture files for Drupal from the current build.
-    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/behat/fixtures/d${DRUPAL_VERSION:-11}/
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures_drupal/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/behat/fixtures_drupal/d${DRUPAL_VERSION:-11}/
 
   copy-files:
     usage: Update fixture files to the current build.

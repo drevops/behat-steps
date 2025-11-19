@@ -19,7 +19,7 @@ mkdir -p /app/build
 pushd /app/build/ >/dev/null || exit 1
 
 echo "  > Copying fixture files to the build dir."
-cp -Rf "/app/tests/behat/fixtures/d${DRUPAL_VERSION}/." ./
+cp -Rf "/app/tests/behat/fixtures_drupal/d${DRUPAL_VERSION}/." ./
 
 echo "  > Validating fixture Composer configuration."
 composer validate --ansi --no-check-all

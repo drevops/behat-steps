@@ -41,8 +41,8 @@ return RectorConfig::configure()
     '/app/scripts',
     '/app/src',
     '/app/tests/behat/bootstrap',
-    '/app/tests/behat/fixtures/d10/web/modules/custom',
-    '/app/tests/behat/fixtures/d11/web/modules/custom',
+    '/app/tests/behat/fixtures_drupal/d10/web/modules/custom',
+    '/app/tests/behat/fixtures_drupal/d11/web/modules/custom',
     '/app/tests/phpunit/src',
   ])
   ->withSkip([
