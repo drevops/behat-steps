@@ -586,6 +586,89 @@ JS;
   }
 
   /**
+   * Select a radio button.
+   *
+   * @param string $selector
+   *   The radio button id, name, label or value.
+   *
+   * @code
+   *   When I choose the radio button "Option A"
+   *   When I choose the radio button "edit-field-choice-option-a"
+   * @endcode
+   *
+   * @When I choose the radio button :selector
+   */
+  public function fieldRadioSelect(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $page = $this->getSession()->getPage();
+    $radio_button = $page->findField($selector);
+
+    if ($radio_button === NULL) {
+      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+    }
+
+    $value = $radio_button->getAttribute('value');
+    $radio_button->selectOption($value);
+  }
+
+  /**
+   * Assert that a radio button is selected.
+   *
+   * @param string $selector
+   *   The radio button id, name, label or value.
+   *
+   * @code
+   *   Then the radio button "Option A" should be selected
+   *   Then the radio button "edit-field-choice-option-a" should be selected
+   * @endcode
+   *
+   * @Then the radio button :selector should be selected
+   */
+  public function fieldAssertRadioSelected(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $page = $this->getSession()->getPage();
+    $radio_button = $page->findField($selector);
+
+    if ($radio_button === NULL) {
+      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+    }
+
+    if (!$radio_button->isChecked()) {
+      throw new \Exception(sprintf('The radio button "%s" is not selected, but should be.', $selector));
+    }
+  }
+
+  /**
+   * Assert that a radio button is not selected.
+   *
+   * @param string $selector
+   *   The radio button id, name, label or value.
+   *
+   * @code
+   *   Then the radio button "Option B" should not be selected
+   *   Then the radio button "edit-field-choice-option-b" should not be selected
+   * @endcode
+   *
+   * @Then the radio button :selector should not be selected
+   */
+  public function fieldAssertRadioNotSelected(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $page = $this->getSession()->getPage();
+    $radio_button = $page->findField($selector);
+
+    if ($radio_button === NULL) {
+      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+    }
+
+    if ($radio_button->isChecked()) {
+      throw new \Exception(sprintf('The radio button "%s" is selected, but should not be.', $selector));
+    }
+  }
+
+  /**
    * Disable browser validation for the form for validating errors.
    *
    * The form selector is registered and validation disabling will be

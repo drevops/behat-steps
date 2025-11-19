@@ -625,6 +625,21 @@ When I uncheck the checkbox "edit-field-terms-0-value"
 </details>
 
 <details>
+  <summary><code>@When I choose the radio button :selector</code></summary>
+
+<br/>
+Select a radio button
+<br/><br/>
+
+```gherkin
+When I choose the radio button "Option A"
+When I choose the radio button "edit-field-choice-option-a"
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I fill in the datetime field :label with date :date and time :time</code></summary>
 
 <br/>
@@ -837,6 +852,36 @@ Assert that a select option is not selected
 
 ```gherkin
 Then the option "Editor" should not be selected within the select element "edit-roles"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the radio button :selector should be selected</code></summary>
+
+<br/>
+Assert that a radio button is selected
+<br/><br/>
+
+```gherkin
+Then the radio button "Option A" should be selected
+Then the radio button "edit-field-choice-option-a" should be selected
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the radio button :selector should not be selected</code></summary>
+
+<br/>
+Assert that a radio button is not selected
+<br/><br/>
+
+```gherkin
+Then the radio button "Option B" should not be selected
+Then the radio button "edit-field-choice-option-b" should not be selected
 
 ```
 
