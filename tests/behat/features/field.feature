@@ -392,6 +392,96 @@ Feature: Check that FieldTrait works
     When I check the checkbox "Checkbox checked"
     Then the checkbox "Checkbox checked" should be checked
 
+  Scenario: Assert that radio buttons are selected
+    When I visit "/sites/default/files/fields.html"
+    Then the field "radio1" should exist
+    And the field "Option 1" should exist
+    And the radio button "Option 1" should not be selected
+    And the radio button "Option 2 (selected)" should be selected
+    And the radio button "Option 3" should not be selected
+
+  Scenario: Select radio button by label
+    When I visit "/sites/default/files/fields.html"
+    When I choose the radio button "Option 1"
+    Then the radio button "Option 1" should be selected
+    And the radio button "Option 2 (selected)" should not be selected
+
+  Scenario: Select radio button by ID
+    When I visit "/sites/default/files/fields.html"
+    When I choose the radio button "radio3"
+    Then the radio button "radio3" should be selected
+    And the radio button "Option 2 (selected)" should not be selected
+
+  @trait:FieldTrait
+  Scenario: Assert negative "When I choose the radio button" for non-existent radio button
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      When I choose the radio button "Non-existent radio"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The radio button "Non-existent radio" was not found on the page.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the radio button should be selected" for non-existent radio button
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the radio button "Non-existent radio" should be selected
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The radio button "Non-existent radio" was not found on the page.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the radio button should not be selected" for non-existent radio button
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the radio button "Non-existent radio" should not be selected
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The radio button "Non-existent radio" was not found on the page.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the radio button should be selected" for unselected radio button
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the radio button "Option 1" should be selected
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The radio button "Option 1" is not selected, but should be.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the radio button should not be selected" for selected radio button
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the radio button "Option 2 (selected)" should not be selected
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The radio button "Option 2 (selected)" is selected, but should not be.
+      """
+
   @javascript
   Scenario: Disable browser validation for form after visiting page
     When I visit "/sites/default/files/fields.html"
