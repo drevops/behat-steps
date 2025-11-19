@@ -87,7 +87,7 @@ functionality of the traits. These Behat tests run in the same way they
 would be run in your project: traits are included
 into [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php)
 and then ran on the
-pre-configured [fixture Drupal site](tests/behat/fixtures/d11)
+pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11)
 using [test features](tests/behat/features).
 
 Run `ahoy build` to setup a fixture Drupal site in the `build` directory.

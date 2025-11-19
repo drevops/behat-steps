@@ -26,8 +26,8 @@
     <file>scripts</file>
     <file>src</file>
     <file>tests/behat/bootstrap</file>
-    <file>tests/behat/fixtures/d10/web/modules/custom</file>
-    <file>tests/behat/fixtures/d11/web/modules/custom</file>
+    <file>tests/behat/fixtures_drupal/d10/web/modules/custom</file>
+    <file>tests/behat/fixtures_drupal/d11/web/modules/custom</file>
     <file>tests/phpunit/src</file>
 
     <!-- Exclude circleci config files. -->
