@@ -92,6 +92,7 @@ trait FileDownloadTrait {
     }
     else {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+      // @phpstan-ignore-next-line
       $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
       foreach ($cookies as $cookie_name => $cookie_value) {
         $cookie_list[] = $cookie_name . '=' . $cookie_value;

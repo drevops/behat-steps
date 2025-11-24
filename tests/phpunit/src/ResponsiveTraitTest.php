@@ -32,7 +32,7 @@ class ResponsiveTraitTest extends UnitTestCase {
     $this->testObject = new ResponsiveTraitTestImplementation();
   }
 
-  #[DataProvider('dataProviderParseBreakpoint')]
+  #[DataProvider('dataProviderExtractDimensions')]
   public function testExtractDimensions(string $dimensions, array $expected, ?string $exception = NULL): void {
     if ($exception) {
       $this->expectException(\RuntimeException::class);
@@ -43,7 +43,7 @@ class ResponsiveTraitTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  public static function dataProviderParseBreakpoint(): array {
+  public static function dataProviderExtractDimensions(): array {
     return [
       'valid mobile portrait' => [
         '360x640',

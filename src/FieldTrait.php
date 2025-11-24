@@ -499,8 +499,11 @@ JS;
         $current_values = $current_values ? [$current_values] : [];
       }
       // @codeCoverageIgnoreEnd
-      // Remove the option value from current selections.
-      $new_values = array_diff($current_values, [$option_value]);
+      // Remove the option value from current selections and filter out non-string values.
+      $new_values = array_values(array_filter(
+        array_diff($current_values, [$option_value]),
+        is_string(...)
+      ));
 
       // Set the new values.
       $select_field->setValue($new_values);
