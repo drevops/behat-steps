@@ -388,6 +388,7 @@ trait FeatureContextTrait {
     }
     else {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+      // @phpstan-ignore-next-line
       $cookie_list = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
     }
 
