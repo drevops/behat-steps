@@ -24,7 +24,7 @@
         "drupal/drupal-extension": "^5"
     },
     "require-dev": {
-        "alexskrypnyk/phpunit-helpers": "^0.14.0",
+        "alexskrypnyk/phpunit-helpers": "^0.15.0",
         "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
