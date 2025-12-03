@@ -30,7 +30,7 @@ jobs:
         drupal_version: [10, 11]
 
     container:
-      image: drevops/ci-runner:25.10.0
+      image: drevops/ci-runner:25.11.0
 
       env:
         TERM: xterm-256color
