@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
@@ -33,9 +34,8 @@ trait ContentBlockTrait {
 
   /**
    * Clean up all content block entities created during the scenario.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function contentBlockAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

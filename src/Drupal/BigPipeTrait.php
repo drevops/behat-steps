@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\big_pipe\Render\Placeholder\BigPipeStrategy;
@@ -34,9 +36,8 @@ trait BigPipeTrait {
 
   /**
    * Initialize BigPipe settings before scenario.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -65,9 +66,8 @@ trait BigPipeTrait {
 
   /**
    * Prepare Big Pipe NOJS cookie if needed.
-   *
-   * @BeforeStep
    */
+  #[BeforeStep]
   public function bigPipeBeforeStep(BeforeStepScope $scope): void {
     if ($this->bigPipeSkipBeforeStep) {
       return;

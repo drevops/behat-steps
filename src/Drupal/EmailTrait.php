@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Database\Database;
@@ -44,9 +46,8 @@ trait EmailTrait {
 
   /**
    * Enable email tracking.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -79,9 +80,8 @@ trait EmailTrait {
 
   /**
    * Disable email tracking.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function emailAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

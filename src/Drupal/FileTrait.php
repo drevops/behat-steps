@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -40,9 +42,8 @@ trait FileTrait {
 
   /**
    * Ensure private and temp directories exist.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -162,9 +163,8 @@ trait FileTrait {
 
   /**
    * Clean all created managed files after scenario run.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

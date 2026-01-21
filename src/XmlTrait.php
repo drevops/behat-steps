@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
+
 /**
  * Assert XML responses with element and attribute checks.
  *
@@ -33,9 +36,8 @@ trait XmlTrait {
 
   /**
    * Enable internal XML error handling before each scenario.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function xmlBeforeScenario(): void {
     libxml_use_internal_errors(TRUE);
     libxml_clear_errors();
@@ -50,9 +52,8 @@ trait XmlTrait {
    * Clear cached XML document state after each scenario.
    *
    * Ensures fresh document parsing for each scenario.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function xmlAfterScenario(): void {
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;

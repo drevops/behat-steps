@@ -31,6 +31,9 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Output\Printer\Formatter\ConsoleFormatter;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterSuite;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeSuite;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -86,11 +89,9 @@ class BehatCliContext implements Context
 
   /**
    * Cleans test folders in the temporary directory.
-   *
-   * @BeforeSuite
-   *
-   * @AfterSuite
    */
+  #[BeforeSuite]
+  #[AfterSuite]
   public static function cleanTestFolders()
   {
     (new Filesystem())->remove(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat');
@@ -98,9 +99,8 @@ class BehatCliContext implements Context
 
   /**
    * Prepares test folders in the temporary directory.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function prepareTestFolders()
   {
     $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR .

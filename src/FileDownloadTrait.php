@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
@@ -36,9 +38,8 @@ trait FileDownloadTrait {
 
   /**
    * Prepare scenario to work with this trait.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -52,9 +53,8 @@ trait FileDownloadTrait {
 
   /**
    * Cleanup after scenario run.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function fileDownloadAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

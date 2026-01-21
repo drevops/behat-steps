@@ -10,9 +10,11 @@
 
 declare(strict_types=1);
 
-use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterFeature;
+use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Drupal\Core\Database\Database;
@@ -33,9 +35,8 @@ trait FeatureContextTrait {
    * child processes to hang when they try to establish their own connection.
    * This hook ensures all sessions are properly stopped before sub-process
    * scenarios run.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
     $has_trait_tag = (bool) array_filter($scope->getScenario()->getTags(), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
 
@@ -62,9 +63,8 @@ trait FeatureContextTrait {
 
   /**
    * Clean watchdog after feature with an error.
-   *
-   * @AfterFeature @errorcleanup
    */
+  #[AfterFeature('@errorcleanup')]
   public static function testClearWatchdog(AfterFeatureScope $scope): void {
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {

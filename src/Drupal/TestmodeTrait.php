@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Drupal\testmode\Testmode;
 
 /**
@@ -21,9 +23,8 @@ trait TestmodeTrait {
 
   /**
    * Enable test mode before test run for scenarios tagged with @testmode.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -37,9 +38,8 @@ trait TestmodeTrait {
 
   /**
    * Disable test mode before test run for scenarios tagged with @testmode.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
