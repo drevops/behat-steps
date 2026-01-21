@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Drupal\Core\Entity\EntityStorageException;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Hook\AfterScenario;
+use Drupal\Core\Entity\EntityStorageException;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\block\Entity\Block;
 
@@ -34,9 +35,8 @@ trait BlockTrait {
    * test state.
    * Add the tag @behat-steps-skip:blockAfterScenario to your scenario to
    * prevent automatic cleanup of blocks.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function blockAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

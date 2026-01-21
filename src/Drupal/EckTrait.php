@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -27,9 +28,8 @@ trait EckTrait {
 
   /**
    * Remove ECK types and entities.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function eckAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

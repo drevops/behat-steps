@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeStep;
 
 /**
  * Trait BehatCliTrait.
@@ -19,9 +21,7 @@ use Behat\Gherkin\Node\PyStringNode;
  */
 trait BehatCliTrait {
 
-  /**
-   * @BeforeScenario
-   */
+  #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $this->behatCliCopyFixtures();
 
@@ -50,9 +50,7 @@ trait BehatCliTrait {
     $this->behatCliWriteFeatureContextFile($traits);
   }
 
-  /**
-   * @BeforeStep
-   */
+  #[BeforeStep]
   public function behatCliBeforeStep(): void {
     // Drupal Extension >= ^5 is coupled with Drupal core's DrupalTestBrowser.
     // This requires Drupal root to be discoverable when running Behat from a

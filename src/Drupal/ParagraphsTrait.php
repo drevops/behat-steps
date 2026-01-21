@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
@@ -31,9 +32,8 @@ trait ParagraphsTrait {
 
   /**
    * Clean all paragraphs instances after scenario run.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function paragraphsAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

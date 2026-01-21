@@ -7,6 +7,9 @@ namespace DrevOps\BehatSteps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\AfterStep;
+use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 
@@ -45,9 +48,8 @@ trait FieldTrait {
 
   /**
    * Initialize form validation registry for scenarios.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function fieldBeforeScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
       $this->fieldFormValidationEnabled = FALSE;
@@ -65,9 +67,8 @@ trait FieldTrait {
 
   /**
    * Apply form validation disabling after each step.
-   *
-   * @AfterStep
    */
+  #[AfterStep]
   public function fieldAfterStep(AfterStepScope $scope): void {
     if ($scope->getFeature()->hasTag('behat-steps-skip:FieldTrait')) {
       // @codeCoverageIgnoreStart
@@ -99,9 +100,8 @@ trait FieldTrait {
 
   /**
    * Clean up form validation registry after scenario.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function fieldAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
       $this->fieldFormValidationEnabled = FALSE;

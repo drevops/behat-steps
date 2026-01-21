@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\BeforeScenario;
 use Behat\Mink\Driver\Selenium2Driver;
 
 /**
@@ -117,9 +118,8 @@ trait ResponsiveTrait {
 
   /**
    * Process @breakpoint:NAME tag before scenario.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
     $tags = $scope->getScenario()->getTags();
 

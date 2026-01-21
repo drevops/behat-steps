@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
@@ -33,9 +34,8 @@ trait MediaTrait {
 
   /**
    * Remove any created media items.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function mediaAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

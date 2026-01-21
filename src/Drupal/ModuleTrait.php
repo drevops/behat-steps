@@ -7,6 +7,8 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 
 /**
  * Enable and disable Drupal modules with automatic state restoration.
@@ -31,9 +33,8 @@ trait ModuleTrait {
 
   /**
    * Enable/disable modules before scenario based on tags.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -65,9 +66,8 @@ trait ModuleTrait {
 
   /**
    * Restore module states after scenario.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

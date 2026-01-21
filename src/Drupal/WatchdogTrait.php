@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Drupal\Core\Database\Database;
 
 /**
@@ -40,9 +42,8 @@ trait WatchdogTrait {
 
   /**
    * Store current time.
-   *
-   * @BeforeScenario
    */
+  #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -84,9 +85,8 @@ trait WatchdogTrait {
    *
    * Add @error to any scenario that is expected to trigger an error - the
    * error tracking will be ignored.
-   *
-   * @AfterScenario
    */
+  #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
     $database = Database::getConnection();
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

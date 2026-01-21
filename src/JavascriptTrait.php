@@ -8,6 +8,10 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\AfterStep;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
 
 /**
@@ -60,9 +64,8 @@ trait JavascriptTrait {
 
   /**
    * Initialize JavaScript error collection for scenarios.
-   *
-   * @BeforeScenario @javascript
    */
+  #[BeforeScenario('@javascript')]
   public function javascriptBeforeScenario(BeforeScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
       $this->javascriptEnabled = FALSE;
@@ -77,9 +80,8 @@ trait JavascriptTrait {
 
   /**
    * Assert no JavaScript errors at end of scenario.
-   *
-   * @AfterScenario @javascript
    */
+  #[AfterScenario('@javascript')]
   public function javascriptAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
       $this->javascriptEnabled = FALSE;
@@ -102,9 +104,8 @@ trait JavascriptTrait {
 
   /**
    * Inject JavaScript error collector before each step.
-   *
-   * @BeforeStep
    */
+  #[BeforeStep]
   public function javascriptBeforeStep(BeforeStepScope $scope): void {
     if ($scope->getFeature()->hasTag('behat-steps-skip:JavascriptTrait')) {
       return;
@@ -135,9 +136,8 @@ trait JavascriptTrait {
 
   /**
    * Collect JavaScript errors after each step if URL changed.
-   *
-   * @AfterStep
    */
+  #[AfterStep]
   public function javascriptAfterStep(AfterStepScope $scope): void {
     if ($scope->getFeature()->hasTag('behat-steps-skip:JavascriptTrait')) {
       return;
