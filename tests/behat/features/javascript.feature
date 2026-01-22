@@ -53,7 +53,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 2 (Exception)
+      Total errors: 2
       """
     And the output should not contain:
       """
@@ -101,7 +101,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 5 (Exception)
+      Total errors: 5
       """
 
   @trait:JavascriptTrait
@@ -166,7 +166,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 10 (Exception)
+      Total errors: 10
       """
 
   @javascript @js-errors

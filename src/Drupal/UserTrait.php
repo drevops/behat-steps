@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
+use Behat\Mink\Exception\ExpectationException;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -246,7 +247,7 @@ trait UserTrait {
     $roles = $this->helperSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
-      throw new \Exception(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
+      throw new ExpectationException(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
     }
   }
 
@@ -265,7 +266,7 @@ trait UserTrait {
     $roles = $this->helperSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
-      throw new \Exception(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())));
+      throw new ExpectationException(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
     }
   }
 
@@ -282,7 +283,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     if ($user->isActive()) {
-      throw new \Exception(sprintf('User "%s" is expected to be blocked, but they are not.', $name));
+      throw new ExpectationException(sprintf('User "%s" is expected to be blocked, but they are not.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -299,7 +300,7 @@ trait UserTrait {
     $user = $this->userLoadByName($name);
 
     if (!$user->isActive()) {
-      throw new \Exception(sprintf('User "%s" is expected to not be blocked, but they are.', $name));
+      throw new ExpectationException(sprintf('User "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
     }
   }
 

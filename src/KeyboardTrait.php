@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
@@ -127,7 +128,7 @@ trait KeyboardTrait {
 
     // Convert provided character sequence to special keys.
     if (strlen($char) < 1) {
-      throw new \Exception('keyPress($char) was invoked but the $char parameter was empty.');
+      throw new \InvalidArgumentException('keyPress($char) was invoked but the $char parameter was empty.');
     }
     // Consider provided characters string longer then 1 to be a keyboard key.
     elseif (strlen($char) > 1) {
@@ -194,7 +195,7 @@ JS;
       $xpath = $this->getSession()->evaluateScript($script);
 
       if (!$xpath) {
-        throw new \RuntimeException('No element is currently focused. Please focus an element first using a step with a selector.');
+        throw new ExpectationException('No element is currently focused. Please focus an element first using a step with a selector.', $this->getSession()->getDriver());
       }
 
       $this->keyboardTriggerKey($xpath, $char);

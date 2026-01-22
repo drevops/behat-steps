@@ -13,6 +13,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Automatically detect JavaScript errors during test execution.
@@ -308,7 +309,7 @@ JS;
 
     $message_parts[] = sprintf("\nTotal errors: %d", $error_count);
 
-    throw new \Exception(implode("\n", $message_parts));
+    throw new ExpectationException(implode("\n", $message_parts), $this->getSession()->getDriver());
   }
 
   /**

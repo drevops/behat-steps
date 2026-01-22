@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -93,7 +94,7 @@ trait XmlTrait {
     libxml_clear_errors();
 
     if ($loaded && empty($errors)) {
-      throw new \Exception('The response is valid XML, but it should not be.');
+      throw new ExpectationException('The response is valid XML, but it should not be.', $this->getSession()->getDriver());
     }
   }
 
@@ -112,7 +113,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
   }
 
@@ -131,7 +132,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes !== FALSE && $nodes->length > 0) {
-      throw new \Exception(sprintf('The XML element "%s" was found, but it should not exist.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was found, but it should not exist.', $element), $this->getSession()->getDriver());
     }
   }
 
@@ -150,19 +151,19 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
     $actual_text = trim($node->textContent);
     if ($actual_text !== $text) {
-      throw new \Exception(sprintf('The XML element "%s" content is "%s", but expected "%s".', $element, $actual_text, $text));
+      throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but expected "%s".', $element, $actual_text, $text), $this->getSession()->getDriver());
     }
   }
 
@@ -181,19 +182,19 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
     $actual_text = trim($node->textContent);
     if ($actual_text === $text) {
-      throw new \Exception(sprintf('The XML element "%s" content is "%s", but it should not be.', $element, $actual_text));
+      throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but it should not be.', $element, $actual_text), $this->getSession()->getDriver());
     }
   }
 
@@ -212,19 +213,19 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
     $actual_text = $node->textContent;
     if (!str_contains($actual_text, $text)) {
-      throw new \Exception(sprintf('The XML element "%s" does not contain "%s". Actual content: "%s".', $element, $text, trim($actual_text)));
+      throw new ExpectationException(sprintf('The XML element "%s" does not contain "%s". Actual content: "%s".', $element, $text, trim($actual_text)), $this->getSession()->getDriver());
     }
   }
 
@@ -243,19 +244,19 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
     $actual_text = $node->textContent;
     if (str_contains($actual_text, $text)) {
-      throw new \Exception(sprintf('The XML element "%s" contains "%s", but it should not.', $element, $text));
+      throw new ExpectationException(sprintf('The XML element "%s" contains "%s", but it should not.', $element, $text), $this->getSession()->getDriver());
     }
   }
 
@@ -274,12 +275,12 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
   }
 
@@ -298,12 +299,12 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if ($node instanceof \DOMElement && $node->hasAttribute($attribute)) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" was found, but it should not exist.', $attribute, $element));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was found, but it should not exist.', $attribute, $element), $this->getSession()->getDriver());
     }
   }
 
@@ -322,17 +323,17 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
     if ($actual_value !== $text) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" is "%s", but expected "%s".', $attribute, $element, $actual_value, $text));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but expected "%s".', $attribute, $element, $actual_value, $text), $this->getSession()->getDriver());
     }
   }
 
@@ -351,17 +352,17 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
     if ($actual_value === $text) {
-      throw new \Exception(sprintf('The XML attribute "%s" on element "%s" is "%s", but it should not be.', $attribute, $element, $actual_value));
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but it should not be.', $attribute, $element, $actual_value), $this->getSession()->getDriver());
     }
   }
 
@@ -380,13 +381,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new \Exception(sprintf('The XML element "%s" was not found.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
     }
 
     $parent_node = $nodes->item(0);
     if (!$parent_node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('The XML element "%s" is not a valid node.', $element));
+      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
@@ -400,7 +401,7 @@ trait XmlTrait {
 
     $expected_count = (int) $count;
     if ($child_elements !== $expected_count) {
-      throw new \Exception(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $expected_count));
+      throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $expected_count), $this->getSession()->getDriver());
     }
   }
 
@@ -419,7 +420,7 @@ trait XmlTrait {
     $namespaces = $this->xmlExtractNamespaces();
 
     if (!in_array($namespace, $namespaces, TRUE)) {
-      throw new \Exception(sprintf('The XML does not use the namespace "%s". Available namespaces: %s', $namespace, implode(', ', $namespaces)));
+      throw new ExpectationException(sprintf('The XML does not use the namespace "%s". Available namespaces: %s', $namespace, implode(', ', $namespaces)), $this->getSession()->getDriver());
     }
   }
 
@@ -438,7 +439,7 @@ trait XmlTrait {
     $namespaces = $this->xmlExtractNamespaces();
 
     if (in_array($namespace, $namespaces, TRUE)) {
-      throw new \Exception(sprintf('The XML uses the namespace "%s", but it should not.', $namespace));
+      throw new ExpectationException(sprintf('The XML uses the namespace "%s", but it should not.', $namespace), $this->getSession()->getDriver());
     }
   }
 
@@ -459,7 +460,7 @@ trait XmlTrait {
 
     if (!$loaded) {
       $errors = libxml_get_errors();
-      throw new \Exception(sprintf('Failed to load XML. Errors: %s', $this->xmlFormatErrors($errors)));
+      throw new \RuntimeException(sprintf('Failed to load XML. Errors: %s', $this->xmlFormatErrors($errors)));
     }
 
     $this->xmlXpath = new \DOMXPath($this->xmlDocument);
@@ -501,7 +502,7 @@ trait XmlTrait {
   protected function xmlExtractNamespaces(): array {
     if ($this->xmlDocument === NULL) {
       // @codeCoverageIgnoreStart
-      throw new \Exception('No XML document is loaded.');
+      throw new \RuntimeException('No XML document is loaded.');
       // @codeCoverageIgnoreEnd
     }
 

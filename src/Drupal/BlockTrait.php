@@ -6,9 +6,10 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
-use Drupal\Core\Entity\EntityStorageException;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use Drupal\block\Entity\Block;
+use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Manage Drupal blocks.
@@ -99,7 +100,7 @@ trait BlockTrait {
     }
 
     if (!$block instanceof Block) {
-      throw new \Exception(sprintf('Could not create block with admin label "%s"', $admin_label));
+      throw new \RuntimeException(sprintf('Could not create block with admin label "%s"', $admin_label));
     }
 
     $this->blockConfigure($admin_label, $fields);
@@ -302,7 +303,7 @@ trait BlockTrait {
     $block = $this->blockLoadByLabel($label);
 
     if (empty($block)) {
-      throw new \Exception(sprintf('The block "%s" does not exist.', $label));
+      throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
     }
   }
 
@@ -325,7 +326,7 @@ trait BlockTrait {
     $block = $this->blockLoadByLabel($label);
 
     if (!empty($block)) {
-      throw new \Exception(sprintf('The block "%s" exists but should not.', $label));
+      throw new ExpectationException(sprintf('The block "%s" exists but should not.', $label), $this->getSession()->getDriver());
     }
   }
 
@@ -353,7 +354,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region !== $region) {
-      throw new \Exception(sprintf('Block "%s" is in region "%s" but should be in "%s".', $label, $actual_region, $region));
+      throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
     }
   }
 
@@ -381,7 +382,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region === $region) {
-      throw new \Exception(sprintf('Block "%s" is in region "%s" but should not be.', $label, $region));
+      throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should not be.', $label, $region), $this->getSession()->getDriver());
     }
   }
 

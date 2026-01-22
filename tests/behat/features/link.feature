@@ -51,7 +51,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link with the title "Some non-existing title" does not exist.
+      Link with title "Some non-existing title" not found.
       """
 
   @trait:LinkTrait
@@ -65,7 +65,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link with the title "Nonexistent title" does not exist.
+      Link with title "Nonexistent title" not found.
       """
 
   @trait:LinkTrait
@@ -93,7 +93,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Selector "#nonexistent-selector" does not exist on the page
+      Element matching css "#nonexistent-selector" not found.
       """
 
   @trait:LinkTrait
@@ -107,7 +107,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link "NonexistentLinkText" is not found
+      Link with text "NonexistentLinkText" not found.
       """
 
   @trait:LinkTrait
@@ -149,7 +149,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link "NonexistentLink" is not found
+      Link with text "NonexistentLink" not found.
       """
 
   @trait:LinkTrait
@@ -177,7 +177,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link "NonexistentLink" is not found
+      Link with text "NonexistentLink" not found.
       """
 
   @trait:LinkTrait

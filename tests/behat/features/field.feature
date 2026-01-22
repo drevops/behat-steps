@@ -279,9 +279,9 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should be selected within the select element "non_existent_select"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
-      The select "non_existent_select" was not found on the page /admin/config/regional/settings.
+      Select with id|name|label "non_existent_select" not found.
       """
 
   @api @trait:FieldTrait
@@ -294,7 +294,7 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should not be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings.
       """
@@ -309,7 +309,7 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should not be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be.
       """
@@ -339,7 +339,7 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       No option is selected in the date_default_timezone select on the page /admin/config/regional/settings.
       """
@@ -354,7 +354,7 @@ Feature: Check that FieldTrait works
       Then the option "Australia/Sydney" should be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings.
       """
@@ -369,9 +369,9 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should not be selected within the select element "non_existent_select"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Exception" exception:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
-      The select "non_existent_select" was not found on the page /admin/config/regional/settings.
+      Select with id|name|label "non_existent_select" not found.
       """
 
   @phpserver
@@ -423,7 +423,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The radio button "Non-existent radio" was not found on the page.
+      Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
   @trait:FieldTrait
@@ -437,7 +437,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The radio button "Non-existent radio" was not found on the page.
+      Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
   @trait:FieldTrait
@@ -451,7 +451,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The radio button "Non-existent radio" was not found on the page.
+      Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
   @trait:FieldTrait
@@ -675,7 +675,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Datetime field "Non-existent field" with part "value" and field "date" not found.
+      Datetime field with label "Non-existent field (value/date)" not found.
       """
 
   @trait:FieldTrait @datetime
@@ -690,7 +690,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Datetime field "Non-existent field" with part "value" and field "date" not found.
+      Datetime field with label "Non-existent field (value/date)" not found.
       """
 
   @trait:FieldTrait @datetime
@@ -705,7 +705,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Datetime field "Non-existent field" with part "value" and field "time" not found.
+      Datetime field with label "Non-existent field (value/time)" not found.
       """
 
   @trait:FieldTrait @datetime
@@ -720,7 +720,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Datetime field "Non-existent range" with part "value" and field "date" not found.
+      Datetime field with label "Non-existent range (value/date)" not found.
       """
 
   @trait:FieldTrait @datetime
@@ -735,7 +735,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Datetime field "Non-existent range" with part "end_value" and field "date" not found.
+      Datetime field with label "Non-existent range (end_value/date)" not found.
       """
 
   @trait:FieldTrait
@@ -848,7 +848,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The select "Non-existent select" was not found.
+      Select with id|name|label "Non-existent select" not found.
       """
 
   @trait:FieldTrait
@@ -876,5 +876,5 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The select "Non-existent select" was not found.
+      Select with id|name|label "Non-existent select" not found.
       """

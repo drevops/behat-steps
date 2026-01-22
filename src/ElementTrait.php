@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
  *
@@ -30,10 +33,10 @@ trait ElementTrait {
     $element2 = $page->find('css', $selector2);
 
     if (!$element1) {
-      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector1));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
     }
     if (!$element2) {
-      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector2));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
     }
 
     $text1 = $element1->getOuterHtml();
@@ -45,14 +48,14 @@ trait ElementTrait {
 
     // @codeCoverageIgnoreStart
     if ($pos1 === FALSE) {
-      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector1));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
     }
     if ($pos2 === FALSE) {
-      throw new \Exception(sprintf('Element with selector "%s" not found.', $selector2));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
     }
     // @codeCoverageIgnoreEnd
     if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf('Element "%s" appears before "%s".', $selector1, $selector2));
+      throw new ExpectationException(sprintf('Element "%s" appears before "%s".', $selector1, $selector2), $this->getSession()->getDriver());
     }
   }
 
@@ -72,14 +75,14 @@ trait ElementTrait {
     $pos2 = strpos((string) $content, $text2);
 
     if ($pos1 === FALSE) {
-      throw new \Exception(sprintf('Text was not found: "%s".', $text1));
+      throw new ExpectationException(sprintf('Text was not found: "%s".', $text1), $this->getSession()->getDriver());
     }
     if ($pos2 === FALSE) {
-      throw new \Exception(sprintf('Text was not found: "%s".', $text2));
+      throw new ExpectationException(sprintf('Text was not found: "%s".', $text2), $this->getSession()->getDriver());
     }
 
     if ($pos1 <= $pos2) {
-      throw new \Exception(sprintf('Text "%s" appears before "%s".', $text1, $text2));
+      throw new ExpectationException(sprintf('Text "%s" appears before "%s".', $text1, $text2), $this->getSession()->getDriver());
     }
   }
 
@@ -156,7 +159,7 @@ trait ElementTrait {
     $elements = $page->findAll('css', $selector);
 
     if (empty($elements)) {
-      throw new \Exception(sprintf('The "%s" element does not exist.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
     $attr_found = FALSE;
@@ -179,20 +182,20 @@ trait ElementTrait {
     }
 
     if (!$attr_found) {
-      throw new \Exception(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector));
+      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
     }
 
     if ($is_inverted && $attr_value_found) {
       $message = $is_exact
         ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
         : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
-      throw new \Exception($message);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
     }
     elseif (!$is_inverted && !$attr_value_found) {
       $message = $is_exact
         ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attr_value, $value)
         : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attr_value, $value);
-      throw new \Exception($message);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
 
@@ -208,7 +211,7 @@ trait ElementTrait {
   public function elementAssertElementAtTopOfViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
     if (!$result) {
-      throw new \Exception(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector));
+      throw new ExpectationException(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -257,7 +260,7 @@ trait ElementTrait {
     $element = $this->getSession()->getPage()->find('css', $selector);
 
     if (!$element) {
-      throw new \RuntimeException(sprintf('Element with selector "%s" not found on the page.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
     $element->click();
@@ -304,10 +307,7 @@ trait ElementTrait {
     $nodes = $page->findAll('css', $selector);
 
     if ($nodes === []) {
-      throw new \Exception(sprintf(
-        'Element defined by "%s" selector is not present on the page.',
-        $selector
-      ));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
     foreach ($nodes as $node) {
@@ -317,10 +317,7 @@ trait ElementTrait {
       }
     }
 
-    throw new \Exception(sprintf(
-      'None of the elements defined by "%s" selector are visible on the page.',
-      $selector
-    ));
+    throw new ExpectationException(sprintf('None of the elements defined by "%s" selector are visible on the page.', $selector), $this->getSession()->getDriver());
   }
 
   /**
@@ -338,7 +335,7 @@ trait ElementTrait {
 
     foreach ($nodes as $node) {
       if ($node->isVisible()) {
-        throw new \Exception(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector));
+        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
       }
     }
   }
@@ -356,7 +353,7 @@ trait ElementTrait {
     $this->elementAssertIsVisible($selector);
 
     if (!$this->elementIsVisuallyVisible($selector, 0)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector));
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -372,7 +369,7 @@ trait ElementTrait {
   public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $number): void {
     $this->elementAssertIsVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $number)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $number));
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $number), $this->getSession()->getDriver());
     }
   }
 
@@ -387,7 +384,7 @@ trait ElementTrait {
    */
   public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $number): void {
     if ($this->elementIsVisuallyVisible($selector, $number)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number));
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number), $this->getSession()->getDriver());
     }
   }
 
@@ -407,7 +404,7 @@ trait ElementTrait {
    */
   public function elementAssertIsVisuallyHidden(string $selector, int $offset = 0): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new \Exception(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector));
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 

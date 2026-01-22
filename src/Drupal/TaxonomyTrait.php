@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -98,12 +99,12 @@ trait TaxonomyTrait {
     $vocab = Vocabulary::load($machine_name);
 
     if (!$vocab) {
-      throw new \Exception(sprintf('The vocabulary "%s" does not exist.', $machine_name));
+      throw new ExpectationException(sprintf('The vocabulary "%s" does not exist.', $machine_name), $this->getSession()->getDriver());
     }
 
     $actual_name = $vocab->get('name');
     if ($actual_name != $name) {
-      throw new \Exception(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $machine_name, $actual_name, $name));
+      throw new ExpectationException(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $machine_name, $actual_name, $name), $this->getSession()->getDriver());
     }
   }
 
@@ -120,7 +121,7 @@ trait TaxonomyTrait {
     $vocab = Vocabulary::load($machine_name);
 
     if ($vocab) {
-      throw new \Exception(sprintf('The vocabulary "%s" exists, but it should not.', $machine_name));
+      throw new ExpectationException(sprintf('The vocabulary "%s" exists, but it should not.', $machine_name), $this->getSession()->getDriver());
     }
   }
 
@@ -148,7 +149,7 @@ trait TaxonomyTrait {
       ]);
 
     if (count($found) === 0) {
-      throw new \Exception(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary_machine_name));
+      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary_machine_name), $this->getSession()->getDriver());
     }
   }
 
@@ -176,7 +177,7 @@ trait TaxonomyTrait {
       ]);
 
     if (count($found) > 0) {
-      throw new \Exception(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary_machine_name));
+      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary_machine_name), $this->getSession()->getDriver());
     }
   }
 

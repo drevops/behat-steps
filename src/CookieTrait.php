@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+
 /**
  * Verify and inspect browser cookies.
  *
@@ -176,26 +179,26 @@ trait CookieTrait {
 
     if ($cookie === NULL) {
       if ($is_partial_name) {
-        throw new \Exception(sprintf('The cookie with name containing "%s" was not set.', $name));
+        throw new ExpectationException(sprintf('The cookie with name containing "%s" was not set.', $name), $this->getSession()->getDriver());
       }
 
-      throw new \Exception(sprintf('The cookie with name "%s" was not set.', $name));
+      throw new ExpectationException(sprintf('The cookie with name "%s" was not set.', $name), $this->getSession()->getDriver());
     }
 
     if ($value !== NULL) {
       if ($is_partial_value) {
         if (!str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
-            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value));
+            throw new ExpectationException(sprintf('The cookie with name containing "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
           }
-          throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value));
+          throw new ExpectationException(sprintf('The cookie with name "%s" was set with value "%s", but it should contain "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
         }
       }
       elseif ($cookie['value'] !== $value) {
         if ($is_partial_name) {
-          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value));
+          throw new ExpectationException(sprintf('The cookie with name containing "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
         }
-        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value));
+        throw new ExpectationException(sprintf('The cookie with name "%s" was set with value "%s", but it should be "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
       }
     }
   }
@@ -214,23 +217,23 @@ trait CookieTrait {
       if ($is_partial_value) {
         if (str_contains((string) $cookie['value'], $value)) {
           if ($is_partial_name) {
-            throw new \Exception(sprintf('The cookie with name containing "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value));
+            throw new ExpectationException(sprintf('The cookie with name containing "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
           }
-          throw new \Exception(sprintf('The cookie with name "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value));
+          throw new ExpectationException(sprintf('The cookie with name "%s" was set with value containing "%s", but it should not contain "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
         }
       }
       elseif ($cookie['value'] === $value) {
         if ($is_partial_name) {
-          throw new \Exception(sprintf('The cookie with name containing "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value));
+          throw new ExpectationException(sprintf('The cookie with name containing "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
         }
-        throw new \Exception(sprintf('The cookie with name "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value));
+        throw new ExpectationException(sprintf('The cookie with name "%s" was set with value "%s", but it should not be "%s".', $name, $cookie['value'], $value), $this->getSession()->getDriver());
       }
     }
     else {
       if ($is_partial_name) {
-        throw new \Exception(sprintf('The cookie with name containing "%s" was set but it should not be.', $name));
+        throw new ExpectationException(sprintf('The cookie with name containing "%s" was set but it should not be.', $name), $this->getSession()->getDriver());
       }
-      throw new \Exception(sprintf('The cookie with name "%s" was set but it should not be.', $name));
+      throw new ExpectationException(sprintf('The cookie with name "%s" was set but it should not be.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -307,7 +310,7 @@ trait CookieTrait {
     }
     else {
       // @codeCoverageIgnoreStart
-      throw new \Exception('Unsupported driver for cookie retrieval.');
+      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s', $driver);
       // @codeCoverageIgnoreEnd
     }
 
