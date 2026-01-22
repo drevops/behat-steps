@@ -22,6 +22,9 @@ parameters:
     - node_modules/*
     - tests/behat/bootstrap/BehatCliContext.php
     - tests/behat/bootstrap/BehatCliTrait.php
+    # https://github.com/phpstan/phpstan/discussions/11362
+    - tests/behat/fixtures_drupal/d10/web/modules/custom/mysite_core/src/Time/Time.php
+    - tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
 
   scanFiles:
     - vendor/behat/behat/bin/behat

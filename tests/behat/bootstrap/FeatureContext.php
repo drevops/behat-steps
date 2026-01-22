@@ -26,6 +26,7 @@ use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\Drupal\TestmodeTrait;
+use DrevOps\BehatSteps\Drupal\TimeTrait;
 use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\ElementTrait;
@@ -75,6 +76,7 @@ class FeatureContext extends DrupalContext {
   use SearchApiTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
+  use TimeTrait;
   use UserTrait;
   use HelperTrait;
   use WaitTrait;
