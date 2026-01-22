@@ -39,6 +39,7 @@
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
+| [Drupal\TimeTrait](#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
 | [Drupal\UserTrait](#drupalusertrait) | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 
@@ -3385,6 +3386,49 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 >  Special tags:
 >  - `@testmode` - enable for scenario
 
+
+## Drupal\TimeTrait
+
+[Source](src/Drupal/TimeTrait.php), [Example](tests/behat/features/drupal_time.feature)
+
+>  Control system time in tests using Drupal state overrides.
+>  <br/><br/>
+>  IMPORTANT: This trait requires your application to use a mockable time
+>  service that checks Drupal state for time overrides.
+>  <br/><br/>
+>  Example implementation:
+>  - Time service: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
+>  - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
+>  - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
+
+
+<details>
+  <summary><code>@When I set system time to :value</code></summary>
+
+<br/>
+Sets the system time for testing
+<br/><br/>
+
+```gherkin
+When I set system time to "1737849900"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I reset system time</code></summary>
+
+<br/>
+Resets the system time to real time
+<br/><br/>
+
+```gherkin
+When I reset system time
+
+```
+
+</details>
 
 ## Drupal\UserTrait
 

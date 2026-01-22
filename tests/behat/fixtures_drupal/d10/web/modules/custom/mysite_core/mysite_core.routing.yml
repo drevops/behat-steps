@@ -6,3 +6,10 @@ mysite_core.basic_auth_test:
     _user_is_logged_in: 'TRUE'
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testCurrentUser'
+
+mysite_core.test_time:
+  path: '/mysite_core/test-time'
+  requirements:
+    _access: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testTime'
