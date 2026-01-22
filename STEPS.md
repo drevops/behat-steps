@@ -12,6 +12,7 @@
 | [JavascriptTrait](#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
+| [MetatagTrait](#metatagtrait) | Assert `<meta>` tags in page markup. |
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
@@ -32,7 +33,6 @@
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
-| [Drupal\MetatagTrait](#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
@@ -1268,6 +1268,14 @@ Then the link "Return to site content" should not be an absolute link
 ```
 
 </details>
+
+## MetatagTrait
+
+[Source](src/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
+
+>  Assert `<meta>` tags in page markup.
+>  - Assert presence and content of meta tags with proper attribute handling.
+
 
 ## PathTrait
 
@@ -3003,14 +3011,6 @@ Given the following menu links exist in the menu "Main navigation":
 ```
 
 </details>
-
-## Drupal\MetatagTrait
-
-[Source](src/Drupal/MetatagTrait.php), [Example](tests/behat/features/drupal_metatag.feature)
-
->  Assert `<meta>` tags in page markup.
->  - Assert presence and content of meta tags with proper attribute handling.
-
 
 ## Drupal\ModuleTrait
 
