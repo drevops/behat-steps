@@ -325,13 +325,13 @@ EOL;
     // Enforce assertion exceptions (ExpectationException, ElementNotFoundException, or generic Exception).
     // Non-assertion exceptions should be thrown as \RuntimeException.
     $output = $this->getOutput();
-    $has_valid_exception = str_contains($output, ' (Exception)')
-      || str_contains($output, ' (Behat\Mink\Exception\ExpectationException)')
-      || str_contains($output, ' (Behat\Mink\Exception\ElementNotFoundException)');
+    $has_valid_exception = str_contains((string) $output, ' (Exception)')
+      || str_contains((string) $output, ' (Behat\Mink\Exception\ExpectationException)')
+      || str_contains((string) $output, ' (Behat\Mink\Exception\ElementNotFoundException)');
     if (!$has_valid_exception) {
       throw new \RuntimeException('The output does not contain an assertion exception string as expected.');
     }
-    if (str_contains($output, ' (RuntimeException)')) {
+    if (str_contains((string) $output, ' (RuntimeException)')) {
       throw new \RuntimeException('The output contains "(RuntimeException)" string but it should not.');
     }
   }

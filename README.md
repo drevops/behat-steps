@@ -28,10 +28,12 @@ write reliable, readable, and maintainable tests faster.
 
 We provide a set of generic traits that can be used in any PHP project, with
 special support for Drupal through additional step definitions. All methods are
-properly namespaced, so they won’t conflict with your existing custom step definitions.
+properly namespaced, so they won’t conflict with your existing custom step
+definitions.
 
 Our goal is to make this a go-to library for Behat steps. We maintain solid
-[test coverage](tests/behat/features) to avoid false positives and negatives, and follow [clear
+[test coverage](tests/behat/features) to avoid false positives and negatives,
+and follow [clear
 guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 
 We actively maintain this package and welcome [contributions](CONTRIBUTING.md)
@@ -96,7 +98,8 @@ composer require --dev drevops/behat-steps:^3
 > Upgrading from [`2.x`](https://github.com/drevops/behat-steps/tree/2.x)?
 > We’ve updated the steps language for greater consistency
 > and clarity. Please refer to the [migration map](MIGRATION.md) to see the
-> changes. An automated migration script is not included, but an AI-guided migration prompt is provided below.
+> changes. An automated migration script is not included, but an AI-guided
+> migration prompt is provided below.
 
 <details>
 <summary><strong>🤖 Expand to get an AI prompt for features migration</strong></summary>
@@ -268,7 +271,6 @@ After:
 
 </details>
 
-
 ## Usage
 
 Add required traits to your
@@ -294,9 +296,25 @@ enabled.
 
 ### Exceptions
 
-- `\Exception` is thrown when an assertion fails.
-- `\RuntimeException` is thrown when a step does not have enough contextual
-  information to perform an action.
+This library uses [Mink exception classes](https://mink.behat.org/en/latest/)
+for
+consistent error handling:
+
+| Exception                          | When thrown                                          |
+|------------------------------------|------------------------------------------------------|
+| `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
+| `ExpectationException`             | Assertion fails (value mismatch, state verification) |
+| `UnsupportedDriverActionException` | Feature requires specific driver (e.g., Selenium)    |
+| `\RuntimeException`                | Invalid input or processing error (not an assertion) |
+
+Example error messages:
+
+```
+Element matching css "#my-element" not found.
+Link with title "My Link" not found.
+Select with id|name|label "My Select" not found.
+The cookie with name "session" was not set.
+```
 
 ### Skipping before scenario hooks
 
@@ -332,4 +350,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to
 this project.
 
 ---
-_This repository was created using the [Scaffold](https://getscaffold.dev/) project template_
+_This repository was created using the [Scaffold](https://getscaffold.dev/)
+project template_
