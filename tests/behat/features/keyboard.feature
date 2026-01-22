@@ -76,7 +76,7 @@ Feature: Check that KeyboardTrait works
       When I press the key "" on the element "#input1"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
       keyPress($char) was invoked but the $char parameter was empty.
       """
@@ -121,7 +121,7 @@ Feature: Check that KeyboardTrait works
       When I press the keys "abc"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "RuntimeException" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       No element is currently focused. Please focus an element first using a step with a selector.
       """

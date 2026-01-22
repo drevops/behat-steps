@@ -12,6 +12,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Manipulate form fields and verify widget functionality.
@@ -131,7 +132,7 @@ trait FieldTrait {
     $value = $field_element->getValue();
 
     if ($value !== NULL && $value !== '') {
-      throw new \Exception(sprintf('The field "%s" is not empty, but should be.', $field));
+      throw new ExpectationException(sprintf('The field "%s" is not empty, but should be.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -150,7 +151,7 @@ trait FieldTrait {
     $value = $field_element->getValue();
 
     if ($value === NULL || $value === '') {
-      throw new \Exception(sprintf('The field "%s" is empty, but should not be.', $field));
+      throw new ExpectationException(sprintf('The field "%s" is empty, but should not be.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -171,8 +172,7 @@ trait FieldTrait {
     $field = $field ?: $page->findById($name);
 
     if ($field === NULL) {
-      $exception = new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $name);
-      throw new \Exception($exception->getMessage());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $name);
     }
 
     return $field;
@@ -195,7 +195,7 @@ trait FieldTrait {
     $field = $field ?: $page->findById($name);
 
     if ($field !== NULL) {
-      throw new \Exception(sprintf('A field "%s" appears on this page, but it should not.', $name));
+      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -215,10 +215,10 @@ trait FieldTrait {
     $field = $this->fieldAssertExists($name);
 
     if ($enabled_or_disabled === 'disabled' && !$field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should be disabled, but it is not.', $name));
+      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $name), $this->getSession()->getDriver());
     }
     elseif ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
-      throw new \Exception(sprintf('A field "%s" should not be disabled, but it is.', $name));
+      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -271,7 +271,7 @@ JS;
     $actual = $this->getSession()->evaluateScript($script);
 
     if ($actual != $value) {
-      throw new \Exception(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual));
+      throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -294,8 +294,7 @@ JS;
     $page = $this->getSession()->getPage();
     $element = $page->findField($field);
     if ($element === NULL) {
-      $exception = new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
-      throw new \Exception($exception->getMessage());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
     // For non-JS drivers process field in a standard way.
@@ -308,7 +307,7 @@ JS;
 
     $element_id = $element->getAttribute('id');
     if (empty($element_id)) {
-      throw new \Exception('WYSIWYG field must have an ID attribute.');
+      throw new ExpectationException('WYSIWYG field must have an ID attribute.', $this->getSession()->getDriver());
     }
 
     $element_id_js = json_encode($element_id, JSON_UNESCAPED_SLASHES);
@@ -398,7 +397,7 @@ JS;
     $path = parse_url((string) $current_url, PHP_URL_PATH);
 
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found on the page %s.', $selector, $path));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     $option_field = $select_field->find('named', [
@@ -407,11 +406,11 @@ JS;
     ]);
 
     if (!$option_field) {
-      throw new \Exception(sprintf('No option is selected in the %s select on the page %s.', $selector, $path));
+      throw new ExpectationException(sprintf('No option is selected in the %s select on the page %s.', $selector, $path), $this->getSession()->getDriver());
     }
 
     if (!$option_field->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was not selected on the page %s.', $value, $path));
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $value, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -430,17 +429,17 @@ JS;
     $path = parse_url((string) $current_url, PHP_URL_PATH);
 
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found on the page %s.', $selector, $path));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     $option_field = $select_field->find('named', ['option', $value]);
 
     if (!$option_field) {
-      throw new \Exception(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $value, $selector, $path));
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $value, $selector, $path), $this->getSession()->getDriver());
     }
 
     if ($option_field->isSelected()) {
-      throw new \Exception(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $value, $selector, $path));
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $value, $selector, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -468,7 +467,7 @@ JS;
 
     $select_field = $this->getSession()->getPage()->findField($selector);
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     // Check if it's a multi-select field.
@@ -477,14 +476,14 @@ JS;
     // Find the option element to get its value.
     $option_element = $select_field->find('named', ['option', $option]);
     if (!$option_element) {
-      throw new \Exception(sprintf('The option "%s" was not found in the select "%s".', $option, $selector));
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s".', $option, $selector), $this->getSession()->getDriver());
     }
 
     $option_value = $option_element->getValue();
     // Option value should always be a string or null.
     // @codeCoverageIgnoreStart
     if (is_array($option_value) || is_bool($option_value)) {
-      throw new \Exception(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
+      throw new ExpectationException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector), $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $option_value = (string) $option_value;
@@ -534,7 +533,7 @@ JS;
 
     $select_field = $this->getSession()->getPage()->findField($selector);
     if (!$select_field) {
-      throw new \Exception(sprintf('The select "%s" was not found.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     // Check if it's a multi-select field.
@@ -608,7 +607,7 @@ JS;
     $radio_button = $page->findField($selector);
 
     if ($radio_button === NULL) {
-      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
     }
 
     $value = $radio_button->getAttribute('value');
@@ -635,11 +634,11 @@ JS;
     $radio_button = $page->findField($selector);
 
     if ($radio_button === NULL) {
-      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
     }
 
     if (!$radio_button->isChecked()) {
-      throw new \Exception(sprintf('The radio button "%s" is not selected, but should be.', $selector));
+      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but should be.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -663,11 +662,11 @@ JS;
     $radio_button = $page->findField($selector);
 
     if ($radio_button === NULL) {
-      throw new \Exception(sprintf('The radio button "%s" was not found on the page.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
     }
 
     if ($radio_button->isChecked()) {
-      throw new \Exception(sprintf('The radio button "%s" is selected, but should not be.', $selector));
+      throw new ExpectationException(sprintf('The radio button "%s" is selected, but should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -856,7 +855,7 @@ JS;
     }
 
     if ($element === NULL) {
-      throw new \Exception(sprintf('Datetime field "%s" with part "%s" and field "%s" not found.', $label, $part, $field));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'datetime field', 'label', $label . ' (' . $part . '/' . $field . ')');
     }
 
     $element->setValue($value);

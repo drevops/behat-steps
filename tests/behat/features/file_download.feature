@@ -136,7 +136,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No link "nonexistent_link" is present on the page, but expected to be present
+      Link with text "nonexistent_link" not found.
       """
 
   @api @trait:FileDownloadTrait

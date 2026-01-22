@@ -108,7 +108,7 @@ Feature: Check that ContentBlockTrait works
         | status        | 1                    |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       Could not create block with admin label "Non-existent Block"
       """

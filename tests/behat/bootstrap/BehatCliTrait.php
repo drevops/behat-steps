@@ -322,12 +322,16 @@ EOL;
    */
   public function behatCliAssertFailWithError(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
-    // Enforce \Exception for all assertion exceptions. Non-assertion
-    // exceptions should be thrown as \RuntimeException.
-    if (!str_contains($this->getOutput(), ' (Exception)')) {
-      throw new \RuntimeException('The output does not contain an "(Exception)" string as expected.');
+    // Enforce assertion exceptions (ExpectationException, ElementNotFoundException, or generic Exception).
+    // Non-assertion exceptions should be thrown as \RuntimeException.
+    $output = $this->getOutput();
+    $has_valid_exception = str_contains($output, ' (Exception)')
+      || str_contains($output, ' (Behat\Mink\Exception\ExpectationException)')
+      || str_contains($output, ' (Behat\Mink\Exception\ElementNotFoundException)');
+    if (!$has_valid_exception) {
+      throw new \RuntimeException('The output does not contain an assertion exception string as expected.');
     }
-    if (str_contains($this->getOutput(), ' (RuntimeException)')) {
+    if (str_contains($output, ' (RuntimeException)')) {
       throw new \RuntimeException('The output contains "(RuntimeException)" string but it should not.');
     }
   }

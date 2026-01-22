@@ -20,7 +20,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#nonexisting-element" element does not exist.
+      Element matching css "#nonexisting-element" not found.
       """
 
   @trait:ElementTrait
@@ -70,7 +70,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#nonexisting-element" element does not exist.
+      Element matching css "#nonexisting-element" not found.
       """
 
   @trait:ElementTrait
@@ -120,7 +120,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#nonexisting-element" element does not exist.
+      Element matching css "#nonexisting-element" not found.
       """
 
   @trait:ElementTrait
@@ -170,7 +170,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "#nonexisting-element" element does not exist.
+      Element matching css "#nonexisting-element" not found.
       """
 
   @trait:ElementTrait
@@ -260,12 +260,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@api @javascript @phpserver":
       """
       When I am on the phpserver test page
-      Then the element "#hidden" should not be displayed
+      Then the element "#hidden" should be displayed
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#hidden" selector is not visible on the page.
+      None of the elements defined by "#hidden" selector are visible on the page.
       """
 
   @api @javascript @phpserver
@@ -400,7 +400,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element with selector "#nonexistent" not found.
+      Element matching css "#nonexistent" not found.
       """
 
   @trait:ElementTrait
@@ -414,7 +414,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element with selector "#nonexistent" not found.
+      Element matching css "#nonexistent" not found.
       """
 
   @trait:ElementTrait
@@ -460,9 +460,9 @@ Feature: Check that ElementTrait works
       When I click on the element "#nonexistent-element"
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      Element with selector "#nonexistent-element" not found on the page.
+      Element matching css "#nonexistent-element" not found.
       """
 
   @trait:ElementTrait
@@ -490,7 +490,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#nonexistent" selector is not present on the page.
+      Element matching css "#nonexistent" not found.
       """
 
   @trait:ElementTrait

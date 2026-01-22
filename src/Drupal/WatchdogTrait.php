@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use Behat\Mink\Exception\ExpectationException;
 use Drupal\Core\Database\Database;
 
 /**
@@ -141,12 +142,7 @@ trait WatchdogTrait {
         ->condition('wid', array_keys($errors), 'IN')
         ->execute();
 
-      throw new \Exception(sprintf(
-          'PHP errors were logged to watchdog during scenario "%s" (line %s): %s',
-          $scope->getScenario()->getTitle(),
-          $scope->getScenario()->getLine(),
-          PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors))
-      );
+      throw new ExpectationException(sprintf('PHP errors were logged to watchdog during scenario "%s" (line %s): %s', $scope->getScenario()->getTitle(), $scope->getScenario()->getLine(), PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
     }
   }
 

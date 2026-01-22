@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Verify HTTP responses with status code and header checks.
  *
@@ -24,7 +26,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($header_name);
 
     if (!$header) {
-      throw new \Exception(sprintf('The response does not contain the header "%s".', $header_name));
+      throw new ExpectationException(sprintf('The response does not contain the header "%s".', $header_name), $this->getSession()->getDriver());
     }
   }
 
@@ -41,7 +43,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($header_name);
 
     if ($header) {
-      throw new \Exception(sprintf('The response contains the header "%s", but should not.', $header_name));
+      throw new ExpectationException(sprintf('The response contains the header "%s", but should not.', $header_name), $this->getSession()->getDriver());
     }
   }
 
@@ -58,7 +60,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($header_name);
 
     if (!$header) {
-      throw new \RuntimeException(sprintf('The response does not contain the header "%s".', $header_name));
+      throw new ExpectationException(sprintf('The response does not contain the header "%s".', $header_name), $this->getSession()->getDriver());
     }
 
     $this->assertSession()->responseHeaderContains($header_name, $header_value);
@@ -77,7 +79,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($header_name);
 
     if (!$header) {
-      throw new \RuntimeException(sprintf('The response does not contain the header "%s".', $header_name));
+      throw new ExpectationException(sprintf('The response does not contain the header "%s".', $header_name), $this->getSession()->getDriver());
     }
 
     $this->assertSession()->responseHeaderNotContains($header_name, $header_value);

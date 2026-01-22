@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Navigate and verify paths with URL validation.
  *
@@ -31,21 +33,21 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new \Exception('Current path is empty');
+      throw new ExpectationException('Current path is empty', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new \Exception('Current path is not a valid URL');
+      throw new ExpectationException('Current path is not a valid URL', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') !== ltrim($normalized_path, '/')) {
-      throw new \Exception(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path));
+      throw new ExpectationException(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -67,21 +69,21 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new \Exception('Current path is empty');
+      throw new ExpectationException('Current path is empty', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new \Exception('Current path is not a valid URL');
+      throw new ExpectationException('Current path is not a valid URL', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
-      throw new \Exception(sprintf('Current path should not be "%s"', $path));
+      throw new ExpectationException(sprintf('Current path should not be "%s"', $path), $this->getSession()->getDriver());
     }
 
     return TRUE;
@@ -106,7 +108,7 @@ trait PathTrait {
     parse_str($url_query, $q);
 
     if (empty($q[$param])) {
-      throw new \Exception(sprintf('The param "%s" is not in the URL', $param));
+      throw new ExpectationException(sprintf('The param "%s" is not in the URL', $param), $this->getSession()->getDriver());
     }
   }
 
@@ -133,7 +135,7 @@ trait PathTrait {
     $actual_value = $q[$param] ?? '';
 
     if ($actual_value !== $value) {
-      throw new \Exception(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value));
+      throw new ExpectationException(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
     }
   }
 
@@ -156,7 +158,7 @@ trait PathTrait {
     parse_str($url_query, $q);
 
     if (!empty($q[$param])) {
-      throw new \Exception(sprintf('The param "%s" is in the URL but should not be', $param));
+      throw new ExpectationException(sprintf('The param "%s" is in the URL but should not be', $param), $this->getSession()->getDriver());
     }
   }
 
@@ -183,7 +185,7 @@ trait PathTrait {
     }
 
     if ($q[$param] === $value) {
-      throw new \Exception(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value));
+      throw new ExpectationException(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value), $this->getSession()->getDriver());
     }
   }
 

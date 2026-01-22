@@ -12,6 +12,8 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -141,7 +143,7 @@ trait FileDownloadTrait {
     $link_element = $page->findLink($link);
 
     if (!$link_element) {
-      throw new \Exception(sprintf('No link "%s" is present on the page, but expected to be present.', $link));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
     }
 
     return $link_element;
@@ -180,7 +182,7 @@ trait FileDownloadTrait {
       }
     }
 
-    throw new \Exception('Unable to find a content line with searched string.');
+    throw new ExpectationException('Unable to find a content line with searched string.', $this->getSession()->getDriver());
   }
 
   /**
@@ -198,7 +200,7 @@ trait FileDownloadTrait {
     }
 
     if ($name != $this->fileDownloadDownloadedFileInfo['file_name']) {
-      throw new \Exception(sprintf('Downloaded file "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+      throw new ExpectationException(sprintf('Downloaded file "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name), $this->getSession()->getDriver());
     }
   }
 
@@ -217,7 +219,7 @@ trait FileDownloadTrait {
     }
 
     if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $name)) {
-      throw new \Exception(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name));
+      throw new ExpectationException(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name), $this->getSession()->getDriver());
     }
   }
 
@@ -244,7 +246,7 @@ trait FileDownloadTrait {
     }
 
     if (!empty($errors)) {
-      throw new \Exception(implode(PHP_EOL, $errors));
+      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
     }
   }
 
@@ -279,7 +281,7 @@ trait FileDownloadTrait {
     }
 
     if (!empty($errors)) {
-      throw new \Exception(implode(PHP_EOL, $errors));
+      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
     }
   }
 
@@ -310,7 +312,7 @@ trait FileDownloadTrait {
     }
 
     if (!empty($errors)) {
-      throw new \Exception(implode(PHP_EOL, $errors));
+      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
     }
   }
 
@@ -329,7 +331,7 @@ trait FileDownloadTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
-      throw new \Exception('Downloaded file information does not have content type data.');
+      throw new \RuntimeException('Downloaded file information does not have content type data.');
     }
     // @codeCoverageIgnoreEnd
     // Allow .zip files to proceed to validation even with incorrect content-type.
@@ -340,18 +342,18 @@ trait FileDownloadTrait {
       'application/octet-stream',
       'application/zip',
     ])) {
-      throw new \Exception('Downloaded file does not have correct headers set for ZIP.');
+      throw new ExpectationException('Downloaded file does not have correct headers set for ZIP.', $this->getSession()->getDriver());
     }
 
     $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
       if ($result == \ZipArchive::ER_NOZIP) {
-        throw new \Exception('Downloaded file is not a valid ZIP file.');
+        throw new ExpectationException('Downloaded file is not a valid ZIP file.', $this->getSession()->getDriver());
       }
       // @codeCoverageIgnoreStart
       else {
-        throw new \Exception('Downloaded file cannot be read.');
+        throw new ExpectationException('Downloaded file cannot be read.', $this->getSession()->getDriver());
       }
       // @codeCoverageIgnoreEnd
     }

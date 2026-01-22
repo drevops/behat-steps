@@ -44,7 +44,7 @@ Feature: Check that ResponseTrait works
     Then the response header "Content-Type" should contain the value "text/html"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should contain the value :header_value" fails with an exception for missing header
+  Scenario: Assert that negative assertion for "Then the response header :header_name should contain the value :header_value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
@@ -52,7 +52,7 @@ Feature: Check that ResponseTrait works
       Then the response header "NonExistingHeader" should contain the value "text/html; charset=utf-8"
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
       The response does not contain the header "NonExistingHeader".
       """
@@ -76,7 +76,7 @@ Feature: Check that ResponseTrait works
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should not contain the value :header_value" fails with an exception for missing header
+  Scenario: Assert that negative assertion for "Then the response header :header_name should not contain the value :header_value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
@@ -84,7 +84,7 @@ Feature: Check that ResponseTrait works
       Then the response header "NonExistingHeader" should not contain the value "nonexistingvalue"
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
       The response does not contain the header "NonExistingHeader".
       """

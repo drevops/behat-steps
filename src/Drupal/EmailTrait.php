@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
@@ -127,7 +128,7 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf('Unable to find email that should be sent to "%s" retrieved from test message collector.', $address));
+    throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test message collector.', $address), $this->getSession()->getDriver());
   }
 
   /**
@@ -142,7 +143,7 @@ trait EmailTrait {
   public function emailAssertNoMessagesSent(): void {
     $messages = $this->emailGetCollectedMessages();
     if (count($messages) > 0) {
-      throw new \Exception('No emails should have been sent, but some were found: ' . PHP_EOL . print_r($messages, TRUE));
+      throw new ExpectationException('No emails should have been sent, but some were found: ' . PHP_EOL . print_r($messages, TRUE), $this->getSession()->getDriver());
     }
   }
 
@@ -159,20 +160,20 @@ trait EmailTrait {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
       if (in_array($address, $to)) {
-        throw new \Exception(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address));
+        throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
         $cc = $this->helperSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
         if (in_array($address, $cc)) {
-          throw new \Exception(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
+          throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
       }
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
         $bcc = $this->helperSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
         if (in_array($address, $bcc)) {
-          throw new \Exception(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address));
+          throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
       }
     }
@@ -203,7 +204,7 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf('Unable to find an email where the header "%s" should contain%s text "%s" retrieved from test email collector.', $header, ($exact ? ' exact' : ''), $string));
+    throw new ExpectationException(sprintf('Unable to find an email where the header "%s" should contain%s text "%s" retrieved from test email collector.', $header, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
   }
 
   /**
@@ -334,7 +335,7 @@ trait EmailTrait {
     $message = $this->emailFindMessage($field, $string, $exact);
 
     if (!$message) {
-      throw new \Exception(sprintf('Unable to find an email where the field "%s" should contain%s text "%s" retrieved from test email collector.', $field, ($exact ? ' exact' : ''), $string));
+      throw new ExpectationException(sprintf('Unable to find an email where the field "%s" should contain%s text "%s" retrieved from test email collector.', $field, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
     }
   }
 
@@ -380,7 +381,7 @@ trait EmailTrait {
       $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
-        throw new \Exception(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string));
+        throw new ExpectationException(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
       }
     }
   }
@@ -416,7 +417,7 @@ trait EmailTrait {
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
     if (!$message) {
-      throw new \Exception(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject));
+      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
     }
 
     if (isset($message['params']['body']) && is_string($message['params']['body'])) {
@@ -427,17 +428,17 @@ trait EmailTrait {
       $body = $message['body'];
     }
     else {
-      throw new \Exception('No body found in email');
+      throw new \RuntimeException('No body found in email');
     }
     // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
-      throw new \Exception(sprintf('No links were found in the email with subject "%s"', $subject));
+      throw new ExpectationException(sprintf('No links were found in the email with subject "%s"', $subject), $this->getSession()->getDriver());
     }
 
     if (count($links) < $link_number) {
-      throw new \Exception(sprintf('The link with number %s was not found among %s links', $link_number, count($links)));
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links', $link_number, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$link_number - 1];
@@ -465,7 +466,7 @@ trait EmailTrait {
     }
 
     if (!$message) {
-      throw new \Exception(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject));
+      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
     }
 
     // Extract the body from the email.
@@ -477,17 +478,17 @@ trait EmailTrait {
       $body = $message['body'];
     }
     else {
-      throw new \Exception('No body found in email');
+      throw new \RuntimeException('No body found in email');
     }
     // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
-      throw new \Exception(sprintf('No links were found in the email with subject containing "%s"', $subject));
+      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s"', $subject), $this->getSession()->getDriver());
     }
 
     if (count($links) < $link_number) {
-      throw new \Exception(sprintf('The link with number %s was not found among %s links', $link_number, count($links)));
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links', $link_number, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$link_number - 1];
@@ -508,7 +509,7 @@ trait EmailTrait {
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
     if (!$message) {
-      throw new \Exception(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject));
+      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
     }
 
     if (!empty($message['params']['attachments'])) {
@@ -519,7 +520,7 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf('No attachments were found in the email with subject %s', $subject));
+    throw new ExpectationException(sprintf('No attachments were found in the email with subject %s', $subject), $this->getSession()->getDriver());
   }
 
   /**
@@ -541,7 +542,7 @@ trait EmailTrait {
     }
 
     if (!$message) {
-      throw new \Exception(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject));
+      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
     }
 
     if (!empty($message['params']['attachments'])) {
@@ -552,7 +553,7 @@ trait EmailTrait {
       }
     }
 
-    throw new \Exception(sprintf('No attachments were found in the email with subject containing "%s"', $subject));
+    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s"', $subject), $this->getSession()->getDriver());
   }
 
   /**

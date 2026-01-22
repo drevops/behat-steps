@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
@@ -296,7 +297,7 @@ trait FileTrait {
    */
   public function fileAssertUnmanagedExists(string $uri): void {
     if (!@file_exists($uri)) {
-      throw new \Exception(sprintf('The file "%s" does not exist.', $uri));
+      throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
     }
   }
 
@@ -311,7 +312,7 @@ trait FileTrait {
    */
   public function fileAssertUnmanagedNotExists(string $uri): void {
     if (@file_exists($uri)) {
-      throw new \Exception(sprintf('The file "%s" exists but it should not.', $uri));
+      throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
     }
   }
 
@@ -334,7 +335,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     if (!str_contains($file_content, $content)) {
-      throw new \Exception(sprintf('File contents "%s" does not contain "%s".', $file_content, $content));
+      throw new ExpectationException(sprintf('File contents "%s" does not contain "%s".', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 
@@ -357,7 +358,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     if (str_contains($file_content, $content)) {
-      throw new \Exception(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content));
+      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 

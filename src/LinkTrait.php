@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Verify link elements with attribute and content assertions.
  *
@@ -50,7 +53,7 @@ trait LinkTrait {
     if ($selector) {
       $element = $page->find('css', $selector);
       if (!$element) {
-        throw new \Exception(sprintf('Selector "%s" does not exist on the page', $selector));
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
     }
     else {
@@ -59,14 +62,14 @@ trait LinkTrait {
 
     $link = $element->findLink($text);
     if (!$link) {
-      throw new \Exception(sprintf('The link "%s" is not found', $text));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
     }
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (!preg_match($pattern, (string) $link->getAttribute('href'))) {
-      throw new \Exception(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href));
+      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -121,7 +124,7 @@ trait LinkTrait {
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (preg_match($pattern, (string) $link->getAttribute('href'))) {
-      throw new \Exception(sprintf('The link href "%s" matches the specified href "%s" but should not', $link->getAttribute('href'), $href));
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not', $link->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -140,7 +143,7 @@ trait LinkTrait {
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if (!$element) {
-      throw new \Exception(sprintf('The link with the title "%s" does not exist.', $title));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'title', $title);
     }
   }
 
@@ -159,7 +162,7 @@ trait LinkTrait {
     $item = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if ($item) {
-      throw new \Exception(sprintf('The link with the title "%s" exists, but should not.', $title));
+      throw new ExpectationException(sprintf('The link with the title "%s" exists, but should not.', $title), $this->getSession()->getDriver());
     }
   }
 
@@ -176,13 +179,13 @@ trait LinkTrait {
     $link = $this->getSession()->getPage()->findLink($text);
 
     if (!$link) {
-      throw new \Exception(sprintf('The link "%s" is not found', $text));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
     }
 
     $href = $link->getAttribute('href');
 
     if (!parse_url((string) $href, PHP_URL_SCHEME)) {
-      throw new \Exception(sprintf('The link "%s" is not an absolute link.', $text));
+      throw new ExpectationException(sprintf('The link "%s" is not an absolute link.', $text), $this->getSession()->getDriver());
     }
   }
 
@@ -199,13 +202,13 @@ trait LinkTrait {
     $link = $this->getSession()->getPage()->findLink($text);
 
     if (!$link) {
-      throw new \Exception(sprintf('The link "%s" is not found', $text));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
     }
 
     $href = $link->getAttribute('href');
 
     if (parse_url((string) $href, PHP_URL_SCHEME)) {
-      throw new \Exception(sprintf('The link "%s" is an absolute link.', $text));
+      throw new ExpectationException(sprintf('The link "%s" is an absolute link.', $text), $this->getSession()->getDriver());
     }
   }
 
@@ -223,7 +226,7 @@ trait LinkTrait {
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if (!$element) {
-      throw new \Exception(sprintf('The link with the title "%s" does not exist.', $title));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'title', $title);
     }
 
     $element->click();

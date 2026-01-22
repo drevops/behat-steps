@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
+use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
@@ -67,7 +68,7 @@ trait ContentBlockTrait {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new \Exception(sprintf('Content block type "%s" does not exist.', $type));
+      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $type), $this->getSession()->getDriver());
     }
   }
 
