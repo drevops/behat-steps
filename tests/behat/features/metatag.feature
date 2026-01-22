@@ -10,7 +10,7 @@ Feature: Check that MetatagTrait works
       | name    | MobileOptimized |
       | content | width           |
 
-  @trait:Drupal\MetatagTrait
+  @trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -33,7 +33,7 @@ Feature: Check that MetatagTrait works
       | name    | Non_Existing |
       | content | width        |
 
-  @trait:Drupal\MetatagTrait
+  @trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
