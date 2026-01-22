@@ -306,6 +306,26 @@ by adding `@behat-steps-skip:METHOD_NAME` tag to your test.
 For example, to skip `beforeScenario` hook from `ElementTrait`, add
 `@behat-steps-skip:ElementTrait` tag to the feature.
 
+## Writing tests with AI assistants
+
+Copy and paste below into your project's `CLAUDE.md` or `AGENTS.md` file.
+
+```
+## Writing Behat Tests
+
+Available step definitions are listed in `.behat-steps.txt`.
+Read this file before writing or modifying Behat tests.
+Use only step patterns from this file. Do not invent steps.
+
+If `.behat-steps.txt` does not exist or is outdated, regenerate it:
+
+    ./vendor/bin/behat --definitions=i > .behat-steps.txt
+
+Regenerate after adding new step traits or updating dependencies.
+
+For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
+```
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to
