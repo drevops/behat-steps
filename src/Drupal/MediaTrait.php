@@ -253,7 +253,7 @@ trait MediaTrait {
     $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
 
     foreach ($fields as $name => $value) {
-      if (!str_contains($name, 'field_')) {
+      if (!str_contains((string) $name, 'field_')) {
         continue;
       }
 
