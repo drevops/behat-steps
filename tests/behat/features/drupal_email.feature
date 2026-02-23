@@ -230,11 +230,11 @@ Feature: Check that EmailTrait works
   Scenario: As a developer, I want to follow a link in an email by matching a subject substring
     When I send test email to "test@example.com" with:
       """
-      Here is your link: https://example.com/reset-password
+      Here is your link: http://example.com/reset-password
       """
     Then an email should be sent to the "test@example.com"
     When I follow link number 1 in the email with the subject containing "Test Email"
-    Then I should be on "https://example.com/reset-password"
+    Then I should be on "http://example.com/reset-password"
 
   @api @email
   Scenario: As a developer, I want to know that no emails assertions works as expected

@@ -913,7 +913,7 @@ Download a file from the specified URL
 
 ```gherkin
 When I download the file from the URL "/sites/default/files/document.pdf"
-When I download the file from the URL "https://example.com/files/report.xlsx"
+When I download the file from the URL "http://example.com/files/report.xlsx"
 
 ```
 
