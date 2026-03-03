@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\HelperTrait;
+use Drupal\Driver\DrupalDriver;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -224,7 +225,13 @@ trait MediaTrait {
    *   The entity stub.
    */
   protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub): void {
-    $core = $this->getDriver()->getCore();
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof DrupalDriver) {
+      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
+    }
+
+    $core = $driver->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
@@ -250,7 +257,13 @@ trait MediaTrait {
     // @codeCoverageIgnoreEnd
     $fields = get_object_vars($stub);
 
-    $field_types = $this->getDrupal()->getDriver()->getCore()->getEntityFieldTypes('media', array_keys($fields));
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof DrupalDriver) {
+      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
+    }
+
+    $field_types = $driver->getCore()->getEntityFieldTypes('media', array_keys($fields));
 
     foreach ($fields as $name => $value) {
       if (!str_contains((string) $name, 'field_')) {
