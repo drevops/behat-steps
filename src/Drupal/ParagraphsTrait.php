@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Driver\DrupalDriver;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -165,7 +166,13 @@ trait ParagraphsTrait {
    *   Stub object.
    */
   protected function paragraphsExpandEntityFields(string $entity_type, \StdClass $stub): void {
-    $core = $this->getDriver()->getCore();
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof DrupalDriver) {
+      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
+    }
+
+    $core = $driver->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
