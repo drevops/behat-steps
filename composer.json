@@ -21,7 +21,7 @@
         "behat/behat": "^3.14",
         "behat/mink": ">=1.11",
         "behat/mink-selenium2-driver": ">=1.7",
-        "drupal/drupal-extension": "^5"
+        "drupal/drupal-extension": "dev-main as 5.2.0"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.15.0",
