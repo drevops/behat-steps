@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\When;
+
 /**
  * Wait for a period of time or for AJAX to finish.
  */
@@ -18,9 +20,8 @@ trait WaitTrait {
    * When I wait for 5 seconds
    * When I wait for 1 second
    * @endcode
-   *
-   * @When I wait for :seconds second(s)
    */
+  #[When('I wait for :seconds second(s)')]
   public function waitWaitForSeconds(int|string $seconds): void {
     sleep((int) $seconds);
   }
@@ -34,9 +35,8 @@ trait WaitTrait {
    * When I wait for 5 seconds for AJAX to finish
    * When I wait for 1 second for AJAX to finish
    * @endcode
-   *
-   * @When I wait for :seconds second(s) for AJAX to finish
    */
+  #[When('I wait for :seconds second(s) for AJAX to finish')]
   public function waitForAjaxToFinish(string|int $seconds): void {
     $seconds = intval($seconds);
 

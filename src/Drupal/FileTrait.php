@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
@@ -71,13 +73,12 @@ trait FileTrait {
    *
    * @code
    * Given the following managed files:
-   * | path         | uri                    | status |
-   * | document.pdf | public://document.pdf  | 1      |
-   * | image.jpg    | public://images/pic.jpg| 1      |
+   *   | path         | uri                    | status |
+   *   | document.pdf | public://document.pdf  | 1      |
+   *   | image.jpg    | public://images/pic.jpg| 1      |
    * @endcode
-   *
-   * @Given the following managed files:
    */
+  #[Given('the following managed files:')]
   public function fileCreateManaged(TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
       $node = (object) $node_hash;
@@ -89,7 +90,14 @@ trait FileTrait {
    * Create a single managed file.
    */
   protected function fileCreateManagedSingle(\StdClass $stub): FileInterface {
+    // Remove non-entity properties before parsing fields, as the Drupal driver
+    // validates that all properties are valid entity fields.
+    $path = $stub->path ?? NULL;
+    $uri = $stub->uri ?? NULL;
+    unset($stub->path, $stub->uri);
     $this->parseEntityFields('file', $stub);
+    $stub->path = $path;
+    $stub->uri = $uri;
     $saved = $this->fileCreateEntity($stub);
 
     $this->fileEntities[] = $saved;
@@ -151,7 +159,7 @@ trait FileTrait {
     foreach ($fields as $property => $value) {
       // If path or URI has been specified then the value has already been
       // handled.
-      if (in_array($property, ['path', 'uri'])) {
+      if (in_array($property, ['path', 'uri'], TRUE)) {
         continue;
       }
       $entity->set($property, $value);
@@ -191,21 +199,20 @@ trait FileTrait {
    * @see Drupal\file\Entity\File
    *
    * @code
-   * Given no managed files:
-   * | filename      |
-   * | myfile.jpg    |
-   * | otherfile.jpg |
+   * Given the following managed files do not exist:
+   *   | filename      |
+   *   | myfile.jpg    |
+   *   | otherfile.jpg |
    * @endcode
    *
    * @code
-   *  Given no managed files:
-   *  | uri                    |
-   *  | public://myfile.jpg    |
-   *  | public://otherfile.jpg |
+   * Given the following managed files do not exist:
+   *   | uri                    |
+   *   | public://myfile.jpg    |
+   *   | public://otherfile.jpg |
    * @endcode
-   *
-   * @Given the following managed files do not exist:
    */
+  #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedFiles(TableNode $table): void {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -254,9 +261,8 @@ trait FileTrait {
    * @code
    * Given the unmanaged file at the URI "public://sample.txt" exists
    * @endcode
-   *
-   * @Given the unmanaged file at the URI :uri exists
    */
+  #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
     $directory = \Drupal::service('file_system')->dirname($uri);
 
@@ -279,9 +285,8 @@ trait FileTrait {
    * @code
    * Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
    * @endcode
-   *
-   * @Given the unmanaged file at the URI :uri exists with :content
    */
+  #[Given('the unmanaged file at the URI :uri exists with :content')]
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->fileCreateUnmanaged($uri, $content);
   }
@@ -292,9 +297,8 @@ trait FileTrait {
    * @code
    * Then an unmanaged file at the URI "public://sample.txt" should exist
    * @endcode
-   *
-   * @Then an unmanaged file at the URI :uri should exist
    */
+  #[Then('an unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
     if (!@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
@@ -307,9 +311,8 @@ trait FileTrait {
    * @code
    * Then an unmanaged file at the URI "public://temp.txt" should not exist
    * @endcode
-   *
-   * @Then an unmanaged file at the URI :uri should not exist
    */
+  #[Then('an unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
     if (@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
@@ -322,9 +325,8 @@ trait FileTrait {
    * @code
    * Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
    * @endcode
-   *
-   * @Then an unmanaged file at the URI :uri should contain :content
    */
+  #[Then('an unmanaged file at the URI :uri should contain :content')]
   public function fileAssertUnmanagedHasContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 
@@ -345,9 +347,8 @@ trait FileTrait {
    * @code
    * Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
    * @endcode
-   *
-   * @Then an unmanaged file at the URI :uri should not contain :content
    */
+  #[Then('an unmanaged file at the URI :uri should not contain :content')]
   public function fileAssertUnmanagedHasNoContent(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 

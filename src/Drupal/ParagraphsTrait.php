@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
@@ -53,14 +54,13 @@ trait ParagraphsTrait {
    *
    * @code
    * Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
-   * | field_paragraph_title           | My paragraph title   |
-   * | field_paragraph_longtext:value  | My paragraph message |
-   * | field_paragraph_longtext:format | full_html            |
-   * | ...                             | ...                  |
+   *   | field_paragraph_title           | My paragraph title   |
+   *   | field_paragraph_longtext:value  | My paragraph message |
+   *   | field_paragraph_longtext:format | full_html            |
+   *   | ...                             | ...                  |
    * @endcode
-   *
-   * @Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:
    */
+  #[Given('the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 

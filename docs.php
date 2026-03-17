@@ -7,8 +7,8 @@
  * This script generates the documentation for the steps in the Behat
  * features.
  *
- * It parses the docblock comments of the classes and methods in the
- * src directory and generates STEPS.md file.
+ * It parses the PHP attributes and docblock comments of the classes and
+ * methods in the src directory and generates STEPS.md file.
  *
  * It also validates the steps and checks if they are in the correct
  * format.
@@ -18,6 +18,10 @@
  */
 
 declare(strict_types=1);
+
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart
@@ -185,10 +189,18 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
         continue;
       }
 
-      $parsed_comment = parse_method_comment((string) $method->getDocComment());
-      if ($parsed_comment) {
-        $class_info['methods'][] = $parsed_comment + ['name' => $method->getName()];
+      $steps = extract_method_steps($method);
+      if (empty($steps)) {
+        continue;
       }
+
+      $parsed_comment = parse_method_comment((string) $method->getDocComment());
+      $class_info['methods'][] = [
+        'steps' => $steps,
+        'description' => $parsed_comment['description'] ?? '',
+        'example' => $parsed_comment['example'] ?? '',
+        'name' => $method->getName(),
+      ];
     }
 
     if (!empty($class_info['methods'])) {
@@ -304,12 +316,13 @@ function parse_class_comment(string $trait_name, string $comment): array {
 /**
  * Parse comment.
  *
+ * Extracts description and example from the docblock comment.
+ *
  * @param string $comment
  *   The comment.
  *
- * @return array<string, array<int, string>|string>|null
- *   Array of 'steps', 'description', and 'example' keys or NULL if steps were
- *   not found in the comment.
+ * @return array<string, string>|null
+ *   Array of 'description' and 'example' keys or NULL if the comment is empty.
  */
 function parse_method_comment(string $comment): ?array {
   if (empty($comment)) {
@@ -317,7 +330,6 @@ function parse_method_comment(string $comment): ?array {
   }
 
   $return = [
-    'steps' => [],
     'description' => '',
     'example' => '',
   ];
@@ -340,10 +352,6 @@ function parse_method_comment(string $comment): ?array {
     elseif (str_starts_with($line, '@endcode')) {
       $example_start = FALSE;
     }
-    elseif (str_starts_with($line, '@Given') || str_starts_with($line, '@When') || str_starts_with($line, '@Then')) {
-      $line = trim($line, " \t\n\r\0\x0B");
-      $return['steps'][] = $line;
-    }
     else {
       if (!$example_start && empty($line)) {
         continue;
@@ -365,43 +373,71 @@ function parse_method_comment(string $comment): ?array {
     throw new \Exception('Example not closed');
   }
 
-  if (!empty($return['steps'])) {
-    // Sort the steps by Given, When, Then.
-    $sorted = [];
-    foreach (['@Given', '@When', '@Then'] as $step) {
-      foreach ($return['steps'] as $step_item) {
-        if (str_starts_with($step_item, $step)) {
-          $sorted[] = $step_item;
-        }
+  $return['description'] = trim($return['description']);
+
+  if (!empty($return['example'])) {
+    // Remove indentation from the example, using the first line as a
+    // reference.
+    $lines = explode(PHP_EOL, $return['example']);
+    $first_line = '';
+    foreach ($lines as $l) {
+      if ($l !== '') {
+        $first_line = $l;
+        break;
       }
     }
-    $return['steps'] = $sorted;
-
-    $return['description'] = trim($return['description']);
-
-    if (!empty($return['example'])) {
-      // Remove indentation from the example, using the first line as a
-      // reference.
-      $lines = explode(PHP_EOL, $return['example']);
-      $first_line = '';
-      foreach ($lines as $l) {
-        if ($l !== '') {
-          $first_line = $l;
-          break;
-        }
+    $indentation = strspn($first_line, ' ');
+    foreach ($lines as $key => $line) {
+      $line = rtrim($line);
+      if (strlen($line) > $indentation) {
+        $lines[$key] = substr($line, $indentation);
       }
-      $indentation = strspn($first_line, ' ');
-      foreach ($lines as $key => $line) {
-        $line = rtrim($line);
-        if (strlen($line) > $indentation) {
-          $lines[$key] = substr($line, $indentation);
-        }
+    }
+    $return['example'] = implode(PHP_EOL, $lines);
+  }
+
+  return $return;
+}
+
+/**
+ * Extract step patterns from method attributes.
+ *
+ * @param \ReflectionMethod $method
+ *   The reflection method.
+ *
+ * @return array<int, string>
+ *   Array of step patterns prefixed with @Given, @When, or @Then.
+ */
+function extract_method_steps(\ReflectionMethod $method): array {
+  $step_classes = [
+    Given::class => '@Given',
+    When::class => '@When',
+    Then::class => '@Then',
+  ];
+
+  $steps = [];
+  foreach ($step_classes as $class => $prefix) {
+    $attributes = $method->getAttributes($class);
+    foreach ($attributes as $attribute) {
+      $args = $attribute->getArguments();
+      $pattern = $args[0] ?? $args['pattern'] ?? NULL;
+      if ($pattern !== NULL) {
+        $steps[] = $prefix . ' ' . $pattern;
       }
-      $return['example'] = implode(PHP_EOL, $lines);
     }
   }
 
-  return empty($return['steps']) ? NULL : $return;
+  // Sort by Given, When, Then.
+  $sorted = [];
+  foreach (['@Given', '@When', '@Then'] as $step_prefix) {
+    foreach ($steps as $step) {
+      if (str_starts_with($step, $step_prefix)) {
+        $sorted[] = $step;
+      }
+    }
+  }
+
+  return $sorted;
 }
 
 /**

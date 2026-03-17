@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
@@ -21,9 +22,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with the name "session_id" should exist
    * @endcode
-   *
-   * @Then a cookie with the name :name should exist
    */
+  #[Then('a cookie with the name :name should exist')]
   public function cookieAssertWithNameExists(string $name): void {
     static::cookieExists($name);
   }
@@ -34,9 +34,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with the name "language" and the value "en" should exist
    * @endcode
-   *
-   * @Then a cookie with the name :name and the value :value should exist
    */
+  #[Then('a cookie with the name :name and the value :value should exist')]
   public function cookieAssertWithNameValueExists(string $name, string $value): void {
     static::cookieExists($name, $value);
   }
@@ -47,9 +46,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with the name "preferences" and a value containing "darkmode" should exist
    * @endcode
-   *
-   * @Then a cookie with the name :name and a value containing :partial_value should exist
    */
+  #[Then('a cookie with the name :name and a value containing :partial_value should exist')]
   public function cookieAssertWithNamePartialValueExists(string $name, string $partial_value): void {
     static::cookieExists($name, $partial_value, FALSE, TRUE);
   }
@@ -60,9 +58,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "session" should exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name should exist
    */
+  #[Then('a cookie with a name containing :partial_name should exist')]
   public function cookieAssertWithPartialNameExists(string $partial_name): void {
     static::cookieExists($partial_name, NULL, TRUE);
   }
@@ -73,9 +70,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "user" and the value "admin" should exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name and the value :value should exist
    */
+  #[Then('a cookie with a name containing :partial_name and the value :value should exist')]
   public function cookieAssertWithPartialNameValueExists(string $partial_name, string $value): void {
     static::cookieExists($partial_name, $value, TRUE);
   }
@@ -86,9 +82,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "user" and a value containing "admin" should exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name and a value containing :partial_value should exist
    */
+  #[Then('a cookie with a name containing :partial_name and a value containing :partial_value should exist')]
   public function cookieAssertWithPartialNamePartialValueExists(string $partial_name, string $partial_value): void {
     static::cookieExists($partial_name, $partial_value, TRUE, TRUE);
   }
@@ -99,9 +94,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with name "old_session" should not exist
    * @endcode
-   *
-   * @Then a cookie with the name :name should not exist
    */
+  #[Then('a cookie with the name :name should not exist')]
   public function cookieAssertWithNameNotExists(string $name): void {
     static::cookieNotExists($name);
   }
@@ -112,9 +106,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with the name "language" and the value "fr" should not exist
    * @endcode
-   *
-   * @Then a cookie with the name :name and the value :value should not exist
    */
+  #[Then('a cookie with the name :name and the value :value should not exist')]
   public function cookieAssertWithNameValueNotExists(string $name, string $value): void {
     static::cookieNotExists($name, $value);
   }
@@ -125,9 +118,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
    * @endcode
-   *
-   * @Then a cookie with the name :name and a value containing :partial_value should not exist
    */
+  #[Then('a cookie with the name :name and a value containing :partial_value should not exist')]
   public function cookieAssertWithNamePartialValueNotExists(string $name, string $partial_value): void {
     static::cookieNotExists($name, $partial_value, FALSE, TRUE);
   }
@@ -138,9 +130,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "old" should not exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name should not exist
    */
+  #[Then('a cookie with a name containing :partial_name should not exist')]
   public function cookieAssertWithPartialNameNotExists(string $partial_name): void {
     static::cookieNotExists($partial_name, NULL, TRUE);
   }
@@ -151,9 +142,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "user" and the value "guest" should not exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name and the value :value should not exist
    */
+  #[Then('a cookie with a name containing :partial_name and the value :value should not exist')]
   public function cookieAssertWithPartialNameValueNotExists(string $partial_name, string $value): void {
     static::cookieNotExists($partial_name, $value, TRUE);
   }
@@ -164,9 +154,8 @@ trait CookieTrait {
    * @code
    * Then a cookie with a name containing "user" and a value containing "guest" should not exist
    * @endcode
-   *
-   * @Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist
    */
+  #[Then('a cookie with a name containing :partial_name and a value containing :partial_value should not exist')]
   public function cookieAssertWithPartialNamePartialValueNotExists(string $partial_name, string $partial_value): void {
     static::cookieNotExists($partial_name, $partial_value, TRUE, TRUE);
   }

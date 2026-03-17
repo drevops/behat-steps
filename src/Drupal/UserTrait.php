@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\When;
+use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
@@ -29,20 +32,19 @@ trait UserTrait {
    *
    * @code
    * Given the following users do not exist:
-   *  | name |
-   *  | John |
-   *  | Jane |
+   *   | name |
+   *   | John |
+   *   | Jane |
    * @endcode
    *
    * @code
    *  Given the following users do not exist:
-   *   | mail             |
-   *   | john@example.com |
-   *   | jane@example.com |
+   *    | mail             |
+   *    | john@example.com |
+   *    | jane@example.com |
    * @endcode
-   *
-   * @Given the following users do not exist:
    */
+  #[Given('the following users do not exist:')]
   public function userDelete(TableNode $table): void {
     foreach ($table->getHash() as $user_hash) {
       $users = [];
@@ -70,15 +72,14 @@ trait UserTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
-   * @Given the following users with fields:
-   *
    * @code
-   * Given the following users with fields:
-   *   | name  | [TEST] user1         | [TEST] user2         |
-   *   | mail  | user1@example.com    | user2@example.com    |
-   *   | roles | editor               | author               |
+   *   Given the following users with fields:
+   *     | name  | [TEST] user1         | [TEST] user2         |
+   *     | mail  | user1@example.com    | user2@example.com    |
+   *     | roles | editor               | author               |
    * @endcode
    */
+  #[Given('the following users with fields:')]
   public function userCreateWithFields(TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
@@ -91,9 +92,8 @@ trait UserTrait {
    * @code
    * Given the password for the user "John" is "password"
    * @endcode
-   *
-   * @Given the password for the user :name is :password
    */
+  #[Given('the password for the user :name is :password')]
   public function userSetPassword(string $name, string $password): void {
     if (empty($password)) {
       throw new \RuntimeException('Password must not be empty.');
@@ -114,9 +114,8 @@ trait UserTrait {
    * @code
    * Given the last access time for the user "John" is "1732319174"
    * @endcode
-   *
-   * @Given the last access time for the user :name is :datetime
    */
+  #[Given('the last access time for the user :name is :datetime')]
   public function userSetLastAccessTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
@@ -139,9 +138,8 @@ trait UserTrait {
    * @code
    * Given the last login time for the user "John" is "1732319174"
    * @endcode
-   *
-   * @Given the last login time for the user :name is :datetime
    */
+  #[Given('the last login time for the user :name is :datetime')]
   public function userSetLastLoginTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
@@ -160,9 +158,8 @@ trait UserTrait {
    * @code
    * When I visit "John" user profile page
    * @endcode
-   *
-   * @When I visit :name user profile page
    */
+  #[When('I visit :name user profile page')]
   public function userVisitProfile(string $name): void {
     $this->userVisitActionPage($name);
   }
@@ -173,9 +170,8 @@ trait UserTrait {
    * @code
    * When I visit my own user profile page
    * @endcode
-   *
-   * @When I visit my own user profile page
    */
+  #[When('I visit my own user profile page')]
   public function userVisitOwnProfile(): void {
     $this->userVisitActionPage('current');
   }
@@ -186,9 +182,8 @@ trait UserTrait {
    * @code
    * When I visit "John" user profile edit page
    * @endcode
-   *
-   * @When I visit :name user profile edit page
    */
+  #[When('I visit :name user profile edit page')]
   public function userEditProfile(string $name): void {
     $this->userVisitActionPage($name, '/edit');
   }
@@ -199,9 +194,8 @@ trait UserTrait {
    * @code
    * When I visit my own user profile edit page
    * @endcode
-   *
-   * @When I visit my own user profile edit page
    */
+  #[When('I visit my own user profile edit page')]
   public function userEditOwnProfile(): void {
     $this->userVisitActionPage('current', '/edit');
   }
@@ -212,9 +206,8 @@ trait UserTrait {
    * @code
    * When I visit "John" user profile delete page
    * @endcode
-   *
-   * @When I visit :name user profile delete page
    */
+  #[When('I visit :name user profile delete page')]
   public function userDeleteProfile(string $name): void {
     $this->userVisitActionPage($name, '/cancel');
   }
@@ -225,9 +218,8 @@ trait UserTrait {
    * @code
    * When I visit my own user profile delete page
    * @endcode
-   *
-   * @When I visit my own user profile delete page
    */
+  #[When('I visit my own user profile delete page')]
   public function userDeleteOwnProfile(): void {
     $this->userVisitActionPage('current', '/cancel');
   }
@@ -238,9 +230,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should have the roles "administrator, editor" assigned
    * @endcode
-   *
-   * @Then the user :name should have the role(s) :roles assigned
    */
+  #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
@@ -257,9 +248,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should not have the roles "administrator, editor" assigned
    * @endcode
-   *
-   * @Then the user :name should not have the role(s) :roles assigned
    */
+  #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertHasNoRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
@@ -276,9 +266,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should be blocked
    * @endcode
-   *
-   * @Then the user :name should be blocked
    */
+  #[Then('the user :name should be blocked')]
   public function userAssertIsBlocked(string $name): void {
     $user = $this->userLoadByName($name);
 
@@ -293,9 +282,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should not be blocked
    * @endcode
-   *
-   * @Then the user :name should not be blocked
    */
+  #[Then('the user :name should not be blocked')]
   public function userAssertIsNotBlocked(string $name): void {
     $user = $this->userLoadByName($name);
 
@@ -379,9 +367,8 @@ trait UserTrait {
    * @code
    * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
    * @endcode
-   *
-   * @Given the role :role_name with the permissions :permissions
    */
+  #[Given('the role :role_name with the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
     $permissions = $this->helperSplitCommaSeparated($permissions);
 
@@ -415,13 +402,12 @@ trait UserTrait {
    *
    * @code
    * Given the following roles:
-   * | name              | permissions                              |
-   * | Content Editor    | access content, create article content   |
-   * | Content Approver  | access content, edit any article content |
+   *   | name              | permissions                              |
+   *   | Content Editor    | access content, create article content   |
+   *   | Content Approver  | access content, edit any article content |
    * @endcode
-   *
-   * @Given the following roles:
    */
+  #[Given('the following roles:')]
   public function userCreateRoles(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (!isset($hash['name'])) {

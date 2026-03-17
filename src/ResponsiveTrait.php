@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
@@ -105,9 +107,8 @@ trait ResponsiveTrait {
    *   | iphone_12  | 390x844    |
    *   | 4k_display | 3840x2160  |
    * @endcode
-   *
-   * @Given the following responsive breakpoints:
    */
+  #[Given('the following responsive breakpoints:')]
   public function responsiveSetBreakpointsFromTable(TableNode $table): void {
     $breakpoints = [];
     foreach ($table->getHash() as $row) {
@@ -161,7 +162,6 @@ trait ResponsiveTrait {
    * When I set the viewport to the "desktop" breakpoint
    * @endcode
    *
-   * @When I set the viewport to the :breakpoint breakpoint
    *
    * @param string $breakpoint
    *   The breakpoint name.
@@ -169,6 +169,7 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If breakpoint doesn't exist.
    */
+  #[When('I set the viewport to the :breakpoint breakpoint')]
   public function responsiveSetViewportToBreakpoint(string $breakpoint): void {
     $this->responsiveResizeToBreakpoint($breakpoint);
   }
@@ -181,11 +182,11 @@ trait ResponsiveTrait {
    * When I set the viewport width to "768"
    * @endcode
    *
-   * @When I set the viewport width to :width
    *
    * @param string $width
    *   The width in pixels.
    */
+  #[When('I set the viewport width to :width')]
   public function responsiveSetViewportWidth(string $width): void {
     $current_dimensions = $this->responsiveGetCurrentDimensions();
     $this->responsiveResize((int) $width, $current_dimensions['height']);
@@ -199,11 +200,11 @@ trait ResponsiveTrait {
    * When I set the viewport height to "900"
    * @endcode
    *
-   * @When I set the viewport height to :height
    *
    * @param string $height
    *   The height in pixels.
    */
+  #[When('I set the viewport height to :height')]
   public function responsiveSetViewportHeight(string $height): void {
     $current_dimensions = $this->responsiveGetCurrentDimensions();
     $this->responsiveResize($current_dimensions['width'], (int) $height);
@@ -217,13 +218,13 @@ trait ResponsiveTrait {
    * When I set the viewport to "375" by "667"
    * @endcode
    *
-   * @When I set the viewport to :width by :height
    *
    * @param string $width
    *   The width in pixels.
    * @param string $height
    *   The height in pixels.
    */
+  #[When('I set the viewport to :width by :height')]
   public function responsiveSetViewportDimensions(string $width, string $height): void {
     $this->responsiveResize((int) $width, (int) $height);
   }

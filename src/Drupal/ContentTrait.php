@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
@@ -27,9 +29,8 @@ trait ContentTrait {
    * @code
    * Given the content type "article" does not exist
    * @endcode
-   *
-   * @Given the content type :content_type does not exist
    */
+  #[Given('the content type :content_type does not exist')]
   public function contentRemoveContentType(string $content_type): void {
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
@@ -47,9 +48,8 @@ trait ContentTrait {
    *   | Test article         |
    *   | Another test article |
    * @endcode
-   *
-   * @Given the following :content_type content does not exist:
    */
+  #[Given('the following :content_type content does not exist:')]
   public function contentDelete(string $type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->contentLoadMultiple($type, $node_hash);
@@ -71,15 +71,14 @@ trait ContentTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
-   * @Given the following :type content with fields:
-   *
    * @code
-   * Given the following page content with fields:
-   *   | title  | [TEST] Page 1        | [TEST] Page 2        |
-   *   | body   | First page content   | Second page content  |
-   *   | status | 1                    | 1                    |
+   *   Given the following page content with fields:
+   *     | title  | [TEST] Page 1        | [TEST] Page 2        |
+   *     | body   | First page content   | Second page content  |
+   *     | status | 1                    | 1                    |
    * @endcode
    */
+  #[Given('the following :type content with fields:')]
   public function contentCreateWithFields(string $type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
@@ -92,9 +91,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content page with the title "Test article"
    * @endcode
-   *
-   * @When I visit the :content_type content page with the title :title
    */
+  #[When('I visit the :content_type content page with the title :title')]
   public function contentVisitViewWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title);
   }
@@ -105,9 +103,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content edit page with the title "Test article"
    * @endcode
-   *
-   * @When I visit the :content_type content edit page with the title :title
    */
+  #[When('I visit the :content_type content edit page with the title :title')]
   public function contentVisitEditPageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title, '/edit');
   }
@@ -118,9 +115,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content delete page with the title "Test article"
    * @endcode
-   *
-   * @When I visit the :content_type content delete page with the title :title
    */
+  #[When('I visit the :content_type content delete page with the title :title')]
   public function contentVisitDeletePageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title, '/delete');
   }
@@ -131,9 +127,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content scheduled transitions page with the title "Test article"
    * @endcode
-   *
-   * @When I visit the :content_type content scheduled transitions page with the title :title
    */
+  #[When('I visit the :content_type content scheduled transitions page with the title :title')]
   public function contentVisitScheduledTransitionsPageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title, '/scheduled-transitions');
   }
@@ -144,9 +139,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content revisions page with the title "Test article"
    * @endcode
-   *
-   * @When I visit the :content_type content revisions page with the title :title
    */
+  #[When('I visit the :content_type content revisions page with the title :title')]
   public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title, '/revisions');
   }
@@ -190,9 +184,8 @@ trait ContentTrait {
    * @code
    * When I change the moderation state of the "article" content with the title "Test article" to the "published" state
    * @endcode
-   *
-   * @When I change the moderation state of the :content_type content with the title :title to the :new_state state
    */
+  #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 

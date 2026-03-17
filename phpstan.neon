@@ -32,6 +32,7 @@ parameters:
   scanDirectories:
     - vendor/phpunit/phpunit
     - vendor/alexskrypnyk/phpunit-helpers
+    - tests/phpunit/fixtures/docs
 
   # Prefer type checking over docblocks, which can easily become outdated.
   treatPhpDocTypesAsCertain: false

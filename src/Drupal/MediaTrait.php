@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
@@ -55,9 +57,8 @@ trait MediaTrait {
    * @code
    * Given "video" media type does not exist
    * @endcode
-   *
-   * @Given :media_type media type does not exist
    */
+  #[Given(':media_type media type does not exist')]
   public function mediaRemoveType(string $type): void {
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($type);
     if ($type_entity) {
@@ -69,14 +70,13 @@ trait MediaTrait {
    * Create media of a given type.
    *
    * @code
-   * Given "video" media:
-   * | name     | field1   | field2 | field3           |
-   * | My media | file.jpg | value  | value            |
-   * | ...      | ...      | ...    | ...              |
+   * Given the following media "video" exist:
+   *   | name     | field1   | field2 | field3           |
+   *   | My media | file.jpg | value  | value            |
+   *   | ...      | ...      | ...    | ...              |
    * @endcode
-   *
-   * @Given the following media :media_type exist:
    */
+  #[Given('the following media :media_type exist:')]
   public function mediaCreate(string $media_type, TableNode $table): void {
     // Delete entities before creating them.
     $this->mediaDelete($media_type, $table);
@@ -99,14 +99,13 @@ trait MediaTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
-   * @Given the following :bundle media with fields:
-   *
    * @code
-   * Given the following image media with fields:
-   *   | name              | [TEST] Image 1       | [TEST] Image 2       |
-   *   | field_media_image | image1.jpg           | image2.jpg           |
+   *   Given the following image media with fields:
+   *     | name              | [TEST] Image 1       | [TEST] Image 2       |
+   *     | field_media_image | image1.jpg           | image2.jpg           |
    * @endcode
    */
+  #[Given('the following :bundle media with fields:')]
   public function mediaCreateWithFields(string $bundle, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
@@ -126,13 +125,12 @@ trait MediaTrait {
    *
    * @code
    * Given the following media "image" do not exist:
-   * | name               |
-   * | Media item         |
-   * | Another media item |
+   *   | name               |
+   *   | Media item         |
+   *   | Another media item |
    * @endcode
-   *
-   * @Given the following media :media_type do not exist:
    */
+  #[Given('the following media :media_type do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
       $ids = $this->mediaLoadMultiple($media_type, $node_hash);
@@ -146,11 +144,10 @@ trait MediaTrait {
    * Navigate to edit media with specified type and name.
    *
    * @code
-   * When I edit "document" media "Test document"
+   * When I edit the media "document" with the name "Test document"
    * @endcode
-   *
-   * @When I edit the media :media_type with the name :name
    */
+  #[When('I edit the media :media_type with the name :name')]
   public function mediaEditWithName(string $media_type, string $name): void {
     $mids = $this->mediaLoadMultiple($media_type, [
       'name' => $name,

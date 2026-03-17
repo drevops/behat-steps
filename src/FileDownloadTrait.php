@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\When;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
@@ -74,9 +76,8 @@ trait FileDownloadTrait {
    * When I download the file from the URL "/sites/default/files/document.pdf"
    * When I download the file from the URL "http://example.com/files/report.xlsx"
    * @endcode
-   *
-   * @When I download the file from the URL :url
    */
+  #[When('I download the file from the URL :url')]
   public function fileDownloadFrom(string $url): void {
     if (empty(parse_url($url, PHP_URL_HOST))) {
       $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
@@ -124,9 +125,8 @@ trait FileDownloadTrait {
    * When I download the file from the link "Download PDF"
    * When I download the file from the link "Get Report"
    * @endcode
-   *
-   * @When I download the file from the link :link
    */
+  #[When('I download the file from the link :link')]
   public function fileDownloadFromLink(string $link): void {
     $link_element = $this->fileDownloadAssertLinkPresent($link);
 
@@ -158,9 +158,8 @@ trait FileDownloadTrait {
    * Financial Report 2023
    * """
    * @endcode
-   *
-   * @Then the downloaded file should contain:
    */
+  #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
     $string = strval($string);
     if (!$this->fileDownloadDownloadedFileInfo) {
@@ -191,9 +190,8 @@ trait FileDownloadTrait {
    * @code
    * Then the downloaded file name should be "report.pdf"
    * @endcode
-   *
-   * @Then the downloaded file name should be :name
    */
+  #[Then('the downloaded file name should be :name')]
   public function fileDownloadAssertFileName(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
@@ -210,9 +208,8 @@ trait FileDownloadTrait {
    * @code
    * Then the downloaded file name should contain "report"
    * @endcode
-   *
-   * @Then the downloaded file name should contain :name
    */
+  #[Then('the downloaded file name should contain :name')]
   public function fileDownloadAssertFileNameContains(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
@@ -228,13 +225,12 @@ trait FileDownloadTrait {
    *
    * @code
    * Then the downloaded file should be a zip archive containing the files named:
-   * | document.pdf |
-   * | image.jpg    |
-   * | data.csv     |
+   *   | document.pdf |
+   *   | image.jpg    |
+   *   | data.csv     |
    * @endcode
-   *
-   * @Then the downloaded file should be a zip archive containing the files named:
    */
+  #[Then('the downloaded file should be a zip archive containing the files named:')]
   public function fileDownloadAssertZipContains(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
@@ -255,13 +251,12 @@ trait FileDownloadTrait {
    *
    * @code
    * Then the downloaded file should be a zip archive containing the files partially named:
-   * | report |
-   * | data   |
-   * | image  |
+   *   | report |
+   *   | data   |
+   *   | image  |
    * @endcode
-   *
-   * @Then the downloaded file should be a zip archive containing the files partially named:
    */
+  #[Then('the downloaded file should be a zip archive containing the files partially named:')]
   public function fileDownloadAssertZipContainsPartial(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
@@ -290,13 +285,12 @@ trait FileDownloadTrait {
    *
    * @code
    * Then the downloaded file should be a zip archive not containing the files partially named:
-   * | confidential |
-   * | private      |
-   * | draft        |
+   *   | confidential |
+   *   | private      |
+   *   | draft        |
    * @endcode
-   *
-   * @Then the downloaded file should be a zip archive not containing the files partially named:
    */
+  #[Then('the downloaded file should be a zip archive not containing the files partially named:')]
   public function fileDownloadAssertNoZipContainsPartial(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Then;
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
@@ -61,9 +64,8 @@ trait ContentBlockTrait {
    * @code
    * Then the content block type "Search" should exist
    * @endcode
-   *
-   * @Then the content block type :type should exist
    */
+  #[Then('the content block type :type should exist')]
   public function contentBlockAssertTypeExists(string $type): void {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
 
@@ -80,15 +82,15 @@ trait ContentBlockTrait {
    *
    * @code
    * Given the following "basic" content blocks do not exist:
-   * | [TEST] Footer Block  |
-   * | [TEST] Contact Form  |
+   *   | [TEST] Footer Block  |
+   *   | [TEST] Contact Form  |
    * @endcode
    *
-   * @Given the following :type content blocks do not exist:
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
    */
+  #[Given('the following :type content blocks do not exist:')]
   public function contentBlockDelete(string $type, TableNode $content_block_table): void {
     foreach ($content_block_table->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
@@ -113,9 +115,8 @@ trait ContentBlockTrait {
    * @code
    * When I edit the "basic" content block with the description "[TEST] Footer Block"
    * @endcode
-   *
-   * @When I edit the :type content block with the description :description
    */
+  #[When('I edit the :type content block with the description :description')]
   public function contentBlockEditBlockContentWithDescription(string $type, string $description): void {
     $block_ids = $this->contentBlockLoadMultiple($type, [
       'info' => $description,
@@ -152,15 +153,14 @@ trait ContentBlockTrait {
    * @param \Behat\Gherkin\Node\TableNode $content_block_table
    *   Table containing field values for each block to create.
    *
-   * @Given the following :type content blocks exist:
-   *
    * @code
    *   Given the following "basic" content blocks exist:
-   *   | info                  | status | body                   | created           |
-   *   | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
-   *   | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
+   *     | info                  | status | body                   | created           |
+   *     | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
+   *     | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
    * @endcode
    */
+  #[Given('the following :type content blocks exist:')]
   public function contentBlockCreate(string $type, TableNode $content_block_table): void {
     foreach ($content_block_table->getHash() as $hash) {
       $this->contentBlockCreateSingle($type, $hash);
@@ -178,15 +178,14 @@ trait ContentBlockTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
-   * @Given the following :type content blocks with fields:
-   *
    * @code
-   * Given the following basic content blocks with fields:
-   *   | info   | [TEST] Block 1        | [TEST] Block 2        |
-   *   | body   | First block content   | Second block content  |
-   *   | status | 1                     | 1                     |
+   *   Given the following basic content blocks with fields:
+   *     | info   | [TEST] Block 1        | [TEST] Block 2        |
+   *     | body   | First block content   | Second block content  |
+   *     | status | 1                     | 1                     |
    * @endcode
    */
+  #[Given('the following :type content blocks with fields:')]
   public function contentBlockCreateWithFields(string $type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
 

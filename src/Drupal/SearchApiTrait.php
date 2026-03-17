@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\When;
 use Drupal\node\Entity\Node;
 
 /**
@@ -22,9 +23,8 @@ trait SearchApiTrait {
    * @code
    * When I add the "article" content with the title "Test Article" to the search index
    * @endcode
-   *
-   * @When I add the :content_type content with the title :title to the search index
    */
+  #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $type, string $title): void {
     $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
@@ -50,9 +50,8 @@ trait SearchApiTrait {
    * When I run search indexing for 5 items
    * When I run search indexing for 1 item
    * @endcode
-   *
-   * @When I run search indexing for :count item(s)
    */
+  #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $limit): void {
     $limit = intval($limit);
 

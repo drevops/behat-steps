@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\When;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
@@ -99,9 +101,8 @@ trait EmailTrait {
    * @code
    * When I clear the test email system queue
    * @endcode
-   *
-   * @When I clear the test email system queue
    */
+  #[When('I clear the test email system queue')]
   public function emailClearTestQueue(bool $force = FALSE): void {
     if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
@@ -116,9 +117,8 @@ trait EmailTrait {
    * @code
    * Then an email should be sent to the "user@example.com"
    * @endcode
-   *
-   * @Then an email should be sent to the :address
    */
+  #[Then('an email should be sent to the :address')]
   public function emailAssertMessageSentTo(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
@@ -137,9 +137,8 @@ trait EmailTrait {
    * @code
    * Then no emails should have been sent
    * @endcode
-   *
-   * @Then no emails should have been sent
    */
+  #[Then('no emails should have been sent')]
   public function emailAssertNoMessagesSent(): void {
     $messages = $this->emailGetCollectedMessages();
     if (count($messages) > 0) {
@@ -153,9 +152,8 @@ trait EmailTrait {
    * @code
    * Then no emails should have been sent to the "user@example.com"
    * @endcode
-   *
-   * @Then no emails should have been sent to the :address
    */
+  #[Then('no emails should have been sent to the :address')]
   public function emailAssertNoMessagesSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
@@ -188,9 +186,8 @@ trait EmailTrait {
    * Account details
    * """
    * @endcode
-   *
-   * @Then the email header :header should contain:
    */
+  #[Then('the email header :header should contain:')]
   public function emailAssertMessageHeaderContains(string $header, PyStringNode $string, bool $exact = FALSE): void {
     $string_value = (string) $string;
     $string_value = $exact ? $string_value : $this->helperNormalizeWhitespace($string_value);
@@ -216,9 +213,8 @@ trait EmailTrait {
    * Your Account Details
    * """
    * @endcode
-   *
-   * @Then the email header :header should exactly be:
    */
+  #[Then('the email header :header should exactly be:')]
   public function emailAssertMessageHeader(string $header, PyStringNode $string): void {
     $this->emailAssertMessageHeaderContains($header, $string, TRUE);
   }
@@ -233,9 +229,8 @@ trait EmailTrait {
    * Click the link below to verify your account.
    * """
    * @endcode
-   *
-   * @Then an email should be sent to the address :address with the content:
    */
+  #[Then('an email should be sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
     // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
@@ -252,9 +247,8 @@ trait EmailTrait {
    * verification link
    * """
    * @endcode
-   *
-   * @Then an email should be sent to the address :address with the content containing:
    */
+  #[Then('an email should be sent to the address :address with the content containing:')]
   public function emailAssertMessageSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
     // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
@@ -271,9 +265,8 @@ trait EmailTrait {
    * password
    * """
    * @endcode
-   *
-   * @Then an email should be sent to the address :address with the content not containing:
    */
+  #[Then('an email should be sent to the address :address with the content not containing:')]
   public function emailAssertMessageSentToAddressWithContentNotContaining(string $address, PyStringNode $string): void {
     // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
@@ -290,9 +283,8 @@ trait EmailTrait {
    * Welcome to our site!
    * """
    * @endcode
-   *
-   * @Then an email should not be sent to the address :address with the content:
    */
+  #[Then('an email should not be sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
     // Assert that no email was sent to the specified address.
     $this->emailAssertNoMessagesSentToAddress($address);
@@ -309,9 +301,8 @@ trait EmailTrait {
    * verification link
    * """
    * @endcode
-   *
-   * @Then an email should not be sent to the address :address with the content containing:
    */
+  #[Then('an email should not be sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
     // Assert that no email was sent to the specified address.
     $this->emailAssertNoMessagesSentToAddress($address);
@@ -328,9 +319,8 @@ trait EmailTrait {
    * Please verify your account
    * """
    * @endcode
-   *
-   * @Then the email field :field should contain:
    */
+  #[Then('the email field :field should contain:')]
   public function emailAssertMessageFieldContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     $message = $this->emailFindMessage($field, $string, $exact);
 
@@ -348,9 +338,8 @@ trait EmailTrait {
    * Account Verification
    * """
    * @endcode
-   *
-   * @Then the email field :field should be:
    */
+  #[Then('the email field :field should be:')]
   public function emailAssertMessageField(string $field, PyStringNode $string): void {
     $this->emailAssertMessageFieldContains($field, $string, TRUE);
   }
@@ -364,12 +353,11 @@ trait EmailTrait {
    * password
    * """
    * @endcode
-   *
-   * @Then the email field :field should not contain:
    */
+  #[Then('the email field :field should not contain:')]
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
@@ -395,9 +383,8 @@ trait EmailTrait {
    * Password Reset
    * """
    * @endcode
-   *
-   * @Then the email field :field should not be:
    */
+  #[Then('the email field :field should not be:')]
   public function emailAssertMessageFieldNotExact(string $field, PyStringNode $string): void {
     $this->emailAssertMessageFieldNotContains($field, $string, TRUE);
   }
@@ -408,9 +395,8 @@ trait EmailTrait {
    * @code
    * When I follow link number "1" in the email with the subject "Account Verification"
    * @endcode
-   *
-   * @When I follow link number :link_number in the email with the subject :subject
    */
+  #[When('I follow link number :link_number in the email with the subject :subject')]
   public function emailFollowLinkNumber(string $link_number, string $subject): void {
     $link_number = intval($link_number);
 
@@ -451,9 +437,8 @@ trait EmailTrait {
    * @code
    * When I follow link number "1" in the email with the subject containing "Verification"
    * @endcode
-   *
-   * @When I follow link number :link_number in the email with the subject containing :subject
    */
+  #[When('I follow link number :link_number in the email with the subject containing :subject')]
   public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
     $link_number = intval($link_number);
 
@@ -502,9 +487,8 @@ trait EmailTrait {
    * @code
    * Then the file "document.pdf" should be attached to the email with the subject "Your document"
    * @endcode
-   *
-   * @Then the file :file_name should be attached to the email with the subject :subject
    */
+  #[Then('the file :file_name should be attached to the email with the subject :subject')]
   public function emailAssertMessageContainsAttachmentWithName(string $file_name, string $subject): void {
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -529,9 +513,8 @@ trait EmailTrait {
    * @code
    * Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
    * @endcode
-   *
-   * @Then the file :file_name should be attached to the email with the subject containing :subject
    */
+  #[Then('the file :file_name should be attached to the email with the subject containing :subject')]
   public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $file_name, string $subject): void {
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
@@ -562,9 +545,8 @@ trait EmailTrait {
    * @code
    * When I enable the test email system
    * @endcode
-   *
-   * @When I enable the test email system
    */
+  #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
     foreach ($this->emailHandlerTypes as $type) {
       // Store the original system to restore after the scenario.
@@ -588,9 +570,8 @@ trait EmailTrait {
    * @code
    * When I disable the test email system
    * @endcode
-   *
-   * @When I disable the test email system
    */
+  #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
@@ -704,7 +685,7 @@ trait EmailTrait {
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd

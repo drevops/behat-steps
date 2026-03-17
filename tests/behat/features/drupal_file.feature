@@ -21,6 +21,14 @@ Feature: Check that FileTrait works
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
+  Scenario: Assert "When the following managed files: With subdirectory path"
+    Given I am logged in as a user with the "administrator" role
+    When the following managed files:
+      | path                  |
+      | subdir/document.pdf   |
+    Then "document.pdf" file object exists
+
+  @api
   Scenario: Assert "When the following managed files: With uri"
     Given I am logged in as a user with the "administrator" role
     And no "document.pdf" file object exists

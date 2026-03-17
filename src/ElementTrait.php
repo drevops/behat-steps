@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 
@@ -22,9 +25,8 @@ trait ElementTrait {
    * @code
    * Then the element "body" should appear after the element "head"
    * @endcode
-   *
-   * @Then the element :selector1 should appear after the element :selector2
    */
+  #[Then('the element :selector1 should appear after the element :selector2')]
   public function elementAssertAfterElement(string $selector1, string $selector2): void {
     $session = $this->getSession();
     $page = $session->getPage();
@@ -65,9 +67,8 @@ trait ElementTrait {
    * @code
    * Then the text "Welcome" should appear after the text "Home"
    * @endcode
-   *
-   * @Then the text :text1 should appear after the text :text2
    */
+  #[Then('the text :text1 should appear after the text :text2')]
   public function elementAssertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
 
@@ -92,9 +93,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
    * @endcode
-   *
-   * @Then the element :selector with the attribute :attribute and the value :value should exist
    */
+  #[Then('the element :selector with the attribute :attribute and the value :value should exist')]
   public function elementAssertAttributeWithValueExists(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, FALSE);
   }
@@ -105,9 +105,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
    * @endcode
-   *
-   * @Then the element :selector with the attribute :attribute and the value containing :value should exist
    */
+  #[Then('the element :selector with the attribute :attribute and the value containing :value should exist')]
   public function elementAssertAttributeContainingValueExists(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, FALSE);
   }
@@ -118,9 +117,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
    * @endcode
-   *
-   * @Then the element :selector with the attribute :attribute and the value :value should not exist
    */
+  #[Then('the element :selector with the attribute :attribute and the value :value should not exist')]
   public function elementAssertAttributeWithValueNotExists(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, TRUE);
   }
@@ -131,9 +129,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
    * @endcode
-   *
-   * @Then the element :selector with the attribute :attribute and the value containing :value should not exist
    */
+  #[Then('the element :selector with the attribute :attribute and the value containing :value should not exist')]
   public function elementAssertAttributeContainingValueNotExists(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, TRUE);
   }
@@ -205,9 +202,8 @@ trait ElementTrait {
    * @code
    * Then the element "#header" should be at the top of the viewport
    * @endcode
-   *
-   * @Then the element :selector should be at the top of the viewport
    */
+  #[Then('the element :selector should be at the top of the viewport')]
   public function elementAssertElementAtTopOfViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
     if (!$result) {
@@ -222,10 +218,10 @@ trait ElementTrait {
    * Given I accept all confirmation dialogs
    * @endcode
    *
-   * @Given I accept all confirmation dialogs
    *
    * @javascript
    */
+  #[Given('I accept all confirmation dialogs')]
   public function elementAcceptConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
   }
@@ -237,10 +233,10 @@ trait ElementTrait {
    * Given I do not accept any confirmation dialogs
    * @endcode
    *
-   * @Given I do not accept any confirmation dialogs
    *
    * @javascript
    */
+  #[Given('I do not accept any confirmation dialogs')]
   public function elementDeclineConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
   }
@@ -252,10 +248,10 @@ trait ElementTrait {
    * When I click on the element ".button"
    * @endcode
    *
-   * @When I click on the element :selector
    *
    * @javascript
    */
+  #[When('I click on the element :selector')]
   public function elementClick(string $selector): void {
     $element = $this->getSession()->getPage()->find('css', $selector);
 
@@ -272,9 +268,8 @@ trait ElementTrait {
    * @code
    * When I trigger the JS event "click" on the element "#submit-button"
    * @endcode
-   *
-   * @When I trigger the JS event :event on the element :selector
    */
+  #[When('I trigger the JS event :event on the element :selector')]
   public function elementTriggerEvent(string $event, string $selector): void {
     $event_js = json_encode($event, JSON_UNESCAPED_SLASHES);
     $this->elementExecuteJs($selector, sprintf('var event = new Event(%s, { bubbles: true }); {{ELEMENT}}.dispatchEvent(event); return true;', $event_js));
@@ -286,9 +281,8 @@ trait ElementTrait {
    * @code
    * When I scroll to the element "#footer"
    * @endcode
-   *
-   * @When I scroll to the element :selector
    */
+  #[When('I scroll to the element :selector')]
   public function elementScrollTo(string $selector): void {
     $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
   }
@@ -299,9 +293,8 @@ trait ElementTrait {
    * @code
    * Then the element ".alert-success" should be displayed
    * @endcode
-   *
-   * @Then the element :selector should be displayed
    */
+  #[Then('the element :selector should be displayed')]
   public function elementAssertIsVisible(string $selector): void {
     $page = $this->getSession()->getPage();
     $nodes = $page->findAll('css', $selector);
@@ -326,9 +319,8 @@ trait ElementTrait {
    * @code
    * Then the element ".error-message" should not be displayed
    * @endcode
-   *
-   * @Then the element :selector should not be displayed
    */
+  #[Then('the element :selector should not be displayed')]
   public function elementAssertIsNotVisible(string $selector): void {
     $element = $this->getSession()->getPage();
     $nodes = $element->findAll('css', $selector);
@@ -346,9 +338,8 @@ trait ElementTrait {
    * @code
    * Then the element ".hero-banner" should be displayed within a viewport
    * @endcode
-   *
-   * @Then the element :selector should be displayed within a viewport
    */
+  #[Then('the element :selector should be displayed within a viewport')]
   public function elementAssertIsVisuallyVisible(string $selector): void {
     $this->elementAssertIsVisible($selector);
 
@@ -363,9 +354,8 @@ trait ElementTrait {
    * @code
    * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
    * @endcode
-   *
-   * @Then the element :selector should be displayed within a viewport with a top offset of :number pixels
    */
+  #[Then('the element :selector should be displayed within a viewport with a top offset of :number pixels')]
   public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $number): void {
     $this->elementAssertIsVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $number)) {
@@ -379,9 +369,8 @@ trait ElementTrait {
    * @code
    * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
    * @endcode
-   *
-   * @Then the element :selector should not be displayed within a viewport with a top offset of :number pixels
    */
+  #[Then('the element :selector should not be displayed within a viewport with a top offset of :number pixels')]
   public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $number): void {
     if ($this->elementIsVisuallyVisible($selector, $number)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number), $this->getSession()->getDriver());
@@ -399,9 +388,8 @@ trait ElementTrait {
    * @code
    * Then the element ".visually-hidden" should not be displayed within a viewport
    * @endcode
-   *
-   * @Then the element :selector should not be displayed within a viewport
    */
+  #[Then('the element :selector should not be displayed within a viewport')]
   public function elementAssertIsVisuallyHidden(string $selector, int $offset = 0): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());

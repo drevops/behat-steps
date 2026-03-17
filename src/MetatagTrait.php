@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 
 /**
@@ -15,9 +16,8 @@ trait MetatagTrait {
 
   /**
    * Assert that a meta tag with specific attributes and values exists.
-   *
-   * @Then the meta tag should exist with the following attributes:
    */
+  #[Then('the meta tag should exist with the following attributes:')]
   public function assertMetaTagWithAttributesExists(TableNode $table): void {
     $elements = $this->getSession()->getPage()->findAll('css', 'meta');
 
@@ -51,9 +51,8 @@ trait MetatagTrait {
 
   /**
    * Assert that a meta tag with specific attributes and values does not exist.
-   *
-   * @Then the meta tag should not exist with the following attributes:
    */
+  #[Then('the meta tag should not exist with the following attributes:')]
   public function assertMetaTagWithAttributesNotExists(TableNode $table): void {
     $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');
 
