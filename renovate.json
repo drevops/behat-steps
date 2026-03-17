@@ -1,29 +1,20 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "dependencyDashboard": true,
+    "extends": ["config:recommended"],
     "automerge": true,
-    "extends": [
-        "config:base"
-    ],
+    "rangeStrategy": "bump",
+    "dependencyDashboard": true,
+    "pinDigests": true,
+    "branchPrefix": "deps/",
     "packageRules": [
         {
-            "matchDatasources": ["docker"],
-            "matchPackageNames": [
-                "seleniarm/standalone-chromium",
-                "selenium/standalone-chrome"
-            ],
+            "matchManagers": ["composer"],
+            "matchUpdateTypes": ["major"],
             "enabled": false
         },
         {
-            "matchPackageNames": [
-                "phpunit/phpunit"
-            ],
-            "enabled": false
-        },
-        {
+            "matchPackageNames": ["*"],
             "groupName": "all dependencies",
-            "groupSlug": "all-dependencies",
-            "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"]
+            "groupSlug": "all"
         }
     ]
 }
