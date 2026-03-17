@@ -369,7 +369,7 @@ trait EmailTrait {
    */
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
@@ -704,7 +704,7 @@ trait EmailTrait {
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
