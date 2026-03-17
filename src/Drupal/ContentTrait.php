@@ -222,7 +222,7 @@ trait ContentTrait {
     $workflows = Workflow::loadMultiple();
     foreach ($workflows as $workflow) {
       $workflow_type_settings = $workflow->get('type_settings');
-      if (in_array($content_type, $workflow_type_settings['entity_types']['node']) && isset($workflow_type_settings['states'][$new_state])) {
+      if (in_array($content_type, $workflow_type_settings['entity_types']['node'], TRUE) && isset($workflow_type_settings['states'][$new_state])) {
         $state_is_valid = TRUE;
         break;
       }

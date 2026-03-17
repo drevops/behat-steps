@@ -145,7 +145,7 @@ trait ResponsiveTrait {
     $tag = $breakpoint_tags[0];
 
     // Validate that @javascript tag is present.
-    if (!in_array('javascript', $tags)) {
+    if (!in_array('javascript', $tags, TRUE)) {
       throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport', $tag));
     }
 
