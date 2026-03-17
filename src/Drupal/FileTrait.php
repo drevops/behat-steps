@@ -151,7 +151,7 @@ trait FileTrait {
     foreach ($fields as $property => $value) {
       // If path or URI has been specified then the value has already been
       // handled.
-      if (in_array($property, ['path', 'uri'])) {
+      if (in_array($property, ['path', 'uri'], TRUE)) {
         continue;
       }
       $entity->set($property, $value);

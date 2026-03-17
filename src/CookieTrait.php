@@ -295,7 +295,7 @@ trait CookieTrait {
 
       $cookies = [];
       foreach ($cookies_objs as $cookie_obj) {
-        if (!in_array($cookie_obj->getName(), $cookies_names)) {
+        if (!in_array($cookie_obj->getName(), $cookies_names, TRUE)) {
           // @codeCoverageIgnoreStart
           continue;
           // @codeCoverageIgnoreEnd

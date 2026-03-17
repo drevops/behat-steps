@@ -200,7 +200,7 @@ trait MediaTrait {
     }
 
     $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
-    if (!in_array($stub->bundle, array_keys($bundles))) {
+    if (!in_array($stub->bundle, array_keys($bundles), TRUE)) {
       throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
     }
     // @codeCoverageIgnoreEnd

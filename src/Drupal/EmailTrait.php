@@ -123,7 +123,7 @@ trait EmailTrait {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
 
-      if (in_array($address, $to)) {
+      if (in_array($address, $to, TRUE)) {
         return;
       }
     }
@@ -159,20 +159,20 @@ trait EmailTrait {
   public function emailAssertNoMessagesSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
-      if (in_array($address, $to)) {
+      if (in_array($address, $to, TRUE)) {
         throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
         $cc = $this->helperSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
-        if (in_array($address, $cc)) {
+        if (in_array($address, $cc, TRUE)) {
           throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
       }
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
         $bcc = $this->helperSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
-        if (in_array($address, $bcc)) {
+        if (in_array($address, $bcc, TRUE)) {
           throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
       }
@@ -369,7 +369,7 @@ trait EmailTrait {
    */
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
@@ -704,7 +704,7 @@ trait EmailTrait {
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
     // @codeCoverageIgnoreStart
-    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'])) {
+    if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
