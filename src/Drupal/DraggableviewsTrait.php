@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
@@ -24,9 +25,8 @@ trait DraggableviewsTrait {
    *   | Second Article |
    *   | Third Article  |
    * @endcode
-   *
-   * @When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:
    */
+  #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
     $connection = Database::getConnection();
 

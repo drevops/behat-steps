@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
@@ -64,13 +66,12 @@ trait EckTrait {
    *
    * @code
    * Given the following eck "contact" "contact_type" entities exist:
-   * | title  | field_marine_animal     | field_fish_type | ... |
-   * | Snook  | Fish                    | Marine fish     | 10  |
-   * | ...    | ...                     | ...             | ... |
+   *   | title  | field_marine_animal     | field_fish_type | ... |
+   *   | Snook  | Fish                    | Marine fish     | 10  |
+   *   | ...    | ...                     | ...             | ... |
    * @endcode
-   *
-   * @Given the following eck :bundle :entity_type entities exist:
    */
+  #[Given('the following eck :bundle :entity_type entities exist:')]
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // Delete entities before creating them.
@@ -83,12 +84,11 @@ trait EckTrait {
    *
    * @code
    * Given the following eck "contact" "contact_type" entities do not exist:
-   * | field        | value           |
-   * | field_a      | Entity label    |
+   *   | field        | value           |
+   *   | field_a      | Entity label    |
    * @endcode
-   *
-   * @Given the following eck :bundle :entity_type entities do not exist:
    */
+  #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $node_hash);
@@ -107,9 +107,8 @@ trait EckTrait {
    * @code
    * When I visit eck "contact" "contact_type" entity with the title "Test contact"
    * @endcode
-   *
-   * @When I visit eck :bundle :entity_type entity with the title :title
    */
+  #[When('I visit eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -133,9 +132,8 @@ trait EckTrait {
    * @code
    * When I edit eck "contact" "contact_type" entity with the title "Test contact"
    * @endcode
-   *
-   * @When I edit eck :bundle :entity_type entity with the title :title
    */
+  #[When('I edit eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [

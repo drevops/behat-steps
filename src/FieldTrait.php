@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
+use Behat\Step\When;
+use Behat\Step\Given;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -123,9 +126,8 @@ trait FieldTrait {
    * @code
    * Then the field "Name" should be empty
    * @endcode
-   *
-   * @Then the field :field should be empty
    */
+  #[Then('the field :field should be empty')]
   public function fieldAssertEmpty(string $field): void {
     $field_element = $this->fieldAssertExists($field);
 
@@ -142,9 +144,8 @@ trait FieldTrait {
    * @code
    * Then the field "Name" should not be empty
    * @endcode
-   *
-   * @Then the field :field should not be empty
    */
+  #[Then('the field :field should not be empty')]
   public function fieldAssertNotEmpty(string $field): void {
     $field_element = $this->fieldAssertExists($field);
 
@@ -162,9 +163,8 @@ trait FieldTrait {
    * Then the field "Body" should exist
    * Then the field "field_body" should exist
    * @endcode
-   *
-   * @Then the field :name should exist
    */
+  #[Then('the field :name should exist')]
   public function fieldAssertExists(string $name): NodeElement {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
@@ -185,9 +185,8 @@ trait FieldTrait {
    * Then the field "Body" should not exist
    * Then the field "field_body" should not exist
    * @endcode
-   *
-   * @Then the field :name should not exist
    */
+  #[Then('the field :name should not exist')]
   public function fieldAssertNotExists(string $name): void {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
@@ -208,9 +207,8 @@ trait FieldTrait {
    * Then the field "Tags" should have "enabled" state
    * Then the field "field_tags" should have "not enabled" state
    * @endcode
-   *
-   * @Then the field :name should have :enabled_or_disabled state
    */
+  #[Then('the field :name should have :enabled_or_disabled state')]
   public function fieldAssertState(string $name, string $enabled_or_disabled): void {
     $field = $this->fieldAssertExists($name);
 
@@ -228,9 +226,8 @@ trait FieldTrait {
    * @code
    * When I fill in the color field "#edit-text-color" with the value "#3366FF"
    * @endcode
-   *
-   * @When I fill in the color field :field with the value :value
    */
+  #[When('I fill in the color field :field with the value :value')]
   public function fieldFillColor(string $field, ?string $value = NULL): mixed {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
@@ -254,9 +251,8 @@ JS;
    * @code
    * Then the color field "#edit-background-color" should have the value "#FF5733"
    * @endcode
-   *
-   * @Then the color field :field should have the value :value
    */
+  #[Then('the color field :field should have the value :value')]
   public function fieldAssertColorFieldHasValue(string $field, string $value): void {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $script = <<<JS
@@ -284,9 +280,8 @@ JS;
    * @code
    * When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
    * @endcode
-   *
-   * @When I fill in the WYSIWYG field :field with the :value
    */
+  #[When('I fill in the WYSIWYG field :field with the :value')]
   public function fieldFillWysiwyg(string $field, string $value): void {
     $field = $this->helperFixStepArgument($field);
     $value = $this->helperFixStepArgument($value);
@@ -346,9 +341,8 @@ JS;
    * @code
    * Then the option "Administrator" should exist within the select element "edit-roles"
    * @endcode
-   *
-   * @Then the option :option should exist within the select element :selector
    */
+  #[Then('the option :option should exist within the select element :selector')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
     if (is_null($select_element)) {
@@ -367,9 +361,8 @@ JS;
    * @code
    * Then the option "Guest" should not exist within the select element "edit-roles"
    * @endcode
-   *
-   * @Then the option :option should not exist within the select element :selector
    */
+  #[Then('the option :option should not exist within the select element :selector')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
     if (is_null($select_element)) {
@@ -388,9 +381,8 @@ JS;
    * @code
    * Then the option "Administrator" should be selected within the select element "edit-roles"
    * @endcode
-   *
-   * @Then the option :option should be selected within the select element :selector
    */
+  #[Then('the option :option should be selected within the select element :selector')]
   public function fieldAssertSelectOptionSelected(string $value, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $current_url = $this->getSession()->getCurrentUrl();
@@ -420,9 +412,8 @@ JS;
    * @code
    * Then the option "Editor" should not be selected within the select element "edit-roles"
    * @endcode
-   *
-   * @Then the option :option should not be selected within the select element :selector
    */
+  #[Then('the option :option should not be selected within the select element :selector')]
   public function fieldAssertSelectOptionNotSelected(string $value, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $current_url = $this->getSession()->getCurrentUrl();
@@ -458,9 +449,8 @@ JS;
    *   When I unselect "Administrator" from "edit-roles"
    *   When I unselect "Option B" from "field_multi_select"
    * @endcode
-   *
-   * @When I unselect :option from :selector
    */
+  #[When('I unselect :option from :selector')]
   public function fieldUnselectOption(string $option, string $selector): void {
     $option = $this->helperFixStepArgument($option);
     $selector = $this->helperFixStepArgument($selector);
@@ -525,9 +515,8 @@ JS;
    *   When I clear the select "edit-roles"
    *   When I clear the select "field_multi_select"
    * @endcode
-   *
-   * @When I clear the select :selector
    */
+  #[When('I clear the select :selector')]
   public function fieldClearSelect(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -559,9 +548,8 @@ JS;
    *   When I check the checkbox "Checkbox label"
    *   When I check the checkbox "edit-field-terms-0-value"
    * @endcode
-   *
-   * @When I check the checkbox :selector
    */
+  #[When('I check the checkbox :selector')]
   public function fieldCheckboxCheck(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -578,9 +566,8 @@ JS;
    *   When I uncheck the checkbox "Checkbox label"
    *   When I uncheck the checkbox "edit-field-terms-0-value"
    * @endcode
-   *
-   * @When I uncheck the checkbox :selector
    */
+  #[When('I uncheck the checkbox :selector')]
   public function fieldCheckboxUncheck(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -597,9 +584,8 @@ JS;
    *   When I choose the radio button "Option A"
    *   When I choose the radio button "edit-field-choice-option-a"
    * @endcode
-   *
-   * @When I choose the radio button :selector
    */
+  #[When('I choose the radio button :selector')]
   public function fieldRadioSelect(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -624,9 +610,8 @@ JS;
    *   Then the radio button "Option A" should be selected
    *   Then the radio button "edit-field-choice-option-a" should be selected
    * @endcode
-   *
-   * @Then the radio button :selector should be selected
    */
+  #[Then('the radio button :selector should be selected')]
   public function fieldAssertRadioSelected(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -652,9 +637,8 @@ JS;
    *   Then the radio button "Option B" should not be selected
    *   Then the radio button "edit-field-choice-option-b" should not be selected
    * @endcode
-   *
-   * @Then the radio button :selector should not be selected
    */
+  #[Then('the radio button :selector should not be selected')]
   public function fieldAssertRadioNotSelected(string $selector): void {
     $selector = $this->helperFixStepArgument($selector);
 
@@ -682,9 +666,8 @@ JS;
    * And I press "Save"
    * Then I should see "Title field is required"
    * @endcode
-   *
-   * @Given browser validation for the form :selector is disabled
    */
+  #[Given('browser validation for the form :selector is disabled')]
   public function fieldDisableFormBrowserValidation(string $selector): void {
     // Add selector to registry for deferred execution.
     if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
@@ -732,9 +715,8 @@ JS;
    * When I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
    * When I fill in the datetime field "Event date" with date "2024-01-15" and time ""
    * @endcode
-   *
-   * @When I fill in the datetime field :label with date :date and time :time
    */
+  #[When('I fill in the datetime field :label with date :date and time :time')]
   public function fieldFillDatetime(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
     if ($time !== '') {
@@ -748,9 +730,8 @@ JS;
    * @code
    * When I fill in the date part of the datetime field "Event date" with "2024-01-15"
    * @endcode
-   *
-   * @When I fill in the date part of the datetime field :label with :date
    */
+  #[When('I fill in the date part of the datetime field :label with :date')]
   public function fieldFillDatetimeDate(string $label, string $date): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
   }
@@ -761,9 +742,8 @@ JS;
    * @code
    * When I fill in the time part of the datetime field "Event date" with "14:30:00"
    * @endcode
-   *
-   * @When I fill in the time part of the datetime field :label with :time
    */
+  #[When('I fill in the time part of the datetime field :label with :time')]
   public function fieldFillDatetimeTime(string $label, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
   }
@@ -777,9 +757,8 @@ JS;
    * When I fill in the start datetime field "Event period" with date "2024-01-15" and time "14:30:00"
    * When I fill in the start datetime field "Event period" with date "2024-01-15" and time ""
    * @endcode
-   *
-   * @When I fill in the start datetime field :label with date :date and time :time
    */
+  #[When('I fill in the start datetime field :label with date :date and time :time')]
   public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
     if ($time !== '') {
@@ -796,9 +775,8 @@ JS;
    * When I fill in the end datetime field "Event period" with date "2024-01-20" and time "18:00:00"
    * When I fill in the end datetime field "Event period" with date "2024-01-20" and time ""
    * @endcode
-   *
-   * @When I fill in the end datetime field :label with date :date and time :time
    */
+  #[When('I fill in the end datetime field :label with date :date and time :time')]
   public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'end_value', 'date', $date);
     if ($time !== '') {

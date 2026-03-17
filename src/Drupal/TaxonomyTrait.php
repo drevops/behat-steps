@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
@@ -41,14 +44,13 @@ trait TaxonomyTrait {
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
-   * @Given the following :vocabulary terms with fields:
-   *
    * @code
-   * Given the following tags terms with fields:
-   *   | name        | [TEST] Behat    | [TEST] Testing  |
-   *   | description | Testing tag     | QA tag          |
+   *   Given the following tags terms with fields:
+   *     | name        | [TEST] Behat    | [TEST] Testing  |
+   *     | description | Testing tag     | QA tag          |
    * @endcode
    */
+  #[Given('the following :vocabulary terms with fields:')]
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
@@ -63,9 +65,8 @@ trait TaxonomyTrait {
    *   | Apple |
    *   | Pear  |
    * @endcode
-   *
-   * @Given the following :vocabulary_machine_name vocabulary terms do not exist:
    */
+  #[Given('the following :vocabulary_machine_name vocabulary terms do not exist:')]
   public function taxonomyDeleteTerms(string $vocabulary_machine_name, TableNode $terms_table): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
 
@@ -92,9 +93,8 @@ trait TaxonomyTrait {
    * @code
    * Then the vocabulary "topics" with the name "Topics" should exist
    * @endcode
-   *
-   * @Then the vocabulary :machine_name with the name :name should exist
    */
+  #[Then('the vocabulary :machine_name with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $machine_name, string $name): void {
     $vocab = Vocabulary::load($machine_name);
 
@@ -114,9 +114,8 @@ trait TaxonomyTrait {
    * @code
    * Then the vocabulary "topics" should not exist
    * @endcode
-   *
-   * @Then the vocabulary :machine_name should not exist
    */
+  #[Then('the vocabulary :machine_name should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $machine_name): void {
     $vocab = Vocabulary::load($machine_name);
 
@@ -131,9 +130,8 @@ trait TaxonomyTrait {
    * @code
    * Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
    * @endcode
-   *
-   * @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist
    */
+  #[Then('the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist')]
   public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary_machine_name): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
 
@@ -159,9 +157,8 @@ trait TaxonomyTrait {
    * @code
    * Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
    * @endcode
-   *
-   * @Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist
    */
+  #[Then('the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist')]
   public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary_machine_name): void {
     $vocab = Vocabulary::load($vocabulary_machine_name);
 
@@ -187,9 +184,8 @@ trait TaxonomyTrait {
    * @code
    * When I visit the "fruits" term page with the name "Apple"
    * @endcode
-   *
-   * @When I visit the :vocabulary_machine_name term page with the name :term_name
    */
+  #[When('I visit the :vocabulary_machine_name term page with the name :term_name')]
   public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
     $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name);
   }
@@ -200,9 +196,8 @@ trait TaxonomyTrait {
    * @code
    * When I visit the "fruits" term edit page with the name "Apple"
    * @endcode
-   *
-   * @When I visit the :vocabulary_machine_name term edit page with the name :term_name
    */
+  #[When('I visit the :vocabulary_machine_name term edit page with the name :term_name')]
   public function taxonomyVisitTermEditPageWithName(string $vocabulary_machine_name, string $term_name): void {
     $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/edit');
   }
@@ -213,9 +208,8 @@ trait TaxonomyTrait {
    * @code
    * When I visit the "tags" term delete page with the name "[TEST] Remove"
    * @endcode
-   *
-   * @When I visit the :vocabulary_machine_name term delete page with the name :term_name
    */
+  #[When('I visit the :vocabulary_machine_name term delete page with the name :term_name')]
   public function taxonomyVisitTermDeletePageWithName(string $vocabulary_machine_name, string $term_name): void {
     $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/delete');
   }

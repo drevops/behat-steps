@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\When;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -24,9 +25,8 @@ trait KeyboardTrait {
    * When I press the key "a"
    * When I press the key "tab"
    * @endcode
-   *
-   * @When I press the key :key
    */
+  #[When('I press the key :key')]
   public function keyboardPressKey(string $key): void {
     $this->keyboardPressKeyOnElementSingle($key, NULL);
   }
@@ -38,9 +38,8 @@ trait KeyboardTrait {
    * When I press the key "a" on the element "#edit-title"
    * When I press the key "tab" on the element "#edit-title"
    * @endcode
-   *
-   * @When I press the key :key on the element :selector
    */
+  #[When('I press the key :key on the element :selector')]
   public function keyboardPressKeyOnElement(string $key, ?string $selector): void {
     $this->keyboardPressKeyOnElementSingle($key, $selector);
   }
@@ -51,9 +50,8 @@ trait KeyboardTrait {
    * @code
    * When I press the keys "abc"
    * @endcode
-   *
-   * @When I press the keys :keys
    */
+  #[When('I press the keys :keys')]
   public function keyboardPressKeys(string $keys): void {
     $this->keyboardPressKeysOnElement($keys, NULL);
   }
@@ -64,9 +62,8 @@ trait KeyboardTrait {
    * @code
    * When I press the keys "abc" on the element "#edit-title"
    * @endcode
-   *
-   * @When I press the keys :keys on the element :selector
    */
+  #[When('I press the keys :keys on the element :selector')]
   public function keyboardPressKeysOnElement(string $keys, ?string $selector): void {
     $chars = preg_split('//u', $keys, -1, PREG_SPLIT_NO_EMPTY);
 

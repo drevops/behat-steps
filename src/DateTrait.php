@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Transformation\Transform;
 use Behat\Gherkin\Node\TableNode;
 
 /**
@@ -27,20 +28,18 @@ trait DateTrait {
 
   /**
    * Transform a scalar value.
-   *
-   * @Transform :datetime
-   * @Transform :value
-   * @Transform :expectedValue
    */
+  #[Transform(':datetime')]
+  #[Transform(':value')]
+  #[Transform(':expectedValue')]
   public function dateRelativeTransformValue(string $value): string {
     return static::dateRelativeProcessValue($value);
   }
 
   /**
    * Transform a tabular value.
-   *
-   * @Transform table:*
    */
+  #[Transform('table:*')]
   public function dateRelativeTransformTable(TableNode $table): TableNode {
     // Inexpensive token detection and early exit.
     if (!static::dateRelativeStringHasToken($table->getTableAsString())) {
@@ -81,8 +80,8 @@ trait DateTrait {
    *
    * @code
    * Give content "article" exists:
-   * | title        | created           |
-   * | test article | [relative:-1 day] |
+   *   | title        | created           |
+   *   | test article | [relative:-1 day] |
    * @endcode
    *
    * @note Since return value can be a date string, it is possible that

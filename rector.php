@@ -67,6 +67,7 @@ return RectorConfig::configure()
   // PHP version upgrade sets - modernizes syntax to PHP 8.2.
   // Includes all rules from PHP 5.3 through 8.2.
   ->withPhpSets(php82: TRUE)
+  ->withAttributesSets(behat: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(
     codeQuality: TRUE,

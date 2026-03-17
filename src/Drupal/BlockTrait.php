@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Gherkin\Node\TableNode;
@@ -61,14 +63,13 @@ trait BlockTrait {
    *
    * @code
    * Given the instance of "My block" block exists with the following configuration:
-   *  | label         | My block |
-   *  | label_display | 1        |
-   *  | region        | content  |
-   *  | status        | 1        |
+   *   | label         | My block |
+   *   | label_display | 1        |
+   *   | region        | content  |
+   *   | status        | 1        |
    * @endcode
-   *
-   * @Given the instance of :admin_label block exists with the following configuration:
    */
+  #[Given('the instance of :admin_label block exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
     $block = NULL;
 
@@ -118,13 +119,12 @@ trait BlockTrait {
    *
    * @code
    *   Given the block "My block" has the following configuration:
-   *   | label_display | 1       |
-   *   | region        | content |
-   *   | status        | 1       |
+   *     | label_display | 1       |
+   *     | region        | content |
+   *     | status        | 1       |
    * @endcode
-   *
-   * @Given the block :label has the following configuration:
    */
+  #[Given('the block :label has the following configuration:')]
   public function blockConfigure(string $label, TableNode $fields): void {
     $this->blockAssertExists($label);
 
@@ -172,9 +172,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" does not exist
    * @endcode
-   *
-   * @Given the block :label does not exist
    */
+  #[Given('the block :label does not exist')]
   public function blockRemove(string $label): void {
     while ($block = $this->blockLoadByLabel($label)) {
       $block->delete();
@@ -196,11 +195,11 @@ trait BlockTrait {
    *   Given the block "My block" is enabled
    * @endcode
    *
-   * @Given the block :label is enabled
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
    */
+  #[Given('the block :label is enabled')]
   public function blockEnable(string $label): void {
     $this->blockAssertExists($label);
     $block = $this->blockLoadByLabel($label);
@@ -220,11 +219,11 @@ trait BlockTrait {
    *   Given the block "My block" is disabled
    * @endcode
    *
-   * @Given the block :label is disabled
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
    */
+  #[Given('the block :label is disabled')]
   public function blockDisable(string $label): void {
     $this->blockAssertExists($label);
     $block = $this->blockLoadByLabel($label);
@@ -246,12 +245,11 @@ trait BlockTrait {
    *
    * @code
    *   Given the block "My block" has the following "request_path" condition configuration:
-   *   | pages  | /node/1\r\n/about |
-   *   | negate | 0                 |
+   *     | pages  | /node/1\r\n/about |
+   *     | negate | 0                 |
    * @endcode
-   *
-   * @Given the block :label has the following :condition condition configuration:
    */
+  #[Given('the block :label has the following :condition condition configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
     $this->blockAssertExists($label);
     $block = $this->blockLoadByLabel($label);
@@ -277,9 +275,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" has the "request_path" condition removed
    * @endcode
-   *
-   * @Given the block :label has the :condition condition removed
    */
+  #[Given('the block :label has the :condition condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
     $this->blockConfigureVisibilityCondition($label, $condition, new TableNode([]));
   }
@@ -294,11 +291,11 @@ trait BlockTrait {
    *   Then the block "My block" should exist
    * @endcode
    *
-   * @Then the block :label should exist
    *
    * @throws \Exception
    *   When no block with the specified label is found.
    */
+  #[Then('the block :label should exist')]
   public function blockAssertExists(string $label): void {
     $block = $this->blockLoadByLabel($label);
 
@@ -317,11 +314,11 @@ trait BlockTrait {
    *   Then the block "My block" should not exist
    * @endcode
    *
-   * @Then the block :label should not exist
    *
    * @throws \Exception
    *   When block with the specified label is found.
    */
+  #[Then('the block :label should not exist')]
   public function blockAssertNotExists(string $label): void {
     $block = $this->blockLoadByLabel($label);
 
@@ -342,11 +339,11 @@ trait BlockTrait {
    *   Then the block "My block" should exist in the "content" region
    * @endcode
    *
-   * @Then the block :label should exist in the :region region
    *
    * @throws \Exception
    *   When no block with the specified label is found in the given region.
    */
+  #[Then('the block :label should exist in the :region region')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockLoadByLabel($label);
@@ -370,11 +367,11 @@ trait BlockTrait {
    *   Then the block "My block" should not exist in the "content" region
    * @endcode
    *
-   * @Then the block :label should not exist in the :region region
    *
    * @throws \Exception
    *   When block with the specified label is found in the given region.
    */
+  #[Then('the block :label should not exist in the :region region')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockLoadByLabel($label);

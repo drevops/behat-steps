@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
@@ -67,9 +68,8 @@ trait XmlTrait {
    * @code
    * Then the response should be in XML format
    * @endcode
-   *
-   * @Then the response should be in XML format
    */
+  #[Then('the response should be in XML format')]
   public function xmlAssertResponseIsXml(): void {
     $content = $this->getSession()->getPage()->getContent();
     $this->xmlLoadDocument($content);
@@ -81,9 +81,8 @@ trait XmlTrait {
    * @code
    * Then the response should not be in XML format
    * @endcode
-   *
-   * @Then the response should not be in XML format
    */
+  #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
     $content = $this->getSession()->getPage()->getContent();
 
@@ -105,9 +104,8 @@ trait XmlTrait {
    * Then the XML element "//book" should exist
    * Then the XML element "/library/book[@id='123']" should exist
    * @endcode
-   *
-   * @Then the XML element :element should exist
    */
+  #[Then('the XML element :element should exist')]
   public function xmlAssertElementExists(string $element): void {
     $this->xmlEnsureDocument();
 
@@ -124,9 +122,8 @@ trait XmlTrait {
    * Then the XML element "//nonexistent" should not exist
    * Then the XML element "/library/book[@id='999']" should not exist
    * @endcode
-   *
-   * @Then the XML element :element should not exist
    */
+  #[Then('the XML element :element should not exist')]
   public function xmlAssertElementNotExists(string $element): void {
     $this->xmlEnsureDocument();
 
@@ -143,9 +140,8 @@ trait XmlTrait {
    * Then the XML element "//title" should be equal to "The Great Adventure"
    * Then the XML element "/library/book[1]/author" should be equal to "John Doe"
    * @endcode
-   *
-   * @Then the XML element :element should be equal to :text
    */
+  #[Then('the XML element :element should be equal to :text')]
   public function xmlAssertElementEquals(string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -174,9 +170,8 @@ trait XmlTrait {
    * Then the XML element "//title" should not be equal to "Wrong Title"
    * Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
    * @endcode
-   *
-   * @Then the XML element :element should not be equal to :text
    */
+  #[Then('the XML element :element should not be equal to :text')]
   public function xmlAssertElementNotEquals(string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -205,9 +200,8 @@ trait XmlTrait {
    * Then the XML element "//description" should contain "sample book"
    * Then the XML element "/library/book[1]/description" should contain "detailed"
    * @endcode
-   *
-   * @Then the XML element :element should contain :text
    */
+  #[Then('the XML element :element should contain :text')]
   public function xmlAssertElementContains(string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -236,9 +230,8 @@ trait XmlTrait {
    * Then the XML element "//description" should not contain "nonexistent"
    * Then the XML element "/library/book[1]/title" should not contain "wrong"
    * @endcode
-   *
-   * @Then the XML element :element should not contain :text
    */
+  #[Then('the XML element :element should not contain :text')]
   public function xmlAssertElementNotContains(string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -267,9 +260,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on element "//book" should exist
    * Then the XML attribute "category" on element "/library/book[1]" should exist
    * @endcode
-   *
-   * @Then the XML attribute :attribute on element :element should exist
    */
+  #[Then('the XML attribute :attribute on element :element should exist')]
   public function xmlAssertAttributeExists(string $attribute, string $element): void {
     $this->xmlEnsureDocument();
 
@@ -291,9 +283,8 @@ trait XmlTrait {
    * Then the XML attribute "nonexistent" on element "//book" should not exist
    * Then the XML attribute "missing" on element "/library/book[1]" should not exist
    * @endcode
-   *
-   * @Then the XML attribute :attribute on element :element should not exist
    */
+  #[Then('the XML attribute :attribute on element :element should not exist')]
   public function xmlAssertAttributeNotExists(string $attribute, string $element): void {
     $this->xmlEnsureDocument();
 
@@ -315,9 +306,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on element "//book" should be equal to "123"
    * Then the XML attribute "category" on element "/library/book[1]" should be equal to "fiction"
    * @endcode
-   *
-   * @Then the XML attribute :attribute on element :element should be equal to :text
    */
+  #[Then('the XML attribute :attribute on element :element should be equal to :text')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -344,9 +334,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on element "//book" should not be equal to "999"
    * Then the XML attribute "category" on element "/library/book[1]" should not be equal to "science"
    * @endcode
-   *
-   * @Then the XML attribute :attribute on element :element should not be equal to :text
    */
+  #[Then('the XML attribute :attribute on element :element should not be equal to :text')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $text): void {
     $this->xmlEnsureDocument();
 
@@ -373,9 +362,8 @@ trait XmlTrait {
    * Then the XML element "//library" should have "3" elements
    * Then the XML element "/library" should have "3" elements
    * @endcode
-   *
-   * @Then the XML element :element should have :count element(s)
    */
+  #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
     $this->xmlEnsureDocument();
 
@@ -411,9 +399,8 @@ trait XmlTrait {
    * @code
    * Then the XML should use the namespace "http://example.com/custom"
    * @endcode
-   *
-   * @Then the XML should use the namespace :namespace
    */
+  #[Then('the XML should use the namespace :namespace')]
   public function xmlAssertNamespaceExists(string $namespace): void {
     $this->xmlEnsureDocument();
 
@@ -430,9 +417,8 @@ trait XmlTrait {
    * @code
    * Then the XML should not use the namespace "http://example.com/nonexistent"
    * @endcode
-   *
-   * @Then the XML should not use the namespace :namespace
    */
+  #[Then('the XML should not use the namespace :namespace')]
   public function xmlAssertNamespaceNotExists(string $namespace): void {
     $this->xmlEnsureDocument();
 

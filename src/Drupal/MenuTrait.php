@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
@@ -46,9 +47,8 @@ trait MenuTrait {
    * @code
    *   Given the menu "Test Menu" does not exist
    * @endcode
-   *
-   * @Given the menu :menu_name does not exist
    */
+  #[Given('the menu :menu_name does not exist')]
   public function menuDeleteSingle(string $menu_name): void {
     $menu = $this->loadMenuByLabel($menu_name);
     if ($menu instanceof MenuInterface) {
@@ -67,13 +67,12 @@ trait MenuTrait {
    *
    * @code
    * Given the following menus:
-   * | label            | description                    |
-   * | Footer Menu     | Links displayed in the footer  |
-   * | Secondary Menu  | Secondary navigation menu      |
+   *   | label            | description                    |
+   *   | Footer Menu     | Links displayed in the footer  |
+   *   | Secondary Menu  | Secondary navigation menu      |
    * @endcode
-   *
-   * @Given the following menus:
    */
+  #[Given('the following menus:')]
   public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
@@ -100,12 +99,11 @@ trait MenuTrait {
    *
    * @code
    * Given the following menu links do not exist in the menu "Main navigation":
-   * | About Us     |
-   * | Contact      |
+   *   | About Us     |
+   *   | Contact      |
    * @endcode
-   *
-   * @Given the following menu links do not exist in the menu :menu_name:
    */
+  #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
@@ -120,13 +118,12 @@ trait MenuTrait {
    *
    * @code
    * Given the following menu links exist in the menu "Main navigation":
-   * | title           | enabled | uri                     | parent       |
-   * | Products        | 1       | /products               |              |
-   * | Latest Products | 1       | /products/latest        | Products     |
+   *   | title           | enabled | uri                     | parent       |
+   *   | Products        | 1       | /products               |              |
+   *   | Latest Products | 1       | /products/latest        | Products     |
    * @endcode
-   *
-   * @Given the following menu links exist in the menu :menu_name:
    */
+  #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $menu = $this->loadMenuByLabel($menu_name);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 
@@ -38,12 +39,11 @@ trait TimeTrait {
    * @param string $value
    *   The time value as Unix timestamp.
    *
-   * @When I set system time to :value
-   *
    * @code
-   * When I set system time to "1737849900"
+   *   When I set system time to "1737849900"
    * @endcode
    */
+  #[When('I set system time to :value')]
   public function timeSet(string $value): void {
     \Drupal::state()->set('testing.time', (int) $value);
   }
@@ -51,12 +51,12 @@ trait TimeTrait {
   /**
    * Resets the system time to real time.
    *
-   * @When I reset system time
    *
    * @code
    * When I reset system time
    * @endcode
    */
+  #[When('I reset system time')]
   public function timeReset(): void {
     \Drupal::state()->delete('testing.time');
   }

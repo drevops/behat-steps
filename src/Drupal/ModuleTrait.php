@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
@@ -96,9 +98,8 @@ trait ModuleTrait {
    * @code
    * Given the "ctools" module is enabled
    * @endcode
-   *
-   * @Given the :module module is enabled
    */
+  #[Given('the :module module is enabled')]
   public function moduleEnsureEnabled(string $module): void {
     $this->moduleStoreOriginalState($module);
     if (!$this->moduleIsEnabled($module)) {
@@ -112,9 +113,8 @@ trait ModuleTrait {
    * @code
    * Given the "shield" module is disabled
    * @endcode
-   *
-   * @Given the :module module is disabled
    */
+  #[Given('the :module module is disabled')]
   public function moduleEnsureDisabled(string $module): void {
     $this->moduleStoreOriginalState($module);
     if ($this->moduleIsEnabled($module)) {
@@ -130,9 +130,8 @@ trait ModuleTrait {
    *   | ctools |
    *   | views  |
    * @endcode
-   *
-   * @Given the following modules are enabled:
    */
+  #[Given('the following modules are enabled:')]
   public function moduleEnsureEnabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       $this->moduleStoreOriginalState($module);
@@ -150,9 +149,8 @@ trait ModuleTrait {
    *   | shield           |
    *   | stage_file_proxy |
    * @endcode
-   *
-   * @Given the following modules are disabled:
    */
+  #[Given('the following modules are disabled:')]
   public function moduleEnsureDisabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       $this->moduleStoreOriginalState($module);
@@ -168,9 +166,8 @@ trait ModuleTrait {
    * @code
    * Then the "ctools" module should be enabled
    * @endcode
-   *
-   * @Then the :module module should be enabled
    */
+  #[Then('the :module module should be enabled')]
   public function moduleAssertEnabled(string $module): void {
     if (!$this->moduleIsEnabled($module)) {
       throw new \Exception(sprintf('The module "%s" is not enabled, but it should be.', $module));
@@ -183,9 +180,8 @@ trait ModuleTrait {
    * @code
    * Then the "shield" module should be disabled
    * @endcode
-   *
-   * @Then the :module module should be disabled
    */
+  #[Then('the :module module should be disabled')]
   public function moduleAssertDisabled(string $module): void {
     if ($this->moduleIsEnabled($module)) {
       throw new \Exception(sprintf('The module "%s" is enabled, but it should not be.', $module));
@@ -200,9 +196,8 @@ trait ModuleTrait {
    *   | ctools |
    *   | views  |
    * @endcode
-   *
-   * @Then the following modules should be enabled:
    */
+  #[Then('the following modules should be enabled:')]
   public function moduleAssertEnabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       if (!$this->moduleIsEnabled($module)) {
@@ -219,9 +214,8 @@ trait ModuleTrait {
    *   | shield           |
    *   | stage_file_proxy |
    * @endcode
-   *
-   * @Then the following modules should be disabled:
    */
+  #[Then('the following modules should be disabled:')]
   public function moduleAssertDisabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       if ($this->moduleIsEnabled($module)) {

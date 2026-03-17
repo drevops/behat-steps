@@ -988,9 +988,9 @@ Assert the downloaded file should be a zip archive containing specific files
 
 ```gherkin
 Then the downloaded file should be a zip archive containing the files named:
-| document.pdf |
-| image.jpg    |
-| data.csv     |
+  | document.pdf |
+  | image.jpg    |
+  | data.csv     |
 
 ```
 
@@ -1005,9 +1005,9 @@ Assert the downloaded file should be a zip archive containing files with partial
 
 ```gherkin
 Then the downloaded file should be a zip archive containing the files partially named:
-| report |
-| data   |
-| image  |
+  | report |
+  | data   |
+  | image  |
 
 ```
 
@@ -1022,9 +1022,9 @@ Assert the downloaded file is a zip archive not containing files with partial na
 
 ```gherkin
 Then the downloaded file should be a zip archive not containing the files partially named:
-| confidential |
-| private      |
-| draft        |
+  | confidential |
+  | private      |
+  | draft        |
 
 ```
 
@@ -1881,10 +1881,10 @@ Create a block instance
 
 ```gherkin
 Given the instance of "My block" block exists with the following configuration:
- | label         | My block |
- | label_display | 1        |
- | region        | content  |
- | status        | 1        |
+  | label         | My block |
+  | label_display | 1        |
+  | region        | content  |
+  | status        | 1        |
 
 ```
 
@@ -1899,9 +1899,9 @@ Configure an existing block identified by label
 
 ```gherkin
 Given the block "My block" has the following configuration:
-| label_display | 1       |
-| region        | content |
-| status        | 1       |
+  | label_display | 1       |
+  | region        | content |
+  | status        | 1       |
 
 ```
 
@@ -1958,8 +1958,8 @@ Set a visibility condition for a block
 
 ```gherkin
 Given the block "My block" has the following "request_path" condition configuration:
-| pages  | /node/1\r\n/about |
-| negate | 0                 |
+  | pages  | /node/1\r\n/about |
+  | negate | 0                 |
 
 ```
 
@@ -2056,8 +2056,8 @@ Remove content blocks of a specified type with the given descriptions
 
 ```gherkin
 Given the following "basic" content blocks do not exist:
-| [TEST] Footer Block  |
-| [TEST] Contact Form  |
+  | [TEST] Footer Block  |
+  | [TEST] Contact Form  |
 
 ```
 
@@ -2072,9 +2072,9 @@ Create content blocks of the specified type with the given field values
 
 ```gherkin
 Given the following "basic" content blocks exist:
-| info                  | status | body                   | created           |
-| [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
-| [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
+  | info                  | status | body                   | created           |
+  | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
+  | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
 
 ```
 
@@ -2275,7 +2275,7 @@ When I change the moderation state of the "article" content with the title "Test
 
 
 <details>
-  <summary><code>@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:</code></summary>
+  <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:</code></summary>
 
 <br/>
 Save order of the Draggable Order items
@@ -2312,9 +2312,9 @@ Create eck entities
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities exist:
-| title  | field_marine_animal     | field_fish_type | ... |
-| Snook  | Fish                    | Marine fish     | 10  |
-| ...    | ...                     | ...             | ... |
+  | title  | field_marine_animal     | field_fish_type | ... |
+  | Snook  | Fish                    | Marine fish     | 10  |
+  | ...    | ...                     | ...             | ... |
 
 ```
 
@@ -2329,8 +2329,8 @@ Remove custom entities by field
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities do not exist:
-| field        | value           |
-| field_a      | Entity label    |
+  | field        | value           |
+  | field_a      | Entity label    |
 
 ```
 
@@ -2732,9 +2732,9 @@ Create managed files with properties provided in the table
 
 ```gherkin
 Given the following managed files:
-| path         | uri                    | status |
-| document.pdf | public://document.pdf  | 1      |
-| image.jpg    | public://images/pic.jpg| 1      |
+  | path         | uri                    | status |
+  | document.pdf | public://document.pdf  | 1      |
+  | image.jpg    | public://images/pic.jpg| 1      |
 
 ```
 
@@ -2748,14 +2748,14 @@ Delete managed files defined by provided properties/fields
 <br/><br/>
 
 ```gherkin
-Given no managed files:
-| filename      |
-| myfile.jpg    |
-| otherfile.jpg |
- Given no managed files:
- | uri                    |
- | public://myfile.jpg    |
- | public://otherfile.jpg |
+Given the following managed files do not exist:
+  | filename      |
+  | myfile.jpg    |
+  | otherfile.jpg |
+Given the following managed files do not exist:
+  | uri                    |
+  | public://myfile.jpg    |
+  | public://otherfile.jpg |
 
 ```
 
@@ -2880,10 +2880,10 @@ Create media of a given type
 <br/><br/>
 
 ```gherkin
-Given "video" media:
-| name     | field1   | field2 | field3           |
-| My media | file.jpg | value  | value            |
-| ...      | ...      | ...    | ...              |
+Given the following media "video" exist:
+  | name     | field1   | field2 | field3           |
+  | My media | file.jpg | value  | value            |
+  | ...      | ...      | ...    | ...              |
 
 ```
 
@@ -2914,9 +2914,9 @@ Remove media defined by provided properties
 
 ```gherkin
 Given the following media "image" do not exist:
-| name               |
-| Media item         |
-| Another media item |
+  | name               |
+  | Media item         |
+  | Another media item |
 
 ```
 
@@ -2930,7 +2930,7 @@ Navigate to edit media with specified type and name
 <br/><br/>
 
 ```gherkin
-When I edit "document" media "Test document"
+When I edit the media "document" with the name "Test document"
 
 ```
 
@@ -2972,9 +2972,9 @@ Create a menu if one does not exist
 
 ```gherkin
 Given the following menus:
-| label            | description                    |
-| Footer Menu     | Links displayed in the footer  |
-| Secondary Menu  | Secondary navigation menu      |
+  | label            | description                    |
+  | Footer Menu     | Links displayed in the footer  |
+  | Secondary Menu  | Secondary navigation menu      |
 
 ```
 
@@ -2989,8 +2989,8 @@ Remove menu links by title
 
 ```gherkin
 Given the following menu links do not exist in the menu "Main navigation":
-| About Us     |
-| Contact      |
+  | About Us     |
+  | Contact      |
 
 ```
 
@@ -3005,9 +3005,9 @@ Create menu links
 
 ```gherkin
 Given the following menu links exist in the menu "Main navigation":
-| title           | enabled | uri                     | parent       |
-| Products        | 1       | /products               |              |
-| Latest Products | 1       | /products/latest        | Products     |
+  | title           | enabled | uri                     | parent       |
+  | Products        | 1       | /products               |              |
+  | Latest Products | 1       | /products/latest        | Products     |
 
 ```
 
@@ -3187,10 +3187,10 @@ Create a paragraph of the given type with fields within an existing entity
 
 ```gherkin
 Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
-| field_paragraph_title           | My paragraph title   |
-| field_paragraph_longtext:value  | My paragraph message |
-| field_paragraph_longtext:format | full_html            |
-| ...                             | ...                  |
+  | field_paragraph_title           | My paragraph title   |
+  | field_paragraph_longtext:value  | My paragraph message |
+  | field_paragraph_longtext:format | full_html            |
+  | ...                             | ...                  |
 
 ```
 
@@ -3451,13 +3451,13 @@ Remove users specified in a table
 
 ```gherkin
 Given the following users do not exist:
- | name |
- | John |
- | Jane |
+  | name |
+  | John |
+  | Jane |
  Given the following users do not exist:
-  | mail             |
-  | john@example.com |
-  | jane@example.com |
+   | mail             |
+   | john@example.com |
+   | jane@example.com |
 
 ```
 
@@ -3547,9 +3547,9 @@ Create multiple roles from the specified table
 
 ```gherkin
 Given the following roles:
-| name              | permissions                              |
-| Content Editor    | access content, create article content   |
-| Content Approver  | access content, edit any article content |
+  | name              | permissions                              |
+  | Content Editor    | access content, create article content   |
+  | Content Approver  | access content, edit any article content |
 
 ```
 

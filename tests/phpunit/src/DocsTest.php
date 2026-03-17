@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Tests\Fixtures\MultiMethodTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\NoMatchTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\SampleTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -13,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * phpcs:disable Drupal.Commenting.FunctionComment
  */
 #[CoversFunction('parse_method_comment')]
+#[CoversFunction('extract_method_steps')]
 #[CoversFunction('camel_to_snake')]
 #[CoversFunction('array_to_markdown_table')]
 #[CoversFunction('render_info')]
@@ -60,7 +64,7 @@ class DocsTest extends UnitTestCase {
         '',
         NULL,
       ],
-      'no steps' => [
+      'no example' => [
         <<<'EOD'
 /**
  * This is a description.
@@ -68,34 +72,7 @@ class DocsTest extends UnitTestCase {
  * @param string $test
  */
 EOD,
-        NULL,
-      ],
-      'with steps' => [
-        <<<'EOD'
-/**
- * This is a description.
- *
- * @Given I am on the homepage
- */
-EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
-          'description' => 'This is a description.',
-          'example' => '',
-        ],
-      ],
-      'multiple steps' => [
-        <<<'EOD'
-/**
- * This is a description.
- *
- * @Given I am on the homepage
- * @When I click on the button
- * @Then I should see the text
- */
-EOD,
-        [
-          'steps' => ['@Given I am on the homepage', '@When I click on the button', '@Then I should see the text'],
           'description' => 'This is a description.',
           'example' => '',
         ],
@@ -105,15 +82,12 @@ EOD,
 /**
  * This is a description.
  *
- * @Given I am on the homepage
- *
  * @code
  * Given I am on the homepage
  * @endcode
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description.',
           'example' => "Given I am on the homepage\n",
         ],
@@ -123,8 +97,6 @@ EOD,
 /**
  * This is a description.
  *
- * @Given I am on the homepage
- *
  * @code
  *   Given I am on the homepage
  *   When I click "Submit"
@@ -132,7 +104,6 @@ EOD,
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description.',
           'example' => "Given I am on the homepage\nWhen I click \"Submit\"\n",
         ],
@@ -142,29 +113,10 @@ EOD,
 /**
  * This is a description
  * that spans multiple lines.
- *
- * @Given I am on the homepage
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description',
-          'example' => '',
-        ],
-      ],
-      'steps out of order' => [
-        <<<'EOD'
-/**
- * This is a description.
- *
- * @When I click on the button
- * @Given I am on the homepage
- * @Then I should see the text
- */
-EOD,
-        [
-          'steps' => ['@Given I am on the homepage', '@When I click on the button', '@Then I should see the text'],
-          'description' => 'This is a description.',
           'example' => '',
         ],
       ],
@@ -172,8 +124,6 @@ EOD,
         <<<'EOD'
 /**
  * This is a description.
- *
- * @Given I am on the homepage
  *
  * @code
  *   Given I am on the homepage
@@ -184,7 +134,6 @@ EOD,
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description.',
           'example' => "Given I am on the homepage\n\nWhen I click \"Submit\"\nThen I should see \"Success\"\n",
         ],
@@ -195,11 +144,9 @@ EOD,
  * This is a description.
  * /* nested comment start
  * */ nested comment end
- * @Given I am on the homepage
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description.',
           'example' => '',
         ],
@@ -209,8 +156,6 @@ EOD,
 /**
  * This is a description.
  *
- * @Given I am on the homepage
- *
  * @code
  * Example without closing tag
  */
@@ -218,7 +163,7 @@ EOD,
         NULL,
         'Example not closed',
       ],
-      'example without steps' => [
+      'example with description' => [
         <<<'EOD'
 /**
  * This is a description.
@@ -228,24 +173,51 @@ EOD,
  * @endcode
  */
 EOD,
-        NULL,
+        [
+          'description' => 'This is a description.',
+          'example' => "Example code\n",
+        ],
       ],
       'trim description' => [
         <<<'EOD'
 /**
  * This is a description with trailing space.
- *
- * @Given I am on the homepage
  */
 EOD,
         [
-          'steps' => ['@Given I am on the homepage'],
           'description' => 'This is a description with trailing space.',
           'example' => '',
         ],
       ],
     ];
 
+  }
+
+  public function testExtractMethodStepsWithAttribute(): void {
+    $trait = new \ReflectionClass(SampleTrait::class);
+    $method = $trait->getMethod('sampleAssertTest');
+    $steps = extract_method_steps($method);
+    $this->assertEquals(['@Then the test should pass'], $steps);
+  }
+
+  public function testExtractMethodStepsMultiple(): void {
+    $trait = new \ReflectionClass(MultiMethodTrait::class);
+
+    $given_method = $trait->getMethod('multimethodGivenItems');
+    $this->assertEquals(['@Given the following items:'], extract_method_steps($given_method));
+
+    $when_method = $trait->getMethod('multimethodClickButton');
+    $this->assertEquals(['@When I click on :button'], extract_method_steps($when_method));
+
+    $then_method = $trait->getMethod('multimethodAssertResultVisible');
+    $this->assertEquals(['@Then the result should be visible'], extract_method_steps($then_method));
+  }
+
+  public function testExtractMethodStepsNoAttributes(): void {
+    $trait = new \ReflectionClass(NoMatchTrait::class);
+    $method = $trait->getMethod('otherMethod');
+    $steps = extract_method_steps($method);
+    $this->assertEquals([], $steps);
   }
 
   #[DataProvider('dataProviderCamelToSnake')]
@@ -1599,15 +1571,30 @@ EOD,
     // Verify the result includes methods in correct order (Given, When, Then).
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertIsArray($result[$trait_name]['methods']);
-    $this->assertCount(3, $result[$trait_name]['methods']);
+    $this->assertCount(5, $result[$trait_name]['methods']);
 
     // Check order: Given, When, Then.
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][0]);
     $this->assertStringContainsString('@Given', $result[$trait_name]['methods'][0]['steps'][0]);
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][1]);
-    $this->assertStringContainsString('@When', $result[$trait_name]['methods'][1]['steps'][0]);
+    $this->assertStringContainsString('@Given', $result[$trait_name]['methods'][1]['steps'][0]);
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][2]);
-    $this->assertStringContainsString('@Then', $result[$trait_name]['methods'][2]['steps'][0]);
+    $this->assertStringContainsString('@When', $result[$trait_name]['methods'][2]['steps'][0]);
+    $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][3]);
+    $this->assertStringContainsString('@Then', $result[$trait_name]['methods'][3]['steps'][0]);
+
+    // Check PyString example is preserved.
+    $pystring_method = $result[$trait_name]['methods'][4];
+    $this->assertIsString($pystring_method['example']);
+    $this->assertStringContainsString('"""', $pystring_method['example']);
+    $this->assertEquals('@Then the content should contain:', $pystring_method['steps'][0]);
+
+    // Check table example preserves indentation.
+    $table_method = $result[$trait_name]['methods'][1];
+    $this->assertEquals('@Given the following items exist:', $table_method['steps'][0]);
+    $this->assertIsString($table_method['example']);
+    $this->assertStringContainsString('| name  | value |', $table_method['example']);
+    $this->assertStringContainsString('  | name  | value |', $table_method['example']);
   }
 
   /**

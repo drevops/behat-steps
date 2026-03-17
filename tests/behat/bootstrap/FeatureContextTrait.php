@@ -10,6 +10,9 @@
 
 declare(strict_types=1);
 
+use Behat\Step\When;
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
@@ -54,9 +57,8 @@ trait FeatureContextTrait {
    * @code
    * When sleep for 5 seconds
    * @endcode
-   *
-   * @When sleep for :seconds second(s)
    */
+  #[When('sleep for :seconds second(s)')]
   public function testSleepForSeconds(int|string $seconds): void {
     sleep((int) $seconds);
   }
@@ -74,9 +76,8 @@ trait FeatureContextTrait {
 
   /**
    * Clear watchdog table.
-   *
-   * @Given the watchdog is cleared
    */
+  #[Given('the watchdog is cleared')]
   public function testClearWatchdogTable(): void {
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
@@ -86,9 +87,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that a user exists.
-   *
-   * @Then user :name should exist
    */
+  #[Then('user :name should exist')]
   public function testUserExists(string $name): void {
     // We need to check that user exists in both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
@@ -108,9 +108,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that a user does not exist.
-   *
-   * @Then user :name should not exist
    */
+  #[Then('user :name should not exist')]
   public function testUserNotExists(string $name): void {
     // We need to check that user was removed from both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
@@ -132,19 +131,17 @@ trait FeatureContextTrait {
 
   /**
    * Set watchdog error level for testing.
-   *
-   * @Given set watchdog error level :level
-   * @Given set watchdog error level :level of type :type
    */
+  #[Given('set watchdog error level :level')]
+  #[Given('set watchdog error level :level of type :type')]
   public function testSetWatchdogError(string $level, string $type = 'php'): void {
     \Drupal::logger($type)->log($level, 'test');
   }
 
   /**
    * Assert that a cookie exists.
-   *
-   * @Given cookie :name exists
    */
+  #[Given('cookie :name exists')]
   public function testAssertCookieExists(string $name): void {
     $cookies = $this->testGetAllCookies();
 
@@ -155,9 +152,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that a cookie does not exist.
-   *
-   * @Given cookie :name does not exist
    */
+  #[Given('cookie :name does not exist')]
   public function testAssertCookieNotExists(string $name): void {
     $cookies = $this->testGetAllCookies();
 
@@ -168,9 +164,8 @@ trait FeatureContextTrait {
 
   /**
    * Install a module.
-   *
-   * @Given I install a :name module
    */
+  #[Given('I install a :name module')]
   public function testInstallModule(string $name): void {
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -195,9 +190,8 @@ trait FeatureContextTrait {
 
   /**
    * Uninstall a module.
-   *
-   * @Given I uninstall a :name module
    */
+  #[Given('I uninstall a :name module')]
   public function testUninstallModule(string $name): void {
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -217,10 +211,9 @@ trait FeatureContextTrait {
 
   /**
    * Send a test email.
-   *
-   * @When I send test email to :email with
-   * @When I send test email to :email with:
    */
+  #[When('I send test email to :email with')]
+  #[When('I send test email to :email with:')]
   public function testSendEmail(string $email, PyStringNode $string): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -234,10 +227,9 @@ trait FeatureContextTrait {
 
   /**
    * Send a test email with CC.
-   *
-   * @When I send test email to :to with cc :cc with
-   * @When I send test email to :to with cc :cc with:
    */
+  #[When('I send test email to :to with cc :cc with')]
+  #[When('I send test email to :to with cc :cc with:')]
   public function testSendEmailWithCc(string $to, string $cc, PyStringNode $string): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -257,10 +249,9 @@ trait FeatureContextTrait {
 
   /**
    * Send a test email with BCC.
-   *
-   * @When I send test email to :to with bcc :bcc with
-   * @When I send test email to :to with bcc :bcc with:
    */
+  #[When('I send test email to :to with bcc :bcc with')]
+  #[When('I send test email to :to with bcc :bcc with:')]
   public function testSendEmailWithBcc(string $to, string $bcc, PyStringNode $string): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -280,10 +271,9 @@ trait FeatureContextTrait {
 
   /**
    * Send a test email with both CC and BCC.
-   *
-   * @When I send test email to :to with cc :cc and bcc :bcc with
-   * @When I send test email to :to with cc :cc and bcc :bcc with:
    */
+  #[When('I send test email to :to with cc :cc and bcc :bcc with')]
+  #[When('I send test email to :to with cc :cc and bcc :bcc with:')]
   public function testSendEmailWithCcAndBcc(string $to, string $cc, string $bcc, PyStringNode $string): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -304,9 +294,8 @@ trait FeatureContextTrait {
 
   /**
    * Send a test email with an attachment.
-   *
-   * @When I send test email to :email with subject :subject and attachment :attachment and body:
    */
+  #[When('I send test email to :email with subject :subject and attachment :attachment and body:')]
   public function testSendEmailWithAttachment(string $email, string $subject, string $attachment, PyStringNode $body): void {
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -326,9 +315,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that a file object exists.
-   *
-   * @Then :file_name file object exists
    */
+  #[Then(':file_name file object exists')]
   public function testAssertFileObjectExists(string $file_name): void {
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
@@ -346,9 +334,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that a file object does not exist.
-   *
-   * @Then no :file_name file object exists
    */
+  #[Then('no :file_name file object exists')]
   public function testAssertFileObjectNotExists(string $file_name): void {
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
@@ -359,9 +346,8 @@ trait FeatureContextTrait {
 
   /**
    * Assert that an entity exists with the specified UUID.
-   *
-   * @Then :entity_type entity exists with UUID :uuid
    */
+  #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
     $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
@@ -397,9 +383,8 @@ trait FeatureContextTrait {
 
   /**
    * Set a test cookie with the given name and value.
-   *
-   * @Given I set a test cookie with name :name and value :value
    */
+  #[Given('I set a test cookie with name :name and value :value')]
   public function testSetCookie(string $name, string $value): void {
     $session = $this->getSession();
 
@@ -424,19 +409,17 @@ trait FeatureContextTrait {
 
   /**
    * Go to the phpserver test page.
-   *
-   * @Given /^(?:|I )am on (?:|the )phpserver test page$/
-   * @When /^(?:|I )go to (?:|the )phpserver test page$/
    */
+  #[Given('/^(?:|I )am on (?:|the )phpserver test page$/')]
+  #[When('/^(?:|I )go to (?:|the )phpserver test page$/')]
   public function goToPhpServerTestPage(): void {
     $this->getSession()->visit('http://cli:8888/elements_relative.html');
   }
 
   /**
    * Test helperTransposeVerticalTable method.
-   *
-   * @When I call helperTransposeVerticalTable with:
    */
+  #[When('I call helperTransposeVerticalTable with:')]
   public function testCallHelperTransposeVerticalTable(TableNode $table): void {
     $result = $this->helperTransposeVerticalTable($table);
 

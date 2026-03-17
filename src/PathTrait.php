@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Step\Then;
+use Behat\Step\Given;
 use Behat\Mink\Exception\ExpectationException;
 
 /**
@@ -25,9 +27,8 @@ trait PathTrait {
    * Then the path should be "/"
    * Then the path should be "<front>"
    * @endcode
-   *
-   * @Then the path should be :path
    */
+  #[Then('the path should be :path')]
   public function pathAssertCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
 
@@ -61,9 +62,8 @@ trait PathTrait {
    * Then the path should not be "/"
    * Then the path should not be "<front>"
    * @endcode
-   *
-   * @Then the path should not be :path
    */
+  #[Then('the path should not be :path')]
   public function pathAssertNotCurrent(string $path): bool {
     $current_path = $this->getSession()->getCurrentUrl();
 
@@ -95,9 +95,8 @@ trait PathTrait {
    * @code
    * Then current url should have the "filter" parameter
    * @endcode
-   *
-   * @Then current url should have the :param parameter
    */
+  #[Then('current url should have the :param parameter')]
   public function pathAssertUrlHasParameter(string $param): void {
     $url = $this->getSession()->getCurrentUrl();
 
@@ -118,9 +117,8 @@ trait PathTrait {
    * @code
    * Then current url should have the "filter" parameter with the "recent" value
    * @endcode
-   *
-   * @Then current url should have the :param parameter with the :value value
    */
+  #[Then('current url should have the :param parameter with the :value value')]
   public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
     $this->pathAssertUrlHasParameter($param);
 
@@ -145,9 +143,8 @@ trait PathTrait {
    * @code
    * Then current url should not have the "filter" parameter
    * @endcode
-   *
-   * @Then current url should not have the :param parameter
    */
+  #[Then('current url should not have the :param parameter')]
   public function pathAssertUrlHasNoParameter(string $param): void {
     $url = $this->getSession()->getCurrentUrl();
 
@@ -168,9 +165,8 @@ trait PathTrait {
    * @code
    * Then current url should not have the "filter" parameter with the "recent" value
    * @endcode
-   *
-   * @Then current url should not have the :param parameter with the :value value
    */
+  #[Then('current url should not have the :param parameter with the :value value')]
   public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
     $url = $this->getSession()->getCurrentUrl();
 
@@ -195,9 +191,8 @@ trait PathTrait {
    * @code
    * Given the basic authentication with the username "myusername" and the password "mypassword"
    * @endcode
-   *
-   * @Given the basic authentication with the username :username and the password :password
    */
+  #[Given('the basic authentication with the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
   }

@@ -9,6 +9,8 @@
 
 declare(strict_types=1);
 
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
@@ -193,9 +195,7 @@ EOL;
     return $filename;
   }
 
-  /**
-   * @Given /^scenario steps(?: tagged with "([^"]*)")?:$/
-   */
+  #[Given('/^scenario steps(?: tagged with "([^"]*)")?:$/')]
   public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
@@ -229,9 +229,7 @@ EOL;
     }
   }
 
-  /**
-   * @Given some behat configuration
-   */
+  #[Given('some behat configuration')]
   public function behatCliWriteBehatYml(): void {
     $content = <<<'EOL'
 default:
@@ -317,9 +315,7 @@ EOL;
     }
   }
 
-  /**
-   * @Then it should fail with an error:
-   */
+  #[Then('it should fail with an error:')]
   public function behatCliAssertFailWithError(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce assertion exceptions (ExpectationException, ElementNotFoundException, or generic Exception).
@@ -336,9 +332,7 @@ EOL;
     }
   }
 
-  /**
-   * @Then it should fail with an exception:
-   */
+  #[Then('it should fail with an exception:')]
   public function behatCliAssertFailWithException(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
@@ -351,9 +345,7 @@ EOL;
     }
   }
 
-  /**
-   * @Then it should fail with a :exception exception:
-   */
+  #[Then('it should fail with a :exception exception:')]
   public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
     // Enforce \RuntimeException for all non-assertion exceptions. Assertion
@@ -368,9 +360,8 @@ EOL;
    *
    * @param \Behat\Gherkin\Node\PyStringNode $text
    *   PyString text instance.
-   *
-   * @Then the output should not contain:
    */
+  #[Then('the output should not contain:')]
   public function theOutputShouldNotContain(PyStringNode $text): void {
     if (str_contains($this->getOutput(), $this->getExpectedOutput($text))) {
       throw new \RuntimeException(sprintf('Output contains "%s" but should not.', $this->getExpectedOutput($text)));
