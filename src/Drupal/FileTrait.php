@@ -80,25 +80,37 @@ trait FileTrait {
    */
   #[Given('the following managed files:')]
   public function fileCreateManaged(TableNode $table): void {
-    foreach ($table->getHash() as $node_hash) {
-      $node = (object) $node_hash;
-      $this->fileCreateManagedSingle($node);
+    foreach ($table->getHash() as $hash) {
+      if (empty($hash['path'])) {
+        throw new \RuntimeException('Missing required column "path".');
+      }
+
+      $path = $hash['path'];
+      $uri = $hash['uri'] ?? NULL;
+      unset($hash['path'], $hash['uri']);
+
+      $stub = (object) $hash;
+      $this->fileCreateManagedSingle($path, $stub, $uri);
     }
   }
 
   /**
    * Create a single managed file.
+   *
+   * @param string $path
+   *   The source file path relative to 'files_path'.
+   * @param \StdClass $stub
+   *   Entity fields stub (must not contain 'path' or 'uri').
+   * @param string|null $uri
+   *   Optional destination URI. Defaults to 'public://filename'.
+   *
+   * @return \Drupal\file\FileInterface
+   *   Created file entity.
    */
-  protected function fileCreateManagedSingle(\StdClass $stub): FileInterface {
-    // Remove non-entity properties before parsing fields, as the Drupal driver
-    // validates that all properties are valid entity fields.
-    $path = $stub->path ?? NULL;
-    $uri = $stub->uri ?? NULL;
-    unset($stub->path, $stub->uri);
+  protected function fileCreateManagedSingle(string $path, \StdClass $stub, ?string $uri = NULL): FileInterface {
     $this->parseEntityFields('file', $stub);
-    $stub->path = $path;
-    $stub->uri = $uri;
-    $saved = $this->fileCreateEntity($stub);
+
+    $saved = $this->fileCreateEntity($path, $stub, $uri);
 
     $this->fileEntities[] = $saved;
 
@@ -108,19 +120,18 @@ trait FileTrait {
   /**
    * Create file entity.
    *
+   * @param string $path
+   *   The source file path relative to 'files_path'.
    * @param \StdClass $stub
-   *   Stub object.
+   *   Entity fields stub.
+   * @param string|null $uri
+   *   Optional destination URI. Defaults to 'public://filename'.
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  protected function fileCreateEntity(\StdClass $stub): FileInterface {
-    // @codeCoverageIgnoreStart
-    if (empty($stub->path)) {
-      throw new \RuntimeException('The "path" property is required.');
-    }
-    // @codeCoverageIgnoreEnd
-    $path = ltrim((string) $stub->path, '/');
+  protected function fileCreateEntity(string $path, \StdClass $stub, ?string $uri = NULL): FileInterface {
+    $path = ltrim($path, '/');
 
     // Get fixture file path.
     if (!empty($this->getMinkParameter('files_path'))) {
@@ -136,9 +147,9 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
-    if (!empty($stub->uri)) {
-      $destination = $stub->uri;
-      $directory = dirname((string) $destination);
+    if (!empty($uri)) {
+      $destination = $uri;
+      $directory = dirname($destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       // @codeCoverageIgnoreStart
       if (!$dir) {
@@ -154,14 +165,8 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
-    $fields = get_object_vars($stub);
 
-    foreach ($fields as $property => $value) {
-      // If path or URI has been specified then the value has already been
-      // handled.
-      if (in_array($property, ['path', 'uri'], TRUE)) {
-        continue;
-      }
+    foreach (get_object_vars($stub) as $property => $value) {
       $entity->set($property, $value);
     }
 
