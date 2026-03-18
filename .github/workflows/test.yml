@@ -30,7 +30,7 @@ jobs:
         drupal_version: [10, 11]
 
     container:
-      image: drevops/ci-runner:26.2.0
+      image: drevops/ci-runner:26.3.0@sha256:788b02ff938be5e3c1d915d786b4be3b6453ac6091eaaa50d1414552d5131e97
 
       env:
         TERM: xterm-256color
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Process the codebase to run in CI
         run: |
@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: always()
         with:
           name: test-artifacts-drupal-${{ matrix.drupal_version }}
@@ -108,7 +108,7 @@ jobs:
           retention-days: 30
 
       - name: Upload code coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         if: ${{ env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/') }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
