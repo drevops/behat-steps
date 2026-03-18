@@ -383,7 +383,7 @@ JS;
    * @endcode
    */
   #[Then('the option :option should be selected within the select element :selector')]
-  public function fieldAssertSelectOptionSelected(string $value, string $selector): void {
+  public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $current_url = $this->getSession()->getCurrentUrl();
     $path = parse_url((string) $current_url, PHP_URL_PATH);
@@ -394,7 +394,7 @@ JS;
 
     $option_field = $select_field->find('named', [
       'option',
-      $value,
+      $option,
     ]);
 
     if (!$option_field) {
@@ -402,7 +402,7 @@ JS;
     }
 
     if (!$option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $value, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $option, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -414,7 +414,7 @@ JS;
    * @endcode
    */
   #[Then('the option :option should not be selected within the select element :selector')]
-  public function fieldAssertSelectOptionNotSelected(string $value, string $selector): void {
+  public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $current_url = $this->getSession()->getCurrentUrl();
     $path = parse_url((string) $current_url, PHP_URL_PATH);
@@ -423,14 +423,14 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
-    $option_field = $select_field->find('named', ['option', $value]);
+    $option_field = $select_field->find('named', ['option', $option]);
 
     if (!$option_field) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $value, $selector, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $path), $this->getSession()->getDriver());
     }
 
     if ($option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $value, $selector, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $option, $selector, $path), $this->getSession()->getDriver());
     }
   }
 

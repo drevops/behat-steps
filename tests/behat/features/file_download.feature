@@ -61,11 +61,11 @@ Feature: Check that FileDownloadTrait works
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive containing the files named:
+    And the downloaded file should be a zip archive containing the following files named:
       | audio.mp3    |
       | image.png    |
       | document.pdf |
-    And the downloaded file should be a zip archive not containing the files partially named:
+    And the downloaded file should be a zip archive not containing the following files partially named:
       | text.txt         |
       | not_existing.png |
 
@@ -90,16 +90,16 @@ Feature: Check that FileDownloadTrait works
       """
 
   @api @download
-  Scenario: Assert the downloaded file should be a zip archive containing the files partially named
+  Scenario: Assert the downloaded file should be a zip archive containing the following files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive containing the files partially named:
+    And the downloaded file should be a zip archive containing the following files partially named:
       | example_aud |
       | example_ima |
 
   @api @trait:FileDownloadTrait,Drupal\ContentTrait
-  Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the files partially named" fails with an error
+  Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the following files partially named" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
@@ -107,7 +107,7 @@ Feature: Check that FileDownloadTrait works
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
       And the downloaded file name should be "archive_multiple.zip"
-      Then the downloaded file should be a zip archive containing the files partially named:
+      Then the downloaded file should be a zip archive containing the following files partially named:
         | nonexistent_file |
       """
     When I run "behat --no-colors"
@@ -121,7 +121,7 @@ Feature: Check that FileDownloadTrait works
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive not containing the files partially named:
+    And the downloaded file should be a zip archive not containing the following files partially named:
       | example_text |
       | not_existing |
 
@@ -180,7 +180,7 @@ Feature: Check that FileDownloadTrait works
       Given I am logged in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
-      Then the downloaded file should be a zip archive containing the files named:
+      Then the downloaded file should be a zip archive containing the following files named:
         | nonexistent1.txt |
         | nonexistent2.txt |
       """
@@ -198,7 +198,7 @@ Feature: Check that FileDownloadTrait works
       Given I am logged in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
-      Then the downloaded file should be a zip archive not containing the files partially named:
+      Then the downloaded file should be a zip archive not containing the following files partially named:
         | example_audio |
       """
     When I run "behat --no-colors"
@@ -282,7 +282,7 @@ Feature: Check that FileDownloadTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I download the file from the URL "/archive_invalid.zip"
-      Then the downloaded file should be a zip archive containing the files named:
+      Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
     When I run "behat --no-colors"
@@ -297,7 +297,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps:
       """
       When I visit "/"
-      Then the downloaded file should be a zip archive containing the files named:
+      Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
     When I run "behat --no-colors"
@@ -313,7 +313,7 @@ Feature: Check that FileDownloadTrait works
       """
       When I visit "/"
       And I download the file from the URL "/text.txt"
-      Then the downloaded file should be a zip archive containing the files named:
+      Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
     When I run "behat --no-colors"

@@ -162,7 +162,7 @@ commands:
 
   copy-files:
     usage: Update fixture files to the current build.
-    cmd: cp -Rf tests/behat/fixtures/. build/web/sites/default/files/
+    cmd: rsync -a --delete tests/behat/fixtures/ build/web/sites/default/files/
 
 entrypoint:
   - bash

@@ -50,9 +50,9 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the following :content_type content does not exist:')]
-  public function contentDelete(string $type, TableNode $table): void {
+  public function contentDelete(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->contentLoadMultiple($type, $node_hash);
+      $nids = $this->contentLoadMultiple($content_type, $node_hash);
 
       $controller = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $controller->loadMultiple($nids);
