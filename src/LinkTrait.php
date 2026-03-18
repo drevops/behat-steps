@@ -31,8 +31,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href should exist')]
-  public function linkAssertTextWithHrefExists(string $text, string $href): void {
-    $this->linkAssertTextWithHrefWithinElementExists($text, $href, NULL);
+  public function linkAssertTextWithHrefExists(string $link, string $href): void {
+    $this->linkAssertTextWithHrefWithinElementExists($link, $href, NULL);
   }
 
   /**
@@ -46,7 +46,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should exist')]
-  public function linkAssertTextWithHrefWithinElementExists(string $text, string $href, ?string $selector): void {
+  public function linkAssertTextWithHrefWithinElementExists(string $link, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -60,16 +60,16 @@ trait LinkTrait {
       $element = $page;
     }
 
-    $link = $element->findLink($text);
-    if (!$link) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
+    $link_element = $element->findLink($link);
+    if (!$link_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
     }
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (!preg_match($pattern, (string) $link->getAttribute('href'))) {
-      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s"', $link->getAttribute('href'), $href), $this->getSession()->getDriver());
+    if (!preg_match($pattern, (string) $link_element->getAttribute('href'))) {
+      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s"', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -84,8 +84,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href should not exist')]
-  public function linkAssertTextWithHrefNotExists(string $text, string $href): void {
-    $this->linkAssertTextWithHrefWithinElementNotExists($text, $href, NULL);
+  public function linkAssertTextWithHrefNotExists(string $link, string $href): void {
+    $this->linkAssertTextWithHrefWithinElementNotExists($link, $href, NULL);
   }
 
   /**
@@ -99,7 +99,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should not exist')]
-  public function linkAssertTextWithHrefWithinElementNotExists(string $text, string $href, ?string $selector): void {
+  public function linkAssertTextWithHrefWithinElementNotExists(string $link, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -113,16 +113,16 @@ trait LinkTrait {
       $element = $page;
     }
 
-    $link = $element->findLink($text);
-    if (!$link) {
+    $link_element = $element->findLink($link);
+    if (!$link_element) {
       return;
     }
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     // Support for simplified wildcard using '*'.
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (preg_match($pattern, (string) $link->getAttribute('href'))) {
-      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not', $link->getAttribute('href'), $href), $this->getSession()->getDriver());
+    if (preg_match($pattern, (string) $link_element->getAttribute('href'))) {
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -170,17 +170,17 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link should be an absolute link')]
-  public function linkAssertLinkIsAbsolute(string $text): void {
-    $link = $this->getSession()->getPage()->findLink($text);
+  public function linkAssertLinkIsAbsolute(string $link): void {
+    $link_element = $this->getSession()->getPage()->findLink($link);
 
-    if (!$link) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
+    if (!$link_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
     }
 
-    $href = $link->getAttribute('href');
+    $href = $link_element->getAttribute('href');
 
     if (!parse_url((string) $href, PHP_URL_SCHEME)) {
-      throw new ExpectationException(sprintf('The link "%s" is not an absolute link.', $text), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link "%s" is not an absolute link.', $link), $this->getSession()->getDriver());
     }
   }
 
@@ -192,17 +192,17 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link should not be an absolute link')]
-  public function linkAssertLinkIsNotAbsolute(string $text): void {
-    $link = $this->getSession()->getPage()->findLink($text);
+  public function linkAssertLinkIsNotAbsolute(string $link): void {
+    $link_element = $this->getSession()->getPage()->findLink($link);
 
-    if (!$link) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $text);
+    if (!$link_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
     }
 
-    $href = $link->getAttribute('href');
+    $href = $link_element->getAttribute('href');
 
     if (parse_url((string) $href, PHP_URL_SCHEME)) {
-      throw new ExpectationException(sprintf('The link "%s" is an absolute link.', $text), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link "%s" is an absolute link.', $link), $this->getSession()->getDriver());
     }
   }
 

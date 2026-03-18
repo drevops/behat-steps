@@ -966,7 +966,7 @@ Then the downloaded file name should be "report.pdf"
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file name should contain :name</code></summary>
+  <summary><code>@Then the downloaded file name should contain :file_name_part</code></summary>
 
 <br/>
 Assert the downloaded file name contains a specific string
@@ -980,14 +980,14 @@ Then the downloaded file name should contain "report"
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive containing the files named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive containing the following files named:</code></summary>
 
 <br/>
 Assert the downloaded file should be a zip archive containing specific files
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive containing the files named:
+Then the downloaded file should be a zip archive containing the following files named:
   | document.pdf |
   | image.jpg    |
   | data.csv     |
@@ -997,14 +997,14 @@ Then the downloaded file should be a zip archive containing the files named:
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive containing the files partially named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive containing the following files partially named:</code></summary>
 
 <br/>
 Assert the downloaded file should be a zip archive containing files with partial names
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive containing the files partially named:
+Then the downloaded file should be a zip archive containing the following files partially named:
   | report |
   | data   |
   | image  |
@@ -1014,14 +1014,14 @@ Then the downloaded file should be a zip archive containing the files partially 
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive not containing the files partially named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive not containing the following files partially named:</code></summary>
 
 <br/>
 Assert the downloaded file is a zip archive not containing files with partial names
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive not containing the files partially named:
+Then the downloaded file should be a zip archive not containing the following files partially named:
   | confidential |
   | private      |
   | draft        |
