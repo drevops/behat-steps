@@ -48,3 +48,43 @@ Feature: Check that MetatagTrait works
       """
       Meta tag with specified attributes should not exist: {"name":"MobileOptimized","content":"width"}
       """
+
+  Scenario: Assert "Then the :metaName meta tag should not contain any HTML tags" works for clean meta tag
+    Given I am an anonymous user
+    When I visit "/sites/default/files/metatags.html"
+    Then the "description" meta tag should not contain any HTML tags
+
+  Scenario: Assert "Then the :metaName meta tag should not contain any HTML tags" works for clean OG meta tag
+    Given I am an anonymous user
+    When I visit "/sites/default/files/metatags.html"
+    Then the "og:title" meta tag should not contain any HTML tags
+
+  @trait:MetatagTrait
+  Scenario: Assert that "Then the :metaName meta tag should not contain any HTML tags" fails when meta tag contains HTML
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/metatags.html"
+      Then the "og:description" meta tag should not contain any HTML tags
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "og:description" meta tag contains HTML tags:
+      """
+
+  @trait:MetatagTrait
+  Scenario: Assert that "Then the :metaName meta tag should not contain any HTML tags" fails when meta tag does not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/metatags.html"
+      Then the "nonexistent" meta tag should not contain any HTML tags
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Meta tag with name or property "nonexistent" not found.
+      """
