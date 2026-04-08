@@ -1330,7 +1330,55 @@ Then the link "Return to site content" should not be an absolute link
 
 >  Assert `<meta>` tags in page markup.
 >  - Assert presence and content of meta tags with proper attribute handling.
+>  - Verify meta tag content is free of HTML markup.
 
+
+<details>
+  <summary><code>@Then the meta tag should exist with the following attributes:</code></summary>
+
+<br/>
+Assert that a meta tag with specific attributes and values exists
+<br/><br/>
+
+```gherkin
+Then the meta tag should exist with the following attributes:
+  | name    | description          |
+  | content | My page description  |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the meta tag should not exist with the following attributes:</code></summary>
+
+<br/>
+Assert that a meta tag with specific attributes and values does not exist
+<br/><br/>
+
+```gherkin
+Then the meta tag should not exist with the following attributes:
+  | name    | nonexistent          |
+  | content | Some content         |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :metaName meta tag should not contain any HTML tags</code></summary>
+
+<br/>
+Assert a meta tag does not contain HTML tags
+<br/><br/>
+
+```gherkin
+Then the "og:description" meta tag should not contain any HTML tags
+Then the "description" meta tag should not contain any HTML tags
+
+```
+
+</details>
 
 ## PathTrait
 
