@@ -279,7 +279,6 @@ default:
       purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
       on_failed: true
       always_fullscreen: true
-      fullscreen_algorithm: resize # 'stitch' (only if GD ext available) or 'resize'
       info_types:
         - url
         - feature
