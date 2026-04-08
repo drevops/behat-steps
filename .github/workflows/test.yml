@@ -55,7 +55,6 @@ jobs:
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'normal'
-            coverage: true
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'lowest'
@@ -115,22 +114,22 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests with coverage
-        if: ${{ matrix.coverage }}
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
         run: ahoy test-unit-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests
-        if: ${{ !matrix.coverage }}
+        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
         run: ahoy test-unit
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests with coverage
-        if: ${{ matrix.coverage }}
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
         run: ahoy test-bdd-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests
-        if: ${{ !matrix.coverage }}
+        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
         run: ahoy test-bdd
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
@@ -154,7 +153,7 @@ jobs:
 
       - name: Upload code coverage reports to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v5
-        if: ${{ matrix.coverage && env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/') }}
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal' && env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/')
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: .logs/coverage
