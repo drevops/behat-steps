@@ -56,6 +56,9 @@ jobs:
             if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
+      - name: Provision application
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
+
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
         continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
@@ -76,7 +79,7 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
   test:
-    name: PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}
     runs-on: ubuntu-latest
 
     strategy:
