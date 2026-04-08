@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Step\Then;
 use Behat\Step\Given;
+use Behat\Step\When;
 use Behat\Mink\Exception\ExpectationException;
 
 /**
@@ -195,6 +196,18 @@ trait PathTrait {
   #[Given('the basic authentication with the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
+  }
+
+  /**
+   * Navigate back in browser history.
+   *
+   * @code
+   * When I go back
+   * @endcode
+   */
+  #[When('I go back')]
+  public function pathGoBack(): void {
+    $this->getSession()->back();
   }
 
 }

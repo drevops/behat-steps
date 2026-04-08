@@ -205,6 +205,14 @@ Feature: Check that PathTrait works
     Then current url should not have the "nonexistent" parameter with the "value" value
 
   @api
+  Scenario: Assert "When I go back" navigates to the previous page
+    Given I am an anonymous user
+    When I go to "/user/login"
+    And I go to "/user/password"
+    And I go back
+    Then the path should be "/user/login"
+
+  @api
   Scenario: Assert "When the basic authentication with the username :username and the password :password"
     Given users:
       | name       | mail               | pass       |

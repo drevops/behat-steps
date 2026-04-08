@@ -1357,6 +1357,20 @@ Given the basic authentication with the username "myusername" and the password "
 </details>
 
 <details>
+  <summary><code>@When I go back</code></summary>
+
+<br/>
+Navigate back in browser history
+<br/><br/>
+
+```gherkin
+When I go back
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the path should be :path</code></summary>
 
 <br/>
