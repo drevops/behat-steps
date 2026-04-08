@@ -417,6 +417,17 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert that the mailsystem formatter has the expected value.
+   */
+  #[Then('the mailsystem formatter should be :expected')]
+  public function testAssertMailsystemFormatter(string $expected): void {
+    $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
+    if ($formatter !== $expected) {
+      throw new \Exception(sprintf('Expected mailsystem formatter to be "%s", but got "%s".', $expected, $formatter));
+    }
+  }
+
+  /**
    * Test helperTransposeVerticalTable method.
    */
   #[When('I call helperTransposeVerticalTable with:')]
