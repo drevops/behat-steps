@@ -51,6 +51,7 @@ from the community.
 | [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](STEPS.md#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
+| [IframeTrait](STEPS.md#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](STEPS.md#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |

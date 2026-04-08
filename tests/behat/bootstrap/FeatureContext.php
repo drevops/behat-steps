@@ -31,6 +31,7 @@ use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\IframeTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
 use DrevOps\BehatSteps\JavascriptTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
@@ -60,6 +61,7 @@ class FeatureContext extends DrupalContext {
   use EmailTrait;
   use FieldTrait;
   use FileDownloadTrait;
+  use IframeTrait;
   use FileTrait;
   use JavascriptTrait;
   use KeyboardTrait;
