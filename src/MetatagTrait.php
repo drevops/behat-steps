@@ -106,7 +106,7 @@ trait MetatagTrait {
     $page = $this->getSession()->getPage();
     $escaped_name = (new Escaper())->escapeLiteral($meta_name);
 
-    $meta_tag = $page->find('xpath', "//meta[@name=$escaped_name or @property=$escaped_name]");
+    $meta_tag = $page->find('xpath', sprintf('//meta[@name=%s or @property=%s]', $escaped_name, $escaped_name));
 
     if ($meta_tag === NULL) {
       throw new \Exception(sprintf('Meta tag with name or property "%s" not found.', $meta_name));
