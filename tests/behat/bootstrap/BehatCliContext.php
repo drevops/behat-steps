@@ -567,7 +567,13 @@ EOL;
       );
     }
 
-    $text = ConsoleFormatter::replaceHref($text);
+    if (method_exists(ConsoleFormatter::class, 'replaceHref')) {
+      $text = ConsoleFormatter::replaceHref($text);
+    }
+    else {
+      // Fallback for Behat < 3.30: strip <href> tags, keeping only the text.
+      $text = preg_replace('/<href=[^>]+>(.*?)<\/>/', '$1', (string) $text) ?? $text;
+    }
 
     return $text;
   }
