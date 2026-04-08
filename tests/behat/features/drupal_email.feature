@@ -700,3 +700,7 @@ Feature: Check that EmailTrait works
       """
       Test content with custom handler type
       """
+
+  @api @email
+  Scenario: The mailsystem formatter should not be overridden when test email system is enabled
+    Then the mailsystem formatter should be "php_mail"
