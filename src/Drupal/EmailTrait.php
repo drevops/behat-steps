@@ -605,7 +605,6 @@ trait EmailTrait {
     if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
-        ->set('defaults.formatter', $value)
         ->save();
     }
     // @codeCoverageIgnoreEnd
