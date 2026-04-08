@@ -21,7 +21,65 @@ env:
   CI: "1"
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    container:
+      image: drevops/ci-runner:26.3.0@sha256:788b02ff938be5e3c1d915d786b4be3b6453ac6091eaaa50d1414552d5131e97
+
+      env:
+        TERM: xterm-256color
+        PHP_VERSION: '8.3'
+        DRUPAL_VERSION: '11'
+        DEPS: 'normal'
+        PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Process the codebase to run in CI
+        run: |
+          sed -i -e "/###/d" docker-compose.yml
+          sed -i -e "s/##//" docker-compose.yml
+
+      - name: Build stack
+        run: |
+          docker compose up -d --build
+          docker cp -L . "$(docker compose ps -q cli)":/app/
+        timeout-minutes: 30
+
+      - name: Install development dependencies
+        run: |
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
+            if [ -n \"${PACKAGE_TOKEN:-}\" ]; then export COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"${PACKAGE_TOKEN-}\"}}'; fi && \
+            COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
+
+      - name: Provision application
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
+
+      - name: Validate Composer configuration is normalized
+        run: docker compose exec -T cli composer normalize --dry-run
+        continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+
+      - name: Install Ahoy CLI
+        run: |
+          version=2.4.0 && \
+          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          chmod +x /usr/local/bin/ahoy && \
+          ahoy --version
+
+      - name: Lint code
+        run: ahoy lint
+        continue-on-error: ${{ vars.CI_LINT_IGNORE_FAILURE == '1' }}
+
+      - name: Lint documentation
+        run: ahoy lint-docs
+        continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
+
   test:
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -94,24 +152,12 @@ jobs:
       - name: Provision application
         run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
 
-      - name: Validate Composer configuration is normalized
-        run: docker compose exec -T cli composer normalize --dry-run
-        continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
-
       - name: Install Ahoy CLI
         run: |
           version=2.4.0 && \
           set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
           chmod +x /usr/local/bin/ahoy && \
           ahoy --version
-
-      - name: Lint code
-        run: ahoy lint
-        continue-on-error: ${{ vars.CI_LINT_IGNORE_FAILURE == '1' }}
-
-      - name: Lint documentation
-        run: ahoy lint-docs
-        continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests with coverage
         if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
