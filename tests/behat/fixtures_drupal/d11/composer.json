@@ -14,7 +14,7 @@
         "drupal/draggableviews": "^2.1.4",
         "drupal/eck": "^2.1@beta",
         "drupal/paragraphs": "^1.19",
-        "drupal/pathauto": "^1.13",
+        "drupal/pathauto": "^1.14",
         "drupal/scheduled_transitions": "^2.6",
         "drupal/search_api": "^1.38",
         "drupal/testmode": "^2.6",
