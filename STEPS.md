@@ -325,6 +325,21 @@ When I scroll to the element "#footer"
 </details>
 
 <details>
+  <summary><code>@When I hover over the element :selector</code></summary>
+
+<br/>
+Hover over an element identified by CSS selector
+<br/><br/>
+
+```gherkin
+When I hover over the element ".menu-item"
+When I hover over the element "#tooltip-trigger"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector1 should appear after the element :selector2</code></summary>
 
 <br/>
