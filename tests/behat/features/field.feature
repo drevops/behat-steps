@@ -17,6 +17,25 @@ Feature: Check that FieldTrait works
     And I fill in "field1" with "0"
     Then the field "field1" should not be empty
 
+  Scenario: Assert "When I fill in the field :selector with :value" works with CSS selector
+    When I visit "/sites/default/files/fields.html"
+    And I fill in the field "#field1" with "CSS filled value"
+    Then the field "field1" should not be empty
+
+  @trait:FieldTrait
+  Scenario: Assert that "When I fill in the field :selector with :value" fails when element does not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      And I fill in the field "#nonexistent-field" with "some value"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Field matching css "#nonexistent-field" not found.
+      """
+
   @trait:FieldTrait
   Scenario: Assert negative "the :field field should be empty" for field with "0"
     Given some behat configuration

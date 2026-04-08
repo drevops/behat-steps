@@ -657,6 +657,21 @@ When I choose the radio button "edit-field-choice-option-a"
 </details>
 
 <details>
+  <summary><code>@When I fill in the field :selector with :value</code></summary>
+
+<br/>
+Fill in a field identified by CSS selector
+<br/><br/>
+
+```gherkin
+When I fill in the field ".field--name-body textarea" with "Hello world"
+When I fill in the field "#edit-field-custom-0-value" with "Test value"
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I fill in the datetime field :label with date :date and time :time</code></summary>
 
 <br/>

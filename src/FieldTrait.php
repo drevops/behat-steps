@@ -655,6 +655,28 @@ JS;
   }
 
   /**
+   * Fill in a field identified by CSS selector.
+   *
+   * Use this when the field cannot be reliably located by label, id, or name
+   * (e.g., dynamically generated fields in Paragraphs or Layout Builder).
+   *
+   * @code
+   * When I fill in the field ".field--name-body textarea" with "Hello world"
+   * When I fill in the field "#edit-field-custom-0-value" with "Test value"
+   * @endcode
+   */
+  #[When('I fill in the field :selector with :value')]
+  public function fieldFillField(string $selector, string $value): void {
+    $field = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($field === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'field', 'css', $selector);
+    }
+
+    $field->setValue($value);
+  }
+
+  /**
    * Disable browser validation for the form for validating errors.
    *
    * The form selector is registered and validation disabling will be
