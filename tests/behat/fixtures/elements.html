@@ -66,6 +66,20 @@
     <a href="/path3">Link 3</a>
   </div>
 
+  <!-- Section: Hover Testing -->
+  <div class="section">
+    <h2>Hover Testing</h2>
+    <div id="hover-target" style="padding: 20px; background: #eee;">
+      Hover over me
+      <div id="hover-reveal" style="display: none;">Revealed on hover</div>
+    </div>
+    <script>
+      document.getElementById('hover-target').addEventListener('mouseover', function() {
+        document.getElementById('hover-reveal').style.display = 'block';
+      });
+    </script>
+  </div>
+
   <!-- Section: Text Ordering -->
   <div class="section">
     <h2>Text Ordering</h2>

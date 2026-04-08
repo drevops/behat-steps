@@ -445,6 +445,29 @@ Feature: Check that ElementTrait works
       Text was not found: "NonExistentText123".
       """
 
+  @javascript
+  Scenario: Assert "When I hover over the element :selector" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements.html"
+    Then the element "#hover-reveal" should not be displayed
+    When I hover over the element "#hover-target"
+    Then the element "#hover-reveal" should be displayed
+
+  @trait:ElementTrait
+  Scenario: Assert that "When I hover over the element :selector" fails when element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      And I hover over the element "#nonexistent-element"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
   @javascript @phpserver
   Scenario: Assert click on element works
     Given I am on the phpserver test page

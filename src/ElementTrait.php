@@ -288,6 +288,25 @@ trait ElementTrait {
   }
 
   /**
+   * Hover over an element identified by CSS selector.
+   *
+   * @code
+   * When I hover over the element ".menu-item"
+   * When I hover over the element "#tooltip-trigger"
+   * @endcode
+   */
+  #[When('I hover over the element :selector')]
+  public function elementHover(string $selector): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $element->mouseOver();
+  }
+
+  /**
    * Assert that element with specified CSS is visible on page.
    *
    * @code
