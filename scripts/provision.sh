@@ -8,6 +8,7 @@ set -e
 [ -n "${DREVOPS_DEBUG}" ] && set -x
 
 DRUPAL_VERSION="${DRUPAL_VERSION:-11}"
+DEPS="${DEPS:-normal}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site."
 
@@ -61,7 +62,11 @@ echo "  > Creating GitHub authentication token if provided."
 [ -n "$GITHUB_TOKEN" ] && echo "{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}" > /app/build/auth.json
 
 echo "  > Installing Composer dependencies inside the build dir."
-COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist
+if [ "${DEPS}" = "lowest" ]; then
+  COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-lowest --prefer-stable
+else
+  COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist
+fi
 
 echo "  > Running post-install-cmd."
 composer run-script post-install-cmd

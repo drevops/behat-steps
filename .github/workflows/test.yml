@@ -27,14 +27,46 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        drupal_version: [10, 11]
+        include:
+          - php_version: '8.2'
+            drupal_version: '10'
+            deps: 'normal'
+          - php_version: '8.2'
+            drupal_version: '10'
+            deps: 'lowest'
+          - php_version: '8.3'
+            drupal_version: '10'
+            deps: 'normal'
+          - php_version: '8.3'
+            drupal_version: '10'
+            deps: 'lowest'
+          - php_version: '8.3'
+            drupal_version: '11'
+            deps: 'normal'
+          - php_version: '8.3'
+            drupal_version: '11'
+            deps: 'lowest'
+          - php_version: '8.4'
+            drupal_version: '10'
+            deps: 'normal'
+          - php_version: '8.4'
+            drupal_version: '10'
+            deps: 'lowest'
+          - php_version: '8.4'
+            drupal_version: '11'
+            deps: 'normal'
+          - php_version: '8.4'
+            drupal_version: '11'
+            deps: 'lowest'
 
     container:
       image: drevops/ci-runner:26.3.0@sha256:788b02ff938be5e3c1d915d786b4be3b6453ac6091eaaa50d1414552d5131e97
 
       env:
         TERM: xterm-256color
+        PHP_VERSION: ${{ matrix.php_version }}
         DRUPAL_VERSION: ${{ matrix.drupal_version }}
+        DEPS: ${{ matrix.deps }}
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
     steps:
@@ -49,7 +81,7 @@ jobs:
 
       - name: Build stack
         run: |
-          docker compose up -d
+          docker compose up -d --build
           docker cp -L . "$(docker compose ps -q cli)":/app/
         timeout-minutes: 30
 
@@ -60,7 +92,7 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - name: Provision application
-        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -T cli bash scripts/provision.sh
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
 
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
@@ -82,11 +114,23 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests with coverage
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
         run: ahoy test-unit-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
+      - name: Run Unit tests
+        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        run: ahoy test-unit
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
       - name: Run BDD tests with coverage
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
         run: ahoy test-bdd-coverage
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
+      - name: Run BDD tests
+        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        run: ahoy test-bdd
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Process test logs and artifacts
@@ -102,14 +146,14 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: always()
         with:
-          name: test-artifacts-drupal-${{ matrix.drupal_version }}
+          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}
           path: .logs
           include-hidden-files: true
           retention-days: 30
 
       - name: Upload code coverage reports to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
-        if: ${{ env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/') }}
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v5
+        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal' && env.CODECOV_TOKEN != '' && !startsWith(github.head_ref, 'deps/')
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: .logs/coverage

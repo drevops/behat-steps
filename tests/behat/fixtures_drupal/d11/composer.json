@@ -10,10 +10,14 @@
         "drupal/core-composer-scaffold": "~11.2.0",
         "drupal/core-project-message": "~11.2.0",
         "drupal/core-recommended": "~11.2.0",
+        "grasmash/yaml-cli": "^3.2.1",
+        "symfony/browser-kit": "^6.4.3 || ^7.3",
+        "symfony/config": "^6.4.3 || ^7.3",
         "drupal/draggableviews": "^2.1.4",
+        "drupal/dynamic_entity_reference": "^3.2.1",
         "drupal/eck": "^2.1@beta",
         "drupal/paragraphs": "^1.19",
-        "drupal/pathauto": "^1.13",
+        "drupal/pathauto": "^1.14",
         "drupal/scheduled_transitions": "^2.6",
         "drupal/search_api": "^1.38",
         "drupal/testmode": "^2.6",
@@ -51,6 +55,7 @@
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
             "oomphinc/composer-installers-extender": true,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "tbachert/spi": true
         }
