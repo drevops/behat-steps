@@ -9,6 +9,7 @@
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
+| [IframeTrait](#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
@@ -1025,6 +1026,44 @@ Then the downloaded file should be a zip archive not containing the following fi
   | confidential |
   | private      |
   | draft        |
+
+```
+
+</details>
+
+## IframeTrait
+
+[Source](src/IframeTrait.php), [Example](tests/behat/features/iframe.feature)
+
+>  Switch between iframes and the root document.
+>  - Switch to iframes by CSS selector, including unnamed iframes.
+>  - Switch back to the root (top-level) document.
+
+
+<details>
+  <summary><code>@When I switch to iframe with locator :locator</code></summary>
+
+<br/>
+Switch to an iframe identified by CSS selector
+<br/><br/>
+
+```gherkin
+When I switch to iframe with locator "iframe.payment-form"
+When I switch to iframe with locator "#recaptcha iframe"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I switch to the root document</code></summary>
+
+<br/>
+Switch back to the root (top-level) document from an iframe
+<br/><br/>
+
+```gherkin
+When I switch to the root document
 
 ```
 
