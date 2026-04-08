@@ -64,7 +64,6 @@ Feature: Check that MetatagTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
       When I visit "/sites/default/files/metatags.html"
       Then the "og:description" meta tag should not contain any HTML tags
       """
@@ -79,7 +78,6 @@ Feature: Check that MetatagTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
       When I visit "/sites/default/files/metatags.html"
       Then the "nonexistent" meta tag should not contain any HTML tags
       """

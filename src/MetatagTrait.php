@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Selector\Xpath\Escaper;
 
 /**
  * Assert `<meta>` tags in page markup.
@@ -103,12 +104,9 @@ trait MetatagTrait {
   #[Then('the :metaName meta tag should not contain any HTML tags')]
   public function metatagAssertNoHtml(string $meta_name): void {
     $page = $this->getSession()->getPage();
+    $escaped_name = (new Escaper())->escapeLiteral($meta_name);
 
-    $meta_tag = $page->find('xpath', sprintf(
-      "//meta[@name='%s' or @property='%s']",
-      $meta_name,
-      $meta_name
-    ));
+    $meta_tag = $page->find('xpath', "//meta[@name=$escaped_name or @property=$escaped_name]");
 
     if ($meta_tag === NULL) {
       throw new \Exception(sprintf('Meta tag with name or property "%s" not found.', $meta_name));
