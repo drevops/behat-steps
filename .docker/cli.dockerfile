@@ -1,5 +1,6 @@
 # hadolint global ignore=DL3018
-FROM uselagoon/php-8.3-cli-drupal:26.2.0
+ARG PHP_VERSION=8.3
+FROM uselagoon/php-${PHP_VERSION}-cli-drupal:26.2.0
 
 RUN apk add --no-cache $PHPIZE_DEPS && \
     pecl install pcov && \
