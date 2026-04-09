@@ -17,6 +17,7 @@
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
+| [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
 
@@ -1718,6 +1719,63 @@ Set the viewport to specific dimensions
 ```gherkin
 When I set the viewport to "1920" by "1080"
 When I set the viewport to "375" by "667"
+
+```
+
+</details>
+
+## TableTrait
+
+[Source](src/TableTrait.php), [Example](tests/behat/features/table.feature)
+
+>  Interact with HTML table elements and assert their content.
+>  - Assert table row counts in tbody.
+>  - Assert table column headers in thead.
+>  - Assert text values present in a specific table row.
+
+
+<details>
+  <summary><code>@Then the table :selector should have :count row(s)</code></summary>
+
+<br/>
+Assert that a table has the expected number of rows in its tbody
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should have 5 rows
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the table :selector should contain the following columns:</code></summary>
+
+<br/>
+Assert that a table contains the expected column headers
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should contain the following columns:
+  | Title  |
+  | Author |
+  | Status |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :rowText row should contain the following:</code></summary>
+
+<br/>
+Assert that a table row containing a text has the expected values
+<br/><br/>
+
+```gherkin
+Then the "Article title" row should contain the following:
+  | Published |
+  | admin     |
 
 ```
 
