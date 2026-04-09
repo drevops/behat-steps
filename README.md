@@ -59,6 +59,7 @@ from the community.
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
+| [RestTrait](STEPS.md#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](STEPS.md#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](STEPS.md#xmltrait) | Assert XML responses with element and attribute checks. |

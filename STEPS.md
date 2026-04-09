@@ -17,6 +17,7 @@
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
+| [RestTrait](#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
@@ -1719,6 +1720,94 @@ Set the viewport to specific dimensions
 ```gherkin
 When I set the viewport to "1920" by "1080"
 When I set the viewport to "375" by "667"
+
+```
+
+</details>
+
+## RestTrait
+
+[Source](src/RestTrait.php), [Example](tests/behat/features/rest.feature)
+
+>  Lightweight REST API testing with no Drupal dependencies.
+>  - Set HTTP headers for subsequent requests.
+>  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
+>  - Assert response status codes and body content.
+>  
+>  Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
+
+
+<details>
+  <summary><code>@Given a REST header :name with value :value</code></summary>
+
+<br/>
+Set a REST header for subsequent requests
+<br/><br/>
+
+```gherkin
+Given a REST header "Accept" with value "application/json"
+Given a REST header "Authorization" with value "Bearer abc123"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I send a REST :method request to :url</code></summary>
+
+<br/>
+Send a REST request to a URL
+<br/><br/>
+
+```gherkin
+When I send a REST "GET" request to "/api/resource"
+When I send a REST "DELETE" request to "/api/resource/1"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I send a REST :method request to :url with body:</code></summary>
+
+<br/>
+Send a REST request to a URL with a body
+<br/><br/>
+
+```gherkin
+When I send a REST "POST" request to "/api/resource" with body:
+  """
+  {"name": "example"}
+  """
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response status code should be :code</code></summary>
+
+<br/>
+Assert the REST response status code
+<br/><br/>
+
+```gherkin
+Then the REST response status code should be 200
+Then the REST response status code should be 404
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the REST response should contain :text</code></summary>
+
+<br/>
+Assert the REST response contains text
+<br/><br/>
+
+```gherkin
+Then the REST response should contain "success"
 
 ```
 

@@ -39,6 +39,7 @@ use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\HelperTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\RestTrait;
 use DrevOps\BehatSteps\ResponsiveTrait;
 use DrevOps\BehatSteps\TableTrait;
 use DrevOps\BehatSteps\WaitTrait;
@@ -75,6 +76,7 @@ class FeatureContext extends DrupalContext {
   use ParagraphsTrait;
   use PathTrait;
   use ResponseTrait;
+  use RestTrait;
   use ResponsiveTrait;
   use SearchApiTrait;
   use TableTrait;
