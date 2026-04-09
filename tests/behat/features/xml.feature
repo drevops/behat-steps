@@ -609,3 +609,20 @@ Feature: Check that XmlTrait works
       """
       The XML attribute "category" on element "//book[@id='123']" contains "fic", but it should not.
       """
+
+  Scenario: Assert "Then print last XML response" works
+    Given the response content from the file "xml_valid.xml"
+    Then print last XML response
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then print last XML response" fails with an exception when no XML is loaded
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then print last XML response
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Failed to load XML
+      """

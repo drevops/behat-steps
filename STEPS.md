@@ -2214,6 +2214,20 @@ Then the XML should not use the namespace "http://example.com/nonexistent"
 
 </details>
 
+<details>
+  <summary><code>@Then print last XML response</code></summary>
+
+<br/>
+Print the last XML response
+<br/><br/>
+
+```gherkin
+Then print last XML response
+
+```
+
+</details>
+
 
 
 ## Drupal\BigPipeTrait

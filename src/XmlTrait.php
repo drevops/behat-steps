@@ -542,6 +542,27 @@ trait XmlTrait {
   }
 
   /**
+   * Print the last XML response.
+   *
+   * @code
+   * Then print last XML response
+   * @endcode
+   */
+  #[Then('print last XML response')]
+  public function xmlPrintLastResponse(): void {
+    $this->xmlEnsureDocument();
+
+    $this->xmlDocument->formatOutput = TRUE;
+    $output = $this->xmlDocument->saveXML();
+
+    if ($output === FALSE) {
+      throw new ExpectationException('Failed to format the XML response.', $this->getSession()->getDriver());
+    }
+
+    print $output;
+  }
+
+  /**
    * Load XML content into the document and XPath.
    *
    * @param string $content
