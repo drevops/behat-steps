@@ -127,6 +127,11 @@ Feature: Check that TableTrait works
       Column "NonExistentColumn" not found in table ".views-table".
       """
 
+  Scenario: Assert "Then the table :selector should be empty" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/table_empty.html"
+    Then the table ".test-table" should be empty
+
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be empty" fails when table not found
     Given some behat configuration
@@ -168,6 +173,11 @@ Feature: Check that TableTrait works
       | [TEST] Table page 1 |
     When I visit "/admin/content"
     Then the table ".views-table" should not be empty
+
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/table_sorted.html"
+    Then the table ".test-table" should be sorted by "Title" in "ascending" order
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
