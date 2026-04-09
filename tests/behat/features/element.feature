@@ -473,7 +473,7 @@ Feature: Check that ElementTrait works
     Given I am an anonymous user
     When I visit "/sites/default/files/elements.html"
     And I focus on the element "#focus-input"
-    Then the element "#focus-input" with the attribute "id" and the value "focus-input" should exist
+    Then the element "#focus-input" with the attribute "data-focused" and the value "true" should exist
 
   @trait:ElementTrait
   Scenario: Assert that "When I focus on the element :selector" fails when element does not exist
