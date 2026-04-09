@@ -152,6 +152,9 @@ trait ModalTrait {
 
     foreach ($this->modalGetButtonSelectors() as $button_selector) {
       foreach ($dialog->findAll('css', $button_selector) as $candidate) {
+        if (!$candidate->isVisible()) {
+          continue;
+        }
         $candidate_text = trim((string) $candidate->getText());
         $candidate_value = trim((string) $candidate->getAttribute('value'));
         if ($candidate_text === $button || $candidate_value === $button) {
@@ -162,7 +165,10 @@ trait ModalTrait {
     }
 
     if ($button_element === NULL) {
-      $button_element = $dialog->findButton($button);
+      $fallback = $dialog->findButton($button);
+      if ($fallback !== NULL && $fallback->isVisible()) {
+        $button_element = $fallback;
+      }
     }
 
     if ($button_element === NULL) {
