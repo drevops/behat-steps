@@ -478,7 +478,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert that "When I focus on the element :selector" fails when element does not exist
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
       When I visit "/sites/default/files/elements.html"
