@@ -297,3 +297,24 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] V-Page 1"
     And I should see "[TEST] V-Page 2"
     And I should see "[TEST] V-Page 3"
+
+  @api
+  Scenario: Assert "Then :content_type content with the title :title should not exist" works as expected
+    Given I am logged in as a user with the "administrator" role
+    Then "page" content with the title "[TEST] Non-existing page" should not exist
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Then :content_type content with the title :title should not exist" works as expected when content exists
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given page content:
+        | title              |
+        | [TEST] Exists page |
+      Then "page" content with the title "[TEST] Exists page" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Content of type "page" with title "[TEST] Exists page" should not exist, but found with NID:
+      """

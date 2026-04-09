@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
@@ -227,6 +228,23 @@ trait ContentTrait {
 
     $node->set('moderation_state', $new_state);
     $node->save();
+  }
+
+  /**
+   * Assert content with specified type and title does not exist.
+   *
+   * @code
+   * Then "page" content with the title "Test page" should not exist
+   * Then "article" content with the title "Test article" should not exist
+   * @endcode
+   */
+  #[Then(':content_type content with the title :title should not exist')]
+  public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
+    $nids = $this->contentLoadMultiple($content_type, ['title' => $title]);
+
+    if (!empty($nids)) {
+      throw new \RuntimeException(sprintf('Content of type "%s" with title "%s" should not exist, but found with NID: %s', $content_type, $title, implode(', ', $nids)));
+    }
   }
 
   /**
