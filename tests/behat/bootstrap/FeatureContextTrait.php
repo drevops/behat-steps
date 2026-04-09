@@ -440,18 +440,6 @@ trait FeatureContextTrait {
   }
 
   /**
-   * Assert the viewport has the specified width.
-   */
-  #[Then('the viewport should have the width of :width')]
-  public function testAssertViewportWidth(string $width): void {
-    $current = $this->responsiveGetCurrentDimensions();
-    $expected = (int) $width;
-    if ($current['width'] !== $expected) {
-      throw new \RuntimeException(sprintf('Expected viewport width %d, but got %d.', $expected, $current['width']));
-    }
-  }
-
-  /**
    * Test helperTransposeVerticalTable method.
    */
   #[When('I call helperTransposeVerticalTable with:')]
