@@ -487,7 +487,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element with selector #nonexistent-element not found.
+      Element with selector "#nonexistent-element" not found.
       """
 
   @javascript @phpserver
