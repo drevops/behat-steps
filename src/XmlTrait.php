@@ -10,6 +10,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -539,6 +540,27 @@ trait XmlTrait {
     if (in_array($namespace, $namespaces, TRUE)) {
       throw new ExpectationException(sprintf('The XML uses the namespace "%s", but it should not.', $namespace), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Print the last XML response.
+   *
+   * @code
+   * When I print last XML response
+   * @endcode
+   */
+  #[When('I print last XML response')]
+  public function xmlPrintLastResponse(): void {
+    $this->xmlEnsureDocument();
+
+    $this->xmlDocument->formatOutput = TRUE;
+    $output = $this->xmlDocument->saveXML();
+
+    if ($output === FALSE) {
+      throw new ExpectationException('Failed to format the XML response.', $this->getSession()->getDriver());
+    }
+
+    print $output;
   }
 
   /**

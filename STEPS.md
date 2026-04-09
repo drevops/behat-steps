@@ -1964,6 +1964,20 @@ Given the response content is the following:
 </details>
 
 <details>
+  <summary><code>@When I print last XML response</code></summary>
+
+<br/>
+Print the last XML response
+<br/><br/>
+
+```gherkin
+When I print last XML response
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the response should be in XML format</code></summary>
 
 <br/>
