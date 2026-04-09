@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
-use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
@@ -115,7 +114,7 @@ trait RestTrait {
   public function restAssertResponseContains(string $text): void {
     $content = $this->getSession()->getPage()->getContent();
 
-    if (strpos($content, $text) === FALSE) {
+    if (!str_contains((string) $content, $text)) {
       throw new ExpectationException(sprintf('The REST response does not contain "%s".', $text), $this->getSession()->getDriver());
     }
   }
@@ -140,7 +139,7 @@ trait RestTrait {
   /**
    * Get the BrowserKit client from the current Mink driver.
    *
-   * @return \Symfony\Component\BrowserKit\AbstractBrowser
+   * @return mixed
    *   The BrowserKit client.
    */
   protected function restGetClient(): mixed {
