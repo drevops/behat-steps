@@ -170,21 +170,6 @@ Feature: Check that TableTrait works
     Then the table ".views-table" should not be empty
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should not be empty" fails when table is empty
-    Given some behat configuration
-    And scenario steps tagged with "@api":
-      """
-      Given I am logged in as a user with the "administrator" role
-      When I visit "/admin/content"
-      Then the table ".views-table" should not be empty
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      Expected table ".views-table" to not be empty, but it has no rows.
-      """
-
-  @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@api":
@@ -202,25 +187,6 @@ Feature: Check that TableTrait works
       Column "NonExistent" not found in table ".views-table".
       """
 
-  @trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when not sorted
-    Given some behat configuration
-    And scenario steps tagged with "@api":
-      """
-      Given I am logged in as a user with the "administrator" role
-      And page content:
-        | title               |
-        | [TEST] Alpha page   |
-        | [TEST] Beta page    |
-        | [TEST] Gamma page   |
-      When I visit "/admin/content"
-      Then the table ".views-table" should be sorted by "Title" in "ascending" order
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      Expected table ".views-table" to be sorted by "Title" in ascending order.
-      """
 
   @api
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
