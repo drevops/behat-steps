@@ -314,11 +314,16 @@ trait ElementTrait {
    * When I focus on the element ".form-text"
    * @endcode
    *
-   *
    * @javascript
    */
   #[When('I focus on the element :selector')]
   public function elementFocus(string $selector): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
     $this->elementExecuteJs($selector, '{{ELEMENT}}.focus();');
   }
 
