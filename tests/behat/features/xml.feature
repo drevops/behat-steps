@@ -482,8 +482,8 @@ Feature: Check that XmlTrait works
       does not exist
       """
 
-  Scenario: Assert "Given the response content:" works with direct PyString content
-    Given the response content:
+  Scenario: Assert "Given the response content is the following:" works with direct PyString content
+    Given the response content is the following:
       """
       <?xml version="1.0" encoding="UTF-8"?>
       <catalog>
@@ -498,11 +498,11 @@ Feature: Check that XmlTrait works
     And the XML attribute "type" on element "//product[@id='p1']" should be equal to "widget"
 
   @trait:XmlTrait
-  Scenario: Assert that "Given the response content:" fails with an exception for invalid XML
+  Scenario: Assert that "Given the response content is the following:" fails with an exception for invalid XML
     Given some behat configuration
     And scenario steps:
       """
-      Given the response content:
+      Given the response content is the following:
         '''
         this is not valid xml <<<
         '''

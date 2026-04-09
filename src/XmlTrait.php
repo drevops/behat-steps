@@ -104,13 +104,13 @@ trait XmlTrait {
    * Set the response XML content directly from a PyString.
    *
    * @code
-   * Given the response content:
+   * Given the response content is the following:
    *   """
    *   <?xml version="1.0"?><root><item>value</item></root>
    *   """
    * @endcode
    */
-  #[Given('the response content:')]
+  #[Given('the response content is the following:')]
   public function xmlSetResponseContentDirect(PyStringNode $content): void {
     $this->xmlTestContent = $content->getRaw();
     $this->xmlDocument = NULL;
