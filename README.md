@@ -87,6 +87,7 @@ from the community.
 | [Drupal\TimeTrait](STEPS.md#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
 | [Drupal\UserTrait](STEPS.md#drupalusertrait) | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](STEPS.md#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| [Drupal\WebformTrait](STEPS.md#drupalwebformtrait) | Manage Drupal webforms. |
 
 
 
