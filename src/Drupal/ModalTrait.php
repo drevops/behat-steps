@@ -75,7 +75,7 @@ trait ModalTrait {
 
     $actual_text = $element->getText();
 
-    if (!str_contains($actual_text, $text)) {
+    if (!str_contains((string) $actual_text, $text)) {
       throw new ExpectationException(sprintf('The modal dialog does not contain the text "%s". Actual text: "%s".', $text, $actual_text), $this->getSession()->getDriver());
     }
   }
@@ -100,7 +100,7 @@ trait ModalTrait {
 
     $actual_text = $element->getText();
 
-    if (str_contains($actual_text, $text)) {
+    if (str_contains((string) $actual_text, $text)) {
       throw new ExpectationException(sprintf('The modal dialog contains the text "%s", but it should not.', $text), $this->getSession()->getDriver());
     }
   }
@@ -167,7 +167,7 @@ trait ModalTrait {
     $selector = $this->modalGetSelector();
     $timeout = $this->modalGetWaitTimeout();
 
-    $result = $this->getSession()->getPage()->waitFor($timeout, function () use ($selector) {
+    $result = $this->getSession()->getPage()->waitFor($timeout, function () use ($selector): bool {
       $element = $this->getSession()->getPage()->find('css', $selector);
 
       return $element !== NULL && $element->isVisible();
