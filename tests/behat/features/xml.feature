@@ -459,3 +459,153 @@ Feature: Check that XmlTrait works
       """
       The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
       """
+
+  Scenario: Assert "Given the response content from the file :filename" works
+    Given the response content from the file "xml_valid.xml"
+    Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+
+  Scenario: Assert "Given the response content from the file :filename" works with attribute assertions
+    Given the response content from the file "xml_valid.xml"
+    Then the XML attribute "category" on element "//book[@id='123']" should be equal to "fiction"
+
+  @trait:XmlTrait
+  Scenario: Assert that "Given the response content from the file :filename" fails with an exception for missing file
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the response content from the file "nonexistent.xml"
+      Then the XML element "//book" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      does not exist
+      """
+
+  Scenario: Assert "Given the response content:" works with direct PyString content
+    Given the response content:
+      """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <catalog>
+        <product id="p1" type="widget">
+          <name>Blue Widget</name>
+          <price>9.99</price>
+        </product>
+      </catalog>
+      """
+    Then the XML element "//product[@id='p1']/name" should be equal to "Blue Widget"
+    And the XML element "//product[@id='p1']/price" should be equal to "9.99"
+    And the XML attribute "type" on element "//product[@id='p1']" should be equal to "widget"
+
+  @trait:XmlTrait
+  Scenario: Assert that "Given the response content:" fails with an exception for invalid XML
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the response content:
+        '''
+        this is not valid xml <<<
+        '''
+      Then the XML element "//anything" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Failed to load XML
+      """
+
+  Scenario: Assert "Then the XML attribute :attribute_name on element :element should contain :text" works
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the XML attribute "category" on element "//book[@id='123']" should contain "fic"
+
+  Scenario: Assert "Then the XML attribute :attribute_name on element :element should contain :text" works with id attribute
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the XML attribute "id" on element "//book[@id='123']" should contain "12"
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should contain :text" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "id" on element "//nonexistent" should contain "123"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should contain :text" fails with an error for missing attribute
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "nonexistent" on element "//book[@id='123']" should contain "test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should contain :text" fails with an error for text not found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "category" on element "//book[@id='123']" should contain "science"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML attribute "category" on element "//book[@id='123']" does not contain "science".
+      """
+
+  Scenario: Assert "Then the XML attribute :attribute_name on element :element should not contain :text" works
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the XML attribute "category" on element "//book[@id='123']" should not contain "science"
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should not contain :text" fails with an error for missing element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "id" on element "//nonexistent" should not contain "123"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML element "//nonexistent" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should not contain :text" fails with an error for missing attribute
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "nonexistent" on element "//book[@id='123']" should not contain "test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute_name on element :element should not contain :text" fails with an error when text is found
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the XML attribute "category" on element "//book[@id='123']" should not contain "fic"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The XML attribute "category" on element "//book[@id='123']" contains "fic", but it should not.
+      """
