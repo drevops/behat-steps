@@ -3067,6 +3067,104 @@ When I edit the media "document" with the name "Test document"
 
 </details>
 
+<details>
+  <summary><code>@When I visit the media :media_type with the name :name</code></summary>
+
+<br/>
+Navigate to view page of media with specified type and name
+<br/><br/>
+
+```gherkin
+When I visit the media "image" with the name "Test media image"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I visit the media :media_type delete page with the name :name</code></summary>
+
+<br/>
+Navigate to delete page of media with specified type and name
+<br/><br/>
+
+```gherkin
+When I visit the media "image" delete page with the name "Test media image"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I visit the media :media_type revisions page with the name :name</code></summary>
+
+<br/>
+Navigate to revisions page of media with specified type and name
+<br/><br/>
+
+```gherkin
+When I visit the media "image" revisions page with the name "Test media image"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :media_type media type should exist</code></summary>
+
+<br/>
+Assert that a media type exists
+<br/><br/>
+
+```gherkin
+Then the "image" media type should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :media_type media type should not exist</code></summary>
+
+<br/>
+Assert that a media type does not exist
+<br/><br/>
+
+```gherkin
+Then the "test_type" media type should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :media_type media with the name :name should exist</code></summary>
+
+<br/>
+Assert that a media entity with a specific type and name exists
+<br/><br/>
+
+```gherkin
+Then the "image" media with the name "Test media image" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :media_type media with the name :name should not exist</code></summary>
+
+<br/>
+Assert that a media entity with a specific type and name does not exist
+<br/><br/>
+
+```gherkin
+Then the "image" media with the name "Test media image" should not exist
+
+```
+
+</details>
+
 ## Drupal\MenuTrait
 
 [Source](src/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
