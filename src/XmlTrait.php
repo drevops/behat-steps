@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -37,6 +39,11 @@ trait XmlTrait {
   protected ?string $xmlContentHash = NULL;
 
   /**
+   * XML content set directly for testing without an HTTP request.
+   */
+  protected ?string $xmlTestContent = NULL;
+
+  /**
    * Enable internal XML error handling before each scenario.
    */
   #[BeforeScenario]
@@ -48,6 +55,7 @@ trait XmlTrait {
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
+    $this->xmlTestContent = NULL;
   }
 
   /**
@@ -57,6 +65,54 @@ trait XmlTrait {
    */
   #[AfterScenario]
   public function xmlAfterScenario(): void {
+    $this->xmlDocument = NULL;
+    $this->xmlXpath = NULL;
+    $this->xmlContentHash = NULL;
+    $this->xmlTestContent = NULL;
+  }
+
+  /**
+   * Set the response XML content from a fixture file.
+   *
+   * @code
+   * Given the response content from the file "xml_valid.xml"
+   * @endcode
+   */
+  #[Given('the response content from the file :filename')]
+  public function xmlSetResponseContentFromFile(string $filename): void {
+    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
+    $file_path = $files_path . '/' . $filename;
+
+    if (!file_exists($file_path)) {
+      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
+    }
+
+    $content = file_get_contents($file_path);
+    if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
+      // @codeCoverageIgnoreEnd
+    }
+
+    $this->xmlTestContent = $content;
+    $this->xmlDocument = NULL;
+    $this->xmlXpath = NULL;
+    $this->xmlContentHash = NULL;
+  }
+
+  /**
+   * Set the response XML content directly from a PyString.
+   *
+   * @code
+   * Given the response content is the following:
+   *   """
+   *   <?xml version="1.0"?><root><item>value</item></root>
+   *   """
+   * @endcode
+   */
+  #[Given('the response content is the following:')]
+  public function xmlSetResponseContentDirect(PyStringNode $content): void {
+    $this->xmlTestContent = $content->getRaw();
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
@@ -356,6 +412,62 @@ trait XmlTrait {
   }
 
   /**
+   * Assert that an XML attribute value contains specified text.
+   *
+   * @code
+   * Then the XML attribute "category" on element "//book" should contain "fic"
+   * Then the XML attribute "id" on element "/library/book[1]" should contain "12"
+   * @endcode
+   */
+  #[Then('the XML attribute :attribute_name on element :element should contain :text')]
+  public function xmlAssertAttributeContains(string $attribute_name, string $element, string $text): void {
+    $this->xmlEnsureDocument();
+
+    $nodes = $this->xmlXpath->query($element);
+    if ($nodes === FALSE || $nodes->length === 0) {
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+    }
+
+    $node = $nodes->item(0);
+    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute_name)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute_name, $element), $this->getSession()->getDriver());
+    }
+
+    $actual_value = $node->getAttribute($attribute_name);
+    if (!str_contains($actual_value, $text)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" does not contain "%s". Actual value: "%s".', $attribute_name, $element, $text, $actual_value), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that an XML attribute value does not contain specified text.
+   *
+   * @code
+   * Then the XML attribute "category" on element "//book" should not contain "science"
+   * Then the XML attribute "id" on element "/library/book[1]" should not contain "999"
+   * @endcode
+   */
+  #[Then('the XML attribute :attribute_name on element :element should not contain :text')]
+  public function xmlAssertAttributeNotContains(string $attribute_name, string $element, string $text): void {
+    $this->xmlEnsureDocument();
+
+    $nodes = $this->xmlXpath->query($element);
+    if ($nodes === FALSE || $nodes->length === 0) {
+      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+    }
+
+    $node = $nodes->item(0);
+    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute_name)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute_name, $element), $this->getSession()->getDriver());
+    }
+
+    $actual_value = $node->getAttribute($attribute_name);
+    if (str_contains($actual_value, $text)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" contains "%s", but it should not.', $attribute_name, $element, $text), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert that an XML element has a specific number of child elements.
    *
    * @code
@@ -469,6 +581,14 @@ trait XmlTrait {
    *   If no document is loaded.
    */
   protected function xmlEnsureDocument(): void {
+    // Use directly set test content if available.
+    if ($this->xmlTestContent !== NULL) {
+      if ($this->xmlDocument === NULL) {
+        $this->xmlLoadDocument($this->xmlTestContent);
+      }
+      return;
+    }
+
     $content = $this->getSession()->getPage()->getContent();
     $content_hash = md5((string) $content);
 

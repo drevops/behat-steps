@@ -1757,6 +1757,37 @@ When I wait for 1 second for AJAX to finish
 
 
 <details>
+  <summary><code>@Given the response content from the file :filename</code></summary>
+
+<br/>
+Set the response XML content from a fixture file
+<br/><br/>
+
+```gherkin
+Given the response content from the file "xml_valid.xml"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the response content is the following:</code></summary>
+
+<br/>
+Set the response XML content directly from a PyString
+<br/><br/>
+
+```gherkin
+Given the response content is the following:
+  """
+  <?xml version="1.0"?><root><item>value</item></root>
+  """
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the response should be in XML format</code></summary>
 
 <br/>
@@ -1929,6 +1960,36 @@ Assert that an XML attribute value does not equal specified text
 ```gherkin
 Then the XML attribute "id" on element "//book" should not be equal to "999"
 Then the XML attribute "category" on element "/library/book[1]" should not be equal to "science"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute_name on element :element should contain :text</code></summary>
+
+<br/>
+Assert that an XML attribute value contains specified text
+<br/><br/>
+
+```gherkin
+Then the XML attribute "category" on element "//book" should contain "fic"
+Then the XML attribute "id" on element "/library/book[1]" should contain "12"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the XML attribute :attribute_name on element :element should not contain :text</code></summary>
+
+<br/>
+Assert that an XML attribute value does not contain specified text
+<br/><br/>
+
+```gherkin
+Then the XML attribute "category" on element "//book" should not contain "science"
+Then the XML attribute "id" on element "/library/book[1]" should not contain "999"
 
 ```
 
