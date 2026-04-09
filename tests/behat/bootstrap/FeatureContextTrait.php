@@ -428,6 +428,22 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert the viewport width is approximately the specified value.
+   *
+   * Allows a tolerance of 20px to account for scrollbar width differences
+   * between resizeWindow() (outer size) and window.innerWidth (inner size).
+   */
+  #[Then('the viewport should have the width of :width')]
+  public function testAssertViewportWidth(string $width): void {
+    $current = $this->responsiveGetCurrentDimensions();
+    $expected = (int) $width;
+    $tolerance = 20;
+    if (abs($current['width'] - $expected) > $tolerance) {
+      throw new \RuntimeException(sprintf('Expected viewport width within %dpx of %d, but got %d.', $tolerance, $expected, $current['width']));
+    }
+  }
+
+  /**
    * Test helperTransposeVerticalTable method.
    */
   #[When('I call helperTransposeVerticalTable with:')]
