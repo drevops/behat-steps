@@ -147,7 +147,7 @@ trait ModalTrait {
     foreach ($this->modalGetButtonSelectors() as $button_selector) {
       foreach ($dialog->findAll('css', $button_selector) as $candidate) {
         $candidate_text = trim((string) $candidate->getText());
-        $candidate_value = trim((string) $candidate->getValue());
+        $candidate_value = trim((string) $candidate->getAttribute('value'));
         if ($candidate_text === $button || $candidate_value === $button) {
           $button_element = $candidate;
           break 2;
