@@ -3517,6 +3517,9 @@ Given the following menu links exist in the menu "Main navigation":
 >  - Assert modal dialog visibility.
 >  - Assert modal dialog content.
 >  - Interact with modal dialog buttons.
+>  
+>  Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
+>  modals, custom dialogs) via overridable selector methods.
 
 
 <details>
