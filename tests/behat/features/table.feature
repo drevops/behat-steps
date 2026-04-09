@@ -187,7 +187,6 @@ Feature: Check that TableTrait works
       Column "NonExistent" not found in table ".views-table".
       """
 
-
   @api
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
     Given I am logged in as a user with the "administrator" role
