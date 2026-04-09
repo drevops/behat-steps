@@ -624,5 +624,5 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Failed to load XML
+      Unable to access the response before visiting a page
       """
