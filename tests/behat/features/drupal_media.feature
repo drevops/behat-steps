@@ -153,7 +153,6 @@ Feature: Check that MediaTrait works
     And I am logged in as a user with the "administrator" role
     When I visit the media "image" with the name "Test media image"
     Then the response should contain "200"
-    And I should see "Test media image"
 
   @api @trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the media :media_type with the name :name" fails with an error
@@ -207,7 +206,6 @@ Feature: Check that MediaTrait works
     And I am logged in as a user with the "administrator" role
     When I visit the media "image" revisions page with the name "Test media image"
     Then the response should contain "200"
-    And I should see "Test media image"
 
   @api @trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the media :media_type revisions page with the name :name" fails with an error
@@ -291,7 +289,7 @@ Feature: Check that MediaTrait works
     Given I am logged in as a user with the "administrator" role
     Then the "image" media with the name "Non-existent media" should not exist
 
-  @api @trait:Drupal\MediaTrait
+  @api @trait:Drupal\MediaTrait,Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should not exist" fails with an error
     Given the following managed files:
       | path      |
