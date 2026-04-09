@@ -2398,6 +2398,21 @@ When I change the moderation state of the "article" content with the title "Test
 
 </details>
 
+<details>
+  <summary><code>@Then :content_type content with the title :title should not exist</code></summary>
+
+<br/>
+Assert content with specified type and title does not exist
+<br/><br/>
+
+```gherkin
+Then "page" content with the title "Test page" should not exist
+Then "article" content with the title "Test article" should not exist
+
+```
+
+</details>
+
 ## Drupal\DraggableviewsTrait
 
 [Source](src/Drupal/DraggableviewsTrait.php), [Example](tests/behat/features/drupal_draggableviews.feature)
