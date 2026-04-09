@@ -615,14 +615,14 @@ Feature: Check that XmlTrait works
     When I print last XML response
 
   @trait:XmlTrait
-  Scenario: Assert that "When I print last XML response" fails with an exception when no XML is loaded
+  Scenario: Assert that "When I print last XML response" fails with an error when no XML is loaded
     Given some behat configuration
     And scenario steps:
       """
       When I print last XML response
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
       Unable to access the response before visiting a page
       """
