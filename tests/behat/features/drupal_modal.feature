@@ -19,7 +19,7 @@ Feature: Check that ModalTrait works
       """
 
   @trait:Drupal\ModalTrait
-  Scenario: Assert "When I close the modal dialog" fails when no close button is found
+  Scenario: Assert "When I close the modal dialog" fails when no modal dialog is found
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
@@ -30,7 +30,7 @@ Feature: Check that ModalTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The modal dialog close button was not found on the page.
+      The modal dialog was not found on the page.
       """
 
   @trait:Drupal\ModalTrait
