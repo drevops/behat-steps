@@ -1708,6 +1708,21 @@ When I set the viewport to "375" by "667"
 
 </details>
 
+<details>
+  <summary><code>@Then the viewport should have the width of :width</code></summary>
+
+<br/>
+Assert the viewport has the specified width
+<br/><br/>
+
+```gherkin
+Then the viewport should have the width of "360"
+Then the viewport should have the width of "1024"
+
+```
+
+</details>
+
 ## WaitTrait
 
 [Source](src/WaitTrait.php), [Example](tests/behat/features/wait.feature)
