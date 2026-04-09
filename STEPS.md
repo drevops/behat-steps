@@ -45,6 +45,7 @@
 | [Drupal\TimeTrait](#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
 | [Drupal\UserTrait](#drupalusertrait) | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| [Drupal\WebformTrait](#drupalwebformtrait) | Manage Drupal webforms. |
 
 
 ---
@@ -4235,6 +4236,28 @@ Then the user "John" should not be blocked
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.
 >  - `@error` - add to scenarios that are expected to trigger an error.
 
+
+## Drupal\WebformTrait
+
+[Source](src/Drupal/WebformTrait.php), [Example](tests/behat/features/drupal_webform.feature)
+
+>  Manage Drupal webforms.
+>  - Delete webforms matching a given title for test isolation.
+
+
+<details>
+  <summary><code>@Given the webform :title does not exist</code></summary>
+
+<br/>
+Remove all webforms with a title containing the given string
+<br/><br/>
+
+```gherkin
+Given the webform "Test form" does not exist
+
+```
+
+</details>
 
 
 

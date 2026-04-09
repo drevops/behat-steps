@@ -29,6 +29,7 @@ use DrevOps\BehatSteps\Drupal\TestmodeTrait;
 use DrevOps\BehatSteps\Drupal\TimeTrait;
 use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Drupal\WatchdogTrait;
+use DrevOps\BehatSteps\Drupal\WebformTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\IframeTrait;
@@ -87,6 +88,7 @@ class FeatureContext extends DrupalContext {
   use HelperTrait;
   use WaitTrait;
   use WatchdogTrait;
+  use WebformTrait;
   use XmlTrait;
 
   use FeatureContextTrait;
