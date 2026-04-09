@@ -27,6 +27,10 @@ trait WebformTrait {
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
+    if (trim($title) === '') {
+      throw new \InvalidArgumentException('Webform title must not be empty.');
+    }
+
     $webforms = $this->webformLoadAll($title);
 
     foreach ($webforms as $webform) {

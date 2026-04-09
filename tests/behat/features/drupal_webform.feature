@@ -6,6 +6,7 @@ Feature: Check that WebformTrait works
   @api
   Scenario: Assert "@Given the webform :title does not exist" works as expected
     Given I am logged in as a user with the "administrator" role
+    And the webform "Test webform to delete" does not exist
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test webform to delete"
     And I fill in "Machine-readable name" with "test_webform_to_delete"
