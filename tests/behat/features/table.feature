@@ -189,10 +189,30 @@ Feature: Check that TableTrait works
       Expected table ".test-table" to not be empty, but it has no rows.
       """
 
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works as expected
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with ascending order
     Given I am an anonymous user
     When I visit "/sites/default/files/table_sorted.html"
     Then the table ".test-table" should be sorted by "Title" in "ascending" order
+
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with descending order
+    Given I am an anonymous user
+    When I visit "/sites/default/files/table_sorted_desc.html"
+    Then the table ".test-table" should be sorted by "Title" in "descending" order
+
+  @trait:TableTrait
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when not sorted
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/table_sorted_desc.html"
+      Then the table ".test-table" should be sorted by "Title" in "ascending" order
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected table ".test-table" to be sorted by "Title" in ascending order.
+      """
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
