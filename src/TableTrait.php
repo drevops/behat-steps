@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 
@@ -83,17 +84,17 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the :rowText row should contain the following:')]
-  public function tableAssertMultipleTextsInRow(string $rowText, TableNode $table): void {
-    $row = $this->tableFindRowByText($rowText);
+  public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
+    $row = $this->tableFindRowByText($row_text);
 
     if (!$row) {
-      throw new ExpectationException(sprintf('Table row containing text "%s" not found.', $rowText), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Table row containing text "%s" not found.', $row_text), $this->getSession()->getDriver());
     }
 
-    $row_text = $row->getText();
+    $actual_text = $row->getText();
     foreach ($table->getColumn(0) as $expected_text) {
-      if (!str_contains($row_text, $expected_text)) {
-        throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $rowText, $expected_text), $this->getSession()->getDriver());
+      if (!str_contains($actual_text, $expected_text)) {
+        throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $row_text, $expected_text), $this->getSession()->getDriver());
       }
     }
   }
@@ -107,7 +108,7 @@ trait TableTrait {
    * @return \Behat\Mink\Element\NodeElement|null
    *   The row element if found, or NULL.
    */
-  protected function tableFindRowByText(string $text) {
+  protected function tableFindRowByText(string $text): ?NodeElement {
     $rows = $this->getSession()->getPage()->findAll('css', 'table tr');
 
     foreach ($rows as $row) {
