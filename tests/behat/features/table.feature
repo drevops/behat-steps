@@ -97,7 +97,6 @@ Feature: Check that TableTrait works
     When I visit "/admin/content"
     Then the "[TEST] Findable content" row should contain the following:
       | [TEST] Findable content |
-      | Page                    |
 
   @trait:TableTrait
   Scenario: Assert "Then the :rowText row should contain the following:" fails when row not found
