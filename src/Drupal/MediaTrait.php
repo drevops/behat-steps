@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
@@ -149,6 +151,124 @@ trait MediaTrait {
    */
   #[When('I edit the media :media_type with the name :name')]
   public function mediaEditWithName(string $media_type, string $name): void {
+    $this->mediaVisitActionPageWithName($media_type, $name, '/edit');
+  }
+
+  /**
+   * Navigate to view page of media with specified type and name.
+   *
+   * @code
+   * When I visit the media "image" with the name "Test media image"
+   * @endcode
+   */
+  #[When('I visit the media :media_type with the name :name')]
+  public function mediaVisitViewWithName(string $media_type, string $name): void {
+    $this->mediaVisitActionPageWithName($media_type, $name);
+  }
+
+  /**
+   * Navigate to delete page of media with specified type and name.
+   *
+   * @code
+   * When I visit the media "image" delete page with the name "Test media image"
+   * @endcode
+   */
+  #[When('I visit the media :media_type delete page with the name :name')]
+  public function mediaVisitDeleteWithName(string $media_type, string $name): void {
+    $this->mediaVisitActionPageWithName($media_type, $name, '/delete');
+  }
+
+  /**
+   * Navigate to revisions page of media with specified type and name.
+   *
+   * @code
+   * When I visit the media "image" revisions page with the name "Test media image"
+   * @endcode
+   */
+  #[When('I visit the media :media_type revisions page with the name :name')]
+  public function mediaVisitRevisionsWithName(string $media_type, string $name): void {
+    $this->mediaVisitActionPageWithName($media_type, $name, '/revisions');
+  }
+
+  /**
+   * Assert that a media type exists.
+   *
+   * @code
+   * Then the "image" media type should exist
+   * @endcode
+   */
+  #[Then('the :media_type media type should exist')]
+  public function mediaAssertTypeExists(string $media_type): void {
+    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
+
+    if (!$type_entity) {
+      throw new ExpectationException(sprintf('The media type "%s" does not exist.', $media_type), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a media type does not exist.
+   *
+   * @code
+   * Then the "test_type" media type should not exist
+   * @endcode
+   */
+  #[Then('the :media_type media type should not exist')]
+  public function mediaAssertTypeNotExists(string $media_type): void {
+    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
+
+    if ($type_entity) {
+      throw new ExpectationException(sprintf('The media type "%s" exists, but it should not.', $media_type), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a media entity with a specific type and name exists.
+   *
+   * @code
+   * Then the "image" media with the name "Test media image" should exist
+   * @endcode
+   */
+  #[Then('the :media_type media with the name :name should exist')]
+  public function mediaAssertExistsWithName(string $media_type, string $name): void {
+    $mids = $this->mediaLoadMultiple($media_type, [
+      'name' => $name,
+    ]);
+
+    if (empty($mids)) {
+      throw new ExpectationException(sprintf('The "%s" media with the name "%s" does not exist.', $media_type, $name), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a media entity with a specific type and name does not exist.
+   *
+   * @code
+   * Then the "image" media with the name "Test media image" should not exist
+   * @endcode
+   */
+  #[Then('the :media_type media with the name :name should not exist')]
+  public function mediaAssertNotExistsWithName(string $media_type, string $name): void {
+    $mids = $this->mediaLoadMultiple($media_type, [
+      'name' => $name,
+    ]);
+
+    if (!empty($mids)) {
+      throw new ExpectationException(sprintf('The "%s" media with the name "%s" exists, but it should not.', $media_type, $name), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Visit the action page of the media with a specified name.
+   *
+   * @param string $media_type
+   *   The media type.
+   * @param string $name
+   *   The name of the media entity.
+   * @param string $action_subpath
+   *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc.
+   */
+  protected function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void {
     $mids = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
@@ -157,8 +277,9 @@ trait MediaTrait {
       throw new \RuntimeException(sprintf('Unable to find "%s" media with the name "%s".', $media_type, $name));
     }
 
-    $mid = current($mids);
-    $path = $this->locatePath('/media/' . $mid) . '/edit';
+    ksort($mids);
+    $mid = end($mids);
+    $path = $this->locatePath('/media/' . $mid . $action_subpath);
 
     $this->getSession()->visit($path);
   }

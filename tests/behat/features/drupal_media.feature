@@ -141,3 +141,174 @@ Feature: Check that MediaTrait works
     And I visit "/admin/content/media"
     Then I should see the text "[TEST] Duplicate vertical"
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements
+
+  @api
+  Scenario: Assert "When I visit the media :media_type with the name :name" works
+    Given the following managed files:
+      | path      |
+      | image.png |
+    And the following media "image" exist:
+      | name              | field_media_image |
+      | Test media image  | image.png         |
+    And I am logged in as a user with the "administrator" role
+    When I visit the media "image" with the name "Test media image"
+    Then the response should contain "200"
+    And I should see "Test media image"
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "When I visit the media :media_type with the name :name" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the media "image" with the name "Non-existent media"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "RuntimeException" exception:
+      """
+      Unable to find "image" media with the name "Non-existent media".
+      """
+
+  @api
+  Scenario: Assert "When I visit the media :media_type delete page with the name :name" works
+    Given the following managed files:
+      | path      |
+      | image.png |
+    And the following media "image" exist:
+      | name              | field_media_image |
+      | Test media image  | image.png         |
+    And I am logged in as a user with the "administrator" role
+    When I visit the media "image" delete page with the name "Test media image"
+    Then the response should contain "200"
+    And I should see "Test media image"
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "When I visit the media :media_type delete page with the name :name" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the media "image" delete page with the name "Non-existent media"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "RuntimeException" exception:
+      """
+      Unable to find "image" media with the name "Non-existent media".
+      """
+
+  @api
+  Scenario: Assert "When I visit the media :media_type revisions page with the name :name" works
+    Given the following managed files:
+      | path      |
+      | image.png |
+    And the following media "image" exist:
+      | name              | field_media_image |
+      | Test media image  | image.png         |
+    And I am logged in as a user with the "administrator" role
+    When I visit the media "image" revisions page with the name "Test media image"
+    Then the response should contain "200"
+    And I should see "Test media image"
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "When I visit the media :media_type revisions page with the name :name" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the media "image" revisions page with the name "Non-existent media"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "RuntimeException" exception:
+      """
+      Unable to find "image" media with the name "Non-existent media".
+      """
+
+  @api
+  Scenario: Assert "Then the :media_type media type should exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the "image" media type should exist
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "Then the :media_type media type should exist" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then the "nonexistent_type" media type should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The media type "nonexistent_type" does not exist.
+      """
+
+  @api
+  Scenario: Assert "Then the :media_type media type should not exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the "nonexistent_type" media type should not exist
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "Then the :media_type media type should not exist" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then the "image" media type should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The media type "image" exists, but it should not.
+      """
+
+  @api
+  Scenario: Assert "Then the :media_type media with the name :name should exist" works
+    Given the following managed files:
+      | path      |
+      | image.png |
+    And the following media "image" exist:
+      | name              | field_media_image |
+      | Test media image  | image.png         |
+    And I am logged in as a user with the "administrator" role
+    Then the "image" media with the name "Test media image" should exist
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should exist" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      Then the "image" media with the name "Non-existent media" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "image" media with the name "Non-existent media" does not exist.
+      """
+
+  @api
+  Scenario: Assert "Then the :media_type media with the name :name should not exist" works
+    Given I am logged in as a user with the "administrator" role
+    Then the "image" media with the name "Non-existent media" should not exist
+
+  @api @trait:Drupal\MediaTrait
+  Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should not exist" fails with an error
+    Given the following managed files:
+      | path      |
+      | image.png |
+    And some behat configuration
+    And scenario steps:
+      """
+      Given the following managed files:
+        | path      |
+        | image.png |
+      And the following media "image" exist:
+        | name              | field_media_image |
+        | Test media image  | image.png         |
+      Then the "image" media with the name "Test media image" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The "image" media with the name "Test media image" exists, but it should not.
+      """
