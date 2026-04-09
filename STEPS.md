@@ -3960,6 +3960,35 @@ When I visit my own user profile delete page
 </details>
 
 <details>
+  <summary><code>@When I visit the password reset link for :name</code></summary>
+
+<br/>
+Visit the password reset link for a user
+<br/><br/>
+
+```gherkin
+When I visit the password reset link for "admin"
+When I visit the password reset link for "test_user"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I visit my own password reset link</code></summary>
+
+<br/>
+Visit the password reset link for the currently logged-in user
+<br/><br/>
+
+```gherkin
+When I visit my own password reset link
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the user :name should have the role(s) :roles assigned</code></summary>
 
 <br/>

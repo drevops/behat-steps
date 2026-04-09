@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
+use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -222,6 +223,58 @@ trait UserTrait {
   #[When('I visit my own user profile delete page')]
   public function userDeleteOwnProfile(): void {
     $this->userVisitActionPage('current', '/cancel');
+  }
+
+  /**
+   * Visit the password reset link for a user.
+   *
+   * @code
+   * When I visit the password reset link for "admin"
+   * When I visit the password reset link for "test_user"
+   * @endcode
+   */
+  #[When('I visit the password reset link for :name')]
+  public function userVisitPasswordResetLink(string $name): void {
+    $user = $this->userLoadByName($name);
+    $this->userVisitPasswordResetLinkForUser($user);
+  }
+
+  /**
+   * Visit the password reset link for the currently logged-in user.
+   *
+   * @code
+   * When I visit my own password reset link
+   * @endcode
+   */
+  #[When('I visit my own password reset link')]
+  public function userVisitOwnPasswordResetLink(): void {
+    /** @var \Drupal\user\UserInterface $current_user */
+    $current_user = $this->getUserManager()->getCurrentUser();
+
+    if (!$current_user instanceof \StdClass) {
+      throw new \RuntimeException('Current user is not logged in.');
+    }
+
+    $user = $this->userLoadByName($current_user->name);
+    $this->userVisitPasswordResetLinkForUser($user);
+  }
+
+  /**
+   * Visit the password reset link for a given user object.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user object.
+   */
+  protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
+    $timestamp = \Drupal::time()->getRequestTime();
+
+    $path = Url::fromRoute('user.reset', [
+      'uid' => $user->id(),
+      'timestamp' => $timestamp,
+      'hash' => user_pass_rehash($user, $timestamp),
+    ])->toString();
+
+    $this->visitPath($path);
   }
 
   /**
