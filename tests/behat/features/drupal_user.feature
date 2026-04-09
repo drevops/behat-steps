@@ -250,7 +250,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit the password reset link for :name" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as "authenticated_user"
     When I visit the password reset link for "authenticated_user"
     Then I should get a 200 HTTP response
 
@@ -270,7 +270,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit my own password reset link" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as "authenticated_user"
     When I visit my own password reset link
     Then I should get a 200 HTTP response
 
