@@ -475,4 +475,15 @@ trait FeatureContextTrait {
     }
   }
 
+  /**
+   * Add items to a Drupal queue for testing.
+   */
+  #[Given('I add :count items to the :queue queue')]
+  public function testAddItemsToQueue(int $count, string $queue): void {
+    $queue_instance = \Drupal::service('queue')->get($queue);
+    for ($i = 0; $i < $count; $i++) {
+      $queue_instance->createItem(['data' => 'test_item_' . $i]);
+    }
+  }
+
 }

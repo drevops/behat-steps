@@ -39,6 +39,7 @@
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
@@ -3686,6 +3687,88 @@ Given the following fields for the paragraph "text" exist in the field "field_co
   | field_paragraph_longtext:value  | My paragraph message |
   | field_paragraph_longtext:format | full_html            |
   | ...                             | ...                  |
+
+```
+
+</details>
+
+## Drupal\QueueTrait
+
+[Source](src/Drupal/QueueTrait.php), [Example](tests/behat/features/drupal_queue.feature)
+
+>  Manage and assert Drupal queue state.
+>  - Clear queues before scenarios.
+>  - Process queue items during tests.
+>  - Assert queue item counts.
+
+
+<details>
+  <summary><code>@Given the :queue queue is empty</code></summary>
+
+<br/>
+Empty a queue
+<br/><br/>
+
+```gherkin
+Given the "myqueue" queue is empty
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I process :count item(s) from the :queue queue</code></summary>
+
+<br/>
+Process a specific number of items from a queue
+<br/><br/>
+
+```gherkin
+When I process 5 items from the "myqueue" queue
+When I process 1 item from the "myqueue" queue
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I process all items from the :queue queue</code></summary>
+
+<br/>
+Process all items from a queue
+<br/><br/>
+
+```gherkin
+When I process all items from the "myqueue" queue
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :queue queue should have :count item(s)</code></summary>
+
+<br/>
+Assert that a queue has a specific number of items
+<br/><br/>
+
+```gherkin
+Then the "myqueue" queue should have 5 items
+Then the "myqueue" queue should have 1 item
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the :queue queue should be empty</code></summary>
+
+<br/>
+Assert that a queue is empty
+<br/><br/>
+
+```gherkin
+Then the "myqueue" queue should be empty
 
 ```
 
