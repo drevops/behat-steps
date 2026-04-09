@@ -23,6 +23,7 @@ use DrevOps\BehatSteps\MetatagTrait;
 use DrevOps\BehatSteps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Drupal\OverrideTrait;
 use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
+use DrevOps\BehatSteps\Drupal\QueueTrait;
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\Drupal\TestmodeTrait;
@@ -76,6 +77,7 @@ class FeatureContext extends DrupalContext {
   use OverrideTrait;
   use ParagraphsTrait;
   use PathTrait;
+  use QueueTrait;
   use ResponseTrait;
   use RestTrait;
   use ResponsiveTrait;
