@@ -314,7 +314,7 @@ Feature: Check that ContentTrait works
       Then "page" content with the title "[TEST] Exists page" should not exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      Content of type "page" with title "[TEST] Exists page" should not exist, but found with NID:
+      "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
       """

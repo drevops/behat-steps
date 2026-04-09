@@ -8,6 +8,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -243,7 +244,7 @@ trait ContentTrait {
     $nids = $this->contentLoadMultiple($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
-      throw new \RuntimeException(sprintf('Content of type "%s" with title "%s" should not exist, but found with NID: %s', $content_type, $title, implode(', ', $nids)));
+      throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
     }
   }
 
