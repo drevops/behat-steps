@@ -22,23 +22,27 @@ trait ElementTrait {
   /**
    * Whether to scroll elements to the center of the viewport.
    *
-   * When TRUE (default), uses scrollIntoView() with center alignment, which
-   * positions the element in the middle of the viewport. This avoids
+   * Returns TRUE (default) to use scrollIntoView() with center alignment,
+   * which positions the element in the middle of the viewport. This avoids
    * interaction failures caused by sticky headers, admin toolbars, or fixed
    * navigation.
    *
-   * When FALSE, uses the legacy scrollIntoView(true) behavior, which aligns
-   * the element to the top of the viewport.
+   * Returns FALSE to use the legacy scrollIntoView(true) behavior, which
+   * aligns the element to the top of the viewport.
    *
-   * Override this property in your context class to change the behavior:
+   * Override this method in your context class to change the behavior:
    * @code
    * class FeatureContext extends DrupalContext {
    *   use ElementTrait;
-   *   protected bool $elementScrollIntoViewCenter = FALSE;
+   *   protected function elementScrollIntoViewCenter(): bool {
+   *     return FALSE;
+   *   }
    * }
    * @endcode
    */
-  protected bool $elementScrollIntoViewCenter = TRUE;
+  protected function elementScrollIntoViewCenter(): bool {
+    return TRUE;
+  }
 
   /**
    * Assert that one element appears after another on the page.
@@ -233,6 +237,24 @@ trait ElementTrait {
   }
 
   /**
+   * Assert the element :selector should be centered in the viewport.
+   *
+   * Checks that the vertical center of the element is within the middle third
+   * of the viewport.
+   *
+   * @code
+   * Then the element "#content" should be centered in the viewport
+   * @endcode
+   */
+  #[Then('the element :selector should be centered in the viewport')]
+  public function elementAssertElementCenteredInViewport(string $selector): void {
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
+    if (!$result) {
+      throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Accept confirmation dialogs appearing on the page.
    *
    * @code
@@ -299,9 +321,9 @@ trait ElementTrait {
   /**
    * Scroll to an element with ID.
    *
-   * By default, scrolls the element to the center of the viewport. Set the
-   * $elementScrollIntoViewCenter property to FALSE to use the legacy behavior
-   * that aligns the element to the top of the viewport.
+   * By default, scrolls the element to the center of the viewport. Override
+   * the elementScrollIntoViewCenter() method to return FALSE to use the legacy
+   * behavior that aligns the element to the top of the viewport.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -309,7 +331,7 @@ trait ElementTrait {
    */
   #[When('I scroll to the element :selector')]
   public function elementScrollTo(string $selector): void {
-    if ($this->elementScrollIntoViewCenter) {
+    if ($this->elementScrollIntoViewCenter()) {
       $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });');
     }
     else {

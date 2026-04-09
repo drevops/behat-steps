@@ -99,4 +99,14 @@ class FeatureContext extends DrupalContext {
     return strtotime('2024-07-15 12:00:00');
   }
 
+  /**
+   * Override elementScrollIntoViewCenter() to allow runtime toggling.
+   *
+   * This cannot be moved to FeatureContextTrait because traits cannot override
+   * methods from other traits.
+   */
+  protected function elementScrollIntoViewCenter(): bool {
+    return $this->testElementScrollCenter;
+  }
+
 }

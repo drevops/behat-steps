@@ -237,7 +237,7 @@ Feature: Check that ElementTrait works
   Scenario: Assert scroll to an element with selector uses center alignment by default
     Given I am on the phpserver test page
     When I scroll to the element "#main-inner"
-    Then the element "#main-inner" should be at the top of the viewport
+    Then the element "#main-inner" should be centered in the viewport
 
   @javascript @phpserver
   Scenario: Assert scroll to an element with top alignment when configured
