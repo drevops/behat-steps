@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
@@ -254,30 +253,6 @@ trait ResponsiveTrait {
   #[When('I set the viewport to :width by :height')]
   public function responsiveSetViewportDimensions(string $width, string $height): void {
     $this->responsiveResize((int) $width, (int) $height);
-  }
-
-  /**
-   * Assert the viewport has the specified width.
-   *
-   * @code
-   * Then the viewport should have the width of "360"
-   * Then the viewport should have the width of "1024"
-   * @endcode
-   *
-   *
-   * @param string $width
-   *   The expected width in pixels.
-   *
-   * @throws \RuntimeException
-   *   If the viewport width does not match.
-   */
-  #[Then('the viewport should have the width of :width')]
-  public function responsiveAssertViewportWidth(string $width): void {
-    $current = $this->responsiveGetCurrentDimensions();
-    $expected = (int) $width;
-    if ($current['width'] !== $expected) {
-      throw new \RuntimeException(sprintf('Expected viewport width %d, but got %d.', $expected, $current['width']));
-    }
   }
 
   /**
