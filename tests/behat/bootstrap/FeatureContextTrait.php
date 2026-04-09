@@ -408,6 +408,19 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Whether to use center scroll alignment for testing.
+   */
+  protected bool $testElementScrollCenter = TRUE;
+
+  /**
+   * Set scroll alignment to top (legacy behavior).
+   */
+  #[Given('I set scroll to top alignment')]
+  public function testSetScrollToTopAlignment(): void {
+    $this->testElementScrollCenter = FALSE;
+  }
+
+  /**
    * Go to the phpserver test page.
    */
   #[Given('/^(?:|I )am on (?:|the )phpserver test page$/')]

@@ -456,6 +456,20 @@ Then the element "#header" should be at the top of the viewport
 </details>
 
 <details>
+  <summary><code>@Then the element :selector should be centered in the viewport</code></summary>
+
+<br/>
+Assert the element :selector should be centered in the viewport
+<br/><br/>
+
+```gherkin
+Then the element "#content" should be centered in the viewport
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector should be displayed</code></summary>
 
 <br/>
