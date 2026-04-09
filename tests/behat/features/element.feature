@@ -234,8 +234,15 @@ Feature: Check that ElementTrait works
     Then I should see the button "You canceled!"
 
   @javascript @phpserver
-  Scenario: Assert scroll to an element with selector
+  Scenario: Assert scroll to an element with selector uses center alignment by default
     Given I am on the phpserver test page
+    When I scroll to the element "#main-inner"
+    Then the element "#main-inner" should be at the top of the viewport
+
+  @javascript @phpserver
+  Scenario: Assert scroll to an element with top alignment when configured
+    Given I set scroll to top alignment
+    And I am on the phpserver test page
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
 

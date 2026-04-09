@@ -20,6 +20,27 @@ use Behat\Mink\Exception\ExpectationException;
 trait ElementTrait {
 
   /**
+   * Whether to scroll elements to the center of the viewport.
+   *
+   * When TRUE (default), uses scrollIntoView() with center alignment, which
+   * positions the element in the middle of the viewport. This avoids
+   * interaction failures caused by sticky headers, admin toolbars, or fixed
+   * navigation.
+   *
+   * When FALSE, uses the legacy scrollIntoView(true) behavior, which aligns
+   * the element to the top of the viewport.
+   *
+   * Override this property in your context class to change the behavior:
+   * @code
+   * class FeatureContext extends DrupalContext {
+   *   use ElementTrait;
+   *   protected bool $elementScrollIntoViewCenter = FALSE;
+   * }
+   * @endcode
+   */
+  protected bool $elementScrollIntoViewCenter = TRUE;
+
+  /**
    * Assert that one element appears after another on the page.
    *
    * @code
@@ -278,13 +299,22 @@ trait ElementTrait {
   /**
    * Scroll to an element with ID.
    *
+   * By default, scrolls the element to the center of the viewport. Set the
+   * $elementScrollIntoViewCenter property to FALSE to use the legacy behavior
+   * that aligns the element to the top of the viewport.
+   *
    * @code
    * When I scroll to the element "#footer"
    * @endcode
    */
   #[When('I scroll to the element :selector')]
   public function elementScrollTo(string $selector): void {
-    $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
+    if ($this->elementScrollIntoViewCenter) {
+      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });');
+    }
+    else {
+      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
+    }
   }
 
   /**
