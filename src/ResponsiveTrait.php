@@ -7,8 +7,10 @@ namespace DrevOps\BehatSteps;
 use Behat\Step\Given;
 use Behat\Step\When;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
 
 /**
@@ -80,6 +82,11 @@ trait ResponsiveTrait {
   protected array $responsiveCustomBreakpoints = [];
 
   /**
+   * Breakpoint name from tag to apply before the first step.
+   */
+  protected ?string $responsiveBreakpointFromTag = NULL;
+
+  /**
    * Set custom breakpoints.
    *
    * Custom breakpoints override default breakpoints with the same name.
@@ -118,7 +125,7 @@ trait ResponsiveTrait {
   }
 
   /**
-   * Process @breakpoint:NAME tag before scenario.
+   * Validate @breakpoint:NAME tag before scenario.
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
@@ -151,6 +158,25 @@ trait ResponsiveTrait {
     }
 
     $breakpoint_name = substr($tag, strlen('breakpoint:'));
+
+    // Validate the breakpoint exists.
+    $this->responsiveGetBreakpoint($breakpoint_name);
+
+    // Store for deferred resize in beforeStep when session is ready.
+    $this->responsiveBreakpointFromTag = $breakpoint_name;
+  }
+
+  /**
+   * Apply deferred @breakpoint tag resize before the first step.
+   */
+  #[BeforeStep]
+  public function responsiveBeforeStep(BeforeStepScope $scope): void {
+    if ($this->responsiveBreakpointFromTag === NULL) {
+      return;
+    }
+
+    $breakpoint_name = $this->responsiveBreakpointFromTag;
+    $this->responsiveBreakpointFromTag = NULL;
     $this->responsiveResizeToBreakpoint($breakpoint_name);
   }
 
