@@ -54,9 +54,9 @@ Feature: Check that ContentTrait works
       Then "page" content with the title "[TEST] Page title" should not exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      "page" content with the title "[TEST] Page title" exists
+      "page" content with the title "[TEST] Page title" exists (nid:
       """
 
   @api
