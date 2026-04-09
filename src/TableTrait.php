@@ -93,7 +93,7 @@ trait TableTrait {
 
     $actual_text = $row->getText();
     foreach ($table->getColumn(0) as $expected_text) {
-      if (!str_contains($actual_text, $expected_text)) {
+      if (!str_contains((string) $actual_text, $expected_text)) {
         throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $row_text, $expected_text), $this->getSession()->getDriver());
       }
     }
@@ -112,7 +112,7 @@ trait TableTrait {
     $rows = $this->getSession()->getPage()->findAll('css', 'table tr');
 
     foreach ($rows as $row) {
-      if (str_contains($row->getText(), $text)) {
+      if (str_contains((string) $row->getText(), $text)) {
         return $row;
       }
     }
