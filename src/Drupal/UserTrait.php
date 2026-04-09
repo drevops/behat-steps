@@ -268,7 +268,7 @@ trait UserTrait {
   protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
     $timestamp = \Drupal::time()->getRequestTime();
 
-    $path = Url::fromRoute('user.reset.login', [
+    $path = Url::fromRoute('user.reset', [
       'uid' => $user->id(),
       'timestamp' => $timestamp,
       'hash' => user_pass_rehash($user, $timestamp),
