@@ -63,7 +63,7 @@ trait QueueTrait {
     $processed = 0;
     while ($processed < $count) {
       $item = $queue_instance->claimItem($lease_time);
-      if (!$item) {
+      if (!$item || !is_object($item)) {
         throw new \RuntimeException(sprintf('Queue "%s" has no more items to process. Processed %d of %d requested items.', $queue, $processed, $count));
       }
       $worker->processItem($item->data);
@@ -90,7 +90,7 @@ trait QueueTrait {
     $processed = 0;
     while ($processed < $limit) {
       $item = $queue_instance->claimItem($lease_time);
-      if (!$item) {
+      if (!$item || !is_object($item)) {
         break;
       }
       $worker->processItem($item->data);
