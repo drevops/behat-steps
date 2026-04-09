@@ -24,7 +24,7 @@ Feature: Check that QueueTrait works
   @api @queue
   Scenario: Assert "Then the :queue queue should have :count item" works with singular
     Given the "behat_test" queue is empty
-    And I add 1 items to the "behat_test" queue
+    And I add 1 item to the "behat_test" queue
     Then the "behat_test" queue should have 1 item
 
   @api @trait:Drupal\QueueTrait
