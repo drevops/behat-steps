@@ -1949,9 +1949,12 @@ Then the REST response should contain "success"
 [Source](src/TableTrait.php), [Example](tests/behat/features/table.feature)
 
 >  Interact with HTML table elements and assert their content.
->  - Assert table row counts in tbody.
+>  - Assert table row and column counts.
 >  - Assert table column headers in thead.
+>  - Assert table empty and non-empty states.
+>  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
+>  - Assert bulk row content against expected values.
 
 
 <details>
@@ -1969,6 +1972,20 @@ Then the table ".views-table" should have 5 rows
 </details>
 
 <details>
+  <summary><code>@Then the table :selector should have :count column(s)</code></summary>
+
+<br/>
+Assert that a table has the expected number of columns
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should have 5 columns
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the table :selector should contain the following columns:</code></summary>
 
 <br/>
@@ -1980,6 +1997,66 @@ Then the table ".views-table" should contain the following columns:
   | Title  |
   | Author |
   | Status |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the table :selector should be empty</code></summary>
+
+<br/>
+Assert that a table is empty (has no rows in tbody)
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should be empty
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the table :selector should not be empty</code></summary>
+
+<br/>
+Assert that a table is not empty (has rows in tbody)
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should not be empty
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the table :selector should be sorted by :column in :direction order</code></summary>
+
+<br/>
+Assert that a table is sorted by a column in a specific direction
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should be sorted by "Title" in "ascending" order
+Then the table ".views-table" should be sorted by "Date" in "descending" order
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the table :selector should contain the following rows:</code></summary>
+
+<br/>
+Assert that a table contains the expected rows
+<br/><br/>
+
+```gherkin
+Then the table ".views-table" should contain the following rows:
+  | Title     | Status    |
+  | Article 1 | Published |
+  | Article 2 | Draft     |
 
 ```
 
