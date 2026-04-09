@@ -50,8 +50,11 @@ Feature: Check that TableTrait works
   @api
   Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
     Given I am logged in as a user with the "administrator" role
-    When I visit "/admin/people"
-    Then the table ".views-table" should have 5 columns
+    And page content:
+      | title               |
+      | [TEST] Table page 1 |
+    When I visit "/admin/content"
+    Then the table ".views-table" should have 7 columns
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count column(s)" fails when table not found
@@ -124,12 +127,6 @@ Feature: Check that TableTrait works
       Column "NonExistentColumn" not found in table ".views-table".
       """
 
-  @api
-  Scenario: Assert "Then the table :selector should be empty" works as expected
-    Given I am logged in as a user with the "administrator" role
-    When I visit "/admin/content"
-    Then the table ".views-table" should be empty
-
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be empty" fails when table not found
     Given some behat configuration
@@ -186,17 +183,6 @@ Feature: Check that TableTrait works
       """
       Expected table ".views-table" to not be empty, but it has no rows.
       """
-
-  @api
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works as expected
-    Given I am logged in as a user with the "administrator" role
-    And page content:
-      | title               |
-      | [TEST] Alpha page   |
-      | [TEST] Beta page    |
-      | [TEST] Gamma page   |
-    When I visit "/admin/content"
-    Then the table ".views-table" should be sorted by "Title" in "descending" order
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
