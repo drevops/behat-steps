@@ -36,6 +36,7 @@
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\ModalTrait](#drupalmodaltrait) | Interact with and assert Drupal modal dialogs. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
@@ -3503,6 +3504,114 @@ Given the following menu links exist in the menu "Main navigation":
   | title           | enabled | uri                     | parent       |
   | Products        | 1       | /products               |              |
   | Latest Products | 1       | /products/latest        | Products     |
+
+```
+
+</details>
+
+## Drupal\ModalTrait
+
+[Source](src/Drupal/ModalTrait.php), [Example](tests/behat/features/drupal_modal.feature)
+
+>  Interact with and assert Drupal modal dialogs.
+>  - Assert modal dialog visibility.
+>  - Assert modal dialog content.
+>  - Interact with modal dialog buttons.
+
+
+<details>
+  <summary><code>@When I close the modal dialog</code></summary>
+
+<br/>
+Close the modal dialog by clicking the close button
+<br/><br/>
+
+```gherkin
+When I close the modal dialog
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I click :button in the modal dialog</code></summary>
+
+<br/>
+Click a button in the modal dialog
+<br/><br/>
+
+```gherkin
+When I click "Save" in the modal dialog
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I wait for the modal dialog to appear</code></summary>
+
+<br/>
+Wait for the modal dialog to appear
+<br/><br/>
+
+```gherkin
+When I wait for the modal dialog to appear
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should see the modal dialog</code></summary>
+
+<br/>
+Assert that the modal dialog is visible
+<br/><br/>
+
+```gherkin
+Then I should see the modal dialog
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should not see the modal dialog</code></summary>
+
+<br/>
+Assert that the modal dialog is not visible
+<br/><br/>
+
+```gherkin
+Then I should not see the modal dialog
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal dialog should contain :text</code></summary>
+
+<br/>
+Assert that the modal dialog contains text
+<br/><br/>
+
+```gherkin
+Then the modal dialog should contain "Welcome message"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal dialog should not contain :text</code></summary>
+
+<br/>
+Assert that the modal dialog does not contain text
+<br/><br/>
+
+```gherkin
+Then the modal dialog should not contain "Error message"
 
 ```
 
