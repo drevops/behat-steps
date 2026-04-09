@@ -341,6 +341,21 @@ When I hover over the element "#tooltip-trigger"
 </details>
 
 <details>
+  <summary><code>@When I focus on the element :selector</code></summary>
+
+<br/>
+Focus on an element by CSS selector
+<br/><br/>
+
+```gherkin
+When I focus on the element "#edit-name"
+When I focus on the element ".form-text"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector1 should appear after the element :selector2</code></summary>
 
 <br/>
