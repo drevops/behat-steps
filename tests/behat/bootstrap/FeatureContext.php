@@ -40,6 +40,7 @@ use DrevOps\BehatSteps\HelperTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
 use DrevOps\BehatSteps\ResponsiveTrait;
+use DrevOps\BehatSteps\TableTrait;
 use DrevOps\BehatSteps\WaitTrait;
 use DrevOps\BehatSteps\XmlTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
@@ -76,6 +77,7 @@ class FeatureContext extends DrupalContext {
   use ResponseTrait;
   use ResponsiveTrait;
   use SearchApiTrait;
+  use TableTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use TimeTrait;
