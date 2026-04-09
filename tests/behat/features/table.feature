@@ -174,6 +174,21 @@ Feature: Check that TableTrait works
     When I visit "/admin/content"
     Then the table ".views-table" should not be empty
 
+  @trait:TableTrait
+  Scenario: Assert "Then the table :selector should not be empty" fails when table is empty
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/table_empty.html"
+      Then the table ".test-table" should not be empty
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected table ".test-table" to not be empty, but it has no rows.
+      """
+
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works as expected
     Given I am an anonymous user
     When I visit "/sites/default/files/table_sorted.html"
