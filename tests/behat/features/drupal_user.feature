@@ -269,6 +269,25 @@ Feature: Check that UserTrait works
       """
 
   @api
+  Scenario: Assert "When I visit my own password reset link" works
+    Given I am logged in as a user with the "administrator" role
+    When I visit my own password reset link
+    Then I should get a 200 HTTP response
+
+  @api @trait:Drupal\UserTrait
+  Scenario: Assert "When I visit my own password reset link" fails for non-logged in user
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit my own password reset link
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Current user is not logged in.
+      """
+
+  @api
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
     Given users:
       | name           | roles                         |

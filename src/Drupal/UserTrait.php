@@ -236,7 +236,36 @@ trait UserTrait {
   #[When('I visit the password reset link for :name')]
   public function userVisitPasswordResetLink(string $name): void {
     $user = $this->userLoadByName($name);
+    $this->userVisitPasswordResetLinkForUser($user);
+  }
 
+  /**
+   * Visit the password reset link for the currently logged-in user.
+   *
+   * @code
+   * When I visit my own password reset link
+   * @endcode
+   */
+  #[When('I visit my own password reset link')]
+  public function userVisitOwnPasswordResetLink(): void {
+    /** @var \Drupal\user\UserInterface $current_user */
+    $current_user = $this->getUserManager()->getCurrentUser();
+
+    if (!$current_user instanceof \StdClass) {
+      throw new \RuntimeException('Current user is not logged in.');
+    }
+
+    $user = $this->userLoadByName($current_user->name);
+    $this->userVisitPasswordResetLinkForUser($user);
+  }
+
+  /**
+   * Visit the password reset link for a given user object.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user object.
+   */
+  protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
     $timestamp = \Drupal::time()->getRequestTime();
 
     $path = Url::fromRoute('user.reset.login', [
