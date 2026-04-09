@@ -622,7 +622,7 @@ Feature: Check that XmlTrait works
       When I print last XML response
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\DriverException" exception:
       """
       Unable to access the response before visiting a page
       """
