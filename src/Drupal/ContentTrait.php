@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
@@ -57,6 +59,24 @@ trait ContentTrait {
       $controller = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $controller->loadMultiple($nids);
       $controller->delete($entities);
+    }
+  }
+
+  /**
+   * Assert that content with a specified title does not exist.
+   *
+   * @code
+   * Then "page" content with the title "[TEST] Page title" should not exist
+   * @endcode
+   */
+  #[Then(':content_type content with the title :title should not exist')]
+  public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
+    $nids = $this->contentLoadMultiple($content_type, [
+      'title' => $title,
+    ]);
+
+    if (!empty($nids)) {
+      throw new ExpectationException(sprintf('"%s" content with the title "%s" exists (nid: %s), but it should not.', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
     }
   }
 

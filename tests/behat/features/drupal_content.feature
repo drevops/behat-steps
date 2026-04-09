@@ -43,6 +43,26 @@ Feature: Check that ContentTrait works
     When I go to "content/test-page-title2"
     Then I should get a 404 HTTP response
 
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Then :content_type content with the title :title should not exist" fails when content exists
+    Given some behat configuration
+    And scenario steps tagged with "@api":
+      """
+      Given page content:
+        | title              |
+        | [TEST] Page title  |
+      Then "page" content with the title "[TEST] Page title" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      "page" content with the title "[TEST] Page title" exists
+      """
+
+  @api
+  Scenario: Assert "Then :content_type content with the title :title should not exist" passes when content does not exist
+    Then "page" content with the title "[TEST] Non-existing page" should not exist
+
   @api
   Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected
     Given page content:
