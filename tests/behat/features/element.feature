@@ -468,6 +468,28 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
+  @javascript
+  Scenario: Assert "When I focus on the element :selector" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements.html"
+    And I focus on the element "#focus-input"
+    Then the element "#focus-input" with the attribute "id" and the value "focus-input" should exist
+
+  @trait:ElementTrait
+  Scenario: Assert that "When I focus on the element :selector" fails when element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      And I focus on the element "#nonexistent-element"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element with selector #nonexistent-element not found.
+      """
+
   @javascript @phpserver
   Scenario: Assert click on element works
     Given I am on the phpserver test page

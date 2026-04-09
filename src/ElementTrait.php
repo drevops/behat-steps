@@ -307,6 +307,22 @@ trait ElementTrait {
   }
 
   /**
+   * Focus on an element by CSS selector.
+   *
+   * @code
+   * When I focus on the element "#edit-name"
+   * When I focus on the element ".form-text"
+   * @endcode
+   *
+   *
+   * @javascript
+   */
+  #[When('I focus on the element :selector')]
+  public function elementFocus(string $selector): void {
+    $this->elementExecuteJs($selector, '{{ELEMENT}}.focus();');
+  }
+
+  /**
    * Assert that element with specified CSS is visible on page.
    *
    * @code
