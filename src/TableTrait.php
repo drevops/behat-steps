@@ -61,13 +61,14 @@ trait TableTrait {
       throw new ExpectationException(sprintf('Table with selector "%s" not found.', $selector), $this->getSession()->getDriver());
     }
 
-    $header_elements = $table_element->findAll('css', 'th');
+    $header_elements = $table_element->findAll('css', 'thead tr th');
     $actual_headers = [];
     foreach ($header_elements as $header) {
       $actual_headers[] = trim($header->getText());
     }
 
     foreach ($table->getColumn(0) as $expected_column) {
+      $expected_column = trim($expected_column);
       if (!in_array($expected_column, $actual_headers, TRUE)) {
         throw new ExpectationException(sprintf('Column "%s" not found in table "%s". Available columns: %s.', $expected_column, $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
       }
