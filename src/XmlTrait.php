@@ -10,6 +10,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -545,10 +546,10 @@ trait XmlTrait {
    * Print the last XML response.
    *
    * @code
-   * Then print last XML response
+   * When I print last XML response
    * @endcode
    */
-  #[Then('print last XML response')]
+  #[When('I print last XML response')]
   public function xmlPrintLastResponse(): void {
     $this->xmlEnsureDocument();
 
