@@ -249,6 +249,26 @@ Feature: Check that UserTrait works
       """
 
   @api
+  Scenario: Assert "When I visit the password reset link for :name" works
+    Given I am logged in as a user with the "administrator" role
+    When I visit the password reset link for "authenticated_user"
+    Then I should get a 200 HTTP response
+
+  @api @trait:Drupal\UserTrait
+  Scenario: Assert "When I visit the password reset link for :name" fails for non-existing user
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I visit the password reset link for "non_existing"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      User with name "non_existing" does not exist.
+      """
+
+  @api
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
     Given users:
       | name           | roles                         |

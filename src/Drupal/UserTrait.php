@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
+use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -222,6 +223,29 @@ trait UserTrait {
   #[When('I visit my own user profile delete page')]
   public function userDeleteOwnProfile(): void {
     $this->userVisitActionPage('current', '/cancel');
+  }
+
+  /**
+   * Visit the password reset link for a user.
+   *
+   * @code
+   * When I visit the password reset link for "admin"
+   * When I visit the password reset link for "test_user"
+   * @endcode
+   */
+  #[When('I visit the password reset link for :name')]
+  public function userVisitPasswordResetLink(string $name): void {
+    $user = $this->userLoadByName($name);
+
+    $timestamp = \Drupal::time()->getRequestTime();
+
+    $path = Url::fromRoute('user.reset.login', [
+      'uid' => $user->id(),
+      'timestamp' => $timestamp,
+      'hash' => user_pass_rehash($user, $timestamp),
+    ])->toString();
+
+    $this->visitPath($path);
   }
 
   /**
