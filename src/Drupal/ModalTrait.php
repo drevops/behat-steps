@@ -116,7 +116,13 @@ trait ModalTrait {
    */
   #[When('I close the modal dialog')]
   public function modalClose(): void {
-    $element = $this->modalFindElement($this->modalGetCloseSelectors());
+    $dialog = $this->modalFindDialog();
+
+    if ($dialog === NULL) {
+      throw new ExpectationException('The modal dialog was not found on the page.', $this->getSession()->getDriver());
+    }
+
+    $element = $this->modalFindElementIn($dialog, $this->modalGetCloseSelectors());
 
     if ($element === NULL) {
       throw new ExpectationException('The modal dialog close button was not found on the page.', $this->getSession()->getDriver());
@@ -240,37 +246,60 @@ trait ModalTrait {
   /**
    * Find the first visible modal dialog element.
    *
+   * Prefers visible elements over hidden ones to avoid matching stale dialogs.
+   *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The dialog element, or NULL if not found.
    */
   protected function modalFindDialog(): ?NodeElement {
-    return $this->modalFindElement($this->modalGetSelectors());
+    $page = $this->getSession()->getPage();
+
+    foreach ($this->modalGetSelectors() as $selector) {
+      $first_match = NULL;
+      foreach ($page->findAll('css', $selector) as $candidate) {
+        $first_match ??= $candidate;
+        if ($candidate->isVisible()) {
+          return $candidate;
+        }
+      }
+      if ($first_match !== NULL) {
+        return $first_match;
+      }
+    }
+
+    return NULL;
   }
 
   /**
-   * Find the first visible modal dialog content element.
+   * Find the modal dialog content element scoped to the resolved dialog.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The content element, or NULL if not found.
    */
   protected function modalFindContent(): ?NodeElement {
-    return $this->modalFindElement($this->modalGetContentSelectors());
+    $dialog = $this->modalFindDialog();
+
+    if ($dialog === NULL) {
+      return NULL;
+    }
+
+    return $this->modalFindElementIn($dialog, $this->modalGetContentSelectors());
   }
 
   /**
-   * Find the first matching element from a list of selectors.
+   * Find the first matching element within a parent from a list of selectors.
    *
+   * @param \Behat\Mink\Element\NodeElement $parent
+   *   The parent element to search within.
    * @param array<string> $selectors
    *   CSS selectors to try, in order.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The first matching element, or NULL if none found.
    */
-  protected function modalFindElement(array $selectors): ?NodeElement {
-    $page = $this->getSession()->getPage();
-
+  protected function modalFindElementIn(NodeElement $parent, array $selectors): ?NodeElement {
     foreach ($selectors as $selector) {
-      $element = $page->find('css', $selector);
+      $element = $parent->find('css', $selector);
       if ($element !== NULL) {
         return $element;
       }
