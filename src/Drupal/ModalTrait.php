@@ -118,7 +118,7 @@ trait ModalTrait {
   public function modalClose(): void {
     $dialog = $this->modalFindDialog();
 
-    if ($dialog === NULL) {
+    if ($dialog === NULL || !$dialog->isVisible()) {
       throw new ExpectationException('The modal dialog was not found on the page.', $this->getSession()->getDriver());
     }
 
@@ -144,7 +144,7 @@ trait ModalTrait {
   public function modalClickButton(string $button): void {
     $dialog = $this->modalFindDialog();
 
-    if ($dialog === NULL) {
+    if ($dialog === NULL || !$dialog->isVisible()) {
       throw new ExpectationException('The modal dialog was not found on the page.', $this->getSession()->getDriver());
     }
 

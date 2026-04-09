@@ -62,3 +62,33 @@ Feature: Check that ModalTrait works
       """
       The modal dialog content element was not found on the page.
       """
+
+  @trait:Drupal\ModalTrait
+  Scenario: Assert "When I close the modal dialog" fails when modal is hidden
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/modal_hidden.html"
+      When I close the modal dialog
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The modal dialog was not found on the page.
+      """
+
+  @trait:Drupal\ModalTrait
+  Scenario: Assert "When I click :button in the modal dialog" fails when modal is hidden
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/modal_hidden.html"
+      When I click "Save" in the modal dialog
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The modal dialog was not found on the page.
+      """
