@@ -39,6 +39,17 @@ Feature: Check that ResponsiveTrait works
   Scenario: Tag-based desktop breakpoint
     When I am on "/sites/default/files/javascript_clean1.html"
 
+  @javascript @breakpoint:mobile_portrait
+  Scenario: Tag-based breakpoint should actually resize viewport
+    When I am on "/sites/default/files/javascript_clean1.html"
+    Then the viewport should have the width of "360"
+
+  @javascript
+  Scenario: Step-based breakpoint should resize viewport
+    When I am on "/sites/default/files/javascript_clean1.html"
+    And I set the viewport to the "mobile_portrait" breakpoint
+    Then the viewport should have the width of "360"
+
   @javascript
   Scenario: Test multiple breakpoints in sequence
     When I am on "/sites/default/files/javascript_clean1.html"

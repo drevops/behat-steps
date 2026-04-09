@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Step\Given;
+use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
-use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
 
 /**
@@ -82,11 +81,6 @@ trait ResponsiveTrait {
   protected array $responsiveCustomBreakpoints = [];
 
   /**
-   * Breakpoint name from tag to apply before the first step.
-   */
-  protected ?string $responsiveBreakpointFromTag = NULL;
-
-  /**
    * Set custom breakpoints.
    *
    * Custom breakpoints override default breakpoints with the same name.
@@ -125,7 +119,7 @@ trait ResponsiveTrait {
   }
 
   /**
-   * Validate @breakpoint:NAME tag before scenario.
+   * Process @breakpoint:NAME tag before scenario.
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
@@ -158,25 +152,6 @@ trait ResponsiveTrait {
     }
 
     $breakpoint_name = substr($tag, strlen('breakpoint:'));
-
-    // Validate the breakpoint exists.
-    $this->responsiveGetBreakpoint($breakpoint_name);
-
-    // Store for deferred resize in beforeStep when session is ready.
-    $this->responsiveBreakpointFromTag = $breakpoint_name;
-  }
-
-  /**
-   * Apply deferred @breakpoint tag resize before the first step.
-   */
-  #[BeforeStep]
-  public function responsiveBeforeStep(BeforeStepScope $scope): void {
-    if ($this->responsiveBreakpointFromTag === NULL) {
-      return;
-    }
-
-    $breakpoint_name = $this->responsiveBreakpointFromTag;
-    $this->responsiveBreakpointFromTag = NULL;
     $this->responsiveResizeToBreakpoint($breakpoint_name);
   }
 
@@ -253,6 +228,30 @@ trait ResponsiveTrait {
   #[When('I set the viewport to :width by :height')]
   public function responsiveSetViewportDimensions(string $width, string $height): void {
     $this->responsiveResize((int) $width, (int) $height);
+  }
+
+  /**
+   * Assert the viewport has the specified width.
+   *
+   * @code
+   * Then the viewport should have the width of "360"
+   * Then the viewport should have the width of "1024"
+   * @endcode
+   *
+   *
+   * @param string $width
+   *   The expected width in pixels.
+   *
+   * @throws \RuntimeException
+   *   If the viewport width does not match.
+   */
+  #[Then('the viewport should have the width of :width')]
+  public function responsiveAssertViewportWidth(string $width): void {
+    $current = $this->responsiveGetCurrentDimensions();
+    $expected = (int) $width;
+    if ($current['width'] !== $expected) {
+      throw new \RuntimeException(sprintf('Expected viewport width %d, but got %d.', $expected, $current['width']));
+    }
   }
 
   /**
