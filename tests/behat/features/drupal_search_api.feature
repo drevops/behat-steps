@@ -99,3 +99,32 @@ Feature: Ensure Search API functionality works
       """
       Unable to find "article" page "Non-existent article".
       """
+
+  @api
+  Scenario: Assert "When I run the Search API cron" works as expected
+    Given article content:
+      | title                                    | moderation_state |
+      | [MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT | published        |
+      | [MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT | published        |
+    And I am logged in as a user with the "administrator" role
+
+    # Initial search without indexed nodes.
+    When I go to "/search"
+    And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
+    And I press "edit-submit-search"
+    Then I should not see the text "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
+    And I should not see the text "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
+
+    # Trigger Search API cron to run the tracker and indexer.
+    When I run the Search API cron
+
+    # Perform another search to verify indexing happened via cron.
+    When I go to "/search"
+    And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
+    And I press "edit-submit-search"
+    Then I should see the text "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
+    And I should see the text "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
+
+  @api @module:!search_api_solr
+  Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled
+    When I run the Search API Solr cron
