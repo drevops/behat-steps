@@ -76,11 +76,16 @@ trait ConfigOverrideTrait {
 
   /**
    * Collect `@disable-config-override:*` tags for the current scenario.
+   *
+   * Always clears any propagated signal from a previous scenario first so
+   * state never bleeds between scenarios - even when this hook is bypassed
+   * via `@behat-steps-skip:configOverrideBeforeScenario`.
    */
   #[BeforeScenario]
   public function configOverrideBeforeScenario(BeforeScenarioScope $scope): void {
     $this->configOverrideDisabledNames = [];
     $this->configOverrideSkipBeforeStep = FALSE;
+    $this->configOverrideClearSignal();
 
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -113,6 +118,9 @@ trait ConfigOverrideTrait {
   #[BeforeStep]
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideSkipBeforeStep || $this->configOverrideDisabledNames === []) {
+      // Nothing to propagate - make sure the driver-level header is also
+      // cleared so a previously-set value does not survive into this step.
+      $this->configOverrideClearDriverHeader();
       return;
     }
 
@@ -137,6 +145,40 @@ trait ConfigOverrideTrait {
 
     // For SUTs accessed via Drush subprocesses.
     putenv('HTTP_X_CONFIG_NO_OVERRIDE=' . $value);
+  }
+
+  /**
+   * Clear the process-level and REST-level X-Config-No-Override signal.
+   *
+   * Driver-level request headers are cleared separately in the BeforeStep
+   * hook because the session is not guaranteed to be started at the point
+   * BeforeScenario runs.
+   */
+  protected function configOverrideClearSignal(): void {
+    unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
+    putenv('HTTP_X_CONFIG_NO_OVERRIDE');
+
+    // @phpstan-ignore-next-line function.alreadyNarrowedType
+    if (property_exists($this, 'restHeaders')) {
+      unset($this->restHeaders['X-Config-No-Override']);
+    }
+  }
+
+  /**
+   * Clear the driver-level X-Config-No-Override request header.
+   */
+  protected function configOverrideClearDriverHeader(): void {
+    try {
+      $driver = $this->getSession()->getDriver();
+    }
+    // @codeCoverageIgnoreStart
+    catch (\Exception) {
+      return;
+    }
+    // @codeCoverageIgnoreEnd
+    if (!$driver instanceof Selenium2Driver) {
+      $driver->setRequestHeader('X-Config-No-Override', '');
+    }
   }
 
 }

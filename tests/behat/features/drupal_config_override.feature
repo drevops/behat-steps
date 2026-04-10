@@ -1,3 +1,4 @@
+@config-override
 Feature: Check that ConfigOverrideTrait works
   As Behat Steps library developer
   I want to provide a way to disable Drupal config overrides for a scenario
