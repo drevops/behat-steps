@@ -318,3 +318,37 @@ Feature: Check that ContentTrait works
       """
       "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
       """
+
+  @api
+  Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
+    Given page content:
+      | title                    |
+      | [TEST] Grants page title |
+    And I am logged in as a user with the "administrator" role
+    When I rebuild the access grants for the "page" content with the title "[TEST] Grants page title"
+    And I visit the "page" content page with the title "[TEST] Grants page title"
+    Then I should see "[TEST] Grants page title"
+
+  @api
+  Scenario: Assert "When I rebuild the access grants for all content" works as expected
+    Given page content:
+      | title                        |
+      | [TEST] Grants all page title |
+    And I am logged in as a user with the "administrator" role
+    When I rebuild the access grants for all content
+    And I visit the "page" content page with the title "[TEST] Grants all page title"
+    Then I should see "[TEST] Grants all page title"
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "When I rebuild the access grants for the :content_type content with the title :title" works as expected for non-existing content
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I rebuild the access grants for the "page" content with the title "[TEST] Non-existing"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "page" content with title "[TEST] Non-existing".
+      """
