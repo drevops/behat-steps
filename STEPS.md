@@ -588,6 +588,24 @@ Then I should see "Title field is required"
 </details>
 
 <details>
+  <summary><code>@When I fill in the multi-value field :field with the following values:</code></summary>
+
+<br/>
+Fill in a multi-value field widget with a list of values
+<br/><br/>
+
+```gherkin
+When I fill in the multi-value field "Tags" with the following values:
+  | value   |
+  | Drupal  |
+  | Behat   |
+  | Testing |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I fill in the color field :field with the value :value</code></summary>
 
 <br/>
@@ -848,6 +866,34 @@ Then the field "Body" should have "disabled" state
 Then the field "field_body" should have "disabled" state
 Then the field "Tags" should have "enabled" state
 Then the field "field_tags" should have "not enabled" state
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should be required</code></summary>
+
+<br/>
+Assert that a field is marked as required
+<br/><br/>
+
+```gherkin
+Then the field "Email" should be required
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should not be required</code></summary>
+
+<br/>
+Assert that a field is not marked as required
+<br/><br/>
+
+```gherkin
+Then the field "Nickname" should not be required
 
 ```
 

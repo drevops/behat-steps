@@ -9,6 +9,7 @@ dependencies:
     - field.field.node.page.field_daterange_date_only
     - field.field.node.page.field_datetime
     - field.field.node.page.field_description
+    - field.field.node.page.field_test_tags
     - node.type.page
     - workflows.workflow.editorial
   module:
@@ -70,6 +71,14 @@ content:
     region: content
     settings:
       rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_test_tags:
+    type: string_textfield
+    weight: 126
+    region: content
+    settings:
+      size: 60
       placeholder: ''
     third_party_settings: {  }
   moderation_state:
