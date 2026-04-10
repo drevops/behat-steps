@@ -80,18 +80,17 @@ trait WebformTrait {
    * Finds a webform template whose title contains the given string,
    * duplicates it as a non-template webform, and tracks it for cleanup.
    *
-   * @param string $template
-   *   The title (or partial title) of the template to clone.
    * @param string $title
    *   The title for the new webform.
+   * @param string $template
+   *   The title (or partial title) of the template to clone.
    *
    * @code
-   *   Given I clone webform template "Contact" into "My contact form"
-   *   Given a webform "My form" from template "Contact"
+   *   Given a webform "My contact form" from template "Contact"
    * @endcode
    */
-  #[Given('I clone webform template :template into :title')]
-  public function webformCloneTemplate(string $template, string $title): void {
+  #[Given('a webform :title from template :template')]
+  public function webformCloneTemplate(string $title, string $template): void {
     $templates = $this->webformTemplates($template);
 
     if (empty($templates)) {
@@ -147,6 +146,8 @@ trait WebformTrait {
     $ids = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('title', $title, 'CONTAINS')
+      ->sort('title')
+      ->sort('id')
       ->execute();
 
     if (empty($ids)) {

@@ -4266,15 +4266,14 @@ Given the webform "Test form" does not exist
 </details>
 
 <details>
-  <summary><code>@Given I clone webform template :template into :title</code></summary>
+  <summary><code>@Given a webform :title from template :template</code></summary>
 
 <br/>
 Clone a webform template into a new webform with the given title
 <br/><br/>
 
 ```gherkin
-Given I clone webform template "Contact" into "My contact form"
-Given a webform "My form" from template "Contact"
+Given a webform "My contact form" from template "Contact"
 
 ```
 
