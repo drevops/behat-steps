@@ -4518,6 +4518,12 @@ Then the user "John" should not be blocked
 
 >  Manage Drupal webforms.
 >  - Delete webforms matching a given title for test isolation.
+>  - Clone webform templates into new webforms for scenario setup.
+>  - Automatically clean up cloned webforms after scenario completion.
+>  
+>  Requires `drupal/webform` module.
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:webformAfterScenario`
 
 
 <details>
@@ -4529,6 +4535,20 @@ Remove all webforms with a title containing the given string
 
 ```gherkin
 Given the webform "Test form" does not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given a webform :title from template :template</code></summary>
+
+<br/>
+Clone a webform template into a new webform with the given title
+<br/><br/>
+
+```gherkin
+Given a webform "My contact form" from template "Contact"
 
 ```
 
