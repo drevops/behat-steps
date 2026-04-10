@@ -7,6 +7,7 @@ namespace Drupal\mysite_core\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\mysite_core\Time\TimeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -44,6 +45,21 @@ final class TestContent extends ControllerBase {
    */
   public function testTime(): Response {
     return new Response((string) $this->time->getCurrentTime(), 200, [
+      'Content-Type' => 'text/plain',
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
+  /**
+   * Echoes the value of the X-Config-No-Override request header.
+   *
+   * Used by ConfigOverrideTrait tests to verify that the Behat process
+   * successfully signals the SUT.
+   */
+  public function testConfigNoOverrideHeader(Request $request): Response {
+    $value = (string) $request->headers->get('X-Config-No-Override', '');
+
+    return new Response($value, 200, [
       'Content-Type' => 'text/plain',
       'Cache-Control' => 'no-cache, no-store, must-revalidate',
     ]);

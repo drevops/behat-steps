@@ -13,3 +13,10 @@ mysite_core.test_time:
     _access: 'TRUE'
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testTime'
+
+mysite_core.test_config_no_override_header:
+  path: '/mysite_core/test-config-no-override-header'
+  requirements:
+    _access: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testConfigNoOverrideHeader'
