@@ -113,14 +113,4 @@ class FeatureContext extends DrupalContext {
     return $this->testElementScrollCenter;
   }
 
-  /**
-   * Override modalGetWaitTimeout() to use a shorter timeout for tests.
-   *
-   * This cannot be moved to FeatureContextTrait because traits cannot override
-   * methods from other traits.
-   */
-  protected function modalGetWaitTimeout(): int {
-    return 3;
-  }
-
 }

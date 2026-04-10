@@ -224,7 +224,7 @@ trait ModalTrait {
    * Get the timeout in seconds for waiting for the modal to appear.
    */
   protected function modalGetWaitTimeout(): int {
-    return 10;
+    return 3;
   }
 
   /**
