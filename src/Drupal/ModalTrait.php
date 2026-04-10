@@ -138,14 +138,14 @@ trait ModalTrait {
    * 3. Link by visible text or title (via Mink findLink).
    *
    * @code
-   * When I click "Save" in the modal
-   * When I click ".btn-save" in the modal
-   * When I click "Cancel" in the modal
+   * When I click on "Save" in the modal
+   * When I click on ".btn-save" in the modal
+   * When I click on "Cancel" in the modal
    * @endcode
    *
    * @javascript
    */
-  #[When('I click :selector in the modal')]
+  #[When('I click on :selector in the modal')]
   public function modalClick(string $selector): void {
     $modal = $this->modalFindVisible();
 

@@ -25,7 +25,7 @@ Feature: Check that ModalTrait works
     And I click on the element "#open-settings"
     And I wait for the modal to appear
     Then I should see the modal
-    When I click ".btn-save" in the modal
+    When I click on ".btn-save" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with button text
@@ -33,7 +33,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
-    When I click "Save" in the modal
+    When I click on "Save" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with link text
@@ -41,7 +41,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
-    When I click "Cancel" in the modal
+    When I click on "Cancel" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI second modal has different content
@@ -65,7 +65,7 @@ Feature: Check that ModalTrait works
     Then I should see the modal
     And the modal should contain "Info modal content"
     And the modal should not contain "Delete modal content"
-    When I click "Close" in the modal
+    When I click on "Close" in the modal
     Then I should not see the modal
 
   @javascript @phpserver
@@ -74,7 +74,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
-    When I click "OK" in the modal
+    When I click on "OK" in the modal
 
   @javascript @phpserver
   Scenario: Assert native dialog click with link text
@@ -82,7 +82,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
-    When I click "View details" in the modal
+    When I click on "View details" in the modal
 
   @javascript @phpserver
   Scenario: Assert native dialog second modal has different content
@@ -114,7 +114,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
-    When I click ".btn-update" in the modal
+    When I click on ".btn-update" in the modal
 
   @javascript @phpserver
   Scenario: Assert custom modal click with link text
@@ -122,7 +122,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
-    When I click "Reset" in the modal
+    When I click on "Reset" in the modal
 
   @javascript @phpserver
   Scenario: Assert custom modal second modal has different content
@@ -172,7 +172,7 @@ Feature: Check that ModalTrait works
       """
       Given I am an anonymous user
       When I visit "/sites/default/files/modal_jquery_ui.html"
-      When I click "Save" in the modal
+      When I click on "Save" in the modal
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -202,13 +202,29 @@ Feature: Check that ModalTrait works
       """
       Given I am an anonymous user
       When I visit "/sites/default/files/modal_jquery_ui.html"
-      When I click on the element "#open-settings"
-      When I click ".nonexistent-element" in the modal
+      When I press "Open Settings"
+      When I click on ".nonexistent-element" in the modal
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
       The element ".nonexistent-element" was not found in the modal.
+      """
+
+  @trait:Drupal\ModalTrait
+  Scenario: Assert "When I wait for the modal to appear" fails when modal does not appear within timeout
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/modal_delayed.html"
+      When I press "Open Delayed Modal"
+      When I wait for the modal to appear
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The modal did not appear within 3 seconds.
       """
 
   @trait:Drupal\ModalTrait
