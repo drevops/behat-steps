@@ -299,6 +299,33 @@ Feature: Check that ContentTrait works
     And I should see "[TEST] V-Page 3"
 
   @api
+  Scenario: Assert "Given the following :content_type content with the current user as the author:" creates content owned by the current user
+    Given I am logged in as a user with the "administrator" role
+    And the following "article" content with the current user as the author:
+      | title                    | body                   |
+      | [TEST] Authored article  | Authored body content  |
+      | [TEST] Authored article2 | Authored body content2 |
+    When I visit the "article" content edit page with the title "[TEST] Authored article"
+    Then I should see "[TEST] Authored article"
+    When I visit the "article" content edit page with the title "[TEST] Authored article2"
+    Then I should see "[TEST] Authored article2"
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Given the following :content_type content with the current user as the author:" fails when no user is logged in
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "article" content with the current user as the author:
+        | title                    |
+        | [TEST] Authored article  |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      No user is currently logged in. Use an "I am logged in..." step before this step.
+      """
+
+  @api
   Scenario: Assert "Then :content_type content with the title :title should not exist" works as expected
     Given I am logged in as a user with the "administrator" role
     Then "page" content with the title "[TEST] Non-existing page" should not exist

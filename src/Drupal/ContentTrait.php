@@ -88,6 +88,70 @@ trait ContentTrait {
   }
 
   /**
+   * Create content authored by the currently logged-in user.
+   *
+   * Injects the current user's 'uid' and 'author' into every row before
+   * delegating to the shared node creation logic. Requires a prior
+   * "I am logged in..." step.
+   *
+   * @param string $content_type
+   *   The content type machine name.
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   Horizontal table of field values (first row is headers).
+   *
+   * @code
+   *   Given I am logged in as a user with the "editor" role
+   *   And the following "article" content with the current user as the author:
+   *     | title            | body             |
+   *     | My first article | Hello world.     |
+   *     | My second        | Another article. |
+   * @endcode
+   */
+  #[Given('the following :content_type content with the current user as the author:')]
+  public function contentCreateWithCurrentUserAsAuthor(string $content_type, TableNode $table): void {
+    $current_user = $this->getUserManager()->getCurrentUser();
+
+    if (!$current_user instanceof \stdClass) {
+      throw new \RuntimeException('No user is currently logged in. Use an "I am logged in..." step before this step.');
+    }
+
+    $rows = $table->getRows();
+    if (empty($rows)) {
+      throw new \RuntimeException('Content table must contain at least a header row.');
+    }
+
+    $headers = array_shift($rows);
+
+    // Remove any pre-existing uid/author columns to ensure the current user
+    // owns the created content.
+    $filtered_headers = [];
+    $kept_indexes = [];
+    foreach ($headers as $index => $header) {
+      if ($header === 'uid' || $header === 'author') {
+        continue;
+      }
+      $filtered_headers[] = $header;
+      $kept_indexes[] = $index;
+    }
+
+    $filtered_headers[] = 'uid';
+    $filtered_headers[] = 'author';
+
+    $new_rows = [$filtered_headers];
+    foreach ($rows as $row) {
+      $new_row = [];
+      foreach ($kept_indexes as $index) {
+        $new_row[] = $row[$index] ?? '';
+      }
+      $new_row[] = (string) $current_user->uid;
+      $new_row[] = (string) $current_user->name;
+      $new_rows[] = $new_row;
+    }
+
+    $this->createNodes($content_type, new TableNode($new_rows));
+  }
+
+  /**
    * Visit a page of a type with a specified title.
    *
    * @code
