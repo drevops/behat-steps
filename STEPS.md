@@ -4016,9 +4016,10 @@ When I run search indexing for 1 item
 >  `\Drupal::state()`. Touched keys are snapshotted on first access and
 >  reverted after the scenario finishes.
 >  <br/><br/>
->  Skip processing with tags: `@behat-steps-skip:stateBeforeScenario` and
->  `@behat-steps-skip:stateAfterScenario`, or skip both at once with the
->  convenience tag `@behat-steps-skip:StateTrait`.
+>  Skip the scenario revert with `@behat-steps-skip:stateAfterScenario`, or
+>  with the convenience tag `@behat-steps-skip:StateTrait`. The snapshot
+>  registry is cleared unconditionally before and after the scenario to
+>  prevent state leaking into subsequent scenarios.
 
 
 <details>
