@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.page.body
     - field.field.node.page.field_description
+    - field.field.node.page.field_test_tags
     - node.type.page
   module:
     - text
@@ -43,4 +44,5 @@ hidden:
   field_daterange: true
   field_daterange_date_only: true
   field_datetime: true
+  field_test_tags: true
   search_api_excerpt: true

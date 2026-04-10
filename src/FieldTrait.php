@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
@@ -218,6 +219,225 @@ trait FieldTrait {
     elseif ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
       throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $name), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Assert that a field is marked as required.
+   *
+   * Checks three common markers in order:
+   * 1. The native HTML `required` attribute on the field.
+   * 2. The `form-required` CSS class on the field or its label.
+   * 3. A `*` character inside the `<label>` associated with the field.
+   *
+   * @code
+   * Then the field "Email" should be required
+   * @endcode
+   */
+  #[Then('the field :field should be required')]
+  public function fieldAssertRequired(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    if ($this->fieldIsMarkedRequired($field_element)) {
+      return;
+    }
+
+    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but should be.', $field), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert that a field is not marked as required.
+   *
+   * @code
+   * Then the field "Nickname" should not be required
+   * @endcode
+   */
+  #[Then('the field :field should not be required')]
+  public function fieldAssertNotRequired(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    if (!$this->fieldIsMarkedRequired($field_element)) {
+      return;
+    }
+
+    throw new ExpectationException(sprintf('The field "%s" is marked as required, but should not be.', $field), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Fill in a multi-value field widget with a list of values.
+   *
+   * Locates the field wrapper by label, counts existing rows, clicks
+   * "Add another item" as many times as needed (waiting for AJAX between
+   * clicks), and fills each row in order.
+   *
+   * Requires a JavaScript-capable driver because the "Add another item"
+   * button relies on AJAX.
+   *
+   * @code
+   * When I fill in the multi-value field "Tags" with the following values:
+   *   | value   |
+   *   | Drupal  |
+   *   | Behat   |
+   *   | Testing |
+   * @endcode
+   */
+  #[When('I fill in the multi-value field :field with the following values:')]
+  public function fieldFillMultiValue(string $field, TableNode $table): void {
+    if (!$this->helperIsJavascriptSupported()) {
+      throw new \RuntimeException('The "fill in the multi-value field" step requires a JavaScript-capable driver.');
+    }
+
+    $rows = $table->getColumn(0);
+    // Drop the header row.
+    array_shift($rows);
+    $values = array_values($rows);
+
+    if ($values === []) {
+      return;
+    }
+
+    $page = $this->getSession()->getPage();
+
+    // Locate the field wrapper by walking up from the label. Prefer a
+    // field-multiple-table container, fall back to any edit- wrapper.
+    $label_xpath = sprintf('//label[normalize-space(text())=%s or normalize-space(.)=%s]', $this->fieldXpathLiteral($field), $this->fieldXpathLiteral($field));
+    $wrapper_xpath = $label_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or starts-with(@data-drupal-selector, "edit-")][1]';
+    $wrapper = $page->find('xpath', $wrapper_xpath);
+
+    // Fallback: walk up to the nearest ancestor with a data-drupal-selector.
+    if ($wrapper === NULL) {
+      $wrapper = $page->find('xpath', $label_xpath . '/ancestor::*[@data-drupal-selector][1]');
+    }
+
+    if ($wrapper === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'multi-value field wrapper', 'label', $field);
+    }
+
+    // Count existing input rows within the wrapper. Match inputs whose name
+    // contains the common multi-value suffixes ([0][value], [1][value], etc.)
+    // or [0][target_id] for entity reference widgets.
+    $existing_inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
+    $existing_count = count($existing_inputs);
+    if ($existing_count === 0) {
+      // As a last resort, fall back to any text-like input within the wrapper.
+      $existing_inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
+      $existing_count = count($existing_inputs);
+    }
+
+    // Ensure we have at least one slot to fill.
+    $existing_count = max(1, $existing_count);
+
+    $required = count($values);
+    $clicks_needed = max(0, $required - $existing_count);
+
+    for ($i = 0; $i < $clicks_needed; $i++) {
+      $add_more = $wrapper->find('css', $this->fieldGetAddMoreButtonSelector());
+      if ($add_more === NULL) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', $this->fieldGetAddMoreButtonSelector());
+      }
+      $add_more->press();
+      $this->getSession()->wait(5000, '(typeof jQuery === "undefined") || (0 === jQuery.active && 0 === jQuery(\':animated\').length)');
+    }
+
+    // Re-collect input rows now that any new rows have been added.
+    $inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
+    if (count($inputs) === 0) {
+      $inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
+    }
+
+    foreach ($values as $index => $value) {
+      if (!isset($inputs[$index])) {
+        throw new ExpectationException(sprintf('Could not locate input row %d for multi-value field "%s".', $index, $field), $this->getSession()->getDriver());
+      }
+      $inputs[$index]->setValue($value);
+    }
+  }
+
+  /**
+   * CSS selector for the "Add another item" button.
+   *
+   * Override in a subclass to customise the selector for custom themes or
+   * widget implementations.
+   */
+  protected function fieldGetAddMoreButtonSelector(): string {
+    return 'input[value="Add another item"], button.field-add-more-submit';
+  }
+
+  /**
+   * CSS selectors that indicate a required-field marker.
+   *
+   * Override in a subclass to customise the selectors used by
+   * ::fieldIsMarkedRequired() when walking a field's label/wrapper.
+   *
+   * @return array<int, string>
+   */
+  protected function fieldGetRequiredMarkerSelectors(): array {
+    return ['.form-required', '[required]'];
+  }
+
+  /**
+   * Check if a given field element is marked as required.
+   *
+   * Checks the native `required` attribute, the `form-required` class on
+   * the field or any associated label, and the presence of a `*` character
+   * inside any associated label.
+   */
+  protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
+    // Native required attribute.
+    if ($field_element->hasAttribute('required')) {
+      return TRUE;
+    }
+
+    // `form-required` class on the element itself.
+    $classes = (string) $field_element->getAttribute('class');
+    if (str_contains($classes, 'form-required')) {
+      return TRUE;
+    }
+
+    $page = $this->getSession()->getPage();
+
+    // Find the label associated with the field by id.
+    $field_id = $field_element->getAttribute('id');
+    $label = NULL;
+    if ($field_id !== NULL && $field_id !== '') {
+      $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
+    }
+
+    // Fall back to the nearest ancestor label.
+    if ($label === NULL) {
+      $label = $field_element->find('xpath', 'ancestor::label[1]');
+    }
+
+    if ($label instanceof NodeElement) {
+      $label_classes = (string) $label->getAttribute('class');
+      if (str_contains($label_classes, 'form-required')) {
+        return TRUE;
+      }
+      if (str_contains($label->getText(), '*')) {
+        return TRUE;
+      }
+      // Check for a nested element with the form-required class.
+      if ($label->find('css', '.form-required') !== NULL) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Wrap a string in an XPath-safe literal.
+   *
+   * Handles strings containing single quotes, double quotes, or both.
+   */
+  protected function fieldXpathLiteral(string $value): string {
+    if (!str_contains($value, "'")) {
+      return "'" . $value . "'";
+    }
+    if (!str_contains($value, '"')) {
+      return '"' . $value . '"';
+    }
+    $parts = explode("'", $value);
+    return 'concat(\'' . implode("', \"'\", '", $parts) . '\')';
   }
 
   /**

@@ -196,6 +196,43 @@ Feature: Check that FieldTrait works
       A field "field1" should be disabled, but it is not.
       """
 
+  Scenario: Assert that a field with the native required attribute is required
+    When I visit "/sites/default/files/fields.html"
+    Then the field "username" should be required
+    And the field "contact-email" should be required
+
+  Scenario: Assert that a non-required field is not required
+    When I visit "/sites/default/files/fields.html"
+    Then the field "field1" should not be required
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the field :field should be required" for a non-required field
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the field "field1" should be required
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The field "field1" is not marked as required, but should be.
+      """
+
+  @trait:FieldTrait
+  Scenario: Assert negative "the field :field should not be required" for a required field
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/fields.html"
+      Then the field "username" should not be required
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The field "username" is marked as required, but should not be.
+      """
+
   @api
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
     Given page content:
@@ -755,6 +792,38 @@ Feature: Check that FieldTrait works
     Then it should fail with an error:
       """
       Datetime field with label "Non-existent range (end_value/date)" not found.
+      """
+
+  @api @javascript
+  Scenario: Fill in multi-value field with more values than existing rows
+    Given I am logged in as a user with the "administrator" role
+    When I go to "node/add/page"
+    And I fill in "Title" with "[TEST] Multi-value tags"
+    And I fill in the multi-value field "Test tags" with the following values:
+      | value   |
+      | Drupal  |
+      | Behat   |
+      | Testing |
+    And I press "Save"
+    Then I should see "[TEST] Multi-value tags"
+
+  @trait:FieldTrait
+  Scenario: Assert negative "fill in the multi-value field" for non-existent field
+    Given some behat configuration
+    And scenario steps tagged with "@api @javascript":
+      """
+      Given I am logged in as a user with the "administrator" role
+      And I go to "node/add/page"
+      And I fill in the multi-value field "Non-existent multi field" with the following values:
+        '''
+        | value |
+        | Foo   |
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      multi-value field wrapper
       """
 
   @trait:FieldTrait
