@@ -29,6 +29,7 @@
 | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
@@ -2652,6 +2653,59 @@ Assert that a block with the specified label does not exist in a region
 
 ```gherkin
 Then the block "My block" should not exist in the "content" region
+
+```
+
+</details>
+
+## Drupal\CacheTrait
+
+[Source](src/Drupal/CacheTrait.php), [Example](tests/behat/features/drupal_cache.feature)
+
+>  Invalidate specific Drupal caches from within a scenario.
+>  <br/><br/>
+>  Provides targeted cache-clearing steps for single paths, path patterns, and
+>  the render cache. A full cache clear is intentionally out of scope because
+>  `DrupalContext::@Given the cache has been cleared` already covers it.
+
+
+<details>
+  <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
+
+<br/>
+Clear the page cache for a single path
+<br/><br/>
+
+```gherkin
+Given the page cache for the path "/about" has been cleared
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the page cache for the paths matching :path_pattern has been cleared</code></summary>
+
+<br/>
+Clear the page cache for all paths matching a glob-style pattern
+<br/><br/>
+
+```gherkin
+Given the page cache for the paths matching "/news*" has been cleared
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the render cache has been cleared</code></summary>
+
+<br/>
+Clear the render cache
+<br/><br/>
+
+```gherkin
+Given the render cache has been cleared
 
 ```
 
