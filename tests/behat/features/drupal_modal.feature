@@ -141,7 +141,7 @@ Feature: Check that ModalTrait works
     And scenario steps tagged with "@javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_hidden.html"
+      When I visit "/sites/default/files/modal_jquery_ui.html"
       Then I should see the modal
       """
     When I run "behat --no-colors"
@@ -156,7 +156,7 @@ Feature: Check that ModalTrait works
     And scenario steps tagged with "@javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_hidden.html"
+      When I visit "/sites/default/files/modal_jquery_ui.html"
       When I close the modal
       """
     When I run "behat --no-colors"
@@ -171,7 +171,7 @@ Feature: Check that ModalTrait works
     And scenario steps tagged with "@javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_hidden.html"
+      When I visit "/sites/default/files/modal_jquery_ui.html"
       When I click "Save" in the modal
       """
     When I run "behat --no-colors"
@@ -186,7 +186,7 @@ Feature: Check that ModalTrait works
     And scenario steps tagged with "@javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_hidden.html"
+      When I visit "/sites/default/files/modal_jquery_ui.html"
       Then the modal should contain "some text"
       """
     When I run "behat --no-colors"
@@ -217,7 +217,7 @@ Feature: Check that ModalTrait works
     And scenario steps tagged with "@javascript":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_hidden.html"
+      When I visit "/sites/default/files/modal_jquery_ui.html"
       Then I should not see the modal
       """
     When I run "behat --no-colors"
