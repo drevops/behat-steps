@@ -243,26 +243,19 @@ trait ModalTrait {
   }
 
   /**
-   * Find a modal element on the page.
-   *
-   * When $only_visible is TRUE (default), returns the first visible modal
-   * and falls back to the first DOM match if none are visible. When FALSE,
-   * returns the first DOM match regardless of visibility.
-   *
-   * @param bool $only_visible
-   *   Whether to prefer visible modals over hidden ones.
+   * Find the first visible modal, or fall back to the first DOM match.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The modal element, or NULL if not found.
    */
-  protected function modalFind(bool $only_visible = TRUE): ?NodeElement {
+  protected function modalFind(): ?NodeElement {
     $page = $this->getSession()->getPage();
 
     foreach ($this->modalGetSelectors() as $selector) {
       $first_match = NULL;
       foreach ($page->findAll('css', $selector) as $candidate) {
         $first_match ??= $candidate;
-        if ($only_visible && $candidate->isVisible()) {
+        if ($candidate->isVisible()) {
           return $candidate;
         }
       }
