@@ -11,6 +11,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
 
@@ -263,8 +264,9 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
     }
     // @codeCoverageIgnoreEnd
-
-    \Drupal::entityTypeManager()->getAccessControlHandler('node')->acquireGrants($node);
+    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
+    assert($handler instanceof NodeAccessControlHandlerInterface);
+    $handler->acquireGrants($node);
   }
 
   /**
