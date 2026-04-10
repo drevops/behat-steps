@@ -133,13 +133,13 @@ trait StateTrait {
    */
   #[Then('the state :name should have the value :value')]
   public function stateAssertHasValue(string $name, string $value): void {
-    $actual = \Drupal::state()->get($name);
-    if ($actual === NULL) {
+    $state_value = $this->stateReadValue($name);
+    if (!$state_value['exists']) {
       throw new \Exception(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
     }
 
     $expected = $this->stateNormaliseValue($value);
-    $actual_stringified = $this->stateStringifyValue($actual);
+    $actual_stringified = $this->stateStringifyValue($state_value['value']);
     $expected_stringified = $this->stateStringifyValue($expected);
     if ($actual_stringified !== $expected_stringified) {
       throw new \Exception(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
@@ -155,10 +155,34 @@ trait StateTrait {
    */
   #[Then('the state :name should not exist')]
   public function stateAssertNotExists(string $name): void {
-    $actual = \Drupal::state()->get($name);
-    if ($actual !== NULL) {
-      throw new \Exception(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stateStringifyValue($actual)));
+    $state_value = $this->stateReadValue($name);
+    if ($state_value['exists']) {
+      throw new \Exception(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stateStringifyValue($state_value['value'])));
     }
+  }
+
+  /**
+   * Read a state value, distinguishing stored NULL from a missing key.
+   *
+   * Uses the underlying key/value store's `has()` so that a legitimately
+   * stored NULL is reported as existing. `\Drupal::state()->get()` cannot
+   * distinguish the two cases because it applies the `??` operator to
+   * the loaded value and returns the default for NULL.
+   *
+   * @param string $name
+   *   The state key name.
+   *
+   * @return array{exists: bool, value: mixed}
+   *   An associative array with `exists` (bool) and `value` (mixed).
+   */
+  protected function stateReadValue(string $name): array {
+    $key_value = \Drupal::keyValue('state');
+
+    if (!$key_value->has($name)) {
+      return ['exists' => FALSE, 'value' => NULL];
+    }
+
+    return ['exists' => TRUE, 'value' => \Drupal::state()->get($name)];
   }
 
   /**
@@ -172,11 +196,7 @@ trait StateTrait {
       return;
     }
 
-    $sentinel = new \stdClass();
-    $current = \Drupal::state()->get($name, $sentinel);
-    $this->stateOriginalValues[$name] = $current === $sentinel
-      ? ['exists' => FALSE, 'value' => NULL]
-      : ['exists' => TRUE, 'value' => $current];
+    $this->stateOriginalValues[$name] = $this->stateReadValue($name);
   }
 
   /**
@@ -209,7 +229,7 @@ trait StateTrait {
     }
 
     if ($trimmed[0] === '{' || $trimmed[0] === '[') {
-      $decoded = json_decode($trimmed, TRUE);
+      $decoded = json_decode($trimmed);
       if (json_last_error() === JSON_ERROR_NONE) {
         return $decoded;
       }

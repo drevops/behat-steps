@@ -1,3 +1,4 @@
+@state
 Feature: Check that StateTrait works
   As Behat Steps library developer
   I want to provide tools to manage the Drupal State API
@@ -22,6 +23,11 @@ Feature: Check that StateTrait works
   Scenario: Assert "Given the state :name has the value :value" sets a JSON array state value
     Given the state "behat_steps_test.list" has the value "[1,2,3]"
     Then the state "behat_steps_test.list" should have the value "[1,2,3]"
+
+  @api
+  Scenario: Assert "Given the state :name has the value :value" sets a null state value
+    Given the state "behat_steps_test.nullable" has the value "null"
+    Then the state "behat_steps_test.nullable" should have the value "null"
 
   @api
   Scenario: Assert "Given the state :name does not exist" deletes a state value
