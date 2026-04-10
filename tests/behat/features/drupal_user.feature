@@ -36,6 +36,41 @@ Feature: Check that UserTrait works
     And user "non_existing" should not exist
 
   @api
+  Scenario: Assert "Then the user with the email :mail should exist" works
+    Then the user with the email "authenticated_user@myexample.com" should exist
+    And the user with the email "AUTHENTICATED_USER@myexample.com" should exist
+    And the user with the email "nobody@example.com" should not exist
+
+  @api @trait:Drupal\UserTrait
+  Scenario: Assert "Then the user with the email :mail should exist" fails for non-existing user
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then the user with the email "nobody@example.com" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      User with email "nobody@example.com" is expected to exist, but they do not.
+      """
+
+  @api @trait:Drupal\UserTrait
+  Scenario: Assert "Then the user with the email :mail should not exist" fails for existing user
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given users:
+        | name       | mail              | status |
+        | alice_user | alice@example.com | 1      |
+      Then the user with the email "alice@example.com" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      User with email "alice@example.com" is expected to not exist, but they do.
+      """
+
+  @api
   Scenario: Assert "When the password for the user :name is :password" works
     Given the password for the user "authenticated_user" is "password123"
 

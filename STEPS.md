@@ -4468,6 +4468,34 @@ Then the user "John" should not have the roles "administrator, editor" assigned
 </details>
 
 <details>
+  <summary><code>@Then the user with the email :mail should exist</code></summary>
+
+<br/>
+Assert that a user with an email address exists
+<br/><br/>
+
+```gherkin
+Then the user with the email "alice@example.com" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the user with the email :mail should not exist</code></summary>
+
+<br/>
+Assert that a user with an email address does not exist
+<br/><br/>
+
+```gherkin
+Then the user with the email "alice@example.com" should not exist
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the user :name should be blocked</code></summary>
 
 <br/>
