@@ -118,9 +118,9 @@ trait StateTrait {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The state values table must contain "name" and "value" columns.');
       }
-      $name = (string) $row['name'];
+      $name = $row['name'];
       $this->stateStoreOriginalValue($name);
-      $state->set($name, $this->stateNormaliseValue((string) $row['value']));
+      $state->set($name, $this->stateNormaliseValue($row['value']));
     }
   }
 

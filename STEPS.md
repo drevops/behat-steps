@@ -29,7 +29,6 @@
 | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
-| [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
@@ -43,6 +42,7 @@
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\StateTrait](#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\TimeTrait](#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
@@ -589,24 +589,6 @@ Then I should see "Title field is required"
 </details>
 
 <details>
-  <summary><code>@When I fill in the multi-value field :field with the following values:</code></summary>
-
-<br/>
-Fill in a multi-value field widget with a list of values
-<br/><br/>
-
-```gherkin
-When I fill in the multi-value field "Tags" with the following values:
-  | value   |
-  | Drupal  |
-  | Behat   |
-  | Testing |
-
-```
-
-</details>
-
-<details>
   <summary><code>@When I fill in the color field :field with the value :value</code></summary>
 
 <br/>
@@ -867,34 +849,6 @@ Then the field "Body" should have "disabled" state
 Then the field "field_body" should have "disabled" state
 Then the field "Tags" should have "enabled" state
 Then the field "field_tags" should have "not enabled" state
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the field :field should be required</code></summary>
-
-<br/>
-Assert that a field is marked as required
-<br/><br/>
-
-```gherkin
-Then the field "Email" should be required
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the field :field should not be required</code></summary>
-
-<br/>
-Assert that a field is not marked as required
-<br/><br/>
-
-```gherkin
-Then the field "Nickname" should not be required
 
 ```
 
@@ -2658,59 +2612,6 @@ Then the block "My block" should not exist in the "content" region
 
 </details>
 
-## Drupal\CacheTrait
-
-[Source](src/Drupal/CacheTrait.php), [Example](tests/behat/features/drupal_cache.feature)
-
->  Invalidate specific Drupal caches from within a scenario.
->  <br/><br/>
->  Provides targeted cache-clearing steps for single paths, path patterns, and
->  the render cache. A full cache clear is intentionally out of scope because
->  `DrupalContext::@Given the cache has been cleared` already covers it.
-
-
-<details>
-  <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
-
-<br/>
-Clear the page cache for a single path
-<br/><br/>
-
-```gherkin
-Given the page cache for the path "/about" has been cleared
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Given the page cache for the paths matching :path_pattern has been cleared</code></summary>
-
-<br/>
-Clear the page cache for all paths matching a glob-style pattern
-<br/><br/>
-
-```gherkin
-Given the page cache for the paths matching "/news*" has been cleared
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Given the render cache has been cleared</code></summary>
-
-<br/>
-Clear the render cache
-<br/><br/>
-
-```gherkin
-Given the render cache has been cleared
-
-```
-
-</details>
-
 ## Drupal\ContentBlockTrait
 
 [Source](src/Drupal/ContentBlockTrait.php), [Example](tests/behat/features/drupal_content_block.feature)
@@ -2938,34 +2839,6 @@ Change moderation state of a content with the specified title
 
 ```gherkin
 When I change the moderation state of the "article" content with the title "Test article" to the "published" state
-
-```
-
-</details>
-
-<details>
-  <summary><code>@When I rebuild the access grants for the :content_type content with the title :title</code></summary>
-
-<br/>
-Rebuild node access grants for a content with the specified title
-<br/><br/>
-
-```gherkin
-When I rebuild the access grants for the "article" content with the title "My article"
-
-```
-
-</details>
-
-<details>
-  <summary><code>@When I rebuild the access grants for all content</code></summary>
-
-<br/>
-Rebuild node access grants for all content
-<br/><br/>
-
-```gherkin
-When I rebuild the access grants for all content
 
 ```
 
@@ -4133,29 +4006,89 @@ When I run search indexing for 1 item
 
 </details>
 
+## Drupal\StateTrait
+
+[Source](src/Drupal/StateTrait.php), [Example](tests/behat/features/drupal_state.feature)
+
+>  Manage and assert Drupal State API values with automatic revert.
+>  <br/><br/>
+>  Provides set, delete, and assertion steps for keys stored through
+>  `\Drupal::state()`. Touched keys are snapshotted on first access and
+>  reverted after the scenario finishes.
+>  <br/><br/>
+>  Skip processing with tags: `@behat-steps-skip:stateBeforeScenario` and
+>  `@behat-steps-skip:stateAfterScenario`, or skip both at once with the
+>  convenience tag `@behat-steps-skip:StateTrait`.
+
+
 <details>
-  <summary><code>@When I run the Search API cron</code></summary>
+  <summary><code>@Given the state :name has the value :value</code></summary>
 
 <br/>
-Run the Search API module cron hook
+Set a Drupal state value
 <br/><br/>
 
 ```gherkin
-When I run the Search API cron
+Given the state "my_module.launched" has the value "1"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run the Search API Solr cron</code></summary>
+  <summary><code>@Given the state :name does not exist</code></summary>
 
 <br/>
-Run the Search API Solr module cron hook
+Delete a Drupal state value
 <br/><br/>
 
 ```gherkin
-When I run the Search API Solr cron
+Given the state "my_module.launched" does not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following state values:</code></summary>
+
+<br/>
+Set multiple Drupal state values from a table
+<br/><br/>
+
+```gherkin
+Given the following state values:
+  | name                   | value |
+  | my_module.launched     | 1     |
+  | my_module.feature_flag | 0     |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the state :name should have the value :value</code></summary>
+
+<br/>
+Assert that a Drupal state value equals an expected value
+<br/><br/>
+
+```gherkin
+Then the state "my_module.launched" should have the value "1"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the state :name should not exist</code></summary>
+
+<br/>
+Assert that a Drupal state key does not exist
+<br/><br/>
+
+```gherkin
+Then the state "my_module.launched" should not exist
 
 ```
 
@@ -4618,34 +4551,6 @@ Assert that a user does not have roles assigned
 
 ```gherkin
 Then the user "John" should not have the roles "administrator, editor" assigned
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the user with the email :mail should exist</code></summary>
-
-<br/>
-Assert that a user with an email address exists
-<br/><br/>
-
-```gherkin
-Then the user with the email "alice@example.com" should exist
-
-```
-
-</details>
-
-<details>
-  <summary><code>@Then the user with the email :mail should not exist</code></summary>
-
-<br/>
-Assert that a user with an email address does not exist
-<br/><br/>
-
-```gherkin
-Then the user with the email "alice@example.com" should not exist
 
 ```
 
