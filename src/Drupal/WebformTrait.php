@@ -36,6 +36,7 @@ trait WebformTrait {
   public function webformAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      static::$webformEntities = [];
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -175,7 +176,17 @@ trait WebformTrait {
     $machine_name = trim($machine_name, '_');
     $machine_name = substr($machine_name, 0, 26);
 
-    return $machine_name . '_' . random_int(1000, 9999);
+    $storage = \Drupal::entityTypeManager()->getStorage('webform');
+    $attempts = 0;
+    do {
+      $candidate = $machine_name . '_' . random_int(1000, 9999);
+      $attempts++;
+      if ($attempts > 50) {
+        throw new \RuntimeException(sprintf('Unable to generate a unique webform machine name for "%s" after 50 attempts.', $title));
+      }
+    } while ($storage->load($candidate) !== NULL);
+
+    return $candidate;
   }
 
 }
