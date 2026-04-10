@@ -10,148 +10,141 @@ use Behat\Step\Then;
 use Behat\Step\When;
 
 /**
- * Interact with and assert Drupal modal dialogs.
+ * Interact with and assert modals.
  *
- * - Assert modal dialog visibility.
- * - Assert modal dialog content.
- * - Interact with modal dialog buttons.
+ * - Assert modal visibility.
+ * - Assert modal content.
+ * - Interact with modal buttons.
  *
  * Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
- * modals, custom dialogs) via overridable selector methods.
+ * modals, native HTML dialog element, custom modals) via overridable
+ * selector methods. All steps require a JavaScript-enabled driver.
  */
 trait ModalTrait {
 
   /**
-   * Assert that the modal dialog is visible.
+   * Assert that the modal is visible.
    *
    * @code
-   * Then I should see the modal dialog
+   * Then I should see the modal
    * @endcode
    *
    * @javascript
    */
-  #[Then('I should see the modal dialog')]
+  #[Then('I should see the modal')]
   public function modalAssertVisible(): void {
-    $element = $this->modalFindDialog();
+    $modal = $this->modalFind();
 
-    if ($element === NULL || !$element->isVisible()) {
-      throw new ExpectationException('The modal dialog is not visible on the page.', $this->getSession()->getDriver());
+    if ($modal === NULL || !$modal->isVisible()) {
+      throw new ExpectationException('The modal is not visible on the page.', $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that the modal dialog is not visible.
+   * Assert that the modal is not visible.
    *
    * @code
-   * Then I should not see the modal dialog
+   * Then I should not see the modal
    * @endcode
    *
    * @javascript
    */
-  #[Then('I should not see the modal dialog')]
+  #[Then('I should not see the modal')]
   public function modalAssertNotVisible(): void {
-    $element = $this->modalFindDialog();
+    $modal = $this->modalFind();
 
-    if ($element !== NULL && $element->isVisible()) {
-      throw new ExpectationException('The modal dialog is visible on the page, but it should not be.', $this->getSession()->getDriver());
+    if ($modal !== NULL && $modal->isVisible()) {
+      throw new ExpectationException('The modal is visible on the page, but it should not be.', $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that the modal dialog contains text.
+   * Assert that the modal contains text.
    *
    * @code
-   * Then the modal dialog should contain "Welcome message"
+   * Then the modal should contain "Welcome message"
    * @endcode
    *
    * @javascript
    */
-  #[Then('the modal dialog should contain :text')]
+  #[Then('the modal should contain :text')]
   public function modalAssertContains(string $text): void {
-    $element = $this->modalFindContent();
+    $modal = $this->modalFindVisible();
+    $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
-    if ($element === NULL) {
-      throw new ExpectationException('The modal dialog content element was not found on the page.', $this->getSession()->getDriver());
+    if ($content === NULL) {
+      throw new ExpectationException('The modal content element was not found.', $this->getSession()->getDriver());
     }
 
-    $actual_text = $element->getText();
+    $actual_text = $content->getText();
 
     if (!str_contains((string) $actual_text, $text)) {
-      throw new ExpectationException(sprintf('The modal dialog does not contain the text "%s". Actual text: "%s".', $text, $actual_text), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The modal does not contain the text "%s". Actual text: "%s".', $text, $actual_text), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that the modal dialog does not contain text.
+   * Assert that the modal does not contain text.
    *
    * @code
-   * Then the modal dialog should not contain "Error message"
+   * Then the modal should not contain "Error message"
    * @endcode
    *
    * @javascript
    */
-  #[Then('the modal dialog should not contain :text')]
+  #[Then('the modal should not contain :text')]
   public function modalAssertNotContains(string $text): void {
-    $element = $this->modalFindContent();
+    $modal = $this->modalFindVisible();
+    $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
-    if ($element === NULL) {
-      throw new ExpectationException('The modal dialog content element was not found on the page.', $this->getSession()->getDriver());
+    if ($content === NULL) {
+      throw new ExpectationException('The modal content element was not found.', $this->getSession()->getDriver());
     }
 
-    $actual_text = $element->getText();
+    $actual_text = $content->getText();
 
     if (str_contains((string) $actual_text, $text)) {
-      throw new ExpectationException(sprintf('The modal dialog contains the text "%s", but it should not.', $text), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The modal contains the text "%s", but it should not.', $text), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Close the modal dialog by clicking the close button.
+   * Close the modal by clicking the close button.
    *
    * @code
-   * When I close the modal dialog
+   * When I close the modal
    * @endcode
    *
    * @javascript
    */
-  #[When('I close the modal dialog')]
+  #[When('I close the modal')]
   public function modalClose(): void {
-    $dialog = $this->modalFindDialog();
+    $modal = $this->modalFindVisible();
+    $close = $this->modalFindElementIn($modal, $this->modalGetCloseSelectors());
 
-    if ($dialog === NULL || !$dialog->isVisible()) {
-      throw new ExpectationException('The modal dialog was not found on the page.', $this->getSession()->getDriver());
+    if ($close === NULL) {
+      throw new ExpectationException('The modal close button was not found.', $this->getSession()->getDriver());
     }
 
-    $element = $this->modalFindElementIn($dialog, $this->modalGetCloseSelectors());
-
-    if ($element === NULL) {
-      throw new ExpectationException('The modal dialog close button was not found on the page.', $this->getSession()->getDriver());
-    }
-
-    $element->click();
+    $close->click();
   }
 
   /**
-   * Click a button in the modal dialog.
+   * Click a button in the modal.
    *
    * @code
-   * When I click "Save" in the modal dialog
+   * When I click "Save" in the modal
    * @endcode
    *
    * @javascript
    */
-  #[When('I click :button in the modal dialog')]
+  #[When('I click :button in the modal')]
   public function modalClickButton(string $button): void {
-    $dialog = $this->modalFindDialog();
-
-    if ($dialog === NULL || !$dialog->isVisible()) {
-      throw new ExpectationException('The modal dialog was not found on the page.', $this->getSession()->getDriver());
-    }
-
+    $modal = $this->modalFindVisible();
     $button_element = NULL;
 
     foreach ($this->modalGetButtonSelectors() as $button_selector) {
-      foreach ($dialog->findAll('css', $button_selector) as $candidate) {
+      foreach ($modal->findAll('css', $button_selector) as $candidate) {
         if (!$candidate->isVisible()) {
           continue;
         }
@@ -165,99 +158,97 @@ trait ModalTrait {
     }
 
     if ($button_element === NULL) {
-      $fallback = $dialog->findButton($button);
+      $fallback = $modal->findButton($button);
       if ($fallback !== NULL && $fallback->isVisible()) {
         $button_element = $fallback;
       }
     }
 
     if ($button_element === NULL) {
-      throw new ExpectationException(sprintf('The button "%s" was not found in the modal dialog.', $button), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The button "%s" was not found in the modal.', $button), $this->getSession()->getDriver());
     }
 
     $button_element->click();
   }
 
   /**
-   * Wait for the modal dialog to appear.
+   * Wait for the modal to appear.
    *
    * @code
-   * When I wait for the modal dialog to appear
+   * When I wait for the modal to appear
    * @endcode
    *
    * @javascript
    */
-  #[When('I wait for the modal dialog to appear')]
+  #[When('I wait for the modal to appear')]
   public function modalWaitForAppear(): void {
     $timeout = $this->modalGetWaitTimeout();
 
     $result = $this->getSession()->getPage()->waitFor($timeout, function (): bool {
-      $element = $this->modalFindDialog();
+      $modal = $this->modalFind();
 
-      return $element !== NULL && $element->isVisible();
+      return $modal !== NULL && $modal->isVisible();
     });
 
     if (!$result) {
-      throw new ExpectationException(sprintf('The modal dialog did not appear within %d seconds.', $timeout), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The modal did not appear within %d seconds.', $timeout), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Get the CSS selectors for the modal dialog container.
+   * Get the CSS selectors for the modal container.
    *
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
   protected function modalGetSelectors(): array {
-    return ['.ui-dialog', '.dialog'];
+    return ['.ui-dialog', 'dialog[open]', '.modal'];
   }
 
   /**
-   * Get the CSS selectors for the modal dialog content.
+   * Get the CSS selectors for the modal content.
    *
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
   protected function modalGetContentSelectors(): array {
-    return ['.ui-dialog-content', '.dialog-content'];
+    return ['.ui-dialog-content', '.modal-content', '.modal-body'];
   }
 
   /**
-   * Get the CSS selectors for modal dialog buttons.
+   * Get the CSS selectors for modal buttons.
    *
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
   protected function modalGetButtonSelectors(): array {
-    return ['.ui-dialog-buttonpane button', '.dialog-actions button'];
+    return ['.ui-dialog-buttonpane button', '.modal-footer button'];
   }
 
   /**
-   * Get the CSS selectors for the modal dialog close button.
+   * Get the CSS selectors for the modal close button.
    *
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
   protected function modalGetCloseSelectors(): array {
-    return ['.ui-dialog-titlebar-close', '.dialog-close'];
+    return ['.ui-dialog-titlebar-close', '[data-dismiss="modal"]', '.btn-close'];
   }
 
   /**
-   * Get the timeout in seconds for waiting for the modal dialog.
+   * Get the timeout in seconds for waiting for the modal to appear.
    */
   protected function modalGetWaitTimeout(): int {
     return 10;
   }
 
   /**
-   * Find the first visible modal dialog element.
-   *
-   * Prefers visible elements over hidden ones to avoid matching stale dialogs.
+   * Find the first visible modal, or fall back to the first DOM match.
    *
    * @return \Behat\Mink\Element\NodeElement|null
-   *   The dialog element, or NULL if not found.
+   *   The modal element, or NULL if not found.
    */
-  protected function modalFindDialog(): ?NodeElement {
+  protected function modalFind(): ?NodeElement {
     $page = $this->getSession()->getPage();
 
     foreach ($this->modalGetSelectors() as $selector) {
@@ -277,19 +268,22 @@ trait ModalTrait {
   }
 
   /**
-   * Find the modal dialog content element scoped to the resolved dialog.
+   * Find the first visible modal or throw an exception.
    *
-   * @return \Behat\Mink\Element\NodeElement|null
-   *   The content element, or NULL if not found.
+   * @return \Behat\Mink\Element\NodeElement
+   *   The visible modal element.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no visible modal is found.
    */
-  protected function modalFindContent(): ?NodeElement {
-    $dialog = $this->modalFindDialog();
+  protected function modalFindVisible(): NodeElement {
+    $modal = $this->modalFind();
 
-    if ($dialog === NULL) {
-      return NULL;
+    if ($modal === NULL || !$modal->isVisible()) {
+      throw new ExpectationException('The modal is not visible on the page.', $this->getSession()->getDriver());
     }
 
-    return $this->modalFindElementIn($dialog, $this->modalGetContentSelectors());
+    return $modal;
   }
 
   /**
