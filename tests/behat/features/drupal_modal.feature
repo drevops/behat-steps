@@ -19,6 +19,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_jquery_ui.html"
     Then I should see the modal
     When I close the modal
+    Then I should not see the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with CSS selector
@@ -81,6 +82,7 @@ Feature: Check that ModalTrait works
     When I visit "/sites/default/files/modal_custom.html"
     Then I should see the modal
     When I close the modal
+    Then I should not see the modal
 
   @javascript @phpserver
   Scenario: Assert custom modal click with CSS selector

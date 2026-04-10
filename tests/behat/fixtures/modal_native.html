@@ -4,13 +4,20 @@
 <title>Native Dialog Modal</title>
 </head>
 <body>
-<dialog open>
+<dialog id="test-dialog">
   <div class="modal-content">
     <p>Native dialog content</p>
-    <button data-dismiss="modal">Close</button>
+    <button id="btn-close" data-dismiss="modal">Close</button>
     <button class="btn-confirm">Confirm</button>
     <a href="#" class="link-details">View details</a>
   </div>
 </dialog>
+<script>
+  var dialog = document.getElementById('test-dialog');
+  dialog.showModal();
+  document.getElementById('btn-close').addEventListener('click', function() {
+    dialog.close();
+  });
+</script>
 </body>
 </html>

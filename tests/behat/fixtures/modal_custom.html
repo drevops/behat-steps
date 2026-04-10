@@ -3,17 +3,47 @@
 <head>
 <title>Custom CSS Modal</title>
 <style>
-  .modal { border: 1px solid #ccc; padding: 10px; display: block; }
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  .modal.hidden {
+    display: none;
+  }
+  .modal-overlay.hidden {
+    display: none;
+  }
 </style>
 </head>
 <body>
-<div class="modal">
+<div class="modal-overlay" id="overlay"></div>
+<div class="modal" id="test-modal">
   <div class="modal-body">
     <p>Custom modal content</p>
-    <button class="btn-close">Close</button>
+    <button class="btn-close" id="btn-close">Close</button>
     <button class="btn-submit">Submit</button>
     <a href="#" class="link-help">Help</a>
   </div>
 </div>
+<script>
+  document.getElementById('btn-close').addEventListener('click', function() {
+    document.getElementById('test-modal').classList.add('hidden');
+    document.getElementById('overlay').classList.add('hidden');
+  });
+</script>
 </body>
 </html>
