@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delayed Modal</title>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
+</head>
+<body>
+<h1>Page with delayed modal</h1>
+<button id="open-delayed">Open Delayed Modal</button>
+
+<div id="delayed-dialog" title="Delayed Modal">
+  <p>Delayed modal content</p>
+</div>
+
+<script>
+  $(function() {
+    $('#delayed-dialog').dialog({ autoOpen: false, modal: true, width: 400 });
+    $('#open-delayed').on('click', function() {
+      setTimeout(function() {
+        $('#delayed-dialog').dialog('open');
+      }, 30000);
+    });
+  });
+</script>
+</body>
+</html>

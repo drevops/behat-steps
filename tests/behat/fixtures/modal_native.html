@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Native Dialog Modals</title>
+</head>
+<body>
+<h1>Page with native dialog modals</h1>
+<button id="open-info">Open Info</button>
+<button id="open-delete">Open Delete</button>
+
+<dialog id="info-dialog">
+  <div class="modal-content">
+    <p>Info modal content</p>
+    <button data-dismiss="modal" class="close-info">Close</button>
+    <button class="btn-ok">OK</button>
+    <a href="#" class="link-details" onclick="return false;">View details</a>
+  </div>
+</dialog>
+
+<dialog id="delete-dialog">
+  <div class="modal-content">
+    <p>Delete modal content</p>
+    <button data-dismiss="modal" class="close-delete">Close</button>
+    <button class="btn-delete">Delete</button>
+    <a href="#" class="link-undo" onclick="return false;">Undo</a>
+  </div>
+</dialog>
+
+<script>
+  document.getElementById('open-info').addEventListener('click', function() {
+    document.getElementById('info-dialog').showModal();
+  });
+  document.getElementById('open-delete').addEventListener('click', function() {
+    document.getElementById('delete-dialog').showModal();
+  });
+  document.querySelectorAll('[data-dismiss="modal"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.closest('dialog').close();
+    });
+  });
+</script>
+</body>
+</html>
