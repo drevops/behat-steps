@@ -3538,14 +3538,16 @@ When I close the modal
 </details>
 
 <details>
-  <summary><code>@When I click :button in the modal</code></summary>
+  <summary><code>@When I click :selector in the modal</code></summary>
 
 <br/>
-Click a button in the modal
+Click an element in the modal by CSS selector, button label, or link text
 <br/><br/>
 
 ```gherkin
 When I click "Save" in the modal
+When I click ".btn-save" in the modal
+When I click "Cancel" in the modal
 
 ```
 

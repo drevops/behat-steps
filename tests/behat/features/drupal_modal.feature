@@ -34,7 +34,7 @@ Feature: Check that ModalTrait works
       """
 
   @trait:Drupal\ModalTrait
-  Scenario: Assert "When I click :button in the modal" fails when no visible modal is found
+  Scenario: Assert "When I click :selector in the modal" fails when no visible modal is found
     Given some behat configuration
     And scenario steps tagged with "@api @javascript":
       """
@@ -79,7 +79,7 @@ Feature: Check that ModalTrait works
       """
 
   @trait:Drupal\ModalTrait
-  Scenario: Assert "When I click :button in the modal" fails when modal is hidden
+  Scenario: Assert "When I click :selector in the modal" fails when modal is hidden
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """

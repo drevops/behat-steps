@@ -130,45 +130,40 @@ trait ModalTrait {
   }
 
   /**
-   * Click a button in the modal.
+   * Click an element in the modal by CSS selector, button label, or link text.
+   *
+   * Resolves the element in the following order:
+   * 1. CSS selector (e.g., ".btn-save", "a.close").
+   * 2. Button by id, name, value, or visible text (via Mink findButton).
+   * 3. Link by visible text or title (via Mink findLink).
    *
    * @code
    * When I click "Save" in the modal
+   * When I click ".btn-save" in the modal
+   * When I click "Cancel" in the modal
    * @endcode
    *
    * @javascript
    */
-  #[When('I click :button in the modal')]
-  public function modalClickButton(string $button): void {
+  #[When('I click :selector in the modal')]
+  public function modalClick(string $selector): void {
     $modal = $this->modalFindVisible();
-    $button_element = NULL;
 
-    foreach ($this->modalGetButtonSelectors() as $button_selector) {
-      foreach ($modal->findAll('css', $button_selector) as $candidate) {
-        if (!$candidate->isVisible()) {
-          continue;
-        }
-        $candidate_text = trim((string) $candidate->getText());
-        $candidate_value = trim((string) $candidate->getAttribute('value'));
-        if ($candidate_text === $button || $candidate_value === $button) {
-          $button_element = $candidate;
-          break 2;
-        }
-      }
+    $element = $modal->find('css', $selector);
+
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findButton($selector);
     }
 
-    if ($button_element === NULL) {
-      $fallback = $modal->findButton($button);
-      if ($fallback !== NULL && $fallback->isVisible()) {
-        $button_element = $fallback;
-      }
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findLink($selector);
     }
 
-    if ($button_element === NULL) {
-      throw new ExpectationException(sprintf('The button "%s" was not found in the modal.', $button), $this->getSession()->getDriver());
+    if ($element === NULL || !$element->isVisible()) {
+      throw new ExpectationException(sprintf('The element "%s" was not found in the modal.', $selector), $this->getSession()->getDriver());
     }
 
-    $button_element->click();
+    $element->click();
   }
 
   /**
@@ -213,16 +208,6 @@ trait ModalTrait {
    */
   protected function modalGetContentSelectors(): array {
     return ['.ui-dialog-content', '.modal-content', '.modal-body'];
-  }
-
-  /**
-   * Get the CSS selectors for modal buttons.
-   *
-   * @return array<string>
-   *   An array of CSS selectors to try, in order.
-   */
-  protected function modalGetButtonSelectors(): array {
-    return ['.ui-dialog-buttonpane button', '.modal-footer button'];
   }
 
   /**
