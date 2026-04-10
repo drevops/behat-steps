@@ -65,4 +65,27 @@ final class TestContent extends ControllerBase {
     ]);
   }
 
+  /**
+   * Returns the system.site name, honoring X-Config-No-Override.
+   *
+   * Demonstrates the SUT-side implementation expected by
+   * ConfigOverrideTrait: when the request header lists a config name, the
+   * original (un-overridden) value is returned via
+   * ImmutableConfig::getOriginal().
+   */
+  public function testConfigSystemSiteName(Request $request): Response {
+    $config = $this->config('system.site');
+    $header = (string) $request->headers->get('X-Config-No-Override', '');
+    $disabled = array_filter(array_map(trim(...), explode(',', $header)));
+
+    $value = in_array('system.site', $disabled, TRUE)
+      ? (string) $config->getOriginal('name', FALSE)
+      : (string) $config->get('name');
+
+    return new Response($value, 200, [
+      'Content-Type' => 'text/plain',
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
 }

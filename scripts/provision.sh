@@ -74,6 +74,19 @@ composer run-script post-install-cmd
 echo "  > Installing Drupal site."
 /usr/bin/env PHP_OPTIONS='-d sendmail_path=/bin/true' /app/build/vendor/bin/drush -r /app/build/web si standard -y --db-url=mysql://drupal:drupal@mariadb/drupal --account-name=admin --account-pass=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL --uri=http://nginx
 
+echo "  > Appending fixture \$config overrides to settings.php for ConfigOverrideTrait tests."
+chmod 666 /app/build/web/sites/default/settings.php
+cat >> /app/build/web/sites/default/settings.php <<'PHP'
+
+// Fixture config overrides used by ConfigOverrideTrait tests. These mimic
+// environment-specific overrides that a real site would set in settings.php,
+// so tests can verify that @disable-config-override:<name> tags let the SUT
+// read the stored (original) values via ImmutableConfig::getOriginal().
+$config['system.site']['name'] = 'Overridden Site Name';
+$config['system.site']['slogan'] = 'Overridden Slogan';
+PHP
+chmod 444 /app/build/web/sites/default/settings.php
+
 echo "  > Running post-install commands defined in the composer.json for each specific fixture."
 composer run-script drupal-post-install
 

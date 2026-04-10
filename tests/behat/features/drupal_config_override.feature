@@ -3,6 +3,24 @@ Feature: Check that ConfigOverrideTrait works
   I want to provide a way to disable Drupal config overrides for a scenario
   So that users can test original config values without redeploying the SUT
 
+  # The fixture site has the following overrides in settings.php:
+  #   $config['system.site']['name']   = 'Overridden Site Name';
+  #   $config['system.site']['slogan'] = 'Overridden Slogan';
+  # The stored (original) name is 'Drush Site-Install'.
+
+  @api
+  Scenario: Without the tag, the SUT serves the settings.php-overridden config value
+    When I visit "/mysite_core/test-config-system-site-name"
+    Then the response status code should be 200
+    And the response should contain "Overridden Site Name"
+
+  @api @disable-config-override:system.site
+  Scenario: With @disable-config-override, the SUT serves the original stored config value
+    When I visit "/mysite_core/test-config-system-site-name"
+    Then the response status code should be 200
+    And the response should contain "Drush Site-Install"
+    And the response should not contain "Overridden Site Name"
+
   @api
   Scenario: Visiting a page without the tag sends no X-Config-No-Override header
     When I visit "/mysite_core/test-config-no-override-header"

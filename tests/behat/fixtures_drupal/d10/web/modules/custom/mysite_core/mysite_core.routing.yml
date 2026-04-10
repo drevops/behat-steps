@@ -20,3 +20,10 @@ mysite_core.test_config_no_override_header:
     _access: 'TRUE'
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testConfigNoOverrideHeader'
+
+mysite_core.test_config_system_site_name:
+  path: '/mysite_core/test-config-system-site-name'
+  requirements:
+    _access: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testConfigSystemSiteName'
