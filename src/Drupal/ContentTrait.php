@@ -266,7 +266,8 @@ trait ContentTrait {
     // @codeCoverageIgnoreEnd
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
     assert($handler instanceof NodeAccessControlHandlerInterface);
-    $handler->acquireGrants($node);
+    $grants = $handler->acquireGrants($node);
+    \Drupal::service('node.grant_storage')->write($node, $grants);
   }
 
   /**
