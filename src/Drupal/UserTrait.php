@@ -314,6 +314,61 @@ trait UserTrait {
   }
 
   /**
+   * Assert that a user with an email address exists.
+   *
+   * Performs a case-insensitive match against the user mail property.
+   *
+   * @code
+   * Then the user with the email "alice@example.com" should exist
+   * @endcode
+   */
+  #[Then('the user with the email :mail should exist')]
+  public function userAssertExistsByMail(string $mail): void {
+    if (!$this->userExistsByMail($mail)) {
+      throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $mail), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a user with an email address does not exist.
+   *
+   * Performs a case-insensitive match against the user mail property.
+   *
+   * @code
+   * Then the user with the email "alice@example.com" should not exist
+   * @endcode
+   */
+  #[Then('the user with the email :mail should not exist')]
+  public function userAssertNotExistsByMail(string $mail): void {
+    if ($this->userExistsByMail($mail)) {
+      throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $mail), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Check whether a user with the given email address exists.
+   *
+   * Performs a case-insensitive match against the user mail property.
+   *
+   * @param string $mail
+   *   The email address to check.
+   *
+   * @return bool
+   *   TRUE if a user with the email exists, FALSE otherwise.
+   */
+  protected function userExistsByMail(string $mail): bool {
+    $ids = \Drupal::entityTypeManager()
+      ->getStorage('user')
+      ->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('mail', $mail, 'LIKE')
+      ->range(0, 1)
+      ->execute();
+
+    return !empty($ids);
+  }
+
+  /**
    * Assert that a user is blocked.
    *
    * @code
