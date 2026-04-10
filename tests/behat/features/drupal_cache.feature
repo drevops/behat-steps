@@ -6,20 +6,23 @@ Feature: Check that CacheTrait works
   @api
   Scenario: Assert "Given the page cache for the path :path has been cleared" clears a single path
     Given I am logged in as a user with the "administrator" role
-    When the page cache for the path "/user" has been cleared
-    Then I go to "/user"
+    And the page cache for the path "/user" has been cleared
+    When I go to "/user"
+    Then I should see "Member for"
 
   @api
   Scenario: Assert "Given the page cache for the paths matching :path_pattern has been cleared" clears matching paths
     Given I am logged in as a user with the "administrator" role
-    When the page cache for the paths matching "/user*" has been cleared
-    Then I go to "/user"
+    And the page cache for the paths matching "/user*" has been cleared
+    When I go to "/user"
+    Then I should see "Member for"
 
   @api
   Scenario: Assert "Given the render cache has been cleared" clears the render cache
     Given I am logged in as a user with the "administrator" role
-    When the render cache has been cleared
-    Then I go to "/user"
+    And the render cache has been cleared
+    When I go to "/user"
+    Then I should see "Member for"
 
   @api @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty path fails

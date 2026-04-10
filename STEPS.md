@@ -2645,7 +2645,7 @@ Clear the page cache for all paths matching a glob-style pattern
 <br/><br/>
 
 ```gherkin
-Given the page cache for the paths matching "/news" has been cleared
+Given the page cache for the paths matching "/news*" has been cleared
 
 ```
 

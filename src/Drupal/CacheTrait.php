@@ -47,7 +47,7 @@ trait CacheTrait {
    * (`%`, `_`, `\`) are escaped so they are treated literally.
    *
    * @code
-   * Given the page cache for the paths matching "/news/*" has been cleared
+   * Given the page cache for the paths matching "/news*" has been cleared
    * @endcode
    */
   #[Given('the page cache for the paths matching :path_pattern has been cleared')]
