@@ -4005,6 +4005,34 @@ When I run search indexing for 1 item
 
 </details>
 
+<details>
+  <summary><code>@When I run the Search API cron</code></summary>
+
+<br/>
+Run the Search API module cron hook
+<br/><br/>
+
+```gherkin
+When I run the Search API cron
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run the Search API Solr cron</code></summary>
+
+<br/>
+Run the Search API Solr module cron hook
+<br/><br/>
+
+```gherkin
+When I run the Search API Solr cron
+
+```
+
+</details>
+
 ## Drupal\TaxonomyTrait
 
 [Source](src/Drupal/TaxonomyTrait.php), [Example](tests/behat/features/drupal_taxonomy.feature)
