@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Custom CSS Modals</title>
+<style>
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 300px;
+  }
+  .modal.visible, .modal-overlay.visible {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<h1>Page with custom CSS modals</h1>
+<button id="open-profile">Open Profile</button>
+<button id="open-export">Open Export</button>
+
+<div class="modal-overlay" id="overlay"></div>
+
+<div class="modal" id="profile-modal">
+  <div class="modal-body">
+    <p>Profile modal content</p>
+    <button class="btn-close" data-close="profile-modal">Close</button>
+    <button class="btn-update">Update</button>
+    <a href="#" class="link-reset" onclick="return false;">Reset</a>
+  </div>
+</div>
+
+<div class="modal" id="export-modal">
+  <div class="modal-body">
+    <p>Export modal content</p>
+    <button class="btn-close" data-close="export-modal">Close</button>
+    <button class="btn-download">Download</button>
+    <a href="#" class="link-preview" onclick="return false;">Preview</a>
+  </div>
+</div>
+
+<script>
+  function openModal(id) {
+    document.getElementById(id).classList.add('visible');
+    document.getElementById('overlay').classList.add('visible');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('visible');
+    document.getElementById('overlay').classList.remove('visible');
+  }
+  document.getElementById('open-profile').addEventListener('click', function() {
+    openModal('profile-modal');
+  });
+  document.getElementById('open-export').addEventListener('click', function() {
+    openModal('export-modal');
+  });
+  document.querySelectorAll('[data-close]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      closeModal(this.getAttribute('data-close'));
+    });
+  });
+</script>
+</body>
+</html>

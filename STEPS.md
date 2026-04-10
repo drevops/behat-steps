@@ -36,6 +36,7 @@
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\ModalTrait](#drupalmodaltrait) | Interact with and assert modals. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
@@ -3505,6 +3506,120 @@ Given the following menu links exist in the menu "Main navigation":
   | title           | enabled | uri                     | parent       |
   | Products        | 1       | /products               |              |
   | Latest Products | 1       | /products/latest        | Products     |
+
+```
+
+</details>
+
+## Drupal\ModalTrait
+
+[Source](src/Drupal/ModalTrait.php), [Example](tests/behat/features/drupal_modal.feature)
+
+>  Interact with and assert modals.
+>  - Assert modal visibility.
+>  - Assert modal content.
+>  - Interact with modal buttons.
+>  
+>  Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
+>  modals, native HTML dialog element, custom modals) via overridable
+>  selector methods. All steps require a JavaScript-enabled driver.
+
+
+<details>
+  <summary><code>@When I close the modal</code></summary>
+
+<br/>
+Close the modal by clicking the close button
+<br/><br/>
+
+```gherkin
+When I close the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I click on :selector in the modal</code></summary>
+
+<br/>
+Click an element in the modal by CSS selector, button label, or link text
+<br/><br/>
+
+```gherkin
+When I click on "Save" in the modal
+When I click on ".btn-save" in the modal
+When I click on "Cancel" in the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I wait for the modal to appear</code></summary>
+
+<br/>
+Wait for the modal to appear
+<br/><br/>
+
+```gherkin
+When I wait for the modal to appear
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should see the modal</code></summary>
+
+<br/>
+Assert that the modal is visible
+<br/><br/>
+
+```gherkin
+Then I should see the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should not see the modal</code></summary>
+
+<br/>
+Assert that the modal is not visible
+<br/><br/>
+
+```gherkin
+Then I should not see the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal should contain :text</code></summary>
+
+<br/>
+Assert that the modal contains text
+<br/><br/>
+
+```gherkin
+Then the modal should contain "Welcome message"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal should not contain :text</code></summary>
+
+<br/>
+Assert that the modal does not contain text
+<br/><br/>
+
+```gherkin
+Then the modal should not contain "Error message"
 
 ```
 
