@@ -794,36 +794,6 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent range (end_value/date)" not found.
       """
 
-  @api @javascript
-  Scenario: Fill in multi-value field with more values than existing rows
-    Given I am logged in as a user with the "administrator" role
-    When I go to "node/add/page"
-    And I fill in "Title" with "[TEST] Multi-value tags"
-    And I fill in the multi-value field "Test tags" with the following values:
-      | value   |
-      | Drupal  |
-      | Behat   |
-      | Testing |
-    And I press "Save"
-    Then I should see "[TEST] Multi-value tags"
-
-  @trait:FieldTrait
-  Scenario: Assert negative "fill in the multi-value field" for non-existent field
-    Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
-      """
-      Given I am logged in as a user with the "administrator" role
-      And I go to "node/add/page"
-      And I fill in the multi-value field "Non-existent multi field" with the following values:
-        | value |
-        | Foo   |
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      Multi-value field wrapper with label "Non-existent multi field" not found.
-      """
-
   @trait:FieldTrait
   Scenario: Assert negative color field value assertion when values don't match
     Given some behat configuration

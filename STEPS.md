@@ -588,24 +588,6 @@ Then I should see "Title field is required"
 </details>
 
 <details>
-  <summary><code>@When I fill in the multi-value field :field with the following values:</code></summary>
-
-<br/>
-Fill in a multi-value field widget with a list of values
-<br/><br/>
-
-```gherkin
-When I fill in the multi-value field "Tags" with the following values:
-  | value   |
-  | Drupal  |
-  | Behat   |
-  | Testing |
-
-```
-
-</details>
-
-<details>
   <summary><code>@When I fill in the color field :field with the value :value</code></summary>
 
 <br/>
