@@ -297,15 +297,32 @@ trait FieldTrait {
 
     $page = $this->getSession()->getPage();
 
-    // Locate the field wrapper by walking up from the label. Prefer a
-    // field-multiple-table container, fall back to any edit- wrapper.
-    $label_xpath = sprintf('//label[normalize-space(text())=%s or normalize-space(.)=%s]', $this->fieldXpathLiteral($field), $this->fieldXpathLiteral($field));
-    $wrapper_xpath = $label_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or starts-with(@data-drupal-selector, "edit-")][1]';
+    // Locate the field wrapper. Drupal multi-value widgets wrap the field
+    // rows (a table) and the "Add another item" button in an outer
+    // container identified by `data-drupal-selector="edit-<field>-wrapper"`.
+    // The title can live in a nested <label>, <h4>, <legend>, <caption>,
+    // or plain text element. Match the title first, then walk up to the
+    // outermost edit- wrapper so that the Add-more button is included.
+    $literal = $this->fieldXpathLiteral($field);
+    $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
+    $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
     $wrapper = $page->find('xpath', $wrapper_xpath);
 
-    // Fallback: walk up to the nearest ancestor with a data-drupal-selector.
+    // Fallback: any edit-* ancestor or field-multiple-table.
     if ($wrapper === NULL) {
-      $wrapper = $page->find('xpath', $label_xpath . '/ancestor::*[@data-drupal-selector][1]');
+      $fallback_xpath = $title_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]';
+      $wrapper = $page->find('xpath', $fallback_xpath);
+    }
+
+    // Fallback: locate the first input by label via Mink, then walk up.
+    if ($wrapper === NULL) {
+      $first_input = $page->findField($field);
+      if ($first_input !== NULL) {
+        $wrapper = $first_input->find('xpath', 'ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]');
+        if ($wrapper === NULL) {
+          $wrapper = $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
+        }
+      }
     }
 
     if ($wrapper === NULL) {
@@ -330,9 +347,20 @@ trait FieldTrait {
     $clicks_needed = max(0, $required - $existing_count);
 
     for ($i = 0; $i < $clicks_needed; $i++) {
-      $add_more = $wrapper->find('css', $this->fieldGetAddMoreButtonSelector());
+      $add_more = NULL;
+      foreach ($this->fieldGetAddMoreButtonSelectors() as $css_selector) {
+        $add_more = $wrapper->find('css', $css_selector);
+        if ($add_more !== NULL) {
+          break;
+        }
+      }
       if ($add_more === NULL) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', $this->fieldGetAddMoreButtonSelector());
+        // XPath fallback: any submit input or button whose name or value
+        // contains "add_more" / "Add another item".
+        $add_more = $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
+      }
+      if ($add_more === NULL) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', implode(', ', $this->fieldGetAddMoreButtonSelectors()));
       }
       $add_more->press();
       $this->getSession()->wait(5000, '(typeof jQuery === "undefined") || (0 === jQuery.active && 0 === jQuery(\':animated\').length)');
@@ -353,13 +381,19 @@ trait FieldTrait {
   }
 
   /**
-   * CSS selector for the "Add another item" button.
+   * CSS selectors for the "Add another item" button.
    *
-   * Override in a subclass to customise the selector for custom themes or
-   * widget implementations.
+   * Returned selectors are tried in order. Override in a subclass to
+   * customise the selectors for custom themes or widget implementations.
+   *
+   * @return array<int, string>
+   *   CSS selectors to probe for the add-another-item button.
    */
-  protected function fieldGetAddMoreButtonSelector(): string {
-    return 'input[value="Add another item"], button.field-add-more-submit';
+  protected function fieldGetAddMoreButtonSelectors(): array {
+    return [
+      'input[value="Add another item"]',
+      'button.field-add-more-submit',
+    ];
   }
 
   /**
@@ -369,6 +403,7 @@ trait FieldTrait {
    * ::fieldIsMarkedRequired() when walking a field's label/wrapper.
    *
    * @return array<int, string>
+   *   CSS selectors to probe for a required marker.
    */
   protected function fieldGetRequiredMarkerSelectors(): array {
     return ['.form-required', '[required]'];
@@ -437,7 +472,7 @@ trait FieldTrait {
       return '"' . $value . '"';
     }
     $parts = explode("'", $value);
-    return 'concat(\'' . implode("', \"'\", '", $parts) . '\')';
+    return "concat('" . implode("', \"'\", '", $parts) . "')";
   }
 
   /**

@@ -815,15 +815,13 @@ Feature: Check that FieldTrait works
       Given I am logged in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the multi-value field "Non-existent multi field" with the following values:
-        '''
         | value |
         | Foo   |
-        '''
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      multi-value field wrapper
+      Multi-value field wrapper with label "Non-existent multi field" not found.
       """
 
   @trait:FieldTrait
