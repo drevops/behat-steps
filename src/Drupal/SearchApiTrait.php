@@ -70,4 +70,51 @@ trait SearchApiTrait {
     }
   }
 
+  /**
+   * Run the Search API module cron hook.
+   *
+   * Triggers the `search_api` module's `hook_cron` implementation, which
+   * processes the tracker and indexes pending items as a real cron job would.
+   *
+   * @code
+   * When I run the Search API cron
+   * @endcode
+   */
+  #[When('I run the Search API cron')]
+  public function searchApiRunCron(): void {
+    if (!\Drupal::moduleHandler()->moduleExists('search_api')) {
+      throw new \RuntimeException('The "search_api" module is not enabled.');
+    }
+
+    \Drupal::moduleHandler()->invoke('search_api', 'cron');
+  }
+
+  /**
+   * Run the Search API Solr module cron hook.
+   *
+   * Triggers the `search_api_solr` module's `hook_cron` implementation. This
+   * is a no-op when the `search_api_solr` module is not enabled, but requires
+   * the parent `search_api` module to be enabled.
+   *
+   * @code
+   * When I run the Search API Solr cron
+   * @endcode
+   */
+  #[When('I run the Search API Solr cron')]
+  public function searchApiRunSolrCron(): void {
+    $module_handler = \Drupal::moduleHandler();
+
+    if (!$module_handler->moduleExists('search_api')) {
+      throw new \RuntimeException('The "search_api" module is not enabled.');
+    }
+
+    // @codeCoverageIgnoreStart
+    if (!$module_handler->moduleExists('search_api_solr')) {
+      return;
+    }
+
+    $module_handler->invoke('search_api_solr', 'cron');
+    // @codeCoverageIgnoreEnd
+  }
+
 }
