@@ -19,7 +19,7 @@ use DrevOps\BehatSteps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
-use DrevOps\BehatSteps\Drupal\ModalTrait;
+use DrevOps\BehatSteps\ModalTrait;
 use DrevOps\BehatSteps\MetatagTrait;
 use DrevOps\BehatSteps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Drupal\OverrideTrait;

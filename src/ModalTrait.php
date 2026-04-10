@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Drupal;
+namespace DrevOps\BehatSteps;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ExpectationException;
