@@ -19,10 +19,10 @@ use Behat\Step\Then;
  * `\Drupal::state()`. Touched keys are snapshotted on first access and
  * reverted after the scenario finishes.
  *
- * Skip the scenario revert with `@behat-steps-skip:stateAfterScenario`, or
- * with the convenience tag `@behat-steps-skip:StateTrait`. The snapshot
- * registry is cleared unconditionally before and after the scenario to
- * prevent state leaking into subsequent scenarios.
+ * Skip the revert with `@behat-steps-skip:stateAfterScenario` or with the
+ * convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
+ * cleared unconditionally before and after the scenario to prevent state
+ * leaking into subsequent scenarios.
  */
 trait StateTrait {
 

@@ -29,6 +29,7 @@
 | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
@@ -589,6 +590,24 @@ Then I should see "Title field is required"
 </details>
 
 <details>
+  <summary><code>@When I fill in the multi-value field :field with the following values:</code></summary>
+
+<br/>
+Fill in a multi-value field widget with a list of values
+<br/><br/>
+
+```gherkin
+When I fill in the multi-value field "Tags" with the following values:
+  | value   |
+  | Drupal  |
+  | Behat   |
+  | Testing |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I fill in the color field :field with the value :value</code></summary>
 
 <br/>
@@ -849,6 +868,34 @@ Then the field "Body" should have "disabled" state
 Then the field "field_body" should have "disabled" state
 Then the field "Tags" should have "enabled" state
 Then the field "field_tags" should have "not enabled" state
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should be required</code></summary>
+
+<br/>
+Assert that a field is marked as required
+<br/><br/>
+
+```gherkin
+Then the field "Email" should be required
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should not be required</code></summary>
+
+<br/>
+Assert that a field is not marked as required
+<br/><br/>
+
+```gherkin
+Then the field "Nickname" should not be required
 
 ```
 
@@ -2612,6 +2659,59 @@ Then the block "My block" should not exist in the "content" region
 
 </details>
 
+## Drupal\CacheTrait
+
+[Source](src/Drupal/CacheTrait.php), [Example](tests/behat/features/drupal_cache.feature)
+
+>  Invalidate specific Drupal caches from within a scenario.
+>  <br/><br/>
+>  Provides targeted cache-clearing steps for single paths, path patterns, and
+>  the render cache. A full cache clear is intentionally out of scope because
+>  `DrupalContext::@Given the cache has been cleared` already covers it.
+
+
+<details>
+  <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
+
+<br/>
+Clear the page cache for a single path
+<br/><br/>
+
+```gherkin
+Given the page cache for the path "/about" has been cleared
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the page cache for the paths matching :path_pattern has been cleared</code></summary>
+
+<br/>
+Clear the page cache for all paths matching a glob-style pattern
+<br/><br/>
+
+```gherkin
+Given the page cache for the paths matching "/news*" has been cleared
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the render cache has been cleared</code></summary>
+
+<br/>
+Clear the render cache
+<br/><br/>
+
+```gherkin
+Given the render cache has been cleared
+
+```
+
+</details>
+
 ## Drupal\ContentBlockTrait
 
 [Source](src/Drupal/ContentBlockTrait.php), [Example](tests/behat/features/drupal_content_block.feature)
@@ -2839,6 +2939,34 @@ Change moderation state of a content with the specified title
 
 ```gherkin
 When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I rebuild the access grants for the :content_type content with the title :title</code></summary>
+
+<br/>
+Rebuild node access grants for a content with the specified title
+<br/><br/>
+
+```gherkin
+When I rebuild the access grants for the "article" content with the title "My article"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I rebuild the access grants for all content</code></summary>
+
+<br/>
+Rebuild node access grants for all content
+<br/><br/>
+
+```gherkin
+When I rebuild the access grants for all content
 
 ```
 
@@ -4006,6 +4134,34 @@ When I run search indexing for 1 item
 
 </details>
 
+<details>
+  <summary><code>@When I run the Search API cron</code></summary>
+
+<br/>
+Run the Search API module cron hook
+<br/><br/>
+
+```gherkin
+When I run the Search API cron
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run the Search API Solr cron</code></summary>
+
+<br/>
+Run the Search API Solr module cron hook
+<br/><br/>
+
+```gherkin
+When I run the Search API Solr cron
+
+```
+
+</details>
+
 ## Drupal\StateTrait
 
 [Source](src/Drupal/StateTrait.php), [Example](tests/behat/features/drupal_state.feature)
@@ -4016,10 +4172,10 @@ When I run search indexing for 1 item
 >  `\Drupal::state()`. Touched keys are snapshotted on first access and
 >  reverted after the scenario finishes.
 >  <br/><br/>
->  Skip the scenario revert with `@behat-steps-skip:stateAfterScenario`, or
->  with the convenience tag `@behat-steps-skip:StateTrait`. The snapshot
->  registry is cleared unconditionally before and after the scenario to
->  prevent state leaking into subsequent scenarios.
+>  Skip the revert with `@behat-steps-skip:stateAfterScenario` or with the
+>  convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
+>  cleared unconditionally before and after the scenario to prevent state
+>  leaking into subsequent scenarios.
 
 
 <details>
@@ -4552,6 +4708,34 @@ Assert that a user does not have roles assigned
 
 ```gherkin
 Then the user "John" should not have the roles "administrator, editor" assigned
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the user with the email :mail should exist</code></summary>
+
+<br/>
+Assert that a user with an email address exists
+<br/><br/>
+
+```gherkin
+Then the user with the email "alice@example.com" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the user with the email :mail should not exist</code></summary>
+
+<br/>
+Assert that a user with an email address does not exist
+<br/><br/>
+
+```gherkin
+Then the user with the email "alice@example.com" should not exist
 
 ```
 
