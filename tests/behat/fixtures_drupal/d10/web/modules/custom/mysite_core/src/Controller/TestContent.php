@@ -7,6 +7,7 @@ namespace Drupal\mysite_core\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\mysite_core\Time\TimeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -44,6 +45,44 @@ final class TestContent extends ControllerBase {
    */
   public function testTime(): Response {
     return new Response((string) $this->time->getCurrentTime(), 200, [
+      'Content-Type' => 'text/plain',
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
+  /**
+   * Echoes the value of the X-Config-No-Override request header.
+   *
+   * Used by ConfigOverrideTrait tests to verify that the Behat process
+   * successfully signals the SUT.
+   */
+  public function testConfigNoOverrideHeader(Request $request): Response {
+    $value = (string) $request->headers->get('X-Config-No-Override', '');
+
+    return new Response($value, 200, [
+      'Content-Type' => 'text/plain',
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
+  /**
+   * Returns the system.site name, honoring X-Config-No-Override.
+   *
+   * Demonstrates the SUT-side implementation expected by
+   * ConfigOverrideTrait: when the request header lists a config name, the
+   * original (un-overridden) value is returned via
+   * ImmutableConfig::getOriginal().
+   */
+  public function testConfigSystemSiteName(Request $request): Response {
+    $config = $this->config('system.site');
+    $header = (string) $request->headers->get('X-Config-No-Override', '');
+    $disabled = array_filter(array_map(trim(...), explode(',', $header)));
+
+    $value = in_array('system.site', $disabled, TRUE)
+      ? (string) $config->getOriginal('name', FALSE)
+      : (string) $config->get('name');
+
+    return new Response($value, 200, [
       'Content-Type' => 'text/plain',
       'Cache-Control' => 'no-cache, no-store, must-revalidate',
     ]);

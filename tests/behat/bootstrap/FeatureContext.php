@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\DateTrait;
 use DrevOps\BehatSteps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
 use DrevOps\BehatSteps\Drupal\CacheTrait;
+use DrevOps\BehatSteps\Drupal\ConfigOverrideTrait;
 use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
 use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
@@ -58,6 +59,7 @@ class FeatureContext extends DrupalContext {
   use BigPipeTrait;
   use BlockTrait;
   use CacheTrait;
+  use ConfigOverrideTrait;
   use ContentBlockTrait;
   use ContentTrait;
   use CookieTrait;
