@@ -215,6 +215,21 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails with invalid direction
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/table_sorted.html"
+      Then the table ".test-table" should be sorted by "Title" in "invalid" order
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Invalid sort direction "invalid". Use "ascending" or "descending".
+      """
+
+  @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@api":

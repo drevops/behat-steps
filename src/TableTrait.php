@@ -129,6 +129,10 @@ trait TableTrait {
    */
   #[Then('the table :selector should be sorted by :column in :direction order')]
   public function tableAssertSortOrder(string $selector, string $column, string $direction): void {
+    if ($direction !== 'ascending' && $direction !== 'descending') {
+      throw new ExpectationException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction), $this->getSession()->getDriver());
+    }
+
     $table = $this->tableFindTable($selector);
 
     $header_elements = $table->findAll('css', $this->tableGetHeaderSelector());
@@ -159,9 +163,6 @@ trait TableTrait {
 
     if ($direction === 'descending') {
       $sorted = array_reverse($sorted);
-    }
-    elseif ($direction !== 'ascending') {
-      throw new ExpectationException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction), $this->getSession()->getDriver());
     }
 
     if ($values !== $sorted) {
