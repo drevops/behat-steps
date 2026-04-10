@@ -56,6 +56,7 @@ from the community.
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
 | [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags in page markup. |
+| [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |

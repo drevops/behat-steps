@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>jQuery UI Modals</title>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
+</head>
+<body>
+<h1>Page with jQuery UI modals</h1>
+<button id="open-settings">Open Settings</button>
+<button id="open-confirm">Open Confirmation</button>
+
+<div id="settings-dialog" title="Settings">
+  <p>Settings modal content</p>
+  <button class="btn-save">Save</button>
+  <a href="#" class="link-cancel" onclick="return false;">Cancel</a>
+</div>
+
+<div id="confirm-dialog" title="Confirm Action">
+  <p>Confirmation modal content</p>
+  <button class="btn-yes">Yes</button>
+  <a href="#" class="link-no" onclick="return false;">No</a>
+</div>
+
+<script>
+  $(function() {
+    $('#settings-dialog').dialog({ autoOpen: false, modal: true, width: 400 });
+    $('#confirm-dialog').dialog({ autoOpen: false, modal: true, width: 400 });
+    $('#open-settings').on('click', function() { $('#settings-dialog').dialog('open'); });
+    $('#open-confirm').on('click', function() { $('#confirm-dialog').dialog('open'); });
+  });
+</script>
+</body>
+</html>

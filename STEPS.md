@@ -14,6 +14,7 @@
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
 | [MetatagTrait](#metatagtrait) | Assert `<meta>` tags in page markup. |
+| [ModalTrait](#modaltrait) | Interact with and assert modals. |
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
@@ -1423,6 +1424,120 @@ Assert a meta tag does not contain HTML tags
 ```gherkin
 Then the "og:description" meta tag should not contain any HTML tags
 Then the "description" meta tag should not contain any HTML tags
+
+```
+
+</details>
+
+## ModalTrait
+
+[Source](src/ModalTrait.php), [Example](tests/behat/features/modal.feature)
+
+>  Interact with and assert modals.
+>  - Assert modal visibility.
+>  - Assert modal content.
+>  - Interact with modal buttons.
+>  
+>  Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
+>  modals, native HTML dialog element, custom modals) via overridable
+>  selector methods. All steps require a JavaScript-enabled driver.
+
+
+<details>
+  <summary><code>@When I close the modal</code></summary>
+
+<br/>
+Close the modal by clicking the close button
+<br/><br/>
+
+```gherkin
+When I close the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I click on :selector in the modal</code></summary>
+
+<br/>
+Click an element in the modal by CSS selector, button label, or link text
+<br/><br/>
+
+```gherkin
+When I click on "Save" in the modal
+When I click on ".btn-save" in the modal
+When I click on "Cancel" in the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I wait for the modal to appear</code></summary>
+
+<br/>
+Wait for the modal to appear
+<br/><br/>
+
+```gherkin
+When I wait for the modal to appear
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should see the modal</code></summary>
+
+<br/>
+Assert that the modal is visible
+<br/><br/>
+
+```gherkin
+Then I should see the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should not see the modal</code></summary>
+
+<br/>
+Assert that the modal is not visible
+<br/><br/>
+
+```gherkin
+Then I should not see the modal
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal should contain :text</code></summary>
+
+<br/>
+Assert that the modal contains text
+<br/><br/>
+
+```gherkin
+Then the modal should contain "Welcome message"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the modal should not contain :text</code></summary>
+
+<br/>
+Assert that the modal does not contain text
+<br/><br/>
+
+```gherkin
+Then the modal should not contain "Error message"
 
 ```
 
