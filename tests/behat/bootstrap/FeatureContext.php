@@ -25,6 +25,7 @@ use DrevOps\BehatSteps\Drupal\OverrideTrait;
 use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
 use DrevOps\BehatSteps\Drupal\QueueTrait;
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
+use DrevOps\BehatSteps\Drupal\StateTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\Drupal\TestmodeTrait;
 use DrevOps\BehatSteps\Drupal\TimeTrait;
@@ -86,6 +87,7 @@ class FeatureContext extends DrupalContext {
   use RestTrait;
   use ResponsiveTrait;
   use SearchApiTrait;
+  use StateTrait;
   use TableTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
