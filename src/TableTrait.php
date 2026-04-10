@@ -25,14 +25,13 @@ trait TableTrait {
    * Assert that a table has the expected number of rows in its tbody.
    *
    * @code
-   * Then the table ".views-table" should have 5 rows
+   * Then the table ".mytable" should have 5 rows
    * @endcode
    */
   #[Then('the table :selector should have :count row(s)')]
   public function tableAssertRowCount(string $selector, int $count): void {
-    $table = $this->tableFindTable($selector);
-    $rows = $table->findAll('css', $this->tableGetBodyRowSelector());
-    $actual = count($rows);
+    $table = $this->tableFind($selector);
+    $actual = count($this->tableGetRows($table));
 
     if ($actual !== $count) {
       throw new ExpectationException(sprintf('Expected table "%s" to have %d row(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
@@ -43,14 +42,13 @@ trait TableTrait {
    * Assert that a table has the expected number of columns.
    *
    * @code
-   * Then the table ".views-table" should have 5 columns
+   * Then the table ".mytable" should have 5 columns
    * @endcode
    */
   #[Then('the table :selector should have :count column(s)')]
   public function tableAssertColumnCount(string $selector, int $count): void {
-    $table = $this->tableFindTable($selector);
-    $headers = $table->findAll('css', $this->tableGetHeaderSelector());
-    $actual = count($headers);
+    $table = $this->tableFind($selector);
+    $actual = count($this->tableGetHeaders($table));
 
     if ($actual !== $count) {
       throw new ExpectationException(sprintf('Expected table "%s" to have %d column(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
@@ -61,7 +59,7 @@ trait TableTrait {
    * Assert that a table contains the expected column headers.
    *
    * @code
-   * Then the table ".views-table" should contain the following columns:
+   * Then the table ".mytable" should contain the following columns:
    *   | Title  |
    *   | Author |
    *   | Status |
@@ -69,12 +67,8 @@ trait TableTrait {
    */
   #[Then('the table :selector should contain the following columns:')]
   public function tableAssertColumns(string $selector, TableNode $table): void {
-    $table_element = $this->tableFindTable($selector);
-    $header_elements = $table_element->findAll('css', $this->tableGetHeaderSelector());
-    $actual_headers = [];
-    foreach ($header_elements as $header) {
-      $actual_headers[] = trim($header->getText());
-    }
+    $table_element = $this->tableFind($selector);
+    $actual_headers = $this->tableGetHeaders($table_element);
 
     foreach ($table->getColumn(0) as $expected_column) {
       $expected_column = trim($expected_column);
@@ -88,14 +82,13 @@ trait TableTrait {
    * Assert that a table is empty (has no rows in tbody).
    *
    * @code
-   * Then the table ".views-table" should be empty
+   * Then the table ".mytable" should be empty
    * @endcode
    */
   #[Then('the table :selector should be empty')]
   public function tableAssertEmpty(string $selector): void {
-    $table = $this->tableFindTable($selector);
-    $rows = $table->findAll('css', $this->tableGetBodyRowSelector());
-    $actual = count($rows);
+    $table = $this->tableFind($selector);
+    $actual = count($this->tableGetRows($table));
 
     if ($actual !== 0) {
       throw new ExpectationException(sprintf('Expected table "%s" to be empty, but found %d row(s).', $selector, $actual), $this->getSession()->getDriver());
@@ -106,15 +99,14 @@ trait TableTrait {
    * Assert that a table is not empty (has rows in tbody).
    *
    * @code
-   * Then the table ".views-table" should not be empty
+   * Then the table ".mytable" should not be empty
    * @endcode
    */
   #[Then('the table :selector should not be empty')]
   public function tableAssertNotEmpty(string $selector): void {
-    $table = $this->tableFindTable($selector);
-    $rows = $table->findAll('css', $this->tableGetBodyRowSelector());
+    $table = $this->tableFind($selector);
 
-    if (count($rows) === 0) {
+    if (count($this->tableGetRows($table)) === 0) {
       throw new ExpectationException(sprintf('Expected table "%s" to not be empty, but it has no rows.', $selector), $this->getSession()->getDriver());
     }
   }
@@ -123,8 +115,8 @@ trait TableTrait {
    * Assert that a table is sorted by a column in a specific direction.
    *
    * @code
-   * Then the table ".views-table" should be sorted by "Title" in "ascending" order
-   * Then the table ".views-table" should be sorted by "Date" in "descending" order
+   * Then the table ".mytable" should be sorted by "Title" in "ascending" order
+   * Then the table ".mytable" should be sorted by "Date" in "descending" order
    * @endcode
    */
   #[Then('the table :selector should be sorted by :column in :direction order')]
@@ -133,24 +125,11 @@ trait TableTrait {
       throw new ExpectationException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction), $this->getSession()->getDriver());
     }
 
-    $table = $this->tableFindTable($selector);
+    $table = $this->tableFind($selector);
+    $column_index = $this->tableGetColumnIndex($table, $column, $selector);
 
-    $header_elements = $table->findAll('css', $this->tableGetHeaderSelector());
-    $column_index = NULL;
-    foreach ($header_elements as $index => $header) {
-      if (trim($header->getText()) === $column) {
-        $column_index = $index;
-        break;
-      }
-    }
-
-    if ($column_index === NULL) {
-      throw new ExpectationException(sprintf('Column "%s" not found in table "%s".', $column, $selector), $this->getSession()->getDriver());
-    }
-
-    $rows = $table->findAll('css', $this->tableGetBodyRowSelector());
     $values = [];
-    foreach ($rows as $row) {
+    foreach ($this->tableGetRows($table) as $row) {
       $cells = $row->findAll('css', 'td');
       if (isset($cells[$column_index])) {
         $values[] = trim($cells[$column_index]->getText());
@@ -174,7 +153,7 @@ trait TableTrait {
    * Assert that a table contains the expected rows.
    *
    * @code
-   * Then the table ".views-table" should contain the following rows:
+   * Then the table ".mytable" should contain the following rows:
    *   | Title     | Status    |
    *   | Article 1 | Published |
    *   | Article 2 | Draft     |
@@ -182,25 +161,15 @@ trait TableTrait {
    */
   #[Then('the table :selector should contain the following rows:')]
   public function tableAssertRows(string $selector, TableNode $expected_table): void {
-    $table = $this->tableFindTable($selector);
-
-    $header_elements = $table->findAll('css', $this->tableGetHeaderSelector());
-    $actual_headers = [];
-    foreach ($header_elements as $header) {
-      $actual_headers[] = trim($header->getText());
-    }
+    $table = $this->tableFind($selector);
 
     $expected_headers = $expected_table->getRow(0);
     $column_indices = [];
     foreach ($expected_headers as $expected_header) {
-      $index = array_search($expected_header, $actual_headers, TRUE);
-      if ($index === FALSE) {
-        throw new ExpectationException(sprintf('Column "%s" not found in table "%s". Available columns: %s.', $expected_header, $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
-      }
-      $column_indices[] = $index;
+      $column_indices[] = $this->tableGetColumnIndex($table, $expected_header, $selector);
     }
 
-    $rows = $table->findAll('css', $this->tableGetBodyRowSelector());
+    $rows = $this->tableGetRows($table);
     $expected_rows = $expected_table->getHash();
 
     foreach ($expected_rows as $row_index => $expected_row) {
@@ -279,7 +248,7 @@ trait TableTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When the table is not found.
    */
-  protected function tableFindTable(string $selector): NodeElement {
+  protected function tableFind(string $selector): NodeElement {
     $page = $this->getSession()->getPage();
     $table = $page->find('css', $selector);
 
@@ -288,6 +257,64 @@ trait TableTrait {
     }
 
     return $table;
+  }
+
+  /**
+   * Get the header texts from a table element.
+   *
+   * @param \Behat\Mink\Element\NodeElement $table
+   *   The table element.
+   *
+   * @return array<string>
+   *   An array of trimmed header texts.
+   */
+  protected function tableGetHeaders(NodeElement $table): array {
+    $headers = [];
+    foreach ($table->findAll('css', $this->tableGetHeaderSelector()) as $header) {
+      $headers[] = trim($header->getText());
+    }
+
+    return $headers;
+  }
+
+  /**
+   * Get the body rows from a table element.
+   *
+   * @param \Behat\Mink\Element\NodeElement $table
+   *   The table element.
+   *
+   * @return array<\Behat\Mink\Element\NodeElement>
+   *   An array of row elements.
+   */
+  protected function tableGetRows(NodeElement $table): array {
+    return $table->findAll('css', $this->tableGetBodyRowSelector());
+  }
+
+  /**
+   * Get the index of a column by its header text.
+   *
+   * @param \Behat\Mink\Element\NodeElement $table
+   *   The table element.
+   * @param string $column
+   *   The column header text.
+   * @param string $selector
+   *   The table selector for error messages.
+   *
+   * @return int
+   *   The column index.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the column is not found.
+   */
+  protected function tableGetColumnIndex(NodeElement $table, string $column, string $selector): int {
+    $headers = $this->tableGetHeaders($table);
+    $index = array_search($column, $headers, TRUE);
+
+    if ($index === FALSE) {
+      throw new ExpectationException(sprintf('Column "%s" not found in table "%s". Available columns: %s.', $column, $selector, implode(', ', $headers)), $this->getSession()->getDriver());
+    }
+
+    return (int) $index;
   }
 
   /**

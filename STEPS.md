@@ -1965,7 +1965,7 @@ Assert that a table has the expected number of rows in its tbody
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should have 5 rows
+Then the table ".mytable" should have 5 rows
 
 ```
 
@@ -1979,7 +1979,7 @@ Assert that a table has the expected number of columns
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should have 5 columns
+Then the table ".mytable" should have 5 columns
 
 ```
 
@@ -1993,7 +1993,7 @@ Assert that a table contains the expected column headers
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should contain the following columns:
+Then the table ".mytable" should contain the following columns:
   | Title  |
   | Author |
   | Status |
@@ -2010,7 +2010,7 @@ Assert that a table is empty (has no rows in tbody)
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should be empty
+Then the table ".mytable" should be empty
 
 ```
 
@@ -2024,7 +2024,7 @@ Assert that a table is not empty (has rows in tbody)
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should not be empty
+Then the table ".mytable" should not be empty
 
 ```
 
@@ -2038,8 +2038,8 @@ Assert that a table is sorted by a column in a specific direction
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should be sorted by "Title" in "ascending" order
-Then the table ".views-table" should be sorted by "Date" in "descending" order
+Then the table ".mytable" should be sorted by "Title" in "ascending" order
+Then the table ".mytable" should be sorted by "Date" in "descending" order
 
 ```
 
@@ -2053,7 +2053,7 @@ Assert that a table contains the expected rows
 <br/><br/>
 
 ```gherkin
-Then the table ".views-table" should contain the following rows:
+Then the table ".mytable" should contain the following rows:
   | Title     | Status    |
   | Article 1 | Published |
   | Article 2 | Draft     |
