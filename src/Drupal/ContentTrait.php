@@ -90,9 +90,8 @@ trait ContentTrait {
   /**
    * Create content authored by the currently logged-in user.
    *
-   * Injects the current user's 'uid' and 'author' into every row before
-   * delegating to the shared node creation logic. Requires a prior
-   * "I am logged in..." step.
+   * Injects the current user's UID into every row before delegating to the
+   * shared node creation logic. Requires a prior "I am logged in..." step.
    *
    * @param string $content_type
    *   The content type machine name.
@@ -122,12 +121,12 @@ trait ContentTrait {
 
     $headers = array_shift($rows);
 
-    // Remove any pre-existing uid/author columns to ensure the current user
-    // owns the created content.
+    // Remove any pre-existing uid column so the current user always owns
+    // the created content.
     $filtered_headers = [];
     $kept_indexes = [];
     foreach ($headers as $index => $header) {
-      if ($header === 'uid' || $header === 'author') {
+      if ($header === 'uid') {
         continue;
       }
       $filtered_headers[] = $header;
@@ -135,7 +134,6 @@ trait ContentTrait {
     }
 
     $filtered_headers[] = 'uid';
-    $filtered_headers[] = 'author';
 
     $new_rows = [$filtered_headers];
     foreach ($rows as $row) {
@@ -144,7 +142,6 @@ trait ContentTrait {
         $new_row[] = $row[$index] ?? '';
       }
       $new_row[] = (string) $current_user->uid;
-      $new_row[] = (string) $current_user->name;
       $new_rows[] = $new_row;
     }
 

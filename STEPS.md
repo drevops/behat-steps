@@ -2760,6 +2760,24 @@ Given the following page content with fields:
 </details>
 
 <details>
+  <summary><code>@Given the following :content_type content with the current user as the author:</code></summary>
+
+<br/>
+Create content authored by the currently logged-in user
+<br/><br/>
+
+```gherkin
+Given I am logged in as a user with the "editor" role
+And the following "article" content with the current user as the author:
+  | title            | body             |
+  | My first article | Hello world.     |
+  | My second        | Another article. |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I visit the :content_type content page with the title :title</code></summary>
 
 <br/>
