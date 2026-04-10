@@ -40,13 +40,6 @@ trait StateTrait {
    */
   #[BeforeScenario]
   public function stateBeforeScenario(BeforeScenarioScope $scope): void {
-    if (
-      $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
-      || $scope->getScenario()->hasTag('behat-steps-skip:StateTrait')
-    ) {
-      return;
-    }
-
     $this->stateOriginalValues = [];
   }
 
@@ -59,6 +52,7 @@ trait StateTrait {
       $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
       || $scope->getScenario()->hasTag('behat-steps-skip:StateTrait')
     ) {
+      $this->stateOriginalValues = [];
       return;
     }
 
