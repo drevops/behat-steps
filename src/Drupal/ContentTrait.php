@@ -11,6 +11,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
 
@@ -229,6 +230,60 @@ trait ContentTrait {
 
     $node->set('moderation_state', $new_state);
     $node->save();
+  }
+
+  /**
+   * Rebuild node access grants for a content with the specified title.
+   *
+   * Loads the node by content type and exact title match, then acquires
+   * grants for it via the node access control handler. Useful after test
+   * fixtures are created to ensure access grants are populated for
+   * modules relying on the node access system.
+   *
+   * @code
+   * When I rebuild the access grants for the "article" content with the title "My article"
+   * @endcode
+   */
+  #[When('I rebuild the access grants for the :content_type content with the title :title')]
+  public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
+    $nids = $this->contentLoadMultiple($content_type, [
+      'title' => $title,
+    ]);
+
+    if (empty($nids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+
+    ksort($nids);
+
+    $nid = end($nids);
+    $node = Node::load($nid);
+
+    // @codeCoverageIgnoreStart
+    if (!$node instanceof NodeInterface) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+    // @codeCoverageIgnoreEnd
+    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
+    assert($handler instanceof NodeAccessControlHandlerInterface);
+    $grants = $handler->acquireGrants($node);
+    \Drupal::service('node.grant_storage')->write($node, $grants);
+  }
+
+  /**
+   * Rebuild node access grants for all content.
+   *
+   * Triggers a non-batched rebuild of node access grants for every node
+   * in the system. Useful after enabling or reconfiguring a node access
+   * module during a scenario.
+   *
+   * @code
+   * When I rebuild the access grants for all content
+   * @endcode
+   */
+  #[When('I rebuild the access grants for all content')]
+  public function contentRebuildAccessGrantsAll(): void {
+    node_access_rebuild(FALSE);
   }
 
   /**

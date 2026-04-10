@@ -2890,6 +2890,34 @@ When I change the moderation state of the "article" content with the title "Test
 </details>
 
 <details>
+  <summary><code>@When I rebuild the access grants for the :content_type content with the title :title</code></summary>
+
+<br/>
+Rebuild node access grants for a content with the specified title
+<br/><br/>
+
+```gherkin
+When I rebuild the access grants for the "article" content with the title "My article"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I rebuild the access grants for all content</code></summary>
+
+<br/>
+Rebuild node access grants for all content
+<br/><br/>
+
+```gherkin
+When I rebuild the access grants for all content
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then :content_type content with the title :title should not exist</code></summary>
 
 <br/>
