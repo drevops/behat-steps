@@ -125,7 +125,6 @@ Feature: Ensure Search API functionality works
     Then I should see the text "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
     And I should see the text "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
-  @api
+  @api @module:!search_api_solr
   Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled
     When I run the Search API Solr cron
-
