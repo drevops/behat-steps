@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
+use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Manage Drupal webforms.
@@ -39,7 +40,14 @@ trait WebformTrait {
     }
     // @codeCoverageIgnoreEnd
     foreach (static::$webformEntities as $webform) {
-      $webform->delete();
+      try {
+        $webform->delete();
+      }
+      // @codeCoverageIgnoreStart
+      catch (EntityStorageException) {
+        // Ignore "already deleted" errors to keep teardown resilient.
+      }
+      // @codeCoverageIgnoreEnd
     }
 
     static::$webformEntities = [];
@@ -127,10 +135,16 @@ trait WebformTrait {
    *   An array of matching webform entities.
    */
   protected function webformLoadAll(string $title): array {
+    // Clear config factory cache to pick up webform changes made via the
+    // admin UI in a separate process.
+    \Drupal::configFactory()->reset();
+
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $storage = $entity_type_manager->getStorage('webform');
+    $storage->resetCache();
 
-    $ids = $entity_type_manager->getStorage('webform')->getQuery()
+    $ids = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('title', $title, 'CONTAINS')
       ->execute();
@@ -140,7 +154,7 @@ trait WebformTrait {
     }
 
     /** @var \Drupal\webform\WebformInterface[] $webforms */
-    $webforms = $entity_type_manager->getStorage('webform')->loadMultiple($ids);
+    $webforms = $storage->loadMultiple($ids);
 
     return $webforms;
   }
