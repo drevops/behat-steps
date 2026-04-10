@@ -30,7 +30,7 @@ Feature: Check that CacheTrait works
       And the page cache for the path "" has been cleared
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
       The path must not be empty.
       """
@@ -44,7 +44,7 @@ Feature: Check that CacheTrait works
       And the page cache for the path "about" has been cleared
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
       The path "about" must start with a leading slash.
       """
@@ -58,7 +58,7 @@ Feature: Check that CacheTrait works
       And the page cache for the paths matching "" has been cleared
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
       The path pattern must not be empty.
       """
@@ -72,7 +72,7 @@ Feature: Check that CacheTrait works
       And the page cache for the paths matching "news/*" has been cleared
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
       The path pattern "news/*" must start with a leading slash.
       """

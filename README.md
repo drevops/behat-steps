@@ -71,6 +71,7 @@ from the community.
 | --- | --- |
 | [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
 | [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
