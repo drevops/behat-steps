@@ -44,6 +44,7 @@
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\StateTrait](#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\TimeTrait](#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
@@ -4211,6 +4212,95 @@ Run the Search API Solr module cron hook
 
 ```gherkin
 When I run the Search API Solr cron
+
+```
+
+</details>
+
+## Drupal\StateTrait
+
+[Source](src/Drupal/StateTrait.php), [Example](tests/behat/features/drupal_state.feature)
+
+>  Manage and assert Drupal State API values with automatic revert.
+>  <br/><br/>
+>  Provides set, delete, and assertion steps for keys stored through
+>  `\Drupal::state()`. Touched keys are snapshotted on first access and
+>  reverted after the scenario finishes.
+>  <br/><br/>
+>  Skip the revert with `@behat-steps-skip:stateAfterScenario` or with the
+>  convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
+>  cleared unconditionally before and after the scenario to prevent state
+>  leaking into subsequent scenarios.
+
+
+<details>
+  <summary><code>@Given the state :name has the value :value</code></summary>
+
+<br/>
+Set a Drupal state value
+<br/><br/>
+
+```gherkin
+Given the state "my_module.launched" has the value "1"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the state :name does not exist</code></summary>
+
+<br/>
+Delete a Drupal state value
+<br/><br/>
+
+```gherkin
+Given the state "my_module.launched" does not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following state values:</code></summary>
+
+<br/>
+Set multiple Drupal state values from a table
+<br/><br/>
+
+```gherkin
+Given the following state values:
+  | name                   | value |
+  | my_module.launched     | 1     |
+  | my_module.feature_flag | 0     |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the state :name should have the value :value</code></summary>
+
+<br/>
+Assert that a Drupal state value equals an expected value
+<br/><br/>
+
+```gherkin
+Then the state "my_module.launched" should have the value "1"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the state :name should not exist</code></summary>
+
+<br/>
+Assert that a Drupal state key does not exist
+<br/><br/>
+
+```gherkin
+Then the state "my_module.launched" should not exist
 
 ```
 
