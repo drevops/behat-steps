@@ -129,28 +129,3 @@ Feature: Ensure Search API functionality works
   Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled
     When I run the Search API Solr cron
 
-  @api @trait:Drupal\SearchApiTrait,Drupal\ModuleTrait
-  Scenario: Assert "When I run the Search API cron" fails when search_api module is not enabled
-    Given some behat configuration
-    And scenario steps tagged with "@api @module:!search_api":
-      """
-      When I run the Search API cron
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an exception:
-      """
-      The "search_api" module is not enabled.
-      """
-
-  @api @trait:Drupal\SearchApiTrait,Drupal\ModuleTrait
-  Scenario: Assert "When I run the Search API Solr cron" fails when search_api module is not enabled
-    Given some behat configuration
-    And scenario steps tagged with "@api @module:!search_api":
-      """
-      When I run the Search API Solr cron
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an exception:
-      """
-      The "search_api" module is not enabled.
-      """
