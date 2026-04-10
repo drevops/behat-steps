@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Native Dialog Modal</title>
+<title>Native Dialog Modals</title>
 </head>
 <body>
-<dialog id="test-dialog">
+<h1>Page with native dialog modals</h1>
+<button id="open-info">Open Info</button>
+<button id="open-delete">Open Delete</button>
+
+<dialog id="info-dialog">
   <div class="modal-content">
-    <p>Native dialog content</p>
-    <button id="btn-close" data-dismiss="modal">Close</button>
-    <button class="btn-confirm">Confirm</button>
-    <a href="#" class="link-details">View details</a>
+    <p>Info modal content</p>
+    <button data-dismiss="modal" class="close-info">Close</button>
+    <button class="btn-ok">OK</button>
+    <a href="#" class="link-details" onclick="return false;">View details</a>
   </div>
 </dialog>
+
+<dialog id="delete-dialog">
+  <div class="modal-content">
+    <p>Delete modal content</p>
+    <button data-dismiss="modal" class="close-delete">Close</button>
+    <button class="btn-delete">Delete</button>
+    <a href="#" class="link-undo" onclick="return false;">Undo</a>
+  </div>
+</dialog>
+
 <script>
-  var dialog = document.getElementById('test-dialog');
-  dialog.showModal();
-  document.getElementById('btn-close').addEventListener('click', function() {
-    dialog.close();
+  document.getElementById('open-info').addEventListener('click', function() {
+    document.getElementById('info-dialog').showModal();
+  });
+  document.getElementById('open-delete').addEventListener('click', function() {
+    document.getElementById('delete-dialog').showModal();
+  });
+  document.querySelectorAll('[data-dismiss="modal"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.closest('dialog').close();
+    });
   });
 </script>
 </body>

@@ -5,17 +5,29 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
+<style>
+  .modal { display: none; }
+</style>
 </head>
 <body>
+<h1>Page with hidden modals</h1>
+
 <div id="hidden-jquery-dialog" title="Hidden Dialog" style="display: none;">
   <p>Hidden jQuery UI modal</p>
 </div>
+
 <dialog id="hidden-native-dialog">
   <div class="modal-content">Hidden native dialog</div>
 </dialog>
-<div class="modal" style="display: none;">
+
+<div class="modal" id="hidden-custom-modal">
   <div class="modal-body">Hidden custom modal</div>
 </div>
-<p>Page with hidden modals</p>
+
+<script>
+  $(function() {
+    $('#hidden-jquery-dialog').dialog({ autoOpen: false, modal: true });
+  });
+</script>
 </body>
 </html>
