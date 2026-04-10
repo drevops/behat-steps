@@ -269,12 +269,7 @@ trait TableTrait {
    *   An array of trimmed header texts.
    */
   protected function tableGetHeaders(NodeElement $table): array {
-    $headers = [];
-    foreach ($table->findAll('css', $this->tableGetHeaderSelector()) as $header) {
-      $headers[] = trim($header->getText());
-    }
-
-    return $headers;
+    return array_map(static fn(NodeElement $el): string => trim($el->getText()), $table->findAll('css', $this->tableGetHeaderSelector()));
   }
 
   /**
