@@ -388,7 +388,7 @@ trait MediaTrait {
         continue;
       }
 
-      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
+      if (!empty($field_types[$name]) && in_array($field_types[$name], ['image', 'file'], TRUE)) {
         if (is_array($value)) {
           if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
             $stub->{$name}[0] = $fixture_path . $value[0];
