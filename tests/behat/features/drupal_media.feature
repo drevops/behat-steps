@@ -5,10 +5,6 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I attach the file :file to :field_name media field"
-    Given the following managed files:
-      | path         |
-      | document.pdf |
-
     When the following media "image" do not exist:
       | name             | field_media_image |
       | Test media image | image.png         |
@@ -34,10 +30,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert navigate to edit media with specified type and name
-    Given the following managed files:
-      | path         |
-      | document.pdf |
-    And the following media "document" exist:
+    Given the following media "document" exist:
       | name                | field_media_document |
       | Test media document | document.pdf         |
     And I am logged in as a user with the "administrator" role
@@ -75,12 +68,8 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert that mediaCreate() deletes existing media before creating
-    Given the following managed files:
-      | path      |
-      | image.png |
-
     # Create initial media
-    And the following media "image" exist:
+    Given the following media "image" exist:
       | name                | field_media_image |
       | Duplicate test item | image.png         |
 
@@ -101,9 +90,6 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Create single media with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following managed files:
-      | path      |
-      | image.png |
     And the following image media with fields:
       | name              | [TEST] Vertical Image |
       | field_media_image | image.png             |
@@ -113,9 +99,6 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Create multiple media with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following managed files:
-      | path      |
-      | image.png |
     And the following image media with fields:
       | name              | [TEST] V-Image 1 | [TEST] V-Image 2 | [TEST] V-Image 3 |
       | field_media_image | image.png        | image.png        | image.png        |
@@ -126,10 +109,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert that mediaCreateWithFields() deletes existing media before creating
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And the following image media with fields:
+    Given the following image media with fields:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
     And I am logged in as a user with the "administrator" role
@@ -144,10 +124,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I visit the media :media_type with the name :name" works
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And the following media "image" exist:
+    Given the following media "image" exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
@@ -170,10 +147,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I visit the media :media_type delete page with the name :name" works
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And the following media "image" exist:
+    Given the following media "image" exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
@@ -197,10 +171,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I visit the media :media_type revisions page with the name :name" works
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And the following media "image" exist:
+    Given the following media "image" exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
@@ -261,10 +232,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the :media_type media with the name :name should exist" works
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And the following media "image" exist:
+    Given the following media "image" exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
@@ -289,18 +257,12 @@ Feature: Check that MediaTrait works
     Given I am logged in as a user with the "administrator" role
     Then the "image" media with the name "Non-existent media" should not exist
 
-  @api @trait:Drupal\MediaTrait,Drupal\FileTrait
+  @api @trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should not exist" fails with an error
-    Given the following managed files:
-      | path      |
-      | image.png |
-    And some behat configuration
+    Given some behat configuration
     And scenario steps:
       """
-      Given the following managed files:
-        | path      |
-        | image.png |
-      And the following media "image" exist:
+      Given the following media "image" exist:
         | name              | field_media_image |
         | Test media image  | image.png         |
       Then the "image" media with the name "Test media image" should not exist
