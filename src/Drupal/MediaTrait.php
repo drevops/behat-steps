@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Driver\DrupalDriver;
+use Drupal\Driver\DrupalDriverInterface;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -376,19 +377,20 @@ trait MediaTrait {
     $fields = get_object_vars($stub);
 
     $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriver) {
-      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
+    if (!$driver instanceof DrupalDriverInterface) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support content operations required for media field expansion.', $driver::class));
+      // @codeCoverageIgnoreEnd
     }
 
-    $field_types = $driver->getCore()->getEntityFieldTypes('media', array_keys($fields));
+    $field_types = $driver->getCore()->getEntityFieldTypes('media');
 
     foreach ($fields as $name => $value) {
       if (!str_contains((string) $name, 'field_')) {
         continue;
       }
 
-      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
+      if (!empty($field_types[$name]) && ($field_types[$name] == 'image' || $field_types[$name] == 'file')) {
         if (is_array($value)) {
           if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
             $stub->{$name}[0] = $fixture_path . $value[0];
