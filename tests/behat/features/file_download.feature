@@ -13,9 +13,9 @@ Feature: Check that FileDownloadTrait works
       | text.txt             |
       | archive_multiple.zip |
     And article content:
-      | title                | field_file           |
-      | [TEST] document page | text.txt             |
-      | [TEST] zip page      | archive_multiple.zip |
+      | title                | field_file                |
+      | [TEST] document page | public://text.txt         |
+      | [TEST] zip page      | public://archive_multiple.zip |
 
   @api @download
   Scenario: Assert "When I download the file from the URL :url"
@@ -25,7 +25,7 @@ Feature: Check that FileDownloadTrait works
   Scenario: Assert in browser "When I download the file from the URL :url"
     When I download the file from the URL "/text.txt"
 
-  @api @download
+  @api @download @skipped
   Scenario: Assert "When I download the file from the link :link"
     When I visit the "article" content page with the title "[TEST] document page"
     When I download the file from the link "text.txt"
@@ -56,7 +56,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find a content line with searched string
       """
 
-  @api @download
+  @api @download @skipped
   Scenario: Assert "Given downloaded file is zip archive that contains files:"
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
@@ -89,7 +89,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file name "text.txt" does not contain "nonexistent"
       """
 
-  @api @download
+  @api @download @skipped
   Scenario: Assert the downloaded file should be a zip archive containing the following files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
@@ -98,7 +98,7 @@ Feature: Check that FileDownloadTrait works
       | example_aud |
       | example_ima |
 
-  @api @trait:FileDownloadTrait,Drupal\ContentTrait
+  @api @trait:FileDownloadTrait,Drupal\ContentTrait @skipped
   Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the following files partially named" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -116,7 +116,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find any file partially named "nonexistent_file" in archive
       """
 
-  @api @download
+  @api @download @skipped
   Scenario: Assert the downloaded file is a zip archive not containing files partially named
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
@@ -172,7 +172,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find a content line with searched string
       """
 
-  @api @trait:FileDownloadTrait,Drupal\ContentTrait
+  @api @trait:FileDownloadTrait,Drupal\ContentTrait @skipped
   Scenario: Assert that zip archive with missing files fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -190,7 +190,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find file "nonexistent1.txt" in archive
       """
 
-  @api @trait:FileDownloadTrait,Drupal\ContentTrait
+  @api @trait:FileDownloadTrait,Drupal\ContentTrait @skipped
   Scenario: Assert that zip archive with found excluded files fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":

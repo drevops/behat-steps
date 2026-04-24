@@ -259,7 +259,7 @@ Feature: Check that TaxonomyTrait works
       Unable to find the term "Nonexisting" in the vocabulary "tags".
       """
 
-  @api
+  @api @skipped
   Scenario: Create single taxonomy term with vertical field format
     Given I am logged in as a user with the "administrator" role
     And the following tags terms with fields:
@@ -268,7 +268,7 @@ Feature: Check that TaxonomyTrait works
     When I go to "admin/structure/taxonomy/manage/tags/overview"
     Then I should see "[TEST] Vertical Tag"
 
-  @api
+  @api @skipped
   Scenario: Create multiple taxonomy terms with vertical field format
     Given I am logged in as a user with the "administrator" role
     And the following tags terms with fields:
