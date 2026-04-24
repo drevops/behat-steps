@@ -4029,10 +4029,7 @@ Then the following modules should be disabled:
 >  Override Drupal Extension behaviors.
 >  - Automated entity deletion before creation to avoid duplicates.
 >  - Improved user authentication handling for anonymous users.
->  - Custom field handlers registered with the active 'DrupalDriver' core to
->  cover field types and stub-resolution patterns the upstream driver does
->  not ship out of the box (see 'src/Drupal/Field').
->  <br/><br/>
+>  
 >  Use with caution: depending on your version of Drupal Extension, PHP and
 >  Composer, the step definition string (/^Given etc.../) may need to be defined
 >  for these overrides. If you encounter errors about missing or duplicated
