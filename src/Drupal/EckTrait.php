@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
+use Behat\Step\Given;
+use Behat\Step\When;
+use Drupal\Driver\Capability\ContentCapabilityInterface;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -201,12 +202,15 @@ trait EckTrait {
    */
   protected function eckCreateEntity(string $entity_type, \StdClass $entity): void {
     $this->parseEntityFields($entity_type, $entity);
-    $saved = $this->getDriver()->createEntity($entity_type, $entity);
-    if (!$saved) {
+
+    $driver = $this->getDriver();
+    if (!$driver instanceof ContentCapabilityInterface) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to create ECK entity of type "%s".', $entity_type));
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support ECK entity creation.', $driver::class));
       // @codeCoverageIgnoreEnd
     }
+
+    $saved = $driver->entityCreate($entity_type, $entity);
 
     // Store the entity - driver may return stdClass or entity object.
     $this->eckEntities[$entity_type][] = $saved;
