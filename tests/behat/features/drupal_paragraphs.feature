@@ -12,7 +12,7 @@ Feature: Check that ParagraphsTrait works
       | title                 |
       | [TEST] Landing page 1 |
 
-  @api @skipped
+  @api
   Scenario: Assert "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:"
     When the following fields for the paragraph "text" exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
       | field_paragraph_title       | My paragraph title   |
