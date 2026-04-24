@@ -4,21 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Drupal\Field\FileHandler;
-use DrevOps\BehatSteps\Drupal\Field\TextLongHandler;
-use Drupal\Driver\DrupalDriver;
 
 /**
  * Override Drupal Extension behaviors.
  *
  * - Automated entity deletion before creation to avoid duplicates.
  * - Improved user authentication handling for anonymous users.
- * - Custom field handlers registered with the active 'DrupalDriver' core to
- *   cover field types and stub-resolution patterns the upstream driver does
- *   not ship out of the box (see 'src/Drupal/Field').
  *
  * Use with caution: depending on your version of Drupal Extension, PHP and
  * Composer, the step definition string (/^Given etc.../) may need to be defined
@@ -28,38 +20,6 @@ use Drupal\Driver\DrupalDriver;
  * from the Drupal Extension.
  */
 trait OverrideTrait {
-
-  /**
-   * Registers custom field handlers on the active driver core.
-   *
-   * The driver's 'Core::registerFieldHandler()' is the documented extension
-   * point for project-specific handlers (see
-   * 'vendor/drupal/drupal-driver/src/Drupal/Driver/Core/Field/README.md').
-   * The 'BeforeScenario' hook fires once per scenario, before any entity
-   * step runs, so registering on every scenario is safe and idempotent: the
-   * registry is a flat field-type → class map and re-registering the same
-   * class is a no-op.
-   *
-   * Skip with tag: '@behat-steps-skip:overrideRegisterFieldHandlers'.
-   */
-  #[BeforeScenario]
-  public function overrideRegisterFieldHandlers(BeforeScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    $driver = $this->getDrupal()?->getDriver();
-
-    if (!$driver instanceof DrupalDriver) {
-      return;
-    }
-
-    $core = $driver->getCore();
-    $core->registerFieldHandler('text_long', TextLongHandler::class);
-    $core->registerFieldHandler('file', FileHandler::class);
-    $core->registerFieldHandler('image', FileHandler::class);
-  }
 
   /**
    * {@inheritdoc}
