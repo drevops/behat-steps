@@ -12,7 +12,6 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\HelperTrait;
-use Drupal\Driver\DrupalDriver;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;
 use Drupal\media\Entity\Media;
@@ -346,7 +345,7 @@ trait MediaTrait {
   protected function mediaExpandEntityFields(EntityStub $stub): void {
     $driver = $this->getDriver();
 
-    if (!$driver instanceof DrupalDriver) {
+    if (!$driver instanceof DrupalDriverInterface) {
       throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
     }
 
