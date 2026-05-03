@@ -39,7 +39,7 @@ trait StateTrait {
   /**
    * Reset the snapshot registry before each scenario.
    */
-  #[BeforeScenario]
+  #[BeforeScenario('@api')]
   public function stateBeforeScenario(BeforeScenarioScope $scope): void {
     $this->stateOriginalValues = [];
   }
@@ -47,7 +47,7 @@ trait StateTrait {
   /**
    * Revert every touched state key after the scenario finishes.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
     if (
       $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)

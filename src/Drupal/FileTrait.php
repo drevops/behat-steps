@@ -14,6 +14,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Driver\Entity\EntityStub;
 use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -46,10 +47,19 @@ trait FileTrait {
   /**
    * Ensure private and temp directories exist.
    */
-  #[BeforeScenario]
+  #[BeforeScenario('@api')]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+    // @codeCoverageIgnoreEnd
+    // 6.x Drupal driver bootstraps lazily on first step that needs Drupal,
+    // so the container may not exist yet when this hook fires. Skip the
+    // best-effort directory check until Drupal is up - the dirs will be
+    // created on demand by the file operations that actually need them.
+    // @codeCoverageIgnoreStart
+    if (!\Drupal::hasContainer()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -89,7 +99,7 @@ trait FileTrait {
       $uri = $hash['uri'] ?? NULL;
       unset($hash['path'], $hash['uri']);
 
-      $stub = (object) $hash;
+      $stub = new EntityStub('file', NULL, $hash);
       $this->fileCreateManagedSingle($path, $stub, $uri);
     }
   }
@@ -99,7 +109,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -107,8 +117,8 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  protected function fileCreateManagedSingle(string $path, \StdClass $stub, ?string $uri = NULL): FileInterface {
-    $this->parseEntityFields('file', $stub);
+  protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+    $this->parseEntityFields($stub);
 
     $saved = $this->fileCreateEntity($path, $stub, $uri);
 
@@ -122,7 +132,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   Entity fields stub.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -130,7 +140,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  protected function fileCreateEntity(string $path, \StdClass $stub, ?string $uri = NULL): FileInterface {
+  protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $path = ltrim($path, '/');
 
     // Get fixture file path.
@@ -166,7 +176,7 @@ trait FileTrait {
     // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
 
-    foreach (get_object_vars($stub) as $property => $value) {
+    foreach ($stub->getValues() as $property => $value) {
       $entity->set($property, $value);
     }
 
@@ -178,7 +188,7 @@ trait FileTrait {
   /**
    * Clean all created managed files after scenario run.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

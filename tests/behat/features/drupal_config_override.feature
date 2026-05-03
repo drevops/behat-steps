@@ -42,7 +42,7 @@ Feature: Check that ConfigOverrideTrait works
 
   @api @disable-config-override:system.site
   Scenario: The X-Config-No-Override header survives a login step that resets headers
-    Given users:
+    Given the following users:
       | name      | mail                  | roles         | status |
       | test_user | test_user@example.com | administrator | 1      |
     When I am logged in as "test_user"
@@ -58,7 +58,7 @@ Feature: Check that ConfigOverrideTrait works
 
   @api @disable-config-override:system.site @behat-steps-skip:configOverrideBeforeStep
   Scenario: The @behat-steps-skip:configOverrideBeforeStep tag keeps tag parsing but skips header propagation
-    Given users:
+    Given the following users:
       | name       | mail                   | roles         | status |
       | test_user2 | test_user2@example.com | administrator | 1      |
     When I am logged in as "test_user2"

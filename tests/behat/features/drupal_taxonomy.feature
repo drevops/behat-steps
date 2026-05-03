@@ -5,7 +5,7 @@ Feature: Check that TaxonomyTrait works
   So that users can test taxonomy-related functionality
 
   Background:
-    Given "tags" terms:
+    Given the following "tags" terms:
       | name |
       | Tag1 |
       | Tag2 |

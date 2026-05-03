@@ -36,7 +36,7 @@ trait ModuleTrait {
   /**
    * Enable/disable modules before scenario based on tags.
    */
-  #[BeforeScenario]
+  #[BeforeScenario('@api')]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -69,7 +69,7 @@ trait ModuleTrait {
   /**
    * Restore module states after scenario.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

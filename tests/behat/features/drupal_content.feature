@@ -25,7 +25,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "@Given the following :content_type content does not exist:" works as expected
-    Given page content:
+    Given the following page content:
       | title              |
       | [TEST] Page title1 |
       | [TEST] Page title2 |
@@ -45,7 +45,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected
-    Given page content:
+    Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
@@ -82,7 +82,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content edit page with the title :title" works as expected
-    Given page content:
+    Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
@@ -119,7 +119,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content delete page with the title :title" works as expected
-    Given page content:
+    Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
@@ -156,7 +156,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content scheduled transitions page with the title :title" works as expected
-    Given page content:
+    Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
@@ -193,7 +193,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
-    Given page content:
+    Given the following page content:
       | title             | moderation_state |
       | [TEST] Page title | draft            |
     And I am an anonymous user
@@ -236,7 +236,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given landing_page content:
+      Given the following landing_page content:
         | title             |
         | [TEST] Page title |
       Given I am logged in as a user with the "administrator" role
@@ -250,7 +250,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content revisions page with the title :title" works as expected
-    Given article content:
+    Given the following article content:
       | title                | body        |
       | [TEST] Article title | First draft |
     And I am logged in as a user with the "administrator" role
@@ -308,7 +308,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given page content:
+      Given the following page content:
         | title              |
         | [TEST] Exists page |
       Then "page" content with the title "[TEST] Exists page" should not exist
@@ -321,7 +321,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
-    Given page content:
+    Given the following page content:
       | title                    |
       | [TEST] Grants page title |
     And I am logged in as a user with the "administrator" role
@@ -331,7 +331,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I rebuild the access grants for all content" works as expected
-    Given page content:
+    Given the following page content:
       | title                        |
       | [TEST] Grants all page title |
     And I am logged in as a user with the "administrator" role

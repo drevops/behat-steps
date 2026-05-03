@@ -10,6 +10,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Driver\DrupalDriver;
+use Drupal\Driver\Entity\EntityStub;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -35,7 +36,7 @@ trait ParagraphsTrait {
   /**
    * Clean all paragraphs instances after scenario run.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function paragraphsAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -74,10 +75,9 @@ trait ParagraphsTrait {
 
     // Get fields from scenario, parse them and expand values according to
     // field tables.
-    $stub = (object) $fields->getRowsHash();
-    $stub->type = $paragraph_type;
-    $this->parseEntityFields('paragraph', $stub);
-    $this->paragraphsExpandEntityFields('paragraph', $stub);
+    $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
+    $this->parseEntityFields($stub);
+    $this->paragraphsExpandEntityFields($stub);
 
     $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $stub);
   }
@@ -91,8 +91,8 @@ trait ParagraphsTrait {
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
    *   Paragraphs item bundle name.
-   * @param \StdClass $stub
-   *   Standard object with filled-in fields. Fields are merged with created
+   * @param \Drupal\Driver\Entity\EntityStub $stub
+   *   Stub with filled-in fields. Fields are merged with created
    *   paragraphs item object.
    * @param bool $save_entity
    *   Flag to save node after attaching a paragraphs item. Defaults to TRUE.
@@ -100,11 +100,11 @@ trait ParagraphsTrait {
    * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.
    */
-  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, \StdClass $stub, bool $save_entity = TRUE): ParagraphInterface {
-    $stub->type = $paragraph_bundle;
-    $stub = (array) $stub;
+  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
+    $values = $stub->getValues();
+    $values['type'] = $paragraph_bundle;
 
-    $paragraph = Paragraph::create($stub);
+    $paragraph = Paragraph::create($values);
     $paragraph->setParentEntity($parent_entity, $parent_field_name)->save();
 
     $new_value = $parent_entity->get($parent_field_name)->getValue();
@@ -160,12 +160,10 @@ trait ParagraphsTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * @param string $entity_type
-   *   Entity type.
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   Stub object.
    */
-  protected function paragraphsExpandEntityFields(string $entity_type, \StdClass $stub): void {
+  protected function paragraphsExpandEntityFields(EntityStub $stub): void {
     $driver = $this->getDriver();
 
     if (!$driver instanceof DrupalDriver) {
@@ -177,7 +175,7 @@ trait ParagraphsTrait {
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
 
-    $method->invokeArgs($core, func_get_args());
+    $method->invokeArgs($core, [$stub]);
   }
 
   /**

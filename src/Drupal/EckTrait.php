@@ -10,6 +10,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\When;
 use Drupal\Driver\Capability\ContentCapabilityInterface;
+use Drupal\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -32,7 +33,7 @@ trait EckTrait {
   /**
    * Remove ECK types and entities.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function eckAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -191,17 +192,16 @@ trait EckTrait {
    */
   protected function eckCreateEntities(string $entity_type, string $bundle, TableNode $table): void {
     foreach ($table->getHash() as $entity_hash) {
-      $entity = (object) $entity_hash;
-      $entity->type = $bundle;
-      $this->eckCreateEntity($entity_type, $entity);
+      $stub = new EntityStub($entity_type, $bundle, $entity_hash);
+      $this->eckCreateEntity($stub);
     }
   }
 
   /**
    * Create a single content entity.
    */
-  protected function eckCreateEntity(string $entity_type, \StdClass $entity): void {
-    $this->parseEntityFields($entity_type, $entity);
+  protected function eckCreateEntity(EntityStub $stub): void {
+    $this->parseEntityFields($stub);
 
     $driver = $this->getDriver();
     if (!$driver instanceof ContentCapabilityInterface) {
@@ -210,10 +210,10 @@ trait EckTrait {
       // @codeCoverageIgnoreEnd
     }
 
-    $saved = $driver->entityCreate($entity_type, $entity);
+    $driver->entityCreate($stub);
 
-    // Store the entity - driver may return stdClass or entity object.
-    $this->eckEntities[$entity_type][] = $saved;
+    // Store the saved Drupal entity for AfterScenario cleanup.
+    $this->eckEntities[$stub->getEntityType()][] = $stub->getSavedEntity();
   }
 
 }

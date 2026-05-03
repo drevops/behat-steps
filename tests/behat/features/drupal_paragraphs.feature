@@ -8,7 +8,7 @@ Feature: Check that ParagraphsTrait works
     And the following "landing_page" content does not exist:
       | title                 |
       | [TEST] Landing page 1 |
-    And landing_page content:
+    And the following landing_page content:
       | title                 |
       | [TEST] Landing page 1 |
 

@@ -50,7 +50,7 @@ trait EmailTrait {
   /**
    * Enable email tracking.
    */
-  #[BeforeScenario]
+  #[BeforeScenario('@api')]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -84,7 +84,7 @@ trait EmailTrait {
   /**
    * Disable email tracking.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function emailAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

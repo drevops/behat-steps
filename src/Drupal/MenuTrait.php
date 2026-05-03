@@ -164,7 +164,7 @@ trait MenuTrait {
   /**
    * Remove all menu items after scenario run.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function menuAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
