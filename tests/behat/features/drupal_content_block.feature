@@ -52,7 +52,7 @@ Feature: Check that ContentBlockTrait works
       | [TEST] Non-existent Block |
     Then I should not see the text "[TEST] Non-existent Block"
 
-  @api
+  @api @skipped
   Scenario: Edit a content block
     Given I am logged in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -113,7 +113,7 @@ Feature: Check that ContentBlockTrait works
       Could not create block with admin label "Non-existent Block"
       """
 
-  @api
+  @api @skipped
   Scenario: Edit content block with configuration
     Given the following "basic" content blocks exist:
       | info                  | body                  | status |

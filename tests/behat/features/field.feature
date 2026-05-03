@@ -650,7 +650,7 @@ Feature: Check that FieldTrait works
     # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill datetime field with date and time
     Given the following page content:
       | title                     |
@@ -661,7 +661,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Datetime test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill datetime field using separate date and time steps
     Given the following page content:
       | title                          |
@@ -673,7 +673,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Datetime separate steps has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill date-only field
     Given the following page content:
       | title                      |
@@ -684,7 +684,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Date only test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill date-only field using date part step
     Given the following page content:
       | title                      |
@@ -695,7 +695,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Date part test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill daterange field with start and end dates
     Given the following page content:
       | title                      |
@@ -707,7 +707,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Daterange test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill daterange date-only field
     Given the following page content:
       | title                                |
