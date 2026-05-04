@@ -150,6 +150,20 @@ class FeatureContext extends DrupalContext {
   use FeatureContextTrait;
 
   /**
+   * Force Drupal bootstrap before any @api scenario step runs.
+   *
+   * The 6.x driver bootstraps Drupal lazily on the first 'getDriver()'
+   * call, and many trait step methods touch '\Drupal::' directly without
+   * going through 'getDriver()'. Calling 'getDriver()' once here primes
+   * the container for the rest of the scenario.
+   *
+   * @BeforeScenario @api
+   */
+  public function bootstrapDrupal(): void {
+    $this->getDriver();
+  }
+
+  /**
    * @Given I throw test exception with message :message
    */
   public function throwTestException($message) {

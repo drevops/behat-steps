@@ -5,7 +5,7 @@ Feature: Check that UserTrait works
   So that users can test user functionality and permissions
 
   Background:
-    Given users:
+    Given the following users:
       | name                       | mail                                     | roles         | status |
       | administrator_user         | administrator_user@myexample.com         | administrator | 1      |
       | authenticated_user         | authenticated_user@myexample.com         |               | 1      |
@@ -59,7 +59,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given users:
+      Given the following users:
         | name       | mail              | status |
         | alice_user | alice@example.com | 1      |
       Then the user with the email "alice@example.com" should not exist
@@ -324,7 +324,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
-    Given users:
+    Given the following users:
       | name           | roles                         |
       | single_role    | administrator                 |
       | multiple_roles | administrator, content_editor |
@@ -337,7 +337,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given users:
+      Given the following users:
         | name           | roles                         |
         | single_role    | administrator                 |
         | multiple_roles | administrator, content_editor |
@@ -354,7 +354,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given users:
+      Given the following users:
         | name           | roles                         |
         | single_role    | administrator                 |
         | multiple_roles | administrator, content_editor |
@@ -381,7 +381,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" works
-    Given users:
+    Given the following users:
       | name        | roles         |
       | single_role | administrator |
     Then the user "single_role" should not have the role "content_editor" assigned
@@ -393,7 +393,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given users:
+      Given the following users:
         | name           | roles                         |
         | single_role    | administrator                 |
       Then the user "single_role" should not have the role "administrator" assigned
@@ -409,7 +409,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given users:
+      Given the following users:
         | name           | roles                                           |
         | single_role    | administrator, content_editor, content_approver |
       Then the user "single_role" should not have the roles "administrator, content_editor" assigned

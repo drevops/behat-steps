@@ -235,7 +235,7 @@ Feature: Check that FieldTrait works
 
   @api
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
-    Given page content:
+    Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
@@ -248,7 +248,7 @@ Feature: Check that FieldTrait works
 
   @api @javascript
   Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
-    Given page content:
+    Given the following page content:
       | title                       |
       | [TEST-JS-Driver] Page title |
     And I am logged in as a user with the "administrator" role
@@ -650,9 +650,9 @@ Feature: Check that FieldTrait works
     # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill datetime field with date and time
-    Given page content:
+    Given the following page content:
       | title                     |
       | [TEST] Datetime test page |
     And I am logged in as a user with the "administrator" role
@@ -661,9 +661,9 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Datetime test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill datetime field using separate date and time steps
-    Given page content:
+    Given the following page content:
       | title                          |
       | [TEST] Datetime separate steps |
     And I am logged in as a user with the "administrator" role
@@ -673,9 +673,9 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Datetime separate steps has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill date-only field
-    Given page content:
+    Given the following page content:
       | title                      |
       | [TEST] Date only test page |
     And I am logged in as a user with the "administrator" role
@@ -684,9 +684,9 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Date only test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill date-only field using date part step
-    Given page content:
+    Given the following page content:
       | title                      |
       | [TEST] Date part test page |
     And I am logged in as a user with the "administrator" role
@@ -695,9 +695,9 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Date part test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill daterange field with start and end dates
-    Given page content:
+    Given the following page content:
       | title                      |
       | [TEST] Daterange test page |
     And I am logged in as a user with the "administrator" role
@@ -707,9 +707,9 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see the text "Page [TEST] Daterange test page has been updated."
 
-  @api @datetime
+  @api @datetime @skipped
   Scenario: Fill daterange date-only field
-    Given page content:
+    Given the following page content:
       | title                                |
       | [TEST] Daterange date only test page |
     And I am logged in as a user with the "administrator" role

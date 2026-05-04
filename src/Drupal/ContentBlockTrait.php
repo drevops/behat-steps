@@ -15,6 +15,7 @@ use DrevOps\BehatSteps\HelperTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal content blocks.
@@ -39,7 +40,7 @@ trait ContentBlockTrait {
   /**
    * Clean up all content block entities created during the scenario.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function contentBlockAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
@@ -218,13 +219,12 @@ trait ContentBlockTrait {
    *   When the entity cannot be saved.
    */
   protected function contentBlockCreateSingle(string $type, array $values): BlockContent {
-    $values = (object) $values;
-    $values->type = $type;
-    $this->parseEntityFields('block_content', $values);
-    $values = (array) $values;
+    $values['type'] = $type;
+    $stub = new EntityStub('block_content', $type, $values);
+    $this->parseEntityFields($stub);
 
     /** @var \Drupal\block_content\Entity\BlockContent $entity */
-    $entity = BlockContent::create($values);
+    $entity = BlockContent::create($stub->getValues());
     $entity->save();
 
     static::$contentBlockEntities[] = $entity;

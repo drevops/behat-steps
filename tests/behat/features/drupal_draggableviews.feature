@@ -5,7 +5,7 @@ Feature: Check that DraggableviewsTrait works
 
   @api
   Scenario: Assert save order of the Draggable Order items
-    Given "draggableviews_demo" content:
+    Given the following "draggableviews_demo" content:
       | title  | status | created           |
       | Test 1 | 1      | 2014-10-17 8:00am |
       | Test 2 | 1      | 2014-10-17 9:00am |
@@ -37,7 +37,7 @@ Feature: Check that DraggableviewsTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given "draggableviews_demo" content:
+      Given the following "draggableviews_demo" content:
         | title  | status | created           |
         | Test 1 | 1      | 2014-10-17 8:00am |
         | Test 2 | 1      | 2014-10-17 9:00am |

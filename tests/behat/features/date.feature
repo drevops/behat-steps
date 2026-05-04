@@ -15,7 +15,7 @@ Feature: Check that DateTrait works
 
   @api
   Scenario: Assert that relative date works in table transform
-    Given "article" content:
+    Given the following "article" content:
       | title            | created              | status | moderation_state |
       | [TEST] Article 1 | [relative:-10 years] | 1      | published        |
     When I visit the "article" content page with the title "[TEST] Article 1"

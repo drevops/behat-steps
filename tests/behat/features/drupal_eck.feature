@@ -7,7 +7,7 @@ Feature: Check that EckTrait works
     Given the following eck "test_bundle" "test_entity_type" entities do not exist:
       | title             |
       | [TEST] ECK Entity |
-    And "tags" terms:
+    And the following "tags" terms:
       | name |
       | T2   |
     And the following eck "test_bundle" "test_entity_type" entities exist:

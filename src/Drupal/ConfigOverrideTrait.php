@@ -81,7 +81,7 @@ trait ConfigOverrideTrait {
    * state never bleeds between scenarios - even when this hook is bypassed
    * via `@behat-steps-skip:configOverrideBeforeScenario`.
    */
-  #[BeforeScenario]
+  #[BeforeScenario('@api')]
   public function configOverrideBeforeScenario(BeforeScenarioScope $scope): void {
     $this->configOverrideDisabledNames = [];
     $this->configOverrideSkipBeforeStep = FALSE;

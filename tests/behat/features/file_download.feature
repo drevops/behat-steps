@@ -12,7 +12,7 @@ Feature: Check that FileDownloadTrait works
       | audio.mp3            |
       | text.txt             |
       | archive_multiple.zip |
-    And article content:
+    And the following article content:
       | title                | field_file           |
       | [TEST] document page | text.txt             |
       | [TEST] zip page      | archive_multiple.zip |

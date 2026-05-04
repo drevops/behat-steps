@@ -284,8 +284,11 @@ EOL;
 
     $this->process = Process::fromShellCommandline($cmd);
 
-    // Prepare the process parameters.
-    $this->process->setTimeout(20);
+    // Prepare the process parameters. The 3.x DrupalDriver bootstraps Drupal
+    // in-process before any step runs, which on @api scenarios with module
+    // install/uninstall easily eats >20s in this environment. Bump the
+    // ceiling so behat-cli driven tests have headroom for the slow path.
+    $this->process->setTimeout(60);
     $this->process->setEnv($this->env);
     $this->process->setWorkingDirectory($this->workingDir);
 

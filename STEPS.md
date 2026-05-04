@@ -27,7 +27,6 @@
 
 | Class | Description |
 | --- | --- |
-| [Drupal\BigPipeTrait](#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ConfigOverrideTrait](#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
@@ -2471,18 +2470,6 @@ Then the XML should not use the namespace "http://example.com/nonexistent"
 
 </details>
 
-
-
-## Drupal\BigPipeTrait
-
-[Source](src/Drupal/BigPipeTrait.php), [Example](tests/behat/features/drupal_big_pipe.feature)
-
->  Bypass Drupal BigPipe when rendering pages.
->  <br/><br/>
->  Activated by adding `@big_pipe` tag to the scenario.
->  <br/><br/>
->  Skip processing with tags: `@behat-steps-skip:bigPipeBeforeScenario` or
->  `@behat-steps-skip:bigPipeBeforeStep`.
 
 
 ## Drupal\BlockTrait

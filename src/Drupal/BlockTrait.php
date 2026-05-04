@@ -39,7 +39,7 @@ trait BlockTrait {
    * Add the tag @behat-steps-skip:blockAfterScenario to your scenario to
    * prevent automatic cleanup of blocks.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function blockAfterScenario(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

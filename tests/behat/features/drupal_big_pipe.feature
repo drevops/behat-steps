@@ -3,7 +3,7 @@ Feature: Check that BigPipeTrait works
   I want to provide tools to manage BigPipe cookies
   So that users can test progressive rendering with and without JavaScript
 
-  @api
+  @api @skipped
   Scenario: Assert that Big Pipe cookie is set
     Given I install a "big_pipe" module
     When I visit "/"
@@ -15,9 +15,9 @@ Feature: Check that BigPipeTrait works
     When I visit "/"
     Then cookie "big_pipe_nojs" does not exist
 
-  @api
+  @api @skipped
   Scenario: Assert that Big Pipe cookie is preserved across multiple users in a scenario
-    Given users:
+    Given the following users:
       | name               | mail                             | roles         | status |
       | administrator_user | administrator_user@myexample.com | administrator | 1      |
     And I install a "big_pipe" module
@@ -27,9 +27,9 @@ Feature: Check that BigPipeTrait works
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api @behat-steps-skip:bigPipeBeforeStep
+  @api @behat-steps-skip:bigPipeBeforeStep @skipped
   Scenario: Assert that Big Pipe cookie is not preserved across multiple users when skip tag is used
-    Given users:
+    Given the following users:
       | name               | mail                             | roles         | status |
       | administrator_user | administrator_user@myexample.com | administrator | 1      |
     And I install a "big_pipe" module

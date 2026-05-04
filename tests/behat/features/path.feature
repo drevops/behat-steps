@@ -214,7 +214,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert "When the basic authentication with the username :username and the password :password"
-    Given users:
+    Given the following users:
       | name       | mail               | pass       |
       | admin-test | admin-test@bar.com | admin-test |
     And I am an anonymous user

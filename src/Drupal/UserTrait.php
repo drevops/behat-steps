@@ -11,6 +11,7 @@ use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\Core\Url;
+use Drupal\Driver\Entity\EntityStubInterface;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
@@ -248,14 +249,20 @@ trait UserTrait {
    */
   #[When('I visit my own password reset link')]
   public function userVisitOwnPasswordResetLink(): void {
-    /** @var \Drupal\user\UserInterface $current_user */
     $current_user = $this->getUserManager()->getCurrentUser();
 
-    if (!$current_user instanceof \StdClass) {
+    // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->name.
+    if ($current_user instanceof EntityStubInterface) {
+      $name = (string) $current_user->getValue('name');
+    }
+    elseif ($current_user instanceof \stdClass && isset($current_user->name)) {
+      $name = (string) $current_user->name;
+    }
+    else {
       throw new \RuntimeException('Current user is not logged in.');
     }
 
-    $user = $this->userLoadByName($current_user->name);
+    $user = $this->userLoadByName($name);
     $this->userVisitPasswordResetLinkForUser($user);
   }
 
@@ -452,14 +459,18 @@ trait UserTrait {
    */
   protected function userVisitActionPage(string $name, string $action_subpath = ''): void {
     if ($name === 'current') {
-      /** @var \Drupal\user\UserInterface $user */
       $user = $this->getUserManager()->getCurrentUser();
 
-      if (!$user instanceof \StdClass) {
+      // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->uid.
+      if ($user instanceof EntityStubInterface) {
+        $uid = $user->getId();
+      }
+      elseif ($user instanceof \stdClass && isset($user->uid)) {
+        $uid = $user->uid;
+      }
+      else {
         throw new \RuntimeException('Current user is not logged in.');
       }
-
-      $uid = $user->uid;
     }
     else {
       $user = $this->userLoadByName($name);
@@ -500,7 +511,7 @@ trait UserTrait {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
     // @codeCoverageIgnoreEnd
-    $this->roles[(string) $role->id()] = (string) $role->id();
+    $this->roles[] = (string) $role->id();
 
     user_role_grant_permissions($role->id(), $permissions);
   }

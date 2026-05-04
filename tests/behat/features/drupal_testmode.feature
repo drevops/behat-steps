@@ -4,7 +4,7 @@ Feature: Ensure TestmodeTrait works.
   So that users can focus on test-specific content in their tests
 
   Background:
-    Given article content:
+    Given the following article content:
       | title              |
       | Article 1          |
       | Article 2          |

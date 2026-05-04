@@ -24,7 +24,7 @@ trait TimeTrait {
   /**
    * Cleans up testing.time state after each scenario.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function timeCleanup(AfterScenarioScope $scope): void {
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;

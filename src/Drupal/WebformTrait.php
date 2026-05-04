@@ -32,7 +32,7 @@ trait WebformTrait {
   /**
    * Clean all created webform instances after scenario run.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function webformAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {

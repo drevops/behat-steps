@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\HelperTrait;
-use Drupal\Driver\DrupalDriver;
+use Drupal\Driver\DrupalDriverInterface;
+use Drupal\Driver\Entity\EntityStub;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -40,7 +41,7 @@ trait MediaTrait {
   /**
    * Remove any created media items.
    */
-  #[AfterScenario]
+  #[AfterScenario('@api')]
   public function mediaAfterScenario(AfterScenarioScope $scope): void {
     // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
@@ -84,9 +85,8 @@ trait MediaTrait {
     $this->mediaDelete($media_type, $table);
 
     foreach ($table->getHash() as $node_hash) {
-      $node = (object) $node_hash;
-      $node->bundle = $media_type;
-      $this->mediaCreateSingle($node);
+      $stub = new EntityStub('media', $media_type, $node_hash);
+      $this->mediaCreateSingle($stub);
     }
   }
 
@@ -116,8 +116,7 @@ trait MediaTrait {
     $this->mediaDelete($bundle, $horizontal_table);
 
     foreach ($entities as $entity_data) {
-      $stub = (object) $entity_data;
-      $stub->bundle = $bundle;
+      $stub = new EntityStub('media', $bundle, $entity_data);
       $this->mediaCreateSingle($stub);
     }
   }
@@ -287,14 +286,14 @@ trait MediaTrait {
   /**
    * Create a single media item.
    *
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The media item properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media item.
    */
-  protected function mediaCreateSingle(\StdClass $stub): MediaInterface {
-    $this->parseEntityFields('media', $stub);
+  protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
+    $this->parseEntityFields($stub);
     $saved = $this->mediaCreateEntity($stub);
     $this->mediaEntities[] = $saved;
 
@@ -304,29 +303,32 @@ trait MediaTrait {
   /**
    * Create media entity.
    *
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The media entity properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media entity.
    */
-  protected function mediaCreateEntity(\StdClass $stub): MediaInterface {
+  protected function mediaCreateEntity(EntityStub $stub): MediaInterface {
+    $bundle = $stub->getBundle();
+
     // Throw an exception if the media type is missing or does not exist.
     // @codeCoverageIgnoreStart
-    if (!property_exists($stub, 'bundle') || $stub->bundle === NULL || !$stub->bundle) {
-      throw new \Exception("Cannot create media because it is missing the required property 'bundle'.");
+    if (empty($bundle)) {
+      throw new \Exception("Cannot create media because it is missing the required bundle.");
     }
 
     $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
-    if (!in_array($stub->bundle, array_keys($bundles))) {
-      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $stub->bundle));
+    if (!in_array($bundle, array_keys($bundles))) {
+      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
     }
     // @codeCoverageIgnoreEnd
     $this->mediaExpandEntityFieldsFixtures($stub);
+    $this->mediaExpandEntityFields($stub);
 
-    $this->mediaExpandEntityFields('media', $stub);
-
-    $entity = Media::create((array) $stub);
+    $values = $stub->getValues();
+    $values['bundle'] = $bundle;
+    $entity = Media::create($values);
     $entity->save();
 
     return $entity;
@@ -337,15 +339,13 @@ trait MediaTrait {
    *
    * This is a re-use of the functionality provided by DrupalExtension.
    *
-   * @param string $entity_type
-   *   The entity type.
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
-  protected function mediaExpandEntityFields(string $entity_type, \StdClass $stub): void {
+  protected function mediaExpandEntityFields(EntityStub $stub): void {
     $driver = $this->getDriver();
 
-    if (!$driver instanceof DrupalDriver) {
+    if (!$driver instanceof DrupalDriverInterface) {
       throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
     }
 
@@ -354,16 +354,16 @@ trait MediaTrait {
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
 
-    $method->invokeArgs($core, func_get_args());
+    $method->invokeArgs($core, [$stub]);
   }
 
   /**
    * Expand entity fields with fixture values.
    *
-   * @param \StdClass $stub
+   * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
-  protected function mediaExpandEntityFieldsFixtures(\StdClass $stub): void {
+  protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
     if (!empty($this->getMinkParameter('files_path'))) {
       $fixture_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
@@ -373,30 +373,32 @@ trait MediaTrait {
       throw new \RuntimeException('Fixture files path is not set or does not exist. Check that the "files_path" parameter is set for Mink.');
     }
     // @codeCoverageIgnoreEnd
-    $fields = get_object_vars($stub);
+    $fields = $stub->getValues();
 
     $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriver) {
-      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
+    if (!$driver instanceof DrupalDriverInterface) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support content operations required for media field expansion.', $driver::class));
+      // @codeCoverageIgnoreEnd
     }
 
-    $field_types = $driver->getCore()->getEntityFieldTypes('media', array_keys($fields));
+    $field_types = $driver->getCore()->getEntityFieldTypes('media');
 
     foreach ($fields as $name => $value) {
       if (!str_contains((string) $name, 'field_')) {
         continue;
       }
 
-      if (!empty($field_types[$name]) && $field_types[$name] == 'image') {
+      if (!empty($field_types[$name]) && ($field_types[$name] == 'image' || $field_types[$name] == 'file')) {
         if (is_array($value)) {
           if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
-            $stub->{$name}[0] = $fixture_path . $value[0];
+            $value[0] = $fixture_path . $value[0];
+            $stub->setValue($name, $value);
           }
         }
         // @codeCoverageIgnoreStart
         elseif (is_file($fixture_path . $value)) {
-          $stub->{$name} = $fixture_path . $value;
+          $stub->setValue($name, $fixture_path . $value);
         }
         // @codeCoverageIgnoreEnd
       }
