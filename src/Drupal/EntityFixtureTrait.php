@@ -45,11 +45,13 @@ trait EntityFixtureTrait {
       return;
     }
 
-    $fixture_path = rtrim((string) realpath((string) $files_path), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $resolved_files_path = realpath((string) $files_path);
 
-    if (!is_dir($fixture_path)) {
+    if ($resolved_files_path === FALSE || !is_dir($resolved_files_path)) {
       return;
     }
+
+    $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
     $driver = $this->getDriver();
 
