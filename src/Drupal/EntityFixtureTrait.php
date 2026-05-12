@@ -62,10 +62,6 @@ trait EntityFixtureTrait {
     $field_types = $driver->getCore()->getEntityFieldTypes($entity_type);
 
     foreach ($stub->getValues() as $name => $value) {
-      if (!str_contains((string) $name, 'field_')) {
-        continue;
-      }
-
       if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {
         continue;
       }
@@ -73,6 +69,10 @@ trait EntityFixtureTrait {
       $basename = is_array($value) ? ($value[0] ?? NULL) : $value;
 
       if (!is_string($basename) || $basename === '') {
+        continue;
+      }
+
+      if (str_contains($basename, '/') || str_contains($basename, '\\') || $basename !== basename($basename)) {
         continue;
       }
 
@@ -108,7 +108,7 @@ trait EntityFixtureTrait {
    *   private://basename.
    */
   protected function entityFixtureManagedFileExists(string $basename): bool {
-    if (str_contains($basename, '/')) {
+    if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;
     }
 
