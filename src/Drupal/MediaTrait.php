@@ -29,6 +29,7 @@ use Drupal\media\MediaInterface;
  */
 trait MediaTrait {
 
+  use EntityFixtureTrait;
   use HelperTrait;
 
   /**
@@ -360,49 +361,13 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    *
+   * Backed by 'EntityFixtureTrait::entityFixtureExpand()'.
+   *
    * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
-    if (!empty($this->getMinkParameter('files_path'))) {
-      $fixture_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    }
-
-    // @codeCoverageIgnoreStart
-    if (empty($fixture_path) || !is_dir($fixture_path)) {
-      throw new \RuntimeException('Fixture files path is not set or does not exist. Check that the "files_path" parameter is set for Mink.');
-    }
-    // @codeCoverageIgnoreEnd
-    $fields = $stub->getValues();
-
-    $driver = $this->getDriver();
-    if (!$driver instanceof DrupalDriverInterface) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support content operations required for media field expansion.', $driver::class));
-      // @codeCoverageIgnoreEnd
-    }
-
-    $field_types = $driver->getCore()->getEntityFieldTypes('media');
-
-    foreach ($fields as $name => $value) {
-      if (!str_contains((string) $name, 'field_')) {
-        continue;
-      }
-
-      if (!empty($field_types[$name]) && ($field_types[$name] == 'image' || $field_types[$name] == 'file')) {
-        if (is_array($value)) {
-          if (!empty($value[0]) && is_file($fixture_path . $value[0])) {
-            $value[0] = $fixture_path . $value[0];
-            $stub->setValue($name, $value);
-          }
-        }
-        // @codeCoverageIgnoreStart
-        elseif (is_file($fixture_path . $value)) {
-          $stub->setValue($name, $fixture_path . $value);
-        }
-        // @codeCoverageIgnoreEnd
-      }
-    }
+    $this->entityFixtureExpand('media', $stub);
   }
 
   /**
