@@ -26,7 +26,6 @@ use Drupal\workflows\Entity\Workflow;
  */
 trait ContentTrait {
 
-  use EntityFixtureTrait;
   use HelperTrait;
 
   /**
@@ -315,11 +314,11 @@ trait ContentTrait {
    * creation. Without this, scenarios with file fields on nodes have to
    * pre-create managed files explicitly via FileTrait.
    *
-   * Backed by 'EntityFixtureTrait::entityFixtureExpand()'.
+   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
    */
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $this->entityFixtureExpand('node', $scope->getStub());
+    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
   }
 
   /**

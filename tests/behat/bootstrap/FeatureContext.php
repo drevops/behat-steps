@@ -17,7 +17,6 @@ use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\Drupal\EmailTrait;
-use DrevOps\BehatSteps\Drupal\EntityFixtureTrait;
 use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
@@ -68,7 +67,6 @@ class FeatureContext extends DrupalContext {
   use EckTrait;
   use ElementTrait;
   use EmailTrait;
-  use EntityFixtureTrait;
   use FieldTrait;
   use FileDownloadTrait;
   use IframeTrait;

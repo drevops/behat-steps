@@ -29,7 +29,6 @@ use Drupal\media\MediaInterface;
  */
 trait MediaTrait {
 
-  use EntityFixtureTrait;
   use HelperTrait;
 
   /**
@@ -361,13 +360,13 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    *
-   * Backed by 'EntityFixtureTrait::entityFixtureExpand()'.
+   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
    *
    * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
-    $this->entityFixtureExpand('media', $stub);
+    $this->helperExpandEntityFieldsFixtures('media', $stub);
   }
 
   /**
