@@ -10,6 +10,8 @@ use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
+use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
+use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeInterface;
@@ -301,6 +303,22 @@ trait ContentTrait {
     if (!empty($nids)) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Expand fixture file paths for file/image fields on nodes.
+   *
+   * Rewrites bare fixture filenames (e.g. 'document.pdf') on 'file' and
+   * 'image' field types to absolute paths under the Mink 'files_path' so
+   * drupal-driver's FileHandler can read and upload them during node
+   * creation. Without this, scenarios with file fields on nodes have to
+   * pre-create managed files explicitly via FileTrait.
+   *
+   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
+   */
+  #[BeforeNodeCreate]
+  public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
+    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
   }
 
   /**

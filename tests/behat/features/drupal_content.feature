@@ -352,3 +352,22 @@ Feature: Check that ContentTrait works
       """
       Unable to find "page" content with title "[TEST] Non-existing".
       """
+
+  @api
+  Scenario: Assert file field on node resolves bare fixture filename without explicit managed file
+    Given the following article content:
+      | title                | field_file |
+      | [TEST] Fixture file  | text.txt   |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Fixture file"
+    Then I should see "[TEST] Fixture file"
+    And the response should contain ".txt"
+
+  @api
+  Scenario: Assert image field on node resolves bare fixture filename without explicit managed file
+    Given the following article content:
+      | title                 | field_image |
+      | [TEST] Fixture image  | image.png   |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Fixture image"
+    Then I should see "[TEST] Fixture image"

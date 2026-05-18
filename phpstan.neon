@@ -43,6 +43,8 @@ parameters:
         - '#.*no value type specified in iterable type.*#'
         # Unit tests are not aware of the classes which are not loaded during tests.
         - '#.*Call to an undefined method.*Session\(\).*#'
+        - '#.*Call to an undefined method.*getMinkParameter\(\).*#'
+        - '#.*Call to an undefined method.*getDriver\(\).*#'
         - '#.*Cannot call method.*getWebDriverSession\(\).*#'
         - '#.*Cannot call method.*getClient\(\).*#'
         - '#.*Cannot call method.*getCurrentUrl\(\).*#'
