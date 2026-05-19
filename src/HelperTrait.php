@@ -239,32 +239,120 @@ trait HelperTrait {
         continue;
       }
 
-      $basename = is_array($value) ? ($value[0] ?? NULL) : $value;
+      // Raw compound string (e.g. 'target_id:"foo.jpg", alt:"A"') as written
+      // in the Behat table. Hooks fired by 'RawDrupalContext::nodeCreate()'
+      // run before 'parseEntityFields()', so on the node path the helper sees
+      // the unparsed cell. Rewrite the basename inside the 'target_id:"..."'
+      // segment in place and leave the rest of the cell to the parser.
+      if (is_string($value) && $this->helperLooksLikeCompoundCell($value)) {
+        $rewritten = $this->helperExpandCompoundCellFixtures($value, $fixture_path);
 
-      if (!is_string($basename) || $basename === '') {
+        if ($rewritten !== $value) {
+          $stub->setValue($name, $rewritten);
+        }
+
         continue;
       }
 
-      if (str_contains($basename, '/') || str_contains($basename, '\\') || $basename !== basename($basename)) {
+      // Parsed compound shape (e.g. [['target_id' => 'foo.jpg', 'alt' => 'A']])
+      // produced by 'EntityFieldParser'. This is what the helper sees on the
+      // media path, which calls 'parseEntityFields()' before invoking it.
+      $is_compound = is_array($value) && isset($value[0]) && is_array($value[0]);
+      $records = $is_compound ? $value : [$value];
+      $mutated = FALSE;
+
+      foreach ($records as $index => $record) {
+        if (is_array($record)) {
+          $basename = $record['target_id'] ?? $record[0] ?? NULL;
+        }
+        else {
+          $basename = $record;
+        }
+
+        if (!is_string($basename) || $basename === '') {
+          continue;
+        }
+
+        if (str_contains($basename, '/') || str_contains($basename, '\\') || $basename !== basename($basename)) {
+          continue;
+        }
+
+        if ($this->helperManagedFileExists($basename)) {
+          continue;
+        }
+
+        if (!is_file($fixture_path . $basename)) {
+          continue;
+        }
+
+        if (is_array($record)) {
+          if (array_key_exists('target_id', $record)) {
+            $records[$index]['target_id'] = $fixture_path . $basename;
+          }
+          else {
+            $records[$index][0] = $fixture_path . $basename;
+          }
+        }
+        else {
+          $records[$index] = $fixture_path . $basename;
+        }
+
+        $mutated = TRUE;
+      }
+
+      if (!$mutated) {
         continue;
+      }
+
+      $stub->setValue($name, $is_compound ? $records : $records[0]);
+    }
+  }
+
+  /**
+   * Detect a raw compound cell string of the shape 'key:"..."' or 'key:[...]'.
+   *
+   * Mirrors the top-level pattern 'EntityFieldParser' uses to enter compound
+   * mode: an identifier, optional whitespace, ':', optional whitespace, then
+   * a '"' or '['. Used to distinguish a compound cell that needs in-string
+   * basename rewriting from a bare scalar basename like 'document.pdf'.
+   */
+  protected function helperLooksLikeCompoundCell(string $value): bool {
+    return preg_match('/^\s*[a-z_][a-z0-9_]*\s*:\s*[\"\[]/i', $value) === 1;
+  }
+
+  /**
+   * Rewrite each 'target_id:"basename"' segment to embed the fixture path.
+   *
+   * Only the 'target_id' key is touched and only when the quoted value is a
+   * pure basename (no separators), is not backed by an existing managed file
+   * and resolves to a real file under the fixtures dir. Other compound
+   * columns (e.g. 'alt', 'description') are left untouched so the parser can
+   * still process them.
+   */
+  protected function helperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
+    $callback = function (array $matches) use ($fixture_path): string {
+      $basename = $matches[2];
+
+      if ($basename === '' || str_contains($basename, '/') || str_contains($basename, '\\')) {
+        return $matches[0];
+      }
+
+      if ($basename !== basename($basename)) {
+        return $matches[0];
       }
 
       if ($this->helperManagedFileExists($basename)) {
-        continue;
+        return $matches[0];
       }
 
       if (!is_file($fixture_path . $basename)) {
-        continue;
+        return $matches[0];
       }
 
-      if (is_array($value)) {
-        $value[0] = $fixture_path . $basename;
-        $stub->setValue($name, $value);
-      }
-      else {
-        $stub->setValue($name, $fixture_path . $basename);
-      }
-    }
+      return $matches[1] . $fixture_path . $basename . $matches[3];
+    };
+
+    return (string) preg_replace_callback('/(target_id\s*:\s*")([^"\\\\]+)(")/i', $callback, $value);
   }
 
   /**
