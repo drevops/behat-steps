@@ -371,3 +371,22 @@ Feature: Check that ContentTrait works
     And I am logged in as a user with the "administrator" role
     When I visit the "article" content edit page with the title "[TEST] Fixture image"
     Then I should see "[TEST] Fixture image"
+
+  @api
+  Scenario: Assert file field on node resolves compound fixture filename without explicit managed file
+    Given the following article content:
+      | title                         | field_file                                       |
+      | [TEST] Compound fixture file  | target_id:"text.txt", description:"My document"  |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Compound fixture file"
+    Then I should see "[TEST] Compound fixture file"
+    And the response should contain ".txt"
+
+  @api
+  Scenario: Assert image field on node resolves compound fixture filename without explicit managed file
+    Given the following article content:
+      | title                          | field_image                              |
+      | [TEST] Compound fixture image  | target_id:"image.png", alt:"My image"    |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Compound fixture image"
+    Then I should see "[TEST] Compound fixture image"
