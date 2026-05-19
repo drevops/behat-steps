@@ -21,7 +21,7 @@
         "behat/behat": "^3.14",
         "behat/mink": ">=1.11",
         "drupal/drupal-driver": "^3.0.0-RC2",
-        "drupal/drupal-extension": "^6.0@RC",
+        "drupal/drupal-extension": "^6.0.0-RC2",
         "lullabot/mink-selenium2-driver": "^1.7.4"
     },
     "require-dev": {
