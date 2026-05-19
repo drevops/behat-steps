@@ -254,11 +254,18 @@ trait HelperTrait {
         continue;
       }
 
-      // Parsed compound shape (e.g. [['target_id' => 'foo.jpg', 'alt' => 'A']])
-      // produced by 'EntityFieldParser'. This is what the helper sees on the
-      // media path, which calls 'parseEntityFields()' before invoking it.
-      $is_compound = is_array($value) && isset($value[0]) && is_array($value[0]);
-      $records = $is_compound ? $value : [$value];
+      // Parsed shapes produced by 'EntityFieldParser' or the legacy parser:
+      // - scalar: 'foo.jpg' (treated as single-value)
+      // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
+      // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A'] (single compound)
+      // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...] (multi-value compound)
+      //
+      // Numerically-indexed arrays (lists) are iterated element-by-element so
+      // every delta gets resolved. Keyed records and bare scalars are wrapped
+      // in a single-element list, processed once, and unwrapped on the way
+      // back into the stub.
+      $is_list = is_array($value) && array_is_list($value);
+      $records = $is_list ? $value : [$value];
       $mutated = FALSE;
 
       foreach ($records as $index => $record) {
@@ -299,7 +306,7 @@ trait HelperTrait {
         continue;
       }
 
-      $stub->setValue($name, $is_compound ? $records : $records[0]);
+      $stub->setValue($name, $is_list ? $records : $records[0]);
     }
   }
 

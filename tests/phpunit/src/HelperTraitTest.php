@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\HelperTrait;
+use Drupal\Driver\Core\CoreInterface;
+use Drupal\Driver\DrupalDriverInterface;
+use Drupal\Driver\Entity\EntityStub;
+use Drupal\Driver\Entity\EntityStubInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -142,6 +146,100 @@ class HelperTraitTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderExpandEntityFieldsFixtures')]
+  public function testExpandEntityFieldsFixtures(array $existing_fixture_files, array $existing_managed_basenames, array $field_types, array $stub_values, callable $expected_factory): void {
+    foreach ($existing_fixture_files as $basename) {
+      file_put_contents($this->fixturesPath . $basename, 'fixture content');
+    }
+
+    $core = $this->createStub(CoreInterface::class);
+    $core->method('getEntityFieldTypes')->willReturn($field_types);
+
+    $driver = $this->createStub(DrupalDriverInterface::class);
+    $driver->method('getCore')->willReturn($core);
+
+    $this->testObject->managedBasenames = $existing_managed_basenames;
+    $this->testObject->driver = $driver;
+    $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
+
+    $stub = new EntityStub('node', 'article', $stub_values);
+
+    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+
+    $this->assertSame($expected_factory($this->fixturesPath), $stub->getValues());
+  }
+
+  public static function dataProviderExpandEntityFieldsFixtures(): array {
+    return [
+      'rewrites bare scalar file' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'document.pdf'],
+        fn(string $f): array => ['field_file' => $f . 'document.pdf'],
+      ],
+      'rewrites every entry in a multi-value scalar file list' => [
+        ['document.pdf', 'image.png'],
+        [],
+        ['field_files' => 'file'],
+        ['field_files' => ['document.pdf', 'image.png']],
+        fn(string $f): array => ['field_files' => [$f . 'document.pdf', $f . 'image.png']],
+      ],
+      'rewrites target_id in a single keyed record' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => ['target_id' => 'document.pdf', 'description' => 'My doc']],
+        fn(string $f): array => ['field_file' => ['target_id' => $f . 'document.pdf', 'description' => 'My doc']],
+      ],
+      'rewrites target_id in every entry of a multi-value compound list' => [
+        ['document.pdf', 'image.png'],
+        [],
+        ['field_files' => 'file'],
+        [
+          'field_files' => [
+            ['target_id' => 'document.pdf', 'description' => 'A'],
+            ['target_id' => 'image.png', 'description' => 'B'],
+          ],
+        ],
+        fn(string $f): array => [
+          'field_files' => [
+            ['target_id' => $f . 'document.pdf', 'description' => 'A'],
+            ['target_id' => $f . 'image.png', 'description' => 'B'],
+          ],
+        ],
+      ],
+      'leaves non-file field values unchanged' => [
+        ['document.pdf'],
+        [],
+        ['title' => 'string'],
+        ['title' => 'document.pdf'],
+        fn(string $f): array => ['title' => 'document.pdf'],
+      ],
+      'leaves missing fixture file unchanged' => [
+        [],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'missing.pdf'],
+        fn(string $f): array => ['field_file' => 'missing.pdf'],
+      ],
+      'leaves managed-file basenames unchanged' => [
+        ['document.pdf'],
+        ['document.pdf'],
+        ['field_file' => 'file'],
+        ['field_file' => 'document.pdf'],
+        fn(string $f): array => ['field_file' => 'document.pdf'],
+      ],
+      'rewrites raw compound cell string in target_id segment' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'target_id:"document.pdf", description:"A"'],
+        fn(string $f): array => ['field_file' => 'target_id:"' . $f . 'document.pdf", description:"A"'],
+      ],
+    ];
+  }
+
 }
 
 /**
@@ -162,12 +260,34 @@ class HelperTraitTestImplementation {
    */
   public array $managedBasenames = [];
 
+  /**
+   * Value returned by 'getMinkParameter(\'files_path\')'.
+   */
+  public string $minkFilesPath = '';
+
   public function callHelperLooksLikeCompoundCell(string $value): bool {
     return $this->helperLooksLikeCompoundCell($value);
   }
 
   public function callHelperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
     return $this->helperExpandCompoundCellFixtures($value, $fixture_path);
+  }
+
+  public function callHelperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
+    $this->helperExpandEntityFieldsFixtures($entity_type, $stub);
+  }
+
+  public function getMinkParameter(string $name): mixed {
+    return $name === 'files_path' ? $this->minkFilesPath : NULL;
+  }
+
+  /**
+   * Holds the stubbed driver instance once the test sets it.
+   */
+  public ?DrupalDriverInterface $driver = NULL;
+
+  public function getDriver(): ?DrupalDriverInterface {
+    return $this->driver;
   }
 
   /**
