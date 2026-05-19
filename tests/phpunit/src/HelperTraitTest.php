@@ -20,6 +20,8 @@ class HelperTraitTest extends UnitTestCase {
   protected HelperTraitTestImplementation $testObject;
 
   /**
+   * Per-test fixtures directory.
+   *
    * Absolute path of an isolated fixtures dir created per test, with trailing
    * separator.
    */

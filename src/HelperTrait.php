@@ -262,12 +262,7 @@ trait HelperTrait {
       $mutated = FALSE;
 
       foreach ($records as $index => $record) {
-        if (is_array($record)) {
-          $basename = $record['target_id'] ?? $record[0] ?? NULL;
-        }
-        else {
-          $basename = $record;
-        }
+        $basename = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
 
         if (!is_string($basename) || $basename === '') {
           continue;
