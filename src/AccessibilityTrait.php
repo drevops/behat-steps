@@ -14,35 +14,45 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 
 /**
- * Assess accessibility of rendered pages with axe-core.
+ * Assess accessibility of rendered pages.
  *
- * - Explicit step assertion or automatic mode via `@axe*` tags.
+ * - Explicit step assertion or automatic mode via `@accessibility*` tags.
  * - Per-scenario threshold and gate composition via tags.
  * - One HTML and one JUnit XML report per scenario, one section per URL.
+ *
+ * Tool-agnostic. The default engine is axe-core fetched from a CDN, but any
+ * tool can be plugged in by overriding `accessibilityRunEngine()` (perform
+ * the assessment, return raw results) and `accessibilityNormalizeResults()`
+ * (remap raw output into the canonical shape the rest of the trait expects).
+ *
+ * Canonical result shape:
+ * @code
+ * [
+ *   'violations' => [
+ *     [
+ *       'id'      => 'rule-id',
+ *       'impact'  => 'critical|serious|moderate|minor',
+ *       'help'    => 'Human-readable help text',
+ *       'helpUrl' => 'https://...',
+ *       'nodes'   => [
+ *         ['target' => ['css selector'], 'html' => '<element />'],
+ *       ],
+ *     ],
+ *   ],
+ *   'incomplete' => [ ...same shape as violations... ],
+ *   'passes'     => [ ['id' => 'rule-id'], ... ],
+ * ]
+ * @endcode
  */
 trait AccessibilityTrait {
 
-  protected const ACCESSIBILITY_AXE_VERSION = '4.11.4';
-
-  protected const ACCESSIBILITY_CDN_TEMPLATE = 'https://cdn.jsdelivr.net/npm/axe-core@%s/axe.min.js';
-
-  protected const ACCESSIBILITY_REPORT_DIR = '.logs/test_results/accessibility';
-
-  protected const ACCESSIBILITY_AUTO_TAG = 'axe';
-
-  protected const ACCESSIBILITY_DEFAULT_RULES = 'wcag2a,wcag2aa';
-
-  protected const ACCESSIBILITY_DEFAULT_THRESHOLD = 'any';
-
-  protected const ACCESSIBILITY_IMPACTS = ['critical', 'serious', 'moderate', 'minor'];
-
   /**
-   * In-memory cache for the axe-core source - fetched once per process.
+   * In-memory cache for the engine JavaScript source - fetched once per run.
    */
   protected static ?string $accessibilityCachedJs = NULL;
 
   /**
-   * Axe results collected during the current scenario.
+   * Normalized results collected during the current scenario.
    *
    * @var array<int, array{url: string, rules: string, result: array<string, mixed>}>
    */
@@ -59,7 +69,7 @@ trait AccessibilityTrait {
   protected string $accessibilityScenarioName = '';
 
   /**
-   * Whether automatic mode (per-step axe-core run) is enabled.
+   * Whether automatic mode (per-step assessment) is enabled.
    */
   protected bool $accessibilityAutoMode = FALSE;
 
@@ -112,7 +122,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Run axe-core after each step when in automatic mode.
+   * Run the engine after each step when in automatic mode.
    */
   #[AfterStep]
   public function accessibilityAutoAssess(AfterStepScope $scope): void {
@@ -139,7 +149,7 @@ trait AccessibilityTrait {
       return;
     }
 
-    $this->accessibilityRunAxe($this->accessibilityGetDefaultRules());
+    $this->accessibilityAssess($this->accessibilityGetDefaultRules());
   }
 
   /**
@@ -196,7 +206,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Assert that the current page passes axe-core accessibility checks.
+   * Assert that the current page passes accessibility checks.
    *
    * @code
    * Then the current page should pass accessibility checks
@@ -208,7 +218,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Assert that the current page passes axe-core checks for the given tags.
+   * Assert that the current page passes accessibility checks for given rules.
    *
    * @code
    * Then the current page should pass accessibility checks for tags "wcag2a"
@@ -216,7 +226,7 @@ trait AccessibilityTrait {
    */
   #[Then('the current page should pass accessibility checks for tags :rules')]
   public function accessibilityAssertCurrentPageForTags(string $rules): void {
-    $result = $this->accessibilityRunAxe($rules);
+    $result = $this->accessibilityAssess($rules);
 
     $threshold = $this->accessibilityEffectiveThreshold();
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
@@ -242,11 +252,10 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Returns the axe-core JavaScript source to inject into the page.
+   * Return the JavaScript source to inject into the page.
    *
-   * Default: fetched once per process from accessibilityGetCdnUrl().
-   * Override to ship axe-core from a vendored package, asset path, or
-   * anywhere else.
+   * Default: fetched once per process from accessibilityGetCdnUrl(). Override
+   * to ship the engine script from a vendored package or asset path.
    */
   protected function accessibilityGetJs(): string {
     if (self::$accessibilityCachedJs !== NULL) {
@@ -255,7 +264,7 @@ trait AccessibilityTrait {
 
     $content = @file_get_contents($this->accessibilityGetCdnUrl());
     if ($content === FALSE || $content === '') {
-      throw new \RuntimeException(sprintf('Failed to fetch axe-core from %s', $this->accessibilityGetCdnUrl()));
+      throw new \RuntimeException(sprintf('Failed to fetch accessibility engine from %s', $this->accessibilityGetCdnUrl()));
     }
 
     self::$accessibilityCachedJs = $content;
@@ -264,65 +273,140 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Returns the URL used by the default accessibilityGetJs() implementation.
+   * Return the URL used by the default accessibilityGetJs() implementation.
+   *
+   * Default: axe-core v4.11.4 from jsDelivr CDN. Override to pin a different
+   * version or serve from a private mirror.
    */
   protected function accessibilityGetCdnUrl(): string {
-    return sprintf(self::ACCESSIBILITY_CDN_TEMPLATE, $this->accessibilityGetAxeVersion());
+    return 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js';
   }
 
   /**
-   * Returns the axe-core version string used to build the CDN URL.
-   */
-  protected function accessibilityGetAxeVersion(): string {
-    return self::ACCESSIBILITY_AXE_VERSION;
-  }
-
-  /**
-   * Returns the absolute directory used to write per-scenario reports.
+   * Return the absolute directory used to write per-scenario reports.
    *
-   * Override to return an already-absolute path if your project needs to
-   * write reports outside the current working directory.
+   * Default: `.logs/test_results/accessibility/` relative to the current
+   * working directory. Override to return an already-absolute path.
    */
   protected function accessibilityGetReportDir(): string {
-    return getcwd() . DIRECTORY_SEPARATOR . self::ACCESSIBILITY_REPORT_DIR;
+    return getcwd() . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
   }
 
   /**
-   * Returns the base tag name that enables automatic mode (no `@` prefix).
+   * Return the base tag name that enables automatic mode (no `@` prefix).
+   *
+   * The trait recognises this exact tag plus suffix variants
+   * (`<tag>-critical`, `<tag>-serious`, `<tag>-moderate`, `<tag>-minor`,
+   * `<tag>-warning`, `<tag>-strict`, `<tag>-any`) for per-scenario gate
+   * configuration. Default: `accessibility`. Override to shorten (e.g.
+   * `a11y` or `axe`).
    */
   protected function accessibilityGetAutoTag(): string {
-    return self::ACCESSIBILITY_AUTO_TAG;
+    return 'accessibility';
   }
 
   /**
-   * Returns the comma-separated WCAG rule tags used when none are specified.
+   * Return the default rule identifier passed to the engine.
+   *
+   * Default: `wcag2a,wcag2aa` (axe-core's WCAG 2.0/2.1 A and AA tag set).
+   * Override to use a different rule identifier expected by your engine.
    */
   protected function accessibilityGetDefaultRules(): string {
-    return self::ACCESSIBILITY_DEFAULT_RULES;
+    return 'wcag2a,wcag2aa';
   }
 
   /**
-   * Returns the default failure threshold (impact level or 'any'/'never').
+   * Return the default failure threshold.
+   *
+   * One of `any` (fail on any violation), `never` (advisory only), or an
+   * impact level from accessibilityGetImpacts(). Default: `any`.
    */
   protected function accessibilityGetFailureThreshold(): string {
-    return self::ACCESSIBILITY_DEFAULT_THRESHOLD;
+    return 'any';
   }
 
   /**
-   * Returns TRUE if "incomplete" findings should fail the gate by default.
+   * Return TRUE if "incomplete" findings should fail the gate by default.
+   *
+   * Default: FALSE (incomplete findings are reported but do not fail).
    */
   protected function accessibilityGetFailOnIncomplete(): bool {
     return FALSE;
   }
 
   /**
-   * Returns the impact levels in descending severity order.
+   * Return the impact levels in descending severity order.
+   *
+   * Default: axe-core's `critical, serious, moderate, minor`. Override to
+   * match your engine's severity vocabulary.
    *
    * @return array<int, string>
    *   Impact level names ordered from most severe to least.
    */
   protected function accessibilityGetImpacts(): array {
-    return self::ACCESSIBILITY_IMPACTS;
+    return ['critical', 'serious', 'moderate', 'minor'];
+  }
+
+  /**
+   * Execute the engine against the current page and return RAW results.
+   *
+   * Default: injects accessibilityGetJs(), runs axe.run() with the given
+   * rule tags, returns axe-core's native output. Override to call a
+   * different engine (pa11y, Lighthouse, custom JS, etc.). The return value
+   * is fed to accessibilityNormalizeResults() before any other trait logic
+   * touches it, so the raw shape does not have to match the canonical
+   * shape.
+   *
+   * @param string $rules
+   *   Engine-specific rule identifier (e.g. axe-core tag list).
+   *
+   * @return array<string, mixed>
+   *   Raw, engine-specific result array.
+   */
+  protected function accessibilityRunEngine(string $rules): array {
+    $session = $this->getSession();
+    $driver = $session->getDriver();
+    $driver->executeScript($this->accessibilityGetJs());
+
+    $tag_list = json_encode(array_map(trim(...), explode(',', $rules)));
+    $driver->executeScript(sprintf(
+      'window.__accessibilityResults = null; axe.run(document, { runOnly: { type: "tag", values: %s } }).then(function (r) { window.__accessibilityResults = r; }).catch(function (e) { window.__accessibilityResults = { error: String(e) }; });',
+      $tag_list
+    ));
+
+    $session->wait(30000, 'window.__accessibilityResults !== null');
+    $results = $session->evaluateScript('return window.__accessibilityResults;');
+
+    if (!is_array($results)) {
+      throw new \RuntimeException('Accessibility engine did not return results.');
+    }
+
+    if (isset($results['error'])) {
+      throw new \RuntimeException('Accessibility engine failed: ' . $results['error']);
+    }
+
+    return $results;
+  }
+
+  /**
+   * Normalize raw engine output into the canonical shape used by the trait.
+   *
+   * Canonical shape (see class docblock for full detail):
+   * `['violations' => [...], 'incomplete' => [...], 'passes' => [...]]`
+   *
+   * Default: identity. axe-core's output already matches the canonical
+   * shape, so no remap is needed. Override when wiring a different engine
+   * to translate its native output (e.g. pa11y's `issues[]` array, or
+   * Lighthouse's `audits` object) into the canonical structure.
+   *
+   * @param array<string, mixed> $raw
+   *   Raw result from accessibilityRunEngine().
+   *
+   * @return array<string, mixed>
+   *   Normalized result.
+   */
+  protected function accessibilityNormalizeResults(array $raw): array {
+    return $raw;
   }
 
   /**
@@ -364,26 +448,26 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Returns the active gate threshold for the current scenario.
+   * Return the active gate threshold for the current scenario.
    */
   protected function accessibilityEffectiveThreshold(): string {
     return $this->accessibilityScenarioThreshold ?? $this->accessibilityGetFailureThreshold();
   }
 
   /**
-   * Returns whether incomplete findings should fail the current scenario.
+   * Return whether incomplete findings should fail the current scenario.
    */
   protected function accessibilityEffectiveFailOnIncomplete(): bool {
     return $this->accessibilityScenarioFailOnIncomplete ?? $this->accessibilityGetFailOnIncomplete();
   }
 
   /**
-   * Filter the axe-core violations array by impact threshold.
+   * Filter violations by impact threshold.
    *
    * @param array<int, array<string, mixed>> $violations
-   *   Raw violations from axe-core.
+   *   Normalized violations.
    * @param string $threshold
-   *   One of 'any', 'never', or an impact level from accessibilityGetImpacts().
+   *   `any`, `never`, or an impact level from accessibilityGetImpacts().
    *
    * @return array<int, array<string, mixed>>
    *   Violations meeting or exceeding the threshold.
@@ -416,49 +500,31 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Execute axe-core against the current page and record the result.
+   * Run the engine, normalize the result, record it for the scenario.
    *
    * @param string $rules
-   *   Comma-separated axe rule tags (e.g. 'wcag2a,wcag2aa').
+   *   Engine-specific rule identifier.
    *
    * @return array<string, mixed>
-   *   The axe-core result array.
+   *   Normalized result.
    */
-  protected function accessibilityRunAxe(string $rules): array {
-    $session = $this->getSession();
-    $driver = $session->getDriver();
-    $driver->executeScript($this->accessibilityGetJs());
+  protected function accessibilityAssess(string $rules): array {
+    $raw = $this->accessibilityRunEngine($rules);
+    $normalized = $this->accessibilityNormalizeResults($raw);
 
-    $tag_list = json_encode(array_map(trim(...), explode(',', $rules)));
-    $driver->executeScript(sprintf(
-      'window.__axeResults = null; axe.run(document, { runOnly: { type: "tag", values: %s } }).then(function (r) { window.__axeResults = r; }).catch(function (e) { window.__axeResults = { error: String(e) }; });',
-      $tag_list
-    ));
-
-    $session->wait(30000, 'window.__axeResults !== null');
-    $results = $session->evaluateScript('return window.__axeResults;');
-
-    if (!is_array($results)) {
-      throw new \RuntimeException('axe-core did not return results.');
-    }
-
-    if (isset($results['error'])) {
-      throw new \RuntimeException('axe-core failed: ' . $results['error']);
-    }
-
-    $url = $session->getCurrentUrl();
-    $this->accessibilityResults[] = ['url' => $url, 'rules' => $rules, 'result' => $results];
+    $url = $this->getSession()->getCurrentUrl();
+    $this->accessibilityResults[] = ['url' => $url, 'rules' => $rules, 'result' => $normalized];
     $this->accessibilityLastCheckedUrl = $url;
 
     fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
       $url,
-      count($results['violations'] ?? []),
-      count($results['passes'] ?? []),
-      count($results['incomplete'] ?? []),
+      count($normalized['violations'] ?? []),
+      count($normalized['passes'] ?? []),
+      count($normalized['incomplete'] ?? []),
       $rules
     ));
 
-    return $results;
+    return $normalized;
   }
 
   /**
@@ -467,7 +533,7 @@ trait AccessibilityTrait {
    * @param string $url
    *   URL of the page that was assessed.
    * @param string $rules
-   *   Rule set used.
+   *   Rule identifier used.
    * @param string $threshold
    *   Effective gate threshold.
    * @param bool $check_incomplete
@@ -512,10 +578,10 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Flatten an axe-core node target array into a human-readable string.
+   * Flatten a node target array into a human-readable string.
    *
    * @param array<int, mixed> $target
-   *   The 'target' value from an axe-core node.
+   *   Canonical `target` value of a node entry.
    */
   protected function accessibilityStringifyTarget(array $target): string {
     return implode(' > ', array_map(fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
@@ -532,7 +598,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Render the scenario-level HTML report from collected axe-core results.
+   * Render the scenario-level HTML report from collected results.
    */
   protected function accessibilityRenderHtml(): string {
     $title = htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_QUOTES);
@@ -561,7 +627,6 @@ trait AccessibilityTrait {
     }
 
     $body = implode("\n", $body_sections);
-    $axe_version = htmlspecialchars($this->accessibilityGetAxeVersion(), ENT_QUOTES);
     $threshold = htmlspecialchars($this->accessibilityEffectiveThreshold(), ENT_QUOTES);
     $fail_on_incomplete = $this->accessibilityEffectiveFailOnIncomplete() ? 'yes' : 'no';
 
@@ -595,7 +660,7 @@ a { color: #0969da; }
 </head>
 <body>
 <h1>Accessibility report</h1>
-<p class="meta">{$title} &middot; axe-core {$axe_version} &middot; threshold: <code>{$threshold}</code> &middot; fail on incomplete: <code>{$fail_on_incomplete}</code></p>
+<p class="meta">{$title} &middot; threshold: <code>{$threshold}</code> &middot; fail on incomplete: <code>{$fail_on_incomplete}</code></p>
 {$body}
 </body>
 </html>
@@ -650,7 +715,7 @@ HTML;
   }
 
   /**
-   * Render the scenario-level JUnit XML report from collected axe-core results.
+   * Render the scenario-level JUnit XML report from collected results.
    */
   protected function accessibilityRenderJunit(): string {
     $suites_xml = '';
