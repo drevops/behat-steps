@@ -242,7 +242,7 @@ EOD,
       ],
       'numbers in camelCase' => [
         'user123Name',
-        'user_123_name',
+        'user123_name',
       ],
       'multiple uppercase in a row' => [
         'HTTPRequest',
@@ -255,7 +255,7 @@ EOD,
       ],
       'mixed case with numbers' => [
         'getAPI2Config',
-        'get_a_p_i_2_config',
+        'get_a_p_i2_config',
       ],
       'single character uppercase' => [
         'aB',
