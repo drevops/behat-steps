@@ -63,16 +63,6 @@
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
         },
-        "audit": {
-            "abandoned": "ignore",
-            "block-insecure": false,
-            "ignore-severities": [
-                "low",
-                "medium",
-                "high",
-                "critical"
-            ]
-        },
         "sort-packages": true
     },
     "extra": {
