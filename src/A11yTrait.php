@@ -83,7 +83,7 @@ trait A11yTrait {
    */
   #[BeforeScenario]
   public function a11ySetupScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:A11yTrait')) {
+    if ($scope->getFeature()->hasTag('behat-steps-skip:A11yTrait')) {
       return;
     }
 

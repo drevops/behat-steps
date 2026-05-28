@@ -57,7 +57,7 @@
 
 ## A11yTrait
 
-[Source](src/A11yTrait.php), [Example](tests/behat/features/a_11y.feature)
+[Source](src/A11yTrait.php), [Example](tests/behat/features/a11y.feature)
 
 >  Assess accessibility of rendered pages with axe-core.
 >  - Explicit step assertion or automatic mode via `@axe*` tags.
