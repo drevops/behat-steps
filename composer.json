@@ -66,7 +66,12 @@
         "audit": {
             "abandoned": "ignore",
             "block-insecure": false,
-            "ignore-severities": ["low", "medium", "high", "critical"]
+            "ignore-severities": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+            ]
         },
         "sort-packages": true
     },
