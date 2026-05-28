@@ -1,36 +1,36 @@
-Feature: Check that AccessibilityTrait works
+Feature: Check that A11yTrait works
   As Behat Steps library developer
   I want to assess accessibility of rendered pages with axe-core
   So that consumers can fail scenarios on WCAG violations
 
   @javascript
   Scenario: Clean page passes the explicit assertion
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "/sites/default/files/a11y_clean.html"
     Then the current page should pass accessibility checks
 
   @javascript
   Scenario: Clean page passes the explicit assertion for a specific tag set
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "/sites/default/files/a11y_clean.html"
     Then the current page should pass accessibility checks for tags "wcag2a"
 
   @javascript @axe
   Scenario: Auto mode passes when navigating between clean pages
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "/sites/default/files/a11y_clean.html"
     Then I should see "Clean Accessibility Page"
     When I follow "Go to second clean page"
     Then I should see "Second Clean Accessibility Page"
 
   @javascript @axe-warning
   Scenario: Auto mode with warning tag never fails even on a broken page
-    Given I visit "/sites/default/files/accessibility_violations.html"
+    Given I visit "/sites/default/files/a11y_violations.html"
     Then I should see "Inaccessible Page"
 
-  @trait:AccessibilityTrait
+  @trait:A11yTrait
   Scenario: Explicit assertion fails on a page with violations
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "/sites/default/files/a11y_violations.html"
       Then the current page should pass accessibility checks
       """
     When I run "behat --no-colors"
@@ -47,30 +47,30 @@ Feature: Check that AccessibilityTrait works
       violation [critical] button-name
       """
 
-  @trait:AccessibilityTrait
+  @trait:A11yTrait
   Scenario: Auto mode fails on a page with violations
     Given some behat configuration
     And scenario steps tagged with "@javascript @axe":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "/sites/default/files/a11y_violations.html"
       Then I should see "Inaccessible Page"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Auto accessibility gate failed
+      Auto a11y gate failed
       """
     And the output should contain:
       """
       violation [critical] image-alt
       """
 
-  @trait:AccessibilityTrait
+  @trait:A11yTrait
   Scenario: Auto mode with critical threshold ignores serious violations only
     Given some behat configuration
     And scenario steps tagged with "@javascript @axe-critical":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "/sites/default/files/a11y_violations.html"
       Then I should see "Inaccessible Page"
       """
     When I run "behat --no-colors"
