@@ -29,7 +29,7 @@
     },
     "require-dev": {
         "drupal/core-dev": "~10.5.0",
-        "phpunit/php-code-coverage": "^11.0.6"
+        "phpunit/php-code-coverage": "^9.2.31"
     },
     "conflict": {
         "drupal/core": "^7.0"
