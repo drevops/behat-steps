@@ -59,6 +59,11 @@
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "tbachert/spi": true
+        },
+        "audit": {
+            "abandoned": "ignore",
+            "block-insecure": false,
+            "ignore-severities": ["low", "medium", "high", "critical"]
         }
     },
     "extra": {

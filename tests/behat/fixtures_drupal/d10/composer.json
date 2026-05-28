@@ -58,6 +58,11 @@
             "oomphinc/composer-installers-extender": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true
+        },
+        "audit": {
+            "abandoned": "ignore",
+            "block-insecure": false,
+            "ignore-severities": ["low", "medium", "high", "critical"]
         }
     },
     "extra": {
