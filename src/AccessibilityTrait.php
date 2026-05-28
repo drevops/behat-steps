@@ -20,98 +20,107 @@ use Behat\Step\Then;
  * - Per-scenario threshold and gate composition via tags.
  * - One HTML and one JUnit XML report per scenario, one section per URL.
  */
-trait A11yTrait {
+trait AccessibilityTrait {
 
-  protected const A11Y_AXE_VERSION = '4.11.4';
+  protected const ACCESSIBILITY_AXE_VERSION = '4.11.4';
 
-  protected const A11Y_CDN_TEMPLATE = 'https://cdn.jsdelivr.net/npm/axe-core@%s/axe.min.js';
+  protected const ACCESSIBILITY_CDN_TEMPLATE = 'https://cdn.jsdelivr.net/npm/axe-core@%s/axe.min.js';
 
-  protected const A11Y_REPORT_DIR = '.logs/test_results/a11y';
+  protected const ACCESSIBILITY_REPORT_DIR = '.logs/test_results/accessibility';
 
-  protected const A11Y_AUTO_TAG = 'axe';
+  protected const ACCESSIBILITY_AUTO_TAG = 'axe';
 
-  protected const A11Y_DEFAULT_RULES = 'wcag2a,wcag2aa';
+  protected const ACCESSIBILITY_DEFAULT_RULES = 'wcag2a,wcag2aa';
 
-  protected const A11Y_DEFAULT_THRESHOLD = 'any';
+  protected const ACCESSIBILITY_DEFAULT_THRESHOLD = 'any';
 
-  protected const A11Y_IMPACTS = ['critical', 'serious', 'moderate', 'minor'];
+  protected const ACCESSIBILITY_IMPACTS = ['critical', 'serious', 'moderate', 'minor'];
 
   /**
    * In-memory cache for the axe-core source - fetched once per process.
    */
-  protected static ?string $a11yCachedJs = NULL;
+  protected static ?string $accessibilityCachedJs = NULL;
 
   /**
    * Axe results collected during the current scenario.
    *
    * @var array<int, array{url: string, rules: string, result: array<string, mixed>}>
    */
-  protected array $a11yResults = [];
+  protected array $accessibilityResults = [];
 
   /**
    * Feature title captured at scenario start for report metadata.
    */
-  protected string $a11yFeatureName = '';
+  protected string $accessibilityFeatureName = '';
 
   /**
    * Scenario title captured at scenario start for report metadata.
    */
-  protected string $a11yScenarioName = '';
+  protected string $accessibilityScenarioName = '';
 
   /**
    * Whether automatic mode (per-step axe-core run) is enabled.
    */
-  protected bool $a11yAutoMode = FALSE;
+  protected bool $accessibilityAutoMode = FALSE;
 
   /**
    * URL of the last page checked in automatic mode to avoid duplicate runs.
    */
-  protected string $a11yLastCheckedUrl = '';
+  protected string $accessibilityLastCheckedUrl = '';
 
   /**
    * Per-scenario threshold override resolved from tags.
    */
-  protected ?string $a11yScenarioThreshold = NULL;
+  protected ?string $accessibilityScenarioThreshold = NULL;
 
   /**
    * Per-scenario incomplete-fail override resolved from tags.
    */
-  protected ?bool $a11yScenarioFailOnIncomplete = NULL;
+  protected ?bool $accessibilityScenarioFailOnIncomplete = NULL;
+
+  /**
+   * Whether the scenario is opted out of accessibility processing.
+   */
+  protected bool $accessibilitySkip = FALSE;
 
   /**
    * Initialize accessibility state for the scenario.
    */
   #[BeforeScenario]
-  public function a11ySetupScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:A11yTrait')) {
+  public function accessibilitySetupScenario(BeforeScenarioScope $scope): void {
+    $this->accessibilityResults = [];
+    $this->accessibilityAutoMode = FALSE;
+    $this->accessibilityLastCheckedUrl = '';
+    $this->accessibilityScenarioThreshold = NULL;
+    $this->accessibilityScenarioFailOnIncomplete = NULL;
+
+    $this->accessibilitySkip = $scope->getFeature()->hasTag('behat-steps-skip:AccessibilityTrait')
+      || $scope->getScenario()->hasTag('behat-steps-skip:AccessibilityTrait');
+
+    if ($this->accessibilitySkip) {
       return;
     }
 
-    $this->a11yResults = [];
-    $this->a11yFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
-    $this->a11yScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
-    $this->a11yLastCheckedUrl = '';
-    $this->a11yAutoMode = FALSE;
-    $this->a11yScenarioThreshold = NULL;
-    $this->a11yScenarioFailOnIncomplete = NULL;
+    $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
+    $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
 
     $tags = array_merge(
       $scope->getFeature()->getTags() ?? [],
       $scope->getScenario()->getTags() ?? []
     );
-    $this->a11yResolveTags($tags);
+    $this->accessibilityResolveTags($tags);
   }
 
   /**
    * Run axe-core after each step when in automatic mode.
    */
   #[AfterStep]
-  public function a11yAutoAssess(AfterStepScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:A11yTrait')) {
+  public function accessibilityAutoAssess(AfterStepScope $scope): void {
+    if ($this->accessibilitySkip) {
       return;
     }
 
-    if (!$this->a11yAutoMode) {
+    if (!$this->accessibilityAutoMode) {
       return;
     }
 
@@ -126,44 +135,44 @@ trait A11yTrait {
       return;
     }
 
-    if (in_array($url, ['', 'about:blank', $this->a11yLastCheckedUrl], TRUE)) {
+    if (in_array($url, ['', 'about:blank', $this->accessibilityLastCheckedUrl], TRUE)) {
       return;
     }
 
-    $this->a11yRunAxe($this->getA11yDefaultRules());
+    $this->accessibilityRunAxe($this->accessibilityGetDefaultRules());
   }
 
   /**
    * Write reports and enforce the gate at the end of the scenario.
    */
   #[AfterScenario]
-  public function a11yFinalizeScenario(AfterScenarioScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:A11yTrait')) {
+  public function accessibilityFinalizeScenario(AfterScenarioScope $scope): void {
+    if ($this->accessibilitySkip) {
       return;
     }
 
-    if ($this->a11yResults === []) {
+    if ($this->accessibilityResults === []) {
       return;
     }
 
-    $dir = $this->getA11yReportDir();
+    $dir = $this->accessibilityGetReportDir();
     if (!is_dir($dir)) {
       mkdir($dir, 0777, TRUE);
     }
-    $slug = $this->a11ySlug($this->a11yFeatureName) . '__' . $this->a11ySlug($this->a11yScenarioName);
-    file_put_contents($dir . '/' . $slug . '.html', $this->a11yRenderHtml());
-    file_put_contents($dir . '/junit-' . $slug . '.xml', $this->a11yRenderJunit());
+    $slug = $this->accessibilitySlug($this->accessibilityFeatureName) . '__' . $this->accessibilitySlug($this->accessibilityScenarioName);
+    file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
+    file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
-    if (!$this->a11yAutoMode) {
+    if (!$this->accessibilityAutoMode) {
       return;
     }
 
-    $threshold = $this->a11yEffectiveThreshold();
-    $check_incomplete = $this->a11yEffectiveFailOnIncomplete();
+    $threshold = $this->accessibilityEffectiveThreshold();
+    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
     $messages = [];
 
-    foreach ($this->a11yResults as $r) {
-      foreach ($this->a11yFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
+    foreach ($this->accessibilityResults as $r) {
+      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
         $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $r['url']);
       }
       if ($check_incomplete) {
@@ -176,7 +185,7 @@ trait A11yTrait {
     if ($messages !== []) {
       throw new ExpectationException(
         sprintf(
-          "Auto a11y gate failed (threshold=%s, fail_on_incomplete=%s):\n%s",
+          "Auto accessibility gate failed (threshold=%s, fail_on_incomplete=%s):\n%s",
           $threshold,
           $check_incomplete ? 'yes' : 'no',
           implode("\n", $messages)
@@ -194,8 +203,8 @@ trait A11yTrait {
    * @endcode
    */
   #[Then('the current page should pass accessibility checks')]
-  public function a11yAssertCurrentPage(): void {
-    $this->a11yAssertCurrentPageForTags($this->getA11yDefaultRules());
+  public function accessibilityAssertCurrentPage(): void {
+    $this->accessibilityAssertCurrentPageForTags($this->accessibilityGetDefaultRules());
   }
 
   /**
@@ -206,13 +215,13 @@ trait A11yTrait {
    * @endcode
    */
   #[Then('the current page should pass accessibility checks for tags :rules')]
-  public function a11yAssertCurrentPageForTags(string $rules): void {
-    $result = $this->a11yRunAxe($rules);
+  public function accessibilityAssertCurrentPageForTags(string $rules): void {
+    $result = $this->accessibilityRunAxe($rules);
 
-    $threshold = $this->a11yEffectiveThreshold();
-    $check_incomplete = $this->a11yEffectiveFailOnIncomplete();
+    $threshold = $this->accessibilityEffectiveThreshold();
+    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
 
-    $violations = $this->a11yFilterViolations($result['violations'] ?? [], $threshold);
+    $violations = $this->accessibilityFilterViolations($result['violations'] ?? [], $threshold);
     $incomplete = $check_incomplete ? ($result['incomplete'] ?? []) : [];
 
     if ($violations === [] && $incomplete === []) {
@@ -220,7 +229,7 @@ trait A11yTrait {
     }
 
     throw new ExpectationException(
-      $this->a11yFormatGateMessage(
+      $this->accessibilityFormatGateMessage(
         $this->getSession()->getCurrentUrl(),
         $rules,
         $threshold,
@@ -235,37 +244,37 @@ trait A11yTrait {
   /**
    * Returns the axe-core JavaScript source to inject into the page.
    *
-   * Default: fetched once per process from getA11yCdnUrl(). Override
-   * to ship axe-core from a vendored package, asset path, or anywhere
-   * else.
+   * Default: fetched once per process from accessibilityGetCdnUrl().
+   * Override to ship axe-core from a vendored package, asset path, or
+   * anywhere else.
    */
-  protected function getA11yJs(): string {
-    if (self::$a11yCachedJs !== NULL) {
-      return self::$a11yCachedJs;
+  protected function accessibilityGetJs(): string {
+    if (self::$accessibilityCachedJs !== NULL) {
+      return self::$accessibilityCachedJs;
     }
 
-    $content = @file_get_contents($this->getA11yCdnUrl());
+    $content = @file_get_contents($this->accessibilityGetCdnUrl());
     if ($content === FALSE || $content === '') {
-      throw new \RuntimeException(sprintf('Failed to fetch axe-core from %s', $this->getA11yCdnUrl()));
+      throw new \RuntimeException(sprintf('Failed to fetch axe-core from %s', $this->accessibilityGetCdnUrl()));
     }
 
-    self::$a11yCachedJs = $content;
+    self::$accessibilityCachedJs = $content;
 
     return $content;
   }
 
   /**
-   * Returns the URL used by the default getA11yJs() implementation.
+   * Returns the URL used by the default accessibilityGetJs() implementation.
    */
-  protected function getA11yCdnUrl(): string {
-    return sprintf(self::A11Y_CDN_TEMPLATE, $this->getA11yAxeVersion());
+  protected function accessibilityGetCdnUrl(): string {
+    return sprintf(self::ACCESSIBILITY_CDN_TEMPLATE, $this->accessibilityGetAxeVersion());
   }
 
   /**
    * Returns the axe-core version string used to build the CDN URL.
    */
-  protected function getA11yAxeVersion(): string {
-    return self::A11Y_AXE_VERSION;
+  protected function accessibilityGetAxeVersion(): string {
+    return self::ACCESSIBILITY_AXE_VERSION;
   }
 
   /**
@@ -274,35 +283,35 @@ trait A11yTrait {
    * Override to return an already-absolute path if your project needs to
    * write reports outside the current working directory.
    */
-  protected function getA11yReportDir(): string {
-    return getcwd() . DIRECTORY_SEPARATOR . self::A11Y_REPORT_DIR;
+  protected function accessibilityGetReportDir(): string {
+    return getcwd() . DIRECTORY_SEPARATOR . self::ACCESSIBILITY_REPORT_DIR;
   }
 
   /**
    * Returns the base tag name that enables automatic mode (no `@` prefix).
    */
-  protected function getA11yAutoTag(): string {
-    return self::A11Y_AUTO_TAG;
+  protected function accessibilityGetAutoTag(): string {
+    return self::ACCESSIBILITY_AUTO_TAG;
   }
 
   /**
    * Returns the comma-separated WCAG rule tags used when none are specified.
    */
-  protected function getA11yDefaultRules(): string {
-    return self::A11Y_DEFAULT_RULES;
+  protected function accessibilityGetDefaultRules(): string {
+    return self::ACCESSIBILITY_DEFAULT_RULES;
   }
 
   /**
    * Returns the default failure threshold (impact level or 'any'/'never').
    */
-  protected function getA11yFailureThreshold(): string {
-    return self::A11Y_DEFAULT_THRESHOLD;
+  protected function accessibilityGetFailureThreshold(): string {
+    return self::ACCESSIBILITY_DEFAULT_THRESHOLD;
   }
 
   /**
    * Returns TRUE if "incomplete" findings should fail the gate by default.
    */
-  protected function getA11yFailOnIncomplete(): bool {
+  protected function accessibilityGetFailOnIncomplete(): bool {
     return FALSE;
   }
 
@@ -312,8 +321,8 @@ trait A11yTrait {
    * @return array<int, string>
    *   Impact level names ordered from most severe to least.
    */
-  protected function getA11yImpacts(): array {
-    return self::A11Y_IMPACTS;
+  protected function accessibilityGetImpacts(): array {
+    return self::ACCESSIBILITY_IMPACTS;
   }
 
   /**
@@ -322,13 +331,13 @@ trait A11yTrait {
    * @param array<int, string> $tags
    *   Combined feature and scenario tags.
    */
-  protected function a11yResolveTags(array $tags): void {
-    $auto_tag = $this->getA11yAutoTag();
-    $impacts = $this->getA11yImpacts();
+  protected function accessibilityResolveTags(array $tags): void {
+    $auto_tag = $this->accessibilityGetAutoTag();
+    $impacts = $this->accessibilityGetImpacts();
 
     foreach ($tags as $tag) {
       if ($tag === $auto_tag) {
-        $this->a11yAutoMode = TRUE;
+        $this->accessibilityAutoMode = TRUE;
         continue;
       }
 
@@ -337,19 +346,19 @@ trait A11yTrait {
       }
 
       $variant = strtolower(substr($tag, strlen((string) $auto_tag) + 1));
-      $this->a11yAutoMode = TRUE;
+      $this->accessibilityAutoMode = TRUE;
 
       if ($variant === 'warning' || $variant === 'warn') {
-        $this->a11yScenarioThreshold = 'never';
+        $this->accessibilityScenarioThreshold = 'never';
       }
       elseif ($variant === 'strict') {
-        $this->a11yScenarioFailOnIncomplete = TRUE;
+        $this->accessibilityScenarioFailOnIncomplete = TRUE;
       }
       elseif ($variant === 'any') {
-        $this->a11yScenarioThreshold = 'any';
+        $this->accessibilityScenarioThreshold = 'any';
       }
       elseif (in_array($variant, $impacts, TRUE)) {
-        $this->a11yScenarioThreshold = $variant;
+        $this->accessibilityScenarioThreshold = $variant;
       }
     }
   }
@@ -357,15 +366,15 @@ trait A11yTrait {
   /**
    * Returns the active gate threshold for the current scenario.
    */
-  protected function a11yEffectiveThreshold(): string {
-    return $this->a11yScenarioThreshold ?? $this->getA11yFailureThreshold();
+  protected function accessibilityEffectiveThreshold(): string {
+    return $this->accessibilityScenarioThreshold ?? $this->accessibilityGetFailureThreshold();
   }
 
   /**
    * Returns whether incomplete findings should fail the current scenario.
    */
-  protected function a11yEffectiveFailOnIncomplete(): bool {
-    return $this->a11yScenarioFailOnIncomplete ?? $this->getA11yFailOnIncomplete();
+  protected function accessibilityEffectiveFailOnIncomplete(): bool {
+    return $this->accessibilityScenarioFailOnIncomplete ?? $this->accessibilityGetFailOnIncomplete();
   }
 
   /**
@@ -374,12 +383,12 @@ trait A11yTrait {
    * @param array<int, array<string, mixed>> $violations
    *   Raw violations from axe-core.
    * @param string $threshold
-   *   One of 'any', 'never', or an impact level from getA11yImpacts().
+   *   One of 'any', 'never', or an impact level from accessibilityGetImpacts().
    *
    * @return array<int, array<string, mixed>>
    *   Violations meeting or exceeding the threshold.
    */
-  protected function a11yFilterViolations(array $violations, string $threshold): array {
+  protected function accessibilityFilterViolations(array $violations, string $threshold): array {
     if ($threshold === 'never') {
       return [];
     }
@@ -388,7 +397,7 @@ trait A11yTrait {
       return $violations;
     }
 
-    $impacts = $this->getA11yImpacts();
+    $impacts = $this->accessibilityGetImpacts();
     $threshold_pos = array_search($threshold, $impacts, TRUE);
     if ($threshold_pos === FALSE) {
       return $violations;
@@ -415,10 +424,10 @@ trait A11yTrait {
    * @return array<string, mixed>
    *   The axe-core result array.
    */
-  protected function a11yRunAxe(string $rules): array {
+  protected function accessibilityRunAxe(string $rules): array {
     $session = $this->getSession();
     $driver = $session->getDriver();
-    $driver->executeScript($this->getA11yJs());
+    $driver->executeScript($this->accessibilityGetJs());
 
     $tag_list = json_encode(array_map(trim(...), explode(',', $rules)));
     $driver->executeScript(sprintf(
@@ -438,10 +447,10 @@ trait A11yTrait {
     }
 
     $url = $session->getCurrentUrl();
-    $this->a11yResults[] = ['url' => $url, 'rules' => $rules, 'result' => $results];
-    $this->a11yLastCheckedUrl = $url;
+    $this->accessibilityResults[] = ['url' => $url, 'rules' => $rules, 'result' => $results];
+    $this->accessibilityLastCheckedUrl = $url;
 
-    fwrite(STDOUT, sprintf("\n[a11y] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
+    fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
       $url,
       count($results['violations'] ?? []),
       count($results['passes'] ?? []),
@@ -468,13 +477,14 @@ trait A11yTrait {
    * @param array<int, array<string, mixed>> $incomplete
    *   Incomplete findings to include.
    */
-  protected function a11yFormatGateMessage(string $url, string $rules, string $threshold, bool $check_incomplete, array $violations, array $incomplete): string {
-    $lines = [sprintf(
-      'Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):',
-      $url,
-      $rules,
-      $threshold,
-      $check_incomplete ? 'yes' : 'no'
+  protected function accessibilityFormatGateMessage(string $url, string $rules, string $threshold, bool $check_incomplete, array $violations, array $incomplete): string {
+    $lines = [
+      sprintf(
+        'Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):',
+        $url,
+        $rules,
+        $threshold,
+        $check_incomplete ? 'yes' : 'no'
       ),
     ];
 
@@ -482,7 +492,7 @@ trait A11yTrait {
       $lines[] = sprintf('  violation [%s] %s - %s', $v['impact'] ?? 'unknown', $v['id'], $v['help']);
       $lines[] = sprintf('    %s', $v['helpUrl']);
       foreach ($v['nodes'] ?? [] as $node) {
-        $lines[] = sprintf('    -> %s', $this->a11yStringifyTarget($node['target'] ?? []));
+        $lines[] = sprintf('    -> %s', $this->accessibilityStringifyTarget($node['target'] ?? []));
         $html = trim((string) ($node['html'] ?? ''));
         if ($html !== '') {
           $lines[] = sprintf('       %s', mb_strimwidth($html, 0, 160, '...'));
@@ -494,7 +504,7 @@ trait A11yTrait {
       $lines[] = sprintf('  incomplete [%s] %s - %s', $i['impact'] ?? 'unknown', $i['id'], $i['help']);
       $lines[] = sprintf('    %s', $i['helpUrl']);
       foreach ($i['nodes'] ?? [] as $node) {
-        $lines[] = sprintf('    -> %s', $this->a11yStringifyTarget($node['target'] ?? []));
+        $lines[] = sprintf('    -> %s', $this->accessibilityStringifyTarget($node['target'] ?? []));
       }
     }
 
@@ -507,14 +517,14 @@ trait A11yTrait {
    * @param array<int, mixed> $target
    *   The 'target' value from an axe-core node.
    */
-  protected function a11yStringifyTarget(array $target): string {
+  protected function accessibilityStringifyTarget(array $target): string {
     return implode(' > ', array_map(fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
   }
 
   /**
    * Convert an arbitrary string into a filesystem-safe slug for filenames.
    */
-  protected function a11ySlug(string $s): string {
+  protected function accessibilitySlug(string $s): string {
     $s = strtolower(trim($s));
     $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
 
@@ -524,11 +534,11 @@ trait A11yTrait {
   /**
    * Render the scenario-level HTML report from collected axe-core results.
    */
-  protected function a11yRenderHtml(): string {
-    $title = htmlspecialchars($this->a11yFeatureName . ' > ' . $this->a11yScenarioName, ENT_QUOTES);
+  protected function accessibilityRenderHtml(): string {
+    $title = htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_QUOTES);
     $body_sections = [];
 
-    foreach ($this->a11yResults as $r) {
+    foreach ($this->accessibilityResults as $r) {
       $url = htmlspecialchars((string) $r['url'], ENT_QUOTES);
       $rules = htmlspecialchars((string) $r['rules'], ENT_QUOTES);
       $violations = $r['result']['violations'] ?? [];
@@ -544,16 +554,16 @@ trait A11yTrait {
         $passes_count
       );
 
-      $section .= $this->a11yRenderIssueList('Violations', 'violation', $violations);
-      $section .= $this->a11yRenderIssueList('Incomplete (needs human review)', 'incomplete', $incomplete);
+      $section .= $this->accessibilityRenderIssueList('Violations', 'violation', $violations);
+      $section .= $this->accessibilityRenderIssueList('Incomplete (needs human review)', 'incomplete', $incomplete);
       $section .= '</section>';
       $body_sections[] = $section;
     }
 
     $body = implode("\n", $body_sections);
-    $axe_version = htmlspecialchars($this->getA11yAxeVersion(), ENT_QUOTES);
-    $threshold = htmlspecialchars($this->a11yEffectiveThreshold(), ENT_QUOTES);
-    $fail_on_incomplete = $this->a11yEffectiveFailOnIncomplete() ? 'yes' : 'no';
+    $axe_version = htmlspecialchars($this->accessibilityGetAxeVersion(), ENT_QUOTES);
+    $threshold = htmlspecialchars($this->accessibilityEffectiveThreshold(), ENT_QUOTES);
+    $fail_on_incomplete = $this->accessibilityEffectiveFailOnIncomplete() ? 'yes' : 'no';
 
     return <<<HTML
 <!doctype html>
@@ -602,7 +612,7 @@ HTML;
    * @param array<int, array<string, mixed>> $issues
    *   Issues to render.
    */
-  protected function a11yRenderIssueList(string $heading, string $css_class, array $issues): string {
+  protected function accessibilityRenderIssueList(string $heading, string $css_class, array $issues): string {
     if ($issues === []) {
       return sprintf('<h3>%s</h3><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));
     }
@@ -629,7 +639,7 @@ HTML;
       }
 
       foreach ($issue['nodes'] ?? [] as $node) {
-        $target = htmlspecialchars($this->a11yStringifyTarget($node['target'] ?? []), ENT_QUOTES);
+        $target = htmlspecialchars($this->accessibilityStringifyTarget($node['target'] ?? []), ENT_QUOTES);
         $html = htmlspecialchars(trim((string) ($node['html'] ?? '')), ENT_QUOTES);
         $out .= sprintf('<div class="node"><strong>%s</strong><br><code>%s</code></div>', $target, $html);
       }
@@ -642,12 +652,12 @@ HTML;
   /**
    * Render the scenario-level JUnit XML report from collected axe-core results.
    */
-  protected function a11yRenderJunit(): string {
+  protected function accessibilityRenderJunit(): string {
     $suites_xml = '';
     $total_tests = 0;
     $total_failures = 0;
 
-    foreach ($this->a11yResults as $r) {
+    foreach ($this->accessibilityResults as $r) {
       $url = $r['url'];
       $violations = $r['result']['violations'] ?? [];
       $passes = $r['result']['passes'] ?? [];
@@ -665,14 +675,14 @@ HTML;
         $help_url = (string) ($v['helpUrl'] ?? '');
 
         foreach ($v['nodes'] ?? [] as $node) {
-          $target = $this->a11yStringifyTarget($node['target'] ?? []);
+          $target = $this->accessibilityStringifyTarget($node['target'] ?? []);
           $html = trim((string) ($node['html'] ?? ''));
 
           $message = sprintf('[%s] %s', $impact, $help);
           $details = sprintf("URL: %s\nRule: %s\nTarget: %s\nHTML: %s\nDocs: %s", $url, $rule_id, $target, $html, $help_url);
 
           $cases_xml .= sprintf(
-            '<testcase classname="a11y.%s" name="%s"><failure type="%s" message="%s">%s</failure></testcase>',
+            '<testcase classname="accessibility.%s" name="%s"><failure type="%s" message="%s">%s</failure></testcase>',
             htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES),
             htmlspecialchars((string) $target ?: $rule_id, ENT_XML1 | ENT_QUOTES),
             htmlspecialchars($impact, ENT_XML1 | ENT_QUOTES),
@@ -685,7 +695,7 @@ HTML;
       foreach ($passes as $p) {
         $rule_id = (string) ($p['id'] ?? 'unknown');
         $cases_xml .= sprintf(
-          '<testcase classname="a11y.%s" name="%s passed"/>',
+          '<testcase classname="accessibility.%s" name="%s passed"/>',
           htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES),
           htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES)
         );
@@ -702,7 +712,7 @@ HTML;
 
     return sprintf(
       '<?xml version="1.0" encoding="UTF-8"?><testsuites name="%s" tests="%d" failures="%d">%s</testsuites>',
-      htmlspecialchars($this->a11yFeatureName . ' > ' . $this->a11yScenarioName, ENT_XML1 | ENT_QUOTES),
+      htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_XML1 | ENT_QUOTES),
       $total_tests,
       $total_failures,
       $suites_xml

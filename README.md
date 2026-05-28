@@ -48,7 +48,7 @@ from the community.
 
 | Class | Description |
 | --- | --- |
-| [A11yTrait](STEPS.md#a11ytrait) | Assess accessibility of rendered pages with axe-core. |
+| [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages with axe-core. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |

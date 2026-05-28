@@ -717,8 +717,10 @@ function validate(array $info): array {
  *   The converted string.
  */
 function camel_to_snake(string $string, string $separator = '_'): string {
+  $string = preg_replace_callback('/([^0-9])(\d+)/', static fn(array $matches): string => $matches[1] . $separator . $matches[2], $string);
+
   $replacements = [];
-  foreach (mb_str_split($string) as $key => $char) {
+  foreach (mb_str_split((string) $string) as $key => $char) {
     $lower_case_char = mb_strtolower($char);
     if ($lower_case_char !== $char && $key !== 0) {
       $replacements[$char] = $separator . $char;

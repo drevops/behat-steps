@@ -4,7 +4,7 @@
 
 | Class | Description |
 | --- | --- |
-| [A11yTrait](#a11ytrait) | Assess accessibility of rendered pages with axe-core. |
+| [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages with axe-core. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
@@ -55,9 +55,9 @@
 
 ---
 
-## A11yTrait
+## AccessibilityTrait
 
-[Source](src/A11yTrait.php), [Example](tests/behat/features/a11y.feature)
+[Source](src/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
 
 >  Assess accessibility of rendered pages with axe-core.
 >  - Explicit step assertion or automatic mode via `@axe*` tags.
