@@ -4,6 +4,7 @@
 
 | Class | Description |
 | --- | --- |
+| [A11yTrait](#a11ytrait) | Accessibility testing via axe-core. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
@@ -53,6 +54,132 @@
 
 
 ---
+
+## A11yTrait
+
+[Source](src/A11yTrait.php), [Example](tests/behat/features/a_11y.feature)
+
+>  Accessibility testing via axe-core.
+>  <br/><br/>
+>  Provides two ways to assess accessibility within Behat scenarios:
+>  <br/><br/>
+>  1. Explicit step ('Then the current page should pass accessibility
+>  checks'). Throws on violations at the point the step runs.
+>  <br/><br/>
+>  2. Automatic mode - tag the scenario or feature with '@axe' or a
+>  variant such as '@axe-critical', '@axe-warning', '@axe-strict'.
+>  axe-core runs automatically after every step that changes the URL.
+>  Violations are collected silently during the scenario and reported
+>  once at the end so every visited URL gets a full assessment.
+>  <br/><br/>
+>  Reports
+>  -------
+>  Each scenario that runs axe at least once produces a single HTML and
+>  a single JUnit XML file in the report directory (default
+>  '.logs/test_results/a11y/'). Both reports contain one section per URL
+>  checked during the scenario - so if a scenario visits three pages,
+>  you get one HTML file with three sections (and one JUnit file with
+>  three test suites). No per-page files; the unit of aggregation is
+>  the scenario.
+>  <br/><br/>
+>  What axe-core returns
+>  ---------------------
+>  axe-core groups its findings into four buckets per page:
+>  - violations:    Rules axe confidently failed (for example an <img>
+>  with no alt, contrast 3.13:1). These are the
+>  "errors".
+>  - incomplete:    Rules axe could not definitively determine - they
+>  need human review (for example a contrast check
+>  over a gradient where axe cannot compute the
+>  actual value).
+>  - passes:        Rules that succeeded.
+>  - inapplicable:  Rules that do not apply (no images on the page
+>  means image-alt has nothing to check). Ignored.
+>  <br/><br/>
+>  Each violation has an "impact" level, defined by axe-core:
+>  - critical:  Severe issue, blocks users.
+>  - serious:   Significant barrier.
+>  - moderate:  Real but workable issue.
+>  - minor:     Cosmetic or edge case.
+>  
+>  Gate (when a scenario fails)
+>  ----------------------------
+>  By default, the gate fails on any axe violation regardless of impact;
+>  "incomplete" is surfaced in the report but does not fail. Both
+>  posture decisions are configurable per-scenario via tags or globally
+>  via overriding the protected methods listed under "Extension points":
+>  - '@axe'              Auto-mode, default threshold.
+>  - '@axe-critical'     Auto-mode, fail only on critical impact.
+>  - '@axe-serious'      Auto-mode, fail on critical or serious.
+>  - '@axe-moderate'     Auto-mode, fail on critical/serious/moderate.
+>  - '@axe-minor'        Auto-mode, fail on any impact.
+>  - '@axe-warning'      Auto-mode, never fail (log only).
+>  - '@axe-strict'       Also fail on "incomplete" findings.
+>  
+>  Multiple tags compose: '@axe-critical @axe-strict' means "fail only
+>  on critical impact violations, and also fail on any incomplete".
+>  <br/><br/>
+>  Extension points
+>  ----------------
+>  The using class can override any of the protected getter methods to
+>  change defaults without touching this trait:
+>  - getA11yJs()                Source of the axe-core JavaScript.
+>  - getA11yCdnUrl()            URL the default getA11yJs() fetches.
+>  - getA11yAxeVersion()        Version string used to build the URL.
+>  - getA11yReportDir()         Where to write report files.
+>  - getA11yAutoTag()           Tag name that enables automatic mode.
+>  - getA11yDefaultRules()      WCAG rule tags used when none passed.
+>  - getA11yFailureThreshold()  Default gate threshold.
+>  - getA11yFailOnIncomplete()  Whether incomplete fails the gate.
+>  - getA11yImpacts()           Impact order (critical first).
+>  
+>  Skip processing with tags: `@behat-steps-skip:A11yTrait`
+>  <br/><br/>
+>  Automatic mode example:
+>  ```
+>  @javascript @axe
+>  Scenario: Visit pages with accessibility checks running automatically
+>    Given I visit "/home"
+>    When I click "About"
+>    Then I should see "About Us"
+>  ```
+>  <br/><br/>
+>  Explicit assertion example:
+>  ```
+>  @javascript
+>  Scenario: Assert accessibility at a specific point
+>    Given I visit "/contact"
+>    Then the current page should pass accessibility checks
+>  ```
+
+
+<details>
+  <summary><code>@Then the current page should pass accessibility checks</code></summary>
+
+<br/>
+Assert that the current page passes axe-core accessibility checks
+<br/><br/>
+
+```gherkin
+Then the current page should pass accessibility checks
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the current page should pass accessibility checks for tags :rules</code></summary>
+
+<br/>
+Assert that the current page passes axe-core checks for the given tags
+<br/><br/>
+
+```gherkin
+Then the current page should pass accessibility checks for tags "wcag2a"
+
+```
+
+</details>
 
 ## CookieTrait
 
