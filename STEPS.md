@@ -4,7 +4,7 @@
 
 | Class | Description |
 | --- | --- |
-| [A11yTrait](#a11ytrait) | Accessibility testing via axe-core. |
+| [AccessibilityTrait](#accessibilitytrait) | Accessibility testing via axe-core. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
@@ -55,9 +55,9 @@
 
 ---
 
-## A11yTrait
+## AccessibilityTrait
 
-[Source](src/A11yTrait.php), [Example](tests/behat/features/a_11y.feature)
+[Source](src/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
 
 >  Accessibility testing via axe-core.
 >  <br/><br/>
@@ -76,11 +76,11 @@
 >  -------
 >  Each scenario that runs axe at least once produces a single HTML and
 >  a single JUnit XML file in the report directory (default
->  '.logs/test_results/a11y/'). Both reports contain one section per URL
->  checked during the scenario - so if a scenario visits three pages,
->  you get one HTML file with three sections (and one JUnit file with
->  three test suites). No per-page files; the unit of aggregation is
->  the scenario.
+>  '.logs/test_results/accessibility/'). Both reports contain one section
+>  per URL checked during the scenario - so if a scenario visits three
+>  pages, you get one HTML file with three sections (and one JUnit file
+>  with three test suites). No per-page files; the unit of aggregation
+>  is the scenario.
 >  <br/><br/>
 >  What axe-core returns
 >  ---------------------
@@ -123,17 +123,17 @@
 >  ----------------
 >  The using class can override any of the protected getter methods to
 >  change defaults without touching this trait:
->  - getA11yJs()                Source of the axe-core JavaScript.
->  - getA11yCdnUrl()            URL the default getA11yJs() fetches.
->  - getA11yAxeVersion()        Version string used to build the URL.
->  - getA11yReportDir()         Where to write report files.
->  - getA11yAutoTag()           Tag name that enables automatic mode.
->  - getA11yDefaultRules()      WCAG rule tags used when none passed.
->  - getA11yFailureThreshold()  Default gate threshold.
->  - getA11yFailOnIncomplete()  Whether incomplete fails the gate.
->  - getA11yImpacts()           Impact order (critical first).
+>  - accessibilityGetJs()                Source of the axe-core JavaScript.
+>  - accessibilityGetCdnUrl()            URL the default accessibilityGetJs() fetches.
+>  - accessibilityGetAxeVersion()        Version string used to build the URL.
+>  - accessibilityGetReportDir()         Where to write report files.
+>  - accessibilityGetAutoTag()           Tag name that enables automatic mode.
+>  - accessibilityGetDefaultRules()      WCAG rule tags used when none passed.
+>  - accessibilityGetFailureThreshold()  Default gate threshold.
+>  - accessibilityGetFailOnIncomplete()  Whether incomplete fails the gate.
+>  - accessibilityGetImpacts()           Impact order (critical first).
 >  
->  Skip processing with tags: `@behat-steps-skip:A11yTrait`
+>  Skip processing with tags: `@behat-steps-skip:AccessibilityTrait`
 >  <br/><br/>
 >  Automatic mode example:
 >  ```
