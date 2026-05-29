@@ -60,10 +60,11 @@ default:
         # Behat would run from within "build" dir.
         root: web
       selectors:
-        message_selector: '.messages'
-        error_message_selector: '.messages.messages--error'
-        success_message_selector: '.messages.messages--status'
-        warning_message_selector: '.messages.messages--warning'
+        messages:
+          default: '.messages'
+          error: '.messages.messages--error'
+          success: '.messages.messages--status'
+          warning: '.messages.messages--warning'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
