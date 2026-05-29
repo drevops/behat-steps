@@ -64,3 +64,15 @@ parameters:
       messages:
         - '#Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) with false will always evaluate to true.#'
       reportUnmatched: false
+
+    # PHPStan 2.2 reports `property_exists($this, 'restHeaders')` as always-true
+    # because `FeatureContext` is the only consumer of `ConfigOverrideTrait` in
+    # this repo and it also uses `RestTrait`. The check is intentional - it is
+    # a soft-dependency guard for consumers that may not use `RestTrait`. The
+    # new `ConstantConditionInTraitRule` emits the error via a collector, so
+    # inline `@phpstan-ignore` comments at the call site are not honoured.
+    # @see https://github.com/phpstan/phpstan-src/pull/5309
+    -
+      messages:
+        - '#Call to function property_exists\(\) with \$this\(FeatureContext\) and .restHeaders. will always evaluate to true\.#'
+      reportUnmatched: false

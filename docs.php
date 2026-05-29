@@ -726,7 +726,7 @@ function camel_to_snake(string $string, string $separator = '_'): string {
       $replacements[$char] = $separator . $char;
     }
   }
-  $string = str_replace(array_keys($replacements), array_values($replacements), (string) $string);
+  $string = str_replace(array_keys($replacements), array_values($replacements), $string);
 
   $string = trim($string, $separator);
 

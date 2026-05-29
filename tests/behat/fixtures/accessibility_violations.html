@@ -1,0 +1,30 @@
+<!--
+This is a fixture document used to test AccessibilityTrait.
+
+It deliberately contains multiple accessibility violations:
+- An image without an alt attribute (image-alt rule, critical).
+- A button without an accessible name (button-name rule, critical).
+- A link without text (link-name rule, serious).
+- Missing main landmark / heading order issues.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inaccessible Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #1f2328;
+      background: #ffffff;
+      margin: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Inaccessible Page</h1>
+  <img src="/sites/default/files/image.png" width="200" height="100">
+  <button></button>
+  <a href="#"></a>
+</body>
+</html>

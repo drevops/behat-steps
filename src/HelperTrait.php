@@ -170,6 +170,26 @@ trait HelperTrait {
   }
 
   /**
+   * Convert an arbitrary string into a filesystem-safe slug.
+   *
+   * Lowercases the input, collapses any run of non-alphanumeric characters
+   * to a single hyphen, trims leading and trailing hyphens, and falls back
+   * to `untitled` when the result would otherwise be empty.
+   *
+   * @param string $value
+   *   The string to slugify.
+   *
+   * @return string
+   *   The slugified string.
+   */
+  protected function helperSlug(string $value): string {
+    $value = strtolower(trim($value));
+    $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+
+    return trim($value, '-') ?: 'untitled';
+  }
+
+  /**
    * Check if JavaScript is supported by the current driver.
    *
    * Ensures the driver is started before checking JavaScript capability.
