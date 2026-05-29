@@ -412,22 +412,51 @@ trait AccessibilityTrait {
    *   Normalized result.
    */
   protected function accessibilityNormalizeResults(array $raw): array {
-    $issue_remap = static fn(array $i): array => [
-      'id' => (string) ($i['id'] ?? 'unknown'),
-      'impact' => (string) ($i['impact'] ?? self::IMPACT_MINOR),
-      'help' => (string) ($i['help'] ?? ''),
-      'helpUrl' => (string) ($i['helpUrl'] ?? ''),
-      'nodes' => array_map(static fn(array $n): array => [
-        'target' => (array) ($n['target'] ?? []),
-        'html' => (string) ($n['html'] ?? ''),
-      ], $i['nodes'] ?? []),
-    ];
+    $normalized = ['violations' => [], 'incomplete' => [], 'passes' => []];
 
-    return [
-      'violations' => array_map($issue_remap, $raw['violations'] ?? []),
-      'incomplete' => array_map($issue_remap, $raw['incomplete'] ?? []),
-      'passes' => array_map(static fn(array $p): array => ['id' => (string) ($p['id'] ?? 'unknown')], $raw['passes'] ?? []),
-    ];
+    foreach (['violations', 'incomplete'] as $bucket) {
+      foreach ($raw[$bucket] ?? [] as $issue) {
+        $impact = strtolower((string) ($issue['impact'] ?? ''));
+        switch ($impact) {
+          case 'critical':
+            $impact = self::IMPACT_CRITICAL;
+            break;
+
+          case 'serious':
+            $impact = self::IMPACT_SERIOUS;
+            break;
+
+          case 'moderate':
+            $impact = self::IMPACT_MODERATE;
+            break;
+
+          default:
+            $impact = self::IMPACT_MINOR;
+        }
+
+        $nodes = [];
+        foreach ($issue['nodes'] ?? [] as $node) {
+          $nodes[] = [
+            'target' => (array) ($node['target'] ?? []),
+            'html' => (string) ($node['html'] ?? ''),
+          ];
+        }
+
+        $normalized[$bucket][] = [
+          'id' => (string) ($issue['id'] ?? 'unknown'),
+          'impact' => $impact,
+          'help' => (string) ($issue['help'] ?? ''),
+          'helpUrl' => (string) ($issue['helpUrl'] ?? ''),
+          'nodes' => $nodes,
+        ];
+      }
+    }
+
+    foreach ($raw['passes'] ?? [] as $pass) {
+      $normalized['passes'][] = ['id' => (string) ($pass['id'] ?? 'unknown')];
+    }
+
+    return $normalized;
   }
 
   /**
