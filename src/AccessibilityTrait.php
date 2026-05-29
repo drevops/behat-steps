@@ -16,35 +16,41 @@ use Behat\Step\Then;
 /**
  * Assess accessibility of rendered pages.
  *
- * - Explicit step assertion or automatic mode via `@accessibility*` tags.
- * - Per-scenario threshold and gate composition via tags.
- * - One HTML and one JUnit XML report per scenario, one section per URL.
+ * Supported tags:
+ * - `@accessibility`                          Auto-mode, default threshold.
+ * - `@accessibility-critical`                 Auto-mode, fail only on critical impact.
+ * - `@accessibility-serious`                  Auto-mode, fail on critical or serious.
+ * - `@accessibility-moderate`                 Auto-mode, fail on critical / serious / moderate.
+ * - `@accessibility-minor`                    Auto-mode, fail on any impact.
+ * - `@accessibility-any`                      Auto-mode, fail on any impact (alias).
+ * - `@accessibility-warning`                  Auto-mode, never fail (advisory).
+ * - `@accessibility-strict`                   Also fail on "incomplete" findings.
+ * - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
  *
- * Tool-agnostic. The default engine is axe-core fetched from a CDN, but any
- * tool can be plugged in by overriding `accessibilityRunEngine()` (perform
- * the assessment, return raw results) and `accessibilityNormalizeResults()`
+ * Tool-agnostic. Any engine that runs inside the existing Mink session can
+ * be plugged in by overriding `accessibilityRunEngine()` (perform the
+ * assessment, return raw results) and `accessibilityNormalizeResults()`
  * (remap raw output into the canonical shape the rest of the trait expects).
- *
- * Canonical result shape:
- * @code
- * [
- *   'violations' => [
- *     [
- *       'id'      => 'rule-id',
- *       'impact'  => 'critical|serious|moderate|minor',
- *       'help'    => 'Human-readable help text',
- *       'helpUrl' => 'https://...',
- *       'nodes'   => [
- *         ['target' => ['css selector'], 'html' => '<element />'],
- *       ],
- *     ],
- *   ],
- *   'incomplete' => [ ...same shape as violations... ],
- *   'passes'     => [ ['id' => 'rule-id'], ... ],
- * ]
- * @endcode
  */
 trait AccessibilityTrait {
+
+  use HelperTrait;
+
+  /**
+   * Canonical impact identifiers, ordered from most severe to least.
+   *
+   * Use these constants when an `accessibilityNormalizeResults()` override
+   * maps an engine's native severity vocabulary to the trait's canonical
+   * shape. Threshold tags (`@accessibility-critical`, `@accessibility-serious`
+   * etc.) and the gate-filter logic both compare against these values.
+   */
+  public const IMPACT_CRITICAL = 'critical';
+
+  public const IMPACT_SERIOUS = 'serious';
+
+  public const IMPACT_MODERATE = 'moderate';
+
+  public const IMPACT_MINOR = 'minor';
 
   /**
    * In-memory cache for the engine JavaScript source - fetched once per run.
@@ -169,7 +175,7 @@ trait AccessibilityTrait {
     if (!is_dir($dir)) {
       mkdir($dir, 0777, TRUE);
     }
-    $slug = $this->accessibilitySlug($this->accessibilityFeatureName) . '__' . $this->accessibilitySlug($this->accessibilityScenarioName);
+    $slug = $this->helperSlug($this->accessibilityFeatureName) . '__' . $this->helperSlug($this->accessibilityScenarioName);
     file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
@@ -193,15 +199,8 @@ trait AccessibilityTrait {
     }
 
     if ($messages !== []) {
-      throw new ExpectationException(
-        sprintf(
-          "Auto accessibility gate failed (threshold=%s, fail_on_incomplete=%s):\n%s",
-          $threshold,
-          $check_incomplete ? 'yes' : 'no',
-          implode("\n", $messages)
-        ),
-        $this->getSession()->getDriver()
-      );
+      $message = sprintf("Auto accessibility gate failed (threshold=%s, fail_on_incomplete=%s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
 
@@ -275,8 +274,8 @@ trait AccessibilityTrait {
   /**
    * Return the URL used by the default accessibilityGetJs() implementation.
    *
-   * Default: axe-core v4.11.4 from jsDelivr CDN. Override to pin a different
-   * version or serve from a private mirror.
+   * Default: a pinned engine script from a public CDN. Override to point at
+   * a different version, a private mirror, or a local asset.
    */
   protected function accessibilityGetCdnUrl(): string {
     return 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js';
@@ -298,8 +297,7 @@ trait AccessibilityTrait {
    * The trait recognises this exact tag plus suffix variants
    * (`<tag>-critical`, `<tag>-serious`, `<tag>-moderate`, `<tag>-minor`,
    * `<tag>-warning`, `<tag>-strict`, `<tag>-any`) for per-scenario gate
-   * configuration. Default: `accessibility`. Override to shorten (e.g.
-   * `a11y` or `axe`).
+   * configuration. Default: `accessibility`. Override to shorten.
    */
   protected function accessibilityGetAutoTag(): string {
     return 'accessibility';
@@ -308,8 +306,8 @@ trait AccessibilityTrait {
   /**
    * Return the default rule identifier passed to the engine.
    *
-   * Default: `wcag2a,wcag2aa` (axe-core's WCAG 2.0/2.1 A and AA tag set).
-   * Override to use a different rule identifier expected by your engine.
+   * Default: WCAG 2.0/2.1 A and AA tag set. Override to use a different
+   * rule identifier expected by your engine.
    */
   protected function accessibilityGetDefaultRules(): string {
     return 'wcag2a,wcag2aa';
@@ -335,30 +333,35 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Return the impact levels in descending severity order.
+   * Return the canonical impact levels in descending severity order.
    *
-   * Default: axe-core's `critical, serious, moderate, minor`. Override to
-   * match your engine's severity vocabulary.
+   * Default: the four `IMPACT_*` constants on this trait. Engines with a
+   * different severity vocabulary map to these constants inside
+   * `accessibilityNormalizeResults()`.
    *
    * @return array<int, string>
-   *   Impact level names ordered from most severe to least.
+   *   Impact identifiers ordered from most severe to least.
    */
   protected function accessibilityGetImpacts(): array {
-    return ['critical', 'serious', 'moderate', 'minor'];
+    return [
+      self::IMPACT_CRITICAL,
+      self::IMPACT_SERIOUS,
+      self::IMPACT_MODERATE,
+      self::IMPACT_MINOR,
+    ];
   }
 
   /**
    * Execute the engine against the current page and return RAW results.
    *
-   * Default: injects accessibilityGetJs(), runs axe.run() with the given
-   * rule tags, returns axe-core's native output. Override to call a
-   * different engine (pa11y, Lighthouse, custom JS, etc.). The return value
-   * is fed to accessibilityNormalizeResults() before any other trait logic
-   * touches it, so the raw shape does not have to match the canonical
-   * shape.
+   * Default: injects `accessibilityGetJs()`, runs the engine with the
+   * given rule identifier, returns the engine's native output. Override
+   * to call a different engine. The return value is fed to
+   * `accessibilityNormalizeResults()` before any other trait logic touches
+   * it, so the raw shape does not have to match the canonical shape.
    *
    * @param string $rules
-   *   Engine-specific rule identifier (e.g. axe-core tag list).
+   *   Engine-specific rule identifier.
    *
    * @return array<string, mixed>
    *   Raw, engine-specific result array.
@@ -391,22 +394,40 @@ trait AccessibilityTrait {
   /**
    * Normalize raw engine output into the canonical shape used by the trait.
    *
-   * Canonical shape (see class docblock for full detail):
+   * Canonical shape (see class docblock for the full structure):
    * `['violations' => [...], 'incomplete' => [...], 'passes' => [...]]`
    *
-   * Default: identity. axe-core's output already matches the canonical
-   * shape, so no remap is needed. Override when wiring a different engine
-   * to translate its native output (e.g. pa11y's `issues[]` array, or
-   * Lighthouse's `audits` object) into the canonical structure.
+   * Default: maps each finding into the canonical fields explicitly. The
+   * default engine's native shape happens to share field names with the
+   * canonical shape, so this default mostly copies values straight across
+   * - but each field is named at the call site so the method also serves
+   * as a template for overrides. Override when wiring a different engine
+   * to map its native output (e.g. pa11y's `issues[]`, Lighthouse's
+   * `audits`) into the canonical structure.
    *
    * @param array<string, mixed> $raw
-   *   Raw result from accessibilityRunEngine().
+   *   Raw result from `accessibilityRunEngine()`.
    *
    * @return array<string, mixed>
    *   Normalized result.
    */
   protected function accessibilityNormalizeResults(array $raw): array {
-    return $raw;
+    $issue_remap = static fn(array $i): array => [
+      'id' => (string) ($i['id'] ?? 'unknown'),
+      'impact' => (string) ($i['impact'] ?? self::IMPACT_MINOR),
+      'help' => (string) ($i['help'] ?? ''),
+      'helpUrl' => (string) ($i['helpUrl'] ?? ''),
+      'nodes' => array_map(static fn(array $n): array => [
+        'target' => (array) ($n['target'] ?? []),
+        'html' => (string) ($n['html'] ?? ''),
+      ], $i['nodes'] ?? []),
+    ];
+
+    return [
+      'violations' => array_map($issue_remap, $raw['violations'] ?? []),
+      'incomplete' => array_map($issue_remap, $raw['incomplete'] ?? []),
+      'passes' => array_map(static fn(array $p): array => ['id' => (string) ($p['id'] ?? 'unknown')], $raw['passes'] ?? []),
+    ];
   }
 
   /**
@@ -545,13 +566,7 @@ trait AccessibilityTrait {
    */
   protected function accessibilityFormatGateMessage(string $url, string $rules, string $threshold, bool $check_incomplete, array $violations, array $incomplete): string {
     $lines = [
-      sprintf(
-        'Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):',
-        $url,
-        $rules,
-        $threshold,
-        $check_incomplete ? 'yes' : 'no'
-      ),
+      sprintf('Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):', $url, $rules, $threshold, $check_incomplete ? 'yes' : 'no'),
     ];
 
     foreach ($violations as $v) {
@@ -588,45 +603,30 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Convert an arbitrary string into a filesystem-safe slug for filenames.
+   * Render the scenario-level HTML report from collected results.
+   *
+   * Composes the page wrapper around the per-URL section markup. The two
+   * pieces are split so consumers can rebrand the page without touching
+   * the section logic.
    */
-  protected function accessibilitySlug(string $s): string {
-    $s = strtolower(trim($s));
-    $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
-
-    return trim($s, '-') ?: 'untitled';
+  protected function accessibilityRenderHtml(): string {
+    return $this->accessibilityRenderHtmlPage($this->accessibilityRenderHtmlSections());
   }
 
   /**
-   * Render the scenario-level HTML report from collected results.
+   * Wrap the per-URL sections in a standalone HTML page.
+   *
+   * Default: a self-contained HTML document with the trait's built-in
+   * styles. Override to brand the report (custom doctype, header/footer,
+   * external stylesheet, project logo, etc.) without having to rebuild
+   * the section markup - the caller already supplies it as `$sections`.
+   *
+   * @param string $sections
+   *   Pre-rendered per-URL section markup from
+   *   accessibilityRenderHtmlSections().
    */
-  protected function accessibilityRenderHtml(): string {
+  protected function accessibilityRenderHtmlPage(string $sections): string {
     $title = htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_QUOTES);
-    $body_sections = [];
-
-    foreach ($this->accessibilityResults as $r) {
-      $url = htmlspecialchars((string) $r['url'], ENT_QUOTES);
-      $rules = htmlspecialchars((string) $r['rules'], ENT_QUOTES);
-      $violations = $r['result']['violations'] ?? [];
-      $incomplete = $r['result']['incomplete'] ?? [];
-      $passes_count = count($r['result']['passes'] ?? []);
-
-      $section = sprintf(
-        '<section class="page"><h2>%s</h2><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>',
-        $url,
-        $rules,
-        count($violations),
-        count($incomplete),
-        $passes_count
-      );
-
-      $section .= $this->accessibilityRenderIssueList('Violations', 'violation', $violations);
-      $section .= $this->accessibilityRenderIssueList('Incomplete (needs human review)', 'incomplete', $incomplete);
-      $section .= '</section>';
-      $body_sections[] = $section;
-    }
-
-    $body = implode("\n", $body_sections);
     $threshold = htmlspecialchars($this->accessibilityEffectiveThreshold(), ENT_QUOTES);
     $fail_on_incomplete = $this->accessibilityEffectiveFailOnIncomplete() ? 'yes' : 'no';
 
@@ -661,10 +661,38 @@ a { color: #0969da; }
 <body>
 <h1>Accessibility report</h1>
 <p class="meta">{$title} &middot; threshold: <code>{$threshold}</code> &middot; fail on incomplete: <code>{$fail_on_incomplete}</code></p>
-{$body}
+{$sections}
 </body>
 </html>
 HTML;
+  }
+
+  /**
+   * Render the per-URL section markup (one `<section>` per visited URL).
+   *
+   * Returns only the inner content that the page wrapper embeds. Override
+   * to change how each section renders (rare); for branding the
+   * surrounding page, override accessibilityRenderHtmlPage() instead.
+   */
+  protected function accessibilityRenderHtmlSections(): string {
+    $body_sections = [];
+
+    foreach ($this->accessibilityResults as $r) {
+      $url = htmlspecialchars((string) $r['url'], ENT_QUOTES);
+      $rules = htmlspecialchars((string) $r['rules'], ENT_QUOTES);
+      $violations = $r['result']['violations'] ?? [];
+      $incomplete = $r['result']['incomplete'] ?? [];
+      $passes_count = count($r['result']['passes'] ?? []);
+
+      $section = sprintf('<section class="page"><h2>%s</h2><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>', $url, $rules, count($violations), count($incomplete), $passes_count);
+
+      $section .= $this->accessibilityRenderIssueList('Violations', 'violation', $violations);
+      $section .= $this->accessibilityRenderIssueList('Incomplete (needs human review)', 'incomplete', $incomplete);
+      $section .= '</section>';
+      $body_sections[] = $section;
+    }
+
+    return implode("\n", $body_sections);
   }
 
   /**
@@ -690,14 +718,7 @@ HTML;
       $help = htmlspecialchars((string) ($issue['help'] ?? ''), ENT_QUOTES);
       $help_url = htmlspecialchars((string) ($issue['helpUrl'] ?? ''), ENT_QUOTES);
 
-      $out .= sprintf(
-        '<div class="issue %s"><span class="impact %s">%s</span><span class="rule-id">%s</span> &mdash; %s',
-        htmlspecialchars($css_class, ENT_QUOTES),
-        $impact_safe,
-        $impact_safe,
-        $id,
-        $help
-      );
+      $out .= sprintf('<div class="issue %s"><span class="impact %s">%s</span><span class="rule-id">%s</span> &mdash; %s', htmlspecialchars($css_class, ENT_QUOTES), $impact_safe, $impact_safe, $id, $help);
 
       if ($help_url !== '') {
         $out .= sprintf(' (<a href="%s" target="_blank" rel="noopener">docs</a>)', $help_url);
@@ -759,20 +780,10 @@ HTML;
 
       foreach ($passes as $p) {
         $rule_id = (string) ($p['id'] ?? 'unknown');
-        $cases_xml .= sprintf(
-          '<testcase classname="accessibility.%s" name="%s passed"/>',
-          htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES),
-          htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES)
-        );
+        $cases_xml .= sprintf('<testcase classname="accessibility.%s" name="%s passed"/>', htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES), htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES));
       }
 
-      $suites_xml .= sprintf(
-        '<testsuite name="%s" tests="%d" failures="%d" errors="0">%s</testsuite>',
-        htmlspecialchars((string) $url, ENT_XML1 | ENT_QUOTES),
-        $tests,
-        $failures,
-        $cases_xml
-      );
+      $suites_xml .= sprintf('<testsuite name="%s" tests="%d" failures="%d" errors="0">%s</testsuite>', htmlspecialchars((string) $url, ENT_XML1 | ENT_QUOTES), $tests, $failures, $cases_xml);
     }
 
     return sprintf(

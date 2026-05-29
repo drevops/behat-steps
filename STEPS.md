@@ -4,7 +4,7 @@
 
 | Class | Description |
 | --- | --- |
-| [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages with axe-core. |
+| [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
@@ -59,17 +59,30 @@
 
 [Source](src/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
 
->  Assess accessibility of rendered pages with axe-core.
->  - Explicit step assertion or automatic mode via `@axe*` tags.
->  - Per-scenario threshold and gate composition via tags.
->  - One HTML and one JUnit XML report per scenario, one section per URL.
+>  Assess accessibility of rendered pages.
+>  <br/><br/>
+>  Supported tags:
+>  - `@accessibility`                          Auto-mode, default threshold.
+>  - `@accessibility-critical`                 Auto-mode, fail only on critical impact.
+>  - `@accessibility-serious`                  Auto-mode, fail on critical or serious.
+>  - `@accessibility-moderate`                 Auto-mode, fail on critical / serious / moderate.
+>  - `@accessibility-minor`                    Auto-mode, fail on any impact.
+>  - `@accessibility-any`                      Auto-mode, fail on any impact (alias).
+>  - `@accessibility-warning`                  Auto-mode, never fail (advisory).
+>  - `@accessibility-strict`                   Also fail on "incomplete" findings.
+>  - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
+>  
+>  Tool-agnostic. Any engine that runs inside the existing Mink session can
+>  be plugged in by overriding `accessibilityRunEngine()` (perform the
+>  assessment, return raw results) and `accessibilityNormalizeResults()`
+>  (remap raw output into the canonical shape the rest of the trait expects).
 
 
 <details>
   <summary><code>@Then the current page should pass accessibility checks</code></summary>
 
 <br/>
-Assert that the current page passes axe-core accessibility checks
+Assert that the current page passes accessibility checks
 <br/><br/>
 
 ```gherkin
@@ -83,7 +96,7 @@ Then the current page should pass accessibility checks
   <summary><code>@Then the current page should pass accessibility checks for tags :rules</code></summary>
 
 <br/>
-Assert that the current page passes axe-core checks for the given tags
+Assert that the current page passes accessibility checks for given rules
 <br/><br/>
 
 ```gherkin
