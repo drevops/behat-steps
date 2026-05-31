@@ -49,7 +49,14 @@ trait BehatCliTrait {
       return;
     }
 
-    $this->behatCliWriteFeatureContextFile($traits);
+    // The generated 'FeatureContext.php' normally includes a 'bootstrapDrupal'
+    // workaround that primes the lazy 6.x driver before any trait hook runs.
+    // Scenarios tagged '@behat-cli-no-bootstrap' opt out of that workaround so
+    // a trait under test can be exercised in true isolation - useful for
+    // proving a trait bootstraps Drupal itself when its hooks call '\Drupal::'.
+    $bootstrap_workaround = !$scope->getScenario()->hasTag('behat-cli-no-bootstrap');
+
+    $this->behatCliWriteFeatureContextFile($traits, $bootstrap_workaround);
   }
 
   #[BeforeStep]
@@ -71,14 +78,21 @@ trait BehatCliTrait {
    *
    * @param array $traits
    *   Optional array of trait classes.
+   * @param bool $bootstrap_workaround
+   *   When TRUE (default), the generated context includes a 'bootstrapDrupal'
+   *   '@BeforeScenario @api' hook that primes the lazy 6.x driver. Pass FALSE
+   *   to omit that hook so a trait under test can be exercised in true
+   *   isolation - useful for proving a trait bootstraps Drupal itself when
+   *   its hooks call '\Drupal::' before any step runs.
    *
    * @return string
    *   Path to written file.
    */
-  public function behatCliWriteFeatureContextFile(array $traits = []): string {
+  public function behatCliWriteFeatureContextFile(array $traits = [], bool $bootstrap_workaround = TRUE): string {
     $tokens = [
       '{{USE_DECLARATION}}' => '',
       '{{USE_IN_CLASS}}' => '',
+      '{{BOOTSTRAP_METHOD}}' => '',
     ];
     foreach ($traits as $trait) {
       // Check if trait contains slash to determine if it's in a subdirectory.
@@ -138,16 +152,8 @@ trait BehatCliTrait {
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);
     }
 
-    $content = <<<'EOL'
-<?php
-
-use Drupal\DrupalExtension\Context\DrupalContext;
-{{USE_DECLARATION}}
-
-class FeatureContext extends DrupalContext {
-  {{USE_IN_CLASS}}
-
-  use FeatureContextTrait;
+    if ($bootstrap_workaround) {
+      $tokens['{{BOOTSTRAP_METHOD}}'] = <<<'EOL'
 
   /**
    * Force Drupal bootstrap before any @api scenario step runs.
@@ -163,6 +169,20 @@ class FeatureContext extends DrupalContext {
     $this->getDriver();
   }
 
+EOL;
+    }
+
+    $content = <<<'EOL'
+<?php
+
+use Drupal\DrupalExtension\Context\DrupalContext;
+{{USE_DECLARATION}}
+
+class FeatureContext extends DrupalContext {
+  {{USE_IN_CLASS}}
+
+  use FeatureContextTrait;
+{{BOOTSTRAP_METHOD}}
   /**
    * @Given I throw test exception with message :message
    */
