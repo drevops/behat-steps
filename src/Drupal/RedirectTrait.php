@@ -17,11 +17,9 @@ use Drupal\redirect\Entity\Redirect;
  * - Delete redirects by source path.
  * - Automatically clean up created redirects after scenario completion.
  *
- * Requires the `redirect` module to be enabled. Tag scenarios with
- * `@module:redirect` to enable it automatically per scenario - this works only
- * when `ModuleTrait` (or an equivalent `BeforeScenario` handler that processes
- * `module:*` tags) is also included in the Behat context. Alternatively, enable
- * the module as part of the project's base setup.
+ * Requires the `redirect` contrib module to be installed and enabled in the
+ * consumer project: add `drupal/redirect` to `composer.json` and enable the
+ * module as part of the site's standard setup (e.g. in `core.extension.yml`).
  *
  * Skip processing with tag: `@behat-steps-skip:redirectAfterScenario`
  */
@@ -174,7 +172,7 @@ trait RedirectTrait {
   protected function redirectAssertModuleEnabled(): void {
     // @codeCoverageIgnoreStart
     if (!\Drupal::moduleHandler()->moduleExists('redirect')) {
-      throw new \RuntimeException('The "redirect" module is not enabled. Enable it for scenarios that use RedirectTrait steps (e.g. tag the scenario with "@module:redirect").');
+      throw new \RuntimeException('The "redirect" module is not enabled. Add "drupal/redirect" to the consumer project\'s composer.json and enable the module as part of the site setup.');
     }
     // @codeCoverageIgnoreEnd
   }
