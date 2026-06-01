@@ -4256,8 +4256,11 @@ Then the "myqueue" queue should be empty
 >  - Delete redirects by source path.
 >  - Automatically clean up created redirects after scenario completion.
 >  
->  Requires the `redirect` module to be enabled (tag scenarios with
->  `@module:redirect` or enable it as part of project setup).
+>  Requires the `redirect` module to be enabled. Tag scenarios with
+>  `@module:redirect` to enable it automatically per scenario - this works only
+>  when `ModuleTrait` (or an equivalent `BeforeScenario` handler that processes
+>  `module:*` tags) is also included in the Behat context. Alternatively, enable
+>  the module as part of the project's base setup.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:redirectAfterScenario`
 
