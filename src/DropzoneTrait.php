@@ -153,8 +153,13 @@ trait DropzoneTrait {
       throw new \RuntimeException('The Mink "files_path" parameter is not configured.');
     }
 
-    $base = rtrim((string) realpath((string) $files_path), DIRECTORY_SEPARATOR);
-    $full_path = $base . DIRECTORY_SEPARATOR . ltrim($path, '/');
+    $resolved_files_path = realpath((string) $files_path);
+    if ($resolved_files_path === FALSE || !is_dir($resolved_files_path)) {
+      throw new \RuntimeException('The Mink "files_path" parameter is invalid or not accessible.');
+    }
+
+    $base = rtrim($resolved_files_path, DIRECTORY_SEPARATOR);
+    $full_path = $base . DIRECTORY_SEPARATOR . ltrim($path, "/\\");
 
     if (!is_file($full_path)) {
       throw new \RuntimeException(sprintf('The fixture file "%s" does not exist.', $full_path));
