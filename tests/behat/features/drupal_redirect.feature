@@ -93,6 +93,152 @@ Feature: Check that RedirectTrait works
     And I go to "/strip-slash"
     Then the path should not be "/user/login"
 
+  @api
+  Scenario: Assert "Then the following redirects should exist:" matches by source, destination, and status code
+    Given the following redirects exist:
+      | from           | to                                | status_code |
+      | /assert-301    | /user/login                       | 301         |
+      | /assert-302    | /user/login                       | 302         |
+      | /assert-extern | https://example.com/promo-landing |             |
+    Then the following redirects should exist:
+      | from           | to                                | status_code |
+      | /assert-301    | /user/login                       | 301         |
+      | /assert-302    | /user/login                       | 302         |
+      | /assert-extern | https://example.com/promo-landing |             |
+
+  @api
+  Scenario: Assert "Then the following redirects should exist:" matches by source only when other columns are blank or omitted
+    Given the following redirects exist:
+      | from        | to          |
+      | /by-source  | /user/login |
+    Then the following redirects should exist:
+      | from        |
+      | /by-source  |
+    And the following redirects should exist:
+      | from        | to | status_code |
+      | /by-source  |    |             |
+
+  @api
+  Scenario: Assert "Then the following redirects should exist:" accepts source paths without a leading slash
+    Given the following redirects exist:
+      | from        | to          |
+      | /no-slash   | /user/login |
+    Then the following redirects should exist:
+      | from      | to          |
+      | no-slash  | /user/login |
+
+  @api
+  Scenario: Assert "Then the following redirects should exist:" accepts an "internal:" prefix on the destination
+    Given the following redirects exist:
+      | from         | to          |
+      | /prefix-dest | /user/login |
+    Then the following redirects should exist:
+      | from         | to                    |
+      | /prefix-dest | internal:/user/login  |
+
+  @api
+  Scenario: Assert "Then the following redirects should not exist:" passes when no redirect matches
+    Then the following redirects should not exist:
+      | /never-was       |
+      | /also-never-was  |
+
+  @api
+  Scenario: Assert "Then the following redirects should not exist:" passes after deletion
+    Given the following redirects exist:
+      | from       | to          |
+      | /will-go   | /user/login |
+    When the following redirects do not exist:
+      | /will-go |
+    Then the following redirects should not exist:
+      | /will-go |
+
+  @api @trait:Drupal\RedirectTrait
+  Scenario: Assert "Then the following redirects should exist:" fails when a redirect is missing
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following redirects exist:
+        | from    | to          |
+        | /there  | /user/login |
+      Then the following redirects should exist:
+        | from        | to          |
+        | /there      | /user/login |
+        | /not-there  | /user/login |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following redirects should exist but were not found: {from="/not-there", to="/user/login"}.
+      """
+
+  @api @trait:Drupal\RedirectTrait
+  Scenario: Assert "Then the following redirects should exist:" fails when destination does not match
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following redirects exist:
+        | from         | to          |
+        | /wrong-dest  | /user/login |
+      Then the following redirects should exist:
+        | from         | to             |
+        | /wrong-dest  | /admin/content |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following redirects should exist but were not found: {from="/wrong-dest", to="/admin/content"}.
+      """
+
+  @api @trait:Drupal\RedirectTrait
+  Scenario: Assert "Then the following redirects should exist:" fails when status code does not match
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following redirects exist:
+        | from         | to          | status_code |
+        | /wrong-code  | /user/login | 301         |
+      Then the following redirects should exist:
+        | from         | to          | status_code |
+        | /wrong-code  | /user/login | 302         |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following redirects should exist but were not found: {from="/wrong-code", to="/user/login", status_code=302}.
+      """
+
+  @api @trait:Drupal\RedirectTrait
+  Scenario: Assert "Then the following redirects should exist:" fails when "from" is empty
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then the following redirects should exist:
+        | from | to          |
+        |      | /user/login |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Each redirect row must define a non-empty "from" path.
+      """
+
+  @api @trait:Drupal\RedirectTrait
+  Scenario: Assert "Then the following redirects should not exist:" fails when a redirect is still present
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following redirects exist:
+        | from      | to          |
+        | /lingers  | /user/login |
+      Then the following redirects should not exist:
+        | /lingers |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following redirects should not exist but were found: "/lingers".
+      """
+
   @api @trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails on an unsupported status code
     Given some behat configuration

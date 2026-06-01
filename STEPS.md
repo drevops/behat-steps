@@ -4254,6 +4254,7 @@ Then the "myqueue" queue should be empty
 >  Manage Drupal redirect entities provided by the contrib `redirect` module.
 >  - Create one or more redirects from a table of source/destination/status.
 >  - Delete redirects by source path.
+>  - Assert that redirects do or do not exist for given source paths.
 >  - Automatically clean up created redirects after scenario completion.
 >  
 >  Requires the `redirect` contrib module to be installed and enabled in the
@@ -4290,6 +4291,40 @@ Delete redirects by source path
 
 ```gherkin
 Given the following redirects do not exist:
+  | /old/about      |
+  | /legacy/contact |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following redirects should exist:</code></summary>
+
+<br/>
+Assert that one or more redirects exist
+<br/><br/>
+
+```gherkin
+Then the following redirects should exist:
+  | from              | to                        | status_code |
+  | /old/about        | /about                    | 301         |
+  | /promo            | https://example.com/promo |             |
+  | /legacy/contact   |                           |             |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following redirects should not exist:</code></summary>
+
+<br/>
+Assert that no redirect exists for one or more source paths
+<br/><br/>
+
+```gherkin
+Then the following redirects should not exist:
   | /old/about      |
   | /legacy/contact |
 

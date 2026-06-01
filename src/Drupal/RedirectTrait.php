@@ -8,6 +8,8 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
+use Behat\Step\Then;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
 /**
@@ -15,6 +17,7 @@ use Drupal\redirect\Entity\Redirect;
  *
  * - Create one or more redirects from a table of source/destination/status.
  * - Delete redirects by source path.
+ * - Assert that redirects do or do not exist for given source paths.
  * - Automatically clean up created redirects after scenario completion.
  *
  * Requires the `redirect` contrib module to be installed and enabled in the
@@ -110,11 +113,11 @@ trait RedirectTrait {
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
 
     foreach ($table->getColumn(0) as $path) {
-      $path = ltrim(trim((string) $path), '/');
+      $source = $this->redirectNormalizeSource($path);
 
       $ids = $storage->getQuery()
         ->accessCheck(FALSE)
-        ->condition('redirect_source.path', $path)
+        ->condition('redirect_source.path', $source)
         ->execute();
 
       if (empty($ids)) {
@@ -131,6 +134,107 @@ trait RedirectTrait {
         $this->redirects,
         fn(Redirect $redirect): bool => !in_array((int) $redirect->id(), $deleted_ids, TRUE),
       ));
+    }
+  }
+
+  /**
+   * Assert that one or more redirects exist.
+   *
+   * Provide redirect data in the following format:
+   *
+   * | from              | to                        | status_code |
+   * | /old/about        | /about                    | 301         |
+   * | /promo            | https://example.com/promo |             |
+   * | /legacy/contact   |                           |             |
+   *
+   * The `from` column is required. The `to` and `status_code` columns are
+   * optional: when blank or omitted, only the source path is matched. When
+   * `to` is provided, internal paths (`/about`) are normalised to
+   * `internal:/about` to match the storage format. When `status_code` is
+   * provided, it is validated against the allowed set (301, 302, 303, 307,
+   * 308).
+   *
+   * @code
+   * Then the following redirects should exist:
+   *   | from              | to                        | status_code |
+   *   | /old/about        | /about                    | 301         |
+   *   | /promo            | https://example.com/promo |             |
+   *   | /legacy/contact   |                           |             |
+   * @endcode
+   */
+  #[Then('the following redirects should exist:')]
+  public function redirectAssertExist(TableNode $table): void {
+    $this->redirectAssertModuleEnabled();
+
+    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
+    $missing = [];
+
+    foreach ($table->getHash() as $row) {
+      $from = isset($row['from']) ? trim($row['from']) : '';
+
+      if ($from === '') {
+        throw new \RuntimeException('Each redirect row must define a non-empty "from" path.');
+      }
+
+      $query = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('redirect_source.path', $this->redirectNormalizeSource($from));
+
+      $to = isset($row['to']) ? trim($row['to']) : '';
+      if ($to !== '') {
+        $query->condition('redirect_redirect.uri', $this->redirectNormalizeDestination($to));
+      }
+
+      $status_code_raw = isset($row['status_code']) ? trim($row['status_code']) : '';
+      if ($status_code_raw !== '') {
+        $query->condition('status_code', $this->redirectNormalizeStatusCode($status_code_raw));
+      }
+
+      $ids = $query->execute();
+
+      if (empty($ids)) {
+        $missing[] = $this->redirectFormatRow($from, $to, $status_code_raw);
+      }
+    }
+
+    if ($missing !== []) {
+      throw new \Exception(sprintf('The following redirects should exist but were not found: %s.', implode(', ', $missing)));
+    }
+  }
+
+  /**
+   * Assert that no redirect exists for one or more source paths.
+   *
+   * Provide one source path per row.
+   *
+   * @code
+   * Then the following redirects should not exist:
+   *   | /old/about      |
+   *   | /legacy/contact |
+   * @endcode
+   */
+  #[Then('the following redirects should not exist:')]
+  public function redirectAssertNotExist(TableNode $table): void {
+    $this->redirectAssertModuleEnabled();
+
+    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
+    $present = [];
+
+    foreach ($table->getColumn(0) as $path) {
+      $source = $this->redirectNormalizeSource($path);
+
+      $ids = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('redirect_source.path', $source)
+        ->execute();
+
+      if (!empty($ids)) {
+        $present[] = sprintf('"%s"', $path);
+      }
+    }
+
+    if ($present !== []) {
+      throw new \Exception(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
     }
   }
 
@@ -204,6 +308,45 @@ trait RedirectTrait {
     }
 
     return $status_code;
+  }
+
+  /**
+   * Normalise a source path the same way the `redirect` module stores it.
+   */
+  protected function redirectNormalizeSource(string $path): string {
+    return ltrim(trim($path), '/');
+  }
+
+  /**
+   * Normalise a destination URI the same way `Redirect::setRedirect()` does.
+   *
+   * Internal paths gain an `internal:/` prefix; external `http(s)://` URLs
+   * pass through unchanged. Values that already begin with `internal:` are
+   * returned as-is to avoid double-prefixing.
+   */
+  protected function redirectNormalizeDestination(string $uri): string {
+    if (str_starts_with($uri, 'internal:')) {
+      return $uri;
+    }
+
+    return UrlHelper::isExternal($uri) ? $uri : 'internal:/' . ltrim($uri, '/');
+  }
+
+  /**
+   * Format a redirect row for inclusion in an assertion failure message.
+   */
+  protected function redirectFormatRow(string $from, string $to, string $status_code): string {
+    $parts = [sprintf('from="%s"', $from)];
+
+    if ($to !== '') {
+      $parts[] = sprintf('to="%s"', $to);
+    }
+
+    if ($status_code !== '') {
+      $parts[] = sprintf('status_code=%s', $status_code);
+    }
+
+    return sprintf('{%s}', implode(', ', $parts));
   }
 
 }
