@@ -527,6 +527,62 @@ Then the element "#content" should be centered in the viewport
 </details>
 
 <details>
+  <summary><code>@Then the element :selector should have keyboard focus</code></summary>
+
+<br/>
+Assert that the element has keyboard focus
+<br/><br/>
+
+```gherkin
+Then the element "#edit-name" should have keyboard focus
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not have keyboard focus</code></summary>
+
+<br/>
+Assert that the element does not have keyboard focus
+<br/><br/>
+
+```gherkin
+Then the element "#edit-name" should not have keyboard focus
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should have a visible focus outline</code></summary>
+
+<br/>
+Assert that the element has a visible focus indicator
+<br/><br/>
+
+```gherkin
+Then the element "#edit-name" should have a visible focus outline
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not have a visible focus outline</code></summary>
+
+<br/>
+Assert that the element does not have a visible focus indicator
+<br/><br/>
+
+```gherkin
+Then the element "#decorative-icon" should not have a visible focus outline
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector should be displayed</code></summary>
 
 <br/>

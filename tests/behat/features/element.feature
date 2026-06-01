@@ -497,6 +497,134 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
+  @javascript
+  Scenario: Assert "Then the element :selector should have keyboard focus" and its negative form work as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements.html"
+    And I focus on the element "#focus-input"
+    Then the element "#focus-input" should have keyboard focus
+    And the element "#focus-button-outline" should not have keyboard focus
+
+  @javascript
+  Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element with a CSS outline
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements.html"
+    Then the element "#focus-button-outline" should have a visible focus outline
+    And the element "#focus-button-no-outline" should not have a visible focus outline
+
+  @javascript
+  Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element using box-shadow as the indicator
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements.html"
+    Then the element "#focus-button-shadow" should have a visible focus outline
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have keyboard focus" fails when the element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#nonexistent-element" should have keyboard focus
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have keyboard focus" fails when a different element is focused
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      And I focus on the element "#focus-input"
+      Then the element "#focus-button-outline" should have keyboard focus
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#focus-button-outline" to have keyboard focus, but focus is on:
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have keyboard focus" fails when no element is focused
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#focus-input" should have keyboard focus
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#focus-input" to have keyboard focus, but no element is focused.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should not have keyboard focus" fails when the element is focused
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      And I focus on the element "#focus-input"
+      Then the element "#focus-input" should not have keyboard focus
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#focus-input" to not have keyboard focus, but it does.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have a visible focus outline" fails when the element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#nonexistent-element" should have a visible focus outline
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have a visible focus outline" fails when the element has no visible indicator
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#focus-button-no-outline" should have a visible focus outline
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#focus-button-no-outline" to have a visible focus outline, but outline-style is "none"
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should not have a visible focus outline" fails when the element has an outline
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#focus-button-outline" should not have a visible focus outline
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#focus-button-outline" to not have a visible focus outline, but outline-style is "solid"
+      """
+
   @javascript @phpserver
   Scenario: Assert click on element works
     Given I am on the phpserver test page
