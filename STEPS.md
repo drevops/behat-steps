@@ -43,6 +43,7 @@
 | [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
+| [Drupal\RedirectTrait](#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
 | [Drupal\StateTrait](#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
@@ -4241,6 +4242,91 @@ Assert that a queue is empty
 
 ```gherkin
 Then the "myqueue" queue should be empty
+
+```
+
+</details>
+
+## Drupal\RedirectTrait
+
+[Source](src/Drupal/RedirectTrait.php), [Example](tests/behat/features/drupal_redirect.feature)
+
+>  Manage Drupal redirect entities provided by the contrib `redirect` module.
+>  - Create one or more redirects from a table of source/destination/status.
+>  - Delete redirects by source path.
+>  - Assert that redirects do or do not exist for given source paths.
+>  - Automatically clean up created redirects after scenario completion.
+>  
+>  Requires the `redirect` contrib module to be installed and enabled in the
+>  consumer project: add `drupal/redirect` to `composer.json` and enable the
+>  module as part of the site's standard setup (e.g. in `core.extension.yml`).
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:redirectAfterScenario`
+
+
+<details>
+  <summary><code>@Given the following redirects exist:</code></summary>
+
+<br/>
+Create one or more redirects
+<br/><br/>
+
+```gherkin
+Given the following redirects exist:
+  | from              | to                        | status_code |
+  | /old/about        | /about                    | 301         |
+  | /promo            | https://example.com/promo | 302         |
+  | /legacy/contact   | /contact                  |             |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following redirects do not exist:</code></summary>
+
+<br/>
+Delete redirects by source path
+<br/><br/>
+
+```gherkin
+Given the following redirects do not exist:
+  | /old/about      |
+  | /legacy/contact |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following redirects should exist:</code></summary>
+
+<br/>
+Assert that one or more redirects exist
+<br/><br/>
+
+```gherkin
+Then the following redirects should exist:
+  | from              | to                        | status_code |
+  | /old/about        | /about                    | 301         |
+  | /promo            | https://example.com/promo |             |
+  | /legacy/contact   |                           |             |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following redirects should not exist:</code></summary>
+
+<br/>
+Assert that no redirect exists for one or more source paths
+<br/><br/>
+
+```gherkin
+Then the following redirects should not exist:
+  | /old/about      |
+  | /legacy/contact |
 
 ```
 
