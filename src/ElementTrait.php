@@ -380,6 +380,158 @@ trait ElementTrait {
   }
 
   /**
+   * Assert that the element has keyboard focus.
+   *
+   * Verifies that the element matched by the selector is the current
+   * `document.activeElement`. This is the canonical check for tab-order tests,
+   * skip-link behaviour, modal focus traps, autofocus, and focus-after-action
+   * flows.
+   *
+   * @code
+   * Then the element "#edit-name" should have keyboard focus
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have keyboard focus')]
+  public function elementAssertHasKeyboardFocus(string $selector): void {
+    $this->elementAssertKeyboardFocus($selector, FALSE);
+  }
+
+  /**
+   * Assert that the element does not have keyboard focus.
+   *
+   * @code
+   * Then the element "#edit-name" should not have keyboard focus
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have keyboard focus')]
+  public function elementAssertNotHasKeyboardFocus(string $selector): void {
+    $this->elementAssertKeyboardFocus($selector, TRUE);
+  }
+
+  /**
+   * Assert that the element has a visible focus indicator.
+   *
+   * Verifies that the element renders a visible focus indicator via either
+   * a CSS outline (non-`none` outline-style with a width greater than 0) or
+   * a non-`none` box-shadow. Guards WCAG 2.4.7 (Focus Visible) and catches
+   * accidental `outline: none` regressions introduced by stylesheet changes.
+   *
+   * @code
+   * Then the element "#edit-name" should have a visible focus outline
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have a visible focus outline')]
+  public function elementAssertHasVisibleFocusOutline(string $selector): void {
+    $this->elementAssertVisibleFocusOutline($selector, FALSE);
+  }
+
+  /**
+   * Assert that the element does not have a visible focus indicator.
+   *
+   * @code
+   * Then the element "#decorative-icon" should not have a visible focus outline
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have a visible focus outline')]
+  public function elementAssertNotHasVisibleFocusOutline(string $selector): void {
+    $this->elementAssertVisibleFocusOutline($selector, TRUE);
+  }
+
+  /**
+   * Assert keyboard focus state for an element.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param bool $is_inverted
+   *   Whether to assert that the element does not have keyboard focus.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  protected function elementAssertKeyboardFocus(string $selector, bool $is_inverted): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $script = <<<JS
+      if ({{ELEMENT}} === document.activeElement) {
+        return '__OK__';
+      }
+      if (!document.activeElement || document.activeElement === document.body) {
+        return '__NONE__';
+      }
+      return document.activeElement.outerHTML.substring(0, 200);
+JS;
+    $result = (string) $this->elementExecuteJs($selector, $script);
+
+    if (!$is_inverted) {
+      if ($result === '__OK__') {
+        return;
+      }
+
+      $message = $result === '__NONE__'
+        ? sprintf('Expected element "%s" to have keyboard focus, but no element is focused.', $selector)
+        : sprintf('Expected element "%s" to have keyboard focus, but focus is on: %s', $selector, $result);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
+
+    if ($result === '__OK__') {
+      throw new ExpectationException(sprintf('Expected element "%s" to not have keyboard focus, but it does.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert visible focus indicator state for an element.
+   *
+   * An element is considered to have a visible focus indicator when either
+   * its computed outline has a non-`none` style with a width greater than 0,
+   * or its computed box-shadow is not `none`.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param bool $is_inverted
+   *   Whether to assert that the element does not have a visible focus
+   *   indicator.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  protected function elementAssertVisibleFocusOutline(string $selector, bool $is_inverted): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $script = <<<JS
+      var s = window.getComputedStyle({{ELEMENT}});
+      return s.outlineStyle + '|' + s.outlineWidth + '|' + s.boxShadow;
+JS;
+    $result = (string) $this->elementExecuteJs($selector, $script);
+    [$outline_style, $outline_width, $box_shadow] = explode('|', $result, 3);
+
+    $has_outline = $outline_style !== 'none' && (float) $outline_width > 0;
+    $has_shadow = $box_shadow !== 'none' && $box_shadow !== '';
+    $is_visible = $has_outline || $has_shadow;
+
+    if (!$is_inverted && !$is_visible) {
+      throw new ExpectationException(sprintf('Expected element "%s" to have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
+    }
+
+    if ($is_inverted && $is_visible) {
+      throw new ExpectationException(sprintf('Expected element "%s" to not have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert that element with specified CSS is visible on page.
    *
    * @code
