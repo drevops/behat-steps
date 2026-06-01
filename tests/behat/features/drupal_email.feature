@@ -689,6 +689,20 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should pass
 
+  @trait:Drupal\EmailTrait @behat-cli-no-bootstrap
+  Scenario: Assert that EmailTrait boots the Drupal kernel itself when used in isolation
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then an email should be sent to the "test@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
   @api @email @email:default
   Scenario: As a developer, I want to verify custom email handler type tag is processed
     When I send test email to "test@example.com" with:

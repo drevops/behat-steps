@@ -61,6 +61,10 @@ trait EmailTrait {
       return;
     }
 
+    // Force the lazy 6.x driver to boot Drupal so '\Drupal::config()' below is
+    // safe regardless of hook ordering between traits.
+    $this->getDriver();
+
     if ($scope->getScenario()->hasTag('debug')) {
       $this->emailDebug = TRUE;
     }
