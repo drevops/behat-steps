@@ -19,6 +19,7 @@
         "drupal/eck": "^2.1",
         "drupal/paragraphs": "^1.19",
         "drupal/pathauto": "^1.14",
+        "drupal/redirect": "^1.11",
         "drupal/scheduled_transitions": "^2.6",
         "drupal/search_api": "^1.38",
         "drupal/testmode": "^2.6",
