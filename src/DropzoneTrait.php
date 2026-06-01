@@ -160,7 +160,12 @@ trait DropzoneTrait {
       throw new \RuntimeException(sprintf('The fixture file "%s" does not exist.', $full_path));
     }
 
-    return $full_path;
+    $resolved = realpath($full_path);
+    if ($resolved === FALSE || !str_starts_with($resolved, $base . DIRECTORY_SEPARATOR)) {
+      throw new \RuntimeException(sprintf('The fixture file "%s" is outside the configured "files_path".', $path));
+    }
+
+    return $resolved;
   }
 
 }
