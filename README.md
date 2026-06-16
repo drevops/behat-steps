@@ -51,6 +51,7 @@ from the community.
 | [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [DropzoneTrait](STEPS.md#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](STEPS.md#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |

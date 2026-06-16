@@ -34,6 +34,7 @@ use DrevOps\BehatSteps\Drupal\TimeTrait;
 use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\Drupal\WebformTrait;
+use DrevOps\BehatSteps\DropzoneTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
@@ -67,6 +68,7 @@ class FeatureContext extends DrupalContext {
   use CookieTrait;
   use DateTrait;
   use DraggableviewsTrait;
+  use DropzoneTrait;
   use EckTrait;
   use ElementTrait;
   use EmailTrait;

@@ -7,6 +7,7 @@
 | [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [DropzoneTrait](#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
@@ -304,6 +305,58 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  - `[relative:-1 day]` converted to `1893456000`
 >  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
 
+
+## DropzoneTrait
+
+[Source](src/DropzoneTrait.php), [Example](tests/behat/features/dropzone.feature)
+
+>  Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
+>  - Drop one or more files on a CSS-selected target in a single native event.
+>  - Fixture paths resolve against the Mink `files_path` parameter.
+>  - Works on any element that handles native `drop` events (Dropzone.js,
+>  custom drop targets, framework widgets).
+>  <br/><br/>
+>  Why this exists: Mink's `attachFile` writes each file to a hidden
+>  `<input type="file">` sequentially, so file A finishes uploading before
+>  file B starts. Real users release multiple files together, which fires a
+>  single `drop` event whose `dataTransfer.files` contains all of them and
+>  triggers concurrent uploads. Race conditions in dedup maps, status
+>  indicators, error handlers, and server-side queues only reproduce under
+>  the multi-file path - this trait reproduces it.
+>  <br/><br/>
+>  `@javascript`-only: requires a headless browser session.
+
+
+<details>
+  <summary><code>@When I drop the file :path on the :selector dropzone</code></summary>
+
+<br/>
+Drop a single file on the target element
+<br/><br/>
+
+```gherkin
+When I drop the file "document.pdf" on the ".dropzone" dropzone
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I drop the following files on the :selector dropzone:</code></summary>
+
+<br/>
+Drop one or more files on the target element in a single native event
+<br/><br/>
+
+```gherkin
+When I drop the following files on the ".dropzone" dropzone:
+  | document.pdf |
+  | image.png    |
+  | text.txt     |
+
+```
+
+</details>
 
 ## ElementTrait
 

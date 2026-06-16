@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dropzone.js fixture</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css">
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
+<style>
+  body { font-family: sans-serif; padding: 1rem; }
+  .dropzone-form {
+    border: 2px dashed #4caf50;
+    background: #f0fff0;
+    min-height: 120px;
+  }
+</style>
+</head>
+<body>
+<h1>Real Dropzone.js fixture</h1>
+
+<form class="dropzone-form dropzone" id="real-dropzone" action="/no-upload"></form>
+
+<h2>Accepted file count:</h2>
+<p id="accepted-count">0</p>
+
+<script>
+  Dropzone.autoDiscover = false;
+  var instance = new Dropzone('#real-dropzone', {
+    url: '/no-upload',
+    autoProcessQueue: false,
+    maxFiles: 10,
+    acceptedFiles: '*',
+    parallelUploads: 10
+  });
+  instance.on('addedfile', function () {
+    document.getElementById('accepted-count').textContent = String(instance.files.length);
+  });
+</script>
+</body>
+</html>

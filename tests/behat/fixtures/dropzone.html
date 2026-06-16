@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dropzone</title>
+<style>
+  body { font-family: sans-serif; padding: 1rem; }
+  .dropzone, #secondary-zone {
+    border: 2px dashed #999;
+    padding: 2rem;
+    margin: 1rem 0;
+    background: #f5f5f5;
+    min-height: 80px;
+  }
+  #secondary-zone { border-color: #c70039; background: #fff5f0; }
+  ul { padding-left: 1.5rem; }
+  li.dropped-file { font-family: monospace; }
+</style>
+</head>
+<body>
+<h1>Dropzone fixture</h1>
+
+<div class="dropzone">Drop files here</div>
+<h2>Files dropped on primary:</h2>
+<ul id="primary-output"></ul>
+
+<div id="secondary-zone">Drop files on secondary</div>
+<h2>Files dropped on secondary:</h2>
+<ul id="secondary-output"></ul>
+
+<h2>Drop event count:</h2>
+<p id="event-count">0</p>
+
+<script>
+  var eventCount = 0;
+
+  function wireDropTarget(target, outputId) {
+    target.addEventListener('dragover', function (event) {
+      event.preventDefault();
+    });
+    target.addEventListener('drop', function (event) {
+      event.preventDefault();
+      eventCount++;
+      document.getElementById('event-count').textContent = String(eventCount);
+
+      var output = document.getElementById(outputId);
+      var files = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : [];
+      for (var i = 0; i < files.length; i++) {
+        var li = document.createElement('li');
+        li.className = 'dropped-file';
+        li.textContent = files[i].name;
+        output.appendChild(li);
+      }
+    });
+  }
+
+  wireDropTarget(document.querySelector('.dropzone'), 'primary-output');
+  wireDropTarget(document.getElementById('secondary-zone'), 'secondary-output');
+</script>
+</body>
+</html>
