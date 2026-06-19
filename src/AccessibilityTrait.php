@@ -10,6 +10,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeSuite;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 
@@ -58,6 +59,17 @@ trait AccessibilityTrait {
   protected static ?string $accessibilityCachedJs = NULL;
 
   /**
+   * Working directory captured before any test bootstrap can chdir().
+   *
+   * The default report directory anchors to this rather than a live
+   * `getcwd()` call, which an `@api` bootstrap mutates by chdir()-ing to the
+   * docroot - moving reports out of the path-anchored location used by the
+   * rest of the run. Captured once at `@BeforeSuite`, before the first
+   * scenario, so it records the directory the run was launched from.
+   */
+  protected static ?string $accessibilityBaseDir = NULL;
+
+  /**
    * Normalized results collected during the current scenario.
    *
    * @var array<int, array{url: string, rules: string, result: array<string, mixed>}>
@@ -98,6 +110,21 @@ trait AccessibilityTrait {
    * Whether the scenario is opted out of accessibility processing.
    */
   protected bool $accessibilitySkip = FALSE;
+
+  /**
+   * Capture the working directory once, before any scenario can chdir().
+   */
+  #[BeforeSuite]
+  public static function accessibilityCaptureBaseDir(): void {
+    if (self::$accessibilityBaseDir === NULL) {
+      $cwd = getcwd();
+      // Leave the base unset when getcwd() fails so the report directory
+      // retries it later rather than locking in an empty, root-relative base.
+      if ($cwd !== FALSE) {
+        self::$accessibilityBaseDir = $cwd;
+      }
+    }
+  }
 
   /**
    * Initialize accessibility state for the scenario.
@@ -188,12 +215,14 @@ trait AccessibilityTrait {
     $messages = [];
 
     foreach ($this->accessibilityResults as $r) {
+      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
+
       foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
-        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $r['url']);
+        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
       }
       if ($check_incomplete) {
         foreach ($r['result']['incomplete'] ?? [] as $i) {
-          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $r['url']);
+          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
         }
       }
     }
@@ -284,11 +313,16 @@ trait AccessibilityTrait {
   /**
    * Return the absolute directory used to write per-scenario reports.
    *
-   * Default: `.logs/test_results/accessibility/` relative to the current
-   * working directory. Override to return an already-absolute path.
+   * Default: `.logs/test_results/accessibility/` under the directory the run
+   * was launched from (captured at `@BeforeSuite`, so it is stable even after
+   * an `@api` bootstrap chdir()s to the docroot), falling back to the live
+   * working directory when the suite hook has not run. Override to return an
+   * already-absolute path.
    */
   protected function accessibilityGetReportDir(): string {
-    return getcwd() . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
+    $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
+
+    return $base . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
   }
 
   /**
@@ -567,7 +601,7 @@ trait AccessibilityTrait {
     $this->accessibilityLastCheckedUrl = $url;
 
     fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
-      $url,
+      $this->accessibilityFormatUrl($url),
       count($normalized['violations'] ?? []),
       count($normalized['passes'] ?? []),
       count($normalized['incomplete'] ?? []),
@@ -595,7 +629,7 @@ trait AccessibilityTrait {
    */
   protected function accessibilityFormatGateMessage(string $url, string $rules, string $threshold, bool $check_incomplete, array $violations, array $incomplete): string {
     $lines = [
-      sprintf('Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):', $url, $rules, $threshold, $check_incomplete ? 'yes' : 'no'),
+      sprintf('Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):', $this->accessibilityFormatUrl($url), $rules, $threshold, $check_incomplete ? 'yes' : 'no'),
     ];
 
     foreach ($violations as $v) {
@@ -629,6 +663,35 @@ trait AccessibilityTrait {
    */
   protected function accessibilityStringifyTarget(array $target): string {
     return implode(' > ', array_map(fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
+  }
+
+  /**
+   * Format a page URL for display in reports and gate messages.
+   *
+   * Default: strip the configured Mink `base_url` prefix so reports show the
+   * page path (`/contact`) rather than the internal host and port
+   * (`http://nginx:8080/contact`), which is noise and makes reports
+   * non-portable. The base URL itself maps to `/` and the query string is
+   * kept. Only the known `base_url` is stripped: a genuinely cross-origin URL
+   * captured during assessment stays absolute, so it remains distinguishable.
+   * Override to keep the absolute URL or to format it differently.
+   */
+  protected function accessibilityFormatUrl(string $url): string {
+    $base = rtrim((string) $this->getMinkParameter('base_url'), '/');
+
+    if ($base === '') {
+      return $url;
+    }
+
+    if ($url === $base) {
+      return '/';
+    }
+
+    if (str_starts_with($url, $base . '/')) {
+      return substr($url, strlen($base));
+    }
+
+    return $url;
   }
 
   /**
@@ -707,7 +770,7 @@ HTML;
     $body_sections = [];
 
     foreach ($this->accessibilityResults as $r) {
-      $url = htmlspecialchars((string) $r['url'], ENT_QUOTES);
+      $url = htmlspecialchars($this->accessibilityFormatUrl((string) $r['url']), ENT_QUOTES);
       $rules = htmlspecialchars((string) $r['rules'], ENT_QUOTES);
       $violations = $r['result']['violations'] ?? [];
       $incomplete = $r['result']['incomplete'] ?? [];
@@ -773,7 +836,7 @@ HTML;
     $total_failures = 0;
 
     foreach ($this->accessibilityResults as $r) {
-      $url = $r['url'];
+      $url = $this->accessibilityFormatUrl((string) $r['url']);
       $violations = $r['result']['violations'] ?? [];
       $passes = $r['result']['passes'] ?? [];
 

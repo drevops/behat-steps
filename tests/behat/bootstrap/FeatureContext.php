@@ -127,4 +127,19 @@ class FeatureContext extends DrupalContext {
     return $this->testElementScrollCenter;
   }
 
+  /**
+   * Override accessibilityGetReportDir() to anchor reports to the base path.
+   *
+   * Behat is launched from the build directory but configured with the
+   * project-root behat.yml, so the captured working directory is not the
+   * base path. Deriving the base from the Mink files_path keeps accessibility
+   * reports in the same .logs tree as the other Behat artifacts.
+   *
+   * This cannot be moved to FeatureContextTrait because traits cannot override
+   * methods from other traits.
+   */
+  protected function accessibilityGetReportDir(): string {
+    return dirname((string) $this->getMinkParameter('files_path'), 3) . '/.logs/test_results/accessibility';
+  }
+
 }
