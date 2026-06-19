@@ -40,6 +40,10 @@ Feature: Check that AccessibilityTrait works
       """
     And the output should contain:
       """
+      Accessibility gate failed on /sites/default/files/accessibility_violations.html
+      """
+    And the output should contain:
+      """
       violation [critical] image-alt
       """
     And the output should contain:
@@ -62,7 +66,7 @@ Feature: Check that AccessibilityTrait works
       """
     And the output should contain:
       """
-      violation [critical] image-alt
+      violation [critical] image-alt on /sites/default/files/accessibility_violations.html
       """
 
   @trait:AccessibilityTrait
