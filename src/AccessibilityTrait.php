@@ -118,7 +118,11 @@ trait AccessibilityTrait {
   public static function accessibilityCaptureBaseDir(): void {
     if (self::$accessibilityBaseDir === NULL) {
       $cwd = getcwd();
-      self::$accessibilityBaseDir = $cwd === FALSE ? '' : $cwd;
+      // Leave the base unset when getcwd() fails so the report directory
+      // retries it later rather than locking in an empty, root-relative base.
+      if ($cwd !== FALSE) {
+        self::$accessibilityBaseDir = $cwd;
+      }
     }
   }
 
@@ -316,7 +320,7 @@ trait AccessibilityTrait {
    * already-absolute path.
    */
   protected function accessibilityGetReportDir(): string {
-    $base = self::$accessibilityBaseDir ?? (getcwd() ?: '');
+    $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
 
     return $base . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
   }

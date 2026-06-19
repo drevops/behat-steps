@@ -80,7 +80,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetReportDirFallsBackToCwdWhenUnset(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
 
-    $expected = (getcwd() ?: '') . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
+    $expected = (getcwd() ?: '.') . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
 
     $this->assertSame($expected, $this->testObject->testGetReportDir());
   }
