@@ -129,7 +129,7 @@ class AccessibilityTraitTest extends UnitTestCase {
       'critical chip carries its affected-element count' => ['<span class="vtype critical">image-alt <b>2</b></span>'],
       'serious chip carries its affected-element count' => ['<span class="vtype serious">color-contrast <b>1</b></span>'],
       'second page chip' => ['<span class="vtype critical">button-name <b>1</b></span>'],
-      'a deduplicated URL lists every visiting scenario' => ['Home page, Contact page'],
+      'a deduplicated URL lists every visiting scenario with its feature' => ['Homepage &gt; Home page, Contact &gt; Contact page'],
       'rule rollup links to the axe docs' => ['href="https://dequeuniversity.com/rules/axe/4.11/image-alt"'],
       'rule rollup reports affected pages and elements' => ['affects 1 page(s) &middot; 2 element(s)'],
       'scenario detail shows the default threshold' => ['threshold: <code>any</code>'],
@@ -174,11 +174,11 @@ class AccessibilityTraitTest extends UnitTestCase {
     $pages = AccessibilityTraitTestImplementation::testAggregatePages(static::createSampleAggregate());
 
     $this->assertSame(['/', '/contact'], array_keys($pages));
-    $this->assertSame(['Home page', 'Contact page'], array_keys($pages['/']['scenarios']));
+    $this->assertSame(['Homepage > Home page', 'Contact > Contact page'], array_keys($pages['/']['scenarios']));
     $this->assertCount(2, $pages['/']['violations']);
     $this->assertSame(1, $pages['/']['incomplete']);
     $this->assertSame(3, $pages['/']['passes']);
-    $this->assertSame(['Contact page'], array_keys($pages['/contact']['scenarios']));
+    $this->assertSame(['Contact > Contact page'], array_keys($pages['/contact']['scenarios']));
   }
 
   public function testAggregateRollupTalliesAndSortsBySeverity(): void {

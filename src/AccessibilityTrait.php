@@ -1052,7 +1052,10 @@ HTML;
           ];
         }
 
-        $pages[$url]['scenarios'][(string) ($entry['scenario'] ?? '')] = TRUE;
+        $feature = (string) ($entry['feature'] ?? '');
+        $scenario = (string) ($entry['scenario'] ?? '');
+        $label = $feature !== '' ? $feature . ' > ' . $scenario : $scenario;
+        $pages[$url]['scenarios'][$label] = TRUE;
       }
     }
 
