@@ -49,6 +49,7 @@ function main(array $options = []): void {
   $info = extract_info(FeatureContext::class, [FeatureContextTrait::class, 'HelperTrait'], $base_path);
 
   $errors = validate($info);
+  $errors = array_merge($errors, validate_tags($info, $base_path));
 
   if (!empty($errors)) {
     echo 'Errors found:' . PHP_EOL;
@@ -703,6 +704,166 @@ function validate(array $info): array {
   }
 
   return $errors;
+}
+
+/**
+ * Canonical registry of the library's special Behat tags.
+ *
+ * The separator between a tag and its value is always a colon: a `parametrized`
+ * tag is written `@prefix:value`, never `@prefix-value`. Hyphens only join
+ * words inside a tag name (e.g. `@disable-form-validation`). A `flag` tag
+ * stands alone and takes no value. Add every new special tag here so that
+ * validate_tags() can guard its format and prevent separator drift.
+ *
+ * @return array<string, string>
+ *   Map of tag prefix to type, one of 'parametrized' or 'flag'.
+ */
+function tag_registry(): array {
+  return [
+    // Parametrized tags - expect a `:value` suffix.
+    'behat-steps-skip' => 'parametrized',
+    'module' => 'parametrized',
+    'breakpoint' => 'parametrized',
+    'email' => 'parametrized',
+    'watchdog' => 'parametrized',
+    'disable-config-override' => 'parametrized',
+    'accessibility' => 'parametrized',
+    // Flag tags - stand alone, no value.
+    'disable-form-validation' => 'flag',
+    'js-errors' => 'flag',
+    'download' => 'flag',
+    'testmode' => 'flag',
+    'debug' => 'flag',
+    'error' => 'flag',
+  ];
+}
+
+/**
+ * Extract Behat tag names from a block of text.
+ *
+ * Matches `@tag` tokens while ignoring email addresses (the `@` in
+ * `user@example.com` is preceded by a word character) and `@@`. Trailing prose
+ * punctuation is stripped so a tag at the end of a sentence is captured cleanly.
+ *
+ * @param string $text
+ *   The text to scan: a docblock, an example, or a feature file.
+ *
+ * @return array<int, string>
+ *   Unique tag names without the leading `@`.
+ */
+function extract_tags(string $text): array {
+  preg_match_all('/(?<![\w@])@([a-zA-Z0-9][a-zA-Z0-9:!._-]*)/', $text, $matches);
+
+  $tags = [];
+  foreach ($matches[1] as $tag) {
+    $tag = rtrim($tag, '.,;');
+    if ($tag !== '') {
+      $tags[$tag] = $tag;
+    }
+  }
+
+  return array_values($tags);
+}
+
+/**
+ * Validate a single tag against the separator convention.
+ *
+ * @param string $tag
+ *   The tag name without the leading `@`.
+ * @param array<string, string> $registry
+ *   The tag registry from tag_registry().
+ *
+ * @return string|null
+ *   An error message when a parametrized tag uses `-` instead of `:` as its
+ *   value separator, or NULL when the tag conforms or is not a library tag.
+ */
+function validate_tag(string $tag, array $registry): ?string {
+  $prefixes = array_keys($registry);
+  // Longest prefix first so a prefix that shares a leading segment with a
+  // shorter one is matched against its full, most specific form.
+  usort($prefixes, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
+
+  foreach ($prefixes as $prefix) {
+    if ($tag === $prefix || str_starts_with($tag, $prefix . ':')) {
+      return NULL;
+    }
+
+    if (str_starts_with($tag, $prefix . '-')) {
+      if ($registry[$prefix] !== 'parametrized') {
+        return NULL;
+      }
+
+      $value = substr($tag, strlen($prefix) + 1);
+
+      return sprintf('"@%s" must use ":" as the value separator (use "@%s:%s", not "@%s-%s").', $prefix, $prefix, $value, $prefix, $value);
+    }
+  }
+
+  return NULL;
+}
+
+/**
+ * Validate tag separators across documentation and feature files.
+ *
+ * Scans every trait description, every step example, and every feature file for
+ * tag tokens, then checks each against the registry. A parametrized tag written
+ * with a `-` separator instead of a `:` is reported so the documented format
+ * cannot drift apart from the established convention.
+ *
+ * @param array<string, mixed> $info
+ *   The extracted trait info from extract_info().
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<int, string>
+ *   Array of error messages, one per offending tag and source.
+ */
+function validate_tags(array $info, string $base_path = __DIR__): array {
+  $registry = tag_registry();
+  $errors = [];
+
+  foreach ($info as $trait => $trait_info) {
+    if (!is_array($trait_info)) {
+      continue;
+    }
+
+    $label = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : (string) $trait;
+
+    $texts = [];
+    if (is_string($trait_info['description_full'] ?? NULL)) {
+      $texts[] = $trait_info['description_full'];
+    }
+    foreach ((is_array($trait_info['methods'] ?? NULL) ? $trait_info['methods'] : []) as $method) {
+      if (is_array($method) && is_string($method['example'] ?? NULL)) {
+        $texts[] = $method['example'];
+      }
+    }
+
+    foreach ($texts as $text) {
+      foreach (extract_tags($text) as $tag) {
+        $message = validate_tag($tag, $registry);
+        if ($message !== NULL) {
+          $errors[$label . '|' . $tag] = sprintf('  %s - Tag %s' . PHP_EOL, $label, $message);
+        }
+      }
+    }
+  }
+
+  $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR . 'features';
+  if (is_dir($features_dir)) {
+    foreach (glob($features_dir . DIRECTORY_SEPARATOR . '*.feature') ?: [] as $file) {
+      $contents = (string) file_get_contents($file);
+      $relative = 'tests/behat/features/' . basename($file);
+      foreach (extract_tags($contents) as $tag) {
+        $message = validate_tag($tag, $registry);
+        if ($message !== NULL) {
+          $errors[$relative . '|' . $tag] = sprintf('  %s - Tag %s' . PHP_EOL, $relative, $message);
+        }
+      }
+    }
+  }
+
+  return array_values($errors);
 }
 
 /**

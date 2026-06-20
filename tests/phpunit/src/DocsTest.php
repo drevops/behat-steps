@@ -24,6 +24,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('replace_content')]
 #[CoversFunction('extract_info')]
 #[CoversFunction('parse_class_comment')]
+#[CoversFunction('tag_registry')]
+#[CoversFunction('extract_tags')]
+#[CoversFunction('validate_tag')]
+#[CoversFunction('validate_tags')]
 class DocsTest extends UnitTestCase {
 
   /**
@@ -2074,6 +2078,182 @@ EOD,
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     extract_info($class_name, [], $setup['base_path']);
+  }
+
+  public function testTagRegistry(): void {
+    $registry = tag_registry();
+
+    $this->assertArrayHasKey('accessibility', $registry);
+    $this->assertSame('parametrized', $registry['accessibility']);
+    $this->assertSame('flag', $registry['disable-form-validation']);
+
+    // Every entry is classified as exactly one of the two known types.
+    foreach ($registry as $prefix => $type) {
+      $this->assertIsString($prefix);
+      $this->assertContains($type, ['parametrized', 'flag']);
+    }
+  }
+
+  #[DataProvider('dataProviderValidateTag')]
+  public function testValidateTag(string $tag, ?string $expected_contains): void {
+    $actual = validate_tag($tag, tag_registry());
+
+    if ($expected_contains === NULL) {
+      $this->assertNull($actual);
+    }
+    else {
+      $this->assertIsString($actual);
+      $this->assertStringContainsString($expected_contains, $actual);
+    }
+  }
+
+  public static function dataProviderValidateTag(): array {
+    return [
+      // Valid: correct colon forms.
+      'colon accessibility' => ['accessibility:critical', NULL],
+      'colon module' => ['module:help', NULL],
+      'colon module negated' => ['module:!help', NULL],
+      'colon breakpoint' => ['breakpoint:mobile_portrait', NULL],
+      'colon email handler' => ['email:default', NULL],
+      'colon watchdog' => ['watchdog:custom_type', NULL],
+      'colon config override with dots' => ['disable-config-override:system.site', NULL],
+      'colon skip with method' => ['behat-steps-skip:configOverrideBeforeStep', NULL],
+      'colon skip with trait' => ['behat-steps-skip:AccessibilityTrait', NULL],
+      // Valid: bare forms of otherwise-parametrized tags.
+      'bare accessibility' => ['accessibility', NULL],
+      'bare email' => ['email', NULL],
+      // Valid: standalone flag tags whose names contain hyphens.
+      'flag disable form validation' => ['disable-form-validation', NULL],
+      'flag js errors' => ['js-errors', NULL],
+      'flag download' => ['download', NULL],
+      'flag testmode' => ['testmode', NULL],
+      'flag debug' => ['debug', NULL],
+      'flag error' => ['error', NULL],
+      // Valid: a flag prefix followed by a hyphen is not a parametrized tag.
+      'flag prefix with hyphen suffix' => ['download-zip', NULL],
+      // Valid: unknown / standard Behat tags are ignored.
+      'standard api' => ['api', NULL],
+      'standard javascript' => ['javascript', NULL],
+      'standard wip' => ['wip', NULL],
+      'doc trait tag' => ['trait:AccessibilityTrait', NULL],
+      'unknown hyphen tag' => ['some-custom-tag', NULL],
+      'docblock annotation' => ['code', NULL],
+      // Violations: parametrized tags using a hyphen separator.
+      'hyphen accessibility critical' => ['accessibility-critical', '@accessibility:critical'],
+      'hyphen accessibility warning' => ['accessibility-warning', '@accessibility:warning'],
+      'hyphen module' => ['module-help', '@module:help'],
+      'hyphen breakpoint' => ['breakpoint-mobile', '@breakpoint:mobile'],
+      'hyphen email handler' => ['email-default', '@email:default'],
+      'hyphen watchdog' => ['watchdog-custom', '@watchdog:custom'],
+      'hyphen skip with trait' => ['behat-steps-skip-AccessibilityTrait', '@behat-steps-skip:AccessibilityTrait'],
+    ];
+  }
+
+  #[DataProvider('dataProviderExtractTags')]
+  public function testExtractTags(string $text, array $expected): void {
+    $this->assertSame($expected, extract_tags($text));
+  }
+
+  public static function dataProviderExtractTags(): array {
+    return [
+      'empty' => ['', []],
+      'no tags' => ['just some prose here', []],
+      'single tag' => ['@api', ['api']],
+      'feature tag line' => ['  @javascript @accessibility:critical', ['javascript', 'accessibility:critical']],
+      'backtick wrapped' => ['see `@accessibility:warning` for details', ['accessibility:warning']],
+      'email address skipped' => ['Send to user@example.com please', []],
+      'quoted email skipped' => ['"test@example.com"', []],
+      'double at skipped' => ['foo @@bar', []],
+      'trailing period stripped' => ['skip with @accessibility.', ['accessibility']],
+      'tags separated by comma' => ['@api, @javascript', ['api', 'javascript']],
+      'value with dots preserved' => ['@disable-config-override:system.site', ['disable-config-override:system.site']],
+      'value with bang preserved' => ['@module:!help', ['module:!help']],
+      'duplicates deduped' => ['@api and @api again', ['api']],
+      'tag in parentheses' => ['(@accessibility)', ['accessibility']],
+      'hyphenated violation captured' => ['@accessibility-critical', ['accessibility-critical']],
+    ];
+  }
+
+  public function testValidateTagsFromInfo(): void {
+    $info = [
+      'CleanTrait' => [
+        'name' => 'CleanTrait',
+        'description_full' => 'Supports `@accessibility:critical`, `@module:help` and `@js-errors`.',
+        'methods' => [
+          ['example' => "@api @email:default\nGiven something"],
+        ],
+      ],
+      'DirtyTrait' => [
+        'name' => 'DirtyTrait',
+        'description_full' => 'Legacy `@accessibility-critical` form.',
+        'methods' => [
+          ['example' => '@module-help'],
+        ],
+      ],
+      // No 'name' key - the array key is used as the label.
+      'NoNameTrait' => [
+        'description_full' => 'Old `@watchdog-foo`.',
+      ],
+      // No 'description_full' - only the example is scanned.
+      'NoDescTrait' => [
+        'name' => 'NoDescTrait',
+        'methods' => [
+          ['example' => '@breakpoint-mobile'],
+        ],
+      ],
+      // 'methods' is not an array - skipped.
+      'BadMethods' => [
+        'name' => 'BadMethods',
+        'methods' => 'not-an-array',
+      ],
+      // Non-array method, non-string example - both skipped.
+      'BadMethodItem' => [
+        'name' => 'BadMethodItem',
+        'methods' => ['not-an-array', ['example' => 123], ['other' => 'x']],
+      ],
+      // Non-array trait info - skipped.
+      'NotArrayTrait' => 'a string',
+    ];
+
+    $actual = validate_tags($info, static::$tmp);
+    $joined = implode('', $actual);
+
+    $this->assertCount(4, $actual);
+    $this->assertStringContainsString('DirtyTrait', $joined);
+    $this->assertStringContainsString('@accessibility:critical', $joined);
+    $this->assertStringContainsString('@module:help', $joined);
+    $this->assertStringContainsString('NoNameTrait', $joined);
+    $this->assertStringContainsString('@watchdog:foo', $joined);
+    $this->assertStringContainsString('NoDescTrait', $joined);
+    $this->assertStringContainsString('@breakpoint:mobile', $joined);
+  }
+
+  public function testValidateTagsFromFeatureFiles(): void {
+    $base_path = static::$tmp;
+    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    mkdir($features_dir, 0777, TRUE);
+    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'clean.feature', "@api @accessibility:critical\nScenario: ok");
+    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
+
+    $actual = validate_tags([], $base_path);
+
+    $this->assertCount(1, $actual);
+    $this->assertStringContainsString('tests/behat/features/dirty.feature', $actual[0]);
+    $this->assertStringContainsString('@accessibility:critical', $actual[0]);
+  }
+
+  public function testValidateTagsReturnsNoErrorsForCleanInput(): void {
+    $info = [
+      'CleanTrait' => [
+        'name' => 'CleanTrait',
+        'description_full' => 'Supports `@accessibility:critical`, `@module:help`, `@disable-form-validation` and `@behat-steps-skip:CleanTrait`.',
+        'methods' => [
+          ['example' => '@api @email:default'],
+        ],
+      ],
+    ];
+
+    $this->assertSame([], validate_tags($info, static::$tmp));
   }
 
 }

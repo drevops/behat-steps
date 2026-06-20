@@ -20,13 +20,13 @@ use Behat\Step\Then;
  *
  * Supported tags:
  * - `@accessibility`                          Auto-mode, default threshold.
- * - `@accessibility-critical`                 Auto-mode, fail only on critical impact.
- * - `@accessibility-serious`                  Auto-mode, fail on critical or serious.
- * - `@accessibility-moderate`                 Auto-mode, fail on critical / serious / moderate.
- * - `@accessibility-minor`                    Auto-mode, fail on any impact.
- * - `@accessibility-any`                      Auto-mode, fail on any impact (alias).
- * - `@accessibility-warning`                  Auto-mode, never fail (advisory).
- * - `@accessibility-strict`                   Also fail on "incomplete" findings.
+ * - `@accessibility:critical`                 Auto-mode, fail only on critical impact.
+ * - `@accessibility:serious`                  Auto-mode, fail on critical or serious.
+ * - `@accessibility:moderate`                 Auto-mode, fail on critical / serious / moderate.
+ * - `@accessibility:minor`                    Auto-mode, fail on any impact.
+ * - `@accessibility:any`                      Auto-mode, fail on any impact (alias).
+ * - `@accessibility:warning`                  Auto-mode, never fail (advisory).
+ * - `@accessibility:strict`                   Also fail on "incomplete" findings.
  * - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
  *
  * Tool-agnostic. Any engine that runs inside the existing Mink session can
@@ -51,7 +51,7 @@ trait AccessibilityTrait {
    *
    * Use these constants when an `accessibilityNormalizeResults()` override
    * maps an engine's native severity vocabulary to the trait's canonical
-   * shape. Threshold tags (`@accessibility-critical`, `@accessibility-serious`
+   * shape. Threshold tags (`@accessibility:critical`, `@accessibility:serious`
    * etc.) and the gate-filter logic both compare against these values.
    */
   public const IMPACT_CRITICAL = 'critical';
@@ -381,9 +381,9 @@ trait AccessibilityTrait {
   /**
    * Return the base tag name that enables automatic mode (no `@` prefix).
    *
-   * The trait recognises this exact tag plus suffix variants
-   * (`<tag>-critical`, `<tag>-serious`, `<tag>-moderate`, `<tag>-minor`,
-   * `<tag>-warning`, `<tag>-strict`, `<tag>-any`) for per-scenario gate
+   * The trait recognises this exact tag plus value variants
+   * (`<tag>:critical`, `<tag>:serious`, `<tag>:moderate`, `<tag>:minor`,
+   * `<tag>:warning`, `<tag>:strict`, `<tag>:any`) for per-scenario gate
    * configuration. Default: `accessibility`. Override to shorten.
    */
   protected function accessibilityGetAutoTag(): string {
@@ -562,7 +562,7 @@ trait AccessibilityTrait {
         continue;
       }
 
-      if (!str_starts_with($tag, $auto_tag . '-')) {
+      if (!str_starts_with($tag, $auto_tag . ':')) {
         continue;
       }
 
