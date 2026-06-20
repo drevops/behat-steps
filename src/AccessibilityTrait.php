@@ -893,7 +893,7 @@ HTML;
           $cases_xml .= sprintf(
             '<testcase classname="accessibility.%s" name="%s"><failure type="%s" message="%s">%s</failure></testcase>',
             htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES),
-            htmlspecialchars((string) $target ?: $rule_id, ENT_XML1 | ENT_QUOTES),
+            htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES),
             htmlspecialchars($impact, ENT_XML1 | ENT_QUOTES),
             htmlspecialchars($message, ENT_XML1 | ENT_QUOTES),
             htmlspecialchars($details, ENT_XML1 | ENT_QUOTES)
@@ -1030,7 +1030,7 @@ HTML;
     $rollup = static::accessibilityAggregateRollup($pages);
     $totals = $rollup['totals'];
 
-    return static::accessibilityRenderAggregateSummary((int) array_sum($totals), count($pages), count($aggregate), $totals)
+    return static::accessibilityRenderAggregateSummary(array_sum($totals), count($pages), count($aggregate), $totals)
       . static::accessibilityRenderAggregatePages($pages)
       . static::accessibilityRenderAggregateRules($rollup['rules'])
       . static::accessibilityRenderAggregateScenarios($aggregate);
@@ -1229,9 +1229,9 @@ HTML;
     $blocks = '';
 
     foreach ($rules as $rule_id => $rule) {
-      $nodes = '';
+      $nodes = [];
       foreach ($rule['nodes'] ?? [] as $node) {
-        $nodes .= sprintf(
+        $nodes[] = sprintf(
           '<div class="node"><div class="where"><code>%s</code> &middot; <span class="muted">%s</span></div><pre>%s</pre></div>',
           htmlspecialchars((string) $node['target'], ENT_QUOTES),
           htmlspecialchars((string) $node['url'], ENT_QUOTES),
@@ -1250,7 +1250,7 @@ HTML;
         count($rule['pages'] ?? []),
         count($rule['nodes'] ?? []),
         htmlspecialchars((string) $rule['helpUrl'], ENT_QUOTES),
-        $nodes
+        implode('', $nodes)
       );
     }
 
