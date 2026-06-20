@@ -20,7 +20,7 @@ Feature: Check that AccessibilityTrait works
     When I follow "Go to second clean page"
     Then I should see "Second Clean Accessibility Page"
 
-  @javascript @accessibility-warning
+  @javascript @accessibility:warning
   Scenario: Auto mode with warning tag never fails even on a broken page
     Given I visit "/sites/default/files/accessibility_violations.html"
     Then I should see "Inaccessible Page"
@@ -72,7 +72,7 @@ Feature: Check that AccessibilityTrait works
   @trait:AccessibilityTrait
   Scenario: Auto mode with critical threshold ignores serious violations only
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility-critical":
+    And scenario steps tagged with "@javascript @accessibility:critical":
       """
       Given I visit "/sites/default/files/accessibility_violations.html"
       Then I should see "Inaccessible Page"
@@ -90,7 +90,7 @@ Feature: Check that AccessibilityTrait works
   @trait:AccessibilityTrait
   Scenario: A cross-page aggregate report is written after the suite
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility-warning":
+    And scenario steps tagged with "@javascript @accessibility:warning":
       """
       Given I visit "/sites/default/files/accessibility_violations.html"
       Then I should see "Inaccessible Page"

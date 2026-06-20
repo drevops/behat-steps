@@ -65,13 +65,13 @@
 >  <br/><br/>
 >  Supported tags:
 >  - `@accessibility`                          Auto-mode, default threshold.
->  - `@accessibility-critical`                 Auto-mode, fail only on critical impact.
->  - `@accessibility-serious`                  Auto-mode, fail on critical or serious.
->  - `@accessibility-moderate`                 Auto-mode, fail on critical / serious / moderate.
->  - `@accessibility-minor`                    Auto-mode, fail on any impact.
->  - `@accessibility-any`                      Auto-mode, fail on any impact (alias).
->  - `@accessibility-warning`                  Auto-mode, never fail (advisory).
->  - `@accessibility-strict`                   Also fail on "incomplete" findings.
+>  - `@accessibility:critical`                 Auto-mode, fail only on critical impact.
+>  - `@accessibility:serious`                  Auto-mode, fail on critical or serious.
+>  - `@accessibility:moderate`                 Auto-mode, fail on critical / serious / moderate.
+>  - `@accessibility:minor`                    Auto-mode, fail on any impact.
+>  - `@accessibility:any`                      Auto-mode, fail on any impact (alias).
+>  - `@accessibility:warning`                  Auto-mode, never fail (advisory).
+>  - `@accessibility:strict`                   Also fail on "incomplete" findings.
 >  - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
 >  
 >  Tool-agnostic. Any engine that runs inside the existing Mink session can
