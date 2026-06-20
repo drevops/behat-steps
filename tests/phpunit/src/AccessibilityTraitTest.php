@@ -233,6 +233,33 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertStringContainsString('<span class="muted">&mdash;</span>', $html);
   }
 
+  public function testAggregateRulesOmitDocsLinkWhenHelpUrlEmpty(): void {
+    $aggregate = [
+      [
+        'feature' => 'Homepage',
+        'scenario' => 'Home page',
+        'threshold' => 'any',
+        'failOnIncomplete' => FALSE,
+        'results' => [
+          [
+            'url' => '/',
+            'rules' => 'wcag2a',
+            'result' => [
+              'violations' => [['id' => 'custom-rule', 'impact' => 'serious', 'help' => 'A rule with no docs URL', 'helpUrl' => '', 'nodes' => [['target' => ['div'], 'html' => '<div></div>']]]],
+              'incomplete' => [],
+              'passes' => [],
+            ],
+          ],
+        ],
+      ],
+    ];
+
+    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml($aggregate, '2026-01-02 03:04');
+
+    $this->assertStringContainsString('<span class="rule-id">custom-rule</span>', $html);
+    $this->assertStringNotContainsString('href=""', $html);
+  }
+
   public function testAggregateResetClearsState(): void {
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir('/sentinel');

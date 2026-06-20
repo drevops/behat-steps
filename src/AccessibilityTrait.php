@@ -1240,16 +1240,18 @@ HTML;
       }
 
       $impact = (string) $rule['impact'];
+      $help_url = (string) $rule['helpUrl'];
+      $docs = $help_url !== '' ? sprintf(' &middot; <a href="%s" target="_blank" rel="noopener">docs</a>', htmlspecialchars($help_url, ENT_QUOTES)) : '';
       $blocks .= sprintf(
         '<div class="rule"><h3><span class="impact %s">%s</span> <span class="rule-id">%s</span></h3>'
-        . '<p class="meta">%s &middot; affects %d page(s) &middot; %d element(s) &middot; <a href="%s" target="_blank" rel="noopener">docs</a></p>%s</div>',
+        . '<p class="meta">%s &middot; affects %d page(s) &middot; %d element(s)%s</p>%s</div>',
         htmlspecialchars($impact, ENT_QUOTES),
         htmlspecialchars($impact, ENT_QUOTES),
         htmlspecialchars((string) $rule_id, ENT_QUOTES),
         htmlspecialchars((string) $rule['help'], ENT_QUOTES),
         count($rule['pages'] ?? []),
         count($rule['nodes'] ?? []),
-        htmlspecialchars((string) $rule['helpUrl'], ENT_QUOTES),
+        $docs,
         implode('', $nodes)
       );
     }
