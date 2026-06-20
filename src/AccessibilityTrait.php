@@ -35,10 +35,12 @@ use Behat\Step\Then;
  * (remap raw output into the canonical shape the rest of the trait expects).
  *
  * Reporting. Each scenario writes its own HTML and JUnit report. After the
- * whole suite, a single cross-page `index.html` is written to the same
- * directory, de-duplicating every assessed page and rolling violations up by
- * rule. The aggregate accumulates in process-global state, so under parallel
- * Behat each process writes its own `index.html`.
+ * whole suite, a single cross-page `accessibility_report_<timestamp>.html`
+ * (timestamp `YYYYMMDD_HHMMSS`) is written to the same directory,
+ * de-duplicating every assessed page and rolling violations up by rule. One
+ * file is written per run, so a run never overwrites a previous one. The
+ * aggregate accumulates in process-global state, so under parallel Behat each
+ * process writes its own report.
  */
 trait AccessibilityTrait {
 
@@ -154,6 +156,18 @@ trait AccessibilityTrait {
   }
 
   /**
+   * Clear the suite-level aggregate state before the suite runs.
+   *
+   * The accumulator is process-global, so resetting at suite start stops a
+   * second suite in the same process from inheriting the first one's results.
+   */
+  #[BeforeSuite]
+  public static function accessibilityAggregateReset(): void {
+    self::$accessibilityAggregate = [];
+    self::$accessibilityAggregateReportDir = NULL;
+  }
+
+  /**
    * Initialize accessibility state for the scenario.
    */
   #[BeforeScenario]
@@ -262,6 +276,14 @@ trait AccessibilityTrait {
       $message = sprintf("Auto accessibility gate failed (threshold=%s, fail_on_incomplete=%s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Render the single cross-page report after the whole suite has run.
+   */
+  #[AfterSuite]
+  public static function accessibilityAggregateRender(): void {
+    static::accessibilityWriteAggregateReport();
   }
 
   /**
@@ -726,6 +748,19 @@ trait AccessibilityTrait {
   }
 
   /**
+   * Return URL values that represent a blank tab rather than a real page.
+   *
+   * Shared by the per-step auto assessment (so a blank tab never enters the
+   * results) and the aggregate renderer (defence in depth). Override to extend.
+   *
+   * @return array<int, string>
+   *   URL values to ignore.
+   */
+  protected static function accessibilityBlankUrls(): array {
+    return ['', 'about:blank', 'data:,'];
+  }
+
+  /**
    * Render the scenario-level HTML report from collected results.
    *
    * Composes the page wrapper around the per-URL section markup. The two
@@ -919,31 +954,6 @@ HTML;
   }
 
   /**
-   * Return URL values that represent a blank tab rather than a real page.
-   *
-   * Shared by the per-step auto assessment (so a blank tab never enters the
-   * results) and the aggregate renderer (defence in depth). Override to extend.
-   *
-   * @return array<int, string>
-   *   URL values to ignore.
-   */
-  protected static function accessibilityBlankUrls(): array {
-    return ['', 'about:blank', 'data:,'];
-  }
-
-  /**
-   * Clear the suite-level aggregate state before the suite runs.
-   *
-   * The accumulator is process-global, so resetting at suite start stops a
-   * second suite in the same process from inheriting the first one's results.
-   */
-  #[BeforeSuite]
-  public static function accessibilityAggregateReset(): void {
-    self::$accessibilityAggregate = [];
-    self::$accessibilityAggregateReportDir = NULL;
-  }
-
-  /**
    * Record the scenario's formatted results for the suite-level aggregate.
    *
    * URLs are formatted here, in the instance phase, so the static renderer can
@@ -976,18 +986,12 @@ HTML;
   }
 
   /**
-   * Render the single cross-page report after the whole suite has run.
-   */
-  #[AfterSuite]
-  public static function accessibilityAggregateRender(): void {
-    static::accessibilityWriteAggregateReport();
-  }
-
-  /**
    * Write the aggregate report when at least one scenario produced results.
    *
-   * The timestamp is resolved here and passed into the renderer so the render
-   * methods stay deterministic for tests.
+   * One timestamped file is written per suite run, so a run never overwrites a
+   * previous one. The same timestamp drives the filename and the in-page
+   * "generated" line; it is resolved here so the render methods stay
+   * deterministic for tests.
    */
   protected static function accessibilityWriteAggregateReport(): void {
     if (self::$accessibilityAggregate === []) {
@@ -999,7 +1003,22 @@ HTML;
       mkdir($dir, 0777, TRUE);
     }
 
-    file_put_contents($dir . '/index.html', static::accessibilityRenderAggregateHtml(self::$accessibilityAggregate, date('Y-m-d H:i')));
+    $time = time();
+    $report = static::accessibilityRenderAggregateHtml(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
+    file_put_contents($dir . DIRECTORY_SEPARATOR . static::accessibilityAggregateFilename($time), $report);
+  }
+
+  /**
+   * Build the timestamped aggregate report filename.
+   *
+   * @param int $time
+   *   Unix timestamp the report was generated at.
+   *
+   * @return string
+   *   Filename of the form `accessibility_report_YYYYMMDD_HHMMSS.html`.
+   */
+  protected static function accessibilityAggregateFilename(int $time): string {
+    return 'accessibility_report_' . date('Ymd_His', $time) . '.html';
   }
 
   /**

@@ -191,7 +191,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame(['/'], array_keys($rollup['rules']['image-alt']['pages']));
   }
 
-  public function testWriteAggregateReportWritesIndexHtml(): void {
+  public function testWriteAggregateReportWritesTimestampedFile(): void {
     $dir = static::locationsTmp() . DIRECTORY_SEPARATOR . 'aggregate-report';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
@@ -200,9 +200,9 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
 
-    $file = $dir . '/index.html';
-    $this->assertFileExists($file);
-    $this->assertStringContainsString('Accessibility report - aggregate', (string) file_get_contents($file));
+    $files = glob($dir . '/accessibility_report_*.html') ?: [];
+    $this->assertNotEmpty($files);
+    $this->assertStringContainsString('Accessibility report - aggregate', (string) file_get_contents($files[0]));
   }
 
   public function testWriteAggregateReportDoesNothingWhenEmpty(): void {
@@ -212,7 +212,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
 
-    $this->assertFileDoesNotExist($dir . '/index.html');
+    $this->assertEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
   }
 
   public function testAggregateRenderHookWritesReport(): void {
@@ -222,7 +222,15 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     AccessibilityTraitTestImplementation::accessibilityAggregateRender();
 
-    $this->assertFileExists($dir . '/index.html');
+    $this->assertNotEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
+  }
+
+  public function testAggregateFilenameFormat(): void {
+    $name = AccessibilityTraitTestImplementation::testAggregateFilename(1750000000);
+
+    $this->assertMatchesRegularExpression('/^accessibility_report_\d{8}_\d{6}\.html$/', $name);
+    // A different moment yields a different filename, proving the timestamp is used.
+    $this->assertNotSame($name, AccessibilityTraitTestImplementation::testAggregateFilename(1750086400));
   }
 
   public function testAggregateHtmlRendersCleanRunWithoutViolations(): void {
@@ -475,6 +483,10 @@ class AccessibilityTraitTestImplementation {
 
   public static function testWriteAggregateReport(): void {
     static::accessibilityWriteAggregateReport();
+  }
+
+  public static function testAggregateFilename(int $time): string {
+    return static::accessibilityAggregateFilename($time);
   }
 
   public function testCapture(array $results, string $feature, string $scenario, string $dir): void {

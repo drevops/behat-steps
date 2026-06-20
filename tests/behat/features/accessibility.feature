@@ -99,4 +99,4 @@ Feature: Check that AccessibilityTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
-    And file ".logs/test_results/accessibility/index.html" should exist
+    And a file matching ".logs/test_results/accessibility/accessibility_report_*.html" should exist
