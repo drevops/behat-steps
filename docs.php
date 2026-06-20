@@ -852,7 +852,12 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
   $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR . 'features';
   if (is_dir($features_dir)) {
     foreach (glob($features_dir . DIRECTORY_SEPARATOR . '*.feature') ?: [] as $file) {
-      $contents = (string) file_get_contents($file);
+      $contents = file_get_contents($file);
+      // @codeCoverageIgnoreStart
+      if ($contents === FALSE) {
+        continue;
+      }
+      // @codeCoverageIgnoreEnd
       $relative = 'tests/behat/features/' . basename($file);
       foreach (extract_tags($contents) as $tag) {
         $message = validate_tag($tag, $registry);
