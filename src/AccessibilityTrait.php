@@ -1088,7 +1088,12 @@ HTML;
   protected static function accessibilityAggregateRollup(array $pages): array {
     $rank = [self::IMPACT_CRITICAL => 0, self::IMPACT_SERIOUS => 1, self::IMPACT_MODERATE => 2, self::IMPACT_MINOR => 3];
     $rules = [];
-    $totals = [self::IMPACT_CRITICAL => 0, self::IMPACT_SERIOUS => 0, self::IMPACT_MODERATE => 0, self::IMPACT_MINOR => 0];
+    $totals = [
+      self::IMPACT_CRITICAL => 0,
+      self::IMPACT_SERIOUS => 0,
+      self::IMPACT_MODERATE => 0,
+      self::IMPACT_MINOR => 0,
+    ];
 
     foreach ($pages as $url => $page) {
       foreach ($page['violations'] ?? [] as $violation) {

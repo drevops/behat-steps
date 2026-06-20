@@ -264,8 +264,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Build a representative accumulator: two scenarios, a shared URL, a blank
-   * tab, and mixed-impact findings.
+   * Build a representative accumulator with two scenarios, a shared URL, a blank tab, and mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
    *   Sample aggregate data in the shape produced by accessibilityAggregateCapture().
