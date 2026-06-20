@@ -203,6 +203,19 @@ EOL;
   }
 
   /**
+   * Checks whether at least one file matching a glob pattern exists.
+   *
+   * @Given /^a file matching "([^"]*)" should exist$/
+   *
+   * @param string $pattern
+   */
+  public function fileMatchingShouldExist($pattern)
+  {
+    $matches = glob($this->workingDir . DIRECTORY_SEPARATOR . $pattern);
+    Assert::assertNotEmpty($matches, sprintf('No file matching "%s" was found in the working directory.', $pattern));
+  }
+
+  /**
    * Sets specified ENV variable.
    *
    * @When /^the "([^"]*)" environment variable is set to "([^"]*)"$/
