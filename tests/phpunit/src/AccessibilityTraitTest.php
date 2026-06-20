@@ -106,7 +106,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderAggregateHtmlContains')]
   public function testAggregateHtmlContains(string $expected): void {
-    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml(static::createSampleAggregate(), '2026-01-02 03:04');
+    $html = static::renderSample(static::createSampleAggregate(), '2026-01-02 03:04');
 
     $this->assertStringContainsString($expected, $html);
   }
@@ -146,7 +146,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateHtmlSortsRulesBySeverityThenElementCount(): void {
-    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml(static::createSampleAggregate(), '2026-01-02 03:04');
+    $html = static::renderSample(static::createSampleAggregate(), '2026-01-02 03:04');
 
     $image_alt = strpos($html, '<span class="rule-id">image-alt</span>');
     $button_name = strpos($html, '<span class="rule-id">button-name</span>');
@@ -163,7 +163,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateHtmlUsesPathOnlyUrls(): void {
-    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml(static::createSampleAggregate(), '2026-01-02 03:04');
+    $html = static::renderSample(static::createSampleAggregate(), '2026-01-02 03:04');
 
     $this->assertStringContainsString('<td class="url">/contact</td>', $html);
     // No assessed-page URL retains a scheme + host + port.
@@ -234,7 +234,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateHtmlRendersCleanRunWithoutViolations(): void {
-    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml(static::createCleanAggregate(), '2026-01-02 03:04');
+    $html = static::renderSample(static::createCleanAggregate(), '2026-01-02 03:04');
 
     $this->assertStringContainsString('<div class="card ok"><span class="num">0</span><span class="lbl">violations</span></div>', $html);
     $this->assertStringContainsString('No violations found.', $html);
@@ -262,10 +262,58 @@ class AccessibilityTraitTest extends UnitTestCase {
       ],
     ];
 
-    $html = AccessibilityTraitTestImplementation::testRenderAggregateHtml($aggregate, '2026-01-02 03:04');
+    $html = static::renderSample($aggregate, '2026-01-02 03:04');
 
     $this->assertStringContainsString('<span class="rule-id">custom-rule</span>', $html);
     $this->assertStringNotContainsString('href=""', $html);
+  }
+
+  public function testRenderAggregateConsumesPreparedDataArray(): void {
+    $data = [
+      'generated' => '2026-01-02 03:04',
+      'page_count' => 1,
+      'scenario_count' => 1,
+      'total_violations' => 1,
+      'totals' => ['critical' => 1, 'serious' => 0, 'moderate' => 0, 'minor' => 0],
+      'pages' => [
+        ['url' => '/', 'violations' => [['id' => 'image-alt', 'impact' => 'critical', 'count' => 2]], 'incomplete' => 0, 'passes' => 1, 'scenarios' => 'Home'],
+      ],
+      'rules' => [
+        ['id' => 'image-alt', 'impact' => 'critical', 'help' => 'Images need alt text', 'helpUrl' => 'https://example.com/image-alt', 'page_count' => 1, 'nodes' => [['url' => '/', 'target' => 'img.logo', 'html' => '<img>']]],
+      ],
+      'scenarios' => [
+        [
+          'feature' => 'Home',
+          'scenario' => 'Home page',
+          'threshold' => 'any',
+          'failOnIncomplete' => FALSE,
+          'pages' => [
+          ['url' => '/', 'rules' => 'wcag2a', 'violation_count' => 1, 'incomplete_count' => 0, 'passes_count' => 1, 'violations' => [['impact' => 'critical', 'id' => 'image-alt', 'help' => 'Images need alt text', 'helpUrl' => 'https://example.com/image-alt', 'nodes' => [['target' => 'img.logo', 'html' => '<img>']]]], 'incomplete' => []],
+          ],
+        ],
+      ],
+    ];
+
+    $html = AccessibilityTraitTestImplementation::testRenderAggregate($data);
+
+    $this->assertStringContainsString('<div class="card crit"><span class="num">1</span><span class="lbl">critical</span></div>', $html);
+    $this->assertStringContainsString('<span class="vtype critical">image-alt <b>2</b></span>', $html);
+    $this->assertStringContainsString('<span class="rule-id">image-alt</span>', $html);
+    $this->assertStringContainsString('href="https://example.com/image-alt"', $html);
+    $this->assertStringContainsString('generated 2026-01-02 03:04', $html);
+  }
+
+  public function testAggregateDataShapesRenderReadyValues(): void {
+    $data = AccessibilityTraitTestImplementation::testAggregateData(static::createSampleAggregate(), '2026-01-02 03:04');
+
+    $this->assertSame('2026-01-02 03:04', $data['generated']);
+    $this->assertSame(2, $data['page_count']);
+    $this->assertSame(2, $data['scenario_count']);
+    $this->assertSame(3, $data['total_violations']);
+    $this->assertSame(['critical' => 2, 'serious' => 1, 'moderate' => 0, 'minor' => 0], $data['totals']);
+    $this->assertSame('/', $data['pages'][0]['url']);
+    $this->assertSame(['image-alt', 'button-name', 'color-contrast'], array_column($data['rules'], 'id'));
+    $this->assertSame('img.logo', $data['rules'][0]['nodes'][0]['target']);
   }
 
   public function testAggregateResetClearsState(): void {
@@ -296,6 +344,18 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame('any', $aggregate[0]['threshold']);
     $this->assertFalse($aggregate[0]['failOnIncomplete']);
     $this->assertSame('/captured/dir', AccessibilityTraitTestImplementation::testGetAggregateReportDir());
+  }
+
+  /**
+   * Render a sample accumulator through the full data + render pipeline.
+   *
+   * @param array<int, array<string, mixed>> $aggregate
+   *   Sample accumulator.
+   * @param string $generated
+   *   Fixed generation timestamp.
+   */
+  protected static function renderSample(array $aggregate, string $generated): string {
+    return AccessibilityTraitTestImplementation::testRenderAggregate(AccessibilityTraitTestImplementation::testAggregateData($aggregate, $generated));
   }
 
   /**
@@ -469,8 +529,12 @@ class AccessibilityTraitTestImplementation {
     return self::$accessibilityAggregateReportDir;
   }
 
-  public static function testRenderAggregateHtml(array $aggregate, string $generated): string {
-    return static::accessibilityRenderAggregateHtml($aggregate, $generated);
+  public static function testAggregateData(array $aggregate, string $generated): array {
+    return static::accessibilityAggregateData($aggregate, $generated);
+  }
+
+  public static function testRenderAggregate(array $data): string {
+    return static::accessibilityRenderAggregate($data);
   }
 
   public static function testAggregatePages(array $aggregate): array {

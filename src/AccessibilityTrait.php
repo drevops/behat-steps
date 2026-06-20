@@ -1004,8 +1004,8 @@ HTML;
     }
 
     $time = time();
-    $report = static::accessibilityRenderAggregateHtml(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
-    file_put_contents($dir . DIRECTORY_SEPARATOR . static::accessibilityAggregateFilename($time), $report);
+    $data = static::accessibilityAggregateData(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
+    file_put_contents($dir . DIRECTORY_SEPARATOR . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
   }
 
   /**
@@ -1019,40 +1019,6 @@ HTML;
    */
   protected static function accessibilityAggregateFilename(int $time): string {
     return 'accessibility_report_' . date('Ymd_His', $time) . '.html';
-  }
-
-  /**
-   * Build the full aggregate HTML document.
-   *
-   * Composes the page wrapper around the body sections. Override
-   * accessibilityRenderAggregatePage() to rebrand the page, or
-   * accessibilityRenderAggregateSections() to change the body, without
-   * rewriting the aggregation logic.
-   *
-   * @param array<int, array<string, mixed>> $aggregate
-   *   The accumulated per-scenario results.
-   * @param string $generated
-   *   Human-readable generation timestamp.
-   */
-  protected static function accessibilityRenderAggregateHtml(array $aggregate, string $generated): string {
-    return static::accessibilityRenderAggregatePage($generated, static::accessibilityRenderAggregateSections($aggregate));
-  }
-
-  /**
-   * Compose the aggregate body: summary, pages, rules, per-scenario detail.
-   *
-   * @param array<int, array<string, mixed>> $aggregate
-   *   The accumulated per-scenario results.
-   */
-  protected static function accessibilityRenderAggregateSections(array $aggregate): string {
-    $pages = static::accessibilityAggregatePages($aggregate);
-    $rollup = static::accessibilityAggregateRollup($pages);
-    $totals = $rollup['totals'];
-
-    return static::accessibilityRenderAggregateSummary(array_sum($totals), count($pages), count($aggregate), $totals)
-      . static::accessibilityRenderAggregatePages($pages)
-      . static::accessibilityRenderAggregateRules($rollup['rules'])
-      . static::accessibilityRenderAggregateScenarios($aggregate);
   }
 
   /**
@@ -1153,241 +1119,220 @@ HTML;
   }
 
   /**
-   * Render the summary cards.
+   * Assemble every value the renderer needs into one data array.
    *
-   * @param int $total_violations
-   *   Total violation count across all pages.
-   * @param int $page_count
-   *   Number of unique pages assessed.
-   * @param int $scenario_count
-   *   Number of scenarios that produced results.
-   * @param array<string, int> $totals
-   *   Violation counts keyed by impact level.
-   */
-  protected static function accessibilityRenderAggregateSummary(int $total_violations, int $page_count, int $scenario_count, array $totals): string {
-    $state = $total_violations > 0 ? 'fail' : 'ok';
-
-    $card = fn(string $class, int $num, string $label): string => sprintf('<div class="card %s"><span class="num">%d</span><span class="lbl">%s</span></div>', $class, $num, $label);
-
-    return '<section class="cards">'
-      . $card('', $page_count, 'pages assessed')
-      . $card('', $scenario_count, 'scenarios')
-      . $card($state, $total_violations, 'violations')
-      . $card('crit', $totals[self::IMPACT_CRITICAL] ?? 0, 'critical')
-      . $card('ser', $totals[self::IMPACT_SERIOUS] ?? 0, 'serious')
-      . $card('mod', $totals[self::IMPACT_MODERATE] ?? 0, 'moderate')
-      . $card('min', $totals[self::IMPACT_MINOR] ?? 0, 'minor')
-      . '</section>';
-  }
-
-  /**
-   * Render the de-duplicated table of assessed pages.
-   *
-   * @param array<string, array<string, mixed>> $pages
-   *   Per-URL rollup.
-   */
-  protected static function accessibilityRenderAggregatePages(array $pages): string {
-    $rows = '';
-
-    foreach ($pages as $url => $page) {
-      $count = count($page['violations'] ?? []);
-      $scenarios = implode(', ', array_keys($page['scenarios'] ?? []));
-      $rows .= sprintf(
-        '<tr class="%s"><td class="url">%s</td><td class="vtypes">%s</td><td class="n">%d</td><td class="n">%d</td><td class="muted">%s</td></tr>',
-        $count > 0 ? 'bad' : 'good',
-        htmlspecialchars((string) $url, ENT_QUOTES),
-        static::accessibilityRenderAggregateRuleChips($page['violations'] ?? []),
-        $page['incomplete'] ?? 0,
-        $page['passes'] ?? 0,
-        htmlspecialchars($scenarios, ENT_QUOTES)
-      );
-    }
-
-    return '<section><h2>Pages assessed</h2><p class="meta">Each URL is listed once, even when several scenarios visit it. Violations are broken down by rule, with the number of affected elements.</p>'
-      . '<table><thead><tr><th>URL</th><th>Violations by type</th><th>Incomplete</th><th>Passes</th><th>Seen in scenarios</th></tr></thead><tbody>'
-      . $rows . '</tbody></table></section>';
-  }
-
-  /**
-   * Render per-rule violation chips for a page, each with its element count.
-   *
-   * @param array<int, array<string, mixed>> $violations
-   *   Normalized violations for a single page.
-   */
-  protected static function accessibilityRenderAggregateRuleChips(array $violations): string {
-    if ($violations === []) {
-      return '<span class="muted">&mdash;</span>';
-    }
-
-    $chips = '';
-
-    foreach ($violations as $violation) {
-      $impact = strtolower((string) ($violation['impact'] ?? self::IMPACT_MINOR));
-      $chips .= sprintf(
-        '<span class="vtype %s">%s <b>%d</b></span>',
-        htmlspecialchars($impact, ENT_QUOTES),
-        htmlspecialchars((string) ($violation['id'] ?? 'unknown'), ENT_QUOTES),
-        count($violation['nodes'] ?? [])
-      );
-    }
-
-    return $chips;
-  }
-
-  /**
-   * Render the violations grouped by rule.
-   *
-   * @param array<string, array<string, mixed>> $rules
-   *   Per-rule rollup, pre-sorted by severity.
-   */
-  protected static function accessibilityRenderAggregateRules(array $rules): string {
-    if ($rules === []) {
-      return '<section><h2>Violations by rule</h2><p class="meta">No violations found.</p></section>';
-    }
-
-    $blocks = '';
-
-    foreach ($rules as $rule_id => $rule) {
-      $nodes = [];
-      foreach ($rule['nodes'] ?? [] as $node) {
-        $nodes[] = sprintf(
-          '<div class="node"><div class="where"><code>%s</code> &middot; <span class="muted">%s</span></div><pre>%s</pre></div>',
-          htmlspecialchars((string) $node['target'], ENT_QUOTES),
-          htmlspecialchars((string) $node['url'], ENT_QUOTES),
-          htmlspecialchars((string) $node['html'], ENT_QUOTES)
-        );
-      }
-
-      $impact = (string) $rule['impact'];
-      $help_url = (string) $rule['helpUrl'];
-      $docs = $help_url !== '' ? sprintf(' &middot; <a href="%s" target="_blank" rel="noopener">docs</a>', htmlspecialchars($help_url, ENT_QUOTES)) : '';
-      $blocks .= sprintf(
-        '<div class="rule"><h3><span class="impact %s">%s</span> <span class="rule-id">%s</span></h3>'
-        . '<p class="meta">%s &middot; affects %d page(s) &middot; %d element(s)%s</p>%s</div>',
-        htmlspecialchars($impact, ENT_QUOTES),
-        htmlspecialchars($impact, ENT_QUOTES),
-        htmlspecialchars((string) $rule_id, ENT_QUOTES),
-        htmlspecialchars((string) $rule['help'], ENT_QUOTES),
-        count($rule['pages'] ?? []),
-        count($rule['nodes'] ?? []),
-        $docs,
-        implode('', $nodes)
-      );
-    }
-
-    return '<section><h2>Violations by rule</h2><p class="meta">Highest impact first.</p>' . $blocks . '</section>';
-  }
-
-  /**
-   * Render each scenario's full findings inline, in the order pages were seen.
-   *
-   * Mirrors the per-scenario report: a scenario heading with its threshold,
-   * then per page the rules string, the counts, and the violation and
-   * incomplete lists with the same fields.
+   * All calculation lives here and in the methods it calls - de-duplication,
+   * severity tallies, sorting, counting, and target flattening - so the single
+   * renderer only has to turn ready values into markup.
    *
    * @param array<int, array<string, mixed>> $aggregate
    *   The accumulated per-scenario results.
+   * @param string $generated
+   *   Human-readable generation timestamp.
+   *
+   * @return array<string, mixed>
+   *   Render-ready data: `generated`, `page_count`, `scenario_count`,
+   *   `total_violations`, `totals`, `pages`, `rules`, and `scenarios`.
    */
-  protected static function accessibilityRenderAggregateScenarios(array $aggregate): string {
+  protected static function accessibilityAggregateData(array $aggregate, string $generated): array {
+    $deduped = static::accessibilityAggregatePages($aggregate);
+    $rollup = static::accessibilityAggregateRollup($deduped);
+    $totals = $rollup['totals'];
     $blank = static::accessibilityBlankUrls();
-    $blocks = '';
 
+    $pages = [];
+    foreach ($deduped as $url => $page) {
+      $chips = [];
+      foreach ($page['violations'] ?? [] as $violation) {
+        $chips[] = [
+          'id' => (string) ($violation['id'] ?? 'unknown'),
+          'impact' => strtolower((string) ($violation['impact'] ?? self::IMPACT_MINOR)),
+          'count' => count($violation['nodes'] ?? []),
+        ];
+      }
+      $pages[] = [
+        'url' => (string) $url,
+        'violations' => $chips,
+        'incomplete' => (int) ($page['incomplete'] ?? 0),
+        'passes' => (int) ($page['passes'] ?? 0),
+        'scenarios' => implode(', ', array_keys($page['scenarios'] ?? [])),
+      ];
+    }
+
+    $rules = [];
+    foreach ($rollup['rules'] as $rule_id => $rule) {
+      $rules[] = [
+        'id' => (string) $rule_id,
+        'impact' => (string) ($rule['impact'] ?? self::IMPACT_MINOR),
+        'help' => (string) ($rule['help'] ?? ''),
+        'helpUrl' => (string) ($rule['helpUrl'] ?? ''),
+        'page_count' => count($rule['pages'] ?? []),
+        'nodes' => $rule['nodes'] ?? [],
+      ];
+    }
+
+    $scenarios = [];
     foreach ($aggregate as $entry) {
-      $sections = '';
-
+      $detail = [];
       foreach ($entry['results'] ?? [] as $result) {
         $url = (string) ($result['url'] ?? '');
-
         if (in_array($url, $blank, TRUE)) {
           continue;
         }
-
-        $violations = $result['result']['violations'] ?? [];
-        $incomplete = $result['result']['incomplete'] ?? [];
-
-        $sections .= sprintf(
-          '<div class="page-detail"><h4>%s</h4><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>%s%s</div>',
-          htmlspecialchars($url, ENT_QUOTES),
-          htmlspecialchars((string) ($result['rules'] ?? ''), ENT_QUOTES),
-          count($violations),
-          count($incomplete),
-          count($result['result']['passes'] ?? []),
-          static::accessibilityRenderAggregateIssueList('Violations', 'violation', $violations),
-          static::accessibilityRenderAggregateIssueList('Incomplete (needs human review)', 'incomplete', $incomplete)
-        );
+        $detail[] = [
+          'url' => $url,
+          'rules' => (string) ($result['rules'] ?? ''),
+          'violation_count' => count($result['result']['violations'] ?? []),
+          'incomplete_count' => count($result['result']['incomplete'] ?? []),
+          'passes_count' => count($result['result']['passes'] ?? []),
+          'violations' => static::accessibilityAggregateFindings($result['result']['violations'] ?? []),
+          'incomplete' => static::accessibilityAggregateFindings($result['result']['incomplete'] ?? []),
+        ];
       }
-
-      $blocks .= sprintf(
-        '<div class="scenario"><h3>%s <span class="muted">%s</span></h3><p class="meta">threshold: <code>%s</code> &middot; fail on incomplete: <code>%s</code></p>%s</div>',
-        htmlspecialchars((string) ($entry['scenario'] ?? ''), ENT_QUOTES),
-        htmlspecialchars((string) ($entry['feature'] ?? ''), ENT_QUOTES),
-        htmlspecialchars((string) ($entry['threshold'] ?? ''), ENT_QUOTES),
-        ($entry['failOnIncomplete'] ?? FALSE) ? 'yes' : 'no',
-        $sections
-      );
+      $scenarios[] = [
+        'feature' => (string) ($entry['feature'] ?? ''),
+        'scenario' => (string) ($entry['scenario'] ?? ''),
+        'threshold' => (string) ($entry['threshold'] ?? ''),
+        'failOnIncomplete' => (bool) ($entry['failOnIncomplete'] ?? FALSE),
+        'pages' => $detail,
+      ];
     }
 
-    return '<section><h2>Per-scenario detail</h2><p class="meta">Every page each scenario assessed, in order, with its full findings embedded.</p>' . $blocks . '</section>';
+    return [
+      'generated' => $generated,
+      'page_count' => count($deduped),
+      'scenario_count' => count($aggregate),
+      'total_violations' => array_sum($totals),
+      'totals' => $totals,
+      'pages' => $pages,
+      'rules' => $rules,
+      'scenarios' => $scenarios,
+    ];
   }
 
   /**
-   * Render a single issue list (violations or incomplete) for the aggregate.
+   * Flatten normalized findings into render-ready rows.
    *
-   * Matches the per-scenario report fields: impact, rule id, help text, docs
-   * link, and the target and HTML of each offending element.
-   *
-   * @param string $heading
-   *   Section heading.
-   * @param string $css_class
-   *   CSS class applied to each issue (`violation` or `incomplete`).
    * @param array<int, array<string, mixed>> $issues
-   *   Normalized issues to render.
+   *   Normalized violations or incomplete findings.
+   *
+   * @return array<int, array<string, mixed>>
+   *   Each finding with its impact, id, help, helpUrl, and flattened nodes.
    */
-  protected static function accessibilityRenderAggregateIssueList(string $heading, string $css_class, array $issues): string {
-    if ($issues === []) {
-      return sprintf('<h5>%s</h5><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));
-    }
-
-    $out = sprintf('<h5>%s</h5>', htmlspecialchars($heading, ENT_QUOTES));
+  protected static function accessibilityAggregateFindings(array $issues): array {
+    $findings = [];
 
     foreach ($issues as $issue) {
-      $impact = strtolower((string) ($issue['impact'] ?? 'unknown'));
-      $impact_safe = htmlspecialchars($impact, ENT_QUOTES);
-      $id = htmlspecialchars((string) ($issue['id'] ?? ''), ENT_QUOTES);
-      $help = htmlspecialchars((string) ($issue['help'] ?? ''), ENT_QUOTES);
-      $help_url = htmlspecialchars((string) ($issue['helpUrl'] ?? ''), ENT_QUOTES);
-
-      $out .= sprintf('<div class="issue %s"><span class="impact %s">%s</span><span class="rule-id">%s</span> &mdash; %s', htmlspecialchars($css_class, ENT_QUOTES), $impact_safe, $impact_safe, $id, $help);
-
-      if ($help_url !== '') {
-        $out .= sprintf(' (<a href="%s" target="_blank" rel="noopener">docs</a>)', $help_url);
-      }
-
+      $nodes = [];
       foreach ($issue['nodes'] ?? [] as $node) {
-        $target = htmlspecialchars(static::accessibilityStringifyTarget($node['target'] ?? []), ENT_QUOTES);
-        $html = htmlspecialchars(trim((string) ($node['html'] ?? '')), ENT_QUOTES);
-        $out .= sprintf('<div class="node"><strong>%s</strong><br><code>%s</code></div>', $target, $html);
+        $nodes[] = [
+          'target' => static::accessibilityStringifyTarget($node['target'] ?? []),
+          'html' => trim((string) ($node['html'] ?? '')),
+        ];
       }
-
-      $out .= '</div>';
+      $findings[] = [
+        'impact' => strtolower((string) ($issue['impact'] ?? 'unknown')),
+        'id' => (string) ($issue['id'] ?? ''),
+        'help' => (string) ($issue['help'] ?? ''),
+        'helpUrl' => (string) ($issue['helpUrl'] ?? ''),
+        'nodes' => $nodes,
+      ];
     }
 
-    return $out;
+    return $findings;
   }
 
   /**
-   * Wrap the rendered sections in a standalone HTML document.
+   * Render the entire aggregate report from prepared data.
    *
-   * Default: a self-contained page with the aggregate's own styles. Override
-   * to brand the report without rebuilding the section markup - the caller
-   * supplies it as `$body`.
+   * This is the single rendering entry point. Every value it needs is already
+   * computed in `$data` by accessibilityAggregateData(), so a consumer can
+   * override this one method to completely restyle the report - markup, CSS,
+   * and layout - without touching any of the aggregation logic.
    *
-   * @param string $generated
-   *   Human-readable generation timestamp.
-   * @param string $body
-   *   Pre-rendered body sections.
+   * @param array<string, mixed> $data
+   *   Render-ready data from accessibilityAggregateData().
    */
-  protected static function accessibilityRenderAggregatePage(string $generated, string $body): string {
+  protected static function accessibilityRenderAggregate(array $data): string {
+    $issue_list = function (string $heading, string $css_class, array $issues): string {
+      if ($issues === []) {
+        return sprintf('<h5>%s</h5><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));
+      }
+
+      $parts = [sprintf('<h5>%s</h5>', htmlspecialchars($heading, ENT_QUOTES))];
+      foreach ($issues as $issue) {
+        $impact = htmlspecialchars((string) ($issue['impact'] ?? 'unknown'), ENT_QUOTES);
+        $issue_html = sprintf('<div class="issue %s"><span class="impact %s">%s</span><span class="rule-id">%s</span> &mdash; %s', htmlspecialchars($css_class, ENT_QUOTES), $impact, $impact, htmlspecialchars((string) ($issue['id'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($issue['help'] ?? ''), ENT_QUOTES));
+
+        if (((string) ($issue['helpUrl'] ?? '')) !== '') {
+          $issue_html .= sprintf(' (<a href="%s" target="_blank" rel="noopener">docs</a>)', htmlspecialchars((string) $issue['helpUrl'], ENT_QUOTES));
+        }
+
+        foreach ($issue['nodes'] ?? [] as $node) {
+          $issue_html .= sprintf('<div class="node"><strong>%s</strong><br><code>%s</code></div>', htmlspecialchars((string) ($node['target'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['html'] ?? ''), ENT_QUOTES));
+        }
+
+        $parts[] = $issue_html . '</div>';
+      }
+
+      return implode('', $parts);
+    };
+
+    $totals = $data['totals'] ?? [];
+    $state = ((int) ($data['total_violations'] ?? 0)) > 0 ? 'fail' : 'ok';
+    $cards = '<section class="cards">'
+      . sprintf('<div class="card "><span class="num">%d</span><span class="lbl">pages assessed</span></div>', (int) ($data['page_count'] ?? 0))
+      . sprintf('<div class="card "><span class="num">%d</span><span class="lbl">scenarios</span></div>', (int) ($data['scenario_count'] ?? 0))
+      . sprintf('<div class="card %s"><span class="num">%d</span><span class="lbl">violations</span></div>', $state, (int) ($data['total_violations'] ?? 0))
+      . sprintf('<div class="card crit"><span class="num">%d</span><span class="lbl">critical</span></div>', (int) ($totals[self::IMPACT_CRITICAL] ?? 0))
+      . sprintf('<div class="card ser"><span class="num">%d</span><span class="lbl">serious</span></div>', (int) ($totals[self::IMPACT_SERIOUS] ?? 0))
+      . sprintf('<div class="card mod"><span class="num">%d</span><span class="lbl">moderate</span></div>', (int) ($totals[self::IMPACT_MODERATE] ?? 0))
+      . sprintf('<div class="card min"><span class="num">%d</span><span class="lbl">minor</span></div>', (int) ($totals[self::IMPACT_MINOR] ?? 0))
+      . '</section>';
+
+    $rows = [];
+    foreach ($data['pages'] ?? [] as $page) {
+      $chips = [];
+      foreach ($page['violations'] ?? [] as $chip) {
+        $chips[] = sprintf('<span class="vtype %s">%s <b>%d</b></span>', htmlspecialchars((string) ($chip['impact'] ?? self::IMPACT_MINOR), ENT_QUOTES), htmlspecialchars((string) ($chip['id'] ?? 'unknown'), ENT_QUOTES), (int) ($chip['count'] ?? 0));
+      }
+      $vtypes = $chips === [] ? '<span class="muted">&mdash;</span>' : implode('', $chips);
+      $rows[] = sprintf('<tr class="%s"><td class="url">%s</td><td class="vtypes">%s</td><td class="n">%d</td><td class="n">%d</td><td class="muted">%s</td></tr>', $chips === [] ? 'good' : 'bad', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), $vtypes, (int) ($page['incomplete'] ?? 0), (int) ($page['passes'] ?? 0), htmlspecialchars((string) ($page['scenarios'] ?? ''), ENT_QUOTES));
+    }
+    $pages_section = '<section><h2>Pages assessed</h2><p class="meta">Each URL is listed once, even when several scenarios visit it. Violations are broken down by rule, with the number of affected elements.</p>'
+      . '<table><thead><tr><th>URL</th><th>Violations by type</th><th>Incomplete</th><th>Passes</th><th>Seen in scenarios</th></tr></thead><tbody>'
+      . implode('', $rows) . '</tbody></table></section>';
+
+    if (($data['rules'] ?? []) === []) {
+      $rules_section = '<section><h2>Violations by rule</h2><p class="meta">No violations found.</p></section>';
+    }
+    else {
+      $blocks = [];
+      foreach ($data['rules'] ?? [] as $rule) {
+        $nodes = [];
+        foreach ($rule['nodes'] ?? [] as $node) {
+          $nodes[] = sprintf('<div class="node"><div class="where"><code>%s</code> &middot; <span class="muted">%s</span></div><pre>%s</pre></div>', htmlspecialchars((string) ($node['target'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['html'] ?? ''), ENT_QUOTES));
+        }
+        $impact = htmlspecialchars((string) ($rule['impact'] ?? self::IMPACT_MINOR), ENT_QUOTES);
+        $docs = ((string) ($rule['helpUrl'] ?? '')) !== '' ? sprintf(' &middot; <a href="%s" target="_blank" rel="noopener">docs</a>', htmlspecialchars((string) $rule['helpUrl'], ENT_QUOTES)) : '';
+        $blocks[] = sprintf('<div class="rule"><h3><span class="impact %s">%s</span> <span class="rule-id">%s</span></h3><p class="meta">%s &middot; affects %d page(s) &middot; %d element(s)%s</p>%s</div>', $impact, $impact, htmlspecialchars((string) ($rule['id'] ?? 'unknown'), ENT_QUOTES), htmlspecialchars((string) ($rule['help'] ?? ''), ENT_QUOTES), (int) ($rule['page_count'] ?? 0), count($rule['nodes'] ?? []), $docs, implode('', $nodes));
+      }
+      $rules_section = '<section><h2>Violations by rule</h2><p class="meta">Highest impact first.</p>' . implode('', $blocks) . '</section>';
+    }
+
+    $detail = [];
+    foreach ($data['scenarios'] ?? [] as $scenario) {
+      $sections = [];
+      foreach ($scenario['pages'] ?? [] as $page) {
+        $sections[] = sprintf('<div class="page-detail"><h4>%s</h4><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>%s%s</div>', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($page['rules'] ?? ''), ENT_QUOTES), (int) ($page['violation_count'] ?? 0), (int) ($page['incomplete_count'] ?? 0), (int) ($page['passes_count'] ?? 0), $issue_list('Violations', 'violation', $page['violations'] ?? []), $issue_list('Incomplete (needs human review)', 'incomplete', $page['incomplete'] ?? []));
+      }
+      $detail[] = sprintf('<div class="scenario"><h3>%s <span class="muted">%s</span></h3><p class="meta">threshold: <code>%s</code> &middot; fail on incomplete: <code>%s</code></p>%s</div>', htmlspecialchars((string) ($scenario['scenario'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['feature'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['threshold'] ?? ''), ENT_QUOTES), ($scenario['failOnIncomplete'] ?? FALSE) ? 'yes' : 'no', implode('', $sections));
+    }
+    $scenarios_section = '<section><h2>Per-scenario detail</h2><p class="meta">Every page each scenario assessed, in order, with its full findings embedded.</p>' . implode('', $detail) . '</section>';
+
+    $generated = htmlspecialchars((string) ($data['generated'] ?? ''), ENT_QUOTES);
+    $body = $cards . $pages_section . $rules_section . $scenarios_section;
+
     return <<<HTML
 <!doctype html>
 <html lang="en">
