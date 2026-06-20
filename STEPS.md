@@ -78,6 +78,12 @@
 >  be plugged in by overriding `accessibilityRunEngine()` (perform the
 >  assessment, return raw results) and `accessibilityNormalizeResults()`
 >  (remap raw output into the canonical shape the rest of the trait expects).
+>  <br/><br/>
+>  Reporting. Each scenario writes its own HTML and JUnit report. After the
+>  whole suite, a single cross-page `index.html` is written to the same
+>  directory, de-duplicating every assessed page and rolling violations up by
+>  rule. The aggregate accumulates in process-global state, so under parallel
+>  Behat each process writes its own `index.html`.
 
 
 <details>

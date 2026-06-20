@@ -86,3 +86,17 @@ Feature: Check that AccessibilityTrait works
       """
       violation [critical] image-alt
       """
+
+  @trait:AccessibilityTrait
+  Scenario: A cross-page aggregate report is written after the suite
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @accessibility-warning":
+      """
+      Given I visit "/sites/default/files/accessibility_violations.html"
+      Then I should see "Inaccessible Page"
+      When I visit "/sites/default/files/accessibility_clean.html"
+      Then I should see "Clean Accessibility Page"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+    And file ".logs/test_results/accessibility/index.html" should exist
