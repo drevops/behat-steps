@@ -346,6 +346,65 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame('/captured/dir', AccessibilityTraitTestImplementation::testGetAggregateReportDir());
   }
 
+  #[DataProvider('dataProviderRenderJunitFailuresByThreshold')]
+  public function testRenderJunitFailuresByThreshold(?string $threshold, int $expected_failures): void {
+    $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', $threshold);
+
+    // Only violations meeting the effective threshold become <failure> cases.
+    $this->assertSame($expected_failures, substr_count($xml, '<failure type='), 'Number of <failure> elements reflects the threshold.');
+    // Every emitted testcase is counted, so tests stays 5 (3 violations + 2
+    // passes) regardless of how many are failures versus advisory.
+    $this->assertStringContainsString(sprintf('<testsuites name="Feature &gt; Scenario" tests="5" failures="%d">', $expected_failures), $xml);
+    // The suite-level and file-level failure counts agree.
+    $this->assertSame(2, substr_count($xml, sprintf('failures="%d"', $expected_failures)));
+  }
+
+  public static function dataProviderRenderJunitFailuresByThreshold(): array {
+    return [
+      'warning (never) fails on nothing' => ['never', 0],
+      'default (null) resolves to any and fails on all' => [NULL, 3],
+      'any fails on all' => ['any', 3],
+      'critical fails on the critical only' => ['critical', 1],
+      'serious fails on critical and serious' => ['serious', 2],
+      'moderate fails on all three' => ['moderate', 3],
+    ];
+  }
+
+  public function testRenderJunitWarningKeepsAdvisoryViolationsVisibleWithoutFailing(): void {
+    $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', 'never');
+
+    // Advisory mode: no violation is serialised as a failure.
+    $this->assertStringNotContainsString('<failure', $xml);
+    $this->assertStringContainsString('failures="0"', $xml);
+    // The findings stay visible as passing testcases carrying <system-out>.
+    $this->assertStringContainsString('<system-out>', $xml);
+    $this->assertStringContainsString('classname="accessibility.image-alt"', $xml);
+    $this->assertStringContainsString('classname="accessibility.link-name"', $xml);
+  }
+
+  public function testRenderJunitCountsEveryEmittedTestcase(): void {
+    $results = [
+      [
+        'url' => '/',
+        'rules' => 'wcag2a',
+        'result' => [
+          'violations' => [
+            ['id' => 'image-alt', 'impact' => 'critical', 'help' => 'Images must have alternative text', 'helpUrl' => 'https://example.com/image-alt', 'nodes' => [['target' => ['img.a'], 'html' => '<img class="a">'], ['target' => ['img.b'], 'html' => '<img class="b">']]],
+          ],
+          'incomplete' => [],
+          'passes' => [['id' => 'document-title'], ['id' => 'html-has-lang'], ['id' => 'region']],
+        ],
+      ],
+    ];
+
+    $xml = $this->testObject->testRenderJunit($results, 'Feature', 'Scenario', 'any');
+
+    // One <failure> per affected node (2), plus three passing testcases: the
+    // tests and failures attributes count actual emitted <testcase> elements.
+    $this->assertSame(2, substr_count($xml, '<failure type='));
+    $this->assertStringContainsString('tests="5" failures="2"', $xml);
+  }
+
   /**
    * Render a sample accumulator through the full data + render pipeline.
    *
@@ -479,6 +538,31 @@ class AccessibilityTraitTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Build a scenario result with one violation per impact plus two passes.
+   *
+   * @return array<int, array{url: string, rules: string, result: array<string, mixed>}>
+   *   A single-page result: critical, serious and moderate violations (one
+   *   affected node each) alongside two passing rules.
+   */
+  protected static function createJunitResults(): array {
+    return [
+      [
+        'url' => '/',
+        'rules' => 'wcag2a,wcag2aa',
+        'result' => [
+          'violations' => [
+            ['id' => 'image-alt', 'impact' => 'critical', 'help' => 'Images must have alternative text', 'helpUrl' => 'https://example.com/image-alt', 'nodes' => [['target' => ['img'], 'html' => '<img src="x">']]],
+            ['id' => 'link-name', 'impact' => 'serious', 'help' => 'Links must have discernible text', 'helpUrl' => 'https://example.com/link-name', 'nodes' => [['target' => ['a'], 'html' => '<a href="#"></a>']]],
+            ['id' => 'region', 'impact' => 'moderate', 'help' => 'All page content should be contained by landmarks', 'helpUrl' => 'https://example.com/region', 'nodes' => [['target' => ['div'], 'html' => '<div></div>']]],
+          ],
+          'incomplete' => [],
+          'passes' => [['id' => 'document-title'], ['id' => 'html-has-lang']],
+        ],
+      ],
+    ];
+  }
+
 }
 
 /**
@@ -558,6 +642,15 @@ class AccessibilityTraitTestImplementation {
     $this->accessibilityFeatureName = $feature;
     $this->accessibilityScenarioName = $scenario;
     $this->accessibilityAggregateCapture($dir);
+  }
+
+  public function testRenderJunit(array $results, string $feature, string $scenario, ?string $threshold = NULL): string {
+    $this->accessibilityResults = $results;
+    $this->accessibilityFeatureName = $feature;
+    $this->accessibilityScenarioName = $scenario;
+    $this->accessibilityScenarioThreshold = $threshold;
+
+    return $this->accessibilityRenderJunit();
   }
 
 }

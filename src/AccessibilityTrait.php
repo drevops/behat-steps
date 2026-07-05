@@ -895,8 +895,18 @@ HTML;
 
   /**
    * Render the scenario-level JUnit XML report from collected results.
+   *
+   * Violations are gated by the scenario's effective threshold, exactly as the
+   * pass/fail gate is: only violations meeting the threshold are serialised as
+   * `<failure>` cases, so an advisory run (threshold `never`) writes a report
+   * with zero failures instead of one that reddens a JUnit-consuming CI check.
+   * Violations below the threshold are recorded as passing cases carrying the
+   * finding in `<system-out>`, so they stay visible without failing the report.
+   * The `tests` and `failures` counts reflect the actual emitted `<testcase>`
+   * elements, one per affected node.
    */
   protected function accessibilityRenderJunit(): string {
+    $threshold = $this->accessibilityEffectiveThreshold();
     $suites_xml = '';
     $total_tests = 0;
     $total_failures = 0;
@@ -906,13 +916,12 @@ HTML;
       $violations = $r['result']['violations'] ?? [];
       $passes = $r['result']['passes'] ?? [];
 
-      $tests = count($violations) + count($passes);
-      $failures = count($violations);
-      $total_tests += $tests;
-      $total_failures += $failures;
-
       $cases_xml = '';
+      $tests = 0;
+      $failures = 0;
+
       foreach ($violations as $v) {
+        $failing = $this->accessibilityFilterViolations([$v], $threshold) !== [];
         $rule_id = (string) ($v['id'] ?? 'unknown');
         $impact = (string) ($v['impact'] ?? 'unknown');
         $help = (string) ($v['help'] ?? '');
@@ -921,25 +930,29 @@ HTML;
         foreach ($v['nodes'] ?? [] as $node) {
           $target = static::accessibilityStringifyTarget($node['target'] ?? []);
           $html = trim((string) ($node['html'] ?? ''));
-
-          $message = sprintf('[%s] %s', $impact, $help);
           $details = sprintf("URL: %s\nRule: %s\nTarget: %s\nHTML: %s\nDocs: %s", $url, $rule_id, $target, $html, $help_url);
+          $classname = htmlspecialchars('accessibility.' . $rule_id, ENT_XML1 | ENT_QUOTES);
+          $name = htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES);
+          $tests++;
 
-          $cases_xml .= sprintf(
-            '<testcase classname="accessibility.%s" name="%s"><failure type="%s" message="%s">%s</failure></testcase>',
-            htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES),
-            htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES),
-            htmlspecialchars($impact, ENT_XML1 | ENT_QUOTES),
-            htmlspecialchars($message, ENT_XML1 | ENT_QUOTES),
-            htmlspecialchars($details, ENT_XML1 | ENT_QUOTES)
-          );
+          if (!$failing) {
+            $cases_xml .= sprintf('<testcase classname="%s" name="%s"><system-out>%s</system-out></testcase>', $classname, $name, htmlspecialchars('[advisory] ' . $details, ENT_XML1 | ENT_QUOTES));
+            continue;
+          }
+
+          $failures++;
+          $cases_xml .= sprintf('<testcase classname="%s" name="%s"><failure type="%s" message="%s">%s</failure></testcase>', $classname, $name, htmlspecialchars($impact, ENT_XML1 | ENT_QUOTES), htmlspecialchars(sprintf('[%s] %s', $impact, $help), ENT_XML1 | ENT_QUOTES), htmlspecialchars($details, ENT_XML1 | ENT_QUOTES));
         }
       }
 
       foreach ($passes as $p) {
         $rule_id = (string) ($p['id'] ?? 'unknown');
+        $tests++;
         $cases_xml .= sprintf('<testcase classname="accessibility.%s" name="%s passed"/>', htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES), htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES));
       }
+
+      $total_tests += $tests;
+      $total_failures += $failures;
 
       $suites_xml .= sprintf('<testsuite name="%s" tests="%d" failures="%d" errors="0">%s</testsuite>', htmlspecialchars((string) $url, ENT_XML1 | ENT_QUOTES), $tests, $failures, $cases_xml);
     }

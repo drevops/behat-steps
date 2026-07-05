@@ -216,6 +216,44 @@ EOL;
   }
 
   /**
+   * Checks that the first file matching a glob pattern contains a substring.
+   */
+  #[Then('a file matching :pattern should contain:')]
+  public function fileMatchingShouldContain(string $pattern, PyStringNode $text): void
+  {
+    $matches = glob($this->workingDir . DIRECTORY_SEPARATOR . $pattern) ?: [];
+    Assert::assertNotEmpty($matches, sprintf('No file matching "%s" was found in the working directory.', $pattern));
+
+    $content = (string) file_get_contents($matches[0]);
+    $needle = trim((string) $text);
+
+    if (str_contains($content, $needle)) {
+      return;
+    }
+
+    throw new UnexpectedValueException(sprintf('File "%s" does not contain "%s".', $matches[0], $needle));
+  }
+
+  /**
+   * Checks that the first file matching a glob pattern lacks a substring.
+   */
+  #[Then('a file matching :pattern should not contain:')]
+  public function fileMatchingShouldNotContain(string $pattern, PyStringNode $text): void
+  {
+    $matches = glob($this->workingDir . DIRECTORY_SEPARATOR . $pattern) ?: [];
+    Assert::assertNotEmpty($matches, sprintf('No file matching "%s" was found in the working directory.', $pattern));
+
+    $content = (string) file_get_contents($matches[0]);
+    $needle = trim((string) $text);
+
+    if (!str_contains($content, $needle)) {
+      return;
+    }
+
+    throw new UnexpectedValueException(sprintf('File "%s" unexpectedly contains "%s".', $matches[0], $needle));
+  }
+
+  /**
    * Sets specified ENV variable.
    *
    * @When /^the "([^"]*)" environment variable is set to "([^"]*)"$/

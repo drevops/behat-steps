@@ -100,3 +100,26 @@ Feature: Check that AccessibilityTrait works
     When I run "behat --no-colors"
     Then it should pass
     And a file matching ".logs/test_results/accessibility/accessibility_report_*.html" should exist
+
+  @trait:AccessibilityTrait
+  Scenario: Warning mode writes a JUnit report with no failures
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @accessibility:warning":
+      """
+      Given I visit "/sites/default/files/accessibility_violations.html"
+      Then I should see "Inaccessible Page"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+    And a file matching ".logs/test_results/accessibility/junit-*.xml" should contain:
+      """
+      failures="0"
+      """
+    And a file matching ".logs/test_results/accessibility/junit-*.xml" should not contain:
+      """
+      <failure
+      """
+    And a file matching ".logs/test_results/accessibility/junit-*.xml" should contain:
+      """
+      <system-out>
+      """
