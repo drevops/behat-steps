@@ -221,17 +221,7 @@ EOL;
   #[Then('a file matching :pattern should contain:')]
   public function fileMatchingShouldContain(string $pattern, PyStringNode $text): void
   {
-    $matches = glob($this->workingDir . DIRECTORY_SEPARATOR . $pattern) ?: [];
-    Assert::assertNotEmpty($matches, sprintf('No file matching "%s" was found in the working directory.', $pattern));
-
-    $content = (string) file_get_contents($matches[0]);
-    $needle = trim((string) $text);
-
-    if (str_contains($content, $needle)) {
-      return;
-    }
-
-    throw new UnexpectedValueException(sprintf('File "%s" does not contain "%s".', $matches[0], $needle));
+    $this->assertFileMatchingContains($pattern, $text, true);
   }
 
   /**
@@ -240,17 +230,28 @@ EOL;
   #[Then('a file matching :pattern should not contain:')]
   public function fileMatchingShouldNotContain(string $pattern, PyStringNode $text): void
   {
+    $this->assertFileMatchingContains($pattern, $text, false);
+  }
+
+  /**
+   * Asserts the first matching file does or does not contain a substring.
+   */
+  protected function assertFileMatchingContains(string $pattern, PyStringNode $text, bool $shouldContain): void
+  {
     $matches = glob($this->workingDir . DIRECTORY_SEPARATOR . $pattern) ?: [];
     Assert::assertNotEmpty($matches, sprintf('No file matching "%s" was found in the working directory.', $pattern));
+    // Sort so the file inspected is deterministic when several patterns match.
+    sort($matches);
 
     $content = (string) file_get_contents($matches[0]);
     $needle = trim((string) $text);
 
-    if (!str_contains($content, $needle)) {
+    if (str_contains($content, $needle) === $shouldContain) {
       return;
     }
 
-    throw new UnexpectedValueException(sprintf('File "%s" unexpectedly contains "%s".', $matches[0], $needle));
+    $message = $shouldContain ? 'File "%s" does not contain "%s".' : 'File "%s" unexpectedly contains "%s".';
+    throw new UnexpectedValueException(sprintf($message, $matches[0], $needle));
   }
 
   /**
