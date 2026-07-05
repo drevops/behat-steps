@@ -124,12 +124,15 @@ trait XmlTrait {
    *
    * @code
    * Then the response should be in XML format
+   *
+   * # Content set by a fixture step is validated instead of the page content.
+   * Given the response content from the file "xml_valid.xml"
+   * Then the response should be in XML format
    * @endcode
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseIsXml(): void {
-    $content = $this->getSession()->getPage()->getContent();
-    $this->xmlLoadDocument($content);
+    $this->xmlEnsureDocument();
   }
 
   /**
@@ -137,11 +140,17 @@ trait XmlTrait {
    *
    * @code
    * Then the response should not be in XML format
+   *
+   * # Content set by a fixture step is validated instead of the page content.
+   * Given the response content from the file "xml_invalid.xml"
+   * Then the response should not be in XML format
    * @endcode
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
-    $content = $this->getSession()->getPage()->getContent();
+    // Resolve content the same way as xmlEnsureDocument(): prefer content set
+    // by the fixture steps, falling back to the live page content.
+    $content = $this->xmlTestContent ?? $this->getSession()->getPage()->getContent();
 
     $doc = new \DOMDocument();
     libxml_clear_errors();
