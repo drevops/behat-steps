@@ -350,13 +350,17 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testRenderJunitFailuresByThreshold(?string $threshold, int $expected_failures): void {
     $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', $threshold);
 
+    $doc = simplexml_load_string($xml);
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc, 'The rendered report is well-formed XML.');
     // Only violations meeting the effective threshold become <failure> cases.
-    $this->assertSame($expected_failures, substr_count($xml, '<failure type='), 'Number of <failure> elements reflects the threshold.');
+    $this->assertCount($expected_failures, $doc->xpath('//failure') ?: []);
     // Every emitted testcase is counted, so tests stays 5 (3 violations + 2
-    // passes) regardless of how many are failures versus advisory.
-    $this->assertStringContainsString(sprintf('<testsuites name="Feature &gt; Scenario" tests="5" failures="%d">', $expected_failures), $xml);
-    // The suite-level and file-level failure counts agree.
-    $this->assertSame(2, substr_count($xml, sprintf('failures="%d"', $expected_failures)));
+    // passes) whether a violation is a failure or advisory.
+    $this->assertCount(5, $doc->xpath('//testcase') ?: []);
+    $this->assertSame('5', (string) $doc['tests']);
+    // The file-level and suite-level failure counts agree.
+    $this->assertSame((string) $expected_failures, (string) $doc['failures']);
+    $this->assertSame((string) $expected_failures, (string) $doc->testsuite['failures']);
   }
 
   public static function dataProviderRenderJunitFailuresByThreshold(): array {
@@ -373,11 +377,13 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testRenderJunitWarningKeepsAdvisoryViolationsVisibleWithoutFailing(): void {
     $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', 'never');
 
-    // Advisory mode: no violation is serialised as a failure.
+    $doc = simplexml_load_string($xml);
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
+    // Advisory mode: no violation is serialised as a failure...
+    $this->assertCount(0, $doc->xpath('//failure') ?: []);
     $this->assertStringNotContainsString('<failure', $xml);
-    $this->assertStringContainsString('failures="0"', $xml);
-    // The findings stay visible as passing testcases carrying <system-out>.
-    $this->assertStringContainsString('<system-out>', $xml);
+    // ...but every finding stays visible as a passing testcase with <system-out>.
+    $this->assertCount(3, $doc->xpath('//system-out') ?: []);
     $this->assertStringContainsString('classname="accessibility.image-alt"', $xml);
     $this->assertStringContainsString('classname="accessibility.link-name"', $xml);
   }
@@ -399,10 +405,14 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $xml = $this->testObject->testRenderJunit($results, 'Feature', 'Scenario', 'any');
 
-    // One <failure> per affected node (2), plus three passing testcases: the
-    // tests and failures attributes count actual emitted <testcase> elements.
-    $this->assertSame(2, substr_count($xml, '<failure type='));
-    $this->assertStringContainsString('tests="5" failures="2"', $xml);
+    $doc = simplexml_load_string($xml);
+    $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
+    // One <failure> per affected node (2), plus three passing testcases: tests
+    // and failures count actual emitted <testcase> elements, not violations.
+    $this->assertCount(2, $doc->xpath('//failure') ?: []);
+    $this->assertCount(5, $doc->xpath('//testcase') ?: []);
+    $this->assertSame('5', (string) $doc['tests']);
+    $this->assertSame('2', (string) $doc['failures']);
   }
 
   /**
