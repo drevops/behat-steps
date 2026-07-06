@@ -74,6 +74,7 @@ from the community.
 
 | Class | Description |
 | --- | --- |
+| [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
 | [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ConfigOverrideTrait](STEPS.md#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |

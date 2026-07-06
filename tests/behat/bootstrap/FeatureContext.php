@@ -10,6 +10,7 @@ declare(strict_types=1);
 use DrevOps\BehatSteps\AccessibilityTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
+use DrevOps\BehatSteps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
 use DrevOps\BehatSteps\Drupal\CacheTrait;
 use DrevOps\BehatSteps\Drupal\ConfigOverrideTrait;
@@ -61,6 +62,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 class FeatureContext extends DrupalContext {
 
   use AccessibilityTrait;
+  use BigPipeTrait;
   use BlockTrait;
   use CacheTrait;
   use ConfigOverrideTrait;

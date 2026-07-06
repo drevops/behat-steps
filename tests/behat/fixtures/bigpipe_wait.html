@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BigPipe Wait Test</title>
+</head>
+<body>
+    <h1>BigPipe Wait Test Page</h1>
+    <p>This page simulates Drupal BigPipe replacing a placeholder after load.</p>
+
+    <span data-big-pipe-placeholder-id="placeholder-1"></span>
+
+    <script>
+        // Mimic Drupal BigPipe: swap the placeholder span for its real content
+        // after a delay, the way streamed BigPipe replacements arrive.
+        setTimeout(function () {
+            var placeholder = document.querySelector('[data-big-pipe-placeholder-id="placeholder-1"]');
+            if (placeholder) {
+                var content = document.createElement('div');
+                content.textContent = 'BigPipe streamed content';
+                placeholder.replaceWith(content);
+            }
+        }, 1500);
+    </script>
+</body>
+</html>
