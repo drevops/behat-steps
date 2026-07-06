@@ -570,6 +570,9 @@ trait XmlTrait {
   /**
    * Assert that the response validates against an inline DTD.
    *
+   * DTDs are namespace-unaware: to validate a namespaced document, the DTD must
+   * declare the prefixed element names and the `xmlns` attributes.
+   *
    * @code
    * Then the response should match the following DTD:
    *   """
@@ -584,6 +587,9 @@ trait XmlTrait {
 
   /**
    * Assert that the response validates against a DTD from a file.
+   *
+   * DTDs are namespace-unaware: to validate a namespaced document, the DTD must
+   * declare the prefixed element names and the `xmlns` attributes.
    *
    * @code
    * Then the response should match the DTD in the file "xml_schema.dtd"
@@ -858,6 +864,10 @@ trait XmlTrait {
    * The DTD is embedded as an internal subset and the response reloaded with
    * validation enabled, so a DTD from a file and an inline DTD share one code
    * path without exposing external-entity loading.
+   *
+   * DTDs are namespace-unaware, so a namespaced response is validated verbatim
+   * and its `xmlns` attributes must be declared in the DTD, matching native DTD
+   * validation semantics.
    *
    * @param string $dtd
    *   The DTD source (element, attribute and entity declarations).
