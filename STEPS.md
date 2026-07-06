@@ -2944,6 +2944,132 @@ Then the XML should not use the namespace "http://example.com/nonexistent"
 
 </details>
 
+<details>
+  <summary><code>@Then the response should match the following XSD schema:</code></summary>
+
+<br/>
+Assert that the response validates against an inline XSD schema
+<br/><br/>
+
+```gherkin
+Then the response should match the following XSD schema:
+  """
+  <?xml version="1.0"?>
+  <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="note" type="xs:string"/>
+  </xs:schema>
+  """
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should match the XSD schema in the file :filename</code></summary>
+
+<br/>
+Assert that the response validates against an XSD schema from a file
+<br/><br/>
+
+```gherkin
+Then the response should match the XSD schema in the file "xml_schema.xsd"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should match the following DTD:</code></summary>
+
+<br/>
+Assert that the response validates against an inline DTD
+<br/><br/>
+
+```gherkin
+Then the response should match the following DTD:
+  """
+  <!ELEMENT note (#PCDATA)>
+  """
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should match the DTD in the file :filename</code></summary>
+
+<br/>
+Assert that the response validates against a DTD from a file
+<br/><br/>
+
+```gherkin
+Then the response should match the DTD in the file "xml_schema.dtd"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should match the following RelaxNG schema:</code></summary>
+
+<br/>
+Assert that the response validates against an inline RelaxNG schema
+<br/><br/>
+
+```gherkin
+Then the response should match the following RelaxNG schema:
+  """
+  <element name="note" xmlns="http://relaxng.org/ns/structure/1.0">
+    <text/>
+  </element>
+  """
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should match the RelaxNG schema in the file :filename</code></summary>
+
+<br/>
+Assert that the response validates against a RelaxNG schema from a file
+<br/><br/>
+
+```gherkin
+Then the response should match the RelaxNG schema in the file "xml_schema.rng"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should be a valid RSS feed</code></summary>
+
+<br/>
+Assert that the response is a valid RSS 2.0 feed
+<br/><br/>
+
+```gherkin
+Then the response should be a valid RSS feed
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the response should be a valid Atom feed</code></summary>
+
+<br/>
+Assert that the response is a valid Atom feed
+<br/><br/>
+
+```gherkin
+Then the response should be a valid Atom feed
+
+```
+
+</details>
+
 
 
 ## Drupal\BlockTrait

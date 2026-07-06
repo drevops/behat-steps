@@ -1,0 +1,9 @@
+<!ELEMENT library (book+)>
+<!ELEMENT book (title, author, description?, published?)>
+<!ATTLIST book
+  id CDATA #REQUIRED
+  category CDATA #REQUIRED>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT published (#PCDATA)>

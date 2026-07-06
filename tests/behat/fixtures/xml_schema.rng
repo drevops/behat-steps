@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <start>
+    <element name="library">
+      <oneOrMore>
+        <element name="book">
+          <attribute name="id"/>
+          <attribute name="category"/>
+          <element name="title"><text/></element>
+          <element name="author"><text/></element>
+          <optional>
+            <element name="description"><text/></element>
+          </optional>
+          <optional>
+            <element name="published"><text/></element>
+          </optional>
+        </element>
+      </oneOrMore>
+    </element>
+  </start>
+</grammar>
