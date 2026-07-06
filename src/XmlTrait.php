@@ -81,21 +81,7 @@ trait XmlTrait {
    */
   #[Given('the response content from the file :filename')]
   public function xmlSetResponseContentFromFile(string $filename): void {
-    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
-    $file_path = $files_path . '/' . $filename;
-
-    if (!file_exists($file_path)) {
-      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
-    }
-
-    $content = file_get_contents($file_path);
-    if ($content === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
-      // @codeCoverageIgnoreEnd
-    }
-
-    $this->xmlTestContent = $content;
+    $this->xmlTestContent = $this->xmlReadFile($filename);
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
@@ -552,6 +538,124 @@ trait XmlTrait {
   }
 
   /**
+   * Assert that the response validates against an inline XSD schema.
+   *
+   * @code
+   * Then the response should match the following XSD schema:
+   *   """
+   *   <?xml version="1.0"?>
+   *   <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   *     <xs:element name="note" type="xs:string"/>
+   *   </xs:schema>
+   *   """
+   * @endcode
+   */
+  #[Then('the response should match the following XSD schema:')]
+  public function xmlAssertMatchesXsd(PyStringNode $schema): void {
+    $this->xmlValidateXsd($schema->getRaw());
+  }
+
+  /**
+   * Assert that the response validates against an XSD schema from a file.
+   *
+   * @code
+   * Then the response should match the XSD schema in the file "xml_schema.xsd"
+   * @endcode
+   */
+  #[Then('the response should match the XSD schema in the file :filename')]
+  public function xmlAssertMatchesXsdFromFile(string $filename): void {
+    $this->xmlValidateXsd($this->xmlReadFile($filename));
+  }
+
+  /**
+   * Assert that the response validates against an inline DTD.
+   *
+   * @code
+   * Then the response should match the following DTD:
+   *   """
+   *   <!ELEMENT note (#PCDATA)>
+   *   """
+   * @endcode
+   */
+  #[Then('the response should match the following DTD:')]
+  public function xmlAssertMatchesDtd(PyStringNode $dtd): void {
+    $this->xmlValidateDtd($dtd->getRaw());
+  }
+
+  /**
+   * Assert that the response validates against a DTD from a file.
+   *
+   * @code
+   * Then the response should match the DTD in the file "xml_schema.dtd"
+   * @endcode
+   */
+  #[Then('the response should match the DTD in the file :filename')]
+  public function xmlAssertMatchesDtdFromFile(string $filename): void {
+    $this->xmlValidateDtd($this->xmlReadFile($filename));
+  }
+
+  /**
+   * Assert that the response validates against an inline RelaxNG schema.
+   *
+   * @code
+   * Then the response should match the following RelaxNG schema:
+   *   """
+   *   <element name="note" xmlns="http://relaxng.org/ns/structure/1.0">
+   *     <text/>
+   *   </element>
+   *   """
+   * @endcode
+   */
+  #[Then('the response should match the following RelaxNG schema:')]
+  public function xmlAssertMatchesRelaxNg(PyStringNode $schema): void {
+    $this->xmlValidateRelaxNg($schema->getRaw());
+  }
+
+  /**
+   * Assert that the response validates against a RelaxNG schema from a file.
+   *
+   * @code
+   * Then the response should match the RelaxNG schema in the file "xml_schema.rng"
+   * @endcode
+   */
+  #[Then('the response should match the RelaxNG schema in the file :filename')]
+  public function xmlAssertMatchesRelaxNgFromFile(string $filename): void {
+    $this->xmlValidateRelaxNg($this->xmlReadFile($filename));
+  }
+
+  /**
+   * Assert that the response is a valid RSS 2.0 feed.
+   *
+   * Checks the required RSS 2.0 structure: an `rss` root with a `version` of
+   * `2.0`, a single `channel` with `title`, `link` and `description`, and an
+   * `item` with at least a `title` or a `description`.
+   *
+   * @code
+   * Then the response should be a valid RSS feed
+   * @endcode
+   */
+  #[Then('the response should be a valid RSS feed')]
+  public function xmlAssertValidRssFeed(): void {
+    $this->xmlValidateRssFeed();
+  }
+
+  /**
+   * Assert that the response is a valid Atom feed.
+   *
+   * Checks the required Atom structure: a `feed` root in the Atom namespace
+   * with `id`, `title` and `updated`, and each `entry` with `id`, `title`
+   * and `updated`.
+   *
+   * @code
+   * Then the response should be a valid Atom feed
+   * @endcode
+   */
+  #[Then('the response should be a valid Atom feed')]
+  public function xmlAssertValidAtomFeed(): void {
+    $this->xmlValidateAtomFeed();
+  }
+
+  /**
    * Print the last XML response.
    *
    * @code
@@ -681,6 +785,208 @@ trait XmlTrait {
     }
 
     return implode('; ', $messages);
+  }
+
+  /**
+   * Read a fixture file's contents.
+   *
+   * @param string $filename
+   *   The fixture file name relative to the Mink files path.
+   *
+   * @return string
+   *   The file contents.
+   */
+  protected function xmlReadFile(string $filename): string {
+    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
+    $file_path = $files_path . '/' . $filename;
+
+    if (!file_exists($file_path)) {
+      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
+    }
+
+    $content = file_get_contents($file_path);
+    if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
+      // @codeCoverageIgnoreEnd
+    }
+
+    return $content;
+  }
+
+  /**
+   * Validate the response against an XSD schema.
+   *
+   * @param string $schema
+   *   The XSD schema source.
+   */
+  protected function xmlValidateXsd(string $schema): void {
+    $this->xmlEnsureDocument();
+
+    libxml_clear_errors();
+    $valid = @$this->xmlDocument->schemaValidateSource($schema);
+    $errors = libxml_get_errors();
+    libxml_clear_errors();
+
+    if (!$valid) {
+      throw new ExpectationException(sprintf('The response does not match the XSD schema: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Validate the response against a RelaxNG schema.
+   *
+   * @param string $schema
+   *   The RelaxNG schema source.
+   */
+  protected function xmlValidateRelaxNg(string $schema): void {
+    $this->xmlEnsureDocument();
+
+    libxml_clear_errors();
+    $valid = @$this->xmlDocument->relaxNGValidateSource($schema);
+    $errors = libxml_get_errors();
+    libxml_clear_errors();
+
+    if (!$valid) {
+      throw new ExpectationException(sprintf('The response does not match the RelaxNG schema: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Validate the response against a DTD.
+   *
+   * The DTD is embedded as an internal subset and the response reloaded with
+   * validation enabled, so a DTD from a file and an inline DTD share one code
+   * path without exposing external-entity loading.
+   *
+   * @param string $dtd
+   *   The DTD source (element, attribute and entity declarations).
+   */
+  protected function xmlValidateDtd(string $dtd): void {
+    $this->xmlEnsureDocument();
+
+    $root = $this->xmlDocument->documentElement;
+    if (!$root instanceof \DOMElement) {
+      // @codeCoverageIgnoreStart
+      throw new ExpectationException('The response has no root element to validate against the DTD.', $this->getSession()->getDriver());
+      // @codeCoverageIgnoreEnd
+    }
+
+    $body = $this->xmlDocument->saveXML($root);
+    if ($body === FALSE) {
+      // @codeCoverageIgnoreStart
+      throw new ExpectationException('Failed to serialise the response for DTD validation.', $this->getSession()->getDriver());
+      // @codeCoverageIgnoreEnd
+    }
+
+    $combined = sprintf("<?xml version=\"1.0\"?>\n<!DOCTYPE %s [\n%s\n]>\n%s", $root->nodeName, $dtd, $body);
+
+    $document = new \DOMDocument();
+    libxml_clear_errors();
+    $loaded = @$document->loadXML($combined, LIBXML_DTDVALID);
+    $errors = libxml_get_errors();
+    libxml_clear_errors();
+
+    if (!$loaded || $errors !== []) {
+      throw new ExpectationException(sprintf('The response does not match the DTD: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Validate the response as an RSS 2.0 feed.
+   */
+  protected function xmlValidateRssFeed(): void {
+    $this->xmlEnsureDocument();
+
+    $root = $this->xmlDocument->documentElement;
+    if (!$root instanceof \DOMElement || $root->localName !== 'rss') {
+      throw new ExpectationException('The response is not a valid RSS feed: the root element must be "rss".', $this->getSession()->getDriver());
+    }
+
+    if ($root->getAttribute('version') !== '2.0') {
+      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must have a "version" attribute of "2.0".', $this->getSession()->getDriver());
+    }
+
+    $channels = $this->xmlDirectChildElements($root, 'channel');
+    if (count($channels) !== 1) {
+      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must contain exactly one "channel" element.', $this->getSession()->getDriver());
+    }
+
+    $channel = $channels[0];
+
+    foreach (['title', 'link', 'description'] as $required) {
+      if ($this->xmlDirectChildElements($channel, $required) === []) {
+        throw new ExpectationException(sprintf('The response is not a valid RSS feed: the "channel" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+      }
+    }
+
+    foreach ($this->xmlDirectChildElements($channel, 'item') as $item) {
+      $has_title = $this->xmlDirectChildElements($item, 'title') !== [];
+      $has_description = $this->xmlDirectChildElements($item, 'description') !== [];
+
+      if (!$has_title && !$has_description) {
+        throw new ExpectationException('The response is not a valid RSS feed: each "item" element must contain a "title" or a "description" element.', $this->getSession()->getDriver());
+      }
+    }
+  }
+
+  /**
+   * Validate the response as an Atom feed.
+   */
+  protected function xmlValidateAtomFeed(): void {
+    $this->xmlEnsureDocument();
+
+    $namespace = 'http://www.w3.org/2005/Atom';
+
+    $root = $this->xmlDocument->documentElement;
+    if (!$root instanceof \DOMElement || $root->localName !== 'feed' || $root->namespaceURI !== $namespace) {
+      throw new ExpectationException('The response is not a valid Atom feed: the root element must be "feed" in the Atom namespace.', $this->getSession()->getDriver());
+    }
+
+    foreach (['id', 'title', 'updated'] as $required) {
+      if ($this->xmlDirectChildElements($root, $required, $namespace) === []) {
+        throw new ExpectationException(sprintf('The response is not a valid Atom feed: the "feed" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+      }
+    }
+
+    foreach ($this->xmlDirectChildElements($root, 'entry', $namespace) as $entry) {
+      foreach (['id', 'title', 'updated'] as $required) {
+        if ($this->xmlDirectChildElements($entry, $required, $namespace) === []) {
+          throw new ExpectationException(sprintf('The response is not a valid Atom feed: an "entry" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+        }
+      }
+    }
+  }
+
+  /**
+   * Get direct child elements matching a local name and optional namespace.
+   *
+   * @param \DOMNode $parent
+   *   The parent node.
+   * @param string $name
+   *   The local element name to match.
+   * @param string|null $namespace
+   *   The namespace URI to match, or NULL to match elements in any namespace.
+   *
+   * @return array<int, \DOMElement>
+   *   The matching direct child elements.
+   */
+  protected function xmlDirectChildElements(\DOMNode $parent, string $name, ?string $namespace = NULL): array {
+    $matches = [];
+
+    foreach ($parent->childNodes as $child) {
+      if (!$child instanceof \DOMElement || $child->localName !== $name) {
+        continue;
+      }
+
+      if ($namespace !== NULL && $child->namespaceURI !== $namespace) {
+        continue;
+      }
+
+      $matches[] = $child;
+    }
+
+    return $matches;
   }
 
 }

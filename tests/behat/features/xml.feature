@@ -647,3 +647,264 @@ Feature: Check that XmlTrait works
       """
       Unable to access the response before visiting a page
       """
+
+  Scenario: Assert "Then the response should match the following XSD schema:" works
+    Given the response content is the following:
+      """
+      <?xml version="1.0"?><note><to>World</to></note>
+      """
+    Then the response should match the following XSD schema:
+      """
+      <?xml version="1.0"?>
+      <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:element name="note">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="to" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:schema>
+      """
+
+  Scenario: Assert "Then the response should match the XSD schema in the file :filename" works
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the response should match the XSD schema in the file "xml_schema.xsd"
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should match the XSD schema in the file :filename" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_simple.xml"
+      Then the response should match the XSD schema in the file "xml_schema.xsd"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The response does not match the XSD schema
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that "Then the response should match the XSD schema in the file :filename" fails with an exception for missing file
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      Then the response should match the XSD schema in the file "nonexistent.xsd"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      does not exist
+      """
+
+  Scenario: Assert "Then the response should match the following DTD:" works
+    Given the response content is the following:
+      """
+      <?xml version="1.0"?><note>Hello</note>
+      """
+    Then the response should match the following DTD:
+      """
+      <!ELEMENT note (#PCDATA)>
+      """
+
+  Scenario: Assert "Then the response should match the DTD in the file :filename" works
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the response should match the DTD in the file "xml_schema.dtd"
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should match the DTD in the file :filename" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_simple.xml"
+      Then the response should match the DTD in the file "xml_schema.dtd"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The response does not match the DTD
+      """
+
+  Scenario: Assert "Then the response should match the following RelaxNG schema:" works
+    Given the response content is the following:
+      """
+      <?xml version="1.0"?><note>Hello</note>
+      """
+    Then the response should match the following RelaxNG schema:
+      """
+      <element name="note" xmlns="http://relaxng.org/ns/structure/1.0">
+        <text/>
+      </element>
+      """
+
+  Scenario: Assert "Then the response should match the RelaxNG schema in the file :filename" works
+    When I go to "/sites/default/files/xml_valid.xml"
+    Then the response should match the RelaxNG schema in the file "xml_schema.rng"
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should match the RelaxNG schema in the file :filename" fails with an error
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_simple.xml"
+      Then the response should match the RelaxNG schema in the file "xml_schema.rng"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The response does not match the RelaxNG schema
+      """
+
+  Scenario: Assert "Then the response should be a valid RSS feed" works
+    When I go to "/sites/default/files/rss_valid.xml"
+    Then the response should be a valid RSS feed
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a non-rss root
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><catalog></catalog>
+        '''
+      Then the response should be a valid RSS feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      the root element must be "rss"
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a wrong version
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><rss version="1.0"><channel><title>t</title><link>l</link><description>d</description></channel></rss>
+        '''
+      Then the response should be a valid RSS feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      must have a "version" attribute of "2.0"
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a missing channel
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><rss version="2.0"></rss>
+        '''
+      Then the response should be a valid RSS feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      must contain exactly one "channel" element
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a missing required channel element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><rss version="2.0"><channel><title>t</title><link>l</link></channel></rss>
+        '''
+      Then the response should be a valid RSS feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      is missing the required "description" element
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for an item without a title or description
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><rss version="2.0"><channel><title>t</title><link>l</link><description>d</description><item><link>x</link></item></channel></rss>
+        '''
+      Then the response should be a valid RSS feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      each "item" element must contain a "title" or a "description"
+      """
+
+  Scenario: Assert "Then the response should be a valid Atom feed" works
+    When I go to "/sites/default/files/atom_valid.xml"
+    Then the response should be a valid Atom feed
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for a non-atom root
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><feed><id>x</id><title>t</title><updated>u</updated></feed>
+        '''
+      Then the response should be a valid Atom feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      the root element must be "feed" in the Atom namespace
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for a missing required feed element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><id>x</id><title>t</title></feed>
+        '''
+      Then the response should be a valid Atom feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      the "feed" element is missing the required "updated" element
+      """
+
+  @trait:XmlTrait
+  Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for an entry missing a required element
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/xml_valid.xml"
+      And the response content is the following:
+        '''
+        <?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:other="http://example.com/other"><id>x</id><title>t</title><updated>u</updated><entry><id>e</id><title>et</title><other:updated>2024</other:updated></entry></feed>
+        '''
+      Then the response should be a valid Atom feed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      an "entry" element is missing the required "updated" element
+      """
