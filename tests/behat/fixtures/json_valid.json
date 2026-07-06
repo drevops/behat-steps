@@ -1,0 +1,17 @@
+{
+  "name": "John Doe",
+  "age": 42,
+  "email": "john@example.com",
+  "active": true,
+  "disabled": false,
+  "nickname": null,
+  "price": 9.99,
+  "user": {
+    "roles": ["admin", "editor"]
+  },
+  "items": [1, 2, 3],
+  "books": [
+    {"id": 123, "title": "The Great Adventure"},
+    {"id": 456, "title": "Learning JSON"}
+  ]
+}

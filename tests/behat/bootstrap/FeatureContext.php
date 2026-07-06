@@ -41,6 +41,7 @@ use DrevOps\BehatSteps\FileDownloadTrait;
 use DrevOps\BehatSteps\HelperTrait;
 use DrevOps\BehatSteps\IframeTrait;
 use DrevOps\BehatSteps\JavascriptTrait;
+use DrevOps\BehatSteps\JsonTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\MetatagTrait;
@@ -77,6 +78,7 @@ class FeatureContext extends DrupalContext {
   use IframeTrait;
   use FileTrait;
   use JavascriptTrait;
+  use JsonTrait;
   use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
