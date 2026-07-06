@@ -11,6 +11,22 @@ Feature: Check that XmlTrait works
     When I go to "/sites/default/files/xml_with_warnings.xml"
     Then the response should be in XML format
 
+  Scenario: Assert "Then the response should be in XML format" honours content set from a fixture file over the page content
+    When I go to "/sites/default/files/xml_invalid.xml"
+    And the response content from the file "xml_valid.xml"
+    Then the response should be in XML format
+
+  Scenario: Assert "Then the response should be in XML format" honours content set from a PyString over the page content
+    When I go to "/sites/default/files/xml_invalid.xml"
+    And the response content is the following:
+      """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <catalog>
+        <product id="p1">Blue Widget</product>
+      </catalog>
+      """
+    Then the response should be in XML format
+
   @trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be in XML format" fails with an exception
     Given some behat configuration
@@ -27,6 +43,11 @@ Feature: Check that XmlTrait works
 
   Scenario: Assert "Then the response should not be in XML format" works
     When I go to "/sites/default/files/xml_invalid.xml"
+    Then the response should not be in XML format
+
+  Scenario: Assert "Then the response should not be in XML format" honours content set from a fixture file over the page content
+    When I go to "/sites/default/files/xml_valid.xml"
+    And the response content from the file "xml_invalid.xml"
     Then the response should not be in XML format
 
   @trait:XmlTrait

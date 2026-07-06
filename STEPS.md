@@ -2399,6 +2399,10 @@ Assert that a response is valid XML
 ```gherkin
 Then the response should be in XML format
 
+# Content set by a fixture step is validated instead of the page content.
+Given the response content from the file "xml_valid.xml"
+Then the response should be in XML format
+
 ```
 
 </details>
@@ -2411,6 +2415,10 @@ Assert that a response is not valid XML
 <br/><br/>
 
 ```gherkin
+Then the response should not be in XML format
+
+# Content set by a fixture step is validated instead of the page content.
+Given the response content from the file "xml_invalid.xml"
 Then the response should not be in XML format
 
 ```
