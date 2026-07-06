@@ -431,6 +431,20 @@ Feature: Check that JsonTrait works
       The JSON path "$.name" is not an array or object.
       """
 
+  @trait:JsonTrait
+  Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a non-numeric count
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I go to "/sites/default/files/json_valid.json"
+      Then the JSON path "$.items" should have "three" elements
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The expected element count "three" is not a valid non-negative integer.
+      """
+
   Scenario: Assert "Then the response should match the following JSON schema:" works
     When I go to "/sites/default/files/json_valid.json"
     Then the response should match the following JSON schema:

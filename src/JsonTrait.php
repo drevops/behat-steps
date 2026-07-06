@@ -108,13 +108,7 @@ trait JsonTrait {
    */
   #[Then('the response should be in JSON format')]
   public function jsonAssertResponseIsJson(): void {
-    $content = $this->jsonResolveContent();
-
-    json_decode((string) $content);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The response is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
-    }
+    $this->jsonDecodeLoose($this->jsonResolveContent());
   }
 
   /**
@@ -342,6 +336,10 @@ trait JsonTrait {
       throw new ExpectationException(sprintf('The JSON path "%s" is not an array or object.', $path), $this->getSession()->getDriver());
     }
 
+    if (!ctype_digit($count)) {
+      throw new ExpectationException(sprintf('The expected element count "%s" is not a valid non-negative integer.', $count), $this->getSession()->getDriver());
+    }
+
     $actual = count($value);
     $expected = (int) $count;
 
@@ -386,12 +384,7 @@ trait JsonTrait {
    */
   #[When('I print last JSON response')]
   public function jsonPrintLastResponse(): void {
-    $content = $this->jsonResolveContent();
-
-    $data = json_decode((string) $content);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The response is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
-    }
+    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
 
     print (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   }
@@ -482,6 +475,28 @@ trait JsonTrait {
 
     if (!is_array($data)) {
       throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', gettype($data)));
+    }
+
+    return $data;
+  }
+
+  /**
+   * Decode JSON content as loosely-typed data.
+   *
+   * Preserves the decoded value's native type (object, array, or scalar) and
+   * reports a parse failure as an assertion error.
+   *
+   * @param string $content
+   *   The JSON content to decode.
+   *
+   * @return mixed
+   *   The decoded value.
+   */
+  protected function jsonDecodeLoose(string $content): mixed {
+    $data = json_decode($content);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      throw new ExpectationException(sprintf('The response is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
     }
 
     return $data;
@@ -587,12 +602,7 @@ trait JsonTrait {
       // @codeCoverageIgnoreEnd
     }
 
-    $content = $this->jsonResolveContent();
-
-    $data = json_decode((string) $content);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The response is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
-    }
+    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
 
     $schema = json_decode($schema_json);
     if (json_last_error() !== JSON_ERROR_NONE) {
