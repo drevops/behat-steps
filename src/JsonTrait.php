@@ -53,9 +53,7 @@ trait JsonTrait {
    */
   #[BeforeScenario]
   public function jsonBeforeScenario(): void {
-    $this->jsonData = NULL;
-    $this->jsonContentHash = NULL;
-    $this->jsonTestContent = NULL;
+    $this->jsonResetState();
   }
 
   /**
@@ -63,9 +61,7 @@ trait JsonTrait {
    */
   #[AfterScenario]
   public function jsonAfterScenario(): void {
-    $this->jsonData = NULL;
-    $this->jsonContentHash = NULL;
-    $this->jsonTestContent = NULL;
+    $this->jsonResetState();
   }
 
   /**
@@ -77,21 +73,7 @@ trait JsonTrait {
    */
   #[Given('the response JSON from the file :filename')]
   public function jsonSetContentFromFile(string $filename): void {
-    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
-    $file_path = $files_path . '/' . $filename;
-
-    if (!file_exists($file_path)) {
-      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
-    }
-
-    $content = file_get_contents($file_path);
-    if ($content === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
-      // @codeCoverageIgnoreEnd
-    }
-
-    $this->jsonTestContent = $content;
+    $this->jsonTestContent = $this->jsonReadFile($filename);
     $this->jsonData = NULL;
     $this->jsonContentHash = NULL;
   }
@@ -392,21 +374,7 @@ trait JsonTrait {
    */
   #[Then('the response should match the JSON schema in the file :filename')]
   public function jsonAssertMatchesSchemaFromFile(string $filename): void {
-    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
-    $file_path = $files_path . '/' . $filename;
-
-    if (!file_exists($file_path)) {
-      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
-    }
-
-    $schema = file_get_contents($file_path);
-    if ($schema === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
-      // @codeCoverageIgnoreEnd
-    }
-
-    $this->jsonValidateSchema($schema);
+    $this->jsonValidateSchema($this->jsonReadFile($filename));
   }
 
   /**
@@ -426,6 +394,42 @@ trait JsonTrait {
     }
 
     print (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  }
+
+  /**
+   * Reset all cached JSON state.
+   */
+  protected function jsonResetState(): void {
+    $this->jsonData = NULL;
+    $this->jsonContentHash = NULL;
+    $this->jsonTestContent = NULL;
+  }
+
+  /**
+   * Read a fixture file's contents.
+   *
+   * @param string $filename
+   *   The fixture file name relative to the Mink files path.
+   *
+   * @return string
+   *   The file contents.
+   */
+  protected function jsonReadFile(string $filename): string {
+    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
+    $file_path = $files_path . '/' . $filename;
+
+    if (!file_exists($file_path)) {
+      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
+    }
+
+    $content = file_get_contents($file_path);
+    if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
+      // @codeCoverageIgnoreEnd
+    }
+
+    return $content;
   }
 
   /**
