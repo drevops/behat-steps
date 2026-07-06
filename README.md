@@ -57,6 +57,7 @@ from the community.
 | [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
 | [IframeTrait](STEPS.md#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](STEPS.md#javascripttrait) | Automatically detect JavaScript errors during test execution. |
+| [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
 | [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags in page markup. |

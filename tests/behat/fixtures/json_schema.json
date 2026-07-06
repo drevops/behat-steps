@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "required": ["name", "age", "active"],
+  "properties": {
+    "name": {"type": "string"},
+    "age": {"type": "integer"},
+    "email": {"type": "string"},
+    "active": {"type": "boolean"},
+    "disabled": {"type": "boolean"},
+    "price": {"type": "number"},
+    "user": {
+      "type": "object",
+      "properties": {
+        "roles": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "items": {"type": "array", "items": {"type": "integer"}},
+    "books": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": {"type": "integer"},
+          "title": {"type": "string"}
+        }
+      }
+    }
+  }
+}
