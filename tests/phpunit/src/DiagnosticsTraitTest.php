@@ -280,6 +280,8 @@ class DiagnosticsTraitTestImplementation {
   }
 
   /**
+   * Expose the collected JavaScript console error messages.
+   *
    * @return array<int, string>
    *   Collected JavaScript error messages.
    */
@@ -335,10 +337,19 @@ class DiagnosticsTraitJsRegistryImplementation extends DiagnosticsTraitTestImple
  */
 class DiagnosticsFakeSession {
 
+  /**
+   * The current page URL returned by getCurrentUrl().
+   */
   public string $url = 'http://example.com/page';
 
+  /**
+   * The response status code returned by getStatusCode().
+   */
   public int $status = 200;
 
+  /**
+   * The driver instance returned by getDriver().
+   */
   public object $driver;
 
   /**
@@ -348,12 +359,24 @@ class DiagnosticsFakeSession {
    */
   public array $script = [];
 
+  /**
+   * When set, getCurrentUrl() throws this instead of returning a value.
+   */
   public ?\Throwable $urlError = NULL;
 
+  /**
+   * When set, getStatusCode() throws this instead of returning a value.
+   */
   public ?\Throwable $statusError = NULL;
 
+  /**
+   * When set, getDriver() throws this instead of returning a value.
+   */
   public ?\Throwable $driverError = NULL;
 
+  /**
+   * When set, evaluateScript() throws this instead of returning a value.
+   */
   public ?\Throwable $scriptError = NULL;
 
   public function __construct() {
