@@ -90,28 +90,51 @@ trait HelperTrait {
   }
 
   /**
-   * Delete registered entities in reverse creation order.
+   * Delete registered entities in reverse creation order at scenario teardown.
    */
   #[AfterScenario('@api')]
   public function entityCleanupAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    $scenario = $scope->getScenario();
+
+    if ($scenario->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
-    // @codeCoverageIgnoreStart
-    $skip_types = $this->entityCleanupSkippedTypes($scope->getScenario()->getTags());
+    $this->entityCleanupRun($this->entityCleanupSkippedTypes($scenario->getTags()));
+  }
 
+  /**
+   * Delete registered entities in reverse creation order, then reset.
+   *
+   * Entity types in self::ENTITY_CLEANUP_EXCLUDED_TYPES (owned by the base
+   * Drupal Extension) or in $skip_types are left in place.
+   *
+   * @param array<int, string> $skip_types
+   *   Entity type ids to leave in place.
+   */
+  protected function entityCleanupRun(array $skip_types): void {
     foreach (array_reverse($this->entityRegistry) as [$entity_type_id, $entity_id]) {
       if (in_array($entity_type_id, self::ENTITY_CLEANUP_EXCLUDED_TYPES, TRUE) || in_array($entity_type_id, $skip_types, TRUE)) {
         continue;
       }
 
-      $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
-      $entity?->delete();
+      $this->entityCleanupDelete($entity_type_id, $entity_id);
     }
 
     $this->entityRegistry = [];
-    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Load an entity by type and id and delete it when it still exists.
+   *
+   * @param string $entity_type_id
+   *   The entity type machine name.
+   * @param int|string $entity_id
+   *   The entity id.
+   */
+  protected function entityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
+    $entity?->delete();
   }
 
   /**
