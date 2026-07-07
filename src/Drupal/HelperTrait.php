@@ -23,8 +23,8 @@ use Drupal\Driver\Entity\EntityStubInterface;
  * helpers.
  *
  * Entity types owned by the base Drupal Extension cleanup (node, user,
- * taxonomy_term, user_role) are never registered here, so there is no
- * double-deletion.
+ * taxonomy_term, user_role, language, configurable_language) are never
+ * registered here, so there is no double-deletion.
  *
  * Skip all cleanup with tag: `@behat-steps-skip:entityCleanupAfterScenario`
  * Skip cleanup for one entity type with tag:

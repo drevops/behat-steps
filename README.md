@@ -172,9 +172,9 @@ Traits that create Drupal entities (content blocks, media, managed files,
 paragraphs, ECK entities, menus and menu links, redirects, blocks and webforms)
 register each created entity in a shared registry and delete them in reverse
 creation order at the end of the scenario, keeping the test database clean
-across long suites. Nodes, users, taxonomy terms and roles are cleaned up by the
-base Drupal Extension and are never registered here, so there is no
-double-deletion.
+across long suites. Nodes, users, taxonomy terms, roles and language entities
+are cleaned up by the base Drupal Extension and are never registered here, so
+there is no double-deletion.
 
 To keep **all** registered entities after a scenario, add
 `@behat-steps-skip:entityCleanupAfterScenario` to the scenario or feature.
