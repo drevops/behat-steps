@@ -121,7 +121,7 @@ class CommandTraitTest extends UnitTestCase {
       'output unexpectedly contains' => ['echo hello', 'commandAssertOutputNotContains', ['hello'], \Exception::class, 'Expected the command output to not contain "hello"'],
       'output does not equal' => ['echo hello', 'commandAssertOutputEquals', ['goodbye'], \Exception::class, 'Expected the command output to be "goodbye", but got "hello".'],
       'error output does not contain' => ['echo hello', 'commandAssertErrorOutputContains', ['missing'], \Exception::class, 'Expected the command error output to contain "missing"'],
-      'duration exceeds the limit' => ['sleep 2', 'commandAssertDurationLessThan', ['1'], \Exception::class, 'Expected the command to complete in less than 1 seconds'],
+      'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], \Exception::class, 'Expected the command to complete in less than 0.5 seconds'],
       'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], \Exception::class, 'Expected the command to complete in more than 5 seconds'],
       'assertion before any command' => [NULL, 'commandAssertSuccess', [], \RuntimeException::class, 'No command has been run.'],
     ];
