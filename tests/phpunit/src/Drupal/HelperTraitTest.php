@@ -39,6 +39,18 @@ class HelperTraitTest extends UnitTestCase {
     $this->fixturesPath = static::$tmp . DIRECTORY_SEPARATOR;
   }
 
+  /**
+   * Create fixture files with placeholder content in the fixtures directory.
+   *
+   * @param array<int, string> $basenames
+   *   Basenames to create under the per-test fixtures directory.
+   */
+  protected function createFixtureFiles(array $basenames): void {
+    foreach ($basenames as $basename) {
+      file_put_contents($this->fixturesPath . $basename, 'fixture content');
+    }
+  }
+
   #[DataProvider('dataProviderLooksLikeCompoundCell')]
   public function testLooksLikeCompoundCell(string $value, bool $expected): void {
     $this->assertSame($expected, $this->testObject->callHelperLooksLikeCompoundCell($value));
@@ -63,9 +75,7 @@ class HelperTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExpandCompoundCellFixtures')]
   public function testExpandCompoundCellFixtures(string $value, array $existing_fixture_files, array $existing_managed_basenames, string $expected_template): void {
-    foreach ($existing_fixture_files as $basename) {
-      file_put_contents($this->fixturesPath . $basename, 'fixture content');
-    }
+    $this->createFixtureFiles($existing_fixture_files);
 
     $this->testObject->managedBasenames = $existing_managed_basenames;
 
@@ -124,9 +134,7 @@ class HelperTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExpandEntityFieldsFixtures')]
   public function testExpandEntityFieldsFixtures(array $existing_fixture_files, array $existing_managed_basenames, array $field_types, array $stub_values, callable $expected_factory): void {
-    foreach ($existing_fixture_files as $basename) {
-      file_put_contents($this->fixturesPath . $basename, 'fixture content');
-    }
+    $this->createFixtureFiles($existing_fixture_files);
 
     $core = $this->createStub(CoreInterface::class);
     $core->method('getEntityFieldTypes')->willReturn($field_types);
