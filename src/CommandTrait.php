@@ -201,7 +201,7 @@ trait CommandTrait {
   public function commandAssertExitCode(string $code): void {
     $this->commandAssertHasRun();
 
-    $expected = (int) $this->commandAssertNumeric($code, 'expected exit code');
+    $expected = $this->commandAssertInteger($code, 'expected exit code');
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== $expected) {
@@ -359,6 +359,20 @@ trait CommandTrait {
     }
 
     return (float) $value;
+  }
+
+  /**
+   * Assert that a step argument is an integer and return it.
+   *
+   * @throws \RuntimeException
+   *   When the value is not an integer.
+   */
+  protected function commandAssertInteger(string $value, string $label): int {
+    if (!preg_match('/^-?\d+$/', $value)) {
+      throw new \RuntimeException(sprintf('The %s must be an integer, but got "%s".', $label, $value));
+    }
+
+    return (int) $value;
   }
 
   /**

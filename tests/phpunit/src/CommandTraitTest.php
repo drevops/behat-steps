@@ -133,7 +133,8 @@ class CommandTraitTest extends UnitTestCase {
       'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], \Exception::class, 'Expected the command to complete in less than 0.5 seconds'],
       'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], \Exception::class, 'Expected the command to complete in more than 5 seconds'],
       'assertion before any command' => [NULL, 'commandAssertSuccess', [], \RuntimeException::class, 'No command has been run.'],
-      'non-numeric exit code' => ['echo hello', 'commandAssertExitCode', ['three'], \RuntimeException::class, 'The expected exit code must be numeric, but got "three".'],
+      'non-integer exit code word' => ['echo hello', 'commandAssertExitCode', ['three'], \RuntimeException::class, 'The expected exit code must be an integer, but got "three".'],
+      'non-integer exit code float' => ['echo hello', 'commandAssertExitCode', ['3.5'], \RuntimeException::class, 'The expected exit code must be an integer, but got "3.5".'],
       'non-numeric less-than duration' => ['echo hello', 'commandAssertDurationLessThan', ['three'], \RuntimeException::class, 'The expected duration must be numeric, but got "three".'],
       'non-numeric more-than duration' => ['echo hello', 'commandAssertDurationMoreThan', ['three'], \RuntimeException::class, 'The expected duration must be numeric, but got "three".'],
     ];

@@ -167,7 +167,7 @@ Feature: Check that CommandTrait works
       """
 
   @trait:CommandTrait
-  Scenario: Assert that a non-numeric exit code argument fails with a runtime exception
+  Scenario: Assert that a non-integer exit code argument fails with a runtime exception
     Given some behat configuration
     And scenario steps:
       """
@@ -177,7 +177,7 @@ Feature: Check that CommandTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The expected exit code must be numeric, but got "three".
+      The expected exit code must be an integer, but got "three".
       """
 
   @trait:CommandTrait
