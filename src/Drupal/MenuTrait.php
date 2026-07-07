@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Step\Given;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -18,25 +16,11 @@ use Drupal\system\MenuInterface;
  * - Assert menu items by label, path, and containment hierarchy.
  * - Assert menu link visibility and active states in different regions.
  * - Create and manage menu hierarchies with parent-child relationships.
- * - Automatically clean up created menu links after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:menuAfterScenario`
+ * - Created menus and menu links are automatically removed at the end of the scenario.
  */
 trait MenuTrait {
 
-  /**
-   * Menus.
-   *
-   * @var \Drupal\system\Entity\Menu[]
-   */
-  protected $menus = [];
-
-  /**
-   * Menu links.
-   *
-   * @var \Drupal\menu_link_content\Entity\MenuLinkContent[]
-   */
-  protected $menuLinks = [];
+  use HelperTrait;
 
   /**
    * Remove a single menu by its label if it exists.
@@ -86,7 +70,7 @@ trait MenuTrait {
       $menu = Menu::create($menu_hash);
       $menu->save();
 
-      $this->menus[] = $menu;
+      $this->entityRegister($menu);
     }
   }
 
@@ -157,29 +141,8 @@ trait MenuTrait {
       }
       $menu_link = MenuLinkContent::create($menu_link_hash);
       $menu_link->save();
-      $this->menuLinks[] = $menu_link;
+      $this->entityRegister($menu_link);
     }
-  }
-
-  /**
-   * Remove all menu items after scenario run.
-   */
-  #[AfterScenario('@api')]
-  public function menuAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    foreach ($this->menuLinks as $menu_link) {
-      $menu_link->delete();
-    }
-    $this->menuLinks = [];
-
-    foreach ($this->menus as $menu) {
-      $menu->delete();
-    }
-    $this->menus = [];
   }
 
   /**

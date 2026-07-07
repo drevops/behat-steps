@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Drupal\Component\Utility\UrlHelper;
@@ -18,15 +16,15 @@ use Drupal\redirect\Entity\Redirect;
  * - Create one or more redirects from a table of source/destination/status.
  * - Delete redirects by source path.
  * - Assert that redirects do or do not exist for given source paths.
- * - Automatically clean up created redirects after scenario completion.
+ * - Created redirects are automatically removed at the end of the scenario.
  *
  * Requires the `redirect` contrib module to be installed and enabled in the
  * consumer project: add `drupal/redirect` to `composer.json` and enable the
  * module as part of the site's standard setup (e.g. in `core.extension.yml`).
- *
- * Skip processing with tag: `@behat-steps-skip:redirectAfterScenario`
  */
 trait RedirectTrait {
+
+  use HelperTrait;
 
   /**
    * Allowed HTTP status codes for redirects.
@@ -34,13 +32,6 @@ trait RedirectTrait {
    * @var int[]
    */
   protected static $redirectAllowedStatusCodes = [301, 302, 303, 307, 308];
-
-  /**
-   * Redirects created during a scenario.
-   *
-   * @var \Drupal\redirect\Entity\Redirect[]
-   */
-  protected $redirects = [];
 
   /**
    * Create one or more redirects.
@@ -90,7 +81,7 @@ trait RedirectTrait {
       $redirect->setRedirect($to);
       $redirect->save();
 
-      $this->redirects[] = $redirect;
+      $this->entityRegister($redirect);
     }
   }
 
@@ -126,14 +117,6 @@ trait RedirectTrait {
 
       $entities = $storage->loadMultiple($ids);
       $storage->delete($entities);
-
-      // Drop any cleanup references for the just-deleted redirects so the
-      // after-scenario hook does not attempt to delete them again.
-      $deleted_ids = array_map(intval(...), array_keys($entities));
-      $this->redirects = array_values(array_filter(
-        $this->redirects,
-        fn(Redirect $redirect): bool => !in_array((int) $redirect->id(), $deleted_ids, TRUE),
-      ));
     }
   }
 
@@ -236,38 +219,6 @@ trait RedirectTrait {
     if ($present !== []) {
       throw new \Exception(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
     }
-  }
-
-  /**
-   * Remove all created redirects after scenario run.
-   */
-  #[AfterScenario('@api')]
-  public function redirectAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    if (empty($this->redirects)) {
-      return;
-    }
-
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::moduleHandler()->moduleExists('redirect')) {
-      $this->redirects = [];
-
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
-    $ids = array_filter(array_map(fn(Redirect $redirect): int => (int) $redirect->id(), $this->redirects));
-    $entities = $ids !== [] ? $storage->loadMultiple($ids) : [];
-
-    if (!empty($entities)) {
-      $storage->delete($entities);
-    }
-
-    $this->redirects = [];
   }
 
   /**

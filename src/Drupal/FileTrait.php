@@ -30,12 +30,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 trait FileTrait {
 
-  /**
-   * Files entities.
-   *
-   * @var array<int,FileInterface>
-   */
-  protected $fileEntities = [];
+  use HelperTrait;
 
   /**
    * Unmanaged file URIs.
@@ -122,7 +117,7 @@ trait FileTrait {
 
     $saved = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->fileEntities[] = $saved;
+    $this->entityRegister($saved);
 
     return $saved;
   }
@@ -186,7 +181,9 @@ trait FileTrait {
   }
 
   /**
-   * Clean all created managed files after scenario run.
+   * Remove unmanaged files created during the scenario.
+   *
+   * Managed file entities are removed by the shared entity registry cleanup.
    */
   #[AfterScenario('@api')]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
@@ -195,15 +192,9 @@ trait FileTrait {
       return;
     }
     // @codeCoverageIgnoreEnd
-    foreach ($this->fileEntities as $file) {
-      $file->delete();
-    }
-
     foreach ($this->filesUnmanagedUris as $uri) {
       @unlink($uri);
     }
-
-    $this->fileEntities = [];
   }
 
   /**

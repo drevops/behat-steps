@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\When;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Driver\Capability\ContentCapabilityInterface;
 use Drupal\Driver\Entity\EntityStub;
 
@@ -17,51 +16,11 @@ use Drupal\Driver\Entity\EntityStub;
  *
  * - Create structured ECK entities with defined field values.
  * - Assert entity type registration and visit entity pages.
- * - Automatically clean up created entities after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:eckAfterScenario`
+ * - Created entities are automatically removed at the end of the scenario.
  */
 trait EckTrait {
 
-  /**
-   * Custom eck content entities organised by entity type.
-   *
-   * @var array<string, array<int, \Drupal\eck\EckEntityInterface|object>>
-   */
-  protected $eckEntities = [];
-
-  /**
-   * Remove ECK types and entities.
-   */
-  #[AfterScenario('@api')]
-  public function eckAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    // @codeCoverageIgnoreStart
-    $entity_ids_by_type = [];
-    foreach ($this->eckEntities as $entity_type => $content_entities) {
-      foreach ($content_entities as $content_entity) {
-        // Handle both entity objects (with ->id() method) and stdClass (with ->id property).
-        if (is_object($content_entity) && method_exists($content_entity, 'id')) {
-          $entity_ids_by_type[$entity_type][] = $content_entity->id();
-        }
-        elseif (is_object($content_entity) && isset($content_entity->id)) {
-          $entity_ids_by_type[$entity_type][] = $content_entity->id;
-        }
-      }
-    }
-
-    foreach ($entity_ids_by_type as $entity_type => $entity_ids) {
-      $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
-      $entities = $controller->loadMultiple($entity_ids);
-      $controller->delete($entities);
-    }
-
-    $this->eckEntities = [];
-    // @codeCoverageIgnoreEnd
-  }
+  use HelperTrait;
 
   /**
    * Create eck entities.
@@ -212,8 +171,10 @@ trait EckTrait {
 
     $driver->entityCreate($stub);
 
-    // Store the saved Drupal entity for AfterScenario cleanup.
-    $this->eckEntities[$stub->getEntityType()][] = $stub->getSavedEntity();
+    $saved = $stub->getSavedEntity();
+    if ($saved instanceof EntityInterface) {
+      $this->entityRegister($saved);
+    }
   }
 
 }

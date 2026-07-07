@@ -246,7 +246,7 @@ Feature: Check that BlockTrait works
       Could not create block with admin label "Non-existent Block Type"
       """
 
-  @api @behat-steps-skip:blockAfterScenario
+  @api @behat-steps-entity-cleanup-skip:block
   Scenario: Blocks are not automatically cleaned up when skip tag is used
     Given the instance of "User account menu" block exists with the following configuration:
       | label         | [TEST] Skip Cleanup Block |

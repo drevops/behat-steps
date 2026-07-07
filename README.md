@@ -166,6 +166,23 @@ by adding `@behat-steps-skip:METHOD_NAME` tag to your test.
 For example, to skip `beforeScenario` hook from `ElementTrait`, add
 `@behat-steps-skip:ElementTrait` tag to the feature.
 
+### Automatic entity cleanup
+
+Traits that create Drupal entities (content blocks, media, managed files,
+paragraphs, ECK entities, menus and menu links, redirects, blocks and webforms)
+register each created entity in a shared registry and delete them in reverse
+creation order at the end of the scenario, keeping the test database clean
+across long suites. Nodes, users, taxonomy terms and roles are cleaned up by the
+base Drupal Extension and are never registered here, so there is no
+double-deletion.
+
+To keep **all** registered entities after a scenario, add
+`@behat-steps-skip:entityCleanupAfterScenario` to the scenario or feature.
+
+To keep only entities of a **named type**, add
+`@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example
+`@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
+
 ## Writing tests with AI assistants
 
 Copy and paste below into your project's `CLAUDE.md` or `AGENTS.md` file.

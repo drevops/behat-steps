@@ -4,55 +4,20 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
-use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Manage Drupal webforms.
  *
  * - Delete webforms matching a given title for test isolation.
  * - Clone webform templates into new webforms for scenario setup.
- * - Automatically clean up cloned webforms after scenario completion.
+ * - Cloned webforms are automatically removed at the end of the scenario.
  *
  * Requires `drupal/webform` module.
- *
- * Skip processing with tag: `@behat-steps-skip:webformAfterScenario`
  */
 trait WebformTrait {
 
-  /**
-   * Array of created webform entities for cleanup.
-   *
-   * @var array<int,\Drupal\webform\WebformInterface>
-   */
-  protected static $webformEntities = [];
-
-  /**
-   * Clean all created webform instances after scenario run.
-   */
-  #[AfterScenario('@api')]
-  public function webformAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      static::$webformEntities = [];
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    foreach (static::$webformEntities as $webform) {
-      try {
-        $webform->delete();
-      }
-      // @codeCoverageIgnoreStart
-      catch (EntityStorageException) {
-        // Ignore "already deleted" errors to keep teardown resilient.
-      }
-      // @codeCoverageIgnoreEnd
-    }
-
-    static::$webformEntities = [];
-  }
+  use HelperTrait;
 
   /**
    * Remove all webforms with a title containing the given string.
@@ -107,7 +72,7 @@ trait WebformTrait {
     $clone->set('template', FALSE);
     $clone->save();
 
-    static::$webformEntities[] = $clone;
+    $this->entityRegister($clone);
   }
 
   /**

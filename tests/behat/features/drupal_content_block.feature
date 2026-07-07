@@ -169,7 +169,7 @@ Feature: Check that ContentBlockTrait works
       | [TEST] Content Block That Doesn't Exist |
     Then I should not see the text "[TEST] Content Block That Doesn't Exist"
 
-  @api @behat-steps-skip:contentBlockAfterScenario
+  @api @behat-steps-entity-cleanup-skip:block_content
   Scenario: Content blocks are not automatically cleaned up when skip tag is used
     Given the following "basic" content blocks exist:
       | info                      | body              | status |

@@ -722,6 +722,7 @@ function tag_registry(): array {
   return [
     // Parametrized tags - expect a `:value` suffix.
     'behat-steps-skip' => 'parametrized',
+    'behat-steps-entity-cleanup-skip' => 'parametrized',
     'module' => 'parametrized',
     'breakpoint' => 'parametrized',
     'email' => 'parametrized',

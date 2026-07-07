@@ -6,57 +6,20 @@ namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Step\Given;
 use Behat\Step\Then;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Hook\AfterScenario;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\block\Entity\Block;
-use Drupal\Core\Entity\EntityStorageException;
 
 /**
  * Manage Drupal blocks.
  *
  * - Create and configure blocks with custom visibility conditions.
  * - Place blocks in regions and verify their rendering in the page.
- * - Automatically clean up created blocks after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:blockAfterScenario`
+ * - Created blocks are automatically removed at the end of the scenario.
  */
 trait BlockTrait {
 
-  /**
-   * Array of created block instances.
-   *
-   * @var array<int, \Drupal\block\Entity\Block>
-   */
-  protected static array $blockInstances = [];
-
-  /**
-   * Clean up all blocks created during the scenario.
-   *
-   * This method automatically runs after each scenario to ensure clean
-   * test state.
-   * Add the tag @behat-steps-skip:blockAfterScenario to your scenario to
-   * prevent automatic cleanup of blocks.
-   */
-  #[AfterScenario('@api')]
-  public function blockAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    foreach (static::$blockInstances as $key => $block) {
-      try {
-        $block->delete();
-      }
-      // @codeCoverageIgnoreStart
-      catch (EntityStorageException) {
-        // Ignore "already deleted" errors to keep teardown resilient.
-      }
-      // @codeCoverageIgnoreEnd
-      unset(static::$blockInstances[$key]);
-    }
-  }
+  use HelperTrait;
 
   /**
    * Create a block instance.
@@ -106,7 +69,7 @@ trait BlockTrait {
 
     $this->blockConfigure($admin_label, $fields);
 
-    static::$blockInstances[] = $block;
+    $this->entityRegister($block);
   }
 
   /**
@@ -178,11 +141,6 @@ trait BlockTrait {
     while ($block = $this->blockLoadByLabel($label)) {
       $block->delete();
     }
-
-    static::$blockInstances = array_filter(
-      static::$blockInstances,
-      fn(Block $b): bool => $b->get('settings')['label'] !== $label
-    );
   }
 
   /**
