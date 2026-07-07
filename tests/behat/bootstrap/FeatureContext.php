@@ -151,12 +151,13 @@ class FeatureContext extends DrupalContext {
   /**
    * Shorten the BigPipe wait timeout for the timeout coverage scenario.
    *
-   * Scenarios tagged '@bigpipe-timeout' use a short timeout so they can exercise
-   * the wait timing out quickly; every other scenario keeps the trait's default.
+   * Scenarios tagged '@test-bigpipe-timeout' use a short timeout so they can
+   * exercise the wait timing out quickly; every other scenario keeps the trait's
+   * default.
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('bigpipe-timeout') ? 2000 : self::DEFAULT_WAIT_TIMEOUT;
+    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('test-bigpipe-timeout') ? 2000 : self::DEFAULT_WAIT_TIMEOUT;
   }
 
 }

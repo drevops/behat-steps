@@ -143,6 +143,7 @@ This ensures that the documentation remains in sync with the actual code impleme
 - Use descriptive tags (e.g., `@datetime`) to allow selective test execution
 - Negative tests using `@trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
+- Test-only tags - ones consumed by the test harness (`FeatureContext` or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
 
 ### Step Definition Constraints
 - Documentation tool (`docs.php`) does not support multiple `@When` annotations per method

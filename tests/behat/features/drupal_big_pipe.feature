@@ -57,7 +57,7 @@ Feature: Check that BigPipeTrait works
     Then I should see an "span[data-big-pipe-placeholder-id]" element
     And I should not see "BigPipe streamed content"
 
-  @javascript @bigpipe-timeout
+  @javascript @test-bigpipe-timeout
   Scenario: The automatic BigPipe wait times out without failing when placeholders never resolve
     When I visit "/sites/default/files/bigpipe_stuck.html"
     Then I should see an "span[data-big-pipe-placeholder-id]" element
