@@ -33,6 +33,11 @@ use Behat\Mink\Exception\DriverException;
 trait BigPipeTrait {
 
   /**
+   * Default maximum time to wait for BigPipe placeholders, in milliseconds.
+   */
+  protected const DEFAULT_WAIT_TIMEOUT = 10000;
+
+  /**
    * Whether the automatic BigPipe wait is active for the current scenario.
    */
   protected bool $bigPipeAutoWaitEnabled = FALSE;
@@ -40,7 +45,7 @@ trait BigPipeTrait {
   /**
    * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
    */
-  protected int $bigPipeWaitTimeout = 10000;
+  protected int $bigPipeWaitTimeout = self::DEFAULT_WAIT_TIMEOUT;
 
   /**
    * Resolve whether the automatic BigPipe wait applies to this scenario.
