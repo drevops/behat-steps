@@ -13,6 +13,7 @@ use DrevOps\BehatSteps\AccessibilityTrait;
 use DrevOps\BehatSteps\CommandTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
+use DrevOps\BehatSteps\DiagnosticsTrait;
 use DrevOps\BehatSteps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
 use DrevOps\BehatSteps\Drupal\CacheTrait;
@@ -74,6 +75,7 @@ class FeatureContext extends DrupalContext {
   use ContentTrait;
   use CookieTrait;
   use DateTrait;
+  use DiagnosticsTrait;
   use DraggableviewsTrait;
   use DropzoneTrait;
   use EckTrait;

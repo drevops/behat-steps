@@ -8,6 +8,7 @@
 | [CommandTrait](#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [DiagnosticsTrait](#diagnosticstrait) | Append on-failure diagnostics to the failure message of any failed step. |
 | [DropzoneTrait](#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
@@ -480,6 +481,44 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  Examples:
 >  - `[relative:-1 day]` converted to `1893456000`
 >  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+
+
+## DiagnosticsTrait
+
+[Source](src/DiagnosticsTrait.php), [Example](tests/behat/features/diagnostics.feature)
+
+>  Append on-failure diagnostics to the failure message of any failed step.
+>  <br/><br/>
+>  When a step fails, the exception message alone is often not enough to
+>  diagnose a red CI run. This trait hooks every step and, only when the step
+>  failed, appends a compact diagnostics block to the failure message:
+>  - `URL` - the current page URL.
+>  - `HTTP status` - the last response status code.
+>  - `Mink driver` - the active Mink driver class.
+>  - `JS console errors` - collected JavaScript errors, when a JavaScript-capable
+>  driver is active and errors were captured. Reads the buffer maintained by
+>  `JavascriptTrait` when the context also uses it, and the live browser buffer.
+>  - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
+>  
+>  The trait is opt-in: `use` it in the context and it is active with no further
+>  configuration. Every field is individually toggleable by overriding its
+>  `diagnosticsShow*()` method to return FALSE, and each value source degrades
+>  gracefully to nothing when the driver cannot provide it - a failed step is
+>  never turned into a different failure by this trait.
+>  <br/><br/>
+>  Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
+>  <br/><br/>
+>  ```
+>  Scenario: A failing step prints diagnostics
+>    Given I am on "/some-page"
+>    Then I should see "text that is not there"
+>    # On failure the message gains:
+>    # --- Failure diagnostics ---
+>    # URL: http://example.com/some-page
+>    # HTTP status: 200
+>    # Mink driver: Behat\Mink\Driver\BrowserKitDriver
+>    # Re-run: vendor/bin/behat features/example.feature:3
+>  ```
 
 
 ## DropzoneTrait
