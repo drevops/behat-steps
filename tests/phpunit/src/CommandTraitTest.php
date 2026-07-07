@@ -93,6 +93,15 @@ class CommandTraitTest extends UnitTestCase {
     $this->assertSame(0.0, $this->testObject->duration());
   }
 
+  public function testTimeoutTerminatesLongRunningCommand(): void {
+    $this->testObject->timeoutOverride = 1;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('timed out after 1 seconds');
+
+    $this->testObject->commandRun('sleep 30');
+  }
+
   #[DataProvider('dataProviderAssertionFailures')]
   public function testAssertionFailures(?string $command, string $method, array $args, string $exception_class, string $message_fragment): void {
     if ($command !== NULL) {
@@ -124,6 +133,9 @@ class CommandTraitTest extends UnitTestCase {
       'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], \Exception::class, 'Expected the command to complete in less than 0.5 seconds'],
       'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], \Exception::class, 'Expected the command to complete in more than 5 seconds'],
       'assertion before any command' => [NULL, 'commandAssertSuccess', [], \RuntimeException::class, 'No command has been run.'],
+      'non-numeric exit code' => ['echo hello', 'commandAssertExitCode', ['three'], \RuntimeException::class, 'The expected exit code must be numeric, but got "three".'],
+      'non-numeric less-than duration' => ['echo hello', 'commandAssertDurationLessThan', ['three'], \RuntimeException::class, 'The expected duration must be numeric, but got "three".'],
+      'non-numeric more-than duration' => ['echo hello', 'commandAssertDurationMoreThan', ['three'], \RuntimeException::class, 'The expected duration must be numeric, but got "three".'],
     ];
   }
 
@@ -135,6 +147,18 @@ class CommandTraitTest extends UnitTestCase {
 class CommandTraitTestImplementation {
 
   use CommandTrait;
+
+  /**
+   * The command timeout, in seconds, used by the trait.
+   */
+  public int $timeoutOverride = 300;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function commandTimeout(): int {
+    return $this->timeoutOverride;
+  }
 
   /**
    * Expose the captured exit code.

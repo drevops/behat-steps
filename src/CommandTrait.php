@@ -99,8 +99,18 @@ trait CommandTrait {
 
     $stdout = '';
     $stderr = '';
+    $timeout = $this->commandTimeout();
 
     while (!feof($pipes[1]) || !feof($pipes[2])) {
+      if (microtime(TRUE) - $started > $timeout) {
+        proc_terminate($process, 9);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        throw new \RuntimeException(sprintf('The command "%s" timed out after %d seconds.', $command, $timeout));
+      }
+
       $read = [];
       if (!feof($pipes[1])) {
         $read[] = $pipes[1];
@@ -191,7 +201,7 @@ trait CommandTrait {
   public function commandAssertExitCode(string $code): void {
     $this->commandAssertHasRun();
 
-    $expected = (int) $code;
+    $expected = (int) $this->commandAssertNumeric($code, 'expected exit code');
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== $expected) {
@@ -289,7 +299,7 @@ trait CommandTrait {
   public function commandAssertDurationLessThan(string $seconds): void {
     $this->commandAssertHasRun();
 
-    $limit = (float) $seconds;
+    $limit = $this->commandAssertNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration >= $limit) {
       throw new \Exception(sprintf('Expected the command to complete in less than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -308,7 +318,7 @@ trait CommandTrait {
   public function commandAssertDurationMoreThan(string $seconds): void {
     $this->commandAssertHasRun();
 
-    $limit = (float) $seconds;
+    $limit = $this->commandAssertNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration <= $limit) {
       throw new \Exception(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -335,6 +345,27 @@ trait CommandTrait {
     if ($this->commandExitCode === NULL) {
       throw new \RuntimeException('No command has been run. Run a command before asserting on its result.');
     }
+  }
+
+  /**
+   * Assert that a step argument is numeric and return it as a float.
+   *
+   * @throws \RuntimeException
+   *   When the value is not numeric.
+   */
+  protected function commandAssertNumeric(string $value, string $label): float {
+    if (!is_numeric($value)) {
+      throw new \RuntimeException(sprintf('The %s must be numeric, but got "%s".', $label, $value));
+    }
+
+    return (float) $value;
+  }
+
+  /**
+   * The maximum time, in seconds, a command may run before it is terminated.
+   */
+  protected function commandTimeout(): int {
+    return 300;
   }
 
 }

@@ -165,3 +165,31 @@ Feature: Check that CommandTrait works
       """
       No command has been run. Run a command before asserting on its result.
       """
+
+  @trait:CommandTrait
+  Scenario: Assert that a non-numeric exit code argument fails with a runtime exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I run the command "echo hello"
+      Then the command exit code should be "three"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The expected exit code must be numeric, but got "three".
+      """
+
+  @trait:CommandTrait
+  Scenario: Assert that a non-numeric duration argument fails with a runtime exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I run the command "echo hello"
+      Then the command should complete in less than "three" seconds
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The expected duration must be numeric, but got "three".
+      """
