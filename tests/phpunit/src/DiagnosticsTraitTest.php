@@ -26,7 +26,6 @@ class DiagnosticsTraitTest extends UnitTestCase {
     parent::setUp();
 
     $this->testObject = new DiagnosticsTraitTestImplementation();
-    $this->testObject->session = new DiagnosticsFakeSession();
     $this->testObject->setRerunCoordinates('/app/tests/behat/features/example.feature', 12);
   }
 
@@ -52,7 +51,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $block = $this->testObject->buildBlock();
 
     $this->assertStringNotContainsString($absent_label, $block);
-    // The block itself is still produced from the remaining fields.
+    // The block is still produced from the remaining fields.
     $this->assertStringContainsString('--- Failure diagnostics ---', $block);
   }
 
@@ -66,27 +65,37 @@ class DiagnosticsTraitTest extends UnitTestCase {
     ];
   }
 
-  #[DataProvider('dataProviderUnavailableFieldIsOmitted')]
-  public function testUnavailableFieldIsOmitted(string $property, mixed $value, string $absent_label): void {
-    $this->testObject->session->{$property} = $value;
+  public function testBlankUrlIsOmitted(): void {
+    $this->testObject->session->url = '';
 
-    $block = $this->testObject->buildBlock();
-
-    $this->assertStringNotContainsString($absent_label, $block);
+    $this->assertStringNotContainsString('URL:', $this->testObject->buildBlock());
   }
 
-  public static function dataProviderUnavailableFieldIsOmitted(): array {
-    return [
-      'blank url' => ['url', '', 'URL:'],
-      'url driver error' => ['url', new \RuntimeException('unsupported'), 'URL:'],
-      'status driver error' => ['status', new \RuntimeException('unsupported'), 'HTTP status:'],
-      'driver error' => ['driver', new \RuntimeException('unsupported'), 'Mink driver:'],
-      'no js errors' => ['script', [], 'JS console errors:'],
-    ];
+  public function testUrlIsOmittedWhenDriverErrors(): void {
+    $this->testObject->session->urlError = new \RuntimeException('unsupported');
+
+    $this->assertStringNotContainsString('URL:', $this->testObject->buildBlock());
+  }
+
+  public function testStatusIsOmittedWhenDriverErrors(): void {
+    $this->testObject->session->statusError = new \RuntimeException('unsupported');
+
+    $this->assertStringNotContainsString('HTTP status:', $this->testObject->buildBlock());
+  }
+
+  public function testDriverIsOmittedWhenDriverErrors(): void {
+    $this->testObject->session->driverError = new \RuntimeException('unsupported');
+
+    $this->assertStringNotContainsString('Mink driver:', $this->testObject->buildBlock());
+  }
+
+  public function testJsErrorsAreOmittedWhenNoneCaptured(): void {
+    // The default session carries an empty buffer and there is no registry.
+    $this->assertStringNotContainsString('JS console errors:', $this->testObject->buildBlock());
   }
 
   public function testBuildBlockIsEmptyWhenNothingIsAvailable(): void {
-    $this->testObject->session = NULL;
+    $this->testObject->sessionAvailable = FALSE;
     $this->testObject->setRerunCoordinates(NULL, NULL);
 
     $this->assertSame('', $this->testObject->buildBlock());
@@ -103,7 +112,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
   }
 
   public function testAppendLeavesMessageUnchangedWhenBlockIsEmpty(): void {
-    $this->testObject->session = NULL;
+    $this->testObject->sessionAvailable = FALSE;
     $this->testObject->setRerunCoordinates(NULL, NULL);
     $exception = new \Exception('Original failure.');
 
@@ -112,41 +121,40 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertSame('Original failure.', $exception->getMessage());
   }
 
-  #[DataProvider('dataProviderGetUrl')]
-  public function testGetUrl(mixed $value, ?string $expected): void {
-    $this->testObject->session->url = $value;
-
-    $this->assertSame($expected, $this->testObject->getUrl());
+  public function testGetUrlReturnsValue(): void {
+    $this->assertSame('http://example.com/page', $this->testObject->getUrl());
   }
 
-  public static function dataProviderGetUrl(): array {
-    return [
-      'value' => ['http://example.com/page', 'http://example.com/page'],
-      'blank returns null' => ['', NULL],
-      'driver error returns null' => [new \RuntimeException('unsupported'), NULL],
-    ];
+  public function testGetUrlReturnsNullWhenBlank(): void {
+    $this->testObject->session->url = '';
+
+    $this->assertNull($this->testObject->getUrl());
   }
 
-  #[DataProvider('dataProviderGetStatusCode')]
-  public function testGetStatusCode(mixed $value, ?int $expected): void {
-    $this->testObject->session->status = $value;
+  public function testGetUrlReturnsNullWhenDriverErrors(): void {
+    $this->testObject->session->urlError = new \RuntimeException('unsupported');
 
-    $this->assertSame($expected, $this->testObject->getStatusCode());
+    $this->assertNull($this->testObject->getUrl());
   }
 
-  public static function dataProviderGetStatusCode(): array {
-    return [
-      'value' => [500, 500],
-      'driver error returns null' => [new \RuntimeException('unsupported'), NULL],
-    ];
+  public function testGetStatusCodeReturnsValue(): void {
+    $this->testObject->session->status = 500;
+
+    $this->assertSame(500, $this->testObject->getStatusCode());
+  }
+
+  public function testGetStatusCodeReturnsNullWhenDriverErrors(): void {
+    $this->testObject->session->statusError = new \RuntimeException('unsupported');
+
+    $this->assertNull($this->testObject->getStatusCode());
   }
 
   public function testGetDriverNameReturnsClass(): void {
     $this->assertSame(DiagnosticsFakeDriver::class, $this->testObject->getDriverName());
   }
 
-  public function testGetDriverNameReturnsNullOnError(): void {
-    $this->testObject->session->driver = new \RuntimeException('unsupported');
+  public function testGetDriverNameReturnsNullWhenDriverErrors(): void {
+    $this->testObject->session->driverError = new \RuntimeException('unsupported');
 
     $this->assertNull($this->testObject->getDriverName());
   }
@@ -161,9 +169,8 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertSame(['TypeError: a', 'ReferenceError: b'], $this->testObject->getJsErrors());
   }
 
-  public function testGetJsErrorsReadsJavascriptTraitRegistryAndDeduplicates(): void {
+  public function testGetJsErrorsReadsRegistryAndDeduplicates(): void {
     $object = new DiagnosticsTraitJsRegistryImplementation();
-    $object->session = new DiagnosticsFakeSession();
     $object->javascriptErrorRegistry = [
       'http://example.com/a' => [['message' => 'TypeError: a'], ['no-message' => 'skip']],
       'http://example.com/b' => 'not-an-array',
@@ -175,7 +182,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
   }
 
   public function testGetJsErrorsIsEmptyWhenUnavailable(): void {
-    $this->testObject->session->script = new \RuntimeException('unsupported');
+    $this->testObject->session->scriptError = new \RuntimeException('unsupported');
 
     $this->assertSame([], $this->testObject->getJsErrors());
   }
@@ -213,9 +220,14 @@ class DiagnosticsTraitTestImplementation {
   use DiagnosticsTrait;
 
   /**
-   * The fake session returned by getSession(), or NULL to simulate its absence.
+   * The fake session returned by getSession().
    */
-  public ?DiagnosticsFakeSession $session = NULL;
+  public DiagnosticsFakeSession $session;
+
+  /**
+   * Whether getSession() yields the session or throws to simulate its absence.
+   */
+  public bool $sessionAvailable = TRUE;
 
   /**
    * Per-field toggle state, keyed to match the diagnosticsShow*() overrides.
@@ -230,8 +242,12 @@ class DiagnosticsTraitTestImplementation {
     'rerun' => TRUE,
   ];
 
+  public function __construct() {
+    $this->session = new DiagnosticsFakeSession();
+  }
+
   public function getSession(): DiagnosticsFakeSession {
-    if (!$this->session instanceof DiagnosticsFakeSession) {
+    if (!$this->sessionAvailable) {
       throw new \RuntimeException('Session is not available.');
     }
 
@@ -263,6 +279,10 @@ class DiagnosticsTraitTestImplementation {
     return $this->diagnosticsGetDriverName();
   }
 
+  /**
+   * @return array<int, string>
+   *   Collected JavaScript error messages.
+   */
   public function getJsErrors(): array {
     return $this->diagnosticsGetJsErrors();
   }
@@ -310,45 +330,66 @@ class DiagnosticsTraitJsRegistryImplementation extends DiagnosticsTraitTestImple
 /**
  * A minimal fake Mink session whose accessors return values or throw.
  *
- * Any property assigned a Throwable is thrown when its accessor is called,
- * exercising the trait's graceful-degradation paths.
+ * Assigning a Throwable to one of the *Error properties makes the matching
+ * accessor throw, exercising the trait's graceful-degradation paths.
  */
 class DiagnosticsFakeSession {
 
-  public mixed $url = 'http://example.com/page';
+  public string $url = 'http://example.com/page';
 
-  public mixed $status = 200;
+  public int $status = 200;
 
-  public mixed $driver;
+  public object $driver;
 
-  public mixed $script = [];
+  /**
+   * The live browser error buffer returned by evaluateScript().
+   *
+   * @var array<int, mixed>
+   */
+  public array $script = [];
+
+  public ?\Throwable $urlError = NULL;
+
+  public ?\Throwable $statusError = NULL;
+
+  public ?\Throwable $driverError = NULL;
+
+  public ?\Throwable $scriptError = NULL;
 
   public function __construct() {
     $this->driver = new DiagnosticsFakeDriver();
   }
 
   public function getCurrentUrl(): string {
-    return $this->resolve($this->url);
+    if ($this->urlError instanceof \Throwable) {
+      throw $this->urlError;
+    }
+
+    return $this->url;
   }
 
   public function getStatusCode(): int {
-    return $this->resolve($this->status);
+    if ($this->statusError instanceof \Throwable) {
+      throw $this->statusError;
+    }
+
+    return $this->status;
   }
 
   public function getDriver(): object {
-    return $this->resolve($this->driver);
+    if ($this->driverError instanceof \Throwable) {
+      throw $this->driverError;
+    }
+
+    return $this->driver;
   }
 
   public function evaluateScript(string $script): mixed {
-    return $this->resolve($this->script);
-  }
-
-  protected function resolve(mixed $value): mixed {
-    if ($value instanceof \Throwable) {
-      throw $value;
+    if ($this->scriptError instanceof \Throwable) {
+      throw $this->scriptError;
     }
 
-    return $value;
+    return $this->script;
   }
 
 }
