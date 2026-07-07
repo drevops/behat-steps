@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps;
 use Behat\Step\Then;
 use Behat\Step\Given;
 use Behat\Step\When;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 
@@ -303,6 +304,51 @@ trait ElementTrait {
     }
 
     $element->click();
+  }
+
+  /**
+   * Click on the element at the 1-based index among all selector matches.
+   *
+   * Useful when a selector matches several repeated components (cards, rows,
+   * menu items) and only the Nth one should be clicked.
+   *
+   * @code
+   * When I click on the element ".card" with the index 2
+   * @endcode
+   *
+   *
+   * @javascript
+   */
+  #[When('I click on the element :selector with the index :index')]
+  public function elementClickByIndex(string $selector, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('css', $selector);
+    $this->elementFindNthOrFail($elements, $index, sprintf('element matching "%s"', $selector))->click();
+  }
+
+  /**
+   * Follow the link at the 1-based index among all links with the text.
+   *
+   * @code
+   * When I follow the link "Read more" with the index 2
+   * @endcode
+   */
+  #[When('I follow the link :text with the index :index')]
+  public function elementFollowLinkByIndex(string $text, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['link', $text]);
+    $this->elementFindNthOrFail($elements, $index, sprintf('link "%s"', $text))->click();
+  }
+
+  /**
+   * Press the button at the 1-based index among all buttons with the label.
+   *
+   * @code
+   * When I press the button "Delete" with the index 2
+   * @endcode
+   */
+  #[When('I press the button :label with the index :index')]
+  public function elementPressButtonByIndex(string $label, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['button', $label]);
+    $this->elementFindNthOrFail($elements, $index, sprintf('button "%s"', $label))->press();
   }
 
   /**
@@ -641,6 +687,28 @@ JS;
   }
 
   /**
+   * Assert the number of elements matching a selector within a parent element.
+   *
+   * @code
+   * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
+   * @endcode
+   */
+  #[Then('the element :parent should contain :count element(s) matching :selector')]
+  public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
+    $parent_element = $this->getSession()->getPage()->find('css', $parent);
+
+    if (!$parent_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $parent);
+    }
+
+    $actual = count($parent_element->findAll('css', $selector));
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected the element "%s" to contain %d element(s) matching "%s", but found %d.', $parent, $count, $selector, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert that an element is displayed within a viewport using different FE techniques.
    *
    * @param string $selector
@@ -702,6 +770,41 @@ JS;
     JS;
 
     return $this->getSession()->evaluateScript($script);
+  }
+
+  /**
+   * Return the element at a 1-based index or throw a clear error.
+   *
+   * @param \Behat\Mink\Element\NodeElement[] $elements
+   *   The matched elements, in document order.
+   * @param int $index
+   *   The 1-based index of the element to return.
+   * @param string $subject
+   *   Human-readable description of what was searched for (for example,
+   *   'link "Read more"'), used to build the error messages.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The element at the requested index.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no elements matched.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the index is below 1 or beyond the number of matches.
+   */
+  protected function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
+    if ($index < 1) {
+      throw new ExpectationException(sprintf('The index must be 1 or greater, but "%d" was given.', $index), $this->getSession()->getDriver());
+    }
+
+    if ($elements === []) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), $subject);
+    }
+
+    if ($index > count($elements)) {
+      throw new ExpectationException(sprintf('Cannot use the %s at index %d: only %d found.', $subject, $index, count($elements)), $this->getSession()->getDriver());
+    }
+
+    return $elements[$index - 1];
   }
 
   /**

@@ -756,3 +756,96 @@ Feature: Check that ElementTrait works
       """
       Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """
+
+  @javascript @phpserver
+  Scenario: Assert "When I click on the element :selector with the index :index" clicks the Nth match
+    Given I am on the phpserver test page
+    When I click on the element ".nth-btn" with the index 2
+    Then I should see "Clicked 2"
+
+  @javascript @phpserver
+  Scenario: Assert "When I press the button :label with the index :index" presses the Nth match
+    Given I am on the phpserver test page
+    When I press the button "Repeated action" with the index 3
+    Then I should see "Clicked 3"
+
+  @api
+  Scenario: Assert "When I follow the link :text with the index :index" follows the Nth match
+    When I visit "/sites/default/files/elements.html"
+    And I follow the link "Repeated link" with the index 2
+    Then I should see "Link Testing Fixture"
+
+  @api
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
+    When I visit "/sites/default/files/elements.html"
+    Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
+
+  @trait:ElementTrait
+  Scenario: Assert index-based interaction fails when the index is below 1
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/elements.html"
+      When I click on the element ".nth-child" with the index 0
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The index must be 1 or greater, but "0" was given.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert index-based interaction fails when the index is out of range
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/elements.html"
+      When I click on the element ".nth-child" with the index 99
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Cannot use the element matching ".nth-child" at index 99: only 3 found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert index-based interaction fails when no element matches
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/elements.html"
+      When I click on the element ".does-not-exist" with the index 1
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching ".does-not-exist" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#nth-parent" should contain 5 elements matching ".nth-child"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected the element "#nth-parent" to contain 5 element(s) matching ".nth-child", but found 3.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/elements.html"
+      Then the element "#does-not-exist" should contain 1 element matching ".nth-child"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#does-not-exist" not found.
+      """

@@ -442,6 +442,13 @@ cp /app/tests/behat/fixtures/elements_relative.html /app/build/web/sites/default
 </button>
 <div id="overlay-off-canvas"></div>
 
+<div id="nth-container">
+  <button class="nth-btn" onclick="document.getElementById('nth-result').textContent = 'Clicked 1'">Repeated action</button>
+  <button class="nth-btn" onclick="document.getElementById('nth-result').textContent = 'Clicked 2'">Repeated action</button>
+  <button class="nth-btn" onclick="document.getElementById('nth-result').textContent = 'Clicked 3'">Repeated action</button>
+  <div id="nth-result"></div>
+</div>
+
 <div id="over-container">
   <div id="over-cover">
     Text COVER over
