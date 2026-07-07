@@ -49,6 +49,7 @@ from the community.
 | Class | Description |
 | --- | --- |
 | [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [CommandTrait](STEPS.md#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [DropzoneTrait](STEPS.md#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |

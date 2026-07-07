@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\AccessibilityTrait;
+use DrevOps\BehatSteps\CommandTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
 use DrevOps\BehatSteps\Drupal\BigPipeTrait;
@@ -67,6 +68,7 @@ class FeatureContext extends DrupalContext {
   use BigPipeTrait;
   use BlockTrait;
   use CacheTrait;
+  use CommandTrait;
   use ConfigOverrideTrait;
   use ContentBlockTrait;
   use ContentTrait;

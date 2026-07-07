@@ -5,6 +5,7 @@
 | Class | Description |
 | --- | --- |
 | [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [CommandTrait](#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
 | [DropzoneTrait](#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
@@ -113,6 +114,171 @@ Assert that the current page passes accessibility checks for given rules
 
 ```gherkin
 Then the current page should pass accessibility checks for tags "wcag2a"
+
+```
+
+</details>
+
+## CommandTrait
+
+[Source](src/CommandTrait.php), [Example](tests/behat/features/command.feature)
+
+>  Run local shell commands and assert on their result.
+>  - Run a shell command and capture its output, error output, and exit code.
+>  - Assert that the command succeeded or failed.
+>  - Assert the exit code, standard output, and error output.
+>  - Assert how long the command took to complete.
+>  
+>  Commands run through the system shell with the privileges of the process
+>  that runs the tests. The command string is passed to the shell verbatim and
+>  is subject to shell expansion, so never interpolate untrusted input into it.
+
+
+<details>
+  <summary><code>@When I run the command :command</code></summary>
+
+<br/>
+Run a shell command
+<br/><br/>
+
+```gherkin
+When I run the command "php -v"
+When I run the command "./vendor/bin/phpunit --version"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command should succeed</code></summary>
+
+<br/>
+Assert that the last command succeeded
+<br/><br/>
+
+```gherkin
+When I run the command "php -v"
+Then the command should succeed
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command should fail</code></summary>
+
+<br/>
+Assert that the last command failed
+<br/><br/>
+
+```gherkin
+When I run the command "phpcs --standard=NonExisting"
+Then the command should fail
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command exit code should be :code</code></summary>
+
+<br/>
+Assert that the last command exited with a specific code
+<br/><br/>
+
+```gherkin
+When I run the command "php -r 'exit(3);'"
+Then the command exit code should be 3
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command output should contain :text</code></summary>
+
+<br/>
+Assert that the command output contains a string
+<br/><br/>
+
+```gherkin
+When I run the command "echo hello"
+Then the command output should contain "hello"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command output should not contain :text</code></summary>
+
+<br/>
+Assert that the command output does not contain a string
+<br/><br/>
+
+```gherkin
+When I run the command "echo hello"
+Then the command output should not contain "goodbye"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command output should be :text</code></summary>
+
+<br/>
+Assert that the command output equals a string
+<br/><br/>
+
+```gherkin
+When I run the command "echo hello"
+Then the command output should be "hello"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command error output should contain :text</code></summary>
+
+<br/>
+Assert that the command error output contains a string
+<br/><br/>
+
+```gherkin
+When I run the command "ls /nonexistent"
+Then the command error output should contain "No such file"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command should complete in less than :seconds second(s)</code></summary>
+
+<br/>
+Assert that the command completed in less than a number of seconds
+<br/><br/>
+
+```gherkin
+When I run the command "echo hello"
+Then the command should complete in less than 5 seconds
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the command should complete in more than :seconds second(s)</code></summary>
+
+<br/>
+Assert that the command completed in more than a number of seconds
+<br/><br/>
+
+```gherkin
+When I run the command "sleep 2"
+Then the command should complete in more than 1 second
 
 ```
 
