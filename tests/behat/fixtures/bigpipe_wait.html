@@ -12,7 +12,11 @@
 
     <script>
         // Mimic Drupal BigPipe: swap the placeholder span for its real content
-        // after a delay, the way streamed BigPipe replacements arrive.
+        // after a delay, the way streamed BigPipe replacements arrive. The delay
+        // is wide enough that the skip-tag scenario can observe the
+        // pre-replacement state without racing it on a slow CI runner, yet well
+        // under the trait's default wait timeout so the awaited scenario still
+        // completes.
         setTimeout(function () {
             var placeholder = document.querySelector('[data-big-pipe-placeholder-id="placeholder-1"]');
             if (placeholder) {
@@ -20,7 +24,7 @@
                 content.textContent = 'BigPipe streamed content';
                 placeholder.replaceWith(content);
             }
-        }, 1500);
+        }, 5000);
     </script>
 </body>
 </html>
