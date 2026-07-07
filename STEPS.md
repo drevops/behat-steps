@@ -626,6 +626,48 @@ When I click on the element ".button"
 </details>
 
 <details>
+  <summary><code>@When I click on the element :selector with the index :index</code></summary>
+
+<br/>
+Click on the element at the 1-based index among all selector matches
+<br/><br/>
+
+```gherkin
+When I click on the element ".card" with the index 2
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I follow the link :text with the index :index</code></summary>
+
+<br/>
+Follow the link at the 1-based index among all links with the text
+<br/><br/>
+
+```gherkin
+When I follow the link "Read more" with the index 2
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I press the button :label with the index :index</code></summary>
+
+<br/>
+Press the button at the 1-based index among all buttons with the label
+<br/><br/>
+
+```gherkin
+When I press the button "Delete" with the index 2
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I trigger the JS event :event on the element :selector</code></summary>
 
 <br/>
@@ -930,6 +972,20 @@ Assert that element with specified CSS is visually hidden on page
 
 ```gherkin
 Then the element ".visually-hidden" should not be displayed within a viewport
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :parent should contain :count element(s) matching :selector</code></summary>
+
+<br/>
+Assert the number of elements matching a selector within a parent element
+<br/><br/>
+
+```gherkin
+Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 
 ```
 
