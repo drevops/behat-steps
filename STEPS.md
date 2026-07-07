@@ -30,6 +30,7 @@
 
 | Class | Description |
 | --- | --- |
+| [Drupal\BigPipeTrait](#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ConfigOverrideTrait](#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
@@ -3070,6 +3071,31 @@ Then the response should be a valid Atom feed
 
 </details>
 
+
+
+## Drupal\BigPipeTrait
+
+[Source](src/Drupal/BigPipeTrait.php), [Example](tests/behat/features/drupal_big_pipe.feature)
+
+>  Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
+>  <br/><br/>
+>  Drupal BigPipe streams parts of a page in after the initial response and
+>  replaces its `<span data-big-pipe-placeholder-id="...">` markers with the
+>  real markup using JavaScript. Assertions that run before those replacements
+>  land intermittently fail with "element not found". When this trait is
+>  included, every `@javascript` scenario waits - before each step - until no
+>  BigPipe placeholder markers remain in the DOM, removing that race without an
+>  explicit step.
+>  <br/><br/>
+>  The wait is best-effort: on timeout the step still runs, so a genuinely stuck
+>  placeholder surfaces as the real assertion failure rather than being masked
+>  here. Non-JavaScript scenarios are left untouched, where BigPipe renders
+>  server-side (see the drupal-extension `@bigpipe` cookie handling).
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
+>  <br/><br/>
+>  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
+>  `FeatureContext` to change the maximum wait.
 
 
 ## Drupal\BlockTrait
