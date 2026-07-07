@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\AccessibilityTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
@@ -144,6 +146,17 @@ class FeatureContext extends DrupalContext {
    */
   protected function accessibilityGetReportDir(): string {
     return dirname((string) $this->getMinkParameter('files_path'), 3) . '/.logs/test_results/accessibility';
+  }
+
+  /**
+   * Shorten the BigPipe wait timeout for the timeout coverage scenario.
+   *
+   * Scenarios tagged '@bigpipe-timeout' use a short timeout so they can exercise
+   * the wait timing out quickly; every other scenario keeps the trait's default.
+   */
+  #[BeforeScenario]
+  public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
+    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('bigpipe-timeout') ? 2000 : 10000;
   }
 
 }

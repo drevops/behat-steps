@@ -27,8 +27,8 @@ use Behat\Mink\Exception\DriverException;
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *
- * Override `bigPipeGetWaitTimeout()` in your `FeatureContext` to change the
- * maximum wait.
+ * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
+ * `FeatureContext` to change the maximum wait.
  */
 trait BigPipeTrait {
 
@@ -36,6 +36,11 @@ trait BigPipeTrait {
    * Whether the automatic BigPipe wait is active for the current scenario.
    */
   protected bool $bigPipeAutoWaitEnabled = FALSE;
+
+  /**
+   * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
+   */
+  protected int $bigPipeWaitTimeout = 10000;
 
   /**
    * Resolve whether the automatic BigPipe wait applies to this scenario.
@@ -93,7 +98,7 @@ trait BigPipeTrait {
    *   The timeout in milliseconds.
    */
   protected function bigPipeGetWaitTimeout(): int {
-    return 10000;
+    return $this->bigPipeWaitTimeout;
   }
 
 }

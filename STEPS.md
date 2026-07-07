@@ -3094,8 +3094,8 @@ Then the response should be a valid Atom feed
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
->  Override `bigPipeGetWaitTimeout()` in your `FeatureContext` to change the
->  maximum wait.
+>  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
+>  `FeatureContext` to change the maximum wait.
 
 
 ## Drupal\BlockTrait
