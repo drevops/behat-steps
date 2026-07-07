@@ -769,13 +769,11 @@ Feature: Check that ElementTrait works
     When I press the button "Repeated action" with the index 3
     Then I should see "Clicked 3"
 
-  @api
   Scenario: Assert "When I follow the link :text with the index :index" follows the Nth match
     When I visit "/sites/default/files/elements.html"
     And I follow the link "Repeated link" with the index 2
     Then I should see "Link Testing Fixture"
 
-  @api
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
     When I visit "/sites/default/files/elements.html"
     Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
