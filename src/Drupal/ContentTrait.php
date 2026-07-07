@@ -9,7 +9,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\HelperTrait;
 use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use Drupal\node\Entity\Node;
