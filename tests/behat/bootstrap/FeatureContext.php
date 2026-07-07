@@ -24,6 +24,7 @@ use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Drupal\FileTrait;
+use DrevOps\BehatSteps\Drupal\HelperTrait as DrupalHelperTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
 use DrevOps\BehatSteps\Drupal\ModuleTrait;
@@ -110,6 +111,7 @@ class FeatureContext extends DrupalContext {
   use TimeTrait;
   use UserTrait;
   use HelperTrait;
+  use DrupalHelperTrait;
   use WaitTrait;
   use WatchdogTrait;
   use WebformTrait;
