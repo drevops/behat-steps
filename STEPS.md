@@ -985,7 +985,7 @@ Assert the number of elements matching a selector within a parent element
 <br/><br/>
 
 ```gherkin
-Then the element "#main-nav" should contain 3 element(s) matching ".menu-item"
+Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 
 ```
 
