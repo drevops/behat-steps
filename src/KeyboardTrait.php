@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps;
 
 use Behat\Step\When;
+use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -92,8 +93,11 @@ trait KeyboardTrait {
   public function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
     $driver = $this->getSession()->getDriver();
 
-    if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
+    // Keyboard interaction needs a JavaScript-capable driver: Selenium2 uses
+    // the bundled Syn library, chrome-mink uses native DevTools key events.
+    // BrowserKit-based (non-JavaScript) drivers cannot dispatch key events.
+    if ($driver instanceof BrowserKitDriver) {
+      throw new UnsupportedDriverActionException('Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).', $driver);
     }
 
     $keys = [
@@ -227,22 +231,57 @@ JS;
    */
   protected function keyboardTriggerKey(string $xpath, string $key): void {
     $driver = $this->getSession()->getDriver();
-    // @codeCoverageIgnoreStart
-    if (!$driver instanceof Selenium2Driver) {
-      throw new UnsupportedDriverActionException('Method can be used only with Selenium2 driver', $driver);
-    }
-    // @codeCoverageIgnoreEnd
-    // Use reflection to re-use Syn library injection and execution of JS on
-    // element.
-    $reflector = new \ReflectionClass($driver);
-    $with_syn_reflection = $reflector->getMethod('withSyn');
-    $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
-    $with_syn_result = $with_syn_reflection->invoke($driver);
 
-    $execute_js_on_xpath_reflection->invokeArgs($with_syn_result, [
-      $xpath,
-      sprintf("syn.key({{ELEMENT}}, '%s');", $key),
-    ]);
+    // Selenium2 driver: reuse the bundled Syn library via reflection to inject
+    // synthetic events and execute JS on the element.
+    if ($driver instanceof Selenium2Driver) {
+      $reflector = new \ReflectionClass($driver);
+      $with_syn_reflection = $reflector->getMethod('withSyn');
+      $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
+      $with_syn_result = $with_syn_reflection->invoke($driver);
+
+      $execute_js_on_xpath_reflection->invokeArgs($with_syn_result, [
+        $xpath,
+        sprintf("syn.key({{ELEMENT}}, '%s');", $key),
+      ]);
+
+      return;
+    }
+
+    // CDP-based drivers like the Chrome (chrome-mink) driver: dispatch native
+    // DevTools key events. Special keys are sent as a keycode down/up pair so
+    // their default action (focus move, submit, etc.) fires; printable
+    // characters are sent as a single character so their text is inserted.
+    $keycodes = [
+      "\b" => 8,
+      "\t" => 9,
+      "\r" => 13,
+      'shift' => 16,
+      'ctrl' => 17,
+      'alt' => 18,
+      'pause' => 19,
+      'break' => 19,
+      'caps' => 20,
+      'escape' => 27,
+      'page-up' => 33,
+      'page-down' => 34,
+      'end' => 35,
+      'home' => 36,
+      'left' => 37,
+      'up' => 38,
+      'right' => 39,
+      'down' => 40,
+      'insert' => 45,
+      'delete' => 46,
+    ];
+
+    if (isset($keycodes[$key])) {
+      $driver->keyDown($xpath, $keycodes[$key]);
+      $driver->keyUp($xpath, $keycodes[$key]);
+    }
+    else {
+      $driver->keyPress($xpath, $key);
+    }
   }
 
 }

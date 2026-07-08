@@ -116,6 +116,18 @@ jobs:
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'lowest'
+          # Selenium-less driver legs: run the same suite through headless
+          # Chrome over the DevTools Protocol to prove the steps are driver
+          # portable. The browser driver is Drupal-version independent, so a
+          # single normal-deps leg per Drupal version is enough.
+          - php_version: '8.3'
+            drupal_version: '10'
+            deps: 'normal'
+            driver: 'chrome_headless'
+          - php_version: '8.3'
+            drupal_version: '11'
+            deps: 'normal'
+            driver: 'chrome_headless'
 
     container:
       image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
@@ -160,23 +172,30 @@ jobs:
           ahoy --version
 
       - name: Run Unit tests with coverage
-        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
+        if: "matrix.driver != 'chrome_headless' && matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'"
         run: ahoy test-unit-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests
-        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
         run: ahoy test-unit
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests with coverage
-        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'
+        if: "matrix.driver != 'chrome_headless' && matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'"
         run: ahoy test-bdd-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests
-        if: "!(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
         run: ahoy test-bdd
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+
+      # Selenium-less leg: the same BDD suite driven through headless Chrome
+      # over the DevTools Protocol, proving the steps work without Selenium.
+      - name: Run BDD tests with the chrome_headless driver
+        if: "matrix.driver == 'chrome_headless'"
+        run: ahoy test-bdd -- -p chrome_headless
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Process test logs and artifacts

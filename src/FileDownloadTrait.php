@@ -12,7 +12,6 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
@@ -87,12 +86,24 @@ trait FileDownloadTrait {
 
     /** @var \Behat\Mink\Driver\CoreDriver $driver */
     $driver = $this->getSession()->getDriver();
-    if ($driver instanceof Selenium2Driver) {
+
+    // WebDriver-based drivers like Selenium2Driver.
+    if (method_exists($driver, 'getWebDriverSession')) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
       foreach ($cookies as $cookie) {
         $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
       }
     }
+
+    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    elseif (method_exists($driver, 'getCookies')) {
+      // @phpstan-ignore-next-line
+      foreach ($driver->getCookies() as $cookie) {
+        $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
+      }
+    }
+
+    // BrowserKit-based drivers like GoutteDriver.
     else {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       // @phpstan-ignore-next-line

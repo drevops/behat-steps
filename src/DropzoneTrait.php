@@ -83,6 +83,7 @@ trait DropzoneTrait {
           var input = document.createElement('input');
           input.type = 'file';
           input.id = ids[i];
+          input.name = ids[i];
           input.style.position = 'fixed';
           input.style.left = '-9999px';
           input.style.opacity = '0';

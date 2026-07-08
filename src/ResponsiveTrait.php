@@ -11,7 +11,6 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use Behat\Mink\Driver\Selenium2Driver;
 
 /**
  * Test responsive layouts with viewport control.
@@ -340,17 +339,10 @@ trait ResponsiveTrait {
    *   Array with 'width' and 'height' keys.
    */
   protected function responsiveGetCurrentDimensions(): array {
-    $driver = $this->getSession()->getDriver();
-
     // Default dimensions if unable to determine current size.
     $default_width = 1280;
     $default_height = 800;
 
-    // @codeCoverageIgnoreStart
-    if (!$driver instanceof Selenium2Driver) {
-      return ['width' => $default_width, 'height' => $default_height];
-    }
-    // @codeCoverageIgnoreEnd
     try {
       $width = $this->getSession()->evaluateScript('return window.innerWidth;');
       $height = $this->getSession()->evaluateScript('return window.innerHeight;');
@@ -376,12 +368,6 @@ trait ResponsiveTrait {
    *   The height in pixels.
    */
   protected function responsiveResize(int $width, int $height): void {
-    $driver = $this->getSession()->getDriver();
-
-    if (!$driver instanceof Selenium2Driver) {
-      return;
-    }
-
     try {
       // Ensure session is started before resizing.
       if (!$this->getSession()->isStarted()) {

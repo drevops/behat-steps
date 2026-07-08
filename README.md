@@ -137,6 +137,34 @@ class FeatureContext extends DrupalContext {
 Ensure that your [`behat.yml`](behat.yml) has all the required extensions
 enabled.
 
+### JavaScript drivers
+
+Steps that require a real browser (used by scenarios tagged `@javascript`) are
+driver agnostic: they work with a Selenium/WebDriver driver and with
+selenium-less drivers that talk to Chrome directly over the Chrome DevTools
+Protocol. Both are exercised by this library's own CI.
+
+To run `@javascript` scenarios without a Selenium server, add
+[`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension)
+(which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome:
+
+```yaml
+default:
+  extensions:
+    DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
+    Behat\MinkExtension:
+      browser_name: chrome
+      javascript_session: chrome
+      chrome:
+        api_url: 'http://chrome:9222'
+```
+
+Any image that exposes a DevTools endpoint works (for example
+[`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)).
+For local visual debugging you can override `api_url` at runtime via Behat's
+`BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on
+your host - as long as that browser can reach your site's `base_url`.
+
 ### Exceptions
 
 This library uses [Mink exception classes](https://mink.behat.org/en/latest/)

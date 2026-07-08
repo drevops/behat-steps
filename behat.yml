@@ -93,3 +93,15 @@ default:
           target: '%paths.base%/.logs/coverage/behat/cobertura.xml'
         php:
           target: '%paths.base%/.logs/coverage/behat/phpcov.php'
+
+# Selenium-less profile: drives headless Chrome directly over the DevTools
+# Protocol (no Selenium server). Run with "behat -p chrome_headless". Inherits
+# all configuration from the "default" profile and only swaps the JavaScript
+# session to the "chrome" driver (the session name registered by ChromeExtension).
+chrome_headless:
+  extensions:
+    DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
+    Drupal\MinkExtension:
+      javascript_session: chrome
+      chrome:
+        api_url: 'http://chrome_headless:9222'
