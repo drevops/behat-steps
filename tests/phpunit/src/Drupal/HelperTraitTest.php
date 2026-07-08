@@ -51,6 +51,72 @@ class HelperTraitTest extends UnitTestCase {
     }
   }
 
+  public function testEntityRegisterId(): void {
+    $this->testObject->callEntityRegisterId('media', 7);
+    $this->testObject->callEntityRegisterId('block_content', 'custom_id');
+
+    $this->assertSame([['media', 7], ['block_content', 'custom_id']], $this->testObject->getEntityRegistry());
+  }
+
+  public function testEntityCleanupRunDeletesInReverseOrderAndResets(): void {
+    $this->testObject->callEntityRegisterId('redirect', 1);
+    $this->testObject->callEntityRegisterId('media', 2);
+    $this->testObject->callEntityRegisterId('block', 3);
+
+    $this->testObject->callEntityCleanupRun([]);
+
+    $this->assertSame([['block', 3], ['media', 2], ['redirect', 1]], $this->testObject->deleted);
+    $this->assertSame([], $this->testObject->getEntityRegistry());
+  }
+
+  public function testEntityCleanupRunExcludesBaseOwnedTypes(): void {
+    $this->testObject->callEntityRegisterId('node', 1);
+    $this->testObject->callEntityRegisterId('redirect', 2);
+    $this->testObject->callEntityRegisterId('user', 3);
+    $this->testObject->callEntityRegisterId('configurable_language', 'en');
+
+    $this->testObject->callEntityCleanupRun([]);
+
+    $this->assertSame([['redirect', 2]], $this->testObject->deleted);
+    $this->assertSame([], $this->testObject->getEntityRegistry());
+  }
+
+  public function testEntityCleanupRunSkipsNamedTypes(): void {
+    $this->testObject->callEntityRegisterId('media', 1);
+    $this->testObject->callEntityRegisterId('redirect', 2);
+
+    $this->testObject->callEntityCleanupRun(['media']);
+
+    $this->assertSame([['redirect', 2]], $this->testObject->deleted);
+    $this->assertSame([], $this->testObject->getEntityRegistry());
+  }
+
+  /**
+   * Tests that per-type cleanup bypass tags are parsed into entity type ids.
+   *
+   * @param array<int, string> $tags
+   *   Scenario tag names.
+   * @param array<int, string> $expected
+   *   Expected skipped entity type ids.
+   */
+  #[DataProvider('dataProviderEntityCleanupSkippedTypes')]
+  public function testEntityCleanupSkippedTypes(array $tags, array $expected): void {
+    $this->assertSame($expected, $this->testObject->callEntityCleanupSkippedTypes($tags));
+  }
+
+  public static function dataProviderEntityCleanupSkippedTypes(): array {
+    return [
+      'no tags' => [[], []],
+      'unrelated tags ignored' => [['api', 'behat-steps-skip:entityCleanupAfterScenario'], []],
+      'single type' => [['behat-steps-entity-cleanup-skip:media'], ['media']],
+      'multiple types' => [
+        ['api', 'behat-steps-entity-cleanup-skip:media', 'behat-steps-entity-cleanup-skip:block_content'],
+        ['media', 'block_content'],
+      ],
+      'empty value' => [['behat-steps-entity-cleanup-skip:'], ['']],
+    ];
+  }
+
   #[DataProvider('dataProviderLooksLikeCompoundCell')]
   public function testLooksLikeCompoundCell(string $value, bool $expected): void {
     $this->assertSame($expected, $this->testObject->callHelperLooksLikeCompoundCell($value));
@@ -254,6 +320,13 @@ class HelperTraitTestImplementation {
    */
   public ?DrupalDriverInterface $driver = NULL;
 
+  /**
+   * Records [type, id] pairs passed to the overridden entityCleanupDelete().
+   *
+   * @var array<int, array{0: string, 1: int|string}>
+   */
+  public array $deleted = [];
+
   public function callHelperLooksLikeCompoundCell(string $value): bool {
     return $this->helperLooksLikeCompoundCell($value);
   }
@@ -264,6 +337,52 @@ class HelperTraitTestImplementation {
 
   public function callHelperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
     $this->helperExpandEntityFieldsFixtures($entity_type, $stub);
+  }
+
+  public function callEntityRegisterId(string $entity_type_id, int|string $entity_id): void {
+    $this->entityRegisterId($entity_type_id, $entity_id);
+  }
+
+  /**
+   * Expose entityCleanupSkippedTypes() for testing.
+   *
+   * @param array<int, string> $tags
+   *   Scenario tag names.
+   *
+   * @return array<int, string>
+   *   Entity type ids to skip.
+   */
+  public function callEntityCleanupSkippedTypes(array $tags): array {
+    return $this->entityCleanupSkippedTypes($tags);
+  }
+
+  /**
+   * Expose the entity registry for testing.
+   *
+   * @return array<int, array{0: string, 1: int|string}>
+   *   The registered entities.
+   */
+  public function getEntityRegistry(): array {
+    return $this->entityRegistry;
+  }
+
+  /**
+   * Run the entity cleanup with the given skipped types.
+   *
+   * @param array<int, string> $skip_types
+   *   Entity type ids to leave in place.
+   */
+  public function callEntityCleanupRun(array $skip_types): void {
+    $this->entityCleanupRun($skip_types);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Overridden to record deletions instead of touching Drupal.
+   */
+  protected function entityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
+    $this->deleted[] = [$entity_type_id, $entity_id];
   }
 
   public function getMinkParameter(string $name): mixed {

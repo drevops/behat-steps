@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
@@ -22,36 +20,11 @@ use Drupal\media\MediaInterface;
  * - Create structured media items with proper file reference handling.
  * - Assert media browser functionality and edit media entity fields.
  * - Support for multiple media types with field value expansion handling.
- * - Automatically clean up created entities after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:mediaAfterScenario`
+ * - Created entities are automatically removed at the end of the scenario.
  */
 trait MediaTrait {
 
   use HelperTrait;
-
-  /**
-   * Array of created media entities.
-   *
-   * @var array<int,\Drupal\media\MediaInterface>
-   */
-  protected $mediaEntities = [];
-
-  /**
-   * Remove any created media items.
-   */
-  #[AfterScenario('@api')]
-  public function mediaAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    foreach ($this->mediaEntities as $media) {
-      $media->delete();
-    }
-    $this->mediaEntities = [];
-  }
 
   /**
    * Remove media type.
@@ -294,7 +267,7 @@ trait MediaTrait {
   protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
     $this->parseEntityFields($stub);
     $saved = $this->mediaCreateEntity($stub);
-    $this->mediaEntities[] = $saved;
+    $this->entityRegister($saved);
 
     return $saved;
   }

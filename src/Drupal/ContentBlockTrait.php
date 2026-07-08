@@ -7,14 +7,10 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Step\Then;
 use Behat\Step\Given;
 use Behat\Step\When;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\HelperTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Driver\Entity\EntityStub;
 
 /**
@@ -22,42 +18,11 @@ use Drupal\Driver\Entity\EntityStub;
  *
  * - Define reusable custom block content with structured field data.
  * - Create, edit, and verify block_content entities by type and description.
- * - Automatically clean up created entities after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:contentBlockAfterScenario`
+ * - Created entities are automatically removed at the end of the scenario.
  */
 trait ContentBlockTrait {
 
   use HelperTrait;
-
-  /**
-   * Array of created block_content entities.
-   *
-   * @var array<int,\Drupal\block_content\Entity\BlockContent>
-   */
-  protected static $contentBlockEntities = [];
-
-  /**
-   * Clean up all content block entities created during the scenario.
-   */
-  #[AfterScenario('@api')]
-  public function contentBlockAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    foreach (static::$contentBlockEntities as $key => $block_content) {
-      try {
-        $block_content->delete();
-      }
-      // @codeCoverageIgnoreStart
-      catch (EntityStorageException) {
-        // Ignore "already deleted" errors to keep teardown resilient.
-      }
-      // @codeCoverageIgnoreEnd
-      unset(static::$contentBlockEntities[$key]);
-    }
-  }
 
   /**
    * Assert that a content block type exists.
@@ -227,7 +192,7 @@ trait ContentBlockTrait {
     $entity = BlockContent::create($stub->getValues());
     $entity->save();
 
-    static::$contentBlockEntities[] = $entity;
+    $this->entityRegister($entity);
 
     return $entity;
   }

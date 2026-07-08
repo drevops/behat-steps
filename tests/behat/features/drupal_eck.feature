@@ -55,7 +55,7 @@ Feature: Check that EckTrait works
       Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
 
-  @api @behat-steps-skip:eckAfterScenario
+  @api @behat-steps-entity-cleanup-skip:test_entity_type
   Scenario: ECK entities are not automatically cleaned up when skip tag is used
     Given the following eck "test_bundle" "test_entity_type" entities exist:
       | title                   | field_test_text   |
@@ -78,4 +78,4 @@ Feature: Check that EckTrait works
     And I am logged in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] Auto Cleanup ECK 1"
     Then I should see "[TEST] Auto Cleanup ECK 1"
-    # ECK entities will be auto-deleted by eckAfterScenario hook
+    # ECK entities will be auto-deleted by the shared entity cleanup hook

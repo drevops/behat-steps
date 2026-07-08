@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Step\Given;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Hook\AfterScenario;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;
@@ -20,35 +18,11 @@ use Drupal\paragraphs\ParagraphInterface;
  * - Create paragraph items with type-specific field values.
  * - Test nested paragraph structures and reference field handling.
  * - Attach paragraphs to various entity types with parent-child relationships.
- * - Automatically clean up created paragraph items after scenario completion.
- *
- * Skip processing with tag: `@behat-steps-skip:paragraphsAfterScenario`
+ * - Created paragraph items are automatically removed at the end of the scenario.
  */
 trait ParagraphsTrait {
 
-  /**
-   * Array of created paragraph entities.
-   *
-   * @var array<int,\Drupal\paragraphs\ParagraphInterface>
-   */
-  protected static $paragraphEntities = [];
-
-  /**
-   * Clean all paragraphs instances after scenario run.
-   */
-  #[AfterScenario('@api')]
-  public function paragraphsAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
-    foreach (static::$paragraphEntities as $paragraph) {
-      $paragraph->delete();
-    }
-
-    static::$paragraphEntities = [];
-  }
+  use HelperTrait;
 
   /**
    * Create a paragraph of the given type with fields within an existing entity.
@@ -118,7 +92,7 @@ trait ParagraphsTrait {
       $parent_entity->save();
     }
 
-    static::$paragraphEntities[] = $paragraph;
+    $this->entityRegister($paragraph);
 
     return $paragraph;
   }
