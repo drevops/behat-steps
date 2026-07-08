@@ -88,4 +88,20 @@ final class TestContent extends ControllerBase {
     ]);
   }
 
+  /**
+   * Returns an HTML page carrying an X-Robots-Tag response header.
+   *
+   * The header value comes from the "value" query parameter and defaults to
+   * "noindex".
+   */
+  public function testRobotsHeader(Request $request): Response {
+    $value = (string) $request->query->get('value', 'noindex');
+
+    return new Response('<!DOCTYPE html><html lang="en"><head><title>Robots header test</title></head><body><h1>Robots header test</h1></body></html>', 200, [
+      'Content-Type' => 'text/html; charset=UTF-8',
+      'X-Robots-Tag' => $value,
+      'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    ]);
+  }
+
 }

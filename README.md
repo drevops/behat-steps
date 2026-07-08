@@ -62,7 +62,7 @@ from the community.
 | [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
-| [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags in page markup. |
+| [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |

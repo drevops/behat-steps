@@ -18,7 +18,7 @@
 | [JsonTrait](#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
-| [MetatagTrait](#metatagtrait) | Assert `<meta>` tags in page markup. |
+| [MetatagTrait](#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](#modaltrait) | Interact with and assert modals. |
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
@@ -2154,9 +2154,12 @@ Then the link "Return to site content" should not be an absolute link
 
 [Source](src/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
 
->  Assert `<meta>` tags in page markup.
+>  Assert `<meta>` tags and head/SEO markup in page markup.
 >  - Assert presence and content of meta tags with proper attribute handling.
 >  - Verify meta tag content is free of HTML markup.
+>  - Assert canonical URL, robots directives and indexability.
+>  - Assert hreflang alternates are valid and reciprocal.
+>  - Assert Open Graph and Twitter Card completeness.
 
 
 <details>
@@ -2201,6 +2204,196 @@ Assert a meta tag does not contain HTML tags
 ```gherkin
 Then the "og:description" meta tag should not contain any HTML tags
 Then the "description" meta tag should not contain any HTML tags
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the canonical URL should be :url</code></summary>
+
+<br/>
+Assert the canonical URL equals a value
+<br/><br/>
+
+```gherkin
+Then the canonical URL should be "https://example.com/about"
+Then the canonical URL should be "/about"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the canonical URL should exist</code></summary>
+
+<br/>
+Assert the canonical URL is present
+<br/><br/>
+
+```gherkin
+Then the canonical URL should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the canonical URL should not exist</code></summary>
+
+<br/>
+Assert the canonical URL is absent
+<br/><br/>
+
+```gherkin
+Then the canonical URL should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the page should be indexable</code></summary>
+
+<br/>
+Assert the page is indexable
+<br/><br/>
+
+```gherkin
+Then the page should be indexable
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the page should not be indexable</code></summary>
+
+<br/>
+Assert the page is not indexable
+<br/><br/>
+
+```gherkin
+Then the page should not be indexable
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the meta robots should include :directive</code></summary>
+
+<br/>
+Assert the robots meta tag includes a directive
+<br/><br/>
+
+```gherkin
+Then the meta robots should include "noindex"
+Then the meta robots should include "nofollow"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the meta robots should not include :directive</code></summary>
+
+<br/>
+Assert the robots meta tag does not include a directive
+<br/><br/>
+
+```gherkin
+Then the meta robots should not include "noindex"
+Then the meta robots should not include "nofollow"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the hreflang alternates should be valid</code></summary>
+
+<br/>
+Assert hreflang alternates are valid
+<br/><br/>
+
+```gherkin
+Then the hreflang alternates should be valid
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the hreflang alternates should have reciprocal return links</code></summary>
+
+<br/>
+Assert hreflang alternates have reciprocal return links
+<br/><br/>
+
+```gherkin
+Then the hreflang alternates should have reciprocal return links
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the Open Graph tags should be valid</code></summary>
+
+<br/>
+Assert the required Open Graph meta tags are present and non-empty
+<br/><br/>
+
+```gherkin
+Then the Open Graph tags should be valid
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following Open Graph tags should exist:</code></summary>
+
+<br/>
+Assert the listed Open Graph meta tags are present and non-empty
+<br/><br/>
+
+```gherkin
+Then the following Open Graph tags should exist:
+  | og:title |
+  | og:image |
+  | og:url   |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the Twitter Card tags should be valid</code></summary>
+
+<br/>
+Assert the required Twitter Card meta tags are present and non-empty
+<br/><br/>
+
+```gherkin
+Then the Twitter Card tags should be valid
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following Twitter Card tags should exist:</code></summary>
+
+<br/>
+Assert the listed Twitter Card meta tags are present and non-empty
+<br/><br/>
+
+```gherkin
+Then the following Twitter Card tags should exist:
+  | twitter:card  |
+  | twitter:title |
 
 ```
 
