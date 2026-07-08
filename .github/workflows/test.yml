@@ -79,7 +79,7 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
   test:
-    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.driver && format(', Driver {0}', matrix.driver) || '' }}
     runs-on: ubuntu-latest
 
     strategy:
