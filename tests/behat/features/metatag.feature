@@ -204,6 +204,20 @@ Feature: Check that MetatagTrait works
       """
 
   @trait:MetatagTrait
+  Scenario: Assert that "Then the canonical URL should not exist" fails on an empty canonical link
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/metatags_canonical_empty.html"
+      Then the canonical URL should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The canonical URL should not be set, but found "".
+      """
+
+  @trait:MetatagTrait
   Scenario: Assert that "Then the page should be indexable" fails on a noindex page
     Given some behat configuration
     And scenario steps:

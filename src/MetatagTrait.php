@@ -174,7 +174,7 @@ trait MetatagTrait {
   public function metatagAssertCanonicalNotExists(): void {
     $href = $this->metatagGetCanonicalHref();
 
-    if ($href !== NULL && $href !== '') {
+    if ($href !== NULL) {
       throw new \Exception(sprintf('The canonical URL should not be set, but found "%s".', $href));
     }
   }
@@ -301,12 +301,9 @@ trait MetatagTrait {
    */
   #[Then('the hreflang alternates should have reciprocal return links')]
   public function metatagAssertHreflangReciprocal(): void {
+    $this->metatagAssertHreflangValid();
+
     $alternates = $this->metatagGetHreflangAlternates();
-
-    if ($alternates === []) {
-      throw new \Exception('No hreflang alternate links were found on the page.');
-    }
-
     $current = $this->metatagResolveUrl($this->getSession()->getCurrentUrl());
 
     foreach ($alternates as $alternate) {
@@ -316,7 +313,7 @@ trait MetatagTrait {
         continue;
       }
 
-      if (!$this->metatagHtmlLinksBackTo($this->metatagFetchUrl($target), $current)) {
+      if (!$this->metatagHtmlLinksBackTo($this->metatagFetchUrl($target), $current, $target)) {
         throw new \Exception(sprintf('The hreflang alternate "%s" (%s) does not link back to the current URL "%s".', $alternate['hreflang'], $target, $current));
       }
     }
@@ -566,49 +563,66 @@ trait MetatagTrait {
    *   The HTML markup to inspect.
    * @param string $url
    *   The absolute URL the markup should link back to.
+   * @param string $base_url
+   *   The URL of the fetched page, used to resolve its relative links.
    *
    * @return bool
    *   TRUE when a hreflang alternate resolves to the given URL.
    */
-  protected function metatagHtmlLinksBackTo(string $html, string $url): bool {
-    $document = new \DOMDocument();
-    libxml_use_internal_errors(TRUE);
-    $document->loadHTML($html);
-    libxml_clear_errors();
+  protected function metatagHtmlLinksBackTo(string $html, string $url, string $base_url): bool {
+    $previous = libxml_use_internal_errors(TRUE);
 
-    $xpath = new \DOMXPath($document);
-    $links = $xpath->query('//link[@rel="alternate"][@hreflang]');
+    try {
+      $document = new \DOMDocument();
+      $document->loadHTML($html);
+      libxml_clear_errors();
 
-    if ($links === FALSE) {
-      // @codeCoverageIgnoreStart
-      return FALSE;
-      // @codeCoverageIgnoreEnd
-    }
+      $xpath = new \DOMXPath($document);
+      $links = $xpath->query('//link[@rel="alternate"][@hreflang]');
 
-    foreach ($links as $link) {
-      if ($link instanceof \DOMElement && $this->metatagResolveUrl($link->getAttribute('href')) === $url) {
-        return TRUE;
+      if ($links === FALSE) {
+        // @codeCoverageIgnoreStart
+        return FALSE;
+        // @codeCoverageIgnoreEnd
       }
-    }
 
-    return FALSE;
+      foreach ($links as $link) {
+        if ($link instanceof \DOMElement && $this->metatagResolveUrl($link->getAttribute('href'), $base_url) === $url) {
+          return TRUE;
+        }
+      }
+
+      return FALSE;
+    }
+    finally {
+      libxml_use_internal_errors($previous);
+    }
   }
 
   /**
-   * Resolve a possibly-relative URL to absolute form against the base URL.
+   * Resolve a possibly-relative URL to absolute form against a base URL.
    *
    * @param string $url
    *   The URL to resolve.
+   * @param string|null $base
+   *   The base URL to resolve against. Defaults to the Mink base URL.
    *
    * @return string
    *   The resolved absolute URL.
    */
-  protected function metatagResolveUrl(string $url): string {
+  protected function metatagResolveUrl(string $url, ?string $base = NULL): string {
     if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
       return $url;
     }
 
-    return rtrim((string) $this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
+    $base ??= (string) $this->getMinkParameter('base_url');
+
+    // Resolve root-relative URLs against the base URL's origin so that links on
+    // a fetched alternate page resolve against that page's host rather than the
+    // Mink base URL.
+    $origin = (string) preg_replace('#^(https?://[^/]+).*$#i', '$1', $base);
+
+    return rtrim($origin, '/') . '/' . ltrim($url, '/');
   }
 
   /**
