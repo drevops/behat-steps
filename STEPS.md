@@ -36,6 +36,7 @@
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
 | [Drupal\ConfigOverrideTrait](#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
+| [Drupal\ConfigTrait](#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
@@ -3638,6 +3639,187 @@ Given the render cache has been cleared
 >  Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
 >  and `@behat-steps-skip:configOverrideBeforeStep`.
 
+
+## Drupal\ConfigTrait
+
+[Source](src/Drupal/ConfigTrait.php), [Example](tests/behat/features/drupal_config.feature)
+
+>  Assert and set stored Drupal configuration values with automatic revert.
+>  <br/><br/>
+>  Set a configuration value for test setup and assert that a configuration
+>  object's key holds, or contains, an expected value. Nested keys are
+>  addressable with dotted notation (for example `page.front`).
+>  <br/><br/>
+>  Two families of assertions read the value differently:
+>  - The default steps read the STORED value via editable configuration,
+>  ignoring `settings.php` overrides. This is symmetric with the set steps
+>  and is what most setup-and-assert scenarios need.
+>  - The `effective` steps read the value through the config factory with
+>  module and `settings.php` overrides applied - the value the running site
+>  actually uses.
+>  <br/><br/>
+>  Values are compared by their stringified form, so `true`, `42` and JSON
+>  arrays written in a step match their typed configuration counterparts. The
+>  `contain` steps match a substring for string values and membership for
+>  array values, searched recursively.
+>  <br/><br/>
+>  Configuration objects touched by the set steps are snapshotted on first
+>  write and restored after the scenario: an existing object is reset to its
+>  original data and an object that did not exist is deleted. Skip the revert
+>  with `@behat-steps-skip:configAfterScenario` or `@behat-steps-skip:ConfigTrait`.
+>  <br/><br/>
+>  ```
+>  @api
+>  Scenario: Assert configured values
+>    Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
+>    Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
+>    And the config "system.site" key "name" should have the effective value "My overridden site"
+>  ```
+
+
+<details>
+  <summary><code>@Given the config :name key :key has the value :value</code></summary>
+
+<br/>
+Set a stored Drupal configuration value
+<br/><br/>
+
+```gherkin
+Given the config "system.site" key "page.front" has the value "/node"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the following config values:</code></summary>
+
+<br/>
+Set multiple stored Drupal configuration values from a table
+<br/><br/>
+
+```gherkin
+Given the following config values:
+  | name              | key          | value                   |
+  | system.site       | name         | My site                 |
+  | mymodule.settings | api.endpoint | https://api.example.com |
+  | mymodule.settings | roles        | ["editor","reviewer"]   |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should have the value :value</code></summary>
+
+<br/>
+Assert that a stored configuration value equals an expected value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should have the value "My site"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should not have the value :value</code></summary>
+
+<br/>
+Assert that a stored configuration value does not equal a value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should not have the value "Wrong"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should contain the value :value</code></summary>
+
+<br/>
+Assert that a stored configuration value contains an expected value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should contain the value "site"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should not contain the value :value</code></summary>
+
+<br/>
+Assert that a stored configuration value does not contain a value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should not contain the value "xyz"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should have the effective value :value</code></summary>
+
+<br/>
+Assert that an effective configuration value equals an expected value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should have the effective value "Overridden"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should not have the effective value :value</code></summary>
+
+<br/>
+Assert that an effective configuration value does not equal a value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should not have the effective value "Wrong"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should contain the effective value :value</code></summary>
+
+<br/>
+Assert that an effective configuration value contains an expected value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should contain the effective value "Over"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the config :name key :key should not contain the effective value :value</code></summary>
+
+<br/>
+Assert that an effective configuration value does not contain a value
+<br/><br/>
+
+```gherkin
+Then the config "system.site" key "name" should not contain the effective value "xyz"
+
+```
+
+</details>
 
 ## Drupal\ContentBlockTrait
 
