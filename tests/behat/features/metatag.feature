@@ -214,7 +214,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The page is not indexable: a "noindex" directive is present
+      The page is not indexable: a "noindex" directive is present in the robots meta tag or the "X-Robots-Tag" header.
       """
 
   @trait:MetatagTrait
@@ -228,7 +228,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The page is indexable, but it should not be
+      The page is indexable, but it should not be: no "noindex" directive found in the robots meta tag or the "X-Robots-Tag" header.
       """
 
   @trait:MetatagTrait
@@ -383,4 +383,35 @@ Feature: Check that MetatagTrait works
     Then it should fail with an error:
       """
       The following required Twitter Card meta tags are missing or empty: twitter:card, twitter:title, twitter:description.
+      """
+
+  @trait:MetatagTrait
+  Scenario: Assert that "Then the following Open Graph tags should exist" fails when a listed tag is missing
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/metatags.html"
+      Then the following Open Graph tags should exist:
+        | og:title |
+        | og:image |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following required Open Graph meta tags are missing or empty: og:image.
+      """
+
+  @trait:MetatagTrait
+  Scenario: Assert that "Then the following Twitter Card tags should exist" fails when a listed tag is missing
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/metatags.html"
+      Then the following Twitter Card tags should exist:
+        | twitter:card |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The following required Twitter Card meta tags are missing or empty: twitter:card.
       """
