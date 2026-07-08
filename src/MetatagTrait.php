@@ -174,7 +174,7 @@ trait MetatagTrait {
   public function metatagAssertCanonicalNotExists(): void {
     $href = $this->metatagGetCanonicalHref();
 
-    if ($href !== NULL) {
+    if ($href !== NULL && $href !== '') {
       throw new \Exception(sprintf('The canonical URL should not be set, but found "%s".', $href));
     }
   }
@@ -600,12 +600,19 @@ trait MetatagTrait {
   }
 
   /**
-   * Resolve a possibly-relative URL to absolute form against a base URL.
+   * Resolve an absolute or root-relative URL against a base URL's origin.
+   *
+   * Absolute URLs are returned unchanged and root-relative URLs are resolved
+   * against the base URL's origin. Document-relative URLs (such as "page.html"
+   * or "../en") are resolved against the origin rather than the base path, so
+   * hreflang and canonical markup should use absolute or root-relative URLs, in
+   * line with search-engine guidance to use fully-qualified URLs.
    *
    * @param string $url
    *   The URL to resolve.
    * @param string|null $base
-   *   The base URL to resolve against. Defaults to the Mink base URL.
+   *   The base URL whose origin relative URLs resolve against. Defaults to the
+   *   Mink base URL.
    *
    * @return string
    *   The resolved absolute URL.
