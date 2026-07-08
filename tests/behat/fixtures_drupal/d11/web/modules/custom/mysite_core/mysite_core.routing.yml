@@ -27,3 +27,10 @@ mysite_core.test_config_system_site_name:
     _access: 'TRUE'
   defaults:
     _controller: '\Drupal\mysite_core\Controller\TestContent::testConfigSystemSiteName'
+
+mysite_core.test_robots_header:
+  path: '/mysite_core/test-robots-header'
+  requirements:
+    _access: 'TRUE'
+  defaults:
+    _controller: '\Drupal\mysite_core\Controller\TestContent::testRobotsHeader'
