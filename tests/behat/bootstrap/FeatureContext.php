@@ -18,6 +18,7 @@ use DrevOps\BehatSteps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
 use DrevOps\BehatSteps\Drupal\CacheTrait;
 use DrevOps\BehatSteps\Drupal\ConfigOverrideTrait;
+use DrevOps\BehatSteps\Drupal\ConfigTrait;
 use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
 use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
@@ -72,6 +73,7 @@ class FeatureContext extends DrupalContext {
   use CacheTrait;
   use CommandTrait;
   use ConfigOverrideTrait;
+  use ConfigTrait;
   use ContentBlockTrait;
   use ContentTrait;
   use CookieTrait;
