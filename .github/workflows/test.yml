@@ -211,7 +211,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}
+          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.driver && format('-{0}', matrix.driver) || '' }}
           path: .logs
           include-hidden-files: true
           retention-days: 30
