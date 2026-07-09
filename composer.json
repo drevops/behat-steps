@@ -19,24 +19,23 @@
     "require": {
         "php": ">=8.2",
         "behat/behat": "^3.14",
-        "behat/mink": ">=1.11",
-        "dmore/behat-chrome-extension": "^1.4",
-        "drupal/drupal-extension": "^6.0",
-        "lullabot/mink-selenium2-driver": "^1.7.4",
-        "softcreatr/jsonpath": "^0.10 || ^1.0"
+        "behat/mink": ">=1.11"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.15.0",
         "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "dmore/behat-chrome-extension": "^1.4",
         "drevops/behat-phpserver": "^2.1.1",
         "drevops/behat-screenshot": "^2.1",
         "drevops/phpcs-standard": "^0.7",
         "drupal/coder": "^8.3.28",
+        "drupal/drupal-extension": "^6.0",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
         "ergebnis/composer-normalize": "^2.47",
         "justinrainbow/json-schema": "^6.0",
+        "lullabot/mink-selenium2-driver": "^1.7.4",
         "mglaman/phpstan-drupal": "^2.0.0",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^9.3.5",
@@ -44,13 +43,18 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.0.0",
         "phpunit/phpunit": "^11",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
         "drupal/drupal-extension": "<6"
     },
     "suggest": {
-        "justinrainbow/json-schema": "Required by JsonTrait for JSON Schema validation steps ('the response should match the JSON schema ...')."
+        "dmore/behat-chrome-extension": "JavaScript driver for @javascript scenarios: drives headless Chrome directly over the Chrome DevTools Protocol (selenium-less). Interchangeable with lullabot/mink-selenium2-driver - install one.",
+        "drupal/drupal-extension": "Required by all Drupal step traits (src/Drupal/*), which build on the Drupal Extension RawDrupalContext and Drupal driver.",
+        "justinrainbow/json-schema": "Required by JsonTrait for JSON Schema validation steps ('the response should match the JSON schema ...').",
+        "lullabot/mink-selenium2-driver": "JavaScript driver for @javascript scenarios: drives a Selenium/WebDriver server. Interchangeable with dmore/behat-chrome-extension - install one.",
+        "softcreatr/jsonpath": "Required by JsonTrait for JSON path assertion steps ('the JSON path ... should ...')."
     },
     "autoload": {
         "psr-4": {

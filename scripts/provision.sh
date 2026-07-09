@@ -33,6 +33,11 @@ $fixture = json_decode(file_get_contents("/app/build/composer.json"), true);
 // Cherry-pick the required properties from the base composer.json.
 $package_filtered["require-dev"] = $package["require"];
 
+// Trait-specific runtime dependencies live in "require-dev" + "suggest" rather
+// than "require", so the fixture site - which exercises every trait - must pull
+// each suggested package back in to run the full Behat suite.
+$package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_intersect_key($package["require-dev"], $package["suggest"]));
+
 // Deps required to run Behat tests.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_filter($package["require-dev"], function ($ver, $name) {
   return in_array($name, [

@@ -51,6 +51,15 @@ Run `ahoy lint-docs` to validate the format of the steps.
 - **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
 - Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
 
+## Dependency policy
+
+Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
+
+- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink`.
+- **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
+
+When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
+
 ## Local environment setup
 
 Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
