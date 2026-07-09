@@ -1,5 +1,22 @@
 # Migration guide
 
+## Optional dependencies moved to `require-dev` and `suggest`
+
+Trait-specific packages are no longer hard `require` dependencies. They now live in `require-dev` (so this library's own test suite still runs) and `suggest`, matching the existing treatment of `justinrainbow/json-schema`. Projects that relied on transitive installation must add the packages they use to their own `composer.json`.
+
+| Package | Add it to your `require-dev` when you use | Example |
+| --- | --- | --- |
+| `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Drupal\*`) | all Drupal steps |
+| `lullabot/mink-selenium2-driver` | `@javascript` scenarios driven by a Selenium/WebDriver server | `JavascriptTrait`, `KeyboardTrait`, `ConfigOverrideTrait` |
+| `dmore/behat-chrome-extension` | `@javascript` scenarios driven by headless Chrome over the DevTools Protocol (no Selenium) | selenium-less profile |
+| `softcreatr/jsonpath` | `JsonTrait` JSON path assertions | `Then the JSON path :path should exist` |
+
+`behat/behat` and `behat/mink` remain hard `require` dependencies. For example, a project that uses the Drupal traits and runs JavaScript scenarios with Selenium adds:
+
+```bash
+composer require --dev drupal/drupal-extension lullabot/mink-selenium2-driver
+```
+
 ## Unified entity cleanup
 
 Traits that create Drupal entities now register them in a single shared registry and delete them in reverse creation order through one `entityCleanupAfterScenario` hook, instead of each trait running its own after-scenario cleanup.
