@@ -50,10 +50,10 @@
         "drupal/drupal-extension": "<6"
     },
     "suggest": {
-        "dmore/behat-chrome-extension": "Required to drive @javascript scenarios with headless Chrome over the Chrome DevTools Protocol (selenium-less), as an alternative to lullabot/mink-selenium2-driver. Used by JavascriptTrait, KeyboardTrait and ConfigOverrideTrait.",
+        "dmore/behat-chrome-extension": "JavaScript driver for @javascript scenarios: drives headless Chrome directly over the Chrome DevTools Protocol (selenium-less). Interchangeable with lullabot/mink-selenium2-driver - install one.",
         "drupal/drupal-extension": "Required by all Drupal step traits (src/Drupal/*), which build on the Drupal Extension RawDrupalContext and Drupal driver.",
         "justinrainbow/json-schema": "Required by JsonTrait for JSON Schema validation steps ('the response should match the JSON schema ...').",
-        "lullabot/mink-selenium2-driver": "Required to drive @javascript scenarios with a Selenium/WebDriver server. Used by JavascriptTrait, KeyboardTrait and ConfigOverrideTrait.",
+        "lullabot/mink-selenium2-driver": "JavaScript driver for @javascript scenarios: drives a Selenium/WebDriver server. Interchangeable with dmore/behat-chrome-extension - install one.",
         "softcreatr/jsonpath": "Required by JsonTrait for JSON path assertion steps ('the JSON path ... should ...')."
     },
     "autoload": {
