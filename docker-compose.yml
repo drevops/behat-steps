@@ -99,7 +99,8 @@ services:
     depends_on:
       - cli
       - mariadb
-    command: mariadb:3306
+      - chrome_headless
+    command: mariadb:3306 chrome_headless:9222
 
 networks:           ### Use external networks locally. Automatically removed in CI.
   amazeeio-network: ### Automatically removed in CI.

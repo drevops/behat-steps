@@ -191,26 +191,6 @@ jobs:
         run: ahoy test-bdd
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
-      # Wait for the headless Chrome DevTools endpoint to accept connections
-      # before driving it: depends_on only guarantees the container started,
-      # not that Chrome is listening on the remote debugging port yet. Any HTTP
-      # response means the server is up: a raw request is answered with a
-      # DNS-rebinding 500 (the driver resolves the host to an IP to pass that
-      # check), so -f is intentionally omitted and any response counts as ready.
-      - name: Wait for the chrome_headless CDP endpoint
-        if: "matrix.driver == 'chrome_headless'"
-        run: |
-          for i in $(seq 1 30); do
-            if docker compose exec -T cli curl -sS -m 2 http://chrome_headless:9222/json/version >/dev/null 2>&1; then
-              echo "Chrome DevTools endpoint is ready."
-              exit 0
-            fi
-            echo "Waiting for Chrome DevTools endpoint ($i/30)..."
-            sleep 2
-          done
-          echo "Chrome DevTools endpoint did not become ready in time." >&2
-          exit 1
-
       # Selenium-less leg: the same BDD suite driven through headless Chrome
       # over the DevTools Protocol, proving the steps work without Selenium.
       # The Drupal 11 leg runs with coverage so the driver-specific branches
