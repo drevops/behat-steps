@@ -271,6 +271,18 @@ trait CookieTrait {
       });
     }
 
+    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    elseif (method_exists($driver, 'getCookies')) {
+      $cookies = [];
+      foreach ($driver->getCookies() as $cookie) {
+        $cookies[] = [
+          'name' => $cookie['name'],
+          'value' => rawurldecode((string) $cookie['value']),
+          'secure' => $cookie['secure'],
+        ];
+      }
+    }
+
     // BrowserKit-based drivers like GoutteDriver.
     elseif (method_exists($driver, 'getClient')) {
       /** @var \Symfony\Component\BrowserKit\CookieJar $cookie_jar */

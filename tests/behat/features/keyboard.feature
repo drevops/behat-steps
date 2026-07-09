@@ -25,7 +25,7 @@ Feature: Check that KeyboardTrait works
     Then the "input1" field should contain "hello"
 
   @trait:KeyboardTrait
-  Scenario: Assert that negative assertion for "When I press the keys :keys on the element :selector" step throws an exception for using with a driver other than Selenium2Driver
+  Scenario: Assert that negative assertion for "When I press the keys :keys on the element :selector" step throws an exception for using with a non-JavaScript driver
     Given some behat configuration
     And scenario steps:
       """
@@ -36,7 +36,7 @@ Feature: Check that KeyboardTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
       """
-      Method can be used only with Selenium2 driver
+      Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).
       """
 
   @api @javascript

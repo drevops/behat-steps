@@ -465,7 +465,10 @@ trait AccessibilityTrait {
     ));
 
     $session->wait(30000, 'window.__accessibilityResults !== null');
-    $results = $session->evaluateScript('return window.__accessibilityResults;');
+    // Serialize to a JSON string in the browser rather than returning the raw
+    // object: the result graph is large and nested, and some drivers (e.g.
+    // chrome-mink) cannot walk every property when marshalling a live object.
+    $results = json_decode((string) $session->evaluateScript('return JSON.stringify(window.__accessibilityResults);'), TRUE);
 
     if (!is_array($results)) {
       throw new \RuntimeException('Accessibility engine did not return results.');

@@ -85,13 +85,22 @@ services:
     depends_on:
       - cli
 
+  chrome_headless:
+    image: chromedp/headless-shell:150.0.7871.47
+    shm_size: '1gb'
+    expose:
+      - "9222"
+    depends_on:
+      - cli
+
   # Helper container to wait for services to become available.
   wait_dependencies:
     image: drevops/docker-wait-for-dependencies:26.1.0
     depends_on:
       - cli
       - mariadb
-    command: mariadb:3306
+      - chrome_headless
+    command: mariadb:3306 chrome_headless:9222
 
 networks:           ### Use external networks locally. Automatically removed in CI.
   amazeeio-network: ### Automatically removed in CI.

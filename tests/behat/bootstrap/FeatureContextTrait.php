@@ -372,6 +372,13 @@ trait FeatureContextTrait {
         $cookie_list[$cookie['name']] = $cookie['value'];
       }
     }
+
+    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    elseif (method_exists($driver, 'getCookies')) {
+      foreach ($driver->getCookies() as $cookie) {
+        $cookie_list[$cookie['name']] = rawurldecode((string) $cookie['value']);
+      }
+    }
     else {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       // @phpstan-ignore-next-line
@@ -404,6 +411,11 @@ trait FeatureContextTrait {
       $cookie_jar = $driver->getClient()->getCookieJar();
       $cookie = new Cookie($name, rawurlencode($value));
       $cookie_jar->set($cookie);
+    }
+
+    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    if (method_exists($driver, 'getCookies')) {
+      $driver->setCookie($name, $value);
     }
   }
 

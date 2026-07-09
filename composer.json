@@ -20,6 +20,7 @@
         "php": ">=8.2",
         "behat/behat": "^3.14",
         "behat/mink": ">=1.11",
+        "dmore/behat-chrome-extension": "^1.4",
         "drupal/drupal-extension": "^6.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
