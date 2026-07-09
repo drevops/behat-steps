@@ -114,6 +114,14 @@ from the community.
 composer require --dev drevops/behat-steps:^3
 ```
 
+### Optional dependencies
+
+To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
+
+- **Drupal traits** (`DrevOps\BehatSteps\Drupal\*`) need `drupal/drupal-extension`.
+- **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
+- **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
+
 ## Usage
 
 Add required traits to your
