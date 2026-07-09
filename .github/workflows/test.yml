@@ -193,12 +193,15 @@ jobs:
 
       # Wait for the headless Chrome DevTools endpoint to accept connections
       # before driving it: depends_on only guarantees the container started,
-      # not that Chrome is listening on the remote debugging port yet.
+      # not that Chrome is listening on the remote debugging port yet. Any HTTP
+      # response means the server is up: a raw request is answered with a
+      # DNS-rebinding 500 (the driver resolves the host to an IP to pass that
+      # check), so -f is intentionally omitted and any response counts as ready.
       - name: Wait for the chrome_headless CDP endpoint
         if: "matrix.driver == 'chrome_headless'"
         run: |
           for i in $(seq 1 30); do
-            if docker compose exec -T cli curl -sSf -m 2 http://chrome_headless:9222/json/version >/dev/null 2>&1; then
+            if docker compose exec -T cli curl -sS -m 2 http://chrome_headless:9222/json/version >/dev/null 2>&1; then
               echo "Chrome DevTools endpoint is ready."
               exit 0
             fi
