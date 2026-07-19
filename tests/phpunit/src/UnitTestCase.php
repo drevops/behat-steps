@@ -9,6 +9,6 @@ use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 /**
  * Base class for unit tests.
  */
-class UnitTestCase extends UpstreamUnitTestCase {
+abstract class UnitTestCase extends UpstreamUnitTestCase {
 
 }
