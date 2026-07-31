@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
+      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
 
       env:
         TERM: xterm-256color
@@ -130,7 +130,7 @@ jobs:
             driver: 'chrome_headless'
 
     container:
-      image: drevops/ci-runner:26.6.0@sha256:190027056cac7b7ce28c29a1e5494779ebadc4ee8e95d468b75bc56e7be5aabd
+      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
 
       env:
         TERM: xterm-256color
