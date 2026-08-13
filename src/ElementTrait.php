@@ -224,6 +224,359 @@ trait ElementTrait {
   }
 
   /**
+   * Assert an element has a computed CSS property with a value.
+   *
+   * The value is compared against the value computed by the browser, not
+   * against the value written in the stylesheet: `color: red` computes to
+   * `rgb(255, 0, 0)` and `margin: 1em` computes to a pixel length. The
+   * property name is accepted in either `background-color` or
+   * `backgroundColor` form; CSS custom properties are used verbatim. The
+   * assertion applies to the first element matching the selector.
+   *
+   * @code
+   * Then the element ".button" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have the CSS property :property with the value :value')]
+  public function elementAssertHasCssPropertyWithValue(string $selector, string $property, string $value): void {
+    $this->elementAssertCssProperty($selector, $property, $value, TRUE, FALSE);
+  }
+
+  /**
+   * Assert an element has a computed CSS property containing a value.
+   *
+   * Use for multi-part computed values, such as `box-shadow`, `font-family`
+   * or `transition`, where an exact match is brittle.
+   *
+   * @code
+   * Then the element ".card" should have the CSS property "box-shadow" with the value containing "rgb(0, 0, 0)"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have the CSS property :property with the value containing :value')]
+  public function elementAssertHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
+    $this->elementAssertCssProperty($selector, $property, $value, FALSE, FALSE);
+  }
+
+  /**
+   * Assert an element does not have a computed CSS property with a value.
+   *
+   * @code
+   * Then the element ".button" should not have the CSS property "display" with the value "none"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have the CSS property :property with the value :value')]
+  public function elementAssertNotHasCssPropertyWithValue(string $selector, string $property, string $value): void {
+    $this->elementAssertCssProperty($selector, $property, $value, TRUE, TRUE);
+  }
+
+  /**
+   * Assert an element does not have a computed CSS property containing a value.
+   *
+   * @code
+   * Then the element ".card" should not have the CSS property "box-shadow" with the value containing "inset"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have the CSS property :property with the value containing :value')]
+  public function elementAssertNotHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
+    $this->elementAssertCssProperty($selector, $property, $value, FALSE, TRUE);
+  }
+
+  /**
+   * Assert the computed value of a CSS property on an element.
+   *
+   * A property with an empty computed value is reported as an error in both
+   * the positive and the inverted form: the realistic cause is a misspelled
+   * property name, which must not silently satisfy a negative assertion.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $property
+   *   The CSS property name, in either kebab-case or camelCase.
+   * @param string $value
+   *   The value to assert.
+   * @param bool $is_exact
+   *   Whether to assert the value exactly.
+   * @param bool $is_inverted
+   *   Whether to assert the value is not present.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  protected function elementAssertCssProperty(string $selector, string $property, string $value, bool $is_exact, bool $is_inverted): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $property_js = json_encode($this->elementNormaliseCssProperty($property), JSON_UNESCAPED_SLASHES);
+    $script = sprintf('return window.getComputedStyle({{ELEMENT}}).getPropertyValue(%s).trim();', $property_js);
+    $actual = (string) $this->elementExecuteJs($selector, $script);
+
+    if ($actual === '') {
+      throw new ExpectationException(sprintf('The CSS property "%s" has no computed value on the element "%s".', $property, $selector), $this->getSession()->getDriver());
+    }
+
+    $is_found = $is_exact ? $actual === $value : str_contains($actual, $value);
+
+    if ($is_inverted && $is_found) {
+      $message = $is_exact
+        ? sprintf('The CSS property "%s" on the element "%s" has a computed value "%s", but it should not.', $property, $selector, $actual)
+        : sprintf('The CSS property "%s" on the element "%s" has a computed value "%s" containing "%s", but it should not.', $property, $selector, $actual, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
+
+    if (!$is_inverted && !$is_found) {
+      $message = $is_exact
+        ? sprintf('The CSS property "%s" on the element "%s" has a computed value "%s", but it should have a value "%s".', $property, $selector, $actual, $value)
+        : sprintf('The CSS property "%s" on the element "%s" has a computed value "%s", but it should contain a value "%s".', $property, $selector, $actual, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Convert a CSS property name to the form getPropertyValue() expects.
+   *
+   * @param string $property
+   *   The CSS property name, in either kebab-case or camelCase.
+   *
+   * @return string
+   *   The property name in kebab-case. Custom properties are returned as-is,
+   *   because they are case-sensitive.
+   */
+  protected function elementNormaliseCssProperty(string $property): string {
+    if (str_starts_with($property, '--')) {
+      return $property;
+    }
+
+    return strtolower((string) preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $property));
+  }
+
+  /**
+   * Assert that one element stacks above another.
+   *
+   * Compares the effective paint order rather than the `z-index` property:
+   * a `z-index` read from an element is only meaningful within its own
+   * stacking context, so a child of a stacking-context-forming ancestor can
+   * carry a high `z-index` and still paint below an element with a lower one.
+   *
+   * The comparison walks the stacking context chain of both elements, finds
+   * the context they share, and compares the two participants that branch off
+   * it, using document order to break a tie. Painting order within a single
+   * stacking context (floats, inline content and positioned descendants) is
+   * not modelled.
+   *
+   * @code
+   * Then the element "#modal" should stack above the element "#page-header"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack above the element :selector2')]
+  public function elementAssertStacksAbove(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, TRUE);
+  }
+
+  /**
+   * Assert that one element stacks below another.
+   *
+   * @code
+   * Then the element "#page-header" should stack below the element "#modal"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack below the element :selector2')]
+  public function elementAssertStacksBelow(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, FALSE);
+  }
+
+  /**
+   * Assert the stacking order of two elements.
+   *
+   * @param string $selector1
+   *   The CSS selector of the first element.
+   * @param string $selector2
+   *   The CSS selector of the second element.
+   * @param bool $is_above
+   *   Whether the first element is expected to stack above the second one.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  protected function elementAssertStackingOrder(string $selector1, string $selector2, bool $is_above): void {
+    $page = $this->getSession()->getPage();
+
+    if (!$page->find('css', $selector1)) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
+    }
+
+    if (!$page->find('css', $selector2)) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
+    }
+
+    [$order, $z1, $z2, $basis] = explode('|', $this->elementResolveStackingOrder($selector1, $selector2), 4);
+
+    if ($basis === 'same-element') {
+      throw new ExpectationException(sprintf('The selectors "%s" and "%s" match the same element.', $selector1, $selector2), $this->getSession()->getDriver());
+    }
+
+    $is_stacked_above = $order === '1';
+
+    if ($is_stacked_above === $is_above) {
+      return;
+    }
+
+    $reason = match ($basis) {
+      'document-order' => sprintf('both have an effective z-index of %s and "%s" comes %s in the document', $z1, $selector2, $is_above ? 'later' : 'earlier'),
+      'nesting-first' => sprintf('"%s" sits inside the stacking context of "%s" with an effective z-index of %s', $selector1, $selector2, $z1),
+      'nesting-second' => sprintf('"%s" sits inside the stacking context of "%s" with an effective z-index of %s', $selector2, $selector1, $z2),
+      default => sprintf('their effective z-indexes are %s and %s', $z1, $z2),
+    };
+
+    throw new ExpectationException(sprintf('Expected element "%s" to stack %s the element "%s", but it stacks %s it: %s.', $selector1, $is_above ? 'above' : 'below', $selector2, $is_above ? 'below' : 'above', $reason), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Resolve the stacking order of two elements in the browser.
+   *
+   * @param string $selector1
+   *   The CSS selector of the first element.
+   * @param string $selector2
+   *   The CSS selector of the second element.
+   *
+   * @return string
+   *   A pipe-delimited string of the order (`1` when the first element stacks
+   *   above the second one, `-1` when it stacks below it, `0` when both
+   *   selectors match the same element), the effective z-index of each
+   *   compared participant, and the basis of the comparison.
+   */
+  protected function elementResolveStackingOrder(string $selector1, string $selector2): string {
+    $selector1_js = json_encode($selector1, JSON_UNESCAPED_SLASHES);
+    $selector2_js = json_encode($selector2, JSON_UNESCAPED_SLASHES);
+
+    $script = <<<JS
+      return (function() {
+        function zIndexOf(el) {
+          var parsed = parseInt(window.getComputedStyle(el).zIndex, 10);
+          return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function createsStackingContext(el) {
+          if (el === document.documentElement) {
+            return true;
+          }
+
+          var style = window.getComputedStyle(el);
+
+          if (style.position === 'fixed' || style.position === 'sticky') {
+            return true;
+          }
+
+          if (style.position !== 'static' && style.zIndex !== 'auto') {
+            return true;
+          }
+
+          if (parseFloat(style.opacity) < 1 || style.mixBlendMode !== 'normal' || style.isolation === 'isolate') {
+            return true;
+          }
+
+          var properties = ['transform', 'filter', 'perspective', 'clipPath', 'mask', 'backdropFilter'];
+          for (var i = 0; i < properties.length; i++) {
+            if (style[properties[i]] && style[properties[i]] !== 'none') {
+              return true;
+            }
+          }
+
+          if (/(^|\s)(layout|paint|strict|content)(\s|$)/.test(style.contain || '')) {
+            return true;
+          }
+
+          if (/(transform|opacity|filter|perspective|clip-path|mask|backdrop-filter)/.test(style.willChange || '')) {
+            return true;
+          }
+
+          // A flex or grid item takes part in its parent's stacking context
+          // when it carries a z-index, without needing to be positioned.
+          var parent = el.parentElement;
+          if (parent && style.zIndex !== 'auto') {
+            var parent_display = window.getComputedStyle(parent).display;
+            if (['flex', 'inline-flex', 'grid', 'inline-grid'].indexOf(parent_display) !== -1) {
+              return true;
+            }
+          }
+
+          return false;
+        }
+
+        // The chain of stacking contexts the element sits in, from the root
+        // element down, with the element itself as the last participant.
+        function chainOf(el) {
+          var chain = [el];
+          var node = el.parentElement;
+
+          while (node) {
+            if (createsStackingContext(node)) {
+              chain.unshift(node);
+            }
+            node = node.parentElement;
+          }
+
+          return chain;
+        }
+
+        var element1 = document.querySelector({$selector1_js});
+        var element2 = document.querySelector({$selector2_js});
+
+        if (element1 === element2) {
+          return '0|0|0|same-element';
+        }
+
+        var chain1 = chainOf(element1);
+        var chain2 = chainOf(element2);
+
+        var index = 0;
+        while (index < chain1.length && index < chain2.length && chain1[index] === chain2[index]) {
+          index++;
+        }
+
+        // One element sits inside the other's stacking context, so it paints
+        // above it unless it opted out with a negative z-index.
+        if (index >= chain1.length) {
+          var nested2 = zIndexOf(chain2[index]);
+          return (nested2 < 0 ? '1' : '-1') + '|0|' + nested2 + '|nesting-second';
+        }
+
+        if (index >= chain2.length) {
+          var nested1 = zIndexOf(chain1[index]);
+          return (nested1 < 0 ? '-1' : '1') + '|' + nested1 + '|0|nesting-first';
+        }
+
+        var z1 = zIndexOf(chain1[index]);
+        var z2 = zIndexOf(chain2[index]);
+
+        if (z1 !== z2) {
+          return (z1 > z2 ? '1' : '-1') + '|' + z1 + '|' + z2 + '|z-index';
+        }
+
+        // Equal z-indexes are resolved by document order: the participant that
+        // comes later paints above the earlier one.
+        var follows = chain1[index].compareDocumentPosition(chain2[index]) & Node.DOCUMENT_POSITION_FOLLOWING;
+
+        return (follows ? '-1' : '1') + '|' + z1 + '|' + z2 + '|document-order';
+      }());
+JS;
+
+    return (string) $this->getSession()->getDriver()->evaluateScript($script);
+  }
+
+  /**
    * Assert the element :selector should be at the top of the viewport.
    *
    * @code
@@ -253,6 +606,107 @@ trait ElementTrait {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
     if (!$result) {
       throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that an element is pinned to the top of the viewport.
+   *
+   * The element's top edge has to sit within 2 pixels of the viewport top,
+   * which absorbs the sub-pixel offsets that normal rendering produces. Use
+   * the step with an explicit tolerance for layouts that need more slack.
+   *
+   * This asserts where the element currently renders, so scroll the page
+   * first to tell a pinned element apart from one that merely starts at the
+   * top of the document.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * Then the element "#header" should be pinned to the top of the viewport
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should be pinned to the top of the viewport')]
+  public function elementAssertIsPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTop($selector, 2, FALSE);
+  }
+
+  /**
+   * Assert that an element is pinned to the top of the viewport within a tolerance.
+   *
+   * @code
+   * Then the element "#header" should be pinned to the top of the viewport within 10 pixels
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
+  public function elementAssertIsPinnedToTopWithTolerance(string $selector, int $tolerance): void {
+    $this->elementAssertPinnedToTop($selector, $tolerance, FALSE);
+  }
+
+  /**
+   * Assert that an element is not pinned to the top of the viewport.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * Then the element "#header" should not be pinned to the top of the viewport
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not be pinned to the top of the viewport')]
+  public function elementAssertIsNotPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTop($selector, 2, TRUE);
+  }
+
+  /**
+   * Assert that an element is pinned to the top of the viewport.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param int $tolerance
+   *   The allowed distance, in pixels, between the top edge of the element
+   *   and the top of the viewport.
+   * @param bool $is_inverted
+   *   Whether to assert that the element is not pinned to the top of the
+   *   viewport.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  protected function elementAssertPinnedToTop(string $selector, int $tolerance, bool $is_inverted): void {
+    if ($tolerance < 0) {
+      throw new ExpectationException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance), $this->getSession()->getDriver());
+    }
+
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $script = 'var rect = {{ELEMENT}}.getBoundingClientRect(); return rect.top + "|" + rect.height;';
+    [$top, $height] = explode('|', (string) $this->elementExecuteJs($selector, $script), 2);
+
+    // An element that is not rendered reports a zero-sized box at the origin,
+    // which would otherwise read as pinned.
+    if ((float) $height <= 0) {
+      if ($is_inverted) {
+        return;
+      }
+
+      throw new ExpectationException(sprintf('Expected element "%s" to be pinned to the top of the viewport, but it is not rendered.', $selector), $this->getSession()->getDriver());
+    }
+
+    $is_pinned = abs((float) $top) <= $tolerance;
+
+    if (!$is_inverted && !$is_pinned) {
+      throw new ExpectationException(sprintf('Expected element "%s" to be pinned to the top of the viewport within %d pixel(s), but its top edge is at %s pixels.', $selector, $tolerance, $top), $this->getSession()->getDriver());
+    }
+
+    if ($is_inverted && $is_pinned) {
+      throw new ExpectationException(sprintf('Expected element "%s" to not be pinned to the top of the viewport, but its top edge is at %s pixels.', $selector, $top), $this->getSession()->getDriver());
     }
   }
 
