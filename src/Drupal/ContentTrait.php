@@ -22,6 +22,14 @@ use Drupal\workflows\Entity\Workflow;
  * - Create, find, and manipulate nodes with structured field data.
  * - Navigate to node pages by title and manage editorial workflows.
  * - Support content moderation transitions and scheduled publishing.
+ * - Set path aliases and assert the published state of content.
+ *
+ * Steps that match content by title resolve to the most recently created node
+ * when several nodes of the same type share that title.
+ *
+ * The path alias step requires the core `path` module to be enabled. When the
+ * contrib `pathauto` module is enabled, automatic alias generation is switched
+ * off for the content so that the provided alias is preserved.
  */
 trait ContentTrait {
 
@@ -160,23 +168,7 @@ trait ContentTrait {
    *   The operation to perform.
    */
   protected function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
-    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
-
-    if (!$content_type_entity) {
-      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
-    }
-
-    $nids = $this->contentLoadMultiple($content_type, [
-      'title' => $title,
-    ]);
-
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-
-    ksort($nids);
-
-    $nid = end($nids);
+    $nid = $this->contentResolveNidByTitle($content_type, $title);
     $path = $this->locatePath('/node/' . $nid . $action_subpath);
 
     $this->getSession()->visit($path);
@@ -191,30 +183,8 @@ trait ContentTrait {
    */
   #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
-    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+    $node = $this->contentLoadNodeByTitle($content_type, $title);
 
-    if (!$content_type_entity) {
-      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
-    }
-
-    $nids = $this->contentLoadMultiple($content_type, [
-      'title' => $title,
-    ]);
-
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-
-    ksort($nids);
-
-    $nid = end($nids);
-    $node = Node::load($nid);
-
-    // @codeCoverageIgnoreStart
-    if (!$node instanceof NodeInterface) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-    // @codeCoverageIgnoreEnd
     $state_is_valid = FALSE;
     $workflows = Workflow::loadMultiple();
     foreach ($workflows as $workflow) {
@@ -247,24 +217,8 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
   public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
-    $nids = $this->contentLoadMultiple($content_type, [
-      'title' => $title,
-    ]);
+    $node = $this->contentLoadNodeByTitle($content_type, $title);
 
-    if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-
-    ksort($nids);
-
-    $nid = end($nids);
-    $node = Node::load($nid);
-
-    // @codeCoverageIgnoreStart
-    if (!$node instanceof NodeInterface) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-    // @codeCoverageIgnoreEnd
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
     assert($handler instanceof NodeAccessControlHandlerInterface);
     $grants = $handler->acquireGrants($node);
@@ -288,6 +242,45 @@ trait ContentTrait {
   }
 
   /**
+   * Set the path alias of a content with the specified title.
+   *
+   * The alias replaces any existing alias for the content. A missing leading
+   * slash is added automatically, so both "about-us" and "/about-us" are
+   * accepted.
+   *
+   * @code
+   * When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+   * @endcode
+   */
+  #[When('I set the path alias of the :content_type content with the title :title to :alias')]
+  public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
+    $this->contentAssertPathModuleEnabled();
+
+    $alias = trim($alias);
+
+    if ($alias === '') {
+      throw new \RuntimeException(sprintf('Path alias for "%s" content with the title "%s" cannot be empty.', $content_type, $title));
+    }
+
+    $node = $this->contentLoadNodeByTitle($content_type, $title);
+
+    // The current value carries the 'pid' of the existing alias, which makes
+    // the save update that alias rather than add a second one.
+    $path_value = (array) ($node->get('path')->getValue()[0] ?? []);
+    $path_value['alias'] = '/' . ltrim($alias, '/');
+
+    // 0 is 'PathautoState::SKIP', which stops pathauto from regenerating the
+    // alias on save. The property exists only on 'PathautoItem', so setting
+    // it without the module throws.
+    if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
+      $path_value['pathauto'] = 0;
+    }
+
+    $node->set('path', $path_value);
+    $node->save();
+  }
+
+  /**
    * Assert content with specified type and title does not exist.
    *
    * @code
@@ -305,6 +298,38 @@ trait ContentTrait {
   }
 
   /**
+   * Assert content with specified type and title is published.
+   *
+   * @code
+   * Then "page" content with the title "Test page" should be published
+   * @endcode
+   */
+  #[Then(':content_type content with the title :title should be published')]
+  public function contentAssertPublishedWithTitle(string $content_type, string $title): void {
+    $node = $this->contentLoadNodeByTitle($content_type, $title);
+
+    if (!$node->isPublished()) {
+      throw new ExpectationException(sprintf('"%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert content with specified type and title is not published.
+   *
+   * @code
+   * Then "page" content with the title "Test page" should not be published
+   * @endcode
+   */
+  #[Then(':content_type content with the title :title should not be published')]
+  public function contentAssertNotPublishedWithTitle(string $content_type, string $title): void {
+    $node = $this->contentLoadNodeByTitle($content_type, $title);
+
+    if ($node->isPublished()) {
+      throw new ExpectationException(sprintf('"%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Expand fixture file paths for file/image fields on nodes.
    *
    * Rewrites bare fixture filenames (e.g. 'document.pdf') on 'file' and
@@ -318,6 +343,74 @@ trait ContentTrait {
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
     $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
+  }
+
+  /**
+   * Resolve the ID of the node with the specified type and title.
+   *
+   * When several nodes of the same type share the title, the most recently
+   * created one is resolved.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param string $title
+   *   The title of the content.
+   *
+   * @return int
+   *   The node ID.
+   */
+  protected function contentResolveNidByTitle(string $content_type, string $title): int {
+    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+
+    if (!$content_type_entity) {
+      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
+    }
+
+    $nids = $this->contentLoadMultiple($content_type, [
+      'title' => $title,
+    ]);
+
+    if (empty($nids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+
+    ksort($nids);
+
+    return (int) end($nids);
+  }
+
+  /**
+   * Load the node with the specified type and title.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param string $title
+   *   The title of the content.
+   *
+   * @return \Drupal\node\NodeInterface
+   *   The node.
+   */
+  protected function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
+    $node = Node::load($this->contentResolveNidByTitle($content_type, $title));
+
+    // @codeCoverageIgnoreStart
+    if (!$node instanceof NodeInterface) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
+    }
+
+    // @codeCoverageIgnoreEnd
+    return $node;
+  }
+
+  /**
+   * Throw when the `path` module is not enabled.
+   */
+  protected function contentAssertPathModuleEnabled(): void {
+    // @codeCoverageIgnoreStart
+    if (!\Drupal::moduleHandler()->moduleExists('path')) {
+      throw new \RuntimeException('The "path" module is not enabled. Enable it to manage content path aliases.');
+    }
+    // @codeCoverageIgnoreEnd
   }
 
   /**
