@@ -214,7 +214,8 @@ trait ElementTrait {
         : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
-    elseif (!$is_inverted && !$attr_value_found) {
+
+    if (!$is_inverted && !$attr_value_found) {
       $message = $is_exact
         ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attr_value, $value)
         : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attr_value, $value);

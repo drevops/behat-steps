@@ -356,10 +356,9 @@ trait FileDownloadTrait {
       if ($result == \ZipArchive::ER_NOZIP) {
         throw new ExpectationException('Downloaded file is not a valid ZIP file.', $this->getSession()->getDriver());
       }
+
       // @codeCoverageIgnoreStart
-      else {
-        throw new ExpectationException('Downloaded file cannot be read.', $this->getSession()->getDriver());
-      }
+      throw new ExpectationException('Downloaded file cannot be read.', $this->getSession()->getDriver());
       // @codeCoverageIgnoreEnd
     }
 
