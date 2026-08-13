@@ -216,7 +216,8 @@ trait FieldTrait {
     if ($enabled_or_disabled === 'disabled' && !$field->hasAttribute('disabled')) {
       throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $name), $this->getSession()->getDriver());
     }
-    elseif ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
+
+    if ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
       throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $name), $this->getSession()->getDriver());
     }
   }

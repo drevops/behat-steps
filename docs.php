@@ -88,11 +88,10 @@ function main(array $options = []): void {
     echo 'Documentation is outdated. No changes were made.' . PHP_EOL;
     exit(1);
   }
-  else {
-    file_put_contents($base_path . DIRECTORY_SEPARATOR . $steps_file, $steps_replaced);
-    file_put_contents($base_path . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
-    echo 'Documentation updated.' . PHP_EOL;
-  }
+
+  file_put_contents($base_path . DIRECTORY_SEPARATOR . $steps_file, $steps_replaced);
+  file_put_contents($base_path . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
+  echo 'Documentation updated.' . PHP_EOL;
 }
 
 // @codeCoverageIgnoreEnd
@@ -277,14 +276,17 @@ function parse_class_comment(string $trait_name, string $comment): array {
       $in_code_block = TRUE;
       return trim($l);
     }
-    elseif (str_starts_with(trim($l), '@endcode')) {
+
+    if (str_starts_with(trim($l), '@endcode')) {
       $in_code_block = FALSE;
       return trim($l);
     }
-    elseif ($in_code_block) {
+
+    if ($in_code_block) {
       // Preserve indentation within code blocks.
       return rtrim($l);
     }
+
     return trim($l);
   }, $lines);
 

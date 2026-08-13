@@ -131,8 +131,9 @@ trait KeyboardTrait {
     if (strlen($char) < 1) {
       throw new \InvalidArgumentException('keyPress($char) was invoked but the $char parameter was empty.');
     }
+
     // Consider provided characters string longer then 1 to be a keyboard key.
-    elseif (strlen($char) > 1) {
+    if (strlen($char) > 1) {
       if (!array_key_exists(strtolower($char), $keys)) {
         throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
       }
