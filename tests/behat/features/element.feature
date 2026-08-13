@@ -847,3 +847,304 @@ Feature: Check that ElementTrait works
       """
       Element matching css "#does-not-exist" not found.
       """
+
+  @javascript
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
+    And the element "#css-box" should have the CSS property "backgroundColor" with the value "rgb(0, 0, 255)"
+    And the element "#css-box" should have the CSS property "--css-brand" with the value "teal"
+    And the element "#css-box" should not have the CSS property "display" with the value "none"
+
+  @javascript
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
+    And the element "#css-box" should not have the CSS property "box-shadow" with the value containing "inset"
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails when the element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#nonexistent-element" should have the CSS property "display" with the value "block"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails when the property has no computed value
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#css-box" should have the CSS property "bogus-property" with the value "block"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The CSS property "bogus-property" has no computed value on the element "#css-box".
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails on a value mismatch
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(255, 0, 0)"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The CSS property "background-color" on the element "#css-box" has a computed value "rgb(0, 0, 255)", but it should have a value "rgb(255, 0, 0)".
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should not have the CSS property :property with the value :value" fails when the value matches
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#css-box" should not have the CSS property "background-color" with the value "rgb(0, 0, 255)"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The CSS property "background-color" on the element "#css-box" has a computed value "rgb(0, 0, 255)", but it should not.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" fails when the value is not contained
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "inset"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      but it should contain a value "inset".
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should not have the CSS property :property with the value containing :value" fails when the value is contained
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#css-box" should not have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      containing "rgb(255, 0, 0)", but it should not.
+      """
+
+  @javascript
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" compares the z-index of both elements
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#stack-high" should stack above the element "#stack-low"
+    And the element "#stack-low" should stack below the element "#stack-high"
+
+  @javascript
+  Scenario: Assert stacking order resolves the effective z-index across stacking contexts
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#stack-sibling" should stack above the element "#stack-trap-child"
+    And the element "#stack-trap-child" should stack below the element "#stack-sibling"
+
+  @javascript
+  Scenario: Assert stacking order falls back to document order for an equal z-index
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#stack-second" should stack above the element "#stack-first"
+    And the element "#stack-first" should stack below the element "#stack-second"
+
+  @javascript
+  Scenario: Assert stacking order of an element nested in another element
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#stack-child" should stack above the element "#stack-parent"
+    And the element "#stack-parent" should stack below the element "#stack-child"
+    And the element "#stack-behind" should stack below the element "#stack-parent"
+    And the element "#stack-parent" should stack above the element "#stack-behind"
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the first element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#nonexistent-element" should stack above the element "#stack-low"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the second element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-low" should stack above the element "#nonexistent-element"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when both selectors match the same element
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-low" should stack above the element "#stack-low"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The selectors "#stack-low" and "#stack-low" match the same element.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the element stacks below
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-low" should stack above the element "#stack-high"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#stack-low" to stack above the element "#stack-high", but it stacks below it: their effective z-indexes are 1 and 5.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack below the element :selector2" fails when the element stacks above
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-second" should stack below the element "#stack-first"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#stack-second" to stack below the element "#stack-first", but it stacks above it: both have an effective z-index of 0 and "#stack-first" comes earlier in the document.
+      """
+
+  @javascript
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#pinned-header" should be pinned to the top of the viewport
+    And the element "#not-pinned" should not be pinned to the top of the viewport
+    And the element "#pinned-hidden" should not be pinned to the top of the viewport
+
+  @javascript
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport within :tolerance pixels" works as expected
+    Given I am an anonymous user
+    When I visit "/sites/default/files/elements_css.html"
+    Then the element "#pinned-offset" should be pinned to the top of the viewport within 25 pixels
+    And the element "#pinned-offset" should not be pinned to the top of the viewport
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#nonexistent-element" should be pinned to the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-element" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element is not at the top
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#not-pinned" should be pinned to the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#not-pinned" to be pinned to the top of the viewport within 2 pixel(s), but its top edge is at
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element is not rendered
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#pinned-hidden" should be pinned to the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#pinned-hidden" to be pinned to the top of the viewport, but it is not rendered.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should not be pinned to the top of the viewport" fails when the element is pinned
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#pinned-header" should not be pinned to the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#pinned-header" to not be pinned to the top of the viewport, but its top edge is at
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be pinned to the top of the viewport within :tolerance pixels" fails when the tolerance is negative
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#pinned-header" should be pinned to the top of the viewport within -5 pixels
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The tolerance must be 0 or greater, but "-5" was given.
+      """

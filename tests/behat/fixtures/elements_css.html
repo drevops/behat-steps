@@ -1,0 +1,219 @@
+<!--
+This is a fixture document used to test computed style, stacking order and
+viewport pinning assertions in ElementTrait.
+
+It is kept apart from `elements.html` because the pinning tests need
+`position: fixed` elements, which would overlay content that other fixtures
+rely on being reachable.
+
+Any changes to this document should be copied over manually:
+cp /app/tests/behat/fixtures/elements_css.html /app/build/web/sites/default/files/elements_css.html
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>Element CSS Testing Page</title>
+  <style>
+    :root {
+      --css-brand: teal;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 60px 20px;
+    }
+
+    /* Computed style. */
+    #css-box {
+      display: block;
+      width: 200px;
+      padding: 20px;
+      background-color: rgb(0, 0, 255);
+      box-shadow: 0 0 10px rgb(255, 0, 0);
+      color: rgb(255, 255, 255);
+    }
+
+    #css-hidden {
+      display: none;
+    }
+
+    /* Stacking order: a plain pair, ordered by z-index. */
+    #stack-plain-container {
+      position: relative;
+      height: 100px;
+    }
+
+    #stack-low,
+    #stack-high {
+      position: absolute;
+      top: 0;
+      width: 150px;
+      padding: 10px;
+    }
+
+    #stack-low {
+      left: 0;
+      z-index: 1;
+      background: rgb(255, 200, 200);
+    }
+
+    #stack-high {
+      left: 50px;
+      z-index: 5;
+      background: rgb(200, 255, 200);
+    }
+
+    /*
+     * Stacking order: a trap pair. `#stack-trap` forms its own stacking
+     * context, so the z-index of `#stack-trap-child` only competes inside it
+     * and cannot lift the child above `#stack-sibling`, despite being far
+     * higher as a raw value.
+     */
+    #stack-trap-container {
+      position: relative;
+      height: 100px;
+    }
+
+    #stack-trap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 150px;
+      padding: 10px;
+      z-index: 1;
+      opacity: 0.99;
+      background: rgb(200, 200, 255);
+    }
+
+    #stack-trap-child {
+      position: relative;
+      z-index: 9999;
+      background: rgb(150, 150, 255);
+    }
+
+    #stack-sibling {
+      position: absolute;
+      top: 0;
+      left: 50px;
+      width: 150px;
+      padding: 10px;
+      z-index: 5;
+      background: rgb(255, 255, 200);
+    }
+
+    /* Stacking order: a pair with equal z-index, ordered by document order. */
+    #stack-order-container {
+      position: relative;
+      height: 100px;
+    }
+
+    #stack-first,
+    #stack-second {
+      position: absolute;
+      top: 0;
+      width: 150px;
+      padding: 10px;
+    }
+
+    #stack-first {
+      left: 0;
+      background: rgb(255, 220, 180);
+    }
+
+    #stack-second {
+      left: 50px;
+      background: rgb(180, 220, 255);
+    }
+
+    /* Stacking order: nesting, including an opted-out descendant. */
+    #stack-parent {
+      position: relative;
+      z-index: 1;
+      padding: 20px;
+      background: rgb(220, 220, 220);
+    }
+
+    #stack-child {
+      padding: 10px;
+      background: rgb(180, 180, 180);
+    }
+
+    #stack-behind {
+      position: relative;
+      z-index: -1;
+      padding: 10px;
+      background: rgb(140, 140, 140);
+    }
+
+    /* Viewport pinning. */
+    #pinned-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: rgb(0, 128, 0);
+      color: rgb(255, 255, 255);
+    }
+
+    #pinned-offset {
+      position: fixed;
+      top: 20px;
+      right: 0;
+      width: 120px;
+      background: rgb(128, 0, 128);
+      color: rgb(255, 255, 255);
+    }
+
+    #pinned-hidden {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+
+    #not-pinned {
+      padding: 10px;
+      background: rgb(230, 230, 230);
+    }
+  </style>
+</head>
+<body>
+<div id="pinned-header">Pinned header</div>
+<div id="pinned-offset">Offset header</div>
+<div id="pinned-hidden">Hidden header</div>
+
+<h1>Element CSS Testing Page</h1>
+
+<div id="css-box">Element with known computed styles</div>
+<div id="css-hidden">Element that is not rendered</div>
+
+<div id="stack-plain-container">
+  <div id="stack-low">Low</div>
+  <div id="stack-high">High</div>
+</div>
+
+<div id="stack-trap-container">
+  <div id="stack-trap">
+    Trap
+    <div id="stack-trap-child">Trap child</div>
+  </div>
+  <div id="stack-sibling">Sibling</div>
+</div>
+
+<div id="stack-order-container">
+  <div id="stack-first">First</div>
+  <div id="stack-second">Second</div>
+</div>
+
+<div id="stack-parent">
+  Parent
+  <div id="stack-child">Child</div>
+  <div id="stack-behind">Behind</div>
+</div>
+
+<div id="not-pinned">Element in the normal flow</div>
+</body>
+</html>

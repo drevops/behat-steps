@@ -811,6 +811,90 @@ Then the element "#main-content" with the attribute "class" and the value contai
 </details>
 
 <details>
+  <summary><code>@Then the element :selector should have the CSS property :property with the value :value</code></summary>
+
+<br/>
+Assert an element has a computed CSS property with a value
+<br/><br/>
+
+```gherkin
+Then the element ".button" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should have the CSS property :property with the value containing :value</code></summary>
+
+<br/>
+Assert an element has a computed CSS property containing a value
+<br/><br/>
+
+```gherkin
+Then the element ".card" should have the CSS property "box-shadow" with the value containing "rgb(0, 0, 0)"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not have the CSS property :property with the value :value</code></summary>
+
+<br/>
+Assert an element does not have a computed CSS property with a value
+<br/><br/>
+
+```gherkin
+Then the element ".button" should not have the CSS property "display" with the value "none"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not have the CSS property :property with the value containing :value</code></summary>
+
+<br/>
+Assert an element does not have a computed CSS property containing a value
+<br/><br/>
+
+```gherkin
+Then the element ".card" should not have the CSS property "box-shadow" with the value containing "inset"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector1 should stack above the element :selector2</code></summary>
+
+<br/>
+Assert that one element stacks above another
+<br/><br/>
+
+```gherkin
+Then the element "#modal" should stack above the element "#page-header"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector1 should stack below the element :selector2</code></summary>
+
+<br/>
+Assert that one element stacks below another
+<br/><br/>
+
+```gherkin
+Then the element "#page-header" should stack below the element "#modal"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then the element :selector should be at the top of the viewport</code></summary>
 
 <br/>
@@ -833,6 +917,50 @@ Assert the element :selector should be centered in the viewport
 
 ```gherkin
 Then the element "#content" should be centered in the viewport
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be pinned to the top of the viewport</code></summary>
+
+<br/>
+Assert that an element is pinned to the top of the viewport
+<br/><br/>
+
+```gherkin
+When I scroll to the element "#footer"
+Then the element "#header" should be pinned to the top of the viewport
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should be pinned to the top of the viewport within :tolerance pixels</code></summary>
+
+<br/>
+Assert that an element is pinned to the top of the viewport within a tolerance
+<br/><br/>
+
+```gherkin
+Then the element "#header" should be pinned to the top of the viewport within 10 pixels
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not be pinned to the top of the viewport</code></summary>
+
+<br/>
+Assert that an element is not pinned to the top of the viewport
+<br/><br/>
+
+```gherkin
+When I scroll to the element "#footer"
+Then the element "#header" should not be pinned to the top of the viewport
 
 ```
 
