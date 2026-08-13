@@ -4110,6 +4110,14 @@ Then the content block type "Search" should exist
 >  - Create, find, and manipulate nodes with structured field data.
 >  - Navigate to node pages by title and manage editorial workflows.
 >  - Support content moderation transitions and scheduled publishing.
+>  - Set path aliases and assert the published state of content.
+>  
+>  Steps that match content by title resolve to the most recently created node
+>  when several nodes of the same type share that title.
+>  <br/><br/>
+>  The path alias step requires the core `path` module to be enabled. When the
+>  contrib `pathauto` module is enabled, automatic alias generation is switched
+>  off for the content so that the provided alias is preserved.
 
 
 <details>
@@ -4273,6 +4281,20 @@ When I rebuild the access grants for all content
 </details>
 
 <details>
+  <summary><code>@When I set the path alias of the :content_type content with the title :title to :alias</code></summary>
+
+<br/>
+Set the path alias of a content with the specified title
+<br/><br/>
+
+```gherkin
+When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+
+```
+
+</details>
+
+<details>
   <summary><code>@Then :content_type content with the title :title should not exist</code></summary>
 
 <br/>
@@ -4282,6 +4304,34 @@ Assert content with specified type and title does not exist
 ```gherkin
 Then "page" content with the title "Test page" should not exist
 Then "article" content with the title "Test article" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then :content_type content with the title :title should be published</code></summary>
+
+<br/>
+Assert content with specified type and title is published
+<br/><br/>
+
+```gherkin
+Then "page" content with the title "Test page" should be published
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then :content_type content with the title :title should not be published</code></summary>
+
+<br/>
+Assert content with specified type and title is not published
+<br/><br/>
+
+```gherkin
+Then "page" content with the title "Test page" should not be published
 
 ```
 

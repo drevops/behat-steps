@@ -390,3 +390,152 @@ Feature: Check that ContentTrait works
     And I am logged in as a user with the "administrator" role
     When I visit the "article" content edit page with the title "[TEST] Compound fixture image"
     Then I should see "[TEST] Compound fixture image"
+
+  @api
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
+    Given the following page content:
+      | title                   |
+      | [TEST] Alias page title |
+    And I am logged in as a user with the "administrator" role
+    When I set the path alias of the "page" content with the title "[TEST] Alias page title" to "/test-custom-alias"
+    And I go to "test-custom-alias"
+    Then I should get a 200 HTTP response
+    And I should see "[TEST] Alias page title"
+
+  @api
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an alias without a leading slash
+    Given the following page content:
+      | title                            |
+      | [TEST] Alias no slash page title |
+    And I am logged in as a user with the "administrator" role
+    When I set the path alias of the "page" content with the title "[TEST] Alias no slash page title" to "test-no-slash-alias"
+    And I go to "test-no-slash-alias"
+    Then I should get a 200 HTTP response
+    And I should see "[TEST] Alias no slash page title"
+
+  @api
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" replaces an existing alias instead of adding a second one
+    Given the following page content:
+      | title                            |
+      | [TEST] Alias replaced page title |
+    And I am logged in as a user with the "administrator" role
+    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-first"
+    And I go to "test-alias-first"
+    Then I should get a 200 HTTP response
+    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-second"
+    And I go to "test-alias-second"
+    Then I should get a 200 HTTP response
+    And the path should be "/test-alias-second"
+    When I go to "test-alias-first"
+    Then the path should be "/test-alias-second"
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content type
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I set the path alias of the "non_existing" content with the title "[TEST] Page title" to "/test-alias"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Content type "non_existing" does not exist.
+      """
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the "administrator" role
+      When I set the path alias of the "page" content with the title "[TEST] Non-existing" to "/test-alias"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "page" content with title "[TEST] Non-existing".
+      """
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an empty alias
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content:
+        | title                         |
+        | [TEST] Empty alias page title |
+      When I set the path alias of the "page" content with the title "[TEST] Empty alias page title" to ""
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Path alias for "page" content with the title "[TEST] Empty alias page title" cannot be empty.
+      """
+
+  @api
+  Scenario: Assert "Then :content_type content with the title :title should be published" works as expected
+    Given the following page content:
+      | title                       | moderation_state |
+      | [TEST] Published page title | published        |
+    Then "page" content with the title "[TEST] Published page title" should be published
+
+  @api
+  Scenario: Assert "Then :content_type content with the title :title should not be published" works as expected
+    Given the following page content:
+      | title                         | moderation_state |
+      | [TEST] Unpublished page title | draft            |
+    Then "page" content with the title "[TEST] Unpublished page title" should not be published
+
+  @api
+  Scenario: Assert publish state assertions resolve the most recently created content when titles are duplicated
+    Given the following page content:
+      | title                       | moderation_state |
+      | [TEST] Duplicate page title | published        |
+      | [TEST] Duplicate page title | draft            |
+    Then "page" content with the title "[TEST] Duplicate page title" should not be published
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Then :content_type content with the title :title should be published" works as expected when content is not published
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content:
+        | title                         | moderation_state |
+        | [TEST] Unpublished page title | draft            |
+      Then "page" content with the title "[TEST] Unpublished page title" should be published
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      "page" content with the title "[TEST] Unpublished page title" should be published, but it is not (nid:
+      """
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Then :content_type content with the title :title should not be published" works as expected when content is published
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following page content:
+        | title                       | moderation_state |
+        | [TEST] Published page title | published        |
+      Then "page" content with the title "[TEST] Published page title" should not be published
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      "page" content with the title "[TEST] Published page title" should not be published, but it is (nid:
+      """
+
+  @trait:Drupal\ContentTrait
+  Scenario: Assert negative "Then :content_type content with the title :title should be published" works as expected for non-existing content
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then "page" content with the title "[TEST] Non-existing" should be published
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find "page" content with title "[TEST] Non-existing".
+      """
