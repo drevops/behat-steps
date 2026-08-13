@@ -856,6 +856,7 @@ Feature: Check that ElementTrait works
     And the element "#css-box" should have the CSS property "backgroundColor" with the value "rgb(0, 0, 255)"
     And the element "#css-box" should have the CSS property "--css-brand" with the value "teal"
     And the element "#css-box" should not have the CSS property "display" with the value "none"
+    And the element "#css-hidden" should have the CSS property "display" with the value "none"
 
   @javascript
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" works as expected
@@ -1057,6 +1058,36 @@ Feature: Check that ElementTrait works
     Then it should fail with an error:
       """
       Expected element "#stack-second" to stack below the element "#stack-first", but it stacks above it: both have an effective z-index of 0 and "#stack-first" comes earlier in the document.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the first element is nested in the second one
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-behind" should stack above the element "#stack-parent"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#stack-behind" to stack above the element "#stack-parent", but it stacks below it: "#stack-behind" sits inside the stacking context of "#stack-parent" with an effective z-index of -1.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the second element is nested in the first one
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I am an anonymous user
+      When I visit "/sites/default/files/elements_css.html"
+      Then the element "#stack-parent" should stack above the element "#stack-child"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected element "#stack-parent" to stack above the element "#stack-child", but it stacks below it: "#stack-child" sits inside the stacking context of "#stack-parent" with an effective z-index of 0.
       """
 
   @javascript

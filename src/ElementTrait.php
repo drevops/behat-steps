@@ -433,9 +433,12 @@ trait ElementTrait {
       return;
     }
 
-    $reason = $basis === 'document-order'
-      ? sprintf('both have an effective z-index of %s and "%s" comes %s in the document', $z1, $selector2, $is_above ? 'later' : 'earlier')
-      : sprintf('their effective z-indexes are %s and %s', $z1, $z2);
+    $reason = match ($basis) {
+      'document-order' => sprintf('both have an effective z-index of %s and "%s" comes %s in the document', $z1, $selector2, $is_above ? 'later' : 'earlier'),
+      'nesting-first' => sprintf('"%s" sits inside the stacking context of "%s" with an effective z-index of %s', $selector1, $selector2, $z1),
+      'nesting-second' => sprintf('"%s" sits inside the stacking context of "%s" with an effective z-index of %s', $selector2, $selector1, $z2),
+      default => sprintf('their effective z-indexes are %s and %s', $z1, $z2),
+    };
 
     throw new ExpectationException(sprintf('Expected element "%s" to stack %s the element "%s", but it stacks %s it: %s.', $selector1, $is_above ? 'above' : 'below', $selector2, $is_above ? 'below' : 'above', $reason), $this->getSession()->getDriver());
   }
@@ -547,12 +550,12 @@ trait ElementTrait {
         // above it unless it opted out with a negative z-index.
         if (index >= chain1.length) {
           var nested2 = zIndexOf(chain2[index]);
-          return (nested2 < 0 ? '1' : '-1') + '|0|' + nested2 + '|nesting';
+          return (nested2 < 0 ? '1' : '-1') + '|0|' + nested2 + '|nesting-second';
         }
 
         if (index >= chain2.length) {
           var nested1 = zIndexOf(chain1[index]);
-          return (nested1 < 0 ? '-1' : '1') + '|' + nested1 + '|0|nesting';
+          return (nested1 < 0 ? '-1' : '1') + '|' + nested1 + '|0|nesting-first';
         }
 
         var z1 = zIndexOf(chain1[index]);
