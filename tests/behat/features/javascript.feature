@@ -45,15 +45,11 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered after 100ms
-      """
-    And the output should contain:
-      """
       - Error: Error page 1 - console.error triggered by button
       """
     And the output should contain:
       """
-      Total errors: 2
+      Total errors: 1
       """
     And the output should not contain:
       """
@@ -85,10 +81,6 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered after 100ms
-      """
-    And the output should contain:
-      """
       - Error: Error page 1 - console.error triggered by button
       """
     And the output should contain:
@@ -101,7 +93,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 5
+      Total errors: 4
       """
 
   @trait:JavascriptTrait
@@ -130,10 +122,6 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered after 100ms
-      """
-    And the output should contain:
-      """
       - Error: Error page 1 - console.error triggered by button
       """
     And the output should contain:
@@ -150,10 +138,6 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      - Error: Error page 2 - console.error triggered after 100ms
-      """
-    And the output should contain:
-      """
       - Error: Error page 2 - console.error triggered by button
       """
     And the output should contain:
@@ -166,7 +150,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 10
+      Total errors: 8
       """
 
   @javascript @js-errors
