@@ -79,7 +79,7 @@ trait DateTrait {
    * [relative:-1 day#Y-m-d] would be converted to 2017-11-5
    *
    * @code
-   * Give content "article" exists:
+   * Given the following "article" content:
    *   | title        | created           |
    *   | test article | [relative:-1 day] |
    * @endcode

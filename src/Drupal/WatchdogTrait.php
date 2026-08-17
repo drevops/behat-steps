@@ -57,7 +57,7 @@ trait WatchdogTrait {
   protected int $watchdogScenarioLine = 0;
 
   /**
-   * Store current time.
+   * Store the scenario identity, tracked message types and start time.
    */
   #[BeforeScenario('@api')]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
@@ -166,7 +166,7 @@ trait WatchdogTrait {
   }
 
   /**
-   * Assert no errors above the severity threshold were logged.
+   * Assert no errors at or above the severity threshold were logged.
    *
    * Reported entries are deleted so a later check sees only new ones.
    *
@@ -179,8 +179,8 @@ trait WatchdogTrait {
   protected function watchdogAssertNoErrors(string $context): void {
     $database = Database::getConnection();
 
-    // Select all logged entries for PHP channel that appeared from the start
-    // of the scenario.
+    // Select entries for every tracked message type that appeared from the
+    // start of the scenario.
     $entries = $database->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', $this->watchdogMessageTypes, 'IN')

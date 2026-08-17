@@ -91,7 +91,9 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL has a query parameter.
+   * Assert that current URL has a query parameter with a non-empty value.
+   *
+   * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
    * Then current url should have the "filter" parameter
@@ -108,6 +110,8 @@ trait PathTrait {
 
   /**
    * Assert that current URL has a query parameter with a specific value.
+   *
+   * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
    * Then current url should have the "filter" parameter with the "recent" value
@@ -127,7 +131,9 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL doesn't have a query parameter with specific value.
+   * Assert that current URL has no query parameter with a non-empty value.
+   *
+   * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
    * Then current url should not have the "filter" parameter
@@ -143,7 +149,9 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL doesn't have a query parameter with specific value.
+   * Assert that current URL does not have a query parameter with a value.
+   *
+   * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
    * Then current url should not have the "filter" parameter with the "recent" value

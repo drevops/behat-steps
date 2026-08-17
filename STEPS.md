@@ -387,7 +387,7 @@ Assert that a cookie does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with name "old_session" should not exist
+Then a cookie with the name "old_session" should not exist
 
 ```
 
@@ -2715,7 +2715,7 @@ Then the path should not be "<front>"
   <summary><code>@Then current url should have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL has a query parameter
+Assert that current URL has a query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
@@ -2743,7 +2743,7 @@ Then current url should have the "filter" parameter with the "recent" value
   <summary><code>@Then current url should not have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL doesn't have a query parameter with specific value
+Assert that current URL has no query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
@@ -2757,7 +2757,7 @@ Then current url should not have the "filter" parameter
   <summary><code>@Then current url should not have the :param parameter with the :value value</code></summary>
 
 <br/>
-Assert that current URL doesn't have a query parameter with specific value
+Assert that current URL does not have a query parameter with a value
 <br/><br/>
 
 ```gherkin
@@ -3687,7 +3687,7 @@ Then the response should be a valid Atom feed
 
 >  Manage Drupal blocks.
 >  - Create and configure blocks with custom visibility conditions.
->  - Place blocks in regions and verify their rendering in the page.
+>  - Place blocks in regions and assert their configured region.
 >  - Created blocks are automatically removed at the end of the scenario.
 
 
@@ -4495,7 +4495,7 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 
 >  Manage Drupal ECK entities with custom type and bundle creation.
 >  - Create structured ECK entities with defined field values.
->  - Assert entity type registration and visit entity pages.
+>  - Visit and edit ECK entity pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
 
@@ -4525,8 +4525,8 @@ Remove custom entities by field
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities do not exist:
-  | field        | value           |
-  | field_a      | Entity label    |
+  | title           |
+  | Entity label    |
 
 ```
 
@@ -5047,7 +5047,8 @@ Then an unmanaged file at the URI "public://config.txt" should not contain "debu
 
 >  Manage Drupal media entities with type-specific field handling.
 >  - Create structured media items with proper file reference handling.
->  - Assert media browser functionality and edit media entity fields.
+>  - Assert media type and media item existence.
+>  - Visit media view, edit, delete and revision pages.
 >  - Support for multiple media types with field value expansion handling.
 >  - Created entities are automatically removed at the end of the scenario.
 
@@ -5233,9 +5234,8 @@ Then the "image" media with the name "Test media image" should not exist
 [Source](src/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
 >  Manage Drupal menu systems and menu link rendering.
->  - Assert menu items by label, path, and containment hierarchy.
->  - Assert menu link visibility and active states in different regions.
->  - Create and manage menu hierarchies with parent-child relationships.
+>  - Create and remove menus by label.
+>  - Create and remove menu links, including parent-child hierarchies.
 >  - Created menus and menu links are automatically removed at the end of the scenario.
 
 
@@ -5257,7 +5257,7 @@ Given the menu "Test Menu" does not exist
   <summary><code>@Given the following menus:</code></summary>
 
 <br/>
-Create a menu if one does not exist
+Create menus
 <br/><br/>
 
 ```gherkin
@@ -6008,7 +6008,7 @@ When I reset system time
 >  - Create user accounts
 >  - Create user roles
 >  - Visit user profile pages for editing and deletion.
->  - Assert user roles and permissions.
+>  - Assert user roles.
 >  - Assert user account status (active/inactive).
 
 

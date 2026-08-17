@@ -83,9 +83,10 @@ trait KeyboardTrait {
    *
    * @param string $char
    *   Character or one of the pre-defined special keyboard keys.
-   * @param string $selector
-   *   Optional CSS selector for an element to trigger the key on. If omitted,
-   *   the key will be triggered on the 'html' element of the page.
+   * @param string|null $selector
+   *   CSS selector for an element to trigger the key on. Pass NULL to trigger
+   *   the key on the currently focused element. An exception is raised when no
+   *   element is focused.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
@@ -129,7 +130,7 @@ trait KeyboardTrait {
 
     // Convert provided character sequence to special keys.
     if (strlen($char) < 1) {
-      throw new \InvalidArgumentException('keyPress($char) was invoked but the $char parameter was empty.');
+      throw new \InvalidArgumentException('The keyboard key must not be empty.');
     }
 
     // Consider provided characters string longer then 1 to be a keyboard key.
@@ -218,8 +219,8 @@ JS;
   /**
    * Trigger key on the element.
    *
-   * Use Syn library injected by original Selenium2 class to trigger browser
-   * events.
+   * The Selenium2 driver triggers events through the bundled Syn library;
+   * other drivers dispatch native DevTools key events.
    *
    * @param string $xpath
    *   XPath string for an element to trigger the key on.

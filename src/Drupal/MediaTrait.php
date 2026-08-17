@@ -18,7 +18,8 @@ use Drupal\media\MediaInterface;
  * Manage Drupal media entities with type-specific field handling.
  *
  * - Create structured media items with proper file reference handling.
- * - Assert media browser functionality and edit media entity fields.
+ * - Assert media type and media item existence.
+ * - Visit media view, edit, delete and revision pages.
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  */
@@ -306,7 +307,7 @@ trait MediaTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * This is a re-use of the functionality provided by DrupalExtension.
+   * Reuses the protected expansion provided by the Drupal driver core.
    *
    * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
@@ -342,12 +343,12 @@ trait MediaTrait {
    * Load multiple media entities with specified type and conditions.
    *
    * @param string $type
-   *   The node type.
+   *   The media type.
    * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>
-   *   Array of node ids.
+   *   Array of media ids.
    */
   protected function mediaLoadMultiple(string $type, array $conditions = []): array {
     $query = \Drupal::entityQuery('media')

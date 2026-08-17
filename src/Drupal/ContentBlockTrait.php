@@ -162,8 +162,8 @@ trait ContentBlockTrait {
   /**
    * Create a block content entity with the specified type and field values.
    *
-   * Created entities are stored in the static $blockContentEntities array for
-   * automatic cleanup after the scenario.
+   * Created entities are registered with the shared entity registry so that
+   * they are removed at the end of the scenario.
    *
    * @param string $type
    *   The machine name of the block content type.

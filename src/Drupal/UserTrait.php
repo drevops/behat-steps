@@ -22,7 +22,7 @@ use Drupal\user\UserInterface;
  * - Create user accounts
  * - Create user roles
  * - Visit user profile pages for editing and deletion.
- * - Assert user roles and permissions.
+ * - Assert user roles.
  * - Assert user account status (active/inactive).
  */
 trait UserTrait {
@@ -438,7 +438,12 @@ trait UserTrait {
    *   The user name.
    *
    * @return \Drupal\user\UserInterface|null
-   *   The loaded user object or NULL if not found.
+   *   The loaded user object. The nullable return type is retained for
+   *   compatibility, but a missing user raises an exception rather than
+   *   returning NULL.
+   *
+   * @throws \RuntimeException
+   *   When no user with the specified name exists.
    */
   protected function userLoadByName(string $name): ?UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);

@@ -92,7 +92,7 @@ trait CookieTrait {
    * Assert that a cookie does not exist.
    *
    * @code
-   * Then a cookie with name "old_session" should not exist
+   * Then a cookie with the name "old_session" should not exist
    * @endcode
    */
   #[Then('a cookie with the name :name should not exist')]

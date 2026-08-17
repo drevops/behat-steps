@@ -1162,20 +1162,21 @@ JS;
   }
 
   /**
-   * Assert that an element is displayed within a viewport using different FE techniques.
+   * Check whether an element is displayed within the viewport.
    *
    * @param string $selector
    *   CSS query selector.
    * @param int $offset
-   *   (optional) Vertical element offset in pixels. Defaults to 0.
+   *   Vertical element offset in pixels.
    *
-   * @return bool
-   *   TRUE if an element is displayed within a viewport, FALSE if not.
+   * @return mixed
+   *   The raw result of the browser evaluation, truthy when the element is
+   *   displayed within the viewport.
    */
   protected function elementIsVisuallyVisible(string $selector, int $offset) {
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
     // The contents of this JS function should be copied as-is from the <script>
-    // section in the bottom of the tests/behat/fixtures/relative.html file.
+    // section at the bottom of tests/behat/fixtures/elements_relative.html.
     $script_function = <<<JS
       function isElemVisible(selector, offset = 0) {
         var failures = [];
