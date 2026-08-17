@@ -185,40 +185,40 @@ trait ElementTrait {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
-    $attr_found = FALSE;
-    $attr_value_found = FALSE;
+    $attribute_found = FALSE;
+    $attribute_value_found = FALSE;
     foreach ($elements as $element) {
-      $attr_value = (string) $element->getAttribute($attribute);
-      if (!empty($attr_value)) {
-        $attr_found = TRUE;
+      $attribute_value = (string) $element->getAttribute($attribute);
+      if (!empty($attribute_value)) {
+        $attribute_found = TRUE;
         if ($is_exact) {
-          if ($attr_value === strval($value)) {
-            $attr_value_found = TRUE;
+          if ($attribute_value === strval($value)) {
+            $attribute_value_found = TRUE;
             break;
           }
         }
-        elseif (str_contains($attr_value, strval($value))) {
-          $attr_value_found = TRUE;
+        elseif (str_contains($attribute_value, strval($value))) {
+          $attribute_value_found = TRUE;
           break;
         }
       }
     }
 
-    if (!$attr_found) {
+    if (!$attribute_found) {
       throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
     }
 
-    if ($is_inverted && $attr_value_found) {
+    if ($is_inverted && $attribute_value_found) {
       $message = $is_exact
         ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
         : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
 
-    if (!$is_inverted && !$attr_value_found) {
+    if (!$is_inverted && !$attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attr_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attr_value, $value);
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -1042,14 +1042,14 @@ JS;
   #[Then('the element :selector should be displayed')]
   public function elementAssertIsVisible(string $selector): void {
     $page = $this->getSession()->getPage();
-    $nodes = $page->findAll('css', $selector);
+    $elements = $page->findAll('css', $selector);
 
-    if ($nodes === []) {
+    if ($elements === []) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
-    foreach ($nodes as $node) {
-      if ($node->isVisible()) {
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
         // Success – at least one match is visible.
         return;
       }
@@ -1067,11 +1067,11 @@ JS;
    */
   #[Then('the element :selector should not be displayed')]
   public function elementAssertIsNotVisible(string $selector): void {
-    $element = $this->getSession()->getPage();
-    $nodes = $element->findAll('css', $selector);
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
 
-    foreach ($nodes as $node) {
-      if ($node->isVisible()) {
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
         throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
       }
     }

@@ -155,9 +155,9 @@ trait LinkTrait {
   public function linkAssertWithTitleNotExists(string $title): void {
     $title = $this->helperFixStepArgument($title);
 
-    $item = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
-    if ($item) {
+    if ($element) {
       throw new ExpectationException(sprintf('The link with the title "%s" exists, but should not.', $title), $this->getSession()->getDriver());
     }
   }

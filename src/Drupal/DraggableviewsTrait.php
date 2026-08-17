@@ -28,7 +28,7 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
-    $connection = Database::getConnection();
+    $database = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
       $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
@@ -41,7 +41,7 @@ trait DraggableviewsTrait {
 
       // Here and below: copied from draggableviews_views_submit().
       // Remove old data.
-      $connection->delete('draggableviews_structure')
+      $database->delete('draggableviews_structure')
         ->condition('view_name', $view_id)
         ->condition('view_display', $view_display_id)
         ->condition('entity_id', $entity_id)
@@ -56,7 +56,7 @@ trait DraggableviewsTrait {
         'weight' => $weight,
       ];
 
-      $connection->insert('draggableviews_structure')->fields($record)->execute();
+      $database->insert('draggableviews_structure')->fields($record)->execute();
     }
 
     // We invalidate the entity list cache, so other views are also aware of the

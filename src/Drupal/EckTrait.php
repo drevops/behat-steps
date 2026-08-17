@@ -51,11 +51,11 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
-    foreach ($table->getHash() as $node_hash) {
-      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $node_hash);
+    foreach ($table->getHash() as $entity_hash) {
+      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
 
-      $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
-      $entities = $controller->loadMultiple($entity_ids);
+      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
+      $entities = $storage->loadMultiple($entity_ids);
       foreach ($entities as $entity) {
         $entity->delete();
       }

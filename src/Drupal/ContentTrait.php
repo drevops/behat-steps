@@ -66,9 +66,9 @@ trait ContentTrait {
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->contentLoadMultiple($content_type, $node_hash);
 
-      $controller = \Drupal::entityTypeManager()->getStorage('node');
-      $entities = $controller->loadMultiple($nids);
-      $controller->delete($entities);
+      $storage = \Drupal::entityTypeManager()->getStorage('node');
+      $entities = $storage->loadMultiple($nids);
+      $storage->delete($entities);
     }
   }
 

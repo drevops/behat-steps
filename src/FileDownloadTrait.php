@@ -389,18 +389,18 @@ trait FileDownloadTrait {
       CURLOPT_AUTOREFERER => TRUE,
       CURLOPT_CONNECTTIMEOUT => 120,
       CURLOPT_TIMEOUT => 120,
-      CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$response_headers): int {
+      CURLOPT_HEADERFUNCTION => function ($handle, $header) use (&$response_headers): int {
         $response_headers[] = $header;
 
         return strlen($header);
       },
     ];
 
-    $ch = curl_init($url);
-    curl_setopt_array($ch, $options);
+    $handle = curl_init($url);
+    curl_setopt_array($handle, $options);
 
-    $content = curl_exec($ch);
-    curl_close($ch);
+    $content = curl_exec($handle);
+    curl_close($handle);
 
     if (!$content) {
       // @codeCoverageIgnoreStart

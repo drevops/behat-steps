@@ -138,9 +138,9 @@ trait XmlTrait {
     // by the fixture steps, falling back to the live page content.
     $content = $this->xmlTestContent ?? $this->getSession()->getPage()->getContent();
 
-    $doc = new \DOMDocument();
+    $document = new \DOMDocument();
     libxml_clear_errors();
-    $loaded = @$doc->loadXML($content);
+    $loaded = @$document->loadXML($content);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 

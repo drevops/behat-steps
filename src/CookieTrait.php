@@ -290,22 +290,22 @@ trait CookieTrait {
 
       // Use filtered cookies from the Driver's cookie jar and also add more
       // properties.
-      /** @var \Symfony\Component\BrowserKit\Cookie[] $cookies_objs */
-      $cookies_objs = $cookie_jar->all();
-      $cookies_names = array_keys($cookie_jar->allValues($driver->getCurrentUrl()));
+      /** @var \Symfony\Component\BrowserKit\Cookie[] $cookie_objects */
+      $cookie_objects = $cookie_jar->all();
+      $cookie_names = array_keys($cookie_jar->allValues($driver->getCurrentUrl()));
 
       $cookies = [];
-      foreach ($cookies_objs as $cookie_obj) {
-        if (!in_array($cookie_obj->getName(), $cookies_names)) {
+      foreach ($cookie_objects as $cookie_object) {
+        if (!in_array($cookie_object->getName(), $cookie_names)) {
           // @codeCoverageIgnoreStart
           continue;
           // @codeCoverageIgnoreEnd
         }
 
         $cookies[] = [
-          'name' => $cookie_obj->getName(),
-          'value' => $cookie_obj->getValue(),
-          'secure' => $cookie_obj->isSecure(),
+          'name' => $cookie_object->getName(),
+          'value' => $cookie_object->getValue(),
+          'secure' => $cookie_object->isSecure(),
         ];
       }
     }

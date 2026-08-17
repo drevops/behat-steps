@@ -115,11 +115,11 @@ trait FileTrait {
   protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $this->parseEntityFields($stub);
 
-    $saved = $this->fileCreateEntity($path, $stub, $uri);
+    $entity = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->entityRegister($saved);
+    $this->entityRegister($entity);
 
-    return $saved;
+    return $entity;
   }
 
   /**

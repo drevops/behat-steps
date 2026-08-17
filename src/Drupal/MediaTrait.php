@@ -56,8 +56,8 @@ trait MediaTrait {
     // Delete entities before creating them.
     $this->mediaDelete($media_type, $table);
 
-    foreach ($table->getHash() as $node_hash) {
-      $stub = new EntityStub('media', $media_type, $node_hash);
+    foreach ($table->getHash() as $media_hash) {
+      $stub = new EntityStub('media', $media_type, $media_hash);
       $this->mediaCreateSingle($stub);
     }
   }
@@ -105,11 +105,11 @@ trait MediaTrait {
    */
   #[Given('the following media :media_type do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
-    foreach ($table->getHash() as $node_hash) {
-      $ids = $this->mediaLoadMultiple($media_type, $node_hash);
-      $controller = \Drupal::entityTypeManager()->getStorage('media');
-      $entities = $controller->loadMultiple($ids);
-      $controller->delete($entities);
+    foreach ($table->getHash() as $media_hash) {
+      $ids = $this->mediaLoadMultiple($media_type, $media_hash);
+      $storage = \Drupal::entityTypeManager()->getStorage('media');
+      $entities = $storage->loadMultiple($ids);
+      $storage->delete($entities);
     }
   }
 
@@ -266,10 +266,10 @@ trait MediaTrait {
    */
   protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
     $this->parseEntityFields($stub);
-    $saved = $this->mediaCreateEntity($stub);
-    $this->entityRegister($saved);
+    $entity = $this->mediaCreateEntity($stub);
+    $this->entityRegister($entity);
 
-    return $saved;
+    return $entity;
   }
 
   /**

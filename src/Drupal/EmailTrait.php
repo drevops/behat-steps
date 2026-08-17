@@ -655,16 +655,16 @@ trait EmailTrait {
     $fields = ['subject', 'body', 'to', 'from', 'cc', 'bcc'];
 
     // Normalize the keys to lowercase.
-    foreach ($messages as $idx => $message) {
-      $messages[$idx] = array_change_key_case($message, CASE_LOWER);
+    foreach ($messages as $index => $message) {
+      $messages[$index] = array_change_key_case($message, CASE_LOWER);
 
       if ($this->emailDebug) {
         printf("----------------------------------------\n");
-        printf("Email message number: %s\n", $idx);
+        printf("Email message number: %s\n", $index);
         printf("----------------------------------------\n");
         foreach ($fields as $field) {
           printf("Field: %s\n", $field);
-          printf("Value: %s\n", $messages[$idx][$field] ?? '<EMPTY>');
+          printf("Value: %s\n", $messages[$index][$field] ?? '<EMPTY>');
           print PHP_EOL;
         }
       }
