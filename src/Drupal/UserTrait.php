@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\When;
-use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Url;
 use Drupal\Driver\Entity\EntityStubInterface;
 use Drupal\user\Entity\Role;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Transformation\Transform;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Transformation\Transform;
 
 /**
  * Convert relative date expressions into timestamps or formatted dates.

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Selector\Xpath\Escaper;
+use Behat\Step\Then;
 
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.

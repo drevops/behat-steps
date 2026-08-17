@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\Given;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;

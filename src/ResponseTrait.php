@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Then;
 
 /**
  * Verify HTTP responses with status code and header checks.

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\When;
 use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Step\When;
 
 /**
  * Switch between iframes and the root document.
