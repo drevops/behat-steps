@@ -18,9 +18,8 @@ use Behat\Mink\Exception\ExpectationException;
  * Automatically detect JavaScript errors during test execution.
  *
  * - Collects JavaScript errors from `window.onerror` and `console.error`.
- * - Automatically asserts no errors after each step of scenarios with the
- *   `@javascript` tag, so the step that produced the error is the one that
- *   fails and `behat --rerun` can see the failure.
+ * - Automatically asserts no errors after each step of scenarios with
+ *   `@javascript` tag.
  * - Errors collected only when URL changes (navigation occurs).
  * - Use `@js-errors` tag to bypass error checking when errors are expected.
  *
@@ -83,8 +82,8 @@ trait JavascriptTrait {
 
     $this->javascriptEnabled = TRUE;
 
-    // Step scopes carry no scenario tags, so the bypass is resolved here and
-    // carried on the context for the step hook to read.
+    // Step scopes carry no scenario tags, so the bypass is resolved here for
+    // the step hook to read.
     $this->javascriptBypassErrors = $scope->getScenario()->hasTag('js-errors');
   }
 
@@ -134,9 +133,7 @@ trait JavascriptTrait {
    * Collect JavaScript errors after each step and assert none were found.
    *
    * Behat composes a step teardown into that step's result, so a failure
-   * raised here marks the scenario as failed for the rerun cache. The same
-   * failure raised from an `AfterScenario` hook only sets the exit code and
-   * leaves `behat --rerun` with nothing to re-run.
+   * raised here marks the scenario as failed for the rerun cache.
    *
    * @throws \Exception
    *   If JavaScript errors were detected.

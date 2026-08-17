@@ -79,10 +79,6 @@
 >  - `@accessibility:strict`                   Also fail on "incomplete" findings.
 >  - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
 >  
->  Auto-mode assesses each newly visited page after the step that navigated to
->  it and fails that step when the gate is breached, so the failing step is
->  named in the output and `behat --rerun` can see the failure.
->  <br/><br/>
 >  Tool-agnostic. Any engine that runs inside the existing Mink session can
 >  be plugged in by overriding `accessibilityRunEngine()` (perform the
 >  assessment, return raw results) and `accessibilityNormalizeResults()`
@@ -1753,9 +1749,8 @@ When I switch to the root document
 
 >  Automatically detect JavaScript errors during test execution.
 >  - Collects JavaScript errors from `window.onerror` and `console.error`.
->  - Automatically asserts no errors after each step of scenarios with the
->  `@javascript` tag, so the step that produced the error is the one that
->  fails and `behat --rerun` can see the failure.
+>  - Automatically asserts no errors after each step of scenarios with
+>  `@javascript` tag.
 >  - Errors collected only when URL changes (navigation occurs).
 >  - Use `@js-errors` tag to bypass error checking when errors are expected.
 >  
@@ -6333,8 +6328,7 @@ Then the user "John" should not be blocked
 [Source](src/Drupal/WatchdogTrait.php), [Example](tests/behat/features/drupal_watchdog.feature)
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
->  - Check for Watchdog messages after every step, so the step that triggered
->  the error is the one that fails and `behat --rerun` can see the failure.
+>  - Check for Watchdog messages after every step.
 >  - Optionally check only for specific message types.
 >  - Optionally skip error checking for specific scenarios.
 >  

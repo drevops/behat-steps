@@ -28,10 +28,6 @@ use Behat\Step\Then;
  * - `@accessibility:strict`                   Also fail on "incomplete" findings.
  * - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
  *
- * Auto-mode assesses each newly visited page after the step that navigated to
- * it and fails that step when the gate is breached, so the failing step is
- * named in the output and `behat --rerun` can see the failure.
- *
  * Tool-agnostic. Any engine that runs inside the existing Mink session can
  * be plugged in by overriding `accessibilityRunEngine()` (perform the
  * assessment, return raw results) and `accessibilityNormalizeResults()`
@@ -202,9 +198,7 @@ trait AccessibilityTrait {
    * Run the engine after each step when in automatic mode.
    *
    * Behat composes a step teardown into that step's result, so a gate failure
-   * raised here marks the scenario as failed for the rerun cache. The same
-   * failure raised from an `AfterScenario` hook only sets the exit code and
-   * leaves `behat --rerun` with nothing to re-run.
+   * raised here marks the scenario as failed for the rerun cache.
    */
   #[AfterStep]
   public function accessibilityAutoAssess(AfterStepScope $scope): void {
