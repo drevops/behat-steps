@@ -49,47 +49,6 @@ Feature: Check that JavascriptTrait works
       """
 
   @trait:JavascriptTrait
-  Scenario: Failing scenario is reported as failed and not as passed
-    Given some behat configuration
-    And scenario steps tagged with "@javascript":
-      """
-      Given I visit "/sites/default/files/javascript_errors3.html"
-      When I press "Click to trigger errors"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      JavaScript errors detected
-      """
-    And the output should contain:
-      """
-      1 scenario (1 failed)
-      """
-    And the output should not contain:
-      """
-      1 scenario (1 passed)
-      """
-
-  @trait:JavascriptTrait
-  Scenario: Failing scenario is recorded for a rerun
-    Given some behat configuration
-    And scenario steps tagged with "@javascript":
-      """
-      Given I visit "/sites/default/files/javascript_errors3.html"
-      When I press "Click to trigger errors"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an error:
-      """
-      JavaScript errors detected
-      """
-    When I run "behat --no-colors --rerun-only"
-    Then it should fail with:
-      """
-      JavaScript errors detected
-      """
-
-  @trait:JavascriptTrait
   Scenario: All errors collected during a step are reported together
     Given some behat configuration
     And scenario steps tagged with "@javascript":
@@ -147,11 +106,6 @@ Feature: Check that JavascriptTrait works
       URL: http://nginx:8080/sites/default/files/javascript_errors2.html
       """
 
-  # The assertions below record current behaviour, which is broken: the run
-  # exits non-zero, but the failure is raised from an AfterScenario hook and
-  # Behat dispatches that event before folding the teardown into the scenario
-  # result. The summary therefore reports every scenario as passed, nothing
-  # reaches the rerun cache, and "--rerun" runs the whole suite again.
   @trait:JavascriptTrait
   Scenario: Rerun after a scenario fails on a JavaScript error
     Given some behat configuration
@@ -174,12 +128,12 @@ Feature: Check that JavascriptTrait works
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      3 scenarios (3 passed)
+      3 scenarios (2 passed, 1 failed)
       """
     When I run "behat --no-colors --rerun"
     Then it should fail with:
       """
-      3 scenarios (3 passed)
+      1 scenario (1 failed)
       """
 
   @javascript @js-errors
