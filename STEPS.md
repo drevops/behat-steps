@@ -2715,7 +2715,7 @@ Then the path should not be "<front>"
   <summary><code>@Then current url should have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL has a query parameter
+Assert that current URL has a query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
@@ -2743,7 +2743,7 @@ Then current url should have the "filter" parameter with the "recent" value
   <summary><code>@Then current url should not have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL does not have a query parameter
+Assert that current URL has no query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
