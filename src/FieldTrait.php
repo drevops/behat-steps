@@ -510,7 +510,7 @@ JS;
 JS;
     $actual = $this->getSession()->evaluateScript($script);
 
-    if ($actual != $value) {
+    if ($actual !== $value) {
       throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
     }
   }

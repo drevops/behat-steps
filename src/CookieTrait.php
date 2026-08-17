@@ -293,11 +293,15 @@ trait CookieTrait {
       // properties.
       /** @var \Symfony\Component\BrowserKit\Cookie[] $cookie_objects */
       $cookie_objects = $cookie_jar->all();
-      $cookie_names = array_keys($cookie_jar->allValues($driver->getCurrentUrl()));
+
+      // Keyed lookup rather than a search over array_keys(), which would cast
+      // a numeric cookie name to an integer and never match the string name
+      // the cookie object reports.
+      $cookie_values = $cookie_jar->allValues($driver->getCurrentUrl());
 
       $cookies = [];
       foreach ($cookie_objects as $cookie_object) {
-        if (!in_array($cookie_object->getName(), $cookie_names)) {
+        if (!array_key_exists($cookie_object->getName(), $cookie_values)) {
           // @codeCoverageIgnoreStart
           continue;
           // @codeCoverageIgnoreEnd
