@@ -15,7 +15,7 @@ use Drupal\Driver\Entity\EntityStub;
  * Manage Drupal ECK entities with custom type and bundle creation.
  *
  * - Create structured ECK entities with defined field values.
- * - Assert entity type registration and visit entity pages.
+ * - Visit and edit ECK entity pages.
  * - Created entities are automatically removed at the end of the scenario.
  */
 trait EckTrait {
@@ -44,8 +44,8 @@ trait EckTrait {
    *
    * @code
    * Given the following eck "contact" "contact_type" entities do not exist:
-   *   | field        | value           |
-   *   | field_a      | Entity label    |
+   *   | title           |
+   *   | Entity label    |
    * @endcode
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]

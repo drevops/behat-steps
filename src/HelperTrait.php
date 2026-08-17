@@ -111,8 +111,8 @@ trait HelperTrait {
       $field_name = array_shift($row);
 
       // Assign each value to corresponding entity.
-      // Note: Gherkin's TableNode automatically pads missing cells with empty
-      // strings, so we don't need to validate row length.
+      // Gherkin rejects a table whose rows have differing column counts, so
+      // row length needs no validation here.
       foreach ($row as $index => $value) {
         $entities[$index][$field_name] = $value;
       }

@@ -218,8 +218,8 @@ JS;
   /**
    * Trigger key on the element.
    *
-   * Use Syn library injected by original Selenium2 class to trigger browser
-   * events.
+   * The Selenium2 driver triggers events through the bundled Syn library;
+   * other drivers dispatch native DevTools key events.
    *
    * @param string $xpath
    *   XPath string for an element to trigger the key on.

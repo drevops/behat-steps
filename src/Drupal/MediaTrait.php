@@ -18,7 +18,8 @@ use Drupal\media\MediaInterface;
  * Manage Drupal media entities with type-specific field handling.
  *
  * - Create structured media items with proper file reference handling.
- * - Assert media browser functionality and edit media entity fields.
+ * - Assert media type and media item existence.
+ * - Visit media view, edit, delete and revision pages.
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  */

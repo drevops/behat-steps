@@ -22,7 +22,7 @@ use Drupal\testmode\Testmode;
 trait TestmodeTrait {
 
   /**
-   * Enable test mode before test run for scenarios tagged with @testmode.
+   * Enable test mode before a scenario tagged with @testmode.
    */
   #[BeforeScenario('@api')]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {

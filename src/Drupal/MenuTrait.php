@@ -40,7 +40,7 @@ trait MenuTrait {
   }
 
   /**
-   * Create a menu if one does not exist.
+   * Create menus.
    *
    * Provide menu data in the following format:
    *

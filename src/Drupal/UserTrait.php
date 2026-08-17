@@ -22,7 +22,7 @@ use Drupal\user\UserInterface;
  * - Create user accounts
  * - Create user roles
  * - Visit user profile pages for editing and deletion.
- * - Assert user roles and permissions.
+ * - Assert user roles.
  * - Assert user account status (active/inactive).
  */
 trait UserTrait {

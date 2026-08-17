@@ -3687,7 +3687,7 @@ Then the response should be a valid Atom feed
 
 >  Manage Drupal blocks.
 >  - Create and configure blocks with custom visibility conditions.
->  - Place blocks in regions and verify their rendering in the page.
+>  - Place blocks in regions and assert their configured region.
 >  - Created blocks are automatically removed at the end of the scenario.
 
 
@@ -4495,7 +4495,7 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 
 >  Manage Drupal ECK entities with custom type and bundle creation.
 >  - Create structured ECK entities with defined field values.
->  - Assert entity type registration and visit entity pages.
+>  - Visit and edit ECK entity pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
 
@@ -4525,8 +4525,8 @@ Remove custom entities by field
 
 ```gherkin
 Given the following eck "contact" "contact_type" entities do not exist:
-  | field        | value           |
-  | field_a      | Entity label    |
+  | title           |
+  | Entity label    |
 
 ```
 
@@ -5047,7 +5047,8 @@ Then an unmanaged file at the URI "public://config.txt" should not contain "debu
 
 >  Manage Drupal media entities with type-specific field handling.
 >  - Create structured media items with proper file reference handling.
->  - Assert media browser functionality and edit media entity fields.
+>  - Assert media type and media item existence.
+>  - Visit media view, edit, delete and revision pages.
 >  - Support for multiple media types with field value expansion handling.
 >  - Created entities are automatically removed at the end of the scenario.
 
@@ -5256,7 +5257,7 @@ Given the menu "Test Menu" does not exist
   <summary><code>@Given the following menus:</code></summary>
 
 <br/>
-Create a menu if one does not exist
+Create menus
 <br/><br/>
 
 ```gherkin
@@ -6007,7 +6008,7 @@ When I reset system time
 >  - Create user accounts
 >  - Create user roles
 >  - Visit user profile pages for editing and deletion.
->  - Assert user roles and permissions.
+>  - Assert user roles.
 >  - Assert user account status (active/inactive).
 
 

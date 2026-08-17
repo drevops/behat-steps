@@ -14,7 +14,7 @@ use Drupal\block\Entity\Block;
  * Manage Drupal blocks.
  *
  * - Create and configure blocks with custom visibility conditions.
- * - Place blocks in regions and verify their rendering in the page.
+ * - Place blocks in regions and assert their configured region.
  * - Created blocks are automatically removed at the end of the scenario.
  */
 trait BlockTrait {

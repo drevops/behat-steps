@@ -56,7 +56,7 @@ trait ParagraphsTrait {
    * Create a paragraphs item from a stub and attach it to an entity.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
-   *   Node to attach paragraph to.
+   *   Entity to attach the paragraphs item to.
    * @param string $parent_field_name
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
@@ -65,7 +65,8 @@ trait ParagraphsTrait {
    *   Stub with filled-in fields. Fields are merged with created
    *   paragraphs item object.
    * @param bool $save_entity
-   *   Flag to save node after attaching a paragraphs item. Defaults to TRUE.
+   *   Flag to save the parent entity after attaching a paragraphs item.
+   *   Defaults to TRUE.
    *
    * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.

@@ -57,7 +57,7 @@ trait WatchdogTrait {
   protected int $watchdogScenarioLine = 0;
 
   /**
-   * Store current time.
+   * Store the scenario identity, tags and start time.
    */
   #[BeforeScenario('@api')]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
