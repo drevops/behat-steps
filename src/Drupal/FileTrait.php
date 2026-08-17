@@ -49,10 +49,9 @@ trait FileTrait {
       return;
     }
     // @codeCoverageIgnoreEnd
-    // 6.x Drupal driver bootstraps lazily on first step that needs Drupal,
-    // so the container may not exist yet when this hook fires. Skip the
-    // best-effort directory check until Drupal is up - the dirs will be
-    // created on demand by the file operations that actually need them.
+    // The 6.x Drupal driver bootstraps lazily on the first step that needs
+    // Drupal, so the container may not exist yet when this hook fires. The
+    // file operations that need the directories create them on demand.
     // @codeCoverageIgnoreStart
     if (!\Drupal::hasContainer()) {
       return;

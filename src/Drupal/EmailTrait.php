@@ -43,7 +43,7 @@ trait EmailTrait {
   protected array $emailHandlerTypes = [];
 
   /**
-   * Enable email debug.
+   * Whether email debug is enabled.
    */
   protected bool $emailDebug = FALSE;
 
@@ -542,7 +542,6 @@ trait EmailTrait {
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
     foreach ($this->emailHandlerTypes as $type) {
-      // Store the original system to restore after the scenario.
       $original_test_system = self::emailGetMailSystemDefault($type);
       if (!self::emailGetMailSystemOriginal($type)) {
         self::emailSetMailSystemOriginal($type, $original_test_system);
@@ -659,7 +658,7 @@ trait EmailTrait {
   }
 
   /**
-   * Find an email message field containing a value.
+   * Find an email message whose field contains a value.
    *
    * @param string $field
    *   Field to search in.

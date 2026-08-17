@@ -66,7 +66,6 @@ trait FieldTrait {
     $this->fieldFormValidationEnabled = TRUE;
     $this->fieldFormValidationRegistry = [];
 
-    // Check for @disable-form-validation tag.
     $this->fieldDisableAllFormValidation = $scope->getScenario()->hasTag('disable-form-validation');
   }
 
@@ -89,13 +88,11 @@ trait FieldTrait {
       return;
     }
 
-    // Handle @disable-form-validation tag - disable all forms on page.
     if ($this->fieldDisableAllFormValidation) {
       $this->fieldDisableFormValidation();
       return;
     }
 
-    // Handle selector-based registry - disable specific forms.
     if (!empty($this->fieldFormValidationRegistry)) {
       foreach ($this->fieldFormValidationRegistry as $selector) {
         $this->fieldDisableFormValidation($selector);
@@ -115,7 +112,6 @@ trait FieldTrait {
       return;
     }
 
-    // Clean up for next scenario.
     $this->fieldFormValidationRegistry = [];
     $this->fieldFormValidationEnabled = FALSE;
     $this->fieldDisableAllFormValidation = FALSE;
@@ -169,7 +165,6 @@ trait FieldTrait {
   public function fieldAssertExists(string $name): NodeElement {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
-    // Try to resolve by ID.
     $field = $field ?: $page->findById($name);
 
     if ($field === NULL) {
@@ -191,7 +186,6 @@ trait FieldTrait {
   public function fieldAssertNotExists(string $name): void {
     $page = $this->getSession()->getPage();
     $field = $page->findField($name);
-    // Try to resolve by ID.
     $field = $field ?: $page->findById($name);
 
     if ($field !== NULL) {
@@ -298,24 +292,22 @@ trait FieldTrait {
 
     $page = $this->getSession()->getPage();
 
-    // Locate the field wrapper. Drupal multi-value widgets wrap the field
-    // rows (a table) and the "Add another item" button in an outer
-    // container identified by `data-drupal-selector="edit-<field>-wrapper"`.
-    // The title can live in a nested <label>, <h4>, <legend>, <caption>,
-    // or plain text element. Match the title first, then walk up to the
-    // outermost edit- wrapper so that the Add-more button is included.
+    // Drupal multi-value widgets wrap the field rows (a table) and the
+    // "Add another item" button in an outer container identified by
+    // `data-drupal-selector="edit-<field>-wrapper"`. The title can appear
+    // in a nested <label>, <h4>, <legend>, <caption>, or plain text
+    // element. Match the title first, then walk up to the outermost edit-
+    // wrapper so that the Add-more button is included.
     $literal = $this->fieldXpathLiteral($field);
     $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
     $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
     $wrapper = $page->find('xpath', $wrapper_xpath);
 
-    // Fallback: any edit-* ancestor or field-multiple-table.
     if ($wrapper === NULL) {
       $fallback_xpath = $title_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]';
       $wrapper = $page->find('xpath', $fallback_xpath);
     }
 
-    // Fallback: locate the first input by label via Mink, then walk up.
     if ($wrapper === NULL) {
       $first_input = $page->findField($field);
       if ($first_input !== NULL) {
@@ -330,18 +322,15 @@ trait FieldTrait {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'multi-value field wrapper', 'label', $field);
     }
 
-    // Count existing input rows within the wrapper. Match inputs whose name
-    // contains the common multi-value suffixes ([0][value], [1][value], etc.)
-    // or [0][target_id] for entity reference widgets.
+    // Multi-value rows carry name suffixes such as [0][value] and
+    // [1][value]; entity reference widgets use [0][target_id].
     $existing_inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
     $existing_count = count($existing_inputs);
     if ($existing_count === 0) {
-      // As a last resort, fall back to any text-like input within the wrapper.
       $existing_inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
       $existing_count = count($existing_inputs);
     }
 
-    // Ensure we have at least one slot to fill.
     $existing_count = max(1, $existing_count);
 
     $required = count($values);
@@ -356,8 +345,6 @@ trait FieldTrait {
         }
       }
       if ($add_more === NULL) {
-        // XPath fallback: any submit input or button whose name or value
-        // contains "add_more" / "Add another item".
         $add_more = $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
       }
       if ($add_more === NULL) {

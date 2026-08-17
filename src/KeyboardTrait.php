@@ -94,9 +94,6 @@ trait KeyboardTrait {
   public function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
     $driver = $this->getSession()->getDriver();
 
-    // Keyboard interaction needs a JavaScript-capable driver: Selenium2 uses
-    // the bundled Syn library, chrome-mink uses native DevTools key events.
-    // BrowserKit-based (non-JavaScript) drivers cannot dispatch key events.
     if ($driver instanceof BrowserKitDriver) {
       throw new UnsupportedDriverActionException('Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).', $driver);
     }
@@ -128,26 +125,21 @@ trait KeyboardTrait {
       'caps' => 'caps',
     ];
 
-    // Convert provided character sequence to special keys.
     if (strlen($char) < 1) {
       throw new \InvalidArgumentException('The keyboard key must not be empty.');
     }
 
-    // Consider provided characters string longer then 1 to be a keyboard key.
     if (strlen($char) > 1) {
       if (!array_key_exists(strtolower($char), $keys)) {
         throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
       }
 
-      // Special case for tab key triggered in window without target element
-      // focused: Syn (JS library that provides synthetic events) can tab only
-      // from another element that can receive focus, so we inject such
-      // element as a very first element after opening <body> tag. This
-      // element is visually hidden, but compatible with screen readers. Then
-      // we trigger key on this element to make sure that an element that
-      // supposed to get the very first focus from tab index actually gets it.
-      // Note that injecting element and triggering key press on it does not
-      // make it focused itself.
+      // Syn, the JS library that provides synthetic events, can tab only
+      // from an element that can receive focus. A tab press with no
+      // selector therefore targets a visually hidden, screen-reader
+      // compatible anchor injected as the first element inside <body>.
+      // Triggering the key on the anchor moves focus to the first element
+      // in the tab order without focusing the anchor itself.
       if ($selector === NULL && $char === 'tab') {
         $selector = '#injected-focusable';
 
@@ -164,9 +156,9 @@ trait KeyboardTrait {
       $char = $keys[strtolower($char)];
     }
 
-    // When no selector is provided, use the currently focused element.
-    // This allows chaining key presses: first call with selector to focus and
-    // type, then subsequent calls without selector to continue typing.
+    // With no selector the key is sent to the currently focused element.
+    // A call with a selector focuses and types; later calls without one
+    // continue typing in the same element.
     if ($selector === NULL) {
       $script = <<<'JS'
         (function() {

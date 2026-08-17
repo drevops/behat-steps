@@ -193,7 +193,6 @@ trait JavascriptTrait {
     }
     // @codeCoverageIgnoreEnd
     try {
-      // Get current URL.
       $current_url = $this->getSession()->getCurrentUrl();
 
       // Only collect errors if URL changed (navigation occurred).
