@@ -354,8 +354,7 @@ trait BlockTrait {
       ]);
 
     // Machine names gain a numeric suffix on collision, so ordering the keys
-    // ascending puts the most recently created block last. This matches how
-    // the other traits resolve a duplicate label.
+    // ascending puts the most recently created block last.
     ksort($blocks);
 
     return empty($blocks) ? NULL : end($blocks);
