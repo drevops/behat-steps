@@ -306,7 +306,7 @@ trait MediaTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * This is a re-use of the functionality provided by DrupalExtension.
+   * Reuses the protected expansion provided by the Drupal driver core.
    *
    * @param \Drupal\Driver\Entity\EntityStub $stub
    *   The entity stub.
@@ -342,12 +342,12 @@ trait MediaTrait {
    * Load multiple media entities with specified type and conditions.
    *
    * @param string $type
-   *   The node type.
+   *   The media type.
    * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>
-   *   Array of node ids.
+   *   Array of media ids.
    */
   protected function mediaLoadMultiple(string $type, array $conditions = []): array {
     $query = \Drupal::entityQuery('media')

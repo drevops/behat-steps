@@ -63,7 +63,7 @@ trait AccessibilityTrait {
   public const IMPACT_MINOR = 'minor';
 
   /**
-   * In-memory cache for the engine JavaScript source - fetched once per run.
+   * In-memory cache for the engine JavaScript source, fetched once per process.
    */
   protected static ?string $accessibilityCachedJs = NULL;
 
@@ -524,7 +524,7 @@ trait AccessibilityTrait {
   /**
    * Normalize raw engine output into the canonical shape used by the trait.
    *
-   * Canonical shape (see class docblock for the full structure):
+   * Canonical shape:
    * `['violations' => [...], 'incomplete' => [...], 'passes' => [...]]`
    *
    * Default: maps each finding into the canonical fields explicitly. The

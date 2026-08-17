@@ -759,7 +759,8 @@ trait XmlTrait {
         $prefix = $node->localName;
         $uri = $node->nodeValue;
 
-        // Skip the default XML namespace.
+        // Skip the reserved namespace bound to the 'xml' prefix, which every
+        // document declares implicitly.
         if ($uri !== 'http://www.w3.org/XML/1998/namespace') {
           $namespaces[$prefix] = $uri;
         }
@@ -856,8 +857,12 @@ trait XmlTrait {
    * Validate the response against a DTD.
    *
    * The DTD is embedded as an internal subset and the response is reloaded
-   * with validation enabled. A DTD from a file and an inline DTD share this
-   * code path without exposing external-entity loading.
+   * with validation enabled, so a DTD from a file and an inline DTD share this
+   * code path.
+   *
+   * Validation runs with `LIBXML_DTDVALID` and without `LIBXML_NOENT`, so a
+   * `SYSTEM` entity declared in the DTD is dereferenced during validation but
+   * its content is never substituted into the document.
    *
    * DTDs are namespace-unaware, so a namespaced response is validated verbatim
    * and its `xmlns` attributes must be declared in the DTD. This matches

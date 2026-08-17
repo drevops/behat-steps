@@ -37,7 +37,7 @@ trait TestmodeTrait {
   }
 
   /**
-   * Disable test mode before test run for scenarios tagged with @testmode.
+   * Disable test mode after the scenario for scenarios tagged with @testmode.
    */
   #[AfterScenario('@api')]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {

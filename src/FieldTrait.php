@@ -400,8 +400,9 @@ trait FieldTrait {
   /**
    * CSS selectors that indicate a required-field marker.
    *
-   * Override in a subclass to customise the selectors used by
-   * ::fieldIsMarkedRequired() when walking a field's label/wrapper.
+   * Nothing consumes this list yet: ::fieldIsMarkedRequired() probes for the
+   * `required` attribute and the `form-required` class directly. It is kept as
+   * the intended override point for that check.
    *
    * @return array<int, string>
    *   CSS selectors to probe for a required marker.

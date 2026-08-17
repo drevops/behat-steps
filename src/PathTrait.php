@@ -127,7 +127,7 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL doesn't have a query parameter with specific value.
+   * Assert that current URL does not have a query parameter.
    *
    * @code
    * Then current url should not have the "filter" parameter
@@ -143,7 +143,7 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL doesn't have a query parameter with specific value.
+   * Assert that current URL does not have a query parameter with a value.
    *
    * @code
    * Then current url should not have the "filter" parameter with the "recent" value

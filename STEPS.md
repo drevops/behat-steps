@@ -387,7 +387,7 @@ Assert that a cookie does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with name "old_session" should not exist
+Then a cookie with the name "old_session" should not exist
 
 ```
 
@@ -2743,7 +2743,7 @@ Then current url should have the "filter" parameter with the "recent" value
   <summary><code>@Then current url should not have the :param parameter</code></summary>
 
 <br/>
-Assert that current URL doesn't have a query parameter with specific value
+Assert that current URL does not have a query parameter
 <br/><br/>
 
 ```gherkin
@@ -2757,7 +2757,7 @@ Then current url should not have the "filter" parameter
   <summary><code>@Then current url should not have the :param parameter with the :value value</code></summary>
 
 <br/>
-Assert that current URL doesn't have a query parameter with specific value
+Assert that current URL does not have a query parameter with a value
 <br/><br/>
 
 ```gherkin
@@ -5233,9 +5233,8 @@ Then the "image" media with the name "Test media image" should not exist
 [Source](src/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
 >  Manage Drupal menu systems and menu link rendering.
->  - Assert menu items by label, path, and containment hierarchy.
->  - Assert menu link visibility and active states in different regions.
->  - Create and manage menu hierarchies with parent-child relationships.
+>  - Create and remove menus by label.
+>  - Create and remove menu links, including parent-child hierarchies.
 >  - Created menus and menu links are automatically removed at the end of the scenario.
 
 

@@ -78,7 +78,7 @@ Feature: Check that KeyboardTrait works
     When I run "behat --no-colors"
     Then it should fail with a "InvalidArgumentException" exception:
       """
-      keyPress($char) was invoked but the $char parameter was empty.
+      The keyboard key must not be empty.
       """
 
   @trait:KeyboardTrait

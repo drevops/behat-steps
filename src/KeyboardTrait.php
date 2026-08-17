@@ -83,9 +83,9 @@ trait KeyboardTrait {
    *
    * @param string $char
    *   Character or one of the pre-defined special keyboard keys.
-   * @param string $selector
-   *   Optional CSS selector for an element to trigger the key on. If omitted,
-   *   the key will be triggered on the 'html' element of the page.
+   * @param string|null $selector
+   *   CSS selector for an element to trigger the key on. Pass NULL to trigger
+   *   the key on the 'html' element of the page.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
@@ -129,7 +129,7 @@ trait KeyboardTrait {
 
     // Convert provided character sequence to special keys.
     if (strlen($char) < 1) {
-      throw new \InvalidArgumentException('keyPress($char) was invoked but the $char parameter was empty.');
+      throw new \InvalidArgumentException('The keyboard key must not be empty.');
     }
 
     // Consider provided characters string longer then 1 to be a keyboard key.

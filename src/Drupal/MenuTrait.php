@@ -13,9 +13,8 @@ use Drupal\system\MenuInterface;
 /**
  * Manage Drupal menu systems and menu link rendering.
  *
- * - Assert menu items by label, path, and containment hierarchy.
- * - Assert menu link visibility and active states in different regions.
- * - Create and manage menu hierarchies with parent-child relationships.
+ * - Create and remove menus by label.
+ * - Create and remove menu links, including parent-child hierarchies.
  * - Created menus and menu links are automatically removed at the end of the scenario.
  */
 trait MenuTrait {

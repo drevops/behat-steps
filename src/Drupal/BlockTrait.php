@@ -342,10 +342,7 @@ trait BlockTrait {
    *   The visible label of the block to find.
    *
    * @return \Drupal\block\Entity\Block|null
-   *   The loaded block entity or NULL if not found.
-   *
-   * @throws \Exception
-   *   When no block with the specified label is found.
+   *   The loaded block entity, or NULL when no block carries that label.
    */
   protected function blockLoadByLabel(string $label): ?Block {
     $default_theme = \Drupal::config('system.theme')->get('default');

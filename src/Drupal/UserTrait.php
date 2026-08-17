@@ -438,7 +438,12 @@ trait UserTrait {
    *   The user name.
    *
    * @return \Drupal\user\UserInterface|null
-   *   The loaded user object or NULL if not found.
+   *   The loaded user object. The nullable return type is retained for
+   *   compatibility, but a missing user raises an exception rather than
+   *   returning NULL.
+   *
+   * @throws \RuntimeException
+   *   When no user with the specified name exists.
    */
   protected function userLoadByName(string $name): ?UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
