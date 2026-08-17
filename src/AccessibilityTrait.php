@@ -141,6 +141,11 @@ trait AccessibilityTrait {
   protected bool $accessibilitySkip = FALSE;
 
   /**
+   * Whether the automatic gate has already been enforced.
+   */
+  protected bool $accessibilityGated = FALSE;
+
+  /**
    * Capture the working directory once, before any scenario can chdir().
    */
   #[BeforeSuite]
@@ -177,6 +182,7 @@ trait AccessibilityTrait {
     $this->accessibilityLastCheckedUrl = '';
     $this->accessibilityScenarioThreshold = NULL;
     $this->accessibilityScenarioFailOnIncomplete = NULL;
+    $this->accessibilityGated = FALSE;
 
     $this->accessibilitySkip = $scope->getFeature()->hasTag('behat-steps-skip:AccessibilityTrait')
       || $scope->getScenario()->hasTag('behat-steps-skip:AccessibilityTrait');
@@ -184,6 +190,8 @@ trait AccessibilityTrait {
     if ($this->accessibilitySkip) {
       return;
     }
+
+    $this->helperSetLastStepLine($scope);
 
     $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
     $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
@@ -197,6 +205,11 @@ trait AccessibilityTrait {
 
   /**
    * Run the engine after each step when in automatic mode.
+   *
+   * Behat composes a step teardown into that step's result, so a gate failure
+   * raised here marks the scenario as failed for the rerun cache. Gating on
+   * the last step rather than on every step lets every page the scenario
+   * visited reach the report before the gate is applied.
    */
   #[AfterStep]
   public function accessibilityAutoAssess(AfterStepScope $scope): void {
@@ -219,15 +232,32 @@ trait AccessibilityTrait {
       return;
     }
 
-    if (in_array($url, [...static::accessibilityBlankUrls(), $this->accessibilityLastCheckedUrl], TRUE)) {
+    if (!in_array($url, [...static::accessibilityBlankUrls(), $this->accessibilityLastCheckedUrl], TRUE)) {
+      $this->accessibilityAssess($this->accessibilityGetDefaultRules());
+    }
+
+    // A failed step has already failed the scenario, so gating on top of it
+    // would report a violation found on a page the step left half-built. The
+    // gate is applied whether or not this step assessed a new page, because a
+    // last step that navigates nowhere still ends the scenario.
+    if (!$scope->getTestResult()->isPassed() || !$this->helperIsLastStep($scope)) {
       return;
     }
 
-    $this->accessibilityAssess($this->accessibilityGetDefaultRules());
+    $this->accessibilityGated = TRUE;
+    $this->accessibilityEnforceGate();
   }
 
   /**
-   * Write reports and enforce the gate at the end of the scenario.
+   * Write the scenario reports, feed the suite aggregate, then gate if needed.
+   *
+   * A step that fails on its own skips every step after it, including the one
+   * that would have applied the gate, so the gate is applied here instead. The
+   * scenario has already failed by then, so it cannot mask a passing scenario
+   * from the rerun cache.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If a violation at or above the threshold was collected.
    */
   #[AfterScenario]
   public function accessibilityFinalizeScenario(AfterScenarioScope $scope): void {
@@ -247,14 +277,22 @@ trait AccessibilityTrait {
     file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
-    // Accumulate before the gate so a scenario that fails the gate is still
-    // represented in the suite-level aggregate.
     $this->accessibilityAggregateCapture($dir);
 
-    if (!$this->accessibilityAutoMode) {
+    if (!$this->accessibilityAutoMode || $this->accessibilityGated || $scope->getTestResult()->isPassed()) {
       return;
     }
 
+    $this->accessibilityEnforceGate();
+  }
+
+  /**
+   * Fail the scenario when collected results breach the automatic gate.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If a violation at or above the threshold was collected.
+   */
+  protected function accessibilityEnforceGate(): void {
     $threshold = $this->accessibilityEffectiveThreshold();
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
     $messages = [];

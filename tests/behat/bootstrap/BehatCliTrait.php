@@ -206,6 +206,15 @@ class FeatureContext extends DrupalContext {
     \Drupal::logger($type)->log($level, 'test');
   }
 
+  /**
+   * Log an error after the last step result has been composed.
+   *
+   * @AfterScenario @test-watchdog-teardown
+   */
+  public function testSetWatchdogErrorInTeardown() {
+    \Drupal::logger('php')->log('warning', 'test');
+  }
+
 }
 EOL;
 
