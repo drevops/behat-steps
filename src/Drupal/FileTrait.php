@@ -35,7 +35,7 @@ trait FileTrait {
   /**
    * Unmanaged file URIs.
    *
-   * @var array<int,string>
+   * @var array<int, string>
    */
   protected $filesUnmanagedUris = [];
 

@@ -52,7 +52,6 @@ trait ContentBlockTrait {
    *   | [TEST] Contact Form  |
    * @endcode
    *
-   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
    */
@@ -202,7 +201,7 @@ trait ContentBlockTrait {
    *
    * @param string $type
    *   The block content type.
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>

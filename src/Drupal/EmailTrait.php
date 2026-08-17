@@ -638,7 +638,7 @@ trait EmailTrait {
   /**
    * Get email messages collected during the test.
    *
-   * @return array<string,array<string,mixed>>
+   * @return array<string, array<string, mixed>>
    *   Array of collected emails.
    */
   protected function emailGetCollectedMessages(): array {
@@ -683,7 +683,7 @@ trait EmailTrait {
    * @param bool $exact
    *   Whether to search for an exact match.
    *
-   * @return array<string,string|array<string,mixed>>|null
+   * @return array<string, string|array<string, mixed>>|null
    *   Email message or NULL if not found.
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {

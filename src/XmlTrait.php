@@ -688,7 +688,7 @@ trait XmlTrait {
    * @param string $content
    *   The XML content to load.
    *
-   * @throws \Exception
+   * @throws \RuntimeException
    *   If the XML cannot be loaded.
    */
   protected function xmlLoadDocument(string $content): void {
@@ -718,7 +718,7 @@ trait XmlTrait {
    *
    * Reloads the document if the page content has changed since last load.
    *
-   * @throws \Exception
+   * @throws \RuntimeException
    *   If no document is loaded.
    */
   protected function xmlEnsureDocument(): void {

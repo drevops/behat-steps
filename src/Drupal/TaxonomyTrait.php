@@ -252,7 +252,7 @@ trait TaxonomyTrait {
    *
    * @param string $vocabulary_machine_name
    *   The term vocabulary.
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>

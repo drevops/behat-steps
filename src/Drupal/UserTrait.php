@@ -410,10 +410,10 @@ trait UserTrait {
   /**
    * Load multiple users with specified conditions.
    *
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int,\Drupal\user\UserInterface>
+   * @return array<int, \Drupal\user\UserInterface>
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []): array {

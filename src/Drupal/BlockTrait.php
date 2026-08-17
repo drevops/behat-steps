@@ -153,7 +153,6 @@ trait BlockTrait {
    *   Given the block "My block" is enabled
    * @endcode
    *
-   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
    */
@@ -176,7 +175,6 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" is disabled
    * @endcode
-   *
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -249,7 +247,6 @@ trait BlockTrait {
    *   Then the block "My block" should exist
    * @endcode
    *
-   *
    * @throws \Exception
    *   When no block with the specified label is found.
    */
@@ -271,7 +268,6 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should not exist
    * @endcode
-   *
    *
    * @throws \Exception
    *   When block with the specified label is found.
@@ -296,7 +292,6 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should exist in the "content" region
    * @endcode
-   *
    *
    * @throws \Exception
    *   When no block with the specified label is found in the given region.
@@ -324,7 +319,6 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should not exist in the "content" region
    * @endcode
-   *
    *
    * @throws \Exception
    *   When block with the specified label is found in the given region.

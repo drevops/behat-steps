@@ -90,12 +90,12 @@ trait WatchdogTrait {
    * @watchdog:my_module_type @watchdog:my_other_module_type
    * @endcode
    *
-   * @param array<int,string> $tags
+   * @param array<int, string> $tags
    *   Array of scenario tags.
    * @param string $prefix
    *   Optional tag prefix to filter by.
    *
-   * @return array<int,string>
+   * @return array<int, string>
    *   Array of message types. 'php' is always added to the list.
    */
   protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {

@@ -51,7 +51,6 @@ trait TimeTrait {
   /**
    * Resets the system time to real time.
    *
-   *
    * @code
    * When I reset system time
    * @endcode

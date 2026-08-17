@@ -175,7 +175,10 @@ trait ElementTrait {
    * @param bool $is_inverted
    *   Whether to assert the value is not present.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If no element matches the selector.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the attribute or its value does not match the expectation.
    */
   protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
     $page = $this->getSession()->getPage();
@@ -717,7 +720,6 @@ JS;
    * Given I accept all confirmation dialogs
    * @endcode
    *
-   *
    * @javascript
    */
   #[Given('I accept all confirmation dialogs')]
@@ -732,7 +734,6 @@ JS;
    * Given I do not accept any confirmation dialogs
    * @endcode
    *
-   *
    * @javascript
    */
   #[Given('I do not accept any confirmation dialogs')]
@@ -746,7 +747,6 @@ JS;
    * @code
    * When I click on the element ".button"
    * @endcode
-   *
    *
    * @javascript
    */
@@ -770,7 +770,6 @@ JS;
    * @code
    * When I click on the element ".card" with the index 2
    * @endcode
-   *
    *
    * @javascript
    */

@@ -187,7 +187,6 @@ trait ResponsiveTrait {
    * When I set the viewport to the "desktop" breakpoint
    * @endcode
    *
-   *
    * @param string $breakpoint
    *   The breakpoint name.
    *
@@ -207,7 +206,6 @@ trait ResponsiveTrait {
    * When I set the viewport width to "768"
    * @endcode
    *
-   *
    * @param string $width
    *   The width in pixels.
    */
@@ -225,7 +223,6 @@ trait ResponsiveTrait {
    * When I set the viewport height to "900"
    * @endcode
    *
-   *
    * @param string $height
    *   The height in pixels.
    */
@@ -242,7 +239,6 @@ trait ResponsiveTrait {
    * When I set the viewport to "1920" by "1080"
    * When I set the viewport to "375" by "667"
    * @endcode
-   *
    *
    * @param string $width
    *   The width in pixels.

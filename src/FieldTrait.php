@@ -1074,7 +1074,8 @@ JS;
    * @param string $value
    *   The value to set.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If the datetime field part cannot be located.
    */
   protected function fieldFillDatetimeHelper(string $label, string $part, string $field, string $value): void {
     // Try to find by label element first.
