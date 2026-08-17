@@ -1749,8 +1749,7 @@ When I switch to the root document
 
 >  Automatically detect JavaScript errors during test execution.
 >  - Collects JavaScript errors from `window.onerror` and `console.error`.
->  - Automatically asserts no errors after each step of scenarios with
->  `@javascript` tag.
+>  - Automatically asserts no errors at end of scenarios with `@javascript` tag.
 >  - Errors collected only when URL changes (navigation occurs).
 >  - Use `@js-errors` tag to bypass error checking when errors are expected.
 >  
@@ -6328,12 +6327,12 @@ Then the user "John" should not be blocked
 [Source](src/Drupal/WatchdogTrait.php), [Example](tests/behat/features/drupal_watchdog.feature)
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
->  - Check for Watchdog messages after every step.
+>  - Check for Watchdog messages after scenario completion.
 >  - Optionally check only for specific message types.
 >  - Optionally skip error checking for specific scenarios.
 >  
 >  Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
->  `@behat-steps-skip:watchdogAfterStep`
+>  `@behat-steps-skip:watchdogAfterScenario`
 >  <br/><br/>
 >  Special tags:
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.

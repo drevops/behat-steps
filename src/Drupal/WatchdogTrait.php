@@ -13,12 +13,12 @@ use Drupal\Core\Database\Database;
 /**
  * Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
  *
- * - Check for Watchdog messages after every step.
+ * - Check for Watchdog messages after scenario completion.
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
  *
  * Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
- * `@behat-steps-skip:watchdogAfterStep`
+ * `@behat-steps-skip:watchdogAfterScenario`
  *
  * Special tags:
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
@@ -64,7 +64,7 @@ trait WatchdogTrait {
     // Step scopes carry neither scenario tags nor scenario identity, so both
     // are resolved here for the step hook to read. An unset start time is what
     // disables the check.
-    if ($scenario->hasTag('behat-steps-skip:watchdogAfterStep') || $scenario->hasTag('error')) {
+    if ($scenario->hasTag('behat-steps-skip:watchdogAfterScenario') || $scenario->hasTag('error')) {
       return;
     }
 
@@ -102,10 +102,11 @@ trait WatchdogTrait {
   }
 
   /**
-   * Check for errors since the scenario started.
+   * Check after every step for errors logged since the scenario started.
    *
    * Add @error to any scenario that is expected to trigger an error - the
-   * error tracking will be ignored.
+   * error tracking will be ignored. Skip the check for a scenario with
+   * `@behat-steps-skip:watchdogAfterScenario`.
    *
    * Behat composes a step teardown into that step's result, so a failure
    * raised here marks the scenario as failed for the rerun cache.

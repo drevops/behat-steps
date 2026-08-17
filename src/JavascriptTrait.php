@@ -18,8 +18,7 @@ use Behat\Mink\Exception\ExpectationException;
  * Automatically detect JavaScript errors during test execution.
  *
  * - Collects JavaScript errors from `window.onerror` and `console.error`.
- * - Automatically asserts no errors after each step of scenarios with
- *   `@javascript` tag.
+ * - Automatically asserts no errors at end of scenarios with `@javascript` tag.
  * - Errors collected only when URL changes (navigation occurs).
  * - Use `@js-errors` tag to bypass error checking when errors are expected.
  *

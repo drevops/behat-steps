@@ -94,9 +94,9 @@ Feature: Check that WatchdogTrait works
     Then it should pass
 
   @trait:Drupal\WatchdogTrait
-  Scenario: Assert that skip tag for watchdogAfterStep hook works
+  Scenario: Assert that skip tag for watchdogAfterScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:watchdogAfterStep":
+    And scenario steps tagged with "@behat-steps-skip:watchdogAfterScenario":
       """
       When I visit "/"
       """
