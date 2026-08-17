@@ -19,11 +19,11 @@ Feature: Check that FileDownloadTrait works
 
   @api @download
   Scenario: Assert "When I download the file from the URL :url"
-    When I download the file from the URL "/text.txt"
+    When I download the file from the URL "/sites/default/files/text.txt"
 
   @api @javascript @download
   Scenario: Assert in browser "When I download the file from the URL :url"
-    When I download the file from the URL "/text.txt"
+    When I download the file from the URL "/sites/default/files/text.txt"
 
   @api @download
   Scenario: Assert "When I download the file from the link :link"
@@ -44,7 +44,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/text.txt"
+      And I download the file from the URL "/sites/default/files/text.txt"
       Then the downloaded file should contain:
         '''
         /nonexistent.*pattern/
@@ -71,7 +71,7 @@ Feature: Check that FileDownloadTrait works
 
   @api @download
   Scenario: Assert the downloaded file name contains a specific string
-    When I download the file from the URL "/text.txt"
+    When I download the file from the URL "/sites/default/files/text.txt"
     Then the downloaded file name should contain "text"
 
   @api @trait:FileDownloadTrait
@@ -80,7 +80,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/text.txt"
+      And I download the file from the URL "/sites/default/files/text.txt"
       Then the downloaded file name should contain "nonexistent"
       """
     When I run "behat --no-colors"
@@ -145,7 +145,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/text.txt"
+      And I download the file from the URL "/sites/default/files/text.txt"
       Then the downloaded file name should be "wrong_name.txt"
       """
     When I run "behat --no-colors"
@@ -160,7 +160,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/text.txt"
+      And I download the file from the URL "/sites/default/files/text.txt"
       Then the downloaded file should contain:
         '''
         nonexistent content string
@@ -281,7 +281,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       Given I am logged in as a user with the "administrator" role
-      When I download the file from the URL "/archive_invalid.zip"
+      When I download the file from the URL "/sites/default/files/archive_invalid.zip"
       Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
@@ -312,7 +312,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps tagged with "@download":
       """
       When I visit "/"
-      And I download the file from the URL "/text.txt"
+      And I download the file from the URL "/sites/default/files/text.txt"
       Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
@@ -320,4 +320,18 @@ Feature: Check that FileDownloadTrait works
     Then it should fail with an error:
       """
       Downloaded file does not have correct headers set for ZIP.
+      """
+
+  @api @trait:FileDownloadTrait
+  Scenario: Assert that downloading a URL returning an error status fails
+    Given some behat configuration
+    And scenario steps tagged with "@download":
+      """
+      When I visit "/"
+      And I download the file from the URL "/sites/default/files/nonexistent-download-target.txt"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      returned HTTP status 404
       """
