@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
@@ -28,6 +27,10 @@ use Behat\Step\Then;
  * - `@accessibility:warning`                  Auto-mode, never fail (advisory).
  * - `@accessibility:strict`                   Also fail on "incomplete" findings.
  * - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
+ *
+ * Auto-mode assesses each newly visited page after the step that navigated to
+ * it and fails that step when the gate is breached, so the failing step is
+ * named in the output and `behat --rerun` can see the failure.
  *
  * Tool-agnostic. Any engine that runs inside the existing Mink session can
  * be plugged in by overriding `accessibilityRunEngine()` (perform the
@@ -197,6 +200,11 @@ trait AccessibilityTrait {
 
   /**
    * Run the engine after each step when in automatic mode.
+   *
+   * Behat composes a step teardown into that step's result, so a gate failure
+   * raised here marks the scenario as failed for the rerun cache. The same
+   * failure raised from an `AfterScenario` hook only sets the exit code and
+   * leaves `behat --rerun` with nothing to re-run.
    */
   #[AfterStep]
   public function accessibilityAutoAssess(AfterStepScope $scope): void {
@@ -224,13 +232,15 @@ trait AccessibilityTrait {
     }
 
     $this->accessibilityAssess($this->accessibilityGetDefaultRules());
+
+    $this->accessibilityEnforceGate();
   }
 
   /**
-   * Write reports and enforce the gate at the end of the scenario.
+   * Write the scenario reports and feed the suite aggregate.
    */
   #[AfterScenario]
-  public function accessibilityFinalizeScenario(AfterScenarioScope $scope): void {
+  public function accessibilityFinalizeScenario(): void {
     if ($this->accessibilitySkip) {
       return;
     }
@@ -247,14 +257,16 @@ trait AccessibilityTrait {
     file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
-    // Accumulate before the gate so a scenario that fails the gate is still
-    // represented in the suite-level aggregate.
     $this->accessibilityAggregateCapture($dir);
+  }
 
-    if (!$this->accessibilityAutoMode) {
-      return;
-    }
-
+  /**
+   * Fail the scenario when collected results breach the automatic gate.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If a violation at or above the threshold was collected.
+   */
+  protected function accessibilityEnforceGate(): void {
     $threshold = $this->accessibilityEffectiveThreshold();
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
     $messages = [];

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
@@ -19,7 +18,9 @@ use Behat\Mink\Exception\ExpectationException;
  * Automatically detect JavaScript errors during test execution.
  *
  * - Collects JavaScript errors from `window.onerror` and `console.error`.
- * - Automatically asserts no errors at end of scenarios with `@javascript` tag.
+ * - Automatically asserts no errors after each step of scenarios with the
+ *   `@javascript` tag, so the step that produced the error is the one that
+ *   fails and `behat --rerun` can see the failure.
  * - Errors collected only when URL changes (navigation occurs).
  * - Use `@js-errors` tag to bypass error checking when errors are expected.
  *
@@ -64,43 +65,37 @@ trait JavascriptTrait {
   protected bool $javascriptEnabled = FALSE;
 
   /**
+   * Whether the current scenario expects JavaScript errors.
+   */
+  protected bool $javascriptBypassErrors = FALSE;
+
+  /**
    * Initialize JavaScript error collection for scenarios.
    */
   #[BeforeScenario('@javascript')]
   public function javascriptBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->javascriptClearRegistry();
+
     if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
       $this->javascriptEnabled = FALSE;
-      $this->javascriptClearRegistry();
       return;
     }
 
     $this->javascriptEnabled = TRUE;
 
-    $this->javascriptClearRegistry();
+    // Step scopes carry no scenario tags, so the bypass is resolved here and
+    // carried on the context for the step hook to read.
+    $this->javascriptBypassErrors = $scope->getScenario()->hasTag('js-errors');
   }
 
   /**
-   * Assert no JavaScript errors at end of scenario.
+   * Reset JavaScript error state at end of scenario.
    */
   #[AfterScenario('@javascript')]
-  public function javascriptAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
-      $this->javascriptEnabled = FALSE;
-      $this->javascriptClearRegistry();
-      return;
-    }
-
-    if ($scope->getScenario()->hasTag('js-errors')) {
-      $this->javascriptClearRegistry();
-      $this->javascriptEnabled = FALSE;
-      return;
-    }
-
-    $this->javascriptAssertNoErrors();
-
-    // Clean up for next scenario.
+  public function javascriptAfterScenario(): void {
     $this->javascriptClearRegistry();
     $this->javascriptEnabled = FALSE;
+    $this->javascriptBypassErrors = FALSE;
   }
 
   /**
@@ -136,7 +131,15 @@ trait JavascriptTrait {
   }
 
   /**
-   * Collect JavaScript errors after each step if URL changed.
+   * Collect JavaScript errors after each step and assert none were found.
+   *
+   * Behat composes a step teardown into that step's result, so a failure
+   * raised here marks the scenario as failed for the rerun cache. The same
+   * failure raised from an `AfterScenario` hook only sets the exit code and
+   * leaves `behat --rerun` with nothing to re-run.
+   *
+   * @throws \Exception
+   *   If JavaScript errors were detected.
    */
   #[AfterStep]
   public function javascriptAfterStep(AfterStepScope $scope): void {
@@ -173,6 +176,13 @@ trait JavascriptTrait {
       // Silently fail if there are issues.
     }
     // @codeCoverageIgnoreEnd
+    if ($this->javascriptBypassErrors) {
+      return;
+    }
+
+    // Asserted outside the collection block above so the blanket catch cannot
+    // swallow the failure.
+    $this->javascriptAssertNoErrors();
   }
 
   /**

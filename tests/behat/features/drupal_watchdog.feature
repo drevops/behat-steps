@@ -18,6 +18,28 @@ Feature: Check that WatchdogTrait works
       """
 
   @trait:Drupal\WatchdogTrait
+  Scenario: Assert that a failing scenario is reported as failed and recorded for a rerun
+    Given some behat configuration
+    And scenario steps:
+      """
+      When set watchdog error level "warning"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      PHP errors were logged to watchdog
+      """
+    And the output should contain:
+      """
+      1 scenario (1 failed)
+      """
+    When I run "behat --no-colors --rerun-only"
+    Then it should fail with:
+      """
+      PHP errors were logged to watchdog
+      """
+
+  @trait:Drupal\WatchdogTrait
   Scenario: Assert that watchdog does not fail when a custom message type is triggered
     Given some behat configuration
     And scenario steps:
@@ -72,9 +94,9 @@ Feature: Check that WatchdogTrait works
     Then it should pass
 
   @trait:Drupal\WatchdogTrait
-  Scenario: Assert that skip tag for watchdogAfterScenario hook works
+  Scenario: Assert that skip tag for watchdogAfterStep hook works
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:watchdogAfterScenario":
+    And scenario steps tagged with "@behat-steps-skip:watchdogAfterStep":
       """
       When I visit "/"
       """

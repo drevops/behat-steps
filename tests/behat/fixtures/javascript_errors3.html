@@ -1,0 +1,44 @@
+<!--
+This is a fixture document used to test JavaScript error detection in Behat Steps.
+
+Unlike the other error fixtures, every error is emitted synchronously from a
+single click handler and no timers are used, so the number of errors collected
+after the click step is deterministic.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Page with multiple JavaScript Errors - Behat Steps Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    .content {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Page 3 with Multiple JavaScript Errors</h1>
+  <div class="content">
+    <p>This page intentionally triggers several JavaScript errors at once for testing purposes.</p>
+    <p id="message">Initial message</p>
+    <button id="trigger-error">Click to trigger errors</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('#trigger-error').addEventListener('click', function() {
+        console.error('Error page 3 - first console.error triggered by button');
+        console.error('Error page 3 - second console.error triggered by button');
+        console.error('Error page 3 - third console.error triggered by button');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Hook\AfterScenario;
+use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\Core\Database\Database;
@@ -14,12 +13,13 @@ use Drupal\Core\Database\Database;
 /**
  * Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
  *
- * - Check for Watchdog messages after scenario completion.
+ * - Check for Watchdog messages after every step, so the step that triggered
+ *   the error is the one that fails and `behat --rerun` can see the failure.
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
  *
  * Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
- * `@behat-steps-skip:watchdogAfterScenario`
+ * `@behat-steps-skip:watchdogAfterStep`
  *
  * Special tags:
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
@@ -42,6 +42,16 @@ trait WatchdogTrait {
   protected $watchdogMessageTypes = [];
 
   /**
+   * Title of the current scenario.
+   */
+  protected string $watchdogScenarioTitle = '';
+
+  /**
+   * Line of the current scenario within its feature file.
+   */
+  protected int $watchdogScenarioLine = 0;
+
+  /**
    * Store current time.
    */
   #[BeforeScenario('@api')]
@@ -50,9 +60,21 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->watchdogScenarioStartTime = time();
+    $scenario = $scope->getScenario();
 
-    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes($scope->getScenario()->getTags());
+    // Step scopes carry neither scenario tags nor scenario identity, so both
+    // are resolved here and carried on the context for the step hook to read.
+    // Leaving the start time unset is what disables the check: scenarios
+    // tagged '@error' are expected to trigger an error.
+    if ($scenario->hasTag('behat-steps-skip:watchdogAfterStep') || $scenario->hasTag('error')) {
+      return;
+    }
+
+    $this->watchdogScenarioStartTime = time();
+    $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
+    $this->watchdogScenarioLine = $scenario->getLine();
+
+    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes($scenario->getTags());
   }
 
   /**
@@ -86,27 +108,24 @@ trait WatchdogTrait {
    *
    * Add @error to any scenario that is expected to trigger an error - the
    * error tracking will be ignored.
+   *
+   * Behat composes a step teardown into that step's result, so a failure
+   * raised here marks the scenario as failed for the rerun cache. The same
+   * failure raised from an `AfterScenario` hook only sets the exit code and
+   * leaves `behat --rerun` with nothing to re-run.
    */
-  #[AfterScenario('@api')]
-  public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    $database = Database::getConnection();
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+  #[AfterStep]
+  public function watchdogAfterStep(): void {
+    // The start time is set only for '@api' scenarios that opted into the
+    // check, so an unset one means there is nothing to check.
+    if (!isset($this->watchdogScenarioStartTime)) {
       return;
     }
 
-    // Bypass the error checking if the scenario is expected to trigger an
-    // error. Such scenarios should be tagged with "@error".
-    if (in_array('error', $scope->getScenario()->getTags())) {
-      return;
-    }
+    $database = Database::getConnection();
 
     if (!$database->schema()->tableExists('watchdog')) {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
-    }
-
-    // If watchdogSetScenario was skipped, the start time won't be set.
-    if (!isset($this->watchdogScenarioStartTime)) {
-      return;
     }
 
     // Select all logged entries for PHP channel that appeared from the start
@@ -142,7 +161,7 @@ trait WatchdogTrait {
         ->condition('wid', array_keys($errors), 'IN')
         ->execute();
 
-      throw new ExpectationException(sprintf('PHP errors were logged to watchdog during scenario "%s" (line %s): %s', $scope->getScenario()->getTitle(), $scope->getScenario()->getLine(), PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('PHP errors were logged to watchdog during scenario "%s" (line %s): %s', $this->watchdogScenarioTitle, $this->watchdogScenarioLine, PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
     }
   }
 

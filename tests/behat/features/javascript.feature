@@ -47,28 +47,14 @@ Feature: Check that JavascriptTrait works
       """
       - Error: Error page 1 - console.error triggered by button
       """
-    And the output should contain:
-      """
-      Total errors: 1
-      """
-    And the output should not contain:
-      """
-      - Error: Error page 1 - console.error triggered after 1000ms
-      """
-    And the output should not contain:
-      """
-      - Error: Error page 1 - console.error triggered after 2000ms
-      """
 
   @trait:JavascriptTrait
-  Scenario: Page with JavaScript errors should fail after longer wait with more errors
+  Scenario: Failing scenario is reported as failed and not as passed
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I visit "/sites/default/files/javascript_errors1.html"
-      Then I should see "Page 1 with JavaScript Errors"
-      When I press "Click to trigger error"
-      And sleep for 4 seconds
+      Given I visit "/sites/default/files/javascript_errors3.html"
+      When I press "Click to trigger errors"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -77,39 +63,39 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors1.html
+      1 scenario (1 failed)
       """
-    And the output should contain:
+    And the output should not contain:
       """
-      - Error: Error page 1 - console.error triggered by button
-      """
-    And the output should contain:
-      """
-      - Error: Error page 1 - console.error triggered after 1000ms
-      """
-    And the output should contain:
-      """
-      - Error: Error page 1 - console.error triggered after 2000ms
-      """
-    And the output should contain:
-      """
-      Total errors: 4
+      1 scenario (1 passed)
       """
 
   @trait:JavascriptTrait
-  Scenario: Multiple pages - errors from different pages are tracked separately
+  Scenario: Failing scenario is recorded for a rerun
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I visit "/sites/default/files/javascript_errors1.html"
-      Then I should see "Page 1 with JavaScript Errors"
-      When I press "Click to trigger error"
-      And sleep for 4 seconds
+      Given I visit "/sites/default/files/javascript_errors3.html"
+      When I press "Click to trigger errors"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      JavaScript errors detected
+      """
+    When I run "behat --no-colors --rerun-only"
+    Then it should fail with:
+      """
+      JavaScript errors detected
+      """
 
-      When I visit "/sites/default/files/javascript_errors2.html"
-      Then I should see "Page 2 with JavaScript Errors"
-      When I press "Click to trigger error"
-      And sleep for 4 seconds
+  @trait:JavascriptTrait
+  Scenario: All errors collected during a step are reported together
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I visit "/sites/default/files/javascript_errors3.html"
+      When I press "Click to trigger errors"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -118,39 +104,47 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors1.html
+      URL: http://nginx:8080/sites/default/files/javascript_errors3.html
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered by button
+      - Error: Error page 3 - first console.error triggered by button
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered after 1000ms
+      - Error: Error page 3 - second console.error triggered by button
       """
     And the output should contain:
       """
-      - Error: Error page 1 - console.error triggered after 2000ms
+      - Error: Error page 3 - third console.error triggered by button
       """
     And the output should contain:
+      """
+      Total errors: 3
+      """
+
+  @trait:JavascriptTrait
+  Scenario: Steps after the failing one are not executed
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I visit "/sites/default/files/javascript_errors3.html"
+      When I press "Click to trigger errors"
+      And I visit "/sites/default/files/javascript_errors2.html"
+      And I press "Click to trigger error"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      JavaScript errors detected
+      """
+    And the output should contain:
+      """
+      Total errors: 3
+      """
+    And the output should not contain:
       """
       URL: http://nginx:8080/sites/default/files/javascript_errors2.html
-      """
-    And the output should contain:
-      """
-      - Error: Error page 2 - console.error triggered by button
-      """
-    And the output should contain:
-      """
-      - Error: Error page 2 - console.error triggered after 1000ms
-      """
-    And the output should contain:
-      """
-      - Error: Error page 2 - console.error triggered after 2000ms
-      """
-    And the output should contain:
-      """
-      Total errors: 8
       """
 
   # The assertions below record current behaviour, which is broken: the run
