@@ -100,21 +100,26 @@ trait DateTrait {
     $now = $now ?: strtotime(date('Y-m-d H:i:00', self::dateNow()));
     $now = $now ?: NULL;
 
-    return (string) preg_replace_callback('/\[([relative:]+):([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {
-      $timestamp = strtotime($matches[2], $now);
+    return (string) preg_replace_callback('/\[relative:([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {
+      $offset = $matches[1];
+
+      $timestamp = strtotime($offset, $now);
       if ($timestamp === FALSE) {
-        throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
+        throw new \RuntimeException(sprintf('The relative date offset cannot be evaluated: "%s".', $offset));
       }
 
-      if (isset($matches[3])) {
-        $timestamp = date($matches[3], $timestamp);
+      if (!isset($matches[2])) {
+        return (string) $timestamp;
       }
 
-      if (empty(trim((string) $timestamp))) {
-        throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
+      $format = $matches[2];
+      $formatted = date($format, $timestamp);
+
+      if (trim($formatted) === '') {
+        throw new \RuntimeException(sprintf('The relative date format produced an empty value: "%s".', $format));
       }
 
-      return (string) $timestamp;
+      return $formatted;
     }, $value);
   }
 

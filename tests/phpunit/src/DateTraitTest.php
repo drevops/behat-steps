@@ -74,16 +74,30 @@ class DateTraitTest extends UnitTestCase {
         (string) strtotime('+1 day', 1715011200),
         1715011200,
       ],
+      'lookalike token beside a real token is left alone' => [
+        '[relative:-1 day] and [tar:-1 day]',
+        strtotime('-1 day', $timestamp) . ' and [tar:-1 day]',
+      ],
+      'misspelled token is left alone' => [
+        '[relative:-1 day] and [realtive:-1 day]',
+        strtotime('-1 day', $timestamp) . ' and [realtive:-1 day]',
+      ],
+      'offset resolving to the epoch' => [
+        '[relative:@0]',
+        '0',
+      ],
     ];
   }
 
   public function testInvalidRelativeDateTypeThrowsException(): void {
     $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The relative date offset cannot be evaluated: "invalid date".');
     $this->testObject::dateRelativeProcessValue('[relative:invalid date]');
   }
 
   public function testInvalidRelativeDateFormatThrowsException(): void {
     $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The relative date format produced an empty value: " ".');
     $this->testObject::dateRelativeProcessValue('[relative:-1 day# ]');
   }
 
