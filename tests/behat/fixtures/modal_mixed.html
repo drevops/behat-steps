@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mixed Modal Implementations</title>
+</head>
+<body>
+<h1>Page with a leftover jQuery UI container and a native dialog</h1>
+<button id="open-native">Open Native</button>
+
+<!-- A closed jQuery UI dialog leaves its container in the DOM. It matches the
+     first configured modal selector but is not visible. -->
+<div class="ui-dialog" style="display: none;">
+  <div class="ui-dialog-content">
+    <p>Leftover jQuery UI modal content</p>
+  </div>
+</div>
+
+<dialog id="native-dialog">
+  <div class="modal-content">
+    <p>Native modal content</p>
+    <button data-dismiss="modal" class="close-native">Close</button>
+  </div>
+</dialog>
+
+<script>
+  document.getElementById('open-native').addEventListener('click', function() {
+    document.getElementById('native-dialog').showModal();
+  });
+  document.querySelectorAll('[data-dismiss="modal"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.closest('dialog').close();
+    });
+  });
+</script>
+</body>
+</html>

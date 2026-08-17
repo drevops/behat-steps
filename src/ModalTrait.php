@@ -235,21 +235,22 @@ trait ModalTrait {
    */
   protected function modalFind(): ?NodeElement {
     $page = $this->getSession()->getPage();
+    $first_match = NULL;
 
+    // A visible modal from any selector outranks a hidden one from an earlier
+    // selector, so every selector is examined before falling back. Libraries
+    // such as jQuery UI leave their container in the DOM after closing, which
+    // would otherwise mask a visible modal of a different kind.
     foreach ($this->modalGetSelectors() as $selector) {
-      $first_match = NULL;
       foreach ($page->findAll('css', $selector) as $candidate) {
         $first_match ??= $candidate;
         if ($candidate->isVisible()) {
           return $candidate;
         }
       }
-      if ($first_match !== NULL) {
-        return $first_match;
-      }
     }
 
-    return NULL;
+    return $first_match;
   }
 
   /**

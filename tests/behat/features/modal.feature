@@ -133,6 +133,17 @@ Feature: Check that ModalTrait works
     Then the modal should contain "Export modal content"
     And the modal should not contain "Profile modal content"
 
+  @javascript @phpserver
+  Scenario: Assert a visible modal is found when an earlier selector matches a hidden one
+    Given I am an anonymous user
+    When I visit "/sites/default/files/modal_mixed.html"
+    Then I should not see the modal
+    When I click on the element "#open-native"
+    And I wait for the modal to appear
+    Then I should see the modal
+    And the modal should contain "Native modal content"
+    And the modal should not contain "Leftover jQuery UI modal content"
+
   # Negative tests.
 
   @trait:ModalTrait
