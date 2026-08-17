@@ -28,8 +28,8 @@ trait ElementTrait {
    * interaction failures caused by sticky headers, admin toolbars, or fixed
    * navigation.
    *
-   * Returns FALSE to use the legacy scrollIntoView(true) behavior, which
-   * aligns the element to the top of the viewport.
+   * Returns FALSE to use the scrollIntoView(true) behavior, which aligns
+   * the element to the top of the viewport.
    *
    * Override this method in the context class to change the behavior:
    * @code
@@ -992,9 +992,9 @@ JS;
   /**
    * Assert visible focus indicator state for an element.
    *
-   * An element is considered to have a visible focus indicator when either
-   * its computed outline has a non-`none` style with a width greater than 0,
-   * or its computed box-shadow is not `none`.
+   * An element has a visible focus indicator when its computed outline has
+   * a non-`none` style with a width greater than 0. A computed box-shadow
+   * that is not `none` also counts as a visible indicator.
    *
    * @param string $selector
    *   The CSS selector.

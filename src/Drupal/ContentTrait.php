@@ -270,14 +270,14 @@ trait ContentTrait {
 
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
-    // The current value carries the 'pid' of the existing alias, which makes
-    // the save update that alias rather than add a second one.
+    // The current value carries the 'pid' of the existing alias, so the save
+    // updates that alias rather than adding a second one.
     $path_value = (array) ($node->get('path')->getValue()[0] ?? []);
     $path_value['alias'] = '/' . ltrim($alias, '/');
 
-    // 0 is 'PathautoState::SKIP', which stops pathauto from regenerating the
-    // alias on save. The property exists only on 'PathautoItem', so setting
-    // it without the module throws.
+    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
+    // on save. The property exists only on 'PathautoItem', so setting it
+    // without the module throws.
     if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
       $path_value['pathauto'] = 0;
     }
@@ -339,10 +339,12 @@ trait ContentTrait {
    * Expand fixture file paths for file/image fields on nodes.
    *
    * Rewrites bare fixture filenames (e.g. 'document.pdf') on 'file' and
-   * 'image' field types to absolute paths under the Mink 'files_path' so
-   * drupal-driver's FileHandler can read and upload them during node
-   * creation. Without this, scenarios with file fields on nodes have to
-   * pre-create managed files explicitly via FileTrait.
+   * 'image' field types to absolute paths under the Mink 'files_path'.
+   * drupal-driver's FileHandler can then read and upload them during node
+   * creation.
+   *
+   * Without this, scenarios with file fields on nodes have to pre-create
+   * managed files explicitly via FileTrait.
    *
    * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
    */

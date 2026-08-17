@@ -29,8 +29,8 @@ trait HelperTrait {
   /**
    * Record the line of the scenario's last step.
    *
-   * A hook that must run once per scenario, but must raise its verdict at step
-   * scope for Behat to record it, needs to recognise the last step. Step scopes
+   * A hook that runs once per scenario, yet raises its verdict at step
+   * scope for Behat to record it, must recognise the last step. Step scopes
    * expose no scenario, so the line is resolved here and compared later.
    */
   protected function helperSetLastStepLine(BeforeScenarioScope $scope): void {
@@ -79,13 +79,11 @@ trait HelperTrait {
   protected function helperTransposeVerticalTable(TableNode $table): array {
     $rows = $table->getRows();
 
-    // Validate table has at least 2 columns (field + at least one value column).
     $first_row = $rows[0];
     if (count($first_row) < 2) {
       throw new \RuntimeException('Vertical table must have at least 2 columns (field name and value).');
     }
 
-    // Validate no duplicate field names.
     $field_names = array_column($rows, 0);
     $duplicate_fields = array_filter(array_count_values($field_names), fn(int $count): bool => $count > 1);
 
@@ -93,24 +91,19 @@ trait HelperTrait {
       throw new \RuntimeException(sprintf('Duplicate field names found: %s', implode(', ', array_keys($duplicate_fields))));
     }
 
-    // Validate all field names are non-empty.
     foreach ($field_names as $field_name) {
       if (trim((string) $field_name) === '') {
         throw new \RuntimeException('Field names cannot be empty.');
       }
     }
 
-    // Determine number of entities based on number of columns.
     $num_entities = count($first_row) - 1;
 
-    // Initialize result array for each entity.
     $entities = array_fill(0, $num_entities, []);
 
-    // Transpose the data.
     foreach ($rows as $row) {
       $field_name = array_shift($row);
 
-      // Assign each value to corresponding entity.
       // Gherkin rejects a table whose rows have differing column counts, so
       // row length needs no validation here.
       foreach ($row as $index => $value) {
@@ -140,11 +133,9 @@ trait HelperTrait {
       return new TableNode([]);
     }
     // @codeCoverageIgnoreEnd
-    // Get field names from first entity.
     $field_names = array_keys($entities[0]);
     $rows = [$field_names];
 
-    // Add each entity as a row.
     foreach ($entities as $entity) {
       $rows[] = array_values($entity);
     }
@@ -202,9 +193,9 @@ trait HelperTrait {
   /**
    * Convert an arbitrary string into a filesystem-safe slug.
    *
-   * Lowercases the input, collapses any run of non-alphanumeric characters
-   * to a single hyphen, trims leading and trailing hyphens, and falls back
-   * to `untitled` when the result would otherwise be empty.
+   * Lowercases the input and collapses any run of non-alphanumeric
+   * characters to a single hyphen. Trims leading and trailing hyphens and
+   * falls back to `untitled` when the result would otherwise be empty.
    *
    * @param string $value
    *   The string to slugify.
@@ -230,7 +221,6 @@ trait HelperTrait {
   protected function helperIsJavascriptSupported(): bool {
     try {
       $driver = $this->getSession()->getDriver();
-      // Ensure driver is started before checking JS capability.
       if (!$driver->isStarted()) {
         $driver->start();
       }

@@ -77,9 +77,10 @@ trait ConfigOverrideTrait {
   /**
    * Collect `@disable-config-override:*` tags for the current scenario.
    *
-   * Always clears any propagated signal from a previous scenario first so
-   * state never bleeds between scenarios - even when this hook is bypassed
-   * via `@behat-steps-skip:configOverrideBeforeScenario`.
+   * The signal propagated by a previous scenario is cleared before the
+   * skip-tag check, so no signal persists across scenarios.
+   * `@behat-steps-skip:configOverrideBeforeScenario` bypasses tag collection,
+   * not the clearing.
    */
   #[BeforeScenario('@api')]
   public function configOverrideBeforeScenario(BeforeScenarioScope $scope): void {

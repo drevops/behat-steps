@@ -766,11 +766,12 @@ trait AccessibilityTrait {
    *
    * Default: strip the configured Mink `base_url` prefix so reports show the
    * page path (`/contact`) rather than the internal host and port
-   * (`http://nginx:8080/contact`), which is noise and makes reports
-   * non-portable. The base URL itself maps to `/` and the query string is
-   * kept. Only the known `base_url` is stripped: a genuinely cross-origin URL
-   * captured during assessment stays absolute, so it remains distinguishable.
-   * Override to keep the absolute URL or to format it differently.
+   * (`http://nginx:8080/contact`). The absolute form is noise and makes
+   * reports non-portable. The base URL itself maps to `/` and the query
+   * string is kept. Only the known `base_url` is stripped: a genuinely
+   * cross-origin URL captured during assessment stays absolute, so it
+   * remains distinguishable. Override to keep the absolute URL or to format
+   * it differently.
    */
   protected function accessibilityFormatUrl(string $url): string {
     $base = rtrim((string) $this->getMinkParameter('base_url'), '/');
