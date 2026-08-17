@@ -51,6 +51,17 @@ Run `ahoy lint-docs` to validate the format of the steps.
 - **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
 - Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
 
+## Unsettled style questions
+
+Four style questions have no dominant form in this codebase. Both sides of each are correct and behavior-identical where they appear, and converging any of them would churn 25 to 75 sites for no functional gain. Match the surrounding file and do not convert existing code from one form to the other as a drive-by change.
+
+- **Nullable-object absence**: `if (!$element)` (~40 sites) and `=== NULL` (~35 sites) are both accepted. `is_null()` is not - it has been converged away.
+- **Array emptiness**: `empty($array)` (~30 sites) and `$array === []` (~25 sites) are both accepted. Newer code leans strict, which is a weak preference rather than a rule.
+- **`self::` versus `static::`**: not purely cosmetic. `static::` makes a static member overridable by a composing class, so it widens the public contract. `AccessibilityTrait` uses `static::` deliberately for that reason. Choose based on whether the member is intended as an extension seam, not on local consistency.
+- **Docblock tag order and `@code` indentation**: `@param` before `@code` and the reverse both appear, as do flush and indented example bodies. `docs.php` renders `@code` bodies into [STEPS.md](STEPS.md), so changing indentation reflows the generated documentation.
+
+Calling an instance method through `self::` or `static::` is not in this list - that was unambiguous and has been converged to `$this->`.
+
 ## Dependency policy
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
