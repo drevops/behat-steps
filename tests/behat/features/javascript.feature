@@ -83,7 +83,7 @@ Feature: Check that JavascriptTrait works
       """
 
   @trait:JavascriptTrait
-  Scenario: Steps after the failing one are not executed
+  Scenario: Errors from different pages are tracked separately
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
@@ -99,11 +99,43 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      Total errors: 3
+      URL: http://nginx:8080/sites/default/files/javascript_errors3.html
       """
-    And the output should not contain:
+    And the output should contain:
+      """
+      - Error: Error page 3 - first console.error triggered by button
+      """
+    And the output should contain:
       """
       URL: http://nginx:8080/sites/default/files/javascript_errors2.html
+      """
+    And the output should contain:
+      """
+      - Error: Error page 2 - console.error triggered by button
+      """
+    And the output should contain:
+      """
+      Total errors: 4
+      """
+
+  @trait:JavascriptTrait
+  Scenario: Errors are reported when an earlier step failed
+    Given some behat configuration
+    And scenario steps tagged with "@javascript":
+      """
+      Given I visit "/sites/default/files/javascript_errors3.html"
+      When I press "Click to trigger errors"
+      Then I should see "text that is not on the page"
+      And I visit "/sites/default/files/javascript_clean1.html"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      JavaScript errors detected
+      """
+    And the output should contain:
+      """
+      Total errors: 3
       """
 
   @trait:JavascriptTrait

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
@@ -45,6 +46,8 @@ use Behat\Mink\Exception\ExpectationException;
  */
 trait JavascriptTrait {
 
+  use HelperTrait;
+
   /**
    * Registry of JavaScript errors collected during scenario execution.
    *
@@ -68,11 +71,17 @@ trait JavascriptTrait {
   protected bool $javascriptBypassErrors = FALSE;
 
   /**
+   * Whether the collected errors have already been asserted.
+   */
+  protected bool $javascriptAsserted = FALSE;
+
+  /**
    * Initialize JavaScript error collection for scenarios.
    */
   #[BeforeScenario('@javascript')]
   public function javascriptBeforeScenario(BeforeScenarioScope $scope): void {
     $this->javascriptClearRegistry();
+    $this->javascriptAsserted = FALSE;
 
     if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
       $this->javascriptEnabled = FALSE;
@@ -84,16 +93,43 @@ trait JavascriptTrait {
     // Step scopes carry no scenario tags, so the bypass is resolved here for
     // the step hook to read.
     $this->javascriptBypassErrors = $scope->getScenario()->hasTag('js-errors');
+
+    $this->helperSetLastStepLine($scope);
   }
 
   /**
-   * Reset JavaScript error state at end of scenario.
+   * Assert collected errors when the last step did not run, then reset state.
+   *
+   * A step that fails on its own skips every step after it, including the one
+   * that would have asserted, so the errors collected up to that point are
+   * reported here instead. The scenario has already failed by then, so the
+   * assertion cannot mask a passing scenario from the rerun cache.
+   *
+   * @throws \Exception
+   *   If JavaScript errors were detected.
    */
   #[AfterScenario('@javascript')]
-  public function javascriptAfterScenario(): void {
-    $this->javascriptClearRegistry();
+  public function javascriptAfterScenario(AfterScenarioScope $scope): void {
+    $assert = $this->javascriptEnabled
+      && !$this->javascriptBypassErrors
+      && !$this->javascriptAsserted
+      && !$scope->getTestResult()->isPassed();
+
     $this->javascriptEnabled = FALSE;
     $this->javascriptBypassErrors = FALSE;
+    $this->javascriptAsserted = FALSE;
+
+    if (!$assert) {
+      $this->javascriptClearRegistry();
+      return;
+    }
+
+    try {
+      $this->javascriptAssertNoErrors();
+    }
+    finally {
+      $this->javascriptClearRegistry();
+    }
   }
 
   /**
@@ -129,10 +165,12 @@ trait JavascriptTrait {
   }
 
   /**
-   * Collect JavaScript errors after each step and assert none were found.
+   * Collect JavaScript errors after each step, asserting on the last one.
    *
    * Behat composes a step teardown into that step's result, so a failure
-   * raised here marks the scenario as failed for the rerun cache.
+   * raised here marks the scenario as failed for the rerun cache. Asserting
+   * on the last step rather than on every step lets the registry accumulate
+   * errors from every page the scenario visited.
    *
    * @throws \Exception
    *   If JavaScript errors were detected.
@@ -172,12 +210,13 @@ trait JavascriptTrait {
       // Silently fail if there are issues.
     }
     // @codeCoverageIgnoreEnd
-    if ($this->javascriptBypassErrors) {
+    if ($this->javascriptBypassErrors || !$this->helperIsLastStep($scope)) {
       return;
     }
 
     // Asserted outside the collection block above so the blanket catch cannot
     // swallow the failure.
+    $this->javascriptAsserted = TRUE;
     $this->javascriptAssertNoErrors();
   }
 

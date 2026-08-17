@@ -6332,7 +6332,7 @@ Then the user "John" should not be blocked
 >  - Optionally skip error checking for specific scenarios.
 >  
 >  Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
->  `@behat-steps-skip:watchdogAfterScenario`
+>  `@behat-steps-skip:watchdogAfterStep`
 >  <br/><br/>
 >  Special tags:
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.

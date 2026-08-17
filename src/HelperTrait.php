@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterStepScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Gherkin\Node\TableNode;
 
@@ -18,6 +20,35 @@ use Behat\Gherkin\Node\TableNode;
  * This is an internal trait and should not be used directly in step definitions.
  */
 trait HelperTrait {
+
+  /**
+   * Line of the last step of the current scenario.
+   */
+  protected int $helperLastStepLine = 0;
+
+  /**
+   * Record the line of the scenario's last step.
+   *
+   * A hook that must run once per scenario, but must raise its verdict at step
+   * scope for Behat to record it, needs to recognise the last step. Step scopes
+   * expose no scenario, so the line is resolved here and compared later.
+   */
+  protected function helperSetLastStepLine(BeforeScenarioScope $scope): void {
+    $steps = $scope->getScenario()->getSteps();
+    $last = end($steps);
+
+    $this->helperLastStepLine = $last === FALSE ? 0 : $last->getLine();
+  }
+
+  /**
+   * Whether the given step is the last step of the current scenario.
+   *
+   * Outline examples reuse the outline's step lines and a background runs as a
+   * separate step container, so the line identifies the step in both.
+   */
+  protected function helperIsLastStep(AfterStepScope $scope): bool {
+    return $this->helperLastStepLine !== 0 && $scope->getStep()->getLine() === $this->helperLastStepLine;
+  }
 
   /**
    * Transpose a vertical table format (field/value columns) to entity arrays.
