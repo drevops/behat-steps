@@ -132,7 +132,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test message collector.', $address), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
   }
 
   /**
@@ -352,7 +352,7 @@ trait EmailTrait {
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
     // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
-      throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
+      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     // @codeCoverageIgnoreEnd
     $string = (string) $string;
@@ -408,17 +408,17 @@ trait EmailTrait {
       $body = $message['body'];
     }
     else {
-      throw new \RuntimeException('No body found in email');
+      throw new \RuntimeException('No body found in email.');
     }
     // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject "%s"', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
     }
 
     if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links', $link_number, count($links)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$link_number - 1];
@@ -456,17 +456,17 @@ trait EmailTrait {
       $body = $message['body'];
     }
     else {
-      throw new \RuntimeException('No body found in email');
+      throw new \RuntimeException('No body found in email.');
     }
     // @codeCoverageIgnoreEnd
     $links = self::emailExtractLinks($body);
 
     if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s"', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
     }
 
     if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links', $link_number, count($links)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$link_number - 1];
@@ -497,7 +497,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No attachments were found in the email with subject %s', $subject), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('No attachments were found in the email with subject %s.', $subject), $this->getSession()->getDriver());
   }
 
   /**
@@ -529,7 +529,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s"', $subject), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
   }
 
   /**
@@ -673,7 +673,7 @@ trait EmailTrait {
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
     // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
-      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion', $field));
+      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     // @codeCoverageIgnoreEnd
     $string = (string) $string;

@@ -537,7 +537,7 @@ trait UserTrait {
   public function userCreateRoles(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (!isset($hash['name'])) {
-        throw new \RuntimeException('Missing required column "name"');
+        throw new \RuntimeException('Missing required column "name".');
       }
 
       $permissions = $hash['permissions'] ?: '';

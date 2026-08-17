@@ -88,7 +88,7 @@ trait HelperTrait {
     $duplicate_fields = array_filter(array_count_values($field_names), fn(int $count): bool => $count > 1);
 
     if (!empty($duplicate_fields)) {
-      throw new \RuntimeException(sprintf('Duplicate field names found: %s', implode(', ', array_keys($duplicate_fields))));
+      throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));
     }
 
     foreach ($field_names as $field_name) {

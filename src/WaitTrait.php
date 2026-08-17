@@ -42,7 +42,7 @@ trait WaitTrait {
 
     if (!$this->helperIsJavascriptSupported()) {
       $driver = $this->getSession()->getDriver();
-      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver', $driver::class));
+      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $driver::class));
     }
 
     $script = <<<JS

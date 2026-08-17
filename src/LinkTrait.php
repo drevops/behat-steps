@@ -68,7 +68,7 @@ trait LinkTrait {
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (!preg_match($pattern, (string) $link_element->getAttribute('href'))) {
-      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s"', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s".', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -120,7 +120,7 @@ trait LinkTrait {
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (preg_match($pattern, (string) $link_element->getAttribute('href'))) {
-      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 

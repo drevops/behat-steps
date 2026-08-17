@@ -360,7 +360,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email that should be sent to "test@example.com" retrieved from test message collector.
+      Unable to find email that should be sent to "test@example.com" retrieved from test email collector.
       """
 
   @trait:Drupal\EmailTrait

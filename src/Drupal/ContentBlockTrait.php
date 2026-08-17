@@ -88,7 +88,7 @@ trait ContentBlockTrait {
     ]);
 
     if (empty($block_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s"', $type, $description));
+      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $type, $description));
     }
 
     ksort($block_ids);

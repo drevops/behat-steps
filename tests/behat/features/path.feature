@@ -150,7 +150,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The param "filter" is not in the URL
+      The parameter "filter" is not in the URL
       """
 
   @trait:PathTrait
@@ -165,7 +165,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The param "status" is in the URL but with the wrong value "1"
+      The parameter "status" is in the URL but with the wrong value "1"
       """
 
   @trait:PathTrait
@@ -180,7 +180,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The param "status" with value "1" is in the URL but should not be
+      The parameter "status" with value "1" is in the URL but should not be
       """
 
   @trait:PathTrait
@@ -195,7 +195,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The param "status" is in the URL but should not be
+      The parameter "status" is in the URL but should not be
       """
 
   @api

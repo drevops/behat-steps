@@ -256,7 +256,7 @@ trait ModuleTrait {
       drupal_flush_all_caches();
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to enable module "%s": %s', $module, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
     }
     // @codeCoverageIgnoreEnd
   }
@@ -279,7 +279,7 @@ trait ModuleTrait {
       drupal_flush_all_caches();
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to disable module "%s": %s', $module, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
     }
     // @codeCoverageIgnoreEnd
   }

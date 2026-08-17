@@ -513,7 +513,7 @@ trait XmlTrait {
     $namespaces = $this->xmlExtractNamespaces();
 
     if (!in_array($namespace, $namespaces, TRUE)) {
-      throw new ExpectationException(sprintf('The XML does not use the namespace "%s". Available namespaces: %s', $namespace, implode(', ', $namespaces)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The XML does not use the namespace "%s". Available namespaces: %s.', $namespace, implode(', ', $namespaces)), $this->getSession()->getDriver());
     }
   }
 
@@ -697,7 +697,7 @@ trait XmlTrait {
 
     if (!$loaded) {
       $errors = libxml_get_errors();
-      throw new \RuntimeException(sprintf('Failed to load XML. Errors: %s', $this->xmlFormatErrors($errors)));
+      throw new \RuntimeException(sprintf('Failed to load XML. Errors: %s.', $this->xmlFormatErrors($errors)));
     }
 
     $this->xmlXpath = new \DOMXPath($this->xmlDocument);
@@ -830,7 +830,7 @@ trait XmlTrait {
     libxml_clear_errors();
 
     if (!$valid) {
-      throw new ExpectationException(sprintf('The response does not match the XSD schema: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response does not match the XSD schema: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }
 
@@ -849,7 +849,7 @@ trait XmlTrait {
     libxml_clear_errors();
 
     if (!$valid) {
-      throw new ExpectationException(sprintf('The response does not match the RelaxNG schema: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response does not match the RelaxNG schema: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }
 
@@ -897,7 +897,7 @@ trait XmlTrait {
     libxml_clear_errors();
 
     if (!$loaded || $errors !== []) {
-      throw new ExpectationException(sprintf('The response does not match the DTD: %s', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response does not match the DTD: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }
 

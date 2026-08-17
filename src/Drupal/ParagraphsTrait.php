@@ -42,7 +42,7 @@ trait ParagraphsTrait {
     $parent_entity = $this->paragraphsFindEntity($parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value);
 
     if (!$parent_entity) {
-      throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found', $parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value));
+      throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found.', $parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value));
     }
 
     $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
