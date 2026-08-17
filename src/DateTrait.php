@@ -95,8 +95,8 @@ trait DateTrait {
       return $value;
     }
 
-    // If `now` is not provided, round to the current hour to make sure that
-    // assertions are running within the same timeframe (for long tests).
+    // An absent `now` truncates to the current minute, so every assertion in
+    // a long-running scenario resolves against the same base timestamp.
     $now = $now ?: strtotime(date('Y-m-d H:i:00', self::dateNow()));
     $now = $now ?: NULL;
 
