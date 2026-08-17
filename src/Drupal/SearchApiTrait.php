@@ -26,6 +26,8 @@ trait SearchApiTrait {
    */
   #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $type, string $title): void {
+    $this->searchApiAssertModuleEnabled();
+
     $nids = $this->contentLoadMultiple($type, [
       'title' => $title,
     ]);
@@ -82,9 +84,7 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API cron')]
   public function searchApiRunCron(): void {
-    if (!\Drupal::moduleHandler()->moduleExists('search_api')) {
-      throw new \RuntimeException('The "search_api" module is not enabled.');
-    }
+    $this->searchApiAssertModuleEnabled();
 
     \Drupal::moduleHandler()->invoke('search_api', 'cron');
   }
@@ -102,11 +102,9 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API Solr cron')]
   public function searchApiRunSolrCron(): void {
-    $module_handler = \Drupal::moduleHandler();
+    $this->searchApiAssertModuleEnabled();
 
-    if (!$module_handler->moduleExists('search_api')) {
-      throw new \RuntimeException('The "search_api" module is not enabled.');
-    }
+    $module_handler = \Drupal::moduleHandler();
 
     // @codeCoverageIgnoreStart
     if (!$module_handler->moduleExists('search_api_solr')) {
@@ -114,6 +112,17 @@ trait SearchApiTrait {
     }
 
     $module_handler->invoke('search_api_solr', 'cron');
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Assert that the module backing these steps is enabled.
+   */
+  protected function searchApiAssertModuleEnabled(): void {
+    // @codeCoverageIgnoreStart
+    if (!\Drupal::moduleHandler()->moduleExists('search_api')) {
+      throw new \RuntimeException('The "search_api" module is not enabled. Add "drupal/search_api" to the consumer project\'s composer.json and enable the module as part of the site setup.');
+    }
     // @codeCoverageIgnoreEnd
   }
 

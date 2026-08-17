@@ -153,6 +153,9 @@ trait WatchdogTrait {
       return;
     }
 
+    // The step hook throws for a missing table because it runs while the
+    // verdict is still open. This hook runs after it, where throwing would
+    // replace a real scenario failure with a configuration error.
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
       return;
     }

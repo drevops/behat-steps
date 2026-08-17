@@ -87,6 +87,8 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
+    $this->menuAssertLinkModuleEnabled();
+
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
       if ($menu_link instanceof MenuLinkContent) {
@@ -107,6 +109,8 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
+    $this->menuAssertLinkModuleEnabled();
+
     $menu = $this->loadMenuByLabel($menu_name);
 
     // @codeCoverageIgnoreStart
@@ -142,7 +146,18 @@ trait MenuTrait {
   }
 
   /**
-   * Get a menu by label.
+   * Assert that the module backing the menu link steps is enabled.
+   */
+  protected function menuAssertLinkModuleEnabled(): void {
+    // @codeCoverageIgnoreStart
+    if (!\Drupal::moduleHandler()->moduleExists('menu_link_content')) {
+      throw new \RuntimeException('The "menu_link_content" module is not enabled. Enable it as part of the site setup; it ships with Drupal core.');
+    }
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Load a menu by its label.
    *
    * @param string $label
    *   The label of the menu.
