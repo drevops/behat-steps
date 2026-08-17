@@ -23,7 +23,7 @@ Feature: Check that LinkTrait works
   Scenario: Assert link with href with selector does not exist
     When I visit "/sites/default/files/links.html"
     Then the link "RandomLinkText" with the href "https://www.randomhref.org" within the element "#navigation" should not exist
-    And the link "Absolute Link One" with the href "https://www.example.com" within the element "#random-selector" should not exist
+    And the link "Absolute Link One" with the href "https://www.randomhref.org" within the element "#navigation" should not exist
 
   Scenario: Assert link with wildcard in href without selector does not exist
     When I visit "/sites/default/files/links.html"
@@ -108,6 +108,20 @@ Feature: Check that LinkTrait works
     Then it should fail with an error:
       """
       Link with text "NonexistentLinkText" not found.
+      """
+
+  @trait:LinkTrait
+  Scenario: Assert that negative link assertion fails when selector does not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/sites/default/files/links.html"
+      Then the link "Absolute Link One" with the href "https://www.example.com" within the element "#nonexistent-selector" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent-selector" not found.
       """
 
   @trait:LinkTrait
