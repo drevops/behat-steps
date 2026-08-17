@@ -52,7 +52,7 @@ trait BlockTrait {
 
         $block->set('id', $block_id);
 
-        // Set temporary label to pass to the block configuration step.
+        // Set a temporary label for the 'blockConfigure()' call.
         $settings = $block->get('settings');
         $settings['label'] = $admin_label;
         $block->set('settings', $settings);

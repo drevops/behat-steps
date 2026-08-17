@@ -28,7 +28,6 @@ trait TaxonomyTrait {
    */
   public function createTerms(mixed $vocabulary, TableNode $table): void {
     $vocabulary = (string) $vocabulary;
-    // Delete entities before creating them.
     $this->taxonomyDeleteTerms($vocabulary, $table);
     parent::createTerms($vocabulary, $table);
   }

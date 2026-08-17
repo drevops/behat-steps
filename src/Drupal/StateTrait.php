@@ -29,8 +29,8 @@ trait StateTrait {
   /**
    * Original state values captured before the scenario touched them.
    *
-   * Keys absent from Drupal state are stored with a sentinel marker so they
-   * can be deleted on revert rather than reset to NULL.
+   * Keys absent from Drupal state are stored with `exists` set to FALSE so
+   * they can be deleted on revert rather than reset to NULL.
    *
    * @var array<string, array{exists: bool, value: mixed}>
    */

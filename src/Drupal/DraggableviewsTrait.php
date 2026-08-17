@@ -40,14 +40,12 @@ trait DraggableviewsTrait {
       $entity_id = $node->id();
 
       // Here and below: copied from draggableviews_views_submit().
-      // Remove old data.
       $database->delete('draggableviews_structure')
         ->condition('view_name', $view_id)
         ->condition('view_display', $view_display_id)
         ->condition('entity_id', $entity_id)
         ->execute();
 
-      // Add new data.
       $record = [
         'view_name' => $view_id,
         'view_display' => $view_display_id,
@@ -59,8 +57,8 @@ trait DraggableviewsTrait {
       $database->insert('draggableviews_structure')->fields($record)->execute();
     }
 
-    // We invalidate the entity list cache, so other views are also aware of the
-    // cache.
+    // Invalidate the entity list cache so other views also reflect the
+    // change.
     $list_cache_tags = \Drupal::entityTypeManager()->getDefinition('node')->getListCacheTags();
     Cache::invalidateTags($list_cache_tags);
   }

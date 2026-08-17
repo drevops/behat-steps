@@ -50,9 +50,8 @@ trait OverrideTrait {
     $type = (string) $type;
     $filtered_table = TableNode::fromList($table->getColumn(0));
     // 6.x driver bootstraps Drupal lazily inside getDriver(); call it
-    // before our pre-delete touches \Drupal::.
+    // before the pre-delete touches \Drupal::.
     $this->getDriver();
-    // Delete entities before creating them.
     $this->contentDelete($type, $filtered_table);
     parent::createNodes($type, $table);
   }
@@ -62,9 +61,8 @@ trait OverrideTrait {
    */
   public function createUsers(TableNode $table): void {
     // 6.x driver bootstraps Drupal lazily inside getDriver(); call it
-    // before our pre-delete touches \Drupal::.
+    // before the pre-delete touches \Drupal::.
     $this->getDriver();
-    // Delete entities before creating them.
     $this->userDelete($table);
     parent::createUsers($table);
   }
@@ -73,10 +71,9 @@ trait OverrideTrait {
    * {@inheritdoc}
    */
   public function iAmLoggedInAsUserWithRole(string $role): void {
-    // Override parent step to allow using 'anonymous user' role without
-    // actually creating a user with role. By default,
-    // iAmLoggedInAsUserWithRole() creates a user with 'authenticated role'
-    // even if 'anonymous user' role is provided.
+    // The parent iAmLoggedInAsUserWithRole() creates a user with the
+    // 'authenticated' role even when the 'anonymous user' role is provided.
+    // The anonymous case is handled here without creating a user.
     if ($role === 'anonymous user' || $role === 'anonymous') {
       // @codeCoverageIgnoreStart
       if (!empty($this->userManager->getCurrentUser())) {

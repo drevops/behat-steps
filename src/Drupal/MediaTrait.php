@@ -53,7 +53,6 @@ trait MediaTrait {
    */
   #[Given('the following media :media_type exist:')]
   public function mediaCreate(string $media_type, TableNode $table): void {
-    // Delete entities before creating them.
     $this->mediaDelete($media_type, $table);
 
     foreach ($table->getHash() as $media_hash) {
@@ -84,7 +83,6 @@ trait MediaTrait {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
 
-    // Delete entities before creating them.
     $this->mediaDelete($bundle, $horizontal_table);
 
     foreach ($entities as $entity_data) {
@@ -284,7 +282,6 @@ trait MediaTrait {
   protected function mediaCreateEntity(EntityStub $stub): MediaInterface {
     $bundle = $stub->getBundle();
 
-    // Throw an exception if the media type is missing or does not exist.
     // @codeCoverageIgnoreStart
     if (empty($bundle)) {
       throw new \Exception('Cannot create media because it is missing the required bundle.');

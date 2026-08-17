@@ -35,7 +35,6 @@ trait EckTrait {
   #[Given('the following eck :bundle :entity_type entities exist:')]
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $filtered_table = TableNode::fromList($table->getColumn(0));
-    // Delete entities before creating them.
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
     $this->eckCreateEntities($entity_type, $bundle, $table);
   }

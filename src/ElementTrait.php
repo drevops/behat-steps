@@ -31,7 +31,7 @@ trait ElementTrait {
    * Returns FALSE to use the legacy scrollIntoView(true) behavior, which
    * aligns the element to the top of the viewport.
    *
-   * Override this method in your context class to change the behavior:
+   * Override this method in the context class to change the behavior:
    * @code
    * class FeatureContext extends DrupalContext {
    *   use ElementTrait;
@@ -296,7 +296,7 @@ trait ElementTrait {
    * Assert the computed value of a CSS property on an element.
    *
    * A property with an empty computed value is reported as an error in both
-   * the positive and the inverted form: the realistic cause is a misspelled
+   * the positive and the inverted form. The realistic cause is a misspelled
    * property name, which must not silently satisfy a negative assertion.
    *
    * @param string $selector
@@ -1049,7 +1049,6 @@ JS;
 
     foreach ($elements as $element) {
       if ($element->isVisible()) {
-        // Success – at least one match is visible.
         return;
       }
     }
@@ -1215,7 +1214,6 @@ JS;
         return failures.length === 0;
       }
     JS;
-    // Include and call visibility assertion function.
     $script = <<<JS
       (function() {
         {$script_function}

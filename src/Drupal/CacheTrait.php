@@ -68,8 +68,8 @@ trait CacheTrait {
       throw new \RuntimeException(sprintf('The page cache table "%s" does not exist. Ensure the "%s" cache bin is configured.', $table, $bin));
     }
 
-    // Escape SQL LIKE metacharacters that we do not want to treat as
-    // wildcards, then convert the glob `*` to the SQL `%` wildcard.
+    // Escape SQL LIKE metacharacters so they match literally, then convert
+    // the glob `*` to the SQL `%` wildcard.
     $like = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $path_pattern);
     $like = str_replace('*', '%', $like);
 
@@ -93,8 +93,8 @@ trait CacheTrait {
   /**
    * Get the cache bin used for the page cache.
    *
-   * Override in your `FeatureContext` if the site uses a custom internal page
-   * cache bin name.
+   * Override in the consuming `FeatureContext` if the site uses a custom
+   * internal page cache bin name.
    */
   protected function cacheGetPageCacheBin(): string {
     return 'page';

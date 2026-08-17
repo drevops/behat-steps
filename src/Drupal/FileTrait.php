@@ -138,7 +138,6 @@ trait FileTrait {
   protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $path = ltrim($path, '/');
 
-    // Get fixture file path.
     if (!empty($this->getMinkParameter('files_path'))) {
       $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
       if (is_file($full_path)) {
@@ -223,7 +222,6 @@ trait FileTrait {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
     $field_values = $table->getColumn(0);
-    // Get field name of the column header.
     $field_name = array_shift($field_values);
 
     // @codeCoverageIgnoreStart

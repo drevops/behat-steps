@@ -407,13 +407,10 @@ trait FileDownloadTrait {
       // @codeCoverageIgnoreEnd
     }
 
-    // Extract meta information from headers.
     $headers = $this->fileDownloadParseHeaders($response_headers);
 
-    // Resolve file path and name.
     $dir = $this->fileDownloadGetTempDir();
 
-    // Try to extract name from the download string.
     $url_file_name = parse_url($url, PHP_URL_PATH);
     $url_file_name = $url_file_name ? basename($url_file_name) : $url_file_name;
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
@@ -427,7 +424,6 @@ trait FileDownloadTrait {
 
     $file_name = basename($file_path);
 
-    // Write file contents.
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
       // @codeCoverageIgnoreStart

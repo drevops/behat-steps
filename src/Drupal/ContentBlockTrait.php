@@ -162,8 +162,6 @@ trait ContentBlockTrait {
   /**
    * Create a block content entity with the specified type and field values.
    *
-   * This internal helper method creates and saves a single content block
-   * entity.
    * Created entities are stored in the static $blockContentEntities array for
    * automatic cleanup after the scenario.
    *

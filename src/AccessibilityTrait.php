@@ -71,10 +71,11 @@ trait AccessibilityTrait {
    * Working directory captured before any test bootstrap can chdir().
    *
    * The default report directory anchors to this rather than a live
-   * `getcwd()` call, which an `@api` bootstrap mutates by chdir()-ing to the
-   * docroot - moving reports out of the path-anchored location used by the
-   * rest of the run. Captured once at `@BeforeSuite`, before the first
-   * scenario, so it records the directory the run was launched from.
+   * `getcwd()` call. An `@api` bootstrap chdir()s to the docroot, so a
+   * live `getcwd()` would move reports out of the path-anchored location
+   * used by the rest of the run. Captured once at `@BeforeSuite`, before
+   * the first scenario, so it records the directory the run was launched
+   * from.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 
@@ -93,7 +94,7 @@ trait AccessibilityTrait {
    *
    * The `@AfterSuite` hook is static and cannot call
    * `accessibilityGetReportDir()` (an instance method, overridable per
-   * consumer), so the resolved directory is captured while a scenario
+   * consumer). The resolved directory is captured while a scenario
    * finalizes and reused when the aggregate is written.
    */
   protected static ?string $accessibilityAggregateReportDir = NULL;
@@ -152,8 +153,9 @@ trait AccessibilityTrait {
   public static function accessibilityCaptureBaseDir(): void {
     if (self::$accessibilityBaseDir === NULL) {
       $cwd = getcwd();
-      // Leave the base unset when getcwd() fails so the report directory
-      // retries it later rather than locking in an empty, root-relative base.
+      // Leave the base unset when getcwd() fails so
+      // accessibilityGetReportDir() retries it later rather than locking in
+      // an empty, root-relative base.
       if ($cwd !== FALSE) {
         self::$accessibilityBaseDir = $cwd;
       }
@@ -404,11 +406,11 @@ trait AccessibilityTrait {
   /**
    * Return the absolute directory used to write per-scenario reports.
    *
-   * Default: `.logs/test_results/accessibility/` under the directory the run
-   * was launched from (captured at `@BeforeSuite`, so it is stable even after
-   * an `@api` bootstrap chdir()s to the docroot), falling back to the live
-   * working directory when the suite hook has not run. Override to return an
-   * already-absolute path.
+   * Default: `.logs/test_results/accessibility/` under the directory the
+   * run was launched from. That base is captured at `@BeforeSuite`, so it
+   * is stable even after an `@api` bootstrap chdir()s to the docroot. When
+   * the suite hook has not run, the live working directory is used.
+   * Override to return an already-absolute path.
    */
   protected function accessibilityGetReportDir(): string {
     $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
@@ -432,7 +434,7 @@ trait AccessibilityTrait {
    * Return the default rule identifier passed to the engine.
    *
    * Default: WCAG 2.0/2.1 A and AA tag set. Override to use a different
-   * rule identifier expected by your engine.
+   * rule identifier expected by the engine in use.
    */
   protected function accessibilityGetDefaultRules(): string {
     return 'wcag2a,wcag2aa';
@@ -477,7 +479,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Execute the engine against the current page and return RAW results.
+   * Execute the engine against the current page and return raw results.
    *
    * Default: injects `accessibilityGetJs()`, runs the engine with the
    * given rule identifier, returns the engine's native output. Override
@@ -527,8 +529,8 @@ trait AccessibilityTrait {
    *
    * Default: maps each finding into the canonical fields explicitly. The
    * default engine's native shape happens to share field names with the
-   * canonical shape, so this default mostly copies values straight across
-   * - but each field is named at the call site so the method also serves
+   * canonical shape, so this default mostly copies values straight across.
+   * Each field is still named at the call site, so the method also serves
    * as a template for overrides. Override when wiring a different engine
    * to map its native output (e.g. pa11y's `issues[]`, Lighthouse's
    * `audits`) into the canonical structure.
@@ -937,14 +939,15 @@ HTML;
   /**
    * Render the scenario-level JUnit XML report from collected results.
    *
-   * Violations are gated by the scenario's effective threshold, exactly as the
-   * pass/fail gate is: only violations meeting the threshold are serialised as
-   * `<failure>` cases, so an advisory run (threshold `never`) writes a report
-   * with zero failures instead of one that reddens a JUnit-consuming CI check.
-   * Violations below the threshold are recorded as passing cases carrying the
-   * finding in `<system-out>`, so they stay visible without failing the report.
-   * The `tests` and `failures` counts reflect the actual emitted `<testcase>`
-   * elements, one per affected node.
+   * Violations are gated by the scenario's effective threshold, exactly as
+   * the pass/fail gate is: only violations meeting the threshold are
+   * serialised as `<failure>` cases. An advisory run (threshold `never`)
+   * therefore writes a report with zero failures instead of one that fails
+   * a JUnit-consuming CI check. Violations below the threshold are recorded
+   * as passing cases carrying the finding in `<system-out>`, so they stay
+   * visible without failing the report. The `tests` and `failures` counts
+   * reflect the actual emitted `<testcase>` elements, one per affected
+   * node.
    */
   protected function accessibilityRenderJunit(): string {
     $threshold = $this->accessibilityEffectiveThreshold();

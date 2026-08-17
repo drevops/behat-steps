@@ -50,9 +50,9 @@ trait ConfigTrait {
   /**
    * Original raw data of configuration objects touched during the scenario.
    *
-   * Keyed by configuration name. Each entry records whether the object existed
-   * before the first write so that revert can delete objects created by the
-   * scenario rather than leaving empty shells behind.
+   * Keyed by configuration name. Each entry records whether the object
+   * existed before the first write so revert deletes objects the scenario
+   * created instead of leaving empty objects behind.
    *
    * @var array<string, array{existed: bool, data: array<int|string, mixed>}>
    */

@@ -251,7 +251,8 @@ trait UserTrait {
   public function userVisitOwnPasswordResetLink(): void {
     $current_user = $this->getUserManager()->getCurrentUser();
 
-    // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->name.
+    // 6.x stores EntityStubInterface stubs; legacy versions store \stdClass
+    // with ->name.
     if ($current_user instanceof EntityStubInterface) {
       $name = (string) $current_user->getValue('name');
     }
@@ -461,7 +462,8 @@ trait UserTrait {
     if ($name === 'current') {
       $user = $this->getUserManager()->getCurrentUser();
 
-      // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->uid.
+      // 6.x stores EntityStubInterface stubs; legacy versions store
+      // \stdClass with ->uid.
       if ($user instanceof EntityStubInterface) {
         $uid = $user->getId();
       }

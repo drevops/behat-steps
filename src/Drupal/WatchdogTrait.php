@@ -68,7 +68,7 @@ trait WatchdogTrait {
     $scenario = $scope->getScenario();
 
     // Step scopes carry neither scenario tags nor scenario identity, so both
-    // are resolved here for the step hook to read. An unset start time is what
+    // are resolved here for the step hook to read. An unset start time
     // disables the check.
     if ($scenario->hasTag('behat-steps-skip:watchdogAfterStep') || $scenario->hasTag('error')) {
       return;

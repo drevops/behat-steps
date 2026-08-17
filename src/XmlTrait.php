@@ -52,7 +52,6 @@ trait XmlTrait {
     libxml_use_internal_errors(TRUE);
     libxml_clear_errors();
 
-    // Clear cached document state to ensure fresh start.
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
@@ -134,8 +133,7 @@ trait XmlTrait {
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
-    // Resolve content the same way as xmlEnsureDocument(): prefer content set
-    // by the fixture steps, falling back to the live page content.
+    // Resolve content the same way as xmlEnsureDocument().
     $content = $this->xmlTestContent ?? $this->getSession()->getPage()->getContent();
 
     $document = new \DOMDocument();
@@ -704,7 +702,6 @@ trait XmlTrait {
 
     $this->xmlXpath = new \DOMXPath($this->xmlDocument);
 
-    // Register namespaces for XPath queries.
     $namespaces = $this->xmlExtractNamespaces();
     foreach ($namespaces as $prefix => $uri) {
       if (is_string($prefix) && !empty($prefix)) {
@@ -722,7 +719,6 @@ trait XmlTrait {
    *   If no document is loaded.
    */
   protected function xmlEnsureDocument(): void {
-    // Use directly set test content if available.
     if ($this->xmlTestContent !== NULL) {
       if ($this->xmlDocument === NULL) {
         $this->xmlLoadDocument($this->xmlTestContent);
@@ -733,7 +729,6 @@ trait XmlTrait {
     $content = $this->getSession()->getPage()->getContent();
     $content_hash = md5((string) $content);
 
-    // Reload document if it's not loaded or content has changed.
     if ($this->xmlDocument === NULL || $this->xmlContentHash !== $content_hash) {
       $this->xmlLoadDocument($content);
       $this->xmlContentHash = $content_hash;
@@ -756,7 +751,6 @@ trait XmlTrait {
     $namespaces = [];
     $xpath = new \DOMXPath($this->xmlDocument);
 
-    // Query for all namespace declarations.
     $query = '//namespace::*';
     $nodes = $xpath->query($query);
 
@@ -861,13 +855,13 @@ trait XmlTrait {
   /**
    * Validate the response against a DTD.
    *
-   * The DTD is embedded as an internal subset and the response reloaded with
-   * validation enabled, so a DTD from a file and an inline DTD share one code
-   * path without exposing external-entity loading.
+   * The DTD is embedded as an internal subset and the response is reloaded
+   * with validation enabled. A DTD from a file and an inline DTD share this
+   * code path without exposing external-entity loading.
    *
    * DTDs are namespace-unaware, so a namespaced response is validated verbatim
-   * and its `xmlns` attributes must be declared in the DTD, matching native DTD
-   * validation semantics.
+   * and its `xmlns` attributes must be declared in the DTD. This matches
+   * native DTD validation semantics.
    *
    * @param string $dtd
    *   The DTD source (element, attribute and entity declarations).

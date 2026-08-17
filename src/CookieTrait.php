@@ -288,7 +288,8 @@ trait CookieTrait {
       /** @var \Symfony\Component\BrowserKit\CookieJar $cookie_jar */
       $cookie_jar = $driver->getClient()->getCookieJar();
 
-      // Use filtered cookies from the Driver's cookie jar and also add more
+      // The allValues() list is filtered for the current URL but holds only
+      // name/value pairs; the full cookie objects supply the remaining
       // properties.
       /** @var \Symfony\Component\BrowserKit\Cookie[] $cookie_objects */
       $cookie_objects = $cookie_jar->all();
