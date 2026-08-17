@@ -156,7 +156,7 @@ trait MenuTrait {
    */
   protected function loadMenuByLabel(string $label): ?MenuInterface {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
     $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
       ->accessCheck(FALSE)
       ->condition('label', $label)
@@ -192,7 +192,7 @@ trait MenuTrait {
     // @codeCoverageIgnoreEnd
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
 
     $menu_link_ids = $entity_type_manager->getStorage('menu_link_content')->getQuery()
       ->accessCheck(FALSE)

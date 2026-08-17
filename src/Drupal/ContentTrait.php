@@ -220,7 +220,13 @@ trait ContentTrait {
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
-    assert($handler instanceof NodeAccessControlHandlerInterface);
+
+    // @codeCoverageIgnoreStart
+    if (!$handler instanceof NodeAccessControlHandlerInterface) {
+      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
+    }
+
+    // @codeCoverageIgnoreEnd
     $grants = $handler->acquireGrants($node);
     \Drupal::service('node.grant_storage')->write($node, $grants);
   }

@@ -147,7 +147,7 @@ trait KeyboardTrait {
       // supposed to get the very first focus from tab index actually gets it.
       // Note that injecting element and triggering key press on it does not
       // make it focused itself.
-      if (is_null($selector) && $char === 'tab') {
+      if ($selector === NULL && $char === 'tab') {
         $selector = '#injected-focusable';
 
         $script = <<<JS

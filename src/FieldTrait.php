@@ -601,12 +601,12 @@ JS;
   #[Then('the option :option should exist within the select element :selector')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
-    if (is_null($select_element)) {
+    if ($select_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
-    if (is_null($option_element)) {
+    if ($option_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $selector));
     }
   }
@@ -621,12 +621,12 @@ JS;
   #[Then('the option :option should not exist within the select element :selector')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
-    if (is_null($select_element)) {
+    if ($select_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
-    if (!is_null($option_element)) {
+    if ($option_element !== NULL) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $selector));
     }
   }

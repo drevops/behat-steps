@@ -582,7 +582,7 @@ trait JsonTrait {
       return $value ? 'true' : 'false';
     }
 
-    if (is_null($value)) {
+    if ($value === NULL) {
       return 'null';
     }
 

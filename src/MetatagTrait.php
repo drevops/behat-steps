@@ -59,7 +59,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new \Exception('Meta tag with specified attributes was not found: ' . json_encode($attributes) . '.');
+      throw new \Exception(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)));
     }
   }
 
@@ -91,7 +91,7 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        throw new \Exception('Meta tag with specified attributes should not exist: ' . json_encode($attributes) . '.');
+        throw new \Exception(sprintf('Meta tag with specified attributes should not exist: %s.', json_encode($attributes)));
       }
     }
   }

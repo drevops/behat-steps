@@ -513,7 +513,7 @@ trait AccessibilityTrait {
     }
 
     if (isset($results['error'])) {
-      throw new \RuntimeException('Accessibility engine failed: ' . $results['error']);
+      throw new \RuntimeException(sprintf('Accessibility engine failed: %s', $results['error']));
     }
 
     return $results;

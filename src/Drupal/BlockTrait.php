@@ -347,7 +347,7 @@ trait BlockTrait {
    * @throws \Exception
    *   When no block with the specified label is found.
    */
-  private function blockLoadByLabel(string $label): ?Block {
+  protected function blockLoadByLabel(string $label): ?Block {
     $default_theme = \Drupal::config('system.theme')->get('default');
 
     $blocks = \Drupal::entityTypeManager()

@@ -105,7 +105,7 @@ trait WebformTrait {
     \Drupal::configFactory()->reset();
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
     $storage = $entity_type_manager->getStorage('webform');
     $storage->resetCache();
 

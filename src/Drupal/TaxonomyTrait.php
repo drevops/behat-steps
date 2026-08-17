@@ -75,7 +75,7 @@ trait TaxonomyTrait {
     }
 
     foreach ($terms_table->getColumn(0) as $term_name) {
-      $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties([
+      $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties([
         'name' => $term_name,
         'vid' => $vocabulary_machine_name,
       ]);

@@ -121,7 +121,7 @@ trait UserTrait {
   public function userSetLastAccessTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
-    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
     if ($timestamp === FALSE) {
       throw new \RuntimeException('Invalid date format.');
@@ -145,7 +145,7 @@ trait UserTrait {
   public function userSetLastLoginTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
-    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
     if ($timestamp === FALSE) {
       throw new \RuntimeException('Invalid date format.');

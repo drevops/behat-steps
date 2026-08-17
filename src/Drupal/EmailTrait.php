@@ -82,7 +82,7 @@ trait EmailTrait {
 
     $this->emailHandlerTypes = array_unique($this->emailHandlerTypes);
 
-    self::emailEnableTestSystem();
+    $this->emailEnableTestSystem();
   }
 
   /**
@@ -95,7 +95,7 @@ trait EmailTrait {
     }
 
     if ($scope->getScenario()->hasTag('email')) {
-      self::emailDisableTestEmailSystem();
+      $this->emailDisableTestEmailSystem();
     }
   }
 
@@ -365,7 +365,7 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
-    $string = strval($string);
+    $string = (string) $string;
     $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
@@ -402,7 +402,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject :subject')]
   public function emailFollowLinkNumber(string $link_number, string $subject): void {
-    $link_number = intval($link_number);
+    $link_number = (int) $link_number;
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -444,7 +444,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject containing :subject')]
   public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
-    $link_number = intval($link_number);
+    $link_number = (int) $link_number;
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {

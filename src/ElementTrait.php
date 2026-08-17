@@ -195,12 +195,12 @@ trait ElementTrait {
       if (!empty($attribute_value)) {
         $attribute_found = TRUE;
         if ($is_exact) {
-          if ($attribute_value === strval($value)) {
+          if ($attribute_value === (string) $value) {
             $attribute_value_found = TRUE;
             break;
           }
         }
-        elseif (str_contains($attribute_value, strval($value))) {
+        elseif (str_contains($attribute_value, (string) $value)) {
           $attribute_value_found = TRUE;
           break;
         }

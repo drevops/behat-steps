@@ -119,7 +119,7 @@ trait FileDownloadTrait {
 
     // @codeCoverageIgnoreStart
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
-      throw new \RuntimeException('Unable to download file from URL ' . $url . '.');
+      throw new \RuntimeException(sprintf('Unable to download file from URL %s.', $url));
     }
     $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($file_data === FALSE) {
@@ -171,7 +171,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
-    $string = strval($string);
+    $string = (string) $string;
     if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
     }
@@ -403,7 +403,7 @@ trait FileDownloadTrait {
 
     if (!$content) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to save temp file from URL ' . $url . '.');
+      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
       // @codeCoverageIgnoreEnd
     }
 
@@ -431,7 +431,7 @@ trait FileDownloadTrait {
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path . '.');
+      throw new \RuntimeException(sprintf('Unable to write downloaded content into file %s.', $file_path));
       // @codeCoverageIgnoreEnd
     }
 

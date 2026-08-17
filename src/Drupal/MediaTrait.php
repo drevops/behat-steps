@@ -287,10 +287,10 @@ trait MediaTrait {
     // Throw an exception if the media type is missing or does not exist.
     // @codeCoverageIgnoreStart
     if (empty($bundle)) {
-      throw new \Exception("Cannot create media because it is missing the required bundle.");
+      throw new \Exception('Cannot create media because it is missing the required bundle.');
     }
 
-    $bundles = \Drupal::getContainer()->get('entity_type.bundle.info')->getBundleInfo('media');
+    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
     if (!in_array($bundle, array_keys($bundles))) {
       throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
     }

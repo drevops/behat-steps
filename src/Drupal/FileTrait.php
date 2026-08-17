@@ -148,7 +148,7 @@ trait FileTrait {
 
     // @codeCoverageIgnoreStart
     if (!is_readable($path)) {
-      throw new \RuntimeException('Unable to find file "' . $path . '".');
+      throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
@@ -158,7 +158,7 @@ trait FileTrait {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       // @codeCoverageIgnoreStart
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
       // @codeCoverageIgnoreEnd
     }
@@ -166,7 +166,7 @@ trait FileTrait {
     $content = file_get_contents($path);
     // @codeCoverageIgnoreStart
     if ($content === FALSE) {
-      throw new \RuntimeException('Unable to read file "' . $path . '".');
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $path));
     }
     // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
@@ -276,7 +276,7 @@ trait FileTrait {
     if (!file_exists($directory)) {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
     }
     // @codeCoverageIgnoreEnd
