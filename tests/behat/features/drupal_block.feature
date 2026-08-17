@@ -33,6 +33,22 @@ Feature: Check that BlockTrait works
     Given the block "[TEST] User Account Menu" does not exist
     And the block "[TEST] User Account Menu" does not exist
 
+  @api
+  Scenario: Assert that the most recently created block wins when two share a label
+    Given the block "[TEST] Duplicate Label" does not exist
+    And the instance of "User account menu" block exists with the following configuration:
+      | label         | [TEST] Duplicate Label |
+      | label_display | 1                      |
+      | region        | content                |
+      | status        | 1                      |
+    And the instance of "User account menu" block exists with the following configuration:
+      | label         | [TEST] Duplicate Label |
+      | label_display | 1                      |
+      | region        | footer_top             |
+      | status        | 1                      |
+    Then the block "[TEST] Duplicate Label" should exist in the "footer_top" region
+    And the block "[TEST] Duplicate Label" should not exist in the "content" region
+
   @trait:Drupal\BlockTrait @api
   Scenario: Assert "block should exist" fails for non-existing block
     Given some behat configuration
