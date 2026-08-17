@@ -462,6 +462,45 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
+  Scenario Outline: Assert that following link in email fails when link number is not a positive integer
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with one link: http://example.com
+        '''
+      Then I follow link number "<number>" in the email with the subject "Test Email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link number must be a positive integer, but "<number>" was provided.
+      """
+    Examples:
+      | number |
+      | 0      |
+      | -1     |
+      | abc    |
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link by subject substring fails when link number is zero
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with one link: http://example.com
+        '''
+      Then I follow link number "0" in the email with the subject containing "Test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link number must be a positive integer, but "0" was provided.
+      """
+
+  @trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when subject not found
     Given some behat configuration
     And scenario steps tagged with "@api @email":

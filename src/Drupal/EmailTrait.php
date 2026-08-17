@@ -392,7 +392,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject :subject')]
   public function emailFollowLinkNumber(string $link_number, string $subject): void {
-    $link_number = (int) $link_number;
+    $link_number = $this->emailAssertLinkNumber($link_number);
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -434,7 +434,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject containing :subject')]
   public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
-    $link_number = (int) $link_number;
+    $link_number = $this->emailAssertLinkNumber($link_number);
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
@@ -708,6 +708,29 @@ trait EmailTrait {
     preg_match_all(sprintf('#%s#i', $pattern), (string) $string, $matches);
 
     return empty($matches[0]) ? [] : $matches[0];
+  }
+
+  /**
+   * Convert a link number step argument into a positive integer.
+   *
+   * Links are numbered from 1. Anything below that would index the link list
+   * out of range further down, so it is rejected here.
+   *
+   * @param string $link_number
+   *   The link number as provided in the step.
+   *
+   * @return int
+   *   The link number as a positive integer.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the link number is not a positive integer.
+   */
+  protected function emailAssertLinkNumber(string $link_number): int {
+    if (!ctype_digit(trim($link_number)) || (int) $link_number < 1) {
+      throw new ExpectationException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number), $this->getSession()->getDriver());
+    }
+
+    return (int) $link_number;
   }
 
 }
