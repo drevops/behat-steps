@@ -227,6 +227,12 @@ trait AccessibilityTrait {
 
     $this->accessibilityAssess($this->accessibilityGetDefaultRules());
 
+    // A failed step has already failed the scenario, so gating on top of it
+    // would report a violation found on a page the step left half-built.
+    if (!$scope->getTestResult()->isPassed()) {
+      return;
+    }
+
     $this->accessibilityEnforceGate();
   }
 
