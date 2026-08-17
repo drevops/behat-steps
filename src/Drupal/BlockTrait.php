@@ -356,7 +356,10 @@ trait BlockTrait {
         'settings.label' => $label,
       ]);
 
-    krsort($blocks);
+    // Machine names gain a numeric suffix on collision, so ordering the keys
+    // ascending puts the most recently created block last. This matches how
+    // the other traits resolve a duplicate label.
+    ksort($blocks);
 
     return empty($blocks) ? NULL : end($blocks);
   }
