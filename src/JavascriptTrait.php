@@ -195,9 +195,7 @@ trait JavascriptTrait {
     try {
       $current_url = $this->getSession()->getCurrentUrl();
 
-      // Only collect errors if URL changed (navigation occurred).
       if ($current_url !== $this->javascriptCurrentUrl) {
-        // Re-inject collector on new page.
         $this->javascriptInjectCollector();
         $this->javascriptCurrentUrl = $current_url;
       }
@@ -333,7 +331,6 @@ JS;
       return;
     }
 
-    // Build detailed error message.
     $error_count = 0;
     $message_parts = ["JavaScript errors detected:\n"];
 
