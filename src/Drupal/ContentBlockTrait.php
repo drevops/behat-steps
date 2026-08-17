@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Then;
-use Behat\Step\Given;
-use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Driver\Entity\EntityStub;
@@ -51,7 +51,6 @@ trait ContentBlockTrait {
    *   | [TEST] Footer Block  |
    *   | [TEST] Contact Form  |
    * @endcode
-   *
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
@@ -163,8 +162,6 @@ trait ContentBlockTrait {
   /**
    * Create a block content entity with the specified type and field values.
    *
-   * This internal helper method creates and saves a single content block
-   * entity.
    * Created entities are stored in the static $blockContentEntities array for
    * automatic cleanup after the scenario.
    *
@@ -202,7 +199,7 @@ trait ContentBlockTrait {
    *
    * @param string $type
    *   The block content type.
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>

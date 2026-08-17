@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Exception\ExpectationException;
 use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use Drupal\node\Entity\Node;
@@ -66,9 +66,9 @@ trait ContentTrait {
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->contentLoadMultiple($content_type, $node_hash);
 
-      $controller = \Drupal::entityTypeManager()->getStorage('node');
-      $entities = $controller->loadMultiple($nids);
-      $controller->delete($entities);
+      $storage = \Drupal::entityTypeManager()->getStorage('node');
+      $entities = $storage->loadMultiple($nids);
+      $storage->delete($entities);
     }
   }
 
@@ -220,7 +220,13 @@ trait ContentTrait {
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
-    assert($handler instanceof NodeAccessControlHandlerInterface);
+
+    // @codeCoverageIgnoreStart
+    if (!$handler instanceof NodeAccessControlHandlerInterface) {
+      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
+    }
+
+    // @codeCoverageIgnoreEnd
     $grants = $handler->acquireGrants($node);
     \Drupal::service('node.grant_storage')->write($node, $grants);
   }

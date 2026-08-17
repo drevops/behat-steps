@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -28,7 +28,6 @@ trait TaxonomyTrait {
    */
   public function createTerms(mixed $vocabulary, TableNode $table): void {
     $vocabulary = (string) $vocabulary;
-    // Delete entities before creating them.
     $this->taxonomyDeleteTerms($vocabulary, $table);
     parent::createTerms($vocabulary, $table);
   }
@@ -75,7 +74,7 @@ trait TaxonomyTrait {
     }
 
     foreach ($terms_table->getColumn(0) as $term_name) {
-      $terms = \Drupal::service('entity_type.manager')->getStorage('taxonomy_term')->loadByProperties([
+      $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties([
         'name' => $term_name,
         'vid' => $vocabulary_machine_name,
       ]);
@@ -252,7 +251,7 @@ trait TaxonomyTrait {
    *
    * @param string $vocabulary_machine_name
    *   The term vocabulary.
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
    * @return array<int, string>

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
-use Behat\Step\Given;
-use Behat\Step\When;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
@@ -31,7 +31,7 @@ trait ElementTrait {
    * Returns FALSE to use the legacy scrollIntoView(true) behavior, which
    * aligns the element to the top of the viewport.
    *
-   * Override this method in your context class to change the behavior:
+   * Override this method in the context class to change the behavior:
    * @code
    * class FeatureContext extends DrupalContext {
    *   use ElementTrait;
@@ -175,7 +175,10 @@ trait ElementTrait {
    * @param bool $is_inverted
    *   Whether to assert the value is not present.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If no element matches the selector.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the attribute or its value does not match the expectation.
    */
   protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
     $page = $this->getSession()->getPage();
@@ -185,40 +188,40 @@ trait ElementTrait {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
-    $attr_found = FALSE;
-    $attr_value_found = FALSE;
+    $attribute_found = FALSE;
+    $attribute_value_found = FALSE;
     foreach ($elements as $element) {
-      $attr_value = (string) $element->getAttribute($attribute);
-      if (!empty($attr_value)) {
-        $attr_found = TRUE;
+      $attribute_value = (string) $element->getAttribute($attribute);
+      if (!empty($attribute_value)) {
+        $attribute_found = TRUE;
         if ($is_exact) {
-          if ($attr_value === strval($value)) {
-            $attr_value_found = TRUE;
+          if ($attribute_value === (string) $value) {
+            $attribute_value_found = TRUE;
             break;
           }
         }
-        elseif (str_contains($attr_value, strval($value))) {
-          $attr_value_found = TRUE;
+        elseif (str_contains($attribute_value, (string) $value)) {
+          $attribute_value_found = TRUE;
           break;
         }
       }
     }
 
-    if (!$attr_found) {
+    if (!$attribute_found) {
       throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
     }
 
-    if ($is_inverted && $attr_value_found) {
+    if ($is_inverted && $attribute_value_found) {
       $message = $is_exact
         ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
         : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
 
-    if (!$is_inverted && !$attr_value_found) {
+    if (!$is_inverted && !$attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attr_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attr_value, $value);
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -293,7 +296,7 @@ trait ElementTrait {
    * Assert the computed value of a CSS property on an element.
    *
    * A property with an empty computed value is reported as an error in both
-   * the positive and the inverted form: the realistic cause is a misspelled
+   * the positive and the inverted form. The realistic cause is a misspelled
    * property name, which must not silently satisfy a negative assertion.
    *
    * @param string $selector
@@ -717,7 +720,6 @@ JS;
    * Given I accept all confirmation dialogs
    * @endcode
    *
-   *
    * @javascript
    */
   #[Given('I accept all confirmation dialogs')]
@@ -732,7 +734,6 @@ JS;
    * Given I do not accept any confirmation dialogs
    * @endcode
    *
-   *
    * @javascript
    */
   #[Given('I do not accept any confirmation dialogs')]
@@ -746,7 +747,6 @@ JS;
    * @code
    * When I click on the element ".button"
    * @endcode
-   *
    *
    * @javascript
    */
@@ -770,7 +770,6 @@ JS;
    * @code
    * When I click on the element ".card" with the index 2
    * @endcode
-   *
    *
    * @javascript
    */
@@ -1042,15 +1041,14 @@ JS;
   #[Then('the element :selector should be displayed')]
   public function elementAssertIsVisible(string $selector): void {
     $page = $this->getSession()->getPage();
-    $nodes = $page->findAll('css', $selector);
+    $elements = $page->findAll('css', $selector);
 
-    if ($nodes === []) {
+    if ($elements === []) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
-    foreach ($nodes as $node) {
-      if ($node->isVisible()) {
-        // Success – at least one match is visible.
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
         return;
       }
     }
@@ -1067,11 +1065,11 @@ JS;
    */
   #[Then('the element :selector should not be displayed')]
   public function elementAssertIsNotVisible(string $selector): void {
-    $element = $this->getSession()->getPage();
-    $nodes = $element->findAll('css', $selector);
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
 
-    foreach ($nodes as $node) {
-      if ($node->isVisible()) {
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
         throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
       }
     }
@@ -1216,7 +1214,6 @@ JS;
         return failures.length === 0;
       }
     JS;
-    // Include and call visibility assertion function.
     $script = <<<JS
       (function() {
         {$script_function}

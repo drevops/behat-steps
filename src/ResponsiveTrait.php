@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Given;
-use Behat\Step\When;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use Behat\Step\Given;
+use Behat\Step\When;
 
 /**
  * Test responsive layouts with viewport control.
@@ -130,7 +130,6 @@ trait ResponsiveTrait {
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
     $tags = $scope->getScenario()->getTags();
 
-    // Collect all breakpoint tags.
     $breakpoint_tags = [];
     foreach ($tags as $tag) {
       if (str_starts_with($tag, 'breakpoint:')) {
@@ -138,20 +137,16 @@ trait ResponsiveTrait {
       }
     }
 
-    // No breakpoint tags found - nothing to do.
     if (empty($breakpoint_tags)) {
       return;
     }
 
-    // Multiple breakpoint tags - throw exception.
     if (count($breakpoint_tags) > 1) {
       throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per scenario. Found: @%s', implode(', @', $breakpoint_tags)));
     }
 
-    // Single breakpoint tag - validate and process.
     $tag = $breakpoint_tags[0];
 
-    // Validate that @javascript tag is present.
     if (!in_array('javascript', $tags)) {
       throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport', $tag));
     }
@@ -187,7 +182,6 @@ trait ResponsiveTrait {
    * When I set the viewport to the "desktop" breakpoint
    * @endcode
    *
-   *
    * @param string $breakpoint
    *   The breakpoint name.
    *
@@ -207,7 +201,6 @@ trait ResponsiveTrait {
    * When I set the viewport width to "768"
    * @endcode
    *
-   *
    * @param string $width
    *   The width in pixels.
    */
@@ -225,7 +218,6 @@ trait ResponsiveTrait {
    * When I set the viewport height to "900"
    * @endcode
    *
-   *
    * @param string $height
    *   The height in pixels.
    */
@@ -242,7 +234,6 @@ trait ResponsiveTrait {
    * When I set the viewport to "1920" by "1080"
    * When I set the viewport to "375" by "667"
    * @endcode
-   *
    *
    * @param string $width
    *   The width in pixels.
@@ -339,7 +330,6 @@ trait ResponsiveTrait {
    *   Array with 'width' and 'height' keys.
    */
   protected function responsiveGetCurrentDimensions(): array {
-    // Default dimensions if unable to determine current size.
     $default_width = 1280;
     $default_height = 800;
 
@@ -369,7 +359,6 @@ trait ResponsiveTrait {
    */
   protected function responsiveResize(int $width, int $height): void {
     try {
-      // Ensure session is started before resizing.
       if (!$this->getSession()->isStarted()) {
         // @codeCoverageIgnoreStart
         $this->getSession()->start();

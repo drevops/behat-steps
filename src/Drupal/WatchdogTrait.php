@@ -68,7 +68,7 @@ trait WatchdogTrait {
     $scenario = $scope->getScenario();
 
     // Step scopes carry neither scenario tags nor scenario identity, so both
-    // are resolved here for the step hook to read. An unset start time is what
+    // are resolved here for the step hook to read. An unset start time
     // disables the check.
     if ($scenario->hasTag('behat-steps-skip:watchdogAfterStep') || $scenario->hasTag('error')) {
       return;
@@ -90,12 +90,12 @@ trait WatchdogTrait {
    * @watchdog:my_module_type @watchdog:my_other_module_type
    * @endcode
    *
-   * @param array<int,string> $tags
+   * @param array<int, string> $tags
    *   Array of scenario tags.
    * @param string $prefix
    *   Optional tag prefix to filter by.
    *
-   * @return array<int,string>
+   * @return array<int, string>
    *   Array of message types. 'php' is always added to the list.
    */
   protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {

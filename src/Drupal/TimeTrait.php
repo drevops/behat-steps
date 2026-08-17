@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\When;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
+use Behat\Step\When;
 
 /**
  * Control system time in tests using Drupal state overrides.
@@ -50,7 +50,6 @@ trait TimeTrait {
 
   /**
    * Resets the system time to real time.
-   *
    *
    * @code
    * When I reset system time

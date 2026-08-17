@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\Given;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -60,7 +60,6 @@ trait MenuTrait {
   public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
-        // Create menu id if one was not provided.
         $menu_id = strtolower((string) $menu_hash['label']);
         $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
         $menu_id = preg_replace('/_+/', '_', (string) $menu_id);
@@ -118,13 +117,11 @@ trait MenuTrait {
     // @codeCoverageIgnoreEnd
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
-      // Add uri to correct property.
       if (isset($menu_link_hash['uri'])) {
         $menu_link_hash['link'] = [];
         $menu_link_hash['link']['uri'] = (string) $menu_link_hash['uri'];
         unset($menu_link_hash['uri']);
       }
-      // Create parent property in format required.
       if (!empty($menu_link_hash['parent']) && is_string($menu_link_hash['parent'])) {
         $parent_link = $this->loadMenuLinkByTitle($menu_link_hash['parent'], $menu_name);
         if ($parent_link instanceof MenuLinkContent) {
@@ -156,7 +153,7 @@ trait MenuTrait {
    */
   protected function loadMenuByLabel(string $label): ?MenuInterface {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
     $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
       ->accessCheck(FALSE)
       ->condition('label', $label)
@@ -192,7 +189,7 @@ trait MenuTrait {
     // @codeCoverageIgnoreEnd
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::getContainer()->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
 
     $menu_link_ids = $entity_type_manager->getStorage('menu_link_content')->getQuery()
       ->accessCheck(FALSE)

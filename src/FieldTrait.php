@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
-use Behat\Step\When;
-use Behat\Step\Given;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -17,6 +14,9 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Manipulate form fields and verify widget functionality.
@@ -601,12 +601,12 @@ JS;
   #[Then('the option :option should exist within the select element :selector')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
-    if (is_null($select_element)) {
+    if ($select_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
-    if (is_null($option_element)) {
+    if ($option_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $selector));
     }
   }
@@ -621,12 +621,12 @@ JS;
   #[Then('the option :option should not exist within the select element :selector')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
-    if (is_null($select_element)) {
+    if ($select_element === NULL) {
       throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
-    if (!is_null($option_element)) {
+    if ($option_element !== NULL) {
       throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $selector));
     }
   }
@@ -1074,7 +1074,8 @@ JS;
    * @param string $value
    *   The value to set.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If the datetime field part cannot be located.
    */
   protected function fieldFillDatetimeHelper(string $label, string $part, string $field, string $value): void {
     // Try to find by label element first.

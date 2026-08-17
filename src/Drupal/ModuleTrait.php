@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use Behat\Step\Given;
+use Behat\Step\Then;
 
 /**
  * Enable and disable Drupal modules with automatic state restoration.
@@ -50,10 +50,8 @@ trait ModuleTrait {
         $should_disable = str_starts_with($module_spec, '!');
         $module_name = $should_disable ? substr($module_spec, 1) : $module_spec;
 
-        // Store original state.
         $this->moduleStoreOriginalState($module_name);
 
-        // Enable or disable module as specified.
         if ($should_disable) {
           if ($this->moduleIsEnabled($module_name)) {
             $this->moduleDisable($module_name);
@@ -88,7 +86,6 @@ trait ModuleTrait {
       }
     }
 
-    // Clear state tracking.
     $this->moduleOriginalStates = [];
   }
 

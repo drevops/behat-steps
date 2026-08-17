@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Driver\Entity\EntityStub;
@@ -35,7 +35,7 @@ trait FileTrait {
   /**
    * Unmanaged file URIs.
    *
-   * @var array<int,string>
+   * @var array<int, string>
    */
   protected $filesUnmanagedUris = [];
 
@@ -115,11 +115,11 @@ trait FileTrait {
   protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $this->parseEntityFields($stub);
 
-    $saved = $this->fileCreateEntity($path, $stub, $uri);
+    $entity = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->entityRegister($saved);
+    $this->entityRegister($entity);
 
-    return $saved;
+    return $entity;
   }
 
   /**
@@ -138,7 +138,6 @@ trait FileTrait {
   protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $path = ltrim($path, '/');
 
-    // Get fixture file path.
     if (!empty($this->getMinkParameter('files_path'))) {
       $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
       if (is_file($full_path)) {
@@ -148,7 +147,7 @@ trait FileTrait {
 
     // @codeCoverageIgnoreStart
     if (!is_readable($path)) {
-      throw new \RuntimeException('Unable to find file "' . $path . '".');
+      throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
@@ -158,7 +157,7 @@ trait FileTrait {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       // @codeCoverageIgnoreStart
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
       // @codeCoverageIgnoreEnd
     }
@@ -166,7 +165,7 @@ trait FileTrait {
     $content = file_get_contents($path);
     // @codeCoverageIgnoreStart
     if ($content === FALSE) {
-      throw new \RuntimeException('Unable to read file "' . $path . '".');
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $path));
     }
     // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
@@ -223,7 +222,6 @@ trait FileTrait {
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
     $field_values = $table->getColumn(0);
-    // Get field name of the column header.
     $field_name = array_shift($field_values);
 
     // @codeCoverageIgnoreStart
@@ -276,7 +274,7 @@ trait FileTrait {
     if (!file_exists($directory)) {
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       if (!$dir) {
-        throw new \RuntimeException('Unable to prepare directory "' . $directory . '".');
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
     }
     // @codeCoverageIgnoreEnd

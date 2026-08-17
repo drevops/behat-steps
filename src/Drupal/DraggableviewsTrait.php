@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\When;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\When;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
@@ -28,7 +28,7 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
-    $connection = Database::getConnection();
+    $database = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
       $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
@@ -40,14 +40,12 @@ trait DraggableviewsTrait {
       $entity_id = $node->id();
 
       // Here and below: copied from draggableviews_views_submit().
-      // Remove old data.
-      $connection->delete('draggableviews_structure')
+      $database->delete('draggableviews_structure')
         ->condition('view_name', $view_id)
         ->condition('view_display', $view_display_id)
         ->condition('entity_id', $entity_id)
         ->execute();
 
-      // Add new data.
       $record = [
         'view_name' => $view_id,
         'view_display' => $view_display_id,
@@ -56,11 +54,11 @@ trait DraggableviewsTrait {
         'weight' => $weight,
       ];
 
-      $connection->insert('draggableviews_structure')->fields($record)->execute();
+      $database->insert('draggableviews_structure')->fields($record)->execute();
     }
 
-    // We invalidate the entity list cache, so other views are also aware of the
-    // cache.
+    // Invalidate the entity list cache so other views also reflect the
+    // change.
     $list_cache_tags = \Drupal::entityTypeManager()->getDefinition('node')->getListCacheTags();
     Cache::invalidateTags($list_cache_tags);
   }

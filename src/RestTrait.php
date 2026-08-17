@@ -83,7 +83,7 @@ trait RestTrait {
   #[When('I send a REST :method request to :url with body:')]
   public function restSendRequestWithBody(string $method, string $url, PyStringNode $body): void {
     $client = $this->restGetClient();
-    $client->request(strtoupper($method), $this->restResolveUrl($url), [], [], $this->restCreateServerArray(), (string) $body);
+    $client->request(strtoupper($method), $this->restResolveUrl($url), [], [], $this->restCreateServerArray(), $body->getRaw());
   }
 
   /**

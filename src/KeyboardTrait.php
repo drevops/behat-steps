@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\When;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Step\When;
 
 /**
  * Simulate keyboard interactions in Drupal browser testing.
@@ -147,7 +147,7 @@ trait KeyboardTrait {
       // supposed to get the very first focus from tab index actually gets it.
       // Note that injecting element and triggering key press on it does not
       // make it focused itself.
-      if (is_null($selector) && $char === 'tab') {
+      if ($selector === NULL && $char === 'tab') {
         $selector = '#injected-focusable';
 
         $script = <<<JS

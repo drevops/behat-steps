@@ -90,7 +90,7 @@ trait DropzoneTrait {
           document.body.appendChild(input);
         }
       })();",
-      json_encode($holder_ids)
+      json_encode($holder_ids, JSON_UNESCAPED_SLASHES)
     ));
 
     foreach ($holder_ids as $index => $holder_id) {
@@ -124,8 +124,8 @@ trait DropzoneTrait {
           }
         }
       })();",
-      json_encode($holder_ids),
-      json_encode($selector)
+      json_encode($holder_ids, JSON_UNESCAPED_SLASHES),
+      json_encode($selector, JSON_UNESCAPED_SLASHES)
     ));
   }
 

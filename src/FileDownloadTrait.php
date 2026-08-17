@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\When;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Hook\AfterScenario;
-use Behat\Hook\BeforeScenario;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -119,7 +119,7 @@ trait FileDownloadTrait {
 
     // @codeCoverageIgnoreStart
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
-      throw new \RuntimeException('Unable to download file from URL ' . $url . '.');
+      throw new \RuntimeException(sprintf('Unable to download file from URL %s.', $url));
     }
     $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($file_data === FALSE) {
@@ -149,7 +149,6 @@ trait FileDownloadTrait {
    * Assert that an HTML link is present on the page.
    */
   public function fileDownloadAssertLinkPresent(string $link): NodeElement {
-
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
 
@@ -172,7 +171,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
-    $string = strval($string);
+    $string = (string) $string;
     if (!$this->fileDownloadDownloadedFileInfo) {
       throw new \RuntimeException('Downloaded file content has no data.');
     }
@@ -389,32 +388,29 @@ trait FileDownloadTrait {
       CURLOPT_AUTOREFERER => TRUE,
       CURLOPT_CONNECTTIMEOUT => 120,
       CURLOPT_TIMEOUT => 120,
-      CURLOPT_HEADERFUNCTION => function ($ch, $header) use (&$response_headers): int {
+      CURLOPT_HEADERFUNCTION => function ($handle, $header) use (&$response_headers): int {
         $response_headers[] = $header;
 
         return strlen($header);
       },
     ];
 
-    $ch = curl_init($url);
-    curl_setopt_array($ch, $options);
+    $handle = curl_init($url);
+    curl_setopt_array($handle, $options);
 
-    $content = curl_exec($ch);
-    curl_close($ch);
+    $content = curl_exec($handle);
+    curl_close($handle);
 
     if (!$content) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to save temp file from URL ' . $url . '.');
+      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
       // @codeCoverageIgnoreEnd
     }
 
-    // Extract meta information from headers.
     $headers = $this->fileDownloadParseHeaders($response_headers);
 
-    // Resolve file path and name.
     $dir = $this->fileDownloadGetTempDir();
 
-    // Try to extract name from the download string.
     $url_file_name = parse_url($url, PHP_URL_PATH);
     $url_file_name = $url_file_name ? basename($url_file_name) : $url_file_name;
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
@@ -428,11 +424,10 @@ trait FileDownloadTrait {
 
     $file_name = basename($file_path);
 
-    // Write file contents.
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to write downloaded content into file ' . $file_path . '.');
+      throw new \RuntimeException(sprintf('Unable to write downloaded content into file %s.', $file_path));
       // @codeCoverageIgnoreEnd
     }
 
@@ -442,7 +437,7 @@ trait FileDownloadTrait {
   /**
    * Extract downloaded file information from the response headers.
    *
-   * @param array<int,string> $headers
+   * @param array<int, string> $headers
    *   Array of headers from CURL.
    *
    * @return array<string, string>

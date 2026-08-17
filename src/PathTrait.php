@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
-use Behat\Step\Given;
-use Behat\Step\When;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Navigate and verify paths with URL validation.
@@ -99,15 +99,9 @@ trait PathTrait {
    */
   #[Then('current url should have the :param parameter')]
   public function pathAssertUrlHasParameter(string $param): void {
-    $url = $this->getSession()->getCurrentUrl();
+    $query = $this->pathGetCurrentUrlQuery();
 
-    $url_query = parse_url((string) $url, PHP_URL_QUERY);
-    $url_query = $url_query === FALSE ? '' : (string) $url_query;
-
-    $q = [];
-    parse_str($url_query, $q);
-
-    if (empty($q[$param])) {
+    if (empty($query[$param])) {
       throw new ExpectationException(sprintf('The param "%s" is not in the URL', $param), $this->getSession()->getDriver());
     }
   }
@@ -123,15 +117,9 @@ trait PathTrait {
   public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
     $this->pathAssertUrlHasParameter($param);
 
-    $url = $this->getSession()->getCurrentUrl();
+    $query = $this->pathGetCurrentUrlQuery();
 
-    $url_query = parse_url((string) $url, PHP_URL_QUERY);
-    $url_query = $url_query === FALSE ? '' : (string) $url_query;
-
-    $q = [];
-    parse_str($url_query, $q);
-
-    $actual_value = $q[$param] ?? '';
+    $actual_value = $query[$param] ?? '';
 
     if ($actual_value !== $value) {
       throw new ExpectationException(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
@@ -147,15 +135,9 @@ trait PathTrait {
    */
   #[Then('current url should not have the :param parameter')]
   public function pathAssertUrlHasNoParameter(string $param): void {
-    $url = $this->getSession()->getCurrentUrl();
+    $query = $this->pathGetCurrentUrlQuery();
 
-    $url_query = parse_url((string) $url, PHP_URL_QUERY);
-    $url_query = $url_query === FALSE ? '' : (string) $url_query;
-
-    $q = [];
-    parse_str($url_query, $q);
-
-    if (!empty($q[$param])) {
+    if (!empty($query[$param])) {
       throw new ExpectationException(sprintf('The param "%s" is in the URL but should not be', $param), $this->getSession()->getDriver());
     }
   }
@@ -169,19 +151,13 @@ trait PathTrait {
    */
   #[Then('current url should not have the :param parameter with the :value value')]
   public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
-    $url = $this->getSession()->getCurrentUrl();
+    $query = $this->pathGetCurrentUrlQuery();
 
-    $url_query = parse_url((string) $url, PHP_URL_QUERY);
-    $url_query = $url_query === FALSE ? '' : (string) $url_query;
-
-    $q = [];
-    parse_str($url_query, $q);
-
-    if (empty($q[$param])) {
+    if (empty($query[$param])) {
       return;
     }
 
-    if ($q[$param] === $value) {
+    if ($query[$param] === $value) {
       throw new ExpectationException(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value), $this->getSession()->getDriver());
     }
   }
@@ -208,6 +184,24 @@ trait PathTrait {
   #[When('I go back')]
   public function pathGoBack(): void {
     $this->getSession()->back();
+  }
+
+  /**
+   * Get the query parameters of the current URL.
+   *
+   * @return array<int|string, mixed>
+   *   Query parameters keyed by name, empty when the URL carries no query.
+   */
+  protected function pathGetCurrentUrlQuery(): array {
+    $url = $this->getSession()->getCurrentUrl();
+
+    $url_query = parse_url((string) $url, PHP_URL_QUERY);
+    $url_query = $url_query === FALSE ? '' : (string) $url_query;
+
+    $query = [];
+    parse_str($url_query, $query);
+
+    return $query;
   }
 
 }

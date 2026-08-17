@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
-use Behat\Step\When;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Verify link elements with attribute and content assertions.
@@ -155,9 +155,9 @@ trait LinkTrait {
   public function linkAssertWithTitleNotExists(string $title): void {
     $title = $this->helperFixStepArgument($title);
 
-    $item = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
-    if ($item) {
+    if ($element) {
       throw new ExpectationException(sprintf('The link with the title "%s" exists, but should not.', $title), $this->getSession()->getDriver());
     }
   }

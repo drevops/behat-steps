@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\When;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Then;
+use Behat\Step\When;
 use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
@@ -82,7 +82,7 @@ trait EmailTrait {
 
     $this->emailHandlerTypes = array_unique($this->emailHandlerTypes);
 
-    self::emailEnableTestSystem();
+    $this->emailEnableTestSystem();
   }
 
   /**
@@ -95,7 +95,7 @@ trait EmailTrait {
     }
 
     if ($scope->getScenario()->hasTag('email')) {
-      self::emailDisableTestEmailSystem();
+      $this->emailDisableTestEmailSystem();
     }
   }
 
@@ -236,9 +236,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
-    // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
-    // Assert that the email body matches the specified content exactly.
     $this->emailAssertMessageField('body', $string);
   }
 
@@ -254,9 +252,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content containing:')]
   public function emailAssertMessageSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
-    // Assert that the email body contains the specified content.
     $this->emailAssertMessageFieldContains('body', $string);
   }
 
@@ -272,9 +268,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content not containing:')]
   public function emailAssertMessageSentToAddressWithContentNotContaining(string $address, PyStringNode $string): void {
-    // Assert that an email was sent to the specified address.
     $this->emailAssertMessageSentTo($address);
-    // Assert that the email body does not contain the specified content.
     $this->emailAssertMessageFieldNotContains('body', $string);
   }
 
@@ -290,9 +284,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
-    // Assert that no email was sent to the specified address.
     $this->emailAssertNoMessagesSentToAddress($address);
-    // Assert that no email contains the specified content in the body.
     $this->emailAssertMessageFieldNotExact('body', $string);
   }
 
@@ -308,9 +300,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    // Assert that no email was sent to the specified address.
     $this->emailAssertNoMessagesSentToAddress($address);
-    // Assert that no email body contains the specified content as a substring.
     $this->emailAssertMessageFieldNotContains('body', $string);
   }
 
@@ -365,7 +355,7 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid message field %s was specified for assertion', $field));
     }
     // @codeCoverageIgnoreEnd
-    $string = strval($string);
+    $string = (string) $string;
     $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
@@ -402,7 +392,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject :subject')]
   public function emailFollowLinkNumber(string $link_number, string $subject): void {
-    $link_number = intval($link_number);
+    $link_number = (int) $link_number;
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -444,7 +434,7 @@ trait EmailTrait {
    */
   #[When('I follow link number :link_number in the email with the subject containing :subject')]
   public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
-    $link_number = intval($link_number);
+    $link_number = (int) $link_number;
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
@@ -458,7 +448,6 @@ trait EmailTrait {
       throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
     }
 
-    // Extract the body from the email.
     if (isset($message['params']['body']) && is_string($message['params']['body'])) {
       $body = $message['params']['body'];
     }
@@ -555,16 +544,14 @@ trait EmailTrait {
     foreach ($this->emailHandlerTypes as $type) {
       // Store the original system to restore after the scenario.
       $original_test_system = self::emailGetMailSystemDefault($type);
-      // But store only if previous has not been stored yet.
       if (!self::emailGetMailSystemOriginal($type)) {
         self::emailSetMailSystemOriginal($type, $original_test_system);
       }
-      // Set the test system.
       self::emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
-    // Flush the email buffer, allowing us to reuse this step definition
-    // to clear existing mail.
+    // Clearing here lets this step definition be reused to clear existing
+    // mail.
     $this->emailClearTestQueue(TRUE);
   }
 
@@ -579,7 +566,6 @@ trait EmailTrait {
   public function emailDisableTestEmailSystem(): void {
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
-      // Restore the original system to after the scenario.
       self::emailSetMailSystemDefault($type, $original_test_system);
     }
 
@@ -600,11 +586,11 @@ trait EmailTrait {
   protected static function emailSetMailSystemDefault(string $type, mixed $value): void {
     \Drupal::configFactory()->getEditable('system.mail')->set('interface.' . $type, $value)->save();
 
-    // Mailsystem module completely takes over default interface, so we need to
-    // update it as well if the module is installed.
-    // @note: For some unknown reasons, we do not need to reset this back to
-    // the original values after the test. The values in the configuration
-    // will not be overridden.
+    // The Mailsystem module completely takes over the default interface, so
+    // update its configuration as well when the module is installed.
+    // For unknown reasons, resetting this back to the original values after
+    // the test is not required: the values in the configuration will not be
+    // overridden.
     // @codeCoverageIgnoreStart
     if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
@@ -638,7 +624,7 @@ trait EmailTrait {
   /**
    * Get email messages collected during the test.
    *
-   * @return array<string,array<string,mixed>>
+   * @return array<string, array<string, mixed>>
    *   Array of collected emails.
    */
   protected function emailGetCollectedMessages(): array {
@@ -654,17 +640,16 @@ trait EmailTrait {
 
     $fields = ['subject', 'body', 'to', 'from', 'cc', 'bcc'];
 
-    // Normalize the keys to lowercase.
-    foreach ($messages as $idx => $message) {
-      $messages[$idx] = array_change_key_case($message, CASE_LOWER);
+    foreach ($messages as $index => $message) {
+      $messages[$index] = array_change_key_case($message, CASE_LOWER);
 
       if ($this->emailDebug) {
         printf("----------------------------------------\n");
-        printf("Email message number: %s\n", $idx);
+        printf("Email message number: %s\n", $index);
         printf("----------------------------------------\n");
         foreach ($fields as $field) {
           printf("Field: %s\n", $field);
-          printf("Value: %s\n", $messages[$idx][$field] ?? '<EMPTY>');
+          printf("Value: %s\n", $messages[$index][$field] ?? '<EMPTY>');
           print PHP_EOL;
         }
       }
@@ -683,7 +668,7 @@ trait EmailTrait {
    * @param bool $exact
    *   Whether to search for an exact match.
    *
-   * @return array<string,string|array<string,mixed>>|null
+   * @return array<string, string|array<string, mixed>>|null
    *   Email message or NULL if not found.
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
@@ -717,7 +702,6 @@ trait EmailTrait {
    *   Array of extracted links.
    */
   protected static function emailExtractLinks(string $string): array {
-    // Correct links before extraction.
     $pattern = '(?xi)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
     $string = preg_replace_callback(sprintf('#%s#i', $pattern), fn(array $matches): string => preg_match('!^https?://!i', $matches[0]) ? $matches[0] : 'http://' . $matches[0], $string);
 

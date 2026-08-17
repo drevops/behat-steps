@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\When;
-use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\HelperTrait;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
+use DrevOps\BehatSteps\HelperTrait;
 use Drupal\Core\Url;
 use Drupal\Driver\Entity\EntityStubInterface;
 use Drupal\user\Entity\Role;
@@ -121,7 +121,7 @@ trait UserTrait {
   public function userSetLastAccessTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
-    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
     if ($timestamp === FALSE) {
       throw new \RuntimeException('Invalid date format.');
@@ -145,7 +145,7 @@ trait UserTrait {
   public function userSetLastLoginTime(string $name, string $datetime): void {
     $user = $this->userLoadByName($name);
 
-    $timestamp = is_numeric($datetime) ? intval($datetime) : strtotime($datetime);
+    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
     if ($timestamp === FALSE) {
       throw new \RuntimeException('Invalid date format.');
@@ -251,7 +251,8 @@ trait UserTrait {
   public function userVisitOwnPasswordResetLink(): void {
     $current_user = $this->getUserManager()->getCurrentUser();
 
-    // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->name.
+    // 6.x stores EntityStubInterface stubs; legacy versions store \stdClass
+    // with ->name.
     if ($current_user instanceof EntityStubInterface) {
       $name = (string) $current_user->getValue('name');
     }
@@ -410,10 +411,10 @@ trait UserTrait {
   /**
    * Load multiple users with specified conditions.
    *
-   * @param array<string,string> $conditions
+   * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int,\Drupal\user\UserInterface>
+   * @return array<int, \Drupal\user\UserInterface>
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []): array {
@@ -461,7 +462,8 @@ trait UserTrait {
     if ($name === 'current') {
       $user = $this->getUserManager()->getCurrentUser();
 
-      // 6.x stores EntityStubInterface stubs; legacy was \stdClass with ->uid.
+      // 6.x stores EntityStubInterface stubs; legacy versions store
+      // \stdClass with ->uid.
       if ($user instanceof EntityStubInterface) {
         $uid = $user->getId();
       }

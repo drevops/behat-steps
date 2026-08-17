@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Step\Given;
+use Behat\Step\Then;
 use Drupal\block\Entity\Block;
 
 /**
@@ -52,7 +52,7 @@ trait BlockTrait {
 
         $block->set('id', $block_id);
 
-        // Set temporary label to pass to the block configuration step.
+        // Set a temporary label for the 'blockConfigure()' call.
         $settings = $block->get('settings');
         $settings['label'] = $admin_label;
         $block->set('settings', $settings);
@@ -153,7 +153,6 @@ trait BlockTrait {
    *   Given the block "My block" is enabled
    * @endcode
    *
-   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
    */
@@ -176,7 +175,6 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" is disabled
    * @endcode
-   *
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -249,7 +247,6 @@ trait BlockTrait {
    *   Then the block "My block" should exist
    * @endcode
    *
-   *
    * @throws \Exception
    *   When no block with the specified label is found.
    */
@@ -271,7 +268,6 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should not exist
    * @endcode
-   *
    *
    * @throws \Exception
    *   When block with the specified label is found.
@@ -296,7 +292,6 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should exist in the "content" region
    * @endcode
-   *
    *
    * @throws \Exception
    *   When no block with the specified label is found in the given region.
@@ -325,7 +320,6 @@ trait BlockTrait {
    *   Then the block "My block" should not exist in the "content" region
    * @endcode
    *
-   *
    * @throws \Exception
    *   When block with the specified label is found in the given region.
    */
@@ -353,7 +347,7 @@ trait BlockTrait {
    * @throws \Exception
    *   When no block with the specified label is found.
    */
-  private function blockLoadByLabel(string $label): ?Block {
+  protected function blockLoadByLabel(string $label): ?Block {
     $default_theme = \Drupal::config('system.theme')->get('default');
 
     $blocks = \Drupal::entityTypeManager()

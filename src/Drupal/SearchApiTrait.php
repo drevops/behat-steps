@@ -53,7 +53,7 @@ trait SearchApiTrait {
    */
   #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $limit): void {
-    $limit = intval($limit);
+    $limit = (int) $limit;
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
 

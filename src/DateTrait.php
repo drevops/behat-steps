@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Transformation\Transform;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Transformation\Transform;
 
 /**
  * Convert relative date expressions into timestamps or formatted dates.
@@ -41,7 +41,7 @@ trait DateTrait {
    */
   #[Transform('table:*')]
   public function dateRelativeTransformTable(TableNode $table): TableNode {
-    // Inexpensive token detection and early exit.
+    // A cheap substring check skips tables without tokens.
     if (!static::dateRelativeStringHasToken($table->getTableAsString())) {
       return $table;
     }
@@ -90,7 +90,7 @@ trait DateTrait {
    * that relative time within a day use max of 12 hours offset.
    */
   public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
-    // Inexpensive token detection and early exit.
+    // A cheap substring check skips values without tokens.
     if (!static::dateRelativeStringHasToken($value)) {
       return $value;
     }
@@ -106,12 +106,11 @@ trait DateTrait {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
 
-      // Convert to date format, if provided.
       if (isset($matches[3])) {
         $timestamp = date($matches[3], $timestamp);
       }
 
-      if (empty(trim((string) strval($timestamp)))) {
+      if (empty(trim((string) $timestamp))) {
         throw new \RuntimeException(sprintf('The supplied relative date cannot be evaluated: "%s"', $matches[1]));
       }
 

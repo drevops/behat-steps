@@ -56,8 +56,7 @@ trait HelperTrait {
    *
    * Each item is a [entity_type_id, entity_id] pair. Ids are stored as scalars
    * so each entity is reloaded fresh at cleanup time and an already-deleted row
-   * is tolerated. Registering an entity only records it here; deleting
-   * registered entities is a separate concern handled at scenario teardown.
+   * is tolerated.
    *
    * @var array<int, array{0: string, 1: int|string}>
    */
@@ -168,7 +167,7 @@ trait HelperTrait {
    * drupal-driver's FileHandler can read and upload them during entity
    * creation. Skips expansion when a managed file with the same basename
    * already exists in public:// or private://, so existing files take
-   * precedence and behaviour stays backward compatible.
+   * precedence.
    *
    * Requires a Drupal context: the consumer must expose 'getMinkParameter()'
    * and 'getDriver()' (e.g. via MinkContext / RawDrupalContext) and Drupal
@@ -207,11 +206,10 @@ trait HelperTrait {
         continue;
       }
 
-      // Raw compound string (e.g. 'target_id:"foo.jpg", alt:"A"') as written
-      // in the Behat table. Hooks fired by 'RawDrupalContext::nodeCreate()'
-      // run before 'parseEntityFields()', so on the node path the helper sees
-      // the unparsed cell. Rewrite the basename inside the 'target_id:"..."'
-      // segment in place and leave the rest of the cell to the parser.
+      // Hooks fired by 'RawDrupalContext::nodeCreate()' run before
+      // 'parseEntityFields()', so on the node path the value is the raw
+      // compound cell as written in the Behat table
+      // (e.g. 'target_id:"foo.jpg", alt:"A"').
       if (is_string($value) && $this->helperLooksLikeCompoundCell($value)) {
         $rewritten = $this->helperExpandCompoundCellFixtures($value, $fixture_path);
 
@@ -229,9 +227,9 @@ trait HelperTrait {
       // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...] (multi-value compound)
       //
       // Numerically-indexed arrays (lists) are iterated element-by-element so
-      // every delta gets resolved. Keyed records and bare scalars are wrapped
-      // in a single-element list, processed once, and unwrapped on the way
-      // back into the stub.
+      // every delta is resolved. Keyed records and bare scalars are wrapped
+      // in a single-element list, processed once, and unwrapped when written
+      // back to the stub.
       $is_list = is_array($value) && array_is_list($value);
       $records = $is_list ? $value : [$value];
       $mutated = FALSE;
@@ -282,9 +280,7 @@ trait HelperTrait {
    * Detect a raw compound cell string of the shape 'key:"..."' or 'key:[...]'.
    *
    * Mirrors the top-level pattern 'EntityFieldParser' uses to enter compound
-   * mode: an identifier, optional whitespace, ':', optional whitespace, then
-   * a '"' or '['. Used to distinguish a compound cell that needs in-string
-   * basename rewriting from a bare scalar basename like 'document.pdf'.
+   * mode.
    */
   protected function helperLooksLikeCompoundCell(string $value): bool {
     return preg_match('/^\s*[a-z_][a-z0-9_]*\s*:\s*[\"\[]/i', $value) === 1;
@@ -329,7 +325,7 @@ trait HelperTrait {
    * Check whether a managed file with the given basename already exists.
    *
    * Mirrors drupal-driver FileHandler::resolveExistingFile() for bare
-   * basenames so callers do not pre-empt the driver's own lookup.
+   * basenames so the driver's own lookup is not pre-empted.
    *
    * @param string $basename
    *   Candidate basename (no path separators).

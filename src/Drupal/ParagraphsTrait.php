@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Drupal;
 
-use Behat\Step\Given;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\Given;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;
@@ -39,16 +39,12 @@ trait ParagraphsTrait {
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
-    // Find previously created entity by entity_type, bundle and identifying
-    // field value.
     $parent_entity = $this->paragraphsFindEntity($parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value);
 
     if (!$parent_entity) {
       throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found', $parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value));
     }
 
-    // Get fields from scenario, parse them and expand values according to
-    // field tables.
     $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
     $this->parseEntityFields($stub);
     $this->paragraphsExpandEntityFields($stub);

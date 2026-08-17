@@ -22,7 +22,7 @@ trait WaitTrait {
    * @endcode
    */
   #[When('I wait for :seconds second(s)')]
-  public function waitWaitForSeconds(int|string $seconds): void {
+  public function waitWaitForSeconds(string|int $seconds): void {
     sleep((int) $seconds);
   }
 
@@ -38,7 +38,7 @@ trait WaitTrait {
    */
   #[When('I wait for :seconds second(s) for AJAX to finish')]
   public function waitForAjaxToFinish(string|int $seconds): void {
-    $seconds = intval($seconds);
+    $seconds = (int) $seconds;
 
     if (!$this->helperIsJavascriptSupported()) {
       $driver = $this->getSession()->getDriver();

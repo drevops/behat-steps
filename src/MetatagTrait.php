@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
-use Behat\Step\Then;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Selector\Xpath\Escaper;
+use Behat\Step\Then;
 
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.
@@ -59,7 +59,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new \Exception('Meta tag with specified attributes was not found: ' . json_encode($attributes) . '.');
+      throw new \Exception(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)));
     }
   }
 
@@ -91,7 +91,7 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        throw new \Exception('Meta tag with specified attributes should not exist: ' . json_encode($attributes) . '.');
+        throw new \Exception(sprintf('Meta tag with specified attributes should not exist: %s.', json_encode($attributes)));
       }
     }
   }
@@ -604,9 +604,10 @@ trait MetatagTrait {
    *
    * Absolute URLs are returned unchanged and root-relative URLs are resolved
    * against the base URL's origin. Document-relative URLs (such as "page.html"
-   * or "../en") are resolved against the origin rather than the base path, so
-   * hreflang and canonical markup should use absolute or root-relative URLs, in
-   * line with search-engine guidance to use fully-qualified URLs.
+   * or "../en") are resolved against the origin rather than the base path.
+   * Hreflang and canonical markup should therefore use absolute or
+   * root-relative URLs, in line with search-engine guidance to use
+   * fully-qualified URLs.
    *
    * @param string $url
    *   The URL to resolve.
@@ -624,9 +625,6 @@ trait MetatagTrait {
 
     $base ??= (string) $this->getMinkParameter('base_url');
 
-    // Resolve root-relative URLs against the base URL's origin so that links on
-    // a fetched alternate page resolve against that page's host rather than the
-    // Mink base URL.
     $origin = (string) preg_replace('#^(https?://[^/]+).*$#i', '$1', $base);
 
     return rtrim($origin, '/') . '/' . ltrim($url, '/');
