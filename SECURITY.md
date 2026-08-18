@@ -16,8 +16,8 @@ Report vulnerabilities privately. Do not open a public issue, because an issue d
 
 Use either channel:
 
-- [Report a vulnerability](https://github.com/drevops/behat-steps/security/advisories/new) through GitHub Security Advisories.
-- Email the maintainer at alex@drevops.com.
+- [Report a vulnerability](https://github.com/drevops/behat-steps/security/advisories/new) through GitHub Security Advisories. This requires a signed-in GitHub account, because the link redirects to sign-in otherwise.
+- Email the maintainer at alex@drevops.com. Use this channel if you do not have a GitHub account or prefer not to use one.
 
 Include the affected version, the steps or configuration needed to reproduce the problem, and the impact you expect. A minimal Behat scenario that demonstrates the issue is the most useful reproduction.
 
