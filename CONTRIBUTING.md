@@ -53,20 +53,17 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Member ordering within a trait
 
-Most traits lay their members out in this order, and new traits should follow it:
+Traits lay their members out in this order:
 
-1. Constants and properties.
+1. Trait composition (`use`), constants, then properties.
 2. Hooks (`#[BeforeScenario]`, `#[AfterStep]` and the like).
 3. `Given` steps, then `When` steps, then `Then` steps.
-4. Protected helpers.
+4. Other public methods.
+5. Protected helpers.
 
-Roughly 25 traits already match, including `CommandTrait`, `Drupal\ConfigTrait`, `Drupal\ModuleTrait`, `Drupal\StateTrait`, `ModalTrait` and `TableTrait`.
+Keep to it when adding a member or writing a new trait. Reordering an existing trait to match is a safe change: [STEPS.md](STEPS.md) groups steps by `Given`, `When` and `Then` itself, so member order in the source does not affect the generated documentation.
 
-Two parts of that are firm: properties and hooks belong at the top, and a helper never sits above the hooks.
-
-The rest is a default rather than a rule. Placing a helper directly after the steps that call it is an accepted variant, and in a long file it reads better than exiling every helper to the bottom - `ElementTrait` does this deliberately across 1300 lines.
-
-**Do not reorder an existing trait as a change of its own.** `docs.php` renders steps into [STEPS.md](STEPS.md) in source order, so moving members reorders the published documentation: a large diff in two files for no runtime gain. Let files converge as they are touched for other reasons.
+The one exception is `FieldTrait`, whose members are left in their original order. `Drupal.Classes.UnusedUseStatement` stops recognising an imported class that is first used after a PHP 8 attribute, so ordering the steps ahead of the method that returns a `NodeElement` makes the linter report a used import as unused.
 
 ## Unsettled style questions
 
