@@ -55,7 +55,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:26.2.0
+    image: uselagoon/nginx-drupal:26.8.0@sha256:56ad1a69dc2c752cdd0061a269dcf0723825911bae380565951d7814c701fecf
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -66,7 +66,7 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-10.6-drupal:26.2.0
+    image: uselagoon/mariadb-10.6-drupal:26.8.0@sha256:9d21ed3c21377d83d3f85d84feb8a561e7da0fd732b2deedfff85b4d168326ea
     environment:
       <<: *default-environment
     ports:
@@ -95,7 +95,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:26.1.0
+    image: drevops/docker-wait-for-dependencies:26.6.1@sha256:ff47894232111c3ba3ae28eef447e039999ac47039296cf187b56c1195e241d8
     depends_on:
       - cli
       - mariadb
