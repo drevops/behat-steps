@@ -27,7 +27,7 @@
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "dmore/behat-chrome-extension": "^1.4.1",
-        "drevops/behat-phpserver": "^2.3.0",
+        "drevops/behat-phpserver": "^2.4.0",
         "drevops/behat-screenshot": "^2.6.0",
         "drevops/phpcs-standard": "^0.7",
         "drupal/coder": "^8.3.31",
@@ -43,7 +43,7 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.2.8",
         "phpunit/phpunit": "^11.5.56",
-        "rector/rector": "^2.6.2",
+        "rector/rector": "^2.6.3",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
