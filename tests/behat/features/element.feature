@@ -3,18 +3,19 @@ Feature: Check that ElementTrait works
   I want to provide tools to verify HTML element attributes, properties, and visibility
   So that users can test DOM structure, styling, and UI element behaviors correctly
 
+  @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "ltr" should exist
 
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the element does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -26,10 +27,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -41,10 +42,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value "lt" should exist
       """
     When I run "behat --no-colors"
@@ -53,18 +54,19 @@ Feature: Check that ElementTrait works
       The "dir" attribute exists on the element "html" with a value "ltr", but it does not have a value "lt".
       """
 
+  @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should exist" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value containing "lt" should exist
 
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the element does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -76,10 +78,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute is not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should exist
       """
     When I run "behat --no-colors"
@@ -91,10 +93,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute does not contain the partial value
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value containing "ltr1" should exist
       """
     When I run "behat --no-colors"
@@ -103,18 +105,19 @@ Feature: Check that ElementTrait works
       The "dir" attribute exists on the element "html" with a value "ltr", but it does not contain a value "ltr1".
       """
 
+  @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should not exist" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "nonexistingvalue" should not exist
 
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the element does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -126,10 +129,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -141,10 +144,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -153,18 +156,19 @@ Feature: Check that ElementTrait works
       The "dir" attribute exists on the element "html" with a value "ltr", but it should not.
       """
 
+  @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should not exist" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value containing "nonexistingvalue" should not exist
 
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the element does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -176,10 +180,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
@@ -191,10 +195,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value containing "lt" should not exist
       """
     When I run "behat --no-colors"
@@ -205,19 +209,19 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert click on element
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I click on the element "#overlay-off-canvas-trigger"
 
   @javascript @phpserver
   Scenario: Assert trigger event on element
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then I should not see an ".overlay-visible" element
     When I trigger the JS event "click" on the element "#overlay-off-canvas-trigger"
     Then I should see an ".overlay-visible" element
 
   @javascript @phpserver
   Scenario: Assert Accept/Not Accept confirmation
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then I should see the button "Test confirm"
     And I should not see the button "You pressed OK!"
     When I accept all confirmation dialogs
@@ -226,7 +230,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert Not Accept confirmation
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then I should see the button "Test confirm"
     And I should not see the button "You canceled!"
     When I do not accept any confirmation dialogs
@@ -235,20 +239,20 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert scroll to an element with selector uses center alignment by default
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be centered in the viewport
 
   @javascript @phpserver
   Scenario: Assert scroll to an element with top alignment when configured
     Given I set scroll to top alignment
-    And I am on the phpserver test page
+    And I visit "http://cli:8888/elements_relative.html"
     When I scroll to the element "#main-inner"
     Then the element "#main-inner" should be at the top of the viewport
 
   @javascript @phpserver
   Scenario: Assert selectors with quotes in attribute values work correctly
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I scroll to the element "button[data-action='save']"
     Then the element "button[data-action='save']" should be at the top of the viewport
     When I scroll to the element "button[data-action='delete']"
@@ -257,7 +261,7 @@ Feature: Check that ElementTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
-    When I am on the phpserver test page
+    When I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed
 
   # Here and below: skipped because of Behat hanging in the child process.
@@ -266,7 +270,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      When I am on the phpserver test page
+      When I visit "http://cli:8888/elements_relative.html"
       Then the element "#hidden" should be displayed
       """
     When I run "behat --no-colors"
@@ -277,7 +281,7 @@ Feature: Check that ElementTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should not be displayed" succeeds as expected
-    When I am on the phpserver test page
+    When I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed
 
   @trait:ElementTrait @skipped
@@ -285,7 +289,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed
       """
     When I run "behat --no-colors"
@@ -296,12 +300,12 @@ Feature: Check that ElementTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :number pixels" succeeds as expected
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
 
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" succeeds as expected
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
 
   @api @javascript @phpserver @skipped
@@ -309,7 +313,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should be displayed within a viewport with a top offset of 1000 pixels
       """
     When I run "behat --no-colors"
@@ -320,7 +324,7 @@ Feature: Check that ElementTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" and "Then the element :selector should not be displayed within a viewport" succeeds as expected
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within a viewport
     # Accessibility elements visible to screen readers are visible to normal
     # visibility assertion, but visually hidden.
@@ -331,10 +335,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@api @javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_relative.html"
+      When I visit "http://cli:8888/elements_relative.html"
       Then the element "#sr-only" should be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -346,10 +350,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@api @javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_relative.html"
+      When I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -358,22 +362,22 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """
 
-  @api
+  @api @phpserver
   Scenario: Text appears after another text
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the text "Copyright 2024" should appear after the text "Welcome"
 
-  @api
+  @api @phpserver
   Scenario: Assert "Then the element :selector1 should appear after the element :selector2" works as expected
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "body" should appear after the element "head"
 
   @trait:ElementTrait
   Scenario: Assert element order fails when first element is before second
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "head" should appear after the element "body"
       """
     When I run "behat --no-colors"
@@ -385,9 +389,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert text order fails when first text is before second
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the text "Welcome" should appear after the text "Copyright 2024"
       """
     When I run "behat --no-colors"
@@ -399,9 +403,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element order fails when first element is not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexistent" should appear after the element "body"
       """
     When I run "behat --no-colors"
@@ -413,9 +417,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element order fails when second element is not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "body" should appear after the element "#nonexistent"
       """
     When I run "behat --no-colors"
@@ -427,9 +431,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert text order fails when first text is not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the text "NonExistentText123" should appear after the text "Welcome"
       """
     When I run "behat --no-colors"
@@ -441,9 +445,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert text order fails when second text is not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the text "Welcome" should appear after the text "NonExistentText123"
       """
     When I run "behat --no-colors"
@@ -452,10 +456,10 @@ Feature: Check that ElementTrait works
       Text was not found: "NonExistentText123".
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "When I hover over the element :selector" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "#hover-reveal" should not be displayed
     When I hover over the element "#hover-target"
     Then the element "#hover-reveal" should be displayed
@@ -463,10 +467,10 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert that "When I hover over the element :selector" fails when element does not exist
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       And I hover over the element "#nonexistent-element"
       """
     When I run "behat --no-colors"
@@ -475,10 +479,10 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "When I focus on the element :selector" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     And I focus on the element "#focus-input"
     Then the element "#focus-input" with the attribute "data-focused" and the value "true" should exist
 
@@ -488,7 +492,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       And I focus on the element "#nonexistent-element"
       """
     When I run "behat --no-colors"
@@ -497,25 +501,25 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should have keyboard focus" and its negative form work as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     And I focus on the element "#focus-input"
     Then the element "#focus-input" should have keyboard focus
     And the element "#focus-button-outline" should not have keyboard focus
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element with a CSS outline
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "#focus-button-outline" should have a visible focus outline
     And the element "#focus-button-no-outline" should not have a visible focus outline
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element using box-shadow as the indicator
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "#focus-button-shadow" should have a visible focus outline
 
   @trait:ElementTrait
@@ -524,7 +528,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexistent-element" should have keyboard focus
       """
     When I run "behat --no-colors"
@@ -539,7 +543,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       And I focus on the element "#focus-input"
       Then the element "#focus-button-outline" should have keyboard focus
       """
@@ -555,7 +559,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#focus-input" should have keyboard focus
       """
     When I run "behat --no-colors"
@@ -570,7 +574,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       And I focus on the element "#focus-input"
       Then the element "#focus-input" should not have keyboard focus
       """
@@ -586,7 +590,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nonexistent-element" should have a visible focus outline
       """
     When I run "behat --no-colors"
@@ -601,7 +605,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#focus-button-no-outline" should have a visible focus outline
       """
     When I run "behat --no-colors"
@@ -616,7 +620,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#focus-button-outline" should not have a visible focus outline
       """
     When I run "behat --no-colors"
@@ -627,7 +631,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert click on element works
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I click on the element "#overlay-trigger"
     Then I should see an ".overlay-visible" element
 
@@ -636,7 +640,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       When I click on the element "#nonexistent-element"
       """
     When I run "behat --no-colors"
@@ -650,7 +654,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#bottom" should be at the top of the viewport
       """
     When I run "behat --no-colors"
@@ -664,7 +668,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#nonexistent" should be displayed
       """
     When I run "behat --no-colors"
@@ -678,7 +682,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#hidden" should be displayed
       """
     When I run "behat --no-colors"
@@ -692,7 +696,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed
       """
     When I run "behat --no-colors"
@@ -706,7 +710,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#sr-only" should be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -720,7 +724,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should be displayed within a viewport with a top offset of 10000 pixels
       """
     When I run "behat --no-colors"
@@ -734,7 +738,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport with a top offset of 0 pixels
       """
     When I run "behat --no-colors"
@@ -748,7 +752,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am on the phpserver test page
+      Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport
       """
     When I run "behat --no-colors"
@@ -759,31 +763,33 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "When I click on the element :selector with the index :index" clicks the Nth match
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I click on the element ".nth-btn" with the index 2
     Then I should see "Clicked 2"
 
   @javascript @phpserver
   Scenario: Assert "When I press the button :label with the index :index" presses the Nth match
-    Given I am on the phpserver test page
+    Given I visit "http://cli:8888/elements_relative.html"
     When I press the button "Repeated action" with the index 3
     Then I should see "Clicked 3"
 
+  @phpserver
   Scenario: Assert "When I follow the link :text with the index :index" follows the Nth match
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     And I follow the link "Repeated link" with the index 2
     Then I should see "Link Testing Fixture"
 
+  @phpserver
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
-    When I visit "/sites/default/files/elements.html"
+    When I visit "http://cli:8888/elements.html"
     Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
 
   @trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is below 1
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       When I click on the element ".nth-child" with the index 0
       """
     When I run "behat --no-colors"
@@ -795,9 +801,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is out of range
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       When I click on the element ".nth-child" with the index 99
       """
     When I run "behat --no-colors"
@@ -809,9 +815,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert index-based interaction fails when no element matches
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       When I click on the element ".does-not-exist" with the index 1
       """
     When I run "behat --no-colors"
@@ -823,9 +829,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#nth-parent" should contain 5 elements matching ".nth-child"
       """
     When I run "behat --no-colors"
@@ -837,9 +843,9 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I visit "/sites/default/files/elements.html"
+      When I visit "http://cli:8888/elements.html"
       Then the element "#does-not-exist" should contain 1 element matching ".nth-child"
       """
     When I run "behat --no-colors"
@@ -848,20 +854,20 @@ Feature: Check that ElementTrait works
       Element matching css "#does-not-exist" not found.
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
     And the element "#css-box" should have the CSS property "backgroundColor" with the value "rgb(0, 0, 255)"
     And the element "#css-box" should have the CSS property "--css-brand" with the value "teal"
     And the element "#css-box" should not have the CSS property "display" with the value "none"
     And the element "#css-hidden" should have the CSS property "display" with the value "none"
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
     And the element "#css-box" should not have the CSS property "box-shadow" with the value containing "inset"
 
@@ -871,7 +877,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should have the CSS property "display" with the value "block"
       """
     When I run "behat --no-colors"
@@ -886,7 +892,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "bogus-property" with the value "block"
       """
     When I run "behat --no-colors"
@@ -901,7 +907,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(255, 0, 0)"
       """
     When I run "behat --no-colors"
@@ -916,7 +922,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should not have the CSS property "background-color" with the value "rgb(0, 0, 255)"
       """
     When I run "behat --no-colors"
@@ -931,7 +937,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "inset"
       """
     When I run "behat --no-colors"
@@ -946,7 +952,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should not have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
       """
     When I run "behat --no-colors"
@@ -955,31 +961,31 @@ Feature: Check that ElementTrait works
       containing "rgb(255, 0, 0)", but it should not.
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" compares the z-index of both elements
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-high" should stack above the element "#stack-low"
     And the element "#stack-low" should stack below the element "#stack-high"
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert stacking order resolves the effective z-index across stacking contexts
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-sibling" should stack above the element "#stack-trap-child"
     And the element "#stack-trap-child" should stack below the element "#stack-sibling"
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert stacking order falls back to document order for an equal z-index
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-second" should stack above the element "#stack-first"
     And the element "#stack-first" should stack below the element "#stack-second"
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert stacking order of an element nested in another element
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-child" should stack above the element "#stack-parent"
     And the element "#stack-parent" should stack below the element "#stack-child"
     And the element "#stack-behind" should stack below the element "#stack-parent"
@@ -991,7 +997,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should stack above the element "#stack-low"
       """
     When I run "behat --no-colors"
@@ -1006,7 +1012,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#nonexistent-element"
       """
     When I run "behat --no-colors"
@@ -1021,7 +1027,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#stack-low"
       """
     When I run "behat --no-colors"
@@ -1036,7 +1042,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#stack-high"
       """
     When I run "behat --no-colors"
@@ -1051,7 +1057,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-second" should stack below the element "#stack-first"
       """
     When I run "behat --no-colors"
@@ -1066,7 +1072,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-behind" should stack above the element "#stack-parent"
       """
     When I run "behat --no-colors"
@@ -1081,7 +1087,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-parent" should stack above the element "#stack-child"
       """
     When I run "behat --no-colors"
@@ -1090,18 +1096,18 @@ Feature: Check that ElementTrait works
       Expected element "#stack-parent" to stack above the element "#stack-child", but it stacks below it: "#stack-child" sits inside the stacking context of "#stack-parent" with an effective z-index of 0.
       """
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#pinned-header" should be pinned to the top of the viewport
     And the element "#not-pinned" should not be pinned to the top of the viewport
     And the element "#pinned-hidden" should not be pinned to the top of the viewport
 
-  @javascript
+  @javascript @phpserver
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport within :tolerance pixels" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/elements_css.html"
+    When I visit "http://cli:8888/elements_css.html"
     Then the element "#pinned-offset" should be pinned to the top of the viewport within 25 pixels
     And the element "#pinned-offset" should not be pinned to the top of the viewport
 
@@ -1111,7 +1117,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should be pinned to the top of the viewport
       """
     When I run "behat --no-colors"
@@ -1126,7 +1132,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#not-pinned" should be pinned to the top of the viewport
       """
     When I run "behat --no-colors"
@@ -1141,7 +1147,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-hidden" should be pinned to the top of the viewport
       """
     When I run "behat --no-colors"
@@ -1156,7 +1162,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-header" should not be pinned to the top of the viewport
       """
     When I run "behat --no-colors"
@@ -1171,7 +1177,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/elements_css.html"
+      When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-header" should be pinned to the top of the viewport within -5 pixels
       """
     When I run "behat --no-colors"

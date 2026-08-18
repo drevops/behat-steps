@@ -34,14 +34,19 @@ composer require --dev drevops/behat-steps:^3
 
 ### Fixture Files Management
 
-**CRITICAL: Always copy fixture files to all three locations**
+Static fixture files live in `tests/behat/fixtures/`.
 
-When creating or updating fixture files in `tests/behat/fixtures/`, you **MUST**
-immediately copy them to `build/web/sites/default/files/`
+Traits without a Drupal dependency read them from a PHP built-in server: tag the
+scenario `@phpserver` and address the file as `http://cli:8888/<file>`. The
+server serves `tests/behat/fixtures/` at its root, so an edited fixture applies
+on the next run.
 
-**Example:**
+Drupal traits read them through the fixture site, which receives a copy of the
+directory in `build/web/sites/default/files/` during provisioning. After editing
+a fixture that a Drupal-served scenario reaches, copy it across:
+
 ```bash
-cp tests/behat/fixtures/example.xml build/web/sites/default/files/example.xml
+ahoy copy-files
 ```
 
 ## Steps Format Guidelines

@@ -4,16 +4,16 @@ Feature: Behat CLI context Javascript steps
   Tests that JS sessions can be correctly started and ended when running
   multiple Behat runs through CLI.
 
-  @javascript
+  @javascript @phpserver
   Scenario: Test @javascript session can be started for the scenario
-    Given I visit "/sites/default/files/javascript_clean1.html"
+    Given I visit "http://cli:8888/javascript_clean1.html"
 
   @trait:PathTrait
   Scenario: Test @javascript session can be started for an assertion
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_clean1.html"
+      Given I visit "http://cli:8888/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -21,13 +21,13 @@ Feature: Behat CLI context Javascript steps
   @trait:PathTrait
   Scenario: Test @javascript session can be started for assertion in the second run
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_clean1.html"
+      Given I visit "http://cli:8888/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @javascript
+  @javascript @phpserver
   Scenario: Test @javascript session can be started for the scenario in the third run
-    Given I visit "/sites/default/files/javascript_clean1.html"
+    Given I visit "http://cli:8888/javascript_clean1.html"

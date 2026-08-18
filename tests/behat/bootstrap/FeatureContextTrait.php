@@ -413,9 +413,12 @@ trait FeatureContextTrait {
       $cookie_jar->set($cookie);
     }
 
-    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    // CDP-based drivers like the Chrome (chrome-mink) driver. Their own
+    // setCookie() binds the cookie to the configured base URL, so a page served
+    // from another origin never receives it. Writing through the document keeps
+    // the cookie on the origin the scenario is on.
     if (method_exists($driver, 'getCookies')) {
-      $driver->setCookie($name, $value);
+      $driver->evaluateScript(sprintf('document.cookie = %s;', json_encode($name . '=' . rawurlencode($value) . '; path=/')));
     }
   }
 
@@ -430,15 +433,6 @@ trait FeatureContextTrait {
   #[Given('I set scroll to top alignment')]
   public function testSetScrollToTopAlignment(): void {
     $this->testElementScrollCenter = FALSE;
-  }
-
-  /**
-   * Go to the phpserver test page.
-   */
-  #[Given('/^(?:|I )am on (?:|the )phpserver test page$/')]
-  #[When('/^(?:|I )go to (?:|the )phpserver test page$/')]
-  public function goToPhpServerTestPage(): void {
-    $this->getSession()->visit('http://cli:8888/elements_relative.html');
   }
 
   /**

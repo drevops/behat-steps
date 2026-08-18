@@ -73,7 +73,7 @@ trait FileDownloadTrait {
    * Download a file from the specified URL.
    *
    * @code
-   * When I download the file from the URL "/sites/default/files/document.pdf"
+   * When I download the file from the URL "/files/document.pdf"
    * When I download the file from the URL "http://example.com/files/report.xlsx"
    * @endcode
    */

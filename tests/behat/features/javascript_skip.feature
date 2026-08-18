@@ -4,9 +4,9 @@ Feature: Check that JavascriptTrait skip at feature level works
   I want to be able to skip JavaScript error checking at feature level
   So that I can disable it for entire feature files
 
-  @javascript
+  @javascript @phpserver
   Scenario: Feature-level skip tag bypasses error checking even with @javascript
-    Given I visit "/sites/default/files/javascript_errors1.html"
+    Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"
     When I press "Click to trigger error"
     And sleep for 4 seconds

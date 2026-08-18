@@ -6,7 +6,7 @@ Feature: Check that DropzoneTrait works
   @javascript @phpserver
   Scenario: Assert single-file drop on default selector
     Given I am an anonymous user
-    When I visit "/sites/default/files/dropzone.html"
+    When I visit "http://cli:8888/dropzone.html"
     And I drop the file "document.pdf" on the ".dropzone" dropzone
     Then I should see "document.pdf"
     And the "#event-count" element should contain "1"
@@ -14,7 +14,7 @@ Feature: Check that DropzoneTrait works
   @javascript @phpserver
   Scenario: Assert multi-file drop fires a single drop event
     Given I am an anonymous user
-    When I visit "/sites/default/files/dropzone.html"
+    When I visit "http://cli:8888/dropzone.html"
     And I drop the following files on the ".dropzone" dropzone:
       | document.pdf |
       | image.png    |
@@ -27,7 +27,7 @@ Feature: Check that DropzoneTrait works
   @javascript @phpserver
   Scenario: Assert drop on a non-default selector
     Given I am an anonymous user
-    When I visit "/sites/default/files/dropzone.html"
+    When I visit "http://cli:8888/dropzone.html"
     And I drop the file "image.png" on the "#secondary-zone" dropzone
     Then the "#secondary-output" element should contain "image.png"
     And the "#primary-output" element should not contain "image.png"
@@ -35,7 +35,7 @@ Feature: Check that DropzoneTrait works
   @javascript @phpserver
   Scenario: Assert two consecutive drops in one scenario do not collide
     Given I am an anonymous user
-    When I visit "/sites/default/files/dropzone.html"
+    When I visit "http://cli:8888/dropzone.html"
     And I drop the file "document.pdf" on the ".dropzone" dropzone
     And I drop the file "text.txt" on the ".dropzone" dropzone
     Then I should see "document.pdf"
@@ -47,7 +47,7 @@ Feature: Check that DropzoneTrait works
   @javascript @phpserver
   Scenario: Assert multi-file drop populates a real Dropzone.js instance
     Given I am an anonymous user
-    When I visit "/sites/default/files/dropzone_dropzonejs.html"
+    When I visit "http://cli:8888/dropzone_dropzonejs.html"
     And I drop the following files on the "#real-dropzone" dropzone:
       | document.pdf |
       | image.png    |
@@ -65,7 +65,7 @@ Feature: Check that DropzoneTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/dropzone.html"
+      When I visit "http://cli:8888/dropzone.html"
       And I drop the file "document.pdf" on the ".nonexistent-zone" dropzone
       """
     When I run "behat --no-colors"
@@ -80,7 +80,7 @@ Feature: Check that DropzoneTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/dropzone.html"
+      When I visit "http://cli:8888/dropzone.html"
       And I drop the file "missing-fixture.bin" on the ".dropzone" dropzone
       """
     When I run "behat --no-colors"
@@ -95,7 +95,7 @@ Feature: Check that DropzoneTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/dropzone.html"
+      When I visit "http://cli:8888/dropzone.html"
       And I drop the following files on the ".dropzone" dropzone:
         | document.pdf       |
         | missing-second.bin |

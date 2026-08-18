@@ -17,13 +17,13 @@ Feature: Check that FileDownloadTrait works
       | [TEST] document page | text.txt             |
       | [TEST] zip page      | archive_multiple.zip |
 
-  @api @download
+  @api @download @phpserver
   Scenario: Assert "When I download the file from the URL :url"
-    When I download the file from the URL "/sites/default/files/text.txt"
+    When I download the file from the URL "http://cli:8888/text.txt"
 
-  @api @javascript @download
+  @api @javascript @download @phpserver
   Scenario: Assert in browser "When I download the file from the URL :url"
-    When I download the file from the URL "/sites/default/files/text.txt"
+    When I download the file from the URL "http://cli:8888/text.txt"
 
   @api @download
   Scenario: Assert "When I download the file from the link :link"
@@ -41,10 +41,10 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait
   Scenario: Assert that regex content match fails properly
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/text.txt"
+      And I download the file from the URL "http://cli:8888/text.txt"
       Then the downloaded file should contain:
         '''
         /nonexistent.*pattern/
@@ -69,18 +69,18 @@ Feature: Check that FileDownloadTrait works
       | text.txt         |
       | not_existing.png |
 
-  @api @download
+  @api @download @phpserver
   Scenario: Assert the downloaded file name contains a specific string
-    When I download the file from the URL "/sites/default/files/text.txt"
+    When I download the file from the URL "http://cli:8888/text.txt"
     Then the downloaded file name should contain "text"
 
   @api @trait:FileDownloadTrait
   Scenario: Assert that negative assertion for "The downloaded file name should contain :name" fails with an error
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/text.txt"
+      And I download the file from the URL "http://cli:8888/text.txt"
       Then the downloaded file name should contain "nonexistent"
       """
     When I run "behat --no-colors"
@@ -142,10 +142,10 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait
   Scenario: Assert that file name mismatch fails with an error
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/text.txt"
+      And I download the file from the URL "http://cli:8888/text.txt"
       Then the downloaded file name should be "wrong_name.txt"
       """
     When I run "behat --no-colors"
@@ -157,10 +157,10 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait
   Scenario: Assert that file content not found fails with an error
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/text.txt"
+      And I download the file from the URL "http://cli:8888/text.txt"
       Then the downloaded file should contain:
         '''
         nonexistent content string
@@ -278,10 +278,10 @@ Feature: Check that FileDownloadTrait works
     And the following managed files:
       | path                |
       | archive_invalid.zip |
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       Given I am logged in as a user with the "administrator" role
-      When I download the file from the URL "/sites/default/files/archive_invalid.zip"
+      When I download the file from the URL "http://cli:8888/archive_invalid.zip"
       Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
@@ -309,10 +309,10 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait
   Scenario: Assert that ZIP assertion on non-ZIP file fails with an error
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/text.txt"
+      And I download the file from the URL "http://cli:8888/text.txt"
       Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |
       """
@@ -325,10 +325,10 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait
   Scenario: Assert that downloading a URL returning an error status fails
     Given some behat configuration
-    And scenario steps tagged with "@download":
+    And scenario steps tagged with "@download @phpserver":
       """
       When I visit "/"
-      And I download the file from the URL "/sites/default/files/nonexistent-download-target.txt"
+      And I download the file from the URL "http://cli:8888/nonexistent-download-target.txt"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

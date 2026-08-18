@@ -5,23 +5,25 @@ Feature: Check that TableTrait works
 
   # Row count.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 rows
 
+  @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works with single row
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-single" should have 1 row
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count row(s)" fails when table not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".nonexistent" should have 1 rows
       """
     When I run "behat --no-colors"
@@ -33,10 +35,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count row(s)" fails when row count does not match
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 rows
       """
     When I run "behat --no-colors"
@@ -47,23 +49,25 @@ Feature: Check that TableTrait works
 
   # Column count.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 columns
 
+  @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works with different table
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should have 2 columns
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count column(s)" fails when column count does not match
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 columns
       """
     When I run "behat --no-colors"
@@ -74,9 +78,10 @@ Feature: Check that TableTrait works
 
   # Column headers.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should contain the following columns:" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following columns:
       | Name     |
       | Category |
@@ -85,10 +90,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should contain the following columns:" fails when column not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following columns:
         | NonExistent |
       """
@@ -100,18 +105,19 @@ Feature: Check that TableTrait works
 
   # Empty and not empty.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should be empty" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-empty" should be empty
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be empty" fails when table has rows
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be empty
       """
     When I run "behat --no-colors"
@@ -120,18 +126,19 @@ Feature: Check that TableTrait works
       Expected table ".table-asc" to be empty, but found 3 row(s).
       """
 
+  @phpserver
   Scenario: Assert "Then the table :selector should not be empty" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should not be empty
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should not be empty" fails when table is empty
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-empty" should not be empty
       """
     When I run "behat --no-colors"
@@ -142,23 +149,25 @@ Feature: Check that TableTrait works
 
   # Sort order.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with ascending order
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should be sorted by "Name" in "ascending" order
 
+  @phpserver
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with descending order
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should be sorted by "Name" in "descending" order
 
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails with invalid direction
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be sorted by "Name" in "invalid" order
       """
     When I run "behat --no-colors"
@@ -170,10 +179,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when not sorted
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-desc" should be sorted by "Name" in "ascending" order
       """
     When I run "behat --no-colors"
@@ -185,10 +194,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be sorted by "NonExistent" in "ascending" order
       """
     When I run "behat --no-colors"
@@ -199,9 +208,10 @@ Feature: Check that TableTrait works
 
   # Row content.
 
+  @phpserver
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following rows:
       | Name       | Status   |
       | Alpha item | Active   |
@@ -210,10 +220,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the table :selector should contain the following rows:" fails when row not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following rows:
         | Name         |
         | Non Existent |
@@ -226,9 +236,10 @@ Feature: Check that TableTrait works
 
   # Row text.
 
+  @phpserver
   Scenario: Assert "Then the :rowText row should contain the following:" works as expected
     Given I am an anonymous user
-    When I visit "/sites/default/files/table.html"
+    When I visit "http://cli:8888/table.html"
     Then the "Alpha item" row should contain the following:
       | Type A  |
       | Active  |
@@ -236,10 +247,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the :rowText row should contain the following:" fails when row not found
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the "NonExistent" row should contain the following:
         | some text |
       """
@@ -252,10 +263,10 @@ Feature: Check that TableTrait works
   @trait:TableTrait
   Scenario: Assert "Then the :rowText row should contain the following:" fails when text not found in row
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/table.html"
+      When I visit "http://cli:8888/table.html"
       Then the "Alpha item" row should contain the following:
         | NonExistent |
       """

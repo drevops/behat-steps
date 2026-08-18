@@ -26,9 +26,9 @@ Feature: Check that WaitTrait works
   @trait:WaitTrait
   Scenario: Assert that "When I wait for :seconds second(s) for AJAX to finish" fails when AJAX does not complete in time
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@api @javascript @phpserver":
       """
-      When I visit "/sites/default/files/ajax_timeout.html"
+      When I visit "http://cli:8888/ajax_timeout.html"
       And I wait for "2" seconds for AJAX to finish
       """
     When I run "behat --no-colors"
