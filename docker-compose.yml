@@ -73,7 +73,7 @@ services:
       - "3306"
 
   chrome:
-    image: selenium/standalone-chromium:145.0
+    image: selenium/standalone-chromium:151.0@sha256:1d3d834a2ce93f26cc0d0ae3c61abd189755b32649f5c356c6c5cf9502aa397e
     ports:
       - "7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
     expose:
@@ -86,7 +86,7 @@ services:
       - cli
 
   chrome_headless:
-    image: chromedp/headless-shell:150.0.7871.47
+    image: chromedp/headless-shell:152.0.7939.3@sha256:f7e7ac721b023cb8717f8108aef8b3e49995fb1e5a912f41e570c29e45d24961
     shm_size: '1gb'
     expose:
       - "9222"
