@@ -60,7 +60,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreate(TableNode $table): void {
-    $this->redirectAssertModuleEnabled();
+    $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     foreach ($table->getHash() as $row) {
       $from = isset($row['from']) ? trim($row['from']) : '';
@@ -99,7 +99,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDelete(TableNode $table): void {
-    $this->redirectAssertModuleEnabled();
+    $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
 
@@ -147,7 +147,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
-    $this->redirectAssertModuleEnabled();
+    $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $missing = [];
@@ -198,7 +198,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
-    $this->redirectAssertModuleEnabled();
+    $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $present = [];
@@ -219,17 +219,6 @@ trait RedirectTrait {
     if ($present !== []) {
       throw new \Exception(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
     }
-  }
-
-  /**
-   * Throw when the `redirect` module is not enabled.
-   */
-  protected function redirectAssertModuleEnabled(): void {
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::moduleHandler()->moduleExists('redirect')) {
-      throw new \RuntimeException('The "redirect" module is not enabled. Add "drupal/redirect" to the consumer project\'s composer.json and enable the module as part of the site setup.');
-    }
-    // @codeCoverageIgnoreEnd
   }
 
   /**

@@ -350,4 +350,34 @@ trait HelperTrait {
     return FALSE;
   }
 
+  /**
+   * Assert that a module backing a set of steps is enabled.
+   *
+   * Without this check a step reaches a contrib module's API regardless, and
+   * the failure arrives as a fatal on an unresolvable class or a raw database
+   * error rather than a message naming the module.
+   *
+   * @param string $module
+   *   The module machine name.
+   * @param string $package
+   *   Optional Composer package to name in the message. Pass an empty string
+   *   for a module that ships with Drupal core.
+   *
+   * @throws \RuntimeException
+   *   When the module is not enabled.
+   */
+  protected function helperAssertModuleEnabled(string $module, string $package = ''): void {
+    // @codeCoverageIgnoreStart
+    if (\Drupal::moduleHandler()->moduleExists($module)) {
+      return;
+    }
+
+    $remedy = $package === ''
+      ? 'Enable it as part of the site setup; it ships with Drupal core.'
+      : sprintf('Add "%s" to the consumer project\'s composer.json and enable the module as part of the site setup.', $package);
+
+    throw new \RuntimeException(sprintf('The "%s" module is not enabled. %s', $module, $remedy));
+    // @codeCoverageIgnoreEnd
+  }
+
 }

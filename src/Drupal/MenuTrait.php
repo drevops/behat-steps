@@ -87,7 +87,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
-    $this->menuAssertLinkModuleEnabled();
+    $this->helperAssertModuleEnabled('menu_link_content');
 
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
@@ -109,7 +109,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
-    $this->menuAssertLinkModuleEnabled();
+    $this->helperAssertModuleEnabled('menu_link_content');
 
     $menu = $this->loadMenuByLabel($menu_name);
 
@@ -143,17 +143,6 @@ trait MenuTrait {
       $menu_link->save();
       $this->entityRegister($menu_link);
     }
-  }
-
-  /**
-   * Assert that the module backing the menu link steps is enabled.
-   */
-  protected function menuAssertLinkModuleEnabled(): void {
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::moduleHandler()->moduleExists('menu_link_content')) {
-      throw new \RuntimeException('The "menu_link_content" module is not enabled. Enable it as part of the site setup; it ships with Drupal core.');
-    }
-    // @codeCoverageIgnoreEnd
   }
 
   /**

@@ -16,6 +16,8 @@ use Drupal\node\NodeInterface;
  */
 trait DraggableviewsTrait {
 
+  use HelperTrait;
+
   /**
    * Save order of the Draggable Order items.
    *
@@ -28,7 +30,7 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
-    $this->draggableViewsAssertModuleEnabled();
+    $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
 
@@ -63,17 +65,6 @@ trait DraggableviewsTrait {
     // change.
     $list_cache_tags = \Drupal::entityTypeManager()->getDefinition('node')->getListCacheTags();
     Cache::invalidateTags($list_cache_tags);
-  }
-
-  /**
-   * Assert that the module backing these steps is enabled.
-   */
-  protected function draggableViewsAssertModuleEnabled(): void {
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::moduleHandler()->moduleExists('draggableviews')) {
-      throw new \RuntimeException('The "draggableviews" module is not enabled. Add "drupal/draggableviews" to the consumer project\'s composer.json and enable the module as part of the site setup.');
-    }
-    // @codeCoverageIgnoreEnd
   }
 
   /**
