@@ -12,7 +12,6 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ExpectationException;
 
 /**
@@ -145,10 +144,11 @@ trait JavascriptTrait {
       return;
     }
 
-    $driver = $this->getSession()->getDriver();
-
+    // Collection runs through the driver-agnostic Mink script API, so any
+    // JavaScript-capable driver qualifies. Naming one driver class skipped
+    // every other one, including the Chrome driver this package suggests.
     // @codeCoverageIgnoreStart
-    if (!$driver instanceof Selenium2Driver) {
+    if (!$this->helperIsJavascriptSupported()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -185,10 +185,11 @@ trait JavascriptTrait {
       return;
     }
 
-    $driver = $this->getSession()->getDriver();
-
+    // Collection runs through the driver-agnostic Mink script API, so any
+    // JavaScript-capable driver qualifies. Naming one driver class skipped
+    // every other one, including the Chrome driver this package suggests.
     // @codeCoverageIgnoreStart
-    if (!$driver instanceof Selenium2Driver) {
+    if (!$this->helperIsJavascriptSupported()) {
       return;
     }
     // @codeCoverageIgnoreEnd
