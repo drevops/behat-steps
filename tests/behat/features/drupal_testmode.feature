@@ -38,3 +38,23 @@ Feature: Ensure TestmodeTrait works.
     And I should see the text "[MYTEST] Article 6"
     And I should see the text "[MYTEST] Article 7"
     And I save screenshot
+
+  @api @trait:Drupal\TestmodeTrait
+  Scenario: Assert that skip tag for beforeScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @testmode @behat-steps-skip:testmodeBeforeScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @api @trait:Drupal\TestmodeTrait
+  Scenario: Assert that skip tag for afterScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @testmode @behat-steps-skip:testmodeAfterScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass

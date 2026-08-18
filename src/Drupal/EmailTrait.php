@@ -52,11 +52,9 @@ trait EmailTrait {
    */
   #[BeforeScenario('@api')]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     if (!$scope->getScenario()->hasTag('email')) {
       return;
     }
@@ -350,11 +348,9 @@ trait EmailTrait {
    */
   #[Then('the email field :field should not contain:')]
   public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
-    // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
-    // @codeCoverageIgnoreEnd
     $string = (string) $string;
     $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
@@ -679,11 +675,9 @@ trait EmailTrait {
    *   Email message or NULL if not found.
    */
   protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
-    // @codeCoverageIgnoreStart
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
-    // @codeCoverageIgnoreEnd
     $string = (string) $string;
     $string = $this->helperNormalizeWhitespace($string);
 

@@ -215,3 +215,13 @@ Feature: Check that ModuleTrait works
       """
       The module "help" is enabled, but it should not be.
       """
+
+  @api @trait:Drupal\ModuleTrait
+  Scenario: Assert that skip tag for beforeScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @behat-steps-skip:moduleBeforeScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass

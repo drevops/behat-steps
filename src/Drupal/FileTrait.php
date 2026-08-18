@@ -44,11 +44,9 @@ trait FileTrait {
    */
   #[BeforeScenario('@api')]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     // The 6.x Drupal driver bootstraps lazily on the first step that needs
     // Drupal, so the container may not exist yet when this hook fires. The
     // file operations that need the directories create them on demand.
@@ -185,11 +183,9 @@ trait FileTrait {
    */
   #[AfterScenario('@api')]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     foreach ($this->filesUnmanagedUris as $uri) {
       @unlink($uri);
     }

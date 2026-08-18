@@ -26,11 +26,9 @@ trait TestmodeTrait {
    */
   #[BeforeScenario('@api')]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     if ($scope->getScenario()->hasTag('testmode')) {
       self::testmodeEnableTestMode();
     }
@@ -41,11 +39,9 @@ trait TestmodeTrait {
    */
   #[AfterScenario('@api')]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     if ($scope->getScenario()->hasTag('testmode')) {
       self::testmodeDisableTestMode();
     }
