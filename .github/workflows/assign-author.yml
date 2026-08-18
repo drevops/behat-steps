@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   assign-author:
+    name: Assign author
     runs-on: ubuntu-latest
 
     steps:
