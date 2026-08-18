@@ -22,6 +22,12 @@
             "enabled": false
         },
         {
+            "description": "Drupal core pins this package for the fixture site, so raising the floor here makes the fixture unresolvable. Only widen the range when a release falls outside it.",
+            "matchDepNames": ["justinrainbow/json-schema"],
+            "matchManagers": ["composer"],
+            "rangeStrategy": "replace"
+        },
+        {
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",
             "groupSlug": "all"
