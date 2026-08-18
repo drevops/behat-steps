@@ -413,9 +413,12 @@ trait FeatureContextTrait {
       $cookie_jar->set($cookie);
     }
 
-    // CDP-based drivers like the Chrome (chrome-mink) driver.
+    // CDP-based drivers like the Chrome (chrome-mink) driver. Their own
+    // setCookie() binds the cookie to the configured base URL, so a page served
+    // from another origin never receives it. Writing through the document keeps
+    // the cookie on the origin the scenario is on.
     if (method_exists($driver, 'getCookies')) {
-      $driver->setCookie($name, $value);
+      $driver->evaluateScript(sprintf('document.cookie = %s;', json_encode($name . '=' . rawurlencode($value) . '; path=/')));
     }
   }
 
