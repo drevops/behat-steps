@@ -432,9 +432,11 @@ trait FieldTrait {
       if (str_contains($label_classes, 'form-required')) {
         return TRUE;
       }
+
       if (str_contains($label->getText(), '*')) {
         return TRUE;
       }
+
       if ($label->find('css', '.form-required') !== NULL) {
         return TRUE;
       }
@@ -722,6 +724,7 @@ JS;
         $current_values = $current_values ? [$current_values] : [];
       }
       // @codeCoverageIgnoreEnd
+
       $new_values = array_values(array_filter(
         array_diff($current_values, [$option_value]),
         is_string(...)
