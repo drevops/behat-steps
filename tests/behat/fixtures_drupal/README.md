@@ -268,7 +268,7 @@ If a new test requires additional Drupal modules:
 
 ### Drupal 11 (d11/)
 - PHP >= 8.3
-- Drupal core: `~11.4.0`
+- Drupal core: `~11.3.0`
 - All modules must be Drupal 11 compatible
 
 ## Testing Flow
