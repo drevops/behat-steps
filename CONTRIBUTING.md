@@ -51,6 +51,23 @@ Run `ahoy lint-docs` to validate the format of the steps.
 - **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
 - Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
 
+## Member ordering within a trait
+
+Most traits lay their members out in this order, and new traits should follow it:
+
+1. Constants and properties.
+2. Hooks (`#[BeforeScenario]`, `#[AfterStep]` and the like).
+3. `Given` steps, then `When` steps, then `Then` steps.
+4. Protected helpers.
+
+Roughly 25 traits already match, including `CommandTrait`, `Drupal\ConfigTrait`, `Drupal\ModuleTrait`, `Drupal\StateTrait`, `ModalTrait` and `TableTrait`.
+
+Two parts of that are firm: properties and hooks belong at the top, and a helper never sits above the hooks.
+
+The rest is a default rather than a rule. Placing a helper directly after the steps that call it is an accepted variant, and in a long file it reads better than exiling every helper to the bottom - `ElementTrait` does this deliberately across 1300 lines.
+
+**Do not reorder an existing trait as a change of its own.** `docs.php` renders steps into [STEPS.md](STEPS.md) in source order, so moving members reorders the published documentation: a large diff in two files for no runtime gain. Let files converge as they are touched for other reasons.
+
 ## Unsettled style questions
 
 Four style questions have no dominant form in this codebase. Both sides of each are correct and behavior-identical where they appear, and converging any of them would churn 25 to 75 sites for no functional gain. Match the surrounding file and do not convert existing code from one form to the other as a drive-by change.
