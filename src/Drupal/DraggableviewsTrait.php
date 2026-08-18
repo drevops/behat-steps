@@ -16,6 +16,8 @@ use Drupal\node\NodeInterface;
  */
 trait DraggableviewsTrait {
 
+  use HelperTrait;
+
   /**
    * Save order of the Draggable Order items.
    *
@@ -28,6 +30,8 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
   public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
+    $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
+
     $database = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
