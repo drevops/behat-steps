@@ -147,34 +147,6 @@ trait AccessibilityTrait {
   protected bool $accessibilityGated = FALSE;
 
   /**
-   * Capture the working directory once, before any scenario can chdir().
-   */
-  #[BeforeSuite]
-  public static function accessibilityCaptureBaseDir(): void {
-    if (self::$accessibilityBaseDir === NULL) {
-      $cwd = getcwd();
-      // Leave the base unset when getcwd() fails so
-      // accessibilityGetReportDir() retries it later rather than locking in
-      // an empty, root-relative base.
-      if ($cwd !== FALSE) {
-        self::$accessibilityBaseDir = $cwd;
-      }
-    }
-  }
-
-  /**
-   * Clear the suite-level aggregate state before the suite runs.
-   *
-   * The accumulator is process-global, so resetting at suite start stops a
-   * second suite in the same process from inheriting the first one's results.
-   */
-  #[BeforeSuite]
-  public static function accessibilityAggregateReset(): void {
-    self::$accessibilityAggregate = [];
-    self::$accessibilityAggregateReportDir = NULL;
-  }
-
-  /**
    * Initialize accessibility state for the scenario.
    */
   #[BeforeScenario]
@@ -289,44 +261,6 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Fail the scenario when collected results breach the automatic gate.
-   *
-   * @throws \Behat\Mink\Exception\ExpectationException
-   *   If a violation at or above the threshold was collected.
-   */
-  protected function accessibilityEnforceGate(): void {
-    $threshold = $this->accessibilityEffectiveThreshold();
-    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
-    $messages = [];
-
-    foreach ($this->accessibilityResults as $r) {
-      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
-
-      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
-        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
-      }
-      if ($check_incomplete) {
-        foreach ($r['result']['incomplete'] ?? [] as $i) {
-          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
-        }
-      }
-    }
-
-    if ($messages !== []) {
-      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Render the single cross-page report after the whole suite has run.
-   */
-  #[AfterSuite]
-  public static function accessibilityAggregateRender(): void {
-    static::accessibilityWriteAggregateReport();
-  }
-
-  /**
    * Assert that the current page passes accessibility checks.
    *
    * @code
@@ -370,6 +304,72 @@ trait AccessibilityTrait {
       ),
       $this->getSession()->getDriver()
     );
+  }
+
+  /**
+   * Capture the working directory once, before any scenario can chdir().
+   */
+  #[BeforeSuite]
+  public static function accessibilityCaptureBaseDir(): void {
+    if (self::$accessibilityBaseDir === NULL) {
+      $cwd = getcwd();
+      // Leave the base unset when getcwd() fails so
+      // accessibilityGetReportDir() retries it later rather than locking in
+      // an empty, root-relative base.
+      if ($cwd !== FALSE) {
+        self::$accessibilityBaseDir = $cwd;
+      }
+    }
+  }
+
+  /**
+   * Clear the suite-level aggregate state before the suite runs.
+   *
+   * The accumulator is process-global, so resetting at suite start stops a
+   * second suite in the same process from inheriting the first one's results.
+   */
+  #[BeforeSuite]
+  public static function accessibilityAggregateReset(): void {
+    self::$accessibilityAggregate = [];
+    self::$accessibilityAggregateReportDir = NULL;
+  }
+
+  /**
+   * Render the single cross-page report after the whole suite has run.
+   */
+  #[AfterSuite]
+  public static function accessibilityAggregateRender(): void {
+    static::accessibilityWriteAggregateReport();
+  }
+
+  /**
+   * Fail the scenario when collected results breach the automatic gate.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If a violation at or above the threshold was collected.
+   */
+  protected function accessibilityEnforceGate(): void {
+    $threshold = $this->accessibilityEffectiveThreshold();
+    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
+    $messages = [];
+
+    foreach ($this->accessibilityResults as $r) {
+      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
+
+      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
+        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
+      }
+      if ($check_incomplete) {
+        foreach ($r['result']['incomplete'] ?? [] as $i) {
+          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
+        }
+      }
+    }
+
+    if ($messages !== []) {
+      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -851,30 +851,7 @@ trait AccessibilityTrait {
 <head>
 <meta charset="utf-8">
 <title>Accessibility report - {$title}</title>
-<style>
-:root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-body { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; color: #1f2328; }
-h1 { font-size: 1.5rem; border-bottom: 1px solid #d0d7de; padding-bottom: .5rem; }
-h2 { font-size: 1.1rem; margin-top: 2rem; word-break: break-all; }
-h3 { font-size: 1rem; margin-top: 1.5rem; }
-.meta { color: #57606a; font-size: .9rem; }
-.issue { border: 1px solid #d0d7de; border-radius: 6px; padding: .75rem 1rem; margin: .5rem 0; }
-.issue.violation { border-left: 4px solid #cf222e; }
-.issue.incomplete { border-left: 4px solid #9a6700; }
-.impact { display: inline-block; padding: .1rem .5rem; border-radius: 3px; font-size: .75rem; font-weight: 600; text-transform: uppercase; margin-right: .5rem; }
-.impact.critical { background: #cf222e; color: white; }
-.impact.serious { background: #d1242f; color: white; }
-.impact.moderate { background: #bf8700; color: white; }
-.impact.minor { background: #57606a; color: white; }
-.impact.unknown { background: #d0d7de; color: #1f2328; }
-.rule-id { font-family: ui-monospace, SFMono-Regular, monospace; }
-.node { background: #f6f8fa; padding: .5rem; border-radius: 3px; margin: .5rem 0; font-size: .85rem; }
-.node code { font-family: ui-monospace, SFMono-Regular, monospace; white-space: pre-wrap; word-break: break-all; }
-a { color: #0969da; }
-</style>
-</head>
-<body>
-<h1>Accessibility report</h1>
+
 <p class="meta">{$title} &middot; threshold: <code>{$threshold}</code> &middot; fail on incomplete: <code>{$fail_on_incomplete}</code></p>
 {$sections}
 </body>

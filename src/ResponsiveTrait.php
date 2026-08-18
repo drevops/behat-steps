@@ -86,44 +86,6 @@ trait ResponsiveTrait {
   protected ?string $responsiveBreakpointFromTag = NULL;
 
   /**
-   * Set custom breakpoints.
-   *
-   * Custom breakpoints override default breakpoints with the same name.
-   *
-   * @param array<string, string> $breakpoints
-   *   Array of breakpoints in format ['name' => 'WIDTHxHEIGHT'].
-   *
-   * @throws \RuntimeException
-   *   If breakpoint format is invalid.
-   */
-  public function responsiveSetBreakpoints(array $breakpoints): void {
-    foreach ($breakpoints as $name => $dimensions) {
-      // Validate format by extracting dimensions.
-      $this->responsiveExtractDimensions($dimensions, $name);
-      $this->responsiveCustomBreakpoints[$name] = $dimensions;
-    }
-  }
-
-  /**
-   * Set custom responsive breakpoints from a table.
-   *
-   * @code
-   * Given the following responsive breakpoints:
-   *   | name       | dimensions |
-   *   | iphone_12  | 390x844    |
-   *   | 4k_display | 3840x2160  |
-   * @endcode
-   */
-  #[Given('the following responsive breakpoints:')]
-  public function responsiveSetBreakpointsFromTable(TableNode $table): void {
-    $breakpoints = [];
-    foreach ($table->getHash() as $row) {
-      $breakpoints[$row['name']] = $row['dimensions'];
-    }
-    $this->responsiveSetBreakpoints($breakpoints);
-  }
-
-  /**
    * Validate @breakpoint:NAME tag before scenario.
    */
   #[BeforeScenario]
@@ -172,6 +134,25 @@ trait ResponsiveTrait {
     $breakpoint_name = $this->responsiveBreakpointFromTag;
     $this->responsiveBreakpointFromTag = NULL;
     $this->responsiveResizeToBreakpoint($breakpoint_name);
+  }
+
+  /**
+   * Set custom responsive breakpoints from a table.
+   *
+   * @code
+   * Given the following responsive breakpoints:
+   *   | name       | dimensions |
+   *   | iphone_12  | 390x844    |
+   *   | 4k_display | 3840x2160  |
+   * @endcode
+   */
+  #[Given('the following responsive breakpoints:')]
+  public function responsiveSetBreakpointsFromTable(TableNode $table): void {
+    $breakpoints = [];
+    foreach ($table->getHash() as $row) {
+      $breakpoints[$row['name']] = $row['dimensions'];
+    }
+    $this->responsiveSetBreakpoints($breakpoints);
   }
 
   /**
@@ -243,6 +224,25 @@ trait ResponsiveTrait {
   #[When('I set the viewport to :width by :height')]
   public function responsiveSetViewportDimensions(string $width, string $height): void {
     $this->responsiveResize((int) $width, (int) $height);
+  }
+
+  /**
+   * Set custom breakpoints.
+   *
+   * Custom breakpoints override default breakpoints with the same name.
+   *
+   * @param array<string, string> $breakpoints
+   *   Array of breakpoints in format ['name' => 'WIDTHxHEIGHT'].
+   *
+   * @throws \RuntimeException
+   *   If breakpoint format is invalid.
+   */
+  public function responsiveSetBreakpoints(array $breakpoints): void {
+    foreach ($breakpoints as $name => $dimensions) {
+      // Validate format by extracting dimensions.
+      $this->responsiveExtractDimensions($dimensions, $name);
+      $this->responsiveCustomBreakpoints[$name] = $dimensions;
+    }
   }
 
   /**
