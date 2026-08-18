@@ -1,11 +1,21 @@
 {
     "extends": ["config:recommended"],
     "automerge": true,
+    "rangeStrategy": "bump",
     "dependencyDashboard": true,
     "pinDigests": true,
     "branchPrefix": "deps/",
-    "enabledManagers": ["github-actions"],
     "packageRules": [
+        {
+            "matchDepNames": ["php"],
+            "matchManagers": ["composer"],
+            "enabled": false
+        },
+        {
+            "matchManagers": ["composer"],
+            "matchUpdateTypes": ["major"],
+            "enabled": false
+        },
         {
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",

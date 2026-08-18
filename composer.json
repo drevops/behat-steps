@@ -22,10 +22,10 @@
         "behat/mink": ">=1.11"
     },
     "require-dev": {
-        "alexskrypnyk/phpunit-helpers": "^0.15.0",
+        "alexskrypnyk/phpunit-helpers": "^0.16.0",
         "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.3",
-        "dealerdirect/phpcodesniffer-composer-installer": "^1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "dmore/behat-chrome-extension": "^1.4",
         "drevops/behat-phpserver": "^2.1.1",
         "drevops/behat-screenshot": "^2.1",
@@ -33,7 +33,7 @@
         "drupal/coder": "^8.3.28",
         "drupal/drupal-extension": "^6.0",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
-        "ergebnis/composer-normalize": "^2.47",
+        "ergebnis/composer-normalize": "^2.52.0",
         "justinrainbow/json-schema": "^6.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "mglaman/phpstan-drupal": "^2.0.0",
@@ -41,9 +41,9 @@
         "phpcompatibility/php-compatibility": "^9.3.5",
         "phpspec/prophecy-phpunit": "^2.3",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.0.0",
-        "phpunit/phpunit": "^11",
-        "rector/rector": "^2.0",
+        "phpstan/phpstan": "^2.2.8",
+        "phpunit/phpunit": "^11.5.56",
+        "rector/rector": "^2.6.2",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
@@ -73,7 +73,17 @@
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "discard-changes": true,
+        "policy": {
+            "advisories": {
+                "block": false,
+                "audit": "fail"
+            },
+            "abandoned": {
+                "audit": "report"
+            }
+        }
     },
     "extra": {
         "patches": {
@@ -81,5 +91,7 @@
                 "Support for custom Drupal root": "https://patch-diff.githubusercontent.com/raw/mglaman/phpstan-drupal/pull/873.diff"
             }
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -8,3 +8,9 @@
 /patches.lock.json
 /docker-compose.override.yml
 /vendor
+
+# Temporary AI agent and developer artifacts (plans, scratch output, reports).
+/.artifacts/
+
+# Claude Code fetches the project update skill on demand; do not commit it.
+/.claude/skills/update-consumer-scaffold/

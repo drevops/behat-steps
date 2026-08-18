@@ -13,9 +13,6 @@ insert_final_newline = true
 [*.php]
 indent_size = 2
 
-[*.js]
-indent_size = 2
-
 [*.{json,lock}]
 indent_size = 4
 
