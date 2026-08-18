@@ -108,7 +108,7 @@ from the community.
 
 [//]: # (END)
 
-## Installation
+## 📦 Installation
 
 ```bash
 composer require --dev drevops/behat-steps:^3
@@ -122,7 +122,7 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
 
-## Usage
+## 🚀 Usage
 
 Add required traits to your
 `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
@@ -220,7 +220,7 @@ To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example
 `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
 
-## Writing tests with AI assistants
+## 🤖 Writing tests with AI assistants
 
 Copy and paste below into your project's `CLAUDE.md` or `AGENTS.md` file.
 

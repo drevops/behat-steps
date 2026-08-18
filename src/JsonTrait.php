@@ -617,6 +617,7 @@ trait JsonTrait {
       foreach ($validator->getErrors() as $error) {
         $messages[] = sprintf('[%s] %s', $error['property'], $error['message']);
       }
+
       throw new ExpectationException(sprintf('The response does not match the JSON schema: %s.', implode('; ', $messages)), $this->getSession()->getDriver());
     }
   }

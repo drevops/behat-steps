@@ -314,6 +314,7 @@ trait ResponsiveTrait {
       if ($name) {
         throw new \RuntimeException(sprintf("Invalid breakpoint format for '%s': '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $name, $dimensions));
       }
+
       throw new \RuntimeException(sprintf("Invalid breakpoint format: '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $dimensions));
     }
 

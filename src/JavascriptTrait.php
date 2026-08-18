@@ -301,7 +301,6 @@ JS;
       $errors = $this->getSession()->evaluateScript('return typeof window.jsErrors !== "undefined" ? window.jsErrors : [];');
 
       if (!empty($errors)) {
-        // Store errors in registry under this URL.
         if (!isset($this->javascriptErrorRegistry[$url])) {
           $this->javascriptErrorRegistry[$url] = [];
         }
@@ -310,7 +309,6 @@ JS;
           $this->javascriptErrorRegistry[$url][] = $error;
         }
 
-        // Clear errors from browser.
         $this->getSession()->executeScript('window.jsErrors = [];');
       }
     }
