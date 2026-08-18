@@ -631,10 +631,18 @@ trait EmailTrait {
     // may corrupt the system under test.
     $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");
 
-    $messages = [];
-    if ($query instanceof StatementInterface) {
-      $messages = array_map(unserialize(...), $query->fetchAllKeyed());
+    // A failed read is not the same as an empty mailbox. Connection::query()
+    // returns NULL when execution failed and the exception handler suppressed
+    // it, and treating that as zero messages would make every "no emails"
+    // assertion pass without the collector ever being consulted.
+    // @codeCoverageIgnoreStart
+    if (!$query instanceof StatementInterface) {
+      throw new \RuntimeException('The test email collector could not be read from the key_value store.');
     }
+    // @codeCoverageIgnoreEnd
+    $messages = array_map(unserialize(...), $query->fetchAllKeyed());
+
+    // An absent key means the collector is readable and holds nothing yet.
     $messages = $messages['system.test_mail_collector'] ?? [];
 
     $fields = ['subject', 'body', 'to', 'from', 'cc', 'bcc'];
