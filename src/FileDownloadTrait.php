@@ -13,6 +13,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Symfony\Component\Filesystem\Filesystem;
@@ -103,14 +104,22 @@ trait FileDownloadTrait {
       }
     }
 
-    // BrowserKit-based drivers like GoutteDriver.
-    else {
+    // BrowserKit-based drivers like GoutteDriver. Values are passed through as
+    // the driver reports them, because they are going back out in a Cookie
+    // header and belong in their wire form. CookieTrait decodes the same
+    // values instead, since it presents them for assertion.
+    elseif (method_exists($driver, 'getClient')) {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       // @phpstan-ignore-next-line
       $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
       foreach ($cookies as $cookie_name => $cookie_value) {
         $cookie_list[] = $cookie_name . '=' . $cookie_value;
       }
+    }
+    else {
+      // @codeCoverageIgnoreStart
+      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s.', $driver);
+      // @codeCoverageIgnoreEnd
     }
 
     $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url, [
@@ -399,12 +408,19 @@ trait FileDownloadTrait {
     curl_setopt_array($handle, $options);
 
     $content = curl_exec($handle);
+    $status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
     curl_close($handle);
 
     if (!$content) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
       // @codeCoverageIgnoreEnd
+    }
+
+    // An error page has a body like any other response, so without this the
+    // response to a 404 would be saved and asserted on as the downloaded file.
+    if ($status >= 400) {
+      throw new \RuntimeException(sprintf('The URL %s returned HTTP status %d.', $url, $status));
     }
 
     $headers = $this->fileDownloadParseHeaders($response_headers);

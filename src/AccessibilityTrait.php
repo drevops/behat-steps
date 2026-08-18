@@ -470,6 +470,19 @@ trait AccessibilityTrait {
    *   Impact identifiers ordered from most severe to least.
    */
   protected function accessibilityGetImpacts(): array {
+    return static::accessibilityGetDefaultImpacts();
+  }
+
+  /**
+   * Return the impact levels in descending severity order, statically.
+   *
+   * The static rollup cannot reach the instance getter, so both read this one
+   * ordering rather than each carrying its own copy.
+   *
+   * @return array<int, string>
+   *   Impact identifiers ordered from most severe to least.
+   */
+  protected static function accessibilityGetDefaultImpacts(): array {
     return [
       self::IMPACT_CRITICAL,
       self::IMPACT_SERIOUS,
@@ -1132,14 +1145,10 @@ HTML;
    *   Severity-sorted rules and per-impact totals.
    */
   protected static function accessibilityAggregateRollup(array $pages): array {
-    $rank = [self::IMPACT_CRITICAL => 0, self::IMPACT_SERIOUS => 1, self::IMPACT_MODERATE => 2, self::IMPACT_MINOR => 3];
+    $impacts = static::accessibilityGetDefaultImpacts();
+    $rank = array_flip($impacts);
     $rules = [];
-    $totals = [
-      self::IMPACT_CRITICAL => 0,
-      self::IMPACT_SERIOUS => 0,
-      self::IMPACT_MODERATE => 0,
-      self::IMPACT_MINOR => 0,
-    ];
+    $totals = array_fill_keys($impacts, 0);
 
     foreach ($pages as $url => $page) {
       foreach ($page['violations'] ?? [] as $violation) {
