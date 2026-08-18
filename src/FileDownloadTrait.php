@@ -409,7 +409,6 @@ trait FileDownloadTrait {
 
     $content = curl_exec($handle);
     $status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-    curl_close($handle);
 
     if (!$content) {
       // @codeCoverageIgnoreStart

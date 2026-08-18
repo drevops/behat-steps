@@ -541,7 +541,6 @@ trait MetatagTrait {
 
     $body = curl_exec($handle);
     $status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-    curl_close($handle);
 
     if (!is_string($body)) {
       // @codeCoverageIgnoreStart
