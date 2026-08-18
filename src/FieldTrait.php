@@ -724,7 +724,6 @@ JS;
         $current_values = $current_values ? [$current_values] : [];
       }
       // @codeCoverageIgnoreEnd
-
       $new_values = array_values(array_filter(
         array_diff($current_values, [$option_value]),
         is_string(...)
