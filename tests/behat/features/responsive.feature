@@ -60,9 +60,9 @@ Feature: Check that ResponsiveTrait works
   @trait:ResponsiveTrait
   Scenario: Invalid breakpoint should throw exception
     Given some behat configuration
-    And scenario steps tagged with "@phpserver":
+    And scenario steps:
       """
-      @javascript
+      @javascript @phpserver
       Scenario: Test invalid breakpoint
         When I am on "http://cli:8888/javascript_clean1.html"
         And I set the viewport to the "non_existent_breakpoint" breakpoint
@@ -76,9 +76,9 @@ Feature: Check that ResponsiveTrait works
   @trait:ResponsiveTrait
   Scenario: Invalid breakpoint tag should throw exception
     Given some behat configuration
-    And scenario steps tagged with "@phpserver":
+    And scenario steps:
       """
-      @javascript @breakpoint:invalid_breakpoint_tag
+      @javascript @breakpoint:invalid_breakpoint_tag @phpserver
       Scenario: Test invalid breakpoint tag
         When I am on "http://cli:8888/javascript_clean1.html"
       """
@@ -91,9 +91,9 @@ Feature: Check that ResponsiveTrait works
   @trait:ResponsiveTrait
   Scenario: Missing @javascript tag with @breakpoint should throw exception
     Given some behat configuration
-    And scenario steps tagged with "@phpserver":
+    And scenario steps:
       """
-      @breakpoint:mobile_portrait
+      @breakpoint:mobile_portrait @phpserver
       Scenario: Test missing javascript tag
         When I am on "http://cli:8888/javascript_clean1.html"
       """
@@ -106,9 +106,9 @@ Feature: Check that ResponsiveTrait works
   @trait:ResponsiveTrait
   Scenario: Multiple @breakpoint tags should throw exception
     Given some behat configuration
-    And scenario steps tagged with "@phpserver":
+    And scenario steps:
       """
-      @javascript @breakpoint:mobile_portrait @breakpoint:desktop
+      @javascript @breakpoint:mobile_portrait @breakpoint:desktop @phpserver
       Scenario: Test multiple breakpoint tags
         When I am on "http://cli:8888/javascript_clean1.html"
       """
