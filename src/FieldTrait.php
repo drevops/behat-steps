@@ -406,12 +406,10 @@ trait FieldTrait {
    * inside any associated label.
    */
   protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
-    // Native required attribute.
     if ($field_element->hasAttribute('required')) {
       return TRUE;
     }
 
-    // `form-required` class on the element itself.
     $classes = (string) $field_element->getAttribute('class');
     if (str_contains($classes, 'form-required')) {
       return TRUE;
@@ -419,14 +417,12 @@ trait FieldTrait {
 
     $page = $this->getSession()->getPage();
 
-    // Find the label associated with the field by id.
     $field_id = $field_element->getAttribute('id');
     $label = NULL;
     if ($field_id !== NULL && $field_id !== '') {
       $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
     }
 
-    // Fall back to the nearest ancestor label.
     if ($label === NULL) {
       $label = $field_element->find('xpath', 'ancestor::label[1]');
     }
@@ -436,10 +432,11 @@ trait FieldTrait {
       if (str_contains($label_classes, 'form-required')) {
         return TRUE;
       }
+
       if (str_contains($label->getText(), '*')) {
         return TRUE;
       }
-      // Check for a nested element with the form-required class.
+
       if ($label->find('css', '.form-required') !== NULL) {
         return TRUE;
       }
@@ -536,7 +533,6 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
-    // For non-JS drivers process field in a standard way.
     if (!$this->helperIsJavascriptSupported()) {
       $element->setValue($value);
       return;
@@ -704,10 +700,8 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
-    // Check if it's a multi-select field.
     $is_multiple = $select_field->hasAttribute('multiple');
 
-    // Find the option element to get its value.
     $option_element = $select_field->find('named', ['option', $option]);
     if (!$option_element) {
       throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s".', $option, $selector), $this->getSession()->getDriver());
@@ -723,26 +717,21 @@ JS;
     $option_value = (string) $option_value;
 
     if ($is_multiple) {
-      // For multi-select, remove the specific option from current selections.
       $current_values = $select_field->getValue();
 
-      // Ensure we have an array.
       // @codeCoverageIgnoreStart
       if (!is_array($current_values)) {
         $current_values = $current_values ? [$current_values] : [];
       }
       // @codeCoverageIgnoreEnd
-      // Remove the option value from current selections and filter out non-string values.
       $new_values = array_values(array_filter(
         array_diff($current_values, [$option_value]),
         is_string(...)
       ));
 
-      // Set the new values.
       $select_field->setValue($new_values);
     }
     else {
-      // For single select, just clear it by setting empty string.
       $select_field->setValue('');
     }
   }
@@ -769,15 +758,12 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
-    // Check if it's a multi-select field.
     $is_multiple = $select_field->hasAttribute('multiple');
 
     if ($is_multiple) {
-      // For multi-select, set to empty array.
       $select_field->setValue([]);
     }
     else {
-      // For single select, set to empty string.
       $select_field->setValue('');
     }
   }
@@ -935,12 +921,10 @@ JS;
    */
   #[Given('browser validation for the form :selector is disabled')]
   public function fieldDisableFormBrowserValidation(string $selector): void {
-    // Add selector to registry for deferred execution.
     if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
       $this->fieldFormValidationRegistry[] = $selector;
     }
 
-    // Try to apply immediately if we're already on a page with JS support.
     if ($this->helperIsJavascriptSupported()) {
       $this->fieldDisableFormValidation($selector);
     }
@@ -1066,7 +1050,6 @@ JS;
    *   If the datetime field part cannot be located.
    */
   protected function fieldFillDatetimeHelper(string $label, string $part, string $field, string $value): void {
-    // Try to find by label element first.
     $xpath = sprintf(
       '//label[contains(text(), "%s")]/..//input[contains(@name, "[%s][%s]")]',
       $label,
@@ -1088,7 +1071,6 @@ JS;
       $element = $page->find('xpath', $xpath);
     }
 
-    // If still not found, try a more generic approach.
     if ($element === NULL) {
       $xpath = sprintf(
         '//*[contains(text(), "%s")]/ancestor::div[contains(@class, "field--")]//input[contains(@name, "[%s][%s]")]',
