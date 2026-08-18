@@ -3,23 +3,23 @@ Feature: Check that JavascriptTrait works
   I want to automatically detect JavaScript errors during test execution
   So that users can catch JS errors in their scenarios by default
 
-  @javascript
+  @javascript @phpserver
   Scenario: Clean page without JavaScript errors should pass
-    Given I visit "/sites/default/files/javascript_clean1.html"
+    Given I visit "http://cli:8888/javascript_clean1.html"
     Then I should see "Clean Page 1 Without JavaScript Errors"
     And I should see "Page 1 JavaScript is working correctly!"
     When I press "Click to update message"
     Then I should see "Message on page 1 updated successfully!"
 
-  @javascript
+  @javascript @phpserver
   Scenario: Moving between pages without JavaScript errors should pass
-    Given I visit "/sites/default/files/javascript_clean1.html"
+    Given I visit "http://cli:8888/javascript_clean1.html"
     Then I should see "Clean Page 1 Without JavaScript Errors"
     And I should see "Page 1 JavaScript is working correctly!"
     When I press "Click to update message"
     Then I should see "Message on page 1 updated successfully!"
 
-    Given I visit "/sites/default/files/javascript_clean2.html"
+    Given I visit "http://cli:8888/javascript_clean2.html"
     Then I should see "Clean Page 2 Without JavaScript Errors"
     And I should see "Page 2 JavaScript is working correctly!"
     When I press "Click to update message"
@@ -28,9 +28,9 @@ Feature: Check that JavascriptTrait works
   @trait:JavascriptTrait
   Scenario: Page with JavaScript errors should fail
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_errors1.html"
+      Given I visit "http://cli:8888/javascript_errors1.html"
       Then I should see "Page 1 with JavaScript Errors"
       When I press "Click to trigger error"
       """
@@ -41,7 +41,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors1.html
+      URL: http://cli:8888/javascript_errors1.html
       """
     And the output should contain:
       """
@@ -51,9 +51,9 @@ Feature: Check that JavascriptTrait works
   @trait:JavascriptTrait
   Scenario: All errors collected during a step are reported together
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_errors3.html"
+      Given I visit "http://cli:8888/javascript_errors3.html"
       When I press "Click to trigger errors"
       """
     When I run "behat --no-colors"
@@ -63,7 +63,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors3.html
+      URL: http://cli:8888/javascript_errors3.html
       """
     And the output should contain:
       """
@@ -85,11 +85,11 @@ Feature: Check that JavascriptTrait works
   @trait:JavascriptTrait
   Scenario: Errors from different pages are tracked separately
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_errors3.html"
+      Given I visit "http://cli:8888/javascript_errors3.html"
       When I press "Click to trigger errors"
-      And I visit "/sites/default/files/javascript_errors2.html"
+      And I visit "http://cli:8888/javascript_errors2.html"
       And I press "Click to trigger error"
       """
     When I run "behat --no-colors"
@@ -99,7 +99,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors3.html
+      URL: http://cli:8888/javascript_errors3.html
       """
     And the output should contain:
       """
@@ -107,7 +107,7 @@ Feature: Check that JavascriptTrait works
       """
     And the output should contain:
       """
-      URL: http://nginx:8080/sites/default/files/javascript_errors2.html
+      URL: http://cli:8888/javascript_errors2.html
       """
     And the output should contain:
       """
@@ -121,12 +121,12 @@ Feature: Check that JavascriptTrait works
   @trait:JavascriptTrait
   Scenario: Errors are reported when an earlier step failed
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/javascript_errors3.html"
+      Given I visit "http://cli:8888/javascript_errors3.html"
       When I press "Click to trigger errors"
       Then I should see "text that is not on the page"
-      And I visit "/sites/default/files/javascript_clean1.html"
+      And I visit "http://cli:8888/javascript_clean1.html"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -144,18 +144,18 @@ Feature: Check that JavascriptTrait works
     And a file named "features/stub.feature" with:
       """
       Feature: Stub feature
-        @javascript
+        @javascript @phpserver
         Scenario: Passing scenario before the failure
-          Given I visit "/sites/default/files/javascript_clean1.html"
+          Given I visit "http://cli:8888/javascript_clean1.html"
 
-        @javascript
+        @javascript @phpserver
         Scenario: Scenario with a JavaScript error
-          Given I visit "/sites/default/files/javascript_errors1.html"
+          Given I visit "http://cli:8888/javascript_errors1.html"
           When I press "Click to trigger error"
 
-        @javascript
+        @javascript @phpserver
         Scenario: Passing scenario after the failure
-          Given I visit "/sites/default/files/javascript_clean2.html"
+          Given I visit "http://cli:8888/javascript_clean2.html"
       """
     When I run "behat --no-colors"
     Then it should fail with:
@@ -168,20 +168,21 @@ Feature: Check that JavascriptTrait works
       1 scenario (1 failed)
       """
 
-  @javascript @js-errors
+  @javascript @js-errors @phpserver
   Scenario: Bypass tag allows page with errors to pass
-    Given I visit "/sites/default/files/javascript_errors1.html"
+    Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"
     When I press "Click to trigger error"
     And sleep for 4 second
 
-  @javascript @trait:JavascriptTrait @behat-steps-skip:JavascriptTrait
+  @javascript @trait:JavascriptTrait @behat-steps-skip:JavascriptTrait @phpserver
   Scenario: Skip tag allows bypassing error checking
-    Given I visit "/sites/default/files/javascript_errors1.html"
+    Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"
     When I press "Click to trigger error"
     And sleep for 4 second
 
+  @phpserver
   Scenario: Non-JavaScript scenario should not check for errors
-    Given I visit "/sites/default/files/javascript_errors1.html"
+    Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"

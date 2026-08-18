@@ -3,16 +3,17 @@ Feature: Check that ResponseTrait works
   I want to provide tools to verify HTTP response headers
   So that users can test server configuration and content delivery
 
+  @phpserver
   Scenario: Assert "Then the response should contain the header :header_name" works
-    When I go to "/sites/default/files/elements.html"
+    When I go to "http://cli:8888/elements.html"
     Then the response should contain the header "Content-Type"
 
   @trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response should contain the header :header_name" fails with an error
     Given some behat configuration
-    And scenario steps:
+    And scenario steps tagged with "@phpserver":
       """
-      When I go to "/sites/default/files/elements.html"
+      When I go to "http://cli:8888/elements.html"
       Then the response should contain the header "NonExistingHeader"
       """
     When I run "behat --no-colors"
@@ -21,8 +22,9 @@ Feature: Check that ResponseTrait works
       The response does not contain the header "NonExistingHeader".
       """
 
+  @phpserver
   Scenario: Assert "Then the response should not contain the header :header_name" works
-    When I go to "/sites/default/files/elements.html"
+    When I go to "http://cli:8888/elements.html"
     Then the response should not contain the header "NonExistingHeader"
 
   @trait:ResponseTrait
@@ -39,8 +41,9 @@ Feature: Check that ResponseTrait works
       The response contains the header "Content-Type", but should not.
       """
 
+  @phpserver
   Scenario: Assert "Then the response header :header_name should contain the value :header_value" works
-    When I go to "/sites/default/files/elements.html"
+    When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should contain the value "text/html"
 
   @trait:ResponseTrait
@@ -71,8 +74,9 @@ Feature: Check that ResponseTrait works
       The text "nonexistingvalue" was not found anywhere in the "Content-Type" response header.
       """
 
+  @phpserver
   Scenario: Assert "Then the response header :header_name should not contain the value :header_value" works
-    When I go to "/sites/default/files/elements.html"
+    When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
   @trait:ResponseTrait

@@ -433,15 +433,6 @@ trait FeatureContextTrait {
   }
 
   /**
-   * Go to the phpserver test page.
-   */
-  #[Given('/^(?:|I )am on (?:|the )phpserver test page$/')]
-  #[When('/^(?:|I )go to (?:|the )phpserver test page$/')]
-  public function goToPhpServerTestPage(): void {
-    $this->getSession()->visit('http://cli:8888/elements_relative.html');
-  }
-
-  /**
    * Assert that the mailsystem formatter has the expected value.
    */
   #[Then('the mailsystem formatter should be :expected')]

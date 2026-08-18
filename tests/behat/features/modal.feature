@@ -8,7 +8,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert jQuery UI modal full lifecycle
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_jquery_ui.html"
+    When I visit "http://cli:8888/modal_jquery_ui.html"
     Then I should not see the modal
     When I click on the element "#open-settings"
     And I wait for the modal to appear
@@ -21,7 +21,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with CSS selector
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_jquery_ui.html"
+    When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
     Then I should see the modal
@@ -30,7 +30,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with button text
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_jquery_ui.html"
+    When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
     When I click on "Save" in the modal
@@ -38,7 +38,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with link text
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_jquery_ui.html"
+    When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
     When I click on "Cancel" in the modal
@@ -46,7 +46,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert jQuery UI second modal has different content
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_jquery_ui.html"
+    When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-confirm"
     And I wait for the modal to appear
     Then I should see the modal
@@ -58,7 +58,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert native dialog full lifecycle
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_native.html"
+    When I visit "http://cli:8888/modal_native.html"
     Then I should not see the modal
     When I click on the element "#open-info"
     And I wait for the modal to appear
@@ -71,7 +71,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert native dialog click with button text
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_native.html"
+    When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
     When I click on "OK" in the modal
@@ -79,7 +79,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert native dialog click with link text
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_native.html"
+    When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
     When I click on "View details" in the modal
@@ -87,7 +87,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert native dialog second modal has different content
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_native.html"
+    When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-delete"
     And I wait for the modal to appear
     Then the modal should contain "Delete modal content"
@@ -98,7 +98,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert custom modal full lifecycle
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_custom.html"
+    When I visit "http://cli:8888/modal_custom.html"
     Then I should not see the modal
     When I click on the element "#open-profile"
     And I wait for the modal to appear
@@ -111,7 +111,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert custom modal click with CSS selector
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_custom.html"
+    When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
     When I click on ".btn-update" in the modal
@@ -119,7 +119,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert custom modal click with link text
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_custom.html"
+    When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
     When I click on "Reset" in the modal
@@ -127,7 +127,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert custom modal second modal has different content
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_custom.html"
+    When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-export"
     And I wait for the modal to appear
     Then the modal should contain "Export modal content"
@@ -136,7 +136,7 @@ Feature: Check that ModalTrait works
   @javascript @phpserver
   Scenario: Assert a visible modal is found when an earlier selector matches a hidden one
     Given I am an anonymous user
-    When I visit "/sites/default/files/modal_mixed.html"
+    When I visit "http://cli:8888/modal_mixed.html"
     Then I should not see the modal
     When I click on the element "#open-native"
     And I wait for the modal to appear
@@ -149,10 +149,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "Then I should see the modal" fails when no modal is visible
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       Then I should see the modal
       """
     When I run "behat --no-colors"
@@ -164,10 +164,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "When I close the modal" fails when modal is hidden
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       When I close the modal
       """
     When I run "behat --no-colors"
@@ -179,10 +179,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "When I click :selector in the modal" fails when modal is hidden
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       When I click on "Save" in the modal
       """
     When I run "behat --no-colors"
@@ -194,10 +194,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "Then the modal should contain :text" fails when modal is hidden
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       Then the modal should contain "some text"
       """
     When I run "behat --no-colors"
@@ -209,10 +209,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "When I click :selector in the modal" fails when element not found
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       When I press "Open Settings"
       When I click on ".nonexistent-element" in the modal
       """
@@ -225,10 +225,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "When I wait for the modal to appear" fails when modal does not appear within timeout
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_delayed.html"
+      When I visit "http://cli:8888/modal_delayed.html"
       When I press "Open Delayed Modal"
       When I wait for the modal to appear
       """
@@ -241,10 +241,10 @@ Feature: Check that ModalTrait works
   @trait:ModalTrait
   Scenario: Assert "Then I should not see the modal" passes when no modal is visible
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/modal_jquery_ui.html"
+      When I visit "http://cli:8888/modal_jquery_ui.html"
       Then I should not see the modal
       """
     When I run "behat --no-colors"

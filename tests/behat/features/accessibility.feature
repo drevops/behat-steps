@@ -3,34 +3,34 @@ Feature: Check that AccessibilityTrait works
   I want to assess accessibility of rendered pages
   So that consumers can fail scenarios on WCAG violations
 
-  @javascript
+  @javascript @phpserver
   Scenario: Clean page passes the explicit assertion
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "http://cli:8888/accessibility_clean.html"
     Then the current page should pass accessibility checks
 
-  @javascript
+  @javascript @phpserver
   Scenario: Clean page passes the explicit assertion for a specific tag set
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "http://cli:8888/accessibility_clean.html"
     Then the current page should pass accessibility checks for tags "wcag2a"
 
-  @javascript @accessibility
+  @javascript @accessibility @phpserver
   Scenario: Auto mode passes when navigating between clean pages
-    Given I visit "/sites/default/files/accessibility_clean.html"
+    Given I visit "http://cli:8888/accessibility_clean.html"
     Then I should see "Clean Accessibility Page"
     When I follow "Go to second clean page"
     Then I should see "Second Clean Accessibility Page"
 
-  @javascript @accessibility:warning
+  @javascript @accessibility:warning @phpserver
   Scenario: Auto mode with warning tag never fails even on a broken page
-    Given I visit "/sites/default/files/accessibility_violations.html"
+    Given I visit "http://cli:8888/accessibility_violations.html"
     Then I should see "Inaccessible Page"
 
   @trait:AccessibilityTrait
   Scenario: Explicit assertion fails on a page with violations
     Given some behat configuration
-    And scenario steps tagged with "@javascript":
+    And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "http://cli:8888/accessibility_violations.html"
       Then the current page should pass accessibility checks
       """
     When I run "behat --no-colors"
@@ -40,7 +40,7 @@ Feature: Check that AccessibilityTrait works
       """
     And the output should contain:
       """
-      Accessibility gate failed on /sites/default/files/accessibility_violations.html
+      Accessibility gate failed on http://cli:8888/accessibility_violations.html
       """
     And the output should contain:
       """
@@ -54,9 +54,9 @@ Feature: Check that AccessibilityTrait works
   @trait:AccessibilityTrait
   Scenario: Auto mode fails on a page with violations
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility":
+    And scenario steps tagged with "@javascript @accessibility @phpserver":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "http://cli:8888/accessibility_violations.html"
       Then I should see "Inaccessible Page"
       """
     When I run "behat --no-colors"
@@ -66,15 +66,15 @@ Feature: Check that AccessibilityTrait works
       """
     And the output should contain:
       """
-      violation [critical] image-alt on /sites/default/files/accessibility_violations.html
+      violation [critical] image-alt on http://cli:8888/accessibility_violations.html
       """
 
   @trait:AccessibilityTrait
   Scenario: Auto mode with critical threshold ignores serious violations only
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility:critical":
+    And scenario steps tagged with "@javascript @accessibility:critical @phpserver":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "http://cli:8888/accessibility_violations.html"
       Then I should see "Inaccessible Page"
       """
     When I run "behat --no-colors"
@@ -90,11 +90,11 @@ Feature: Check that AccessibilityTrait works
   @trait:AccessibilityTrait
   Scenario: A cross-page aggregate report is written after the suite
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility:warning":
+    And scenario steps tagged with "@javascript @accessibility:warning @phpserver":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "http://cli:8888/accessibility_violations.html"
       Then I should see "Inaccessible Page"
-      When I visit "/sites/default/files/accessibility_clean.html"
+      When I visit "http://cli:8888/accessibility_clean.html"
       Then I should see "Clean Accessibility Page"
       """
     When I run "behat --no-colors"
@@ -104,9 +104,9 @@ Feature: Check that AccessibilityTrait works
   @trait:AccessibilityTrait
   Scenario: Warning mode writes a JUnit report with no failures
     Given some behat configuration
-    And scenario steps tagged with "@javascript @accessibility:warning":
+    And scenario steps tagged with "@javascript @accessibility:warning @phpserver":
       """
-      Given I visit "/sites/default/files/accessibility_violations.html"
+      Given I visit "http://cli:8888/accessibility_violations.html"
       Then I should see "Inaccessible Page"
       """
     When I run "behat --no-colors"

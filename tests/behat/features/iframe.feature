@@ -6,7 +6,7 @@ Feature: Check that IframeTrait works
   @javascript @phpserver
   Scenario: Assert "When I switch to iframe with locator :locator" works for named iframe
     Given I am an anonymous user
-    When I visit "/sites/default/files/iframes.html"
+    When I visit "http://cli:8888/iframes.html"
     And I switch to iframe with locator ".named-iframe"
     Then I should see "Content inside named iframe"
     When I switch to the root document
@@ -15,7 +15,7 @@ Feature: Check that IframeTrait works
   @javascript @phpserver
   Scenario: Assert "When I switch to iframe with locator :locator" works for unnamed iframe
     Given I am an anonymous user
-    When I visit "/sites/default/files/iframes.html"
+    When I visit "http://cli:8888/iframes.html"
     And I switch to iframe with locator ".unnamed-iframe"
     Then I should see "Content inside unnamed iframe"
     When I switch to the root document
@@ -27,7 +27,7 @@ Feature: Check that IframeTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
-      When I visit "/sites/default/files/iframes.html"
+      When I visit "http://cli:8888/iframes.html"
       And I switch to iframe with locator ".nonexistent-iframe"
       """
     When I run "behat --no-colors"

@@ -120,6 +120,23 @@ ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
 ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
+### Static fixtures
+
+Static fixture files - HTML pages, XML, JSON, images, archives - live in [tests/behat/fixtures](tests/behat/fixtures).
+
+Traits with no Drupal dependency are tested against those files served by a PHP built-in server instead of the fixture Drupal site. Tag the scenario `@phpserver` and address the file directly:
+
+```gherkin
+@phpserver
+Scenario: Assert that an element exists
+  When I visit "http://cli:8888/elements.html"
+  Then the element "#top" should exist
+```
+
+The server runs for the duration of a tagged scenario and serves `tests/behat/fixtures` at its root, so an edited fixture applies on the next run.
+
+Drupal traits are tested through the fixture site, which receives a copy of the same directory in `build/web/sites/default/files` during provisioning. Run `ahoy copy-files` after editing a fixture that such a scenario reaches through a Drupal path.
+
 ### Coverage markers
 
 `@codeCoverageIgnoreStart` and `@codeCoverageIgnoreEnd` suppress **genuinely unreachable** defensive code. They are not a way to hide an untested branch.
