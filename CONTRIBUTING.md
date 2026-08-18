@@ -120,6 +120,25 @@ ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
 ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
+### Coverage markers
+
+`@codeCoverageIgnoreStart` and `@codeCoverageIgnoreEnd` suppress **genuinely unreachable** defensive code. They are not a way to hide an untested branch.
+
+The distinction matters because PHPUnit drops ignored lines from the report entirely. Ignoring a line that a test would have covered lowers the reported rate, which is merely wasteful. Ignoring a line that no test covers *raises* it, which reports progress that does not exist. `codecov/patch` and `codecov/project` are required checks, so that second case shifts the baseline every later pull request is measured against.
+
+Mark a block only when a test cannot reach it in this environment:
+
+- An I/O failure that cannot be provoked - `file_get_contents()` returning `FALSE` on a file just written, `tempnam()` failing.
+- A type guard that the preceding call makes impossible - `!$node instanceof NodeInterface` directly after a successful load.
+- A capability branch for a driver the suite does not run.
+
+Do not mark a branch that a scenario could reach. In particular:
+
+- **Skip-tag guards** (`@behat-steps-skip:<method>`) are reachable by definition - add a scenario carrying the tag.
+- **Argument validation** driven by a step parameter is reachable by passing an invalid value.
+
+If a reachable branch has no test, the fix is the test, not the marker.
+
 ### Debugging tests
 
 - `ahoy debug`

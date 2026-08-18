@@ -193,3 +193,23 @@ Feature: Check that FileTrait works
       """
       File contents "test content" contains "test content", but should not.
       """
+
+  @api @trait:Drupal\FileTrait
+  Scenario: Assert that skip tag for beforeScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @behat-steps-skip:fileBeforeScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @api @trait:Drupal\FileTrait
+  Scenario: Assert that skip tag for afterScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @behat-steps-skip:fileAfterScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass

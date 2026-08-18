@@ -757,3 +757,45 @@ Feature: Check that EmailTrait works
   @api @email
   Scenario: The mailsystem formatter should not be overridden when test email system is enabled
     Then the mailsystem formatter should be "php_mail"
+
+  @api @trait:Drupal\EmailTrait
+  Scenario: Assert that skip tag for beforeScenario hook works
+    Given some behat configuration
+    And scenario steps tagged with "@api @email @behat-steps-skip:emailBeforeScenario":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @api @trait:Drupal\EmailTrait
+  Scenario: Assert that an unknown email field is rejected by a positive assertion
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      Then the email field "nonexistent" should contain:
+        '''
+        anything
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Invalid email field nonexistent was specified for assertion.
+      """
+
+  @api @trait:Drupal\EmailTrait
+  Scenario: Assert that an unknown email field is rejected by a negative assertion
+    Given some behat configuration
+    And scenario steps tagged with "@api @email":
+      """
+      Then the email field "nonexistent" should not contain:
+        '''
+        anything
+        '''
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Invalid email field nonexistent was specified for assertion.
+      """

@@ -38,11 +38,9 @@ trait ModuleTrait {
    */
   #[BeforeScenario('@api')]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
-    // @codeCoverageIgnoreStart
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
-    // @codeCoverageIgnoreEnd
     $tags = $scope->getScenario()->getTags();
     foreach ($tags as $tag) {
       if (str_starts_with($tag, 'module:')) {
