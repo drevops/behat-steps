@@ -116,6 +116,14 @@ jobs:
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'lowest'
+          # PHP 8.5 runs on Drupal 11.3 and newer only, so it has no Drupal 10
+          # leg. @see https://www.drupal.org/docs/getting-started/system-requirements/php-requirements
+          - php_version: '8.5'
+            drupal_version: '11'
+            deps: 'normal'
+          - php_version: '8.5'
+            drupal_version: '11'
+            deps: 'lowest'
           # Selenium-less driver legs: run the same suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
           # portable. The browser driver is Drupal-version independent, so a
