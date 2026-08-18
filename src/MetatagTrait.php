@@ -118,7 +118,7 @@ trait MetatagTrait {
     $content = (string) $meta_tag->getAttribute('content');
 
     if ($content !== strip_tags($content)) {
-      throw new \Exception(sprintf('The "%s" meta tag contains HTML tags: %s', $meta_name, $content));
+      throw new \Exception(sprintf('The "%s" meta tag contains HTML tags: %s.', $meta_name, $content));
     }
   }
 

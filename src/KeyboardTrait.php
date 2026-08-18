@@ -131,7 +131,7 @@ trait KeyboardTrait {
 
     if (strlen($char) > 1) {
       if (!array_key_exists(strtolower($char), $keys)) {
-        throw new \RuntimeException(sprintf('Unsupported key "%s" provided', $char));
+        throw new \RuntimeException(sprintf('Unsupported key "%s" provided.', $char));
       }
 
       // Syn, the JS library that provides synthetic events, can tab only

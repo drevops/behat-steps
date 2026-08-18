@@ -64,7 +64,7 @@ trait BlockTrait {
     }
 
     if (!$block instanceof Block) {
-      throw new \RuntimeException(sprintf('Could not create block with admin label "%s"', $admin_label));
+      throw new \RuntimeException(sprintf('Could not create block with admin label "%s".', $admin_label));
     }
 
     $this->blockConfigure($admin_label, $fields);

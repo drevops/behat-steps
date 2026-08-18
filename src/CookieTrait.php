@@ -316,7 +316,7 @@ trait CookieTrait {
     }
     else {
       // @codeCoverageIgnoreStart
-      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s', $driver);
+      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s.', $driver);
       // @codeCoverageIgnoreEnd
     }
 

@@ -168,7 +168,7 @@ trait CommandTrait {
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== 0) {
-      throw new \Exception(sprintf('Expected the command to succeed, but it exited with code %d. Error output: %s', $exit_code, $this->commandStderr));
+      throw new \Exception(sprintf('Expected the command to succeed, but it exited with code %d. Error output: %s.', $exit_code, $this->commandStderr));
     }
   }
 
@@ -224,7 +224,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (!str_contains($this->commandStdout, $text)) {
-      throw new \Exception(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s', $text, $this->commandStdout));
+      throw new \Exception(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $text, $this->commandStdout));
     }
   }
 
@@ -243,7 +243,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (str_contains($this->commandStdout, $text)) {
-      throw new \Exception(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s', $text, $this->commandStdout));
+      throw new \Exception(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $text, $this->commandStdout));
     }
   }
 
@@ -283,7 +283,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (!str_contains($this->commandStderr, $text)) {
-      throw new \Exception(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s', $text, $this->commandStderr));
+      throw new \Exception(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $text, $this->commandStderr));
     }
   }
 

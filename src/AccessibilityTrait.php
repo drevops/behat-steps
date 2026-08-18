@@ -313,7 +313,7 @@ trait AccessibilityTrait {
     }
 
     if ($messages !== []) {
-      $message = sprintf("Auto accessibility gate failed (threshold=%s, fail_on_incomplete=%s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -385,7 +385,7 @@ trait AccessibilityTrait {
 
     $content = @file_get_contents($this->accessibilityGetCdnUrl());
     if ($content === FALSE || $content === '') {
-      throw new \RuntimeException(sprintf('Failed to fetch accessibility engine from %s', $this->accessibilityGetCdnUrl()));
+      throw new \RuntimeException(sprintf('Failed to fetch accessibility engine from %s.', $this->accessibilityGetCdnUrl()));
     }
 
     self::$accessibilityCachedJs = $content;
@@ -515,7 +515,7 @@ trait AccessibilityTrait {
     }
 
     if (isset($results['error'])) {
-      throw new \RuntimeException(sprintf('Accessibility engine failed: %s', $results['error']));
+      throw new \RuntimeException(sprintf('Accessibility engine failed: %s.', $results['error']));
     }
 
     return $results;

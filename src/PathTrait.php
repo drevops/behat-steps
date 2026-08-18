@@ -35,21 +35,21 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new ExpectationException('Current path is empty', $this->getSession()->getDriver());
+      throw new ExpectationException('Current path is empty.', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new ExpectationException('Current path is not a valid URL', $this->getSession()->getDriver());
+      throw new ExpectationException('Current path is not a valid URL.', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') !== ltrim($normalized_path, '/')) {
-      throw new ExpectationException(sprintf('Current path is "%s", but expected is "%s"', $current_path, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Current path is "%s", but expected is "%s".', $current_path, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -70,21 +70,21 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new ExpectationException('Current path is empty', $this->getSession()->getDriver());
+      throw new ExpectationException('Current path is empty.', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new ExpectationException('Current path is not a valid URL', $this->getSession()->getDriver());
+      throw new ExpectationException('Current path is not a valid URL.', $this->getSession()->getDriver());
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
-      throw new ExpectationException(sprintf('Current path should not be "%s"', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Current path should not be "%s".', $path), $this->getSession()->getDriver());
     }
 
     return TRUE;
@@ -104,7 +104,7 @@ trait PathTrait {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (empty($query[$param])) {
-      throw new ExpectationException(sprintf('The param "%s" is not in the URL', $param), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $param), $this->getSession()->getDriver());
     }
   }
 
@@ -126,7 +126,7 @@ trait PathTrait {
     $actual_value = $query[$param] ?? '';
 
     if ($actual_value !== $value) {
-      throw new ExpectationException(sprintf('The param "%s" is in the URL but with the wrong value "%s"', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but with the wrong value "%s".', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
     }
   }
 
@@ -144,7 +144,7 @@ trait PathTrait {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (!empty($query[$param])) {
-      throw new ExpectationException(sprintf('The param "%s" is in the URL but should not be', $param), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $param), $this->getSession()->getDriver());
     }
   }
 
@@ -166,7 +166,7 @@ trait PathTrait {
     }
 
     if ($query[$param] === $value) {
-      throw new ExpectationException(sprintf('The param "%s" with value "%s" is in the URL but should not be', $param, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $param, $value), $this->getSession()->getDriver());
     }
   }
 

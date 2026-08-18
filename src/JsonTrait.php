@@ -470,7 +470,7 @@ trait JsonTrait {
     $data = json_decode($content, TRUE);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new \RuntimeException(sprintf('Failed to decode JSON: %s', json_last_error_msg()));
+      throw new \RuntimeException(sprintf('Failed to decode JSON: %s.', json_last_error_msg()));
     }
 
     if (!is_array($data)) {
@@ -496,7 +496,7 @@ trait JsonTrait {
     $data = json_decode($content);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The response is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response is not valid JSON: %s.', json_last_error_msg()), $this->getSession()->getDriver());
     }
 
     return $data;
@@ -518,7 +518,7 @@ trait JsonTrait {
       $result = (new JSONPath($this->jsonData))->find($path);
     }
     catch (\Exception $exception) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is invalid: %s', $path, $exception->getMessage()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The JSON path "%s" is invalid: %s.', $path, $exception->getMessage()), $this->getSession()->getDriver());
     }
 
     $data = $result->getData();
@@ -606,7 +606,7 @@ trait JsonTrait {
 
     $schema = json_decode($schema_json);
     if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The provided JSON schema is not valid JSON: %s', json_last_error_msg()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The provided JSON schema is not valid JSON: %s.', json_last_error_msg()), $this->getSession()->getDriver());
     }
 
     $validator = new Validator();
@@ -617,7 +617,7 @@ trait JsonTrait {
       foreach ($validator->getErrors() as $error) {
         $messages[] = sprintf('[%s] %s', $error['property'], $error['message']);
       }
-      throw new ExpectationException(sprintf('The response does not match the JSON schema: %s', implode('; ', $messages)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response does not match the JSON schema: %s.', implode('; ', $messages)), $this->getSession()->getDriver());
     }
   }
 

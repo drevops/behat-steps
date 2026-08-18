@@ -142,13 +142,13 @@ trait ResponsiveTrait {
     }
 
     if (count($breakpoint_tags) > 1) {
-      throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per scenario. Found: @%s', implode(', @', $breakpoint_tags)));
+      throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per scenario. Found: @%s.', implode(', @', $breakpoint_tags)));
     }
 
     $tag = $breakpoint_tags[0];
 
     if (!in_array('javascript', $tags)) {
-      throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport', $tag));
+      throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport.', $tag));
     }
 
     $breakpoint_name = substr($tag, strlen('breakpoint:'));

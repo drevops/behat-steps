@@ -80,7 +80,7 @@ Feature: Check that AccessibilityTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      threshold=critical
+      threshold: critical
       """
     And the output should contain:
       """
