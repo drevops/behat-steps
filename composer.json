@@ -56,6 +56,8 @@
         "lullabot/mink-selenium2-driver": "JavaScript driver for @javascript scenarios: drives a Selenium/WebDriver server. Interchangeable with dmore/behat-chrome-extension - install one.",
         "softcreatr/jsonpath": "Required by JsonTrait for JSON path assertion steps ('the JSON path ... should ...')."
     },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "DrevOps\\BehatSteps\\": "src/"
@@ -73,7 +75,6 @@
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
         },
-        "sort-packages": true,
         "discard-changes": true,
         "policy": {
             "advisories": {
@@ -83,7 +84,8 @@
             "abandoned": {
                 "audit": "report"
             }
-        }
+        },
+        "sort-packages": true
     },
     "extra": {
         "patches": {
@@ -91,7 +93,5 @@
                 "Support for custom Drupal root": "https://patch-diff.githubusercontent.com/raw/mglaman/phpstan-drupal/pull/873.diff"
             }
         }
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    }
 }
