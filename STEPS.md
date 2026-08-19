@@ -91,6 +91,11 @@
 >  file is written per run, so a run never overwrites a previous one. The
 >  aggregate accumulates in process-global state, so under parallel Behat each
 >  process writes its own report.
+>  <br/><br/>
+>  Console output. A one-line per-page summary can be printed to the console
+>  as pages are assessed. Printing is off by default; set the
+>  `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
+>  than `0`, or override `accessibilityGetPrintCli()`, to enable it.
 
 
 <details>
