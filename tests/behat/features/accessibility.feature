@@ -123,3 +123,34 @@ Feature: Check that AccessibilityTrait works
       """
       <system-out>
       """
+
+  @trait:AccessibilityTrait
+  Scenario: Console summary is not printed by default
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/accessibility_clean.html"
+      Then the current page should pass accessibility checks
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+    And the output should not contain:
+      """
+      [accessibility]
+      """
+
+  @trait:AccessibilityTrait
+  Scenario: Console summary is printed when the environment variable is set
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/accessibility_clean.html"
+      Then the current page should pass accessibility checks
+      """
+    When the "BEHAT_ACCESSIBILITY_PRINT" environment variable is set to "1"
+    And I run "behat --no-colors"
+    Then it should pass
+    And the output should contain:
+      """
+      [accessibility] http://cli:8888/accessibility_clean.html: 0 violations,
+      """

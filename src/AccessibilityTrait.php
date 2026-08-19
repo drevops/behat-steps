@@ -41,6 +41,11 @@ use Behat\Step\Then;
  * file is written per run, so a run never overwrites a previous one. The
  * aggregate accumulates in process-global state, so under parallel Behat each
  * process writes its own report.
+ *
+ * Console output. A one-line per-page summary can be printed to the console
+ * as pages are assessed. Printing is off by default; set the
+ * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
+ * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
  */
 trait AccessibilityTrait {
 
@@ -460,6 +465,19 @@ trait AccessibilityTrait {
   }
 
   /**
+   * Return TRUE to print a one-line per-page summary to the console.
+   *
+   * Default: enabled only when the `BEHAT_ACCESSIBILITY_PRINT` environment
+   * variable is set to a non-empty value other than `0`. Override to
+   * hardcode either behaviour.
+   */
+  protected function accessibilityGetPrintCli(): bool {
+    $value = getenv('BEHAT_ACCESSIBILITY_PRINT');
+
+    return !in_array($value, [FALSE, '', '0'], TRUE);
+  }
+
+  /**
    * Return the canonical impact levels in descending severity order.
    *
    * Default: the four `IMPACT_*` constants on this trait. Engines with a
@@ -709,13 +727,15 @@ trait AccessibilityTrait {
     $this->accessibilityResults[] = ['url' => $url, 'rules' => $rules, 'result' => $normalized];
     $this->accessibilityLastCheckedUrl = $url;
 
-    fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
-      $this->accessibilityFormatUrl($url),
-      count($normalized['violations'] ?? []),
-      count($normalized['passes'] ?? []),
-      count($normalized['incomplete'] ?? []),
-      $rules
-    ));
+    if ($this->accessibilityGetPrintCli()) {
+      fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
+        $this->accessibilityFormatUrl($url),
+        count($normalized['violations'] ?? []),
+        count($normalized['passes'] ?? []),
+        count($normalized['incomplete'] ?? []),
+        $rules
+      ));
+    }
 
     return $normalized;
   }
