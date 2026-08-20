@@ -26,6 +26,12 @@
             "enabled": false
         },
         {
+            "description": "The Drupal 10 fixture keeps these packages below the releases that require Drupal 11 or PHP 8.3, neither of which the fixture and the lowest PHP version in the test matrix provide.",
+            "matchFileNames": ["tests/behat/fixtures_drupal/d10/composer.json"],
+            "matchPackageNames": ["drupal/dynamic_entity_reference", "drupal/scheduled_transitions", "drupal/testmode", "drush/drush"],
+            "enabled": false
+        },
+        {
             "matchDepNames": ["php"],
             "matchManagers": ["composer"],
             "enabled": false
