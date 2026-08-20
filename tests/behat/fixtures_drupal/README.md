@@ -263,13 +263,15 @@ If a new test requires additional Drupal modules:
 
 ### Drupal 10 (d10/)
 - PHP >= 8.2
-- Drupal core: `~10.5.0`
+- Drupal core: `~10.6.0`
 - CKEditor 5 (replaces CKEditor 4)
 
 ### Drupal 11 (d11/)
 - PHP >= 8.3
 - Drupal core: `~11.3.0`
 - All modules must be Drupal 11 compatible
+
+Renovate tracks both fixtures and raises the Drupal 10 constraint to each new minor. The Drupal 11 constraint is held at `~11.3.0` by a `renovate.json` package rule: 11.4 deprecates `node_access_rebuild()` and `user_pass_rehash()`, and their replacements do not exist in Drupal 10. Moving the fixture past 11.3 is blocked on dropping Drupal 10 support.
 
 ## Testing Flow
 
