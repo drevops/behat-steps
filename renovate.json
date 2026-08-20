@@ -5,11 +5,25 @@
     "dependencyDashboard": true,
     "pinDigests": true,
     "branchPrefix": "deps/",
+    "ignorePaths": [
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**/vendor/**",
+        "**/examples/**",
+        "**/__tests__/**",
+        "**/__fixtures__/**"
+    ],
     "packageRules": [
         {
             "description": "The image name in this file is assembled from a build argument, so a pinned digest would only ever resolve for one of the PHP versions in the test matrix.",
             "matchFileNames": [".docker/cli.dockerfile"],
             "pinDigests": false
+        },
+        {
+            "description": "The Drupal 11 fixture stays on 11.3 because 11.4 deprecates core functions whose replacements do not exist in Drupal 10, which this library still supports.",
+            "matchFileNames": ["tests/behat/fixtures_drupal/d11/composer.json"],
+            "matchPackageNames": ["drupal/core-*"],
+            "enabled": false
         },
         {
             "matchDepNames": ["php"],
