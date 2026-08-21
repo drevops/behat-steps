@@ -21,31 +21,6 @@ use Behat\Step\When;
 trait ElementTrait {
 
   /**
-   * Whether to scroll elements to the center of the viewport.
-   *
-   * Returns TRUE (default) to use scrollIntoView() with center alignment,
-   * which positions the element in the middle of the viewport. This avoids
-   * interaction failures caused by sticky headers, admin toolbars, or fixed
-   * navigation.
-   *
-   * Returns FALSE to use the scrollIntoView(true) behavior, which aligns
-   * the element to the top of the viewport.
-   *
-   * Override this method in the context class to change the behavior:
-   * @code
-   * class FeatureContext extends DrupalContext {
-   *   use ElementTrait;
-   *   protected function elementScrollIntoViewCenter(): bool {
-   *     return FALSE;
-   *   }
-   * }
-   * @endcode
-   */
-  protected function elementScrollIntoViewCenter(): bool {
-    return TRUE;
-  }
-
-  /**
    * Assert that one element appears after another on the page.
    *
    * @code
@@ -162,71 +137,6 @@ trait ElementTrait {
   }
 
   /**
-   * Assert an element with selector and attribute with a value.
-   *
-   * @param string $selector
-   *   The CSS selector.
-   * @param string $attribute
-   *   The attribute name.
-   * @param mixed $value
-   *   The value to assert.
-   * @param bool $is_exact
-   *   Whether to assert the value exactly.
-   * @param bool $is_inverted
-   *   Whether to assert the value is not present.
-   *
-   * @throws \Behat\Mink\Exception\ElementNotFoundException
-   *   If no element matches the selector.
-   * @throws \Behat\Mink\Exception\ExpectationException
-   *   If the attribute or its value does not match the expectation.
-   */
-  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    if (empty($elements)) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $attribute_found = FALSE;
-    $attribute_value_found = FALSE;
-    foreach ($elements as $element) {
-      $attribute_value = (string) $element->getAttribute($attribute);
-      if (!empty($attribute_value)) {
-        $attribute_found = TRUE;
-        if ($is_exact) {
-          if ($attribute_value === (string) $value) {
-            $attribute_value_found = TRUE;
-            break;
-          }
-        }
-        elseif (str_contains($attribute_value, (string) $value)) {
-          $attribute_value_found = TRUE;
-          break;
-        }
-      }
-    }
-
-    if (!$attribute_found) {
-      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
-    }
-
-    if ($is_inverted && $attribute_value_found) {
-      $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-
-    if (!$is_inverted && !$attribute_value_found) {
-      $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-  }
-
-  /**
    * Assert an element has a computed CSS property with a value.
    *
    * The value is compared against the value computed by the browser, not
@@ -290,6 +200,135 @@ trait ElementTrait {
   #[Then('the element :selector should not have the CSS property :property with the value containing :value')]
   public function elementAssertNotHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
     $this->elementAssertCssProperty($selector, $property, $value, FALSE, TRUE);
+  }
+
+  /**
+   * Assert that one element stacks above another.
+   *
+   * Compares the effective paint order rather than the `z-index` property:
+   * a `z-index` read from an element is only meaningful within its own
+   * stacking context, so a child of a stacking-context-forming ancestor can
+   * carry a high `z-index` and still paint below an element with a lower one.
+   *
+   * The comparison walks the stacking context chain of both elements, finds
+   * the context they share, and compares the two participants that branch off
+   * it, using document order to break a tie. Painting order within a single
+   * stacking context (floats, inline content and positioned descendants) is
+   * not modelled.
+   *
+   * @code
+   * Then the element "#modal" should stack above the element "#page-header"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack above the element :selector2')]
+  public function elementAssertStacksAbove(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, TRUE);
+  }
+
+  /**
+   * Assert that one element stacks below another.
+   *
+   * @code
+   * Then the element "#page-header" should stack below the element "#modal"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack below the element :selector2')]
+  public function elementAssertStacksBelow(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, FALSE);
+  }
+
+  /**
+   * Whether to scroll elements to the center of the viewport.
+   *
+   * Returns TRUE (default) to use scrollIntoView() with center alignment,
+   * which positions the element in the middle of the viewport. This avoids
+   * interaction failures caused by sticky headers, admin toolbars, or fixed
+   * navigation.
+   *
+   * Returns FALSE to use the scrollIntoView(true) behavior, which aligns
+   * the element to the top of the viewport.
+   *
+   * Override this method in the context class to change the behavior:
+   * @code
+   * class FeatureContext extends DrupalContext {
+   *   use ElementTrait;
+   *   protected function elementScrollIntoViewCenter(): bool {
+   *     return FALSE;
+   *   }
+   * }
+   * @endcode
+   */
+  protected function elementScrollIntoViewCenter(): bool {
+    return TRUE;
+  }
+
+  /**
+   * Assert an element with selector and attribute with a value.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $attribute
+   *   The attribute name.
+   * @param mixed $value
+   *   The value to assert.
+   * @param bool $is_exact
+   *   Whether to assert the value exactly.
+   * @param bool $is_inverted
+   *   Whether to assert the value is not present.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If no element matches the selector.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the attribute or its value does not match the expectation.
+   */
+  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
+
+    if (empty($elements)) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $attribute_found = FALSE;
+    $attribute_value_found = FALSE;
+    foreach ($elements as $element) {
+      $attribute_value = (string) $element->getAttribute($attribute);
+      if (!empty($attribute_value)) {
+        $attribute_found = TRUE;
+        if ($is_exact) {
+          if ($attribute_value === (string) $value) {
+            $attribute_value_found = TRUE;
+            break;
+          }
+        }
+        elseif (str_contains($attribute_value, (string) $value)) {
+          $attribute_value_found = TRUE;
+          break;
+        }
+      }
+    }
+
+    if (!$attribute_found) {
+      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
+    }
+
+    if ($is_inverted && $attribute_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
+
+    if (!$is_inverted && !$attribute_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -360,45 +399,6 @@ trait ElementTrait {
     }
 
     return strtolower((string) preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $property));
-  }
-
-  /**
-   * Assert that one element stacks above another.
-   *
-   * Compares the effective paint order rather than the `z-index` property:
-   * a `z-index` read from an element is only meaningful within its own
-   * stacking context, so a child of a stacking-context-forming ancestor can
-   * carry a high `z-index` and still paint below an element with a lower one.
-   *
-   * The comparison walks the stacking context chain of both elements, finds
-   * the context they share, and compares the two participants that branch off
-   * it, using document order to break a tie. Painting order within a single
-   * stacking context (floats, inline content and positioned descendants) is
-   * not modelled.
-   *
-   * @code
-   * Then the element "#modal" should stack above the element "#page-header"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector1 should stack above the element :selector2')]
-  public function elementAssertStacksAbove(string $selector1, string $selector2): void {
-    $this->elementAssertStackingOrder($selector1, $selector2, TRUE);
-  }
-
-  /**
-   * Assert that one element stacks below another.
-   *
-   * @code
-   * Then the element "#page-header" should stack below the element "#modal"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector1 should stack below the element :selector2')]
-  public function elementAssertStacksBelow(string $selector1, string $selector2): void {
-    $this->elementAssertStackingOrder($selector1, $selector2, FALSE);
   }
 
   /**
@@ -535,6 +535,7 @@ trait ElementTrait {
         }
 
         var element1 = document.querySelector({$selector1_js});
+
         var element2 = document.querySelector({$selector2_js});
 
         if (element1 === element2) {

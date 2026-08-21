@@ -51,6 +51,20 @@ Run `ahoy lint-docs` to validate the format of the steps.
 - **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
 - Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
 
+## Member ordering within a trait
+
+Traits lay their members out in this order:
+
+1. Trait composition (`use`), constants, then properties.
+2. Hooks (`#[BeforeScenario]`, `#[AfterStep]` and the like).
+3. `Given` steps, then `When` steps, then `Then` steps.
+4. Other public methods.
+5. Protected helpers.
+
+Keep to it when adding a member or writing a new trait. Reordering an existing trait to match is a safe change: [STEPS.md](STEPS.md) groups steps by `Given`, `When` and `Then` itself, so member order in the source does not affect the generated documentation.
+
+The one exception is `FieldTrait`, whose members are left in their original order. `Drupal.Classes.UnusedUseStatement` stops recognising an imported class that is first used after a PHP 8 attribute, so ordering the steps ahead of the method that returns a `NodeElement` makes the linter report a used import as unused.
+
 ## Unsettled style questions
 
 Four style questions have no dominant form in this codebase. Both sides of each are correct and behavior-identical where they appear, and converging any of them would churn 25 to 75 sites for no functional gain. Match the surrounding file and do not convert existing code from one form to the other as a drive-by change.

@@ -71,6 +71,21 @@ trait FileTrait {
   }
 
   /**
+   * Remove unmanaged files created during the scenario.
+   *
+   * Managed file entities are removed by the shared entity registry cleanup.
+   */
+  #[AfterScenario('@api')]
+  public function fileAfterScenario(AfterScenarioScope $scope): void {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+    foreach ($this->filesUnmanagedUris as $uri) {
+      @unlink($uri);
+    }
+  }
+
+  /**
    * Create managed files with properties provided in the table.
    *
    * @code
@@ -93,101 +108,6 @@ trait FileTrait {
 
       $stub = new EntityStub('file', NULL, $hash);
       $this->fileCreateManagedSingle($path, $stub, $uri);
-    }
-  }
-
-  /**
-   * Create a single managed file.
-   *
-   * @param string $path
-   *   The source file path relative to 'files_path'.
-   * @param \Drupal\Driver\Entity\EntityStub $stub
-   *   Entity fields stub (must not contain 'path' or 'uri').
-   * @param string|null $uri
-   *   Optional destination URI. Defaults to 'public://filename'.
-   *
-   * @return \Drupal\file\FileInterface
-   *   Created file entity.
-   */
-  protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $this->parseEntityFields($stub);
-
-    $entity = $this->fileCreateEntity($path, $stub, $uri);
-
-    $this->entityRegister($entity);
-
-    return $entity;
-  }
-
-  /**
-   * Create file entity.
-   *
-   * @param string $path
-   *   The source file path relative to 'files_path'.
-   * @param \Drupal\Driver\Entity\EntityStub $stub
-   *   Entity fields stub.
-   * @param string|null $uri
-   *   Optional destination URI. Defaults to 'public://filename'.
-   *
-   * @return \Drupal\file\FileInterface
-   *   Created file entity.
-   */
-  protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $path = ltrim($path, '/');
-
-    if (!empty($this->getMinkParameter('files_path'))) {
-      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
-      if (is_file($full_path)) {
-        $path = $full_path;
-      }
-    }
-
-    // @codeCoverageIgnoreStart
-    if (!is_readable($path)) {
-      throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
-    }
-    // @codeCoverageIgnoreEnd
-    $destination = 'public://' . basename($path);
-    if (!empty($uri)) {
-      $destination = $uri;
-      $directory = dirname($destination);
-      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
-      // @codeCoverageIgnoreStart
-      if (!$dir) {
-        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
-      }
-      // @codeCoverageIgnoreEnd
-    }
-
-    $content = file_get_contents($path);
-    // @codeCoverageIgnoreStart
-    if ($content === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to read file "%s".', $path));
-    }
-    // @codeCoverageIgnoreEnd
-    $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
-
-    foreach ($stub->getValues() as $property => $value) {
-      $entity->set($property, $value);
-    }
-
-    $entity->save();
-
-    return $entity;
-  }
-
-  /**
-   * Remove unmanaged files created during the scenario.
-   *
-   * Managed file entities are removed by the shared entity registry cleanup.
-   */
-  #[AfterScenario('@api')]
-  public function fileAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-    foreach ($this->filesUnmanagedUris as $uri) {
-      @unlink($uri);
     }
   }
 
@@ -231,27 +151,6 @@ trait FileTrait {
       $entities = $storage->loadMultiple($ids);
       $storage->delete($entities);
     }
-  }
-
-  /**
-   * Load multiple files with specified conditions.
-   *
-   * @param array<string, string> $conditions
-   *   Conditions keyed by field names.
-   *
-   * @return array<int, string>
-   *   Array of file ids.
-   */
-  protected function fileLoadMultiple(array $conditions = []): array {
-    $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
   }
 
   /**
@@ -360,6 +259,107 @@ trait FileTrait {
     if (str_contains($file_content, $content)) {
       throw new ExpectationException(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Create a single managed file.
+   *
+   * @param string $path
+   *   The source file path relative to 'files_path'.
+   * @param \Drupal\Driver\Entity\EntityStub $stub
+   *   Entity fields stub (must not contain 'path' or 'uri').
+   * @param string|null $uri
+   *   Optional destination URI. Defaults to 'public://filename'.
+   *
+   * @return \Drupal\file\FileInterface
+   *   Created file entity.
+   */
+  protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+    $this->parseEntityFields($stub);
+
+    $entity = $this->fileCreateEntity($path, $stub, $uri);
+
+    $this->entityRegister($entity);
+
+    return $entity;
+  }
+
+  /**
+   * Create file entity.
+   *
+   * @param string $path
+   *   The source file path relative to 'files_path'.
+   * @param \Drupal\Driver\Entity\EntityStub $stub
+   *   Entity fields stub.
+   * @param string|null $uri
+   *   Optional destination URI. Defaults to 'public://filename'.
+   *
+   * @return \Drupal\file\FileInterface
+   *   Created file entity.
+   */
+  protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+    $path = ltrim($path, '/');
+
+    if (!empty($this->getMinkParameter('files_path'))) {
+      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
+      if (is_file($full_path)) {
+        $path = $full_path;
+      }
+    }
+
+    // @codeCoverageIgnoreStart
+    if (!is_readable($path)) {
+      throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
+    }
+    // @codeCoverageIgnoreEnd
+    $destination = 'public://' . basename($path);
+    if (!empty($uri)) {
+      $destination = $uri;
+      $directory = dirname($destination);
+      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      // @codeCoverageIgnoreStart
+      if (!$dir) {
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
+      }
+      // @codeCoverageIgnoreEnd
+    }
+
+    $content = file_get_contents($path);
+    // @codeCoverageIgnoreStart
+    if ($content === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $path));
+    }
+    // @codeCoverageIgnoreEnd
+    $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
+
+    foreach ($stub->getValues() as $property => $value) {
+      $entity->set($property, $value);
+    }
+
+    $entity->save();
+
+    return $entity;
+  }
+
+  /**
+   * Load multiple files with specified conditions.
+   *
+   * @param array<string, string> $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array<int, string>
+   *   Array of file ids.
+   */
+  protected function fileLoadMultiple(array $conditions = []): array {
+    $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
+
+    foreach ($conditions as $k => $v) {
+      $and = $query->andConditionGroup();
+      $and->condition($k, $v);
+      $query->condition($and);
+    }
+
+    return $query->execute();
   }
 
 }

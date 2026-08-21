@@ -19,6 +19,30 @@ use Behat\Step\When;
 trait PathTrait {
 
   /**
+   * Set basic authentication for the current session.
+   *
+   * @code
+   * Given the basic authentication with the username "myusername" and the password "mypassword"
+   * @endcode
+   */
+  #[Given('the basic authentication with the username :username and the password :password')]
+  public function pathSetBasicAuth(string $username, string $password): void {
+    $this->getSession()->setBasicAuth($username, $password);
+  }
+
+  /**
+   * Navigate back in browser history.
+   *
+   * @code
+   * When I go back
+   * @endcode
+   */
+  #[When('I go back')]
+  public function pathGoBack(): void {
+    $this->getSession()->back();
+  }
+
+  /**
    * Assert that the current page is a specified path.
    *
    * Note that "<front>" is supported as path.
@@ -168,30 +192,6 @@ trait PathTrait {
     if ($query[$param] === $value) {
       throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $param, $value), $this->getSession()->getDriver());
     }
-  }
-
-  /**
-   * Set basic authentication for the current session.
-   *
-   * @code
-   * Given the basic authentication with the username "myusername" and the password "mypassword"
-   * @endcode
-   */
-  #[Given('the basic authentication with the username :username and the password :password')]
-  public function pathSetBasicAuth(string $username, string $password): void {
-    $this->getSession()->setBasicAuth($username, $password);
-  }
-
-  /**
-   * Navigate back in browser history.
-   *
-   * @code
-   * When I go back
-   * @endcode
-   */
-  #[When('I go back')]
-  public function pathGoBack(): void {
-    $this->getSession()->back();
   }
 
   /**

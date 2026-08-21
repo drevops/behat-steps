@@ -25,22 +25,6 @@ trait ContentBlockTrait {
   use HelperTrait;
 
   /**
-   * Assert that a content block type exists.
-   *
-   * @code
-   * Then the content block type "Search" should exist
-   * @endcode
-   */
-  #[Then('the content block type :type should exist')]
-  public function contentBlockAssertTypeExists(string $type): void {
-    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
-
-    if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $type), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
    * Remove content blocks of a specified type with the given descriptions.
    *
    * Delete all content blocks of the specified type that match any of the
@@ -68,34 +52,6 @@ trait ContentBlockTrait {
         $content_block->delete();
       }
     }
-  }
-
-  /**
-   * Navigate to the edit page for a specified content block.
-   *
-   * Find a content block by its type and description (admin title) and
-   * navigate to its edit page. Throws an exception if no matching block
-   * is found.
-   *
-   * @code
-   * When I edit the "basic" content block with the description "[TEST] Footer Block"
-   * @endcode
-   */
-  #[When('I edit the :type content block with the description :description')]
-  public function contentBlockEditBlockContentWithDescription(string $type, string $description): void {
-    $block_ids = $this->contentBlockLoadMultiple($type, [
-      'info' => $description,
-    ]);
-
-    if (empty($block_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $type, $description));
-    }
-
-    ksort($block_ids);
-    $block_id = end($block_ids);
-
-    $path = $this->locatePath('/admin/content/block/' . $block_id);
-    $this->getSession()->visit($path);
   }
 
   /**
@@ -156,6 +112,50 @@ trait ContentBlockTrait {
 
     foreach ($entities as $entity_data) {
       $this->contentBlockCreateSingle($type, $entity_data);
+    }
+  }
+
+  /**
+   * Navigate to the edit page for a specified content block.
+   *
+   * Find a content block by its type and description (admin title) and
+   * navigate to its edit page. Throws an exception if no matching block
+   * is found.
+   *
+   * @code
+   * When I edit the "basic" content block with the description "[TEST] Footer Block"
+   * @endcode
+   */
+  #[When('I edit the :type content block with the description :description')]
+  public function contentBlockEditBlockContentWithDescription(string $type, string $description): void {
+    $block_ids = $this->contentBlockLoadMultiple($type, [
+      'info' => $description,
+    ]);
+
+    if (empty($block_ids)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $type, $description));
+    }
+
+    ksort($block_ids);
+    $block_id = end($block_ids);
+
+    $path = $this->locatePath('/admin/content/block/' . $block_id);
+    $this->getSession()->visit($path);
+  }
+
+  /**
+   * Assert that a content block type exists.
+   *
+   * @code
+   * Then the content block type "Search" should exist
+   * @endcode
+   */
+  #[Then('the content block type :type should exist')]
+  public function contentBlockAssertTypeExists(string $type): void {
+    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
+
+    if (!$block_content_type instanceof BlockContentTypeInterface) {
+      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $type), $this->getSession()->getDriver());
     }
   }
 

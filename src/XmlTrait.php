@@ -105,6 +105,27 @@ trait XmlTrait {
   }
 
   /**
+   * Print the last XML response.
+   *
+   * @code
+   * When I print last XML response
+   * @endcode
+   */
+  #[When('I print last XML response')]
+  public function xmlPrintLastResponse(): void {
+    $this->xmlEnsureDocument();
+
+    $this->xmlDocument->formatOutput = TRUE;
+    $output = $this->xmlDocument->saveXML();
+
+    if ($output === FALSE) {
+      throw new ExpectationException('Failed to format the XML response.', $this->getSession()->getDriver());
+    }
+
+    print $output;
+  }
+
+  /**
    * Assert that a response is valid XML.
    *
    * @code
@@ -657,27 +678,6 @@ trait XmlTrait {
   #[Then('the response should be a valid Atom feed')]
   public function xmlAssertValidAtomFeed(): void {
     $this->xmlValidateAtomFeed();
-  }
-
-  /**
-   * Print the last XML response.
-   *
-   * @code
-   * When I print last XML response
-   * @endcode
-   */
-  #[When('I print last XML response')]
-  public function xmlPrintLastResponse(): void {
-    $this->xmlEnsureDocument();
-
-    $this->xmlDocument->formatOutput = TRUE;
-    $output = $this->xmlDocument->saveXML();
-
-    if ($output === FALSE) {
-      throw new ExpectationException('Failed to format the XML response.', $this->getSession()->getDriver());
-    }
-
-    print $output;
   }
 
   /**
