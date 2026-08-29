@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>AJAX Timeout Test</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>AJAX Timeout Test Page</h1>
     <p>This page simulates a long-running AJAX request.</p>
 
     <script>
+        // A local stub replaces the jQuery download, which can still be in
+        // flight when the driver stops waiting for the page to load.
+        window.jQuery = function () {
+            return {length: 0};
+        };
+
         // Simulate Drupal AJAX system
         window.Drupal = {
             ajax: {
@@ -22,11 +27,11 @@
         // Also simulate jQuery being active
         jQuery.active = 1;
 
-        // Keep AJAX active for 3 seconds, then allow it to complete
+        // Keep AJAX active for longer than any wait the test performs
         setTimeout(function() {
             window.Drupal.ajax.instances[0].ajaxing = false;
             jQuery.active = 0;
-        }, 3000);
+        }, 30000);
     </script>
 </body>
 </html>
