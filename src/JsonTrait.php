@@ -442,9 +442,7 @@ trait JsonTrait {
    */
   protected function jsonEnsureData(): void {
     if ($this->jsonTestContent !== NULL) {
-      if ($this->jsonData === NULL) {
-        $this->jsonData = $this->jsonDecode($this->jsonTestContent);
-      }
+      $this->jsonData ??= $this->jsonDecode($this->jsonTestContent);
       return;
     }
 
