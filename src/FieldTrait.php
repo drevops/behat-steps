@@ -312,9 +312,7 @@ trait FieldTrait {
       $first_input = $page->findField($field);
       if ($first_input !== NULL) {
         $wrapper = $first_input->find('xpath', 'ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]');
-        if ($wrapper === NULL) {
-          $wrapper = $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
-        }
+        $wrapper ??= $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
       }
     }
 
@@ -344,9 +342,7 @@ trait FieldTrait {
           break;
         }
       }
-      if ($add_more === NULL) {
-        $add_more = $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
-      }
+      $add_more ??= $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
       if ($add_more === NULL) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', implode(', ', $this->fieldGetAddMoreButtonSelectors()));
       }
@@ -423,9 +419,7 @@ trait FieldTrait {
       $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
     }
 
-    if ($label === NULL) {
-      $label = $field_element->find('xpath', 'ancestor::label[1]');
-    }
+    $label ??= $field_element->find('xpath', 'ancestor::label[1]');
 
     if ($label instanceof NodeElement) {
       $label_classes = (string) $label->getAttribute('class');

@@ -301,9 +301,7 @@ JS;
       $errors = $this->getSession()->evaluateScript('return typeof window.jsErrors !== "undefined" ? window.jsErrors : [];');
 
       if (!empty($errors)) {
-        if (!isset($this->javascriptErrorRegistry[$url])) {
-          $this->javascriptErrorRegistry[$url] = [];
-        }
+        $this->javascriptErrorRegistry[$url] ??= [];
 
         foreach ($errors as $error) {
           $this->javascriptErrorRegistry[$url][] = $error;

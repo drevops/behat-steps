@@ -1134,14 +1134,12 @@ HTML;
           continue;
         }
 
-        if (!isset($pages[$url])) {
-          $pages[$url] = [
-            'violations' => $result['result']['violations'] ?? [],
-            'incomplete' => count($result['result']['incomplete'] ?? []),
-            'passes' => count($result['result']['passes'] ?? []),
-            'scenarios' => [],
-          ];
-        }
+        $pages[$url] ??= [
+          'violations' => $result['result']['violations'] ?? [],
+          'incomplete' => count($result['result']['incomplete'] ?? []),
+          'passes' => count($result['result']['passes'] ?? []),
+          'scenarios' => [],
+        ];
 
         $feature = (string) ($entry['feature'] ?? '');
         $scenario = (string) ($entry['scenario'] ?? '');
@@ -1177,15 +1175,13 @@ HTML;
 
         $rule_id = (string) ($violation['id'] ?? 'unknown');
 
-        if (!isset($rules[$rule_id])) {
-          $rules[$rule_id] = [
-            'impact' => $impact,
-            'help' => (string) ($violation['help'] ?? ''),
-            'helpUrl' => (string) ($violation['helpUrl'] ?? ''),
-            'pages' => [],
-            'nodes' => [],
-          ];
-        }
+        $rules[$rule_id] ??= [
+          'impact' => $impact,
+          'help' => (string) ($violation['help'] ?? ''),
+          'helpUrl' => (string) ($violation['helpUrl'] ?? ''),
+          'pages' => [],
+          'nodes' => [],
+        ];
 
         $rules[$rule_id]['pages'][$url] = TRUE;
 
