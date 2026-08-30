@@ -41,7 +41,7 @@
         "phpcompatibility/php-compatibility": "^9.3.5",
         "phpspec/prophecy-phpunit": "^2.5.0",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.2.9",
+        "phpstan/phpstan": "^2.2.10",
         "phpunit/phpunit": "^11.5.56",
         "rector/rector": "^2.6.4",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
