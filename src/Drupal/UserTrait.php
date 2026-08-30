@@ -155,6 +155,64 @@ trait UserTrait {
   }
 
   /**
+   * Create a single role with specified permissions.
+   *
+   * @code
+   * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+   * @endcode
+   */
+  #[Given('the role :role_name with the permissions :permissions')]
+  public function userCreateRole(string $role_name, string $permissions): void {
+    $permissions = $this->helperSplitCommaSeparated($permissions);
+
+    $rid = strtolower($role_name);
+    $role_name = trim($role_name);
+
+    $existing_role = Role::load($rid);
+    if ($existing_role) {
+      $existing_role->delete();
+    }
+
+    /** @var \Drupal\user\RoleInterface $role */
+    $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
+      'id' => $rid,
+      'label' => $role_name,
+    ]);
+    $saved = $role->save();
+
+    // @codeCoverageIgnoreStart
+    if ($saved !== SAVED_NEW) {
+      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
+    }
+    // @codeCoverageIgnoreEnd
+    $this->roles[] = (string) $role->id();
+
+    user_role_grant_permissions($role->id(), $permissions);
+  }
+
+  /**
+   * Create multiple roles from the specified table.
+   *
+   * @code
+   * Given the following roles:
+   *   | name              | permissions                              |
+   *   | Content Editor    | access content, create article content   |
+   *   | Content Approver  | access content, edit any article content |
+   * @endcode
+   */
+  #[Given('the following roles:')]
+  public function userCreateRoles(TableNode $table): void {
+    foreach ($table->getHash() as $hash) {
+      if (!isset($hash['name'])) {
+        throw new \RuntimeException('Missing required column "name".');
+      }
+
+      $permissions = $hash['permissions'] ?: '';
+      $this->userCreateRole($hash['name'], $permissions);
+    }
+  }
+
+  /**
    * Visit the profile page of the specified user.
    *
    * @code
@@ -268,24 +326,6 @@ trait UserTrait {
   }
 
   /**
-   * Visit the password reset link for a given user object.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user object.
-   */
-  protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $timestamp = \Drupal::time()->getRequestTime();
-
-    $path = Url::fromRoute('user.reset', [
-      'uid' => $user->id(),
-      'timestamp' => $timestamp,
-      'hash' => user_pass_rehash($user, $timestamp),
-    ])->toString();
-
-    $this->visitPath($path);
-  }
-
-  /**
    * Assert that a user has roles assigned.
    *
    * @code
@@ -354,29 +394,6 @@ trait UserTrait {
   }
 
   /**
-   * Check whether a user with the given email address exists.
-   *
-   * Performs a case-insensitive match against the user mail property.
-   *
-   * @param string $mail
-   *   The email address to check.
-   *
-   * @return bool
-   *   TRUE if a user with the email exists, FALSE otherwise.
-   */
-  protected function userExistsByMail(string $mail): bool {
-    $ids = \Drupal::entityTypeManager()
-      ->getStorage('user')
-      ->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('mail', $mail, 'LIKE')
-      ->range(0, 1)
-      ->execute();
-
-    return !empty($ids);
-  }
-
-  /**
    * Assert that a user is blocked.
    *
    * @code
@@ -406,6 +423,47 @@ trait UserTrait {
     if (!$user->isActive()) {
       throw new ExpectationException(sprintf('User "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Visit the password reset link for a given user object.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user object.
+   */
+  protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
+    $timestamp = \Drupal::time()->getRequestTime();
+
+    $path = Url::fromRoute('user.reset', [
+      'uid' => $user->id(),
+      'timestamp' => $timestamp,
+      'hash' => user_pass_rehash($user, $timestamp),
+    ])->toString();
+
+    $this->visitPath($path);
+  }
+
+  /**
+   * Check whether a user with the given email address exists.
+   *
+   * Performs a case-insensitive match against the user mail property.
+   *
+   * @param string $mail
+   *   The email address to check.
+   *
+   * @return bool
+   *   TRUE if a user with the email exists, FALSE otherwise.
+   */
+  protected function userExistsByMail(string $mail): bool {
+    $ids = \Drupal::entityTypeManager()
+      ->getStorage('user')
+      ->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('mail', $mail, 'LIKE')
+      ->range(0, 1)
+      ->execute();
+
+    return !empty($ids);
   }
 
   /**
@@ -485,64 +543,6 @@ trait UserTrait {
     }
 
     $this->visitPath('/user/' . $uid . $action_subpath);
-  }
-
-  /**
-   * Create a single role with specified permissions.
-   *
-   * @code
-   * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
-   * @endcode
-   */
-  #[Given('the role :role_name with the permissions :permissions')]
-  public function userCreateRole(string $role_name, string $permissions): void {
-    $permissions = $this->helperSplitCommaSeparated($permissions);
-
-    $rid = strtolower($role_name);
-    $role_name = trim($role_name);
-
-    $existing_role = Role::load($rid);
-    if ($existing_role) {
-      $existing_role->delete();
-    }
-
-    /** @var \Drupal\user\RoleInterface $role */
-    $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
-      'id' => $rid,
-      'label' => $role_name,
-    ]);
-    $saved = $role->save();
-
-    // @codeCoverageIgnoreStart
-    if ($saved !== SAVED_NEW) {
-      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
-    }
-    // @codeCoverageIgnoreEnd
-    $this->roles[] = (string) $role->id();
-
-    user_role_grant_permissions($role->id(), $permissions);
-  }
-
-  /**
-   * Create multiple roles from the specified table.
-   *
-   * @code
-   * Given the following roles:
-   *   | name              | permissions                              |
-   *   | Content Editor    | access content, create article content   |
-   *   | Content Approver  | access content, edit any article content |
-   * @endcode
-   */
-  #[Given('the following roles:')]
-  public function userCreateRoles(TableNode $table): void {
-    foreach ($table->getHash() as $hash) {
-      if (!isset($hash['name'])) {
-        throw new \RuntimeException('Missing required column "name".');
-      }
-
-      $permissions = $hash['permissions'] ?: '';
-      $this->userCreateRole($hash['name'], $permissions);
-    }
   }
 
 }

@@ -155,20 +155,6 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert that an HTML link is present on the page.
-   */
-  public function fileDownloadAssertLinkPresent(string $link): NodeElement {
-    $page = $this->getSession()->getPage();
-    $link_element = $page->findLink($link);
-
-    if (!$link_element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
-    }
-
-    return $link_element;
-  }
-
-  /**
    * Assert the contents of the download file.
    *
    * @code
@@ -327,6 +313,20 @@ trait FileDownloadTrait {
     if (!empty($errors)) {
       throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Assert that an HTML link is present on the page.
+   */
+  public function fileDownloadAssertLinkPresent(string $link): NodeElement {
+    $page = $this->getSession()->getPage();
+    $link_element = $page->findLink($link);
+
+    if (!$link_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
+    }
+
+    return $link_element;
   }
 
   /**

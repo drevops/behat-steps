@@ -63,6 +63,20 @@ trait HelperTrait {
   protected array $entityRegistry = [];
 
   /**
+   * Delete registered entities in reverse creation order at scenario teardown.
+   */
+  #[AfterScenario('@api')]
+  public function entityCleanupAfterScenario(AfterScenarioScope $scope): void {
+    $scenario = $scope->getScenario();
+
+    if ($scenario->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    $this->entityCleanupRun($this->entityCleanupSkippedTypes($scenario->getTags()));
+  }
+
+  /**
    * Register a saved entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
@@ -86,20 +100,6 @@ trait HelperTrait {
    */
   protected function entityRegisterId(string $entity_type_id, int|string $entity_id): void {
     $this->entityRegistry[] = [$entity_type_id, $entity_id];
-  }
-
-  /**
-   * Delete registered entities in reverse creation order at scenario teardown.
-   */
-  #[AfterScenario('@api')]
-  public function entityCleanupAfterScenario(AfterScenarioScope $scope): void {
-    $scenario = $scope->getScenario();
-
-    if ($scenario->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    $this->entityCleanupRun($this->entityCleanupSkippedTypes($scenario->getTags()));
   }
 
   /**

@@ -24,15 +24,6 @@ trait TaxonomyTrait {
   use HelperTrait;
 
   /**
-   * {@inheritdoc}
-   */
-  public function createTerms(mixed $vocabulary, TableNode $table): void {
-    $vocabulary = (string) $vocabulary;
-    $this->taxonomyDeleteTerms($vocabulary, $table);
-    parent::createTerms($vocabulary, $table);
-  }
-
-  /**
    * Create taxonomy terms with vertical field format.
    *
    * Supports both single and multiple entity creation using vertical table
@@ -84,6 +75,42 @@ trait TaxonomyTrait {
         $term->delete();
       }
     }
+  }
+
+  /**
+   * Visit specified vocabulary term page.
+   *
+   * @code
+   * When I visit the "fruits" term page with the name "Apple"
+   * @endcode
+   */
+  #[When('I visit the :vocabulary_machine_name term page with the name :term_name')]
+  public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name);
+  }
+
+  /**
+   * Visit specified vocabulary term edit page.
+   *
+   * @code
+   * When I visit the "fruits" term edit page with the name "Apple"
+   * @endcode
+   */
+  #[When('I visit the :vocabulary_machine_name term edit page with the name :term_name')]
+  public function taxonomyVisitTermEditPageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/edit');
+  }
+
+  /**
+   * Visit specified vocabulary term delete page.
+   *
+   * @code
+   * When I visit the "tags" term delete page with the name "[TEST] Remove"
+   * @endcode
+   */
+  #[When('I visit the :vocabulary_machine_name term delete page with the name :term_name')]
+  public function taxonomyVisitTermDeletePageWithName(string $vocabulary_machine_name, string $term_name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/delete');
   }
 
   /**
@@ -178,39 +205,12 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Visit specified vocabulary term page.
-   *
-   * @code
-   * When I visit the "fruits" term page with the name "Apple"
-   * @endcode
+   * {@inheritdoc}
    */
-  #[When('I visit the :vocabulary_machine_name term page with the name :term_name')]
-  public function taxonomyVisitTermPageWithName(string $vocabulary_machine_name, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name);
-  }
-
-  /**
-   * Visit specified vocabulary term edit page.
-   *
-   * @code
-   * When I visit the "fruits" term edit page with the name "Apple"
-   * @endcode
-   */
-  #[When('I visit the :vocabulary_machine_name term edit page with the name :term_name')]
-  public function taxonomyVisitTermEditPageWithName(string $vocabulary_machine_name, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/edit');
-  }
-
-  /**
-   * Visit specified vocabulary term delete page.
-   *
-   * @code
-   * When I visit the "tags" term delete page with the name "[TEST] Remove"
-   * @endcode
-   */
-  #[When('I visit the :vocabulary_machine_name term delete page with the name :term_name')]
-  public function taxonomyVisitTermDeletePageWithName(string $vocabulary_machine_name, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary_machine_name, $term_name, '/delete');
+  public function createTerms(mixed $vocabulary, TableNode $table): void {
+    $vocabulary = (string) $vocabulary;
+    $this->taxonomyDeleteTerms($vocabulary, $table);
+    parent::createTerms($vocabulary, $table);
   }
 
   /**

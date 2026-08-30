@@ -96,6 +96,20 @@ trait JsonTrait {
   }
 
   /**
+   * Print the last JSON response.
+   *
+   * @code
+   * When I print last JSON response
+   * @endcode
+   */
+  #[When('I print last JSON response')]
+  public function jsonPrintLastResponse(): void {
+    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
+
+    print (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  }
+
+  /**
    * Assert that a response is valid JSON.
    *
    * @code
@@ -373,20 +387,6 @@ trait JsonTrait {
   #[Then('the response should match the JSON schema in the file :filename')]
   public function jsonAssertMatchesSchemaFromFile(string $filename): void {
     $this->jsonValidateSchema($this->jsonReadFile($filename));
-  }
-
-  /**
-   * Print the last JSON response.
-   *
-   * @code
-   * When I print last JSON response
-   * @endcode
-   */
-  #[When('I print last JSON response')]
-  public function jsonPrintLastResponse(): void {
-    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
-
-    print (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   }
 
   /**

@@ -21,6 +21,25 @@ trait LinkTrait {
   use HelperTrait;
 
   /**
+   * Click on the link with a title.
+   *
+   * @code
+   * When I click on the link with the title "Return to site content"
+   * @endcode
+   */
+  #[When('I click on the link with the title :title')]
+  public function linkClickWithTitle(string $title): void {
+    $title = $this->helperFixStepArgument($title);
+    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'title', $title);
+    }
+
+    $element->click();
+  }
+
+  /**
    * Assert a link with a href exists.
    *
    * Note that simplified wildcard is supported in "href".
@@ -206,25 +225,6 @@ trait LinkTrait {
     if (parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new ExpectationException(sprintf('The link "%s" is an absolute link.', $link), $this->getSession()->getDriver());
     }
-  }
-
-  /**
-   * Click on the link with a title.
-   *
-   * @code
-   * When I click on the link with the title "Return to site content"
-   * @endcode
-   */
-  #[When('I click on the link with the title :title')]
-  public function linkClickWithTitle(string $title): void {
-    $title = $this->helperFixStepArgument($title);
-    $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'title', $title);
-    }
-
-    $element->click();
   }
 
 }
