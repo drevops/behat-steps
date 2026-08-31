@@ -392,6 +392,26 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound fixture image"
 
   @api
+  Scenario: Assert file field on node resolves fixture path in a subdirectory
+    Given the following article content:
+      | title                          | field_file          |
+      | [TEST] Subdirectory file       | subdir/document.pdf |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Subdirectory file"
+    Then I should see "[TEST] Subdirectory file"
+    And the response should contain ".pdf"
+
+  @api
+  Scenario: Assert file field on node resolves compound fixture path in a subdirectory
+    Given the following article content:
+      | title                            | field_file                                              |
+      | [TEST] Compound subdirectory file | target_id:"subdir/document.pdf", description:"My doc"  |
+    And I am logged in as a user with the "administrator" role
+    When I visit the "article" content edit page with the title "[TEST] Compound subdirectory file"
+    Then I should see "[TEST] Compound subdirectory file"
+    And the response should contain ".pdf"
+
+  @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
     Given the following page content:
       | title                   |

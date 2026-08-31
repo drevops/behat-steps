@@ -162,10 +162,11 @@ trait HelperTrait {
   /**
    * Expand fixture file paths for file/image fields on an entity stub.
    *
-   * Rewrites bare fixture filenames (e.g. 'document.pdf') on 'file' and
-   * 'image' field types to absolute paths under the Mink 'files_path' so
-   * drupal-driver's FileHandler can read and upload them during entity
-   * creation. Skips expansion when a managed file with the same basename
+   * Rewrites fixture paths on 'file' and 'image' field types to absolute
+   * paths under the Mink 'files_path' so drupal-driver's FileHandler can read
+   * and upload them during entity creation. A path is taken relative to the
+   * fixtures directory, so both 'document.pdf' and 'images/photo.png'
+   * resolve. Skips expansion when a managed file with the same basename
    * already exists in public:// or private://, so existing files take
    * precedence.
    *
@@ -235,34 +236,32 @@ trait HelperTrait {
       $mutated = FALSE;
 
       foreach ($records as $index => $record) {
-        $basename = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
+        $path = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
 
-        if (!is_string($basename) || $basename === '') {
+        if (!is_string($path) || $path === '') {
           continue;
         }
 
-        if (str_contains($basename, '/') || str_contains($basename, '\\') || $basename !== basename($basename)) {
+        if ($this->helperManagedFileExists($path)) {
           continue;
         }
 
-        if ($this->helperManagedFileExists($basename)) {
-          continue;
-        }
+        $resolved = $this->helperResolveFixtureFile($path, $fixture_path);
 
-        if (!is_file($fixture_path . $basename)) {
+        if ($resolved === NULL) {
           continue;
         }
 
         if (is_array($record)) {
           if (array_key_exists('target_id', $record)) {
-            $records[$index]['target_id'] = $fixture_path . $basename;
+            $records[$index]['target_id'] = $resolved;
           }
           else {
-            $records[$index][0] = $fixture_path . $basename;
+            $records[$index][0] = $resolved;
           }
         }
         else {
-          $records[$index] = $fixture_path . $basename;
+          $records[$index] = $resolved;
         }
 
         $mutated = TRUE;
@@ -287,38 +286,65 @@ trait HelperTrait {
   }
 
   /**
-   * Rewrite each 'target_id:"basename"' segment to embed the fixture path.
+   * Rewrite each 'target_id:"path"' segment to embed the fixture path.
    *
-   * Only the 'target_id' key is touched and only when the quoted value is a
-   * pure basename (no separators), is not backed by an existing managed file
-   * and resolves to a real file under the fixtures dir. Other compound
-   * columns (e.g. 'alt', 'description') are left untouched so the parser can
-   * still process them.
+   * Only the 'target_id' key is touched and only when the quoted value is not
+   * backed by an existing managed file and resolves to a real file under the
+   * fixtures dir. Other compound columns (e.g. 'alt', 'description') are left
+   * untouched so the parser can still process them.
    */
   protected function helperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
     $callback = function (array $matches) use ($fixture_path): string {
-      $basename = $matches[2];
+      $path = $matches[2];
 
-      if ($basename === '' || str_contains($basename, '/') || str_contains($basename, '\\')) {
+      if ($this->helperManagedFileExists($path)) {
         return $matches[0];
       }
 
-      if ($basename !== basename($basename)) {
-        return $matches[0];
-      }
+      $resolved = $this->helperResolveFixtureFile($path, $fixture_path);
 
-      if ($this->helperManagedFileExists($basename)) {
-        return $matches[0];
-      }
-
-      if (!is_file($fixture_path . $basename)) {
-        return $matches[0];
-      }
-
-      return $matches[1] . $fixture_path . $basename . $matches[3];
+      return $resolved === NULL ? $matches[0] : $matches[1] . $resolved . $matches[3];
     };
 
     return (string) preg_replace_callback('/(target_id\s*:\s*")([^"\\\\]+)(")/i', $callback, $value);
+  }
+
+  /**
+   * Resolve a field value against the fixtures directory.
+   *
+   * @param string $value
+   *   The raw field value: a path relative to the fixtures directory, a
+   *   stream URI or an absolute filesystem path.
+   * @param string $fixture_path
+   *   The resolved fixtures directory, with a trailing separator.
+   *
+   * @return string|null
+   *   The absolute path to the fixture file, or NULL when the value does not
+   *   resolve to a file inside the fixtures directory.
+   */
+  protected function helperResolveFixtureFile(string $value, string $fixture_path): ?string {
+    // drupal-driver resolves stream URIs and absolute paths itself.
+    if (str_contains($value, '://')) {
+      return NULL;
+    }
+
+    if (str_starts_with($value, '/') || str_starts_with($value, '\\') || preg_match('#^[a-z]:[\\\\/]#i', $value) === 1) {
+      return NULL;
+    }
+
+    if (!is_file($fixture_path . $value)) {
+      return NULL;
+    }
+
+    $resolved = realpath($fixture_path . $value);
+
+    // is_file() also succeeds for a '..' path that lands outside the
+    // fixtures directory.
+    if ($resolved === FALSE || !str_starts_with($resolved, $fixture_path)) {
+      return NULL;
+    }
+
+    return $resolved;
   }
 
   /**
