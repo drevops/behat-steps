@@ -42,12 +42,20 @@ class HelperTraitTest extends UnitTestCase {
   /**
    * Create fixture files with placeholder content in the fixtures directory.
    *
-   * @param array<int, string> $basenames
-   *   Basenames to create under the per-test fixtures directory.
+   * @param array<int, string> $paths
+   *   Paths to create, relative to the per-test fixtures directory. Missing
+   *   parent directories are created.
    */
-  protected function createFixtureFiles(array $basenames): void {
-    foreach ($basenames as $basename) {
-      file_put_contents($this->fixturesPath . $basename, 'fixture content');
+  protected function createFixtureFiles(array $paths): void {
+    foreach ($paths as $path) {
+      $full_path = $this->fixturesPath . $path;
+      $directory = dirname($full_path);
+
+      if (!is_dir($directory)) {
+        mkdir($directory, 0777, TRUE);
+      }
+
+      file_put_contents($full_path, 'fixture content');
     }
   }
 
@@ -171,11 +179,35 @@ class HelperTraitTest extends UnitTestCase {
         ['text.txt'],
         'target_id:"text.txt", description:"My file"',
       ],
-      'leaves target_id unchanged when value contains a separator' => [
+      'rewrites target_id for a fixture in a subdirectory' => [
         'target_id:"sub/text.txt", description:"My file"',
+        ['sub/text.txt'],
+        [],
+        'target_id:"{FIXTURES}sub/text.txt", description:"My file"',
+      ],
+      'leaves target_id unchanged when the subdirectory fixture is missing' => [
+        'target_id:"sub/missing.txt", description:"My file"',
         [],
         [],
-        'target_id:"sub/text.txt", description:"My file"',
+        'target_id:"sub/missing.txt", description:"My file"',
+      ],
+      'leaves target_id unchanged for a stream wrapper uri' => [
+        'target_id:"public://text.txt", description:"My file"',
+        ['text.txt'],
+        [],
+        'target_id:"public://text.txt", description:"My file"',
+      ],
+      'leaves target_id unchanged for an absolute path' => [
+        'target_id:"/var/www/text.txt", description:"My file"',
+        ['text.txt'],
+        [],
+        'target_id:"/var/www/text.txt", description:"My file"',
+      ],
+      'leaves target_id unchanged when traversal escapes the fixtures directory' => [
+        'target_id:"../outside.txt", description:"My file"',
+        ['../outside.txt'],
+        [],
+        'target_id:"../outside.txt", description:"My file"',
       ],
       'leaves cell unchanged when no target_id key present' => [
         'alt:"description only", description:"No file"',
@@ -286,6 +318,55 @@ class HelperTraitTest extends UnitTestCase {
         ['field_file' => 'file'],
         ['field_file' => 'target_id:"document.pdf", description:"A"'],
         fn(string $f): array => ['field_file' => 'target_id:"' . $f . 'document.pdf", description:"A"'],
+      ],
+      'rewrites a fixture in a subdirectory' => [
+        ['sub/document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'sub/document.pdf'],
+        fn(string $f): array => ['field_file' => $f . 'sub/document.pdf'],
+      ],
+      'rewrites a fixture nested several directories deep' => [
+        ['sub/nested/image.png'],
+        [],
+        ['field_image' => 'image'],
+        ['field_image' => 'sub/nested/image.png'],
+        fn(string $f): array => ['field_image' => $f . 'sub/nested/image.png'],
+      ],
+      'rewrites every entry in a multi-value list of subdirectory fixtures' => [
+        ['sub/document.pdf', 'sub/image.png'],
+        [],
+        ['field_files' => 'file'],
+        ['field_files' => ['sub/document.pdf', 'sub/image.png']],
+        fn(string $f): array => ['field_files' => [$f . 'sub/document.pdf', $f . 'sub/image.png']],
+      ],
+      'leaves missing subdirectory fixture unchanged' => [
+        [],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'sub/missing.pdf'],
+        fn(string $f): array => ['field_file' => 'sub/missing.pdf'],
+      ],
+      'leaves stream wrapper uri unchanged' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => 'public://document.pdf'],
+        fn(string $f): array => ['field_file' => 'public://document.pdf'],
+      ],
+      'leaves absolute path unchanged' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => '/var/www/document.pdf'],
+        fn(string $f): array => ['field_file' => '/var/www/document.pdf'],
+      ],
+      'leaves traversal escaping the fixtures directory unchanged' => [
+        ['../outside.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => '../outside.pdf'],
+        fn(string $f): array => ['field_file' => '../outside.pdf'],
       ],
     ];
   }

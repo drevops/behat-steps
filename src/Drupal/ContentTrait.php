@@ -338,10 +338,10 @@ trait ContentTrait {
   /**
    * Expand fixture file paths for file/image fields on nodes.
    *
-   * Rewrites bare fixture filenames (e.g. 'document.pdf') on 'file' and
-   * 'image' field types to absolute paths under the Mink 'files_path'.
-   * drupal-driver's FileHandler can then read and upload them during node
-   * creation.
+   * Rewrites fixture paths (e.g. 'document.pdf', 'images/photo.png') on
+   * 'file' and 'image' field types to absolute paths under the Mink
+   * 'files_path'. drupal-driver's FileHandler can then read and upload them
+   * during node creation.
    *
    * Without this, scenarios with file fields on nodes have to pre-create
    * managed files explicitly via FileTrait.

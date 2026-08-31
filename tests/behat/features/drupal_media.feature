@@ -44,6 +44,16 @@ Feature: Check that MediaTrait works
     When I edit the media "document" with the name "Test media document"
     Then I should see "Edit Document Test media document"
 
+  @api
+  Scenario: Assert media file field resolves a fixture path in a subdirectory
+    Given the following media "document" exist:
+      | name                      | field_media_document |
+      | Test subdirectory media   | subdir/document.pdf  |
+    And I am logged in as a user with the "administrator" role
+    When I edit the media "document" with the name "Test subdirectory media"
+    Then I should see "Edit Document Test subdirectory media"
+    And the response should contain ".pdf"
+
   @api @javascript
   Scenario: Assert remove media type
     Given I am logged in as a user with the "administrator" role
