@@ -34,7 +34,7 @@
         "drupal/drupal-extension": "^6.1.0",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
         "ergebnis/composer-normalize": "^2.52.0",
-        "justinrainbow/json-schema": "^6.11.0",
+        "justinrainbow/json-schema": "^6.12.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "mglaman/phpstan-drupal": "^2.1.2",
         "php-parallel-lint/php-parallel-lint": "^1.4",
