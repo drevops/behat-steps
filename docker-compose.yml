@@ -73,7 +73,7 @@ services:
       - "3306"
 
   chrome:
-    image: selenium/standalone-chromium:152.0@sha256:3e2bffbae77f2d56014200bc4ef2eed48308e5b4cb3fdc2ff5edfa8c1b574170
+    image: selenium/standalone-chromium:152.0@sha256:fcf9eef47b9546a2252937481a8298ce0958d20c9d91e040d480184e80b41c76
     ports:
       - "7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
     expose:
