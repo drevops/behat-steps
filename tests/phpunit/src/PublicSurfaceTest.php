@@ -74,7 +74,7 @@ class PublicSurfaceTest extends UnitTestCase {
     'DrevOps\BehatSteps\Drupal\HelperTrait::ENTITY_CLEANUP_EXCLUDED_TYPES' => 'Named for the entityCleanup* member family it configures.',
   ];
 
-  #[DataProvider('dataProviderTraits')]
+  #[DataProvider('dataProviderPublicMethodsAreStepsOrHooks')]
   public function testPublicMethodsAreStepsOrHooks(string $trait): void {
     $violations = [];
 
@@ -93,7 +93,11 @@ class PublicSurfaceTest extends UnitTestCase {
     $this->assertSame([], $violations, 'A public method that is neither a step nor a hook is API by accident. Make it protected, or add it to ALLOWED_PUBLIC_METHODS with the reason it is API.');
   }
 
-  #[DataProvider('dataProviderTraits')]
+  public static function dataProviderPublicMethodsAreStepsOrHooks(): array {
+    return static::discoverTraits();
+  }
+
+  #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
   public function testHookMethodsDeclareTheirScope(string $trait): void {
     $violations = [];
 
@@ -116,9 +120,13 @@ class PublicSurfaceTest extends UnitTestCase {
     $this->assertSame([], $violations, 'Every hook declares its scope parameter, used or not, so a subclass overriding one has a single signature to match.');
   }
 
-  #[DataProvider('dataProviderTraits')]
+  public static function dataProviderHookMethodsDeclareTheirScope(): array {
+    return static::discoverTraits();
+  }
+
+  #[DataProvider('dataProviderPropertiesDeclareNativeTypes')]
   public function testPropertiesDeclareNativeTypes(string $trait): void {
-    $reflection = new \ReflectionClass($trait);
+    $reflection = static::reflect($trait);
     $composed = static::composedPropertyNames($reflection);
     $violations = [];
 
@@ -135,9 +143,13 @@ class PublicSurfaceTest extends UnitTestCase {
     $this->assertSame([], $violations, 'A docblock alone does not constrain what a subclass may assign, so every property declares a native type.');
   }
 
-  #[DataProvider('dataProviderTraits')]
+  public static function dataProviderPropertiesDeclareNativeTypes(): array {
+    return static::discoverTraits();
+  }
+
+  #[DataProvider('dataProviderConstantsDeclareVisibilityAndPrefix')]
   public function testConstantsDeclareVisibilityAndPrefix(string $trait): void {
-    $reflection = new \ReflectionClass($trait);
+    $reflection = static::reflect($trait);
     $composed = static::composedConstantNames($reflection);
     $prefix = static::traitConstantPrefix($trait);
     $violations = [];
@@ -161,7 +173,17 @@ class PublicSurfaceTest extends UnitTestCase {
     $this->assertSame([], $violations, 'A context composing two traits that declare the same constant name fails to compile, so every constant carries its trait prefix and an explicit visibility. Document an exception in ALLOWED_CONSTANTS.');
   }
 
-  public static function dataProviderTraits(): array {
+  public static function dataProviderConstantsDeclareVisibilityAndPrefix(): array {
+    return static::discoverTraits();
+  }
+
+  /**
+   * Return every trait shipped in the library, keyed by name.
+   *
+   * @return array<string, array{string}>
+   *   Fully qualified trait names, as data provider rows.
+   */
+  protected static function discoverTraits(): array {
     $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
@@ -182,6 +204,20 @@ class PublicSurfaceTest extends UnitTestCase {
   }
 
   /**
+   * Reflect a trait discovered by path.
+   *
+   * @param string $trait
+   *   Fully qualified trait name.
+   *
+   * @return \ReflectionClass<object>
+   *   Reflection of the trait.
+   */
+  protected static function reflect(string $trait): \ReflectionClass {
+    /** @var class-string $trait */
+    return new \ReflectionClass($trait);
+  }
+
+  /**
    * Return the methods a trait declares itself.
    *
    * @param string $trait
@@ -191,7 +227,7 @@ class PublicSurfaceTest extends UnitTestCase {
    *   Methods declared by the trait, excluding those it composes.
    */
   protected static function traitOwnMethods(string $trait): array {
-    $reflection = new \ReflectionClass($trait);
+    $reflection = static::reflect($trait);
 
     $composed = [];
     foreach ($reflection->getTraits() as $used) {
@@ -292,7 +328,7 @@ class PublicSurfaceTest extends UnitTestCase {
    *   Upper snake case form of the trait name without its "Trait" suffix.
    */
   protected static function traitConstantPrefix(string $trait): string {
-    $short = (string) preg_replace('/Trait$/', '', (new \ReflectionClass($trait))->getShortName());
+    $short = (string) preg_replace('/Trait$/', '', static::reflect($trait)->getShortName());
 
     return strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $short));
   }

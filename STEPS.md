@@ -487,6 +487,11 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  Examples:
 >  - `[relative:-1 day]` converted to `1893456000`
 >  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+>  
+>  `dateRelativeProcessValue()` is public API. It and its helpers are static so
+>  a token resolves without a context instance. Late static binding routes the
+>  resolution through a `dateNow()` override in the composing context, which is
+>  the supported seam for pinning the clock.
 
 
 ## DiagnosticsTrait
