@@ -20,6 +20,11 @@
             "pinDigests": false
         },
         {
+            "description": "'scripts/provision.sh' copies these constraints into the fixture site, where Drupal core caps both below their latest release: 'drupal/core-recommended' pins 'justinrainbow/json-schema' to '~6.8.2', and 'drupal/core-dev' pins PHPUnit to 11, which 'dvdoug/behat-code-coverage' 5.5 does not support. Raising either floor makes the fixture unresolvable.",
+            "matchPackageNames": ["dvdoug/behat-code-coverage", "justinrainbow/json-schema"],
+            "enabled": false
+        },
+        {
             "matchDepNames": ["php"],
             "matchManagers": ["composer"],
             "enabled": false
