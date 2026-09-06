@@ -672,6 +672,7 @@ EOT;
  */
 function validate(array $info): array {
   $errors = [];
+  $non_descriptive_placeholders = non_descriptive_placeholders();
 
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
@@ -693,11 +694,19 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
       }
 
+      if (str_starts_with($step, '@Given I ')) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Given step starts with "I " but should state a precondition');
+      }
+
       if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "I " in the step');
       }
 
       if (str_starts_with($step, '@Then')) {
+        if (str_starts_with($step, '@Then I ')) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step starts with "I " but should start with the asserted entity');
+        }
+
         if (!str_contains((string) $method['name'], 'Assert')) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "Assert" in the method name');
         }
@@ -715,6 +724,18 @@ function validate(array $info): array {
         }
       }
 
+      if (preg_match('/\([^)]*\)/', $step, $optional) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Optional token "%s" in the step', $optional[0]));
+      }
+
+      preg_match_all('/:([a-z_]+)/', $step, $placeholders);
+
+      foreach ($placeholders[1] as $placeholder) {
+        if (in_array($placeholder, $non_descriptive_placeholders, TRUE)) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Non-descriptive placeholder ":%s" in the step', $placeholder));
+        }
+      }
+
       if (empty($method['example'])) {
         $errors[] = sprintf('  %s::%s - Missing example' . PHP_EOL, $class_name, $method['name']);
       }
@@ -722,6 +743,33 @@ function validate(array $info): array {
   }
 
   return $errors;
+}
+
+/**
+ * Placeholder names that name a value's type instead of its role.
+ *
+ * A placeholder is the only description a step gives of what a consumer must
+ * pass, so it names the thing (`:tolerance`, `:selector`, `:count`) rather than
+ * the PHP type it arrives as. Add a name here to keep it out of step patterns.
+ *
+ * @return array<int, string>
+ *   List of rejected placeholder names, without the leading colon.
+ */
+function non_descriptive_placeholders(): array {
+  return [
+    'arg',
+    'argument',
+    'array',
+    'bool',
+    'boolean',
+    'data',
+    'float',
+    'int',
+    'integer',
+    'number',
+    'string',
+    'var',
+  ];
 }
 
 /**
