@@ -16,8 +16,6 @@
 
 declare(strict_types=1);
 
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
@@ -40,7 +38,6 @@ return RectorConfig::configure()
     '/app/scripts',
     '/app/src',
     '/app/tests/behat/bootstrap',
-    '/app/tests/behat/fixtures_drupal/d10/web/modules/custom',
     '/app/tests/behat/fixtures_drupal/d11/web/modules/custom',
     '/app/tests/phpunit/src',
   ])

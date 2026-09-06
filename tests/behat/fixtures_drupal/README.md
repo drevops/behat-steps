@@ -6,20 +6,20 @@ This directory contains Drupal fixture sites used for testing the Behat Steps li
 
 ```
 fixtures_drupal/
-├── d10/          # Drupal 10 fixture
-│   ├── composer.json
-│   ├── config/
-│   │   └── sync/  # Exported Drupal configuration
-│   ├── scripts/
-│   │   └── composer/
-│   │       └── ScriptHandler.php
-│   └── web/
-│       └── modules/
-│           └── custom/
-│               └── mysite_core/
 └── d11/          # Drupal 11 fixture
-    └── (same structure as d10)
+    ├── composer.json
+    ├── config/
+    │   └── sync/  # Exported Drupal configuration
+    ├── scripts/
+    │   └── composer/
+    │       └── ScriptHandler.php
+    └── web/
+        └── modules/
+            └── custom/
+                └── mysite_core/
 ```
+
+`scripts/provision.sh` and `.ahoy.yml` address the fixture as `d${DRUPAL_VERSION}`, so a fixture for a new Drupal major is added as a sibling directory with no changes to either.
 
 ## Purpose
 
@@ -213,7 +213,7 @@ Located at `scripts/composer/ScriptHandler.php`, this class automates setup:
 
 1. **Install dependencies:**
    ```bash
-   cd tests/behat/fixtures_drupal/d10
+   cd tests/behat/fixtures_drupal/d11
    composer install
    ```
 
@@ -237,16 +237,13 @@ When adding new test scenarios that require Drupal features:
    ```bash
    ahoy update-fixtures
    ```
-   This copies configuration to both `d10/` and `d11/` fixtures.
-
-3. **Update both versions:**
-   Always maintain both Drupal 10 and Drupal 11 fixtures in sync.
+   This copies configuration to the fixture named by `DRUPAL_VERSION`, defaulting to `d11/`.
 
 ### Adding New Modules
 
 If a new test requires additional Drupal modules:
 
-1. **Add to both `d10/composer.json` and `d11/composer.json`:**
+1. **Add to `d11/composer.json`:**
    ```json
    "require": {
        "drupal/example_module": "^1.0"
@@ -261,17 +258,12 @@ If a new test requires additional Drupal modules:
 
 ## Version-Specific Notes
 
-### Drupal 10 (d10/)
-- PHP >= 8.2
-- Drupal core: `~10.6.0`
-- CKEditor 5 (replaces CKEditor 4)
-
 ### Drupal 11 (d11/)
 - PHP >= 8.3
-- Drupal core: `~11.3.0`
+- Drupal core: `~11.4.0`
 - All modules must be Drupal 11 compatible
 
-Renovate tracks both fixtures and raises the Drupal 10 constraint to each new minor. The Drupal 11 constraint is held at `~11.3.0` by a `renovate.json` package rule: 11.4 deprecates `node_access_rebuild()` and `user_pass_rehash()`, and their replacements do not exist in Drupal 10. Moving the fixture past 11.3 is blocked on dropping Drupal 10 support.
+The core constraint is pinned to a single minor rather than `^11`, so each minor move is a deliberate, reviewable change. Renovate raises it to each new minor.
 
 ## Testing Flow
 
@@ -284,10 +276,10 @@ Renovate tracks both fixtures and raises the Drupal 10 constraint to each new mi
 ## Best Practices
 
 1. **Keep fixtures minimal**: Only include modules/config actually used in tests
-2. **Sync both versions**: Always update both d10 and d11 when making changes
+2. **Sync every fixture**: When more than one Drupal major is present, apply each change to all of them
 3. **Document custom hooks**: Add comments to `mysite_core` module for test-specific functionality
 4. **Export clean config**: Use `ahoy drush cex -y` to ensure all config is exported
-5. **Test both versions**: Run BDD tests against both Drupal 10 and 11 fixtures
+5. **Test every fixture**: Run the BDD suite against each Drupal major that has a fixture
 
 ## Troubleshooting
 

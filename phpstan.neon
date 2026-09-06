@@ -13,7 +13,6 @@ parameters:
     - scripts
     - src
     - tests/behat/bootstrap
-    - tests/behat/fixtures_drupal/d10/web/modules/custom
     - tests/behat/fixtures_drupal/d11/web/modules/custom
     - tests/phpunit/src
 
@@ -23,7 +22,6 @@ parameters:
     - tests/behat/bootstrap/BehatCliContext.php
     - tests/behat/bootstrap/BehatCliTrait.php
     # https://github.com/phpstan/phpstan/discussions/11362
-    - tests/behat/fixtures_drupal/d10/web/modules/custom/mysite_core/src/Time/Time.php
     - tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
 
   scanFiles:
@@ -51,7 +49,6 @@ parameters:
       paths:
         # Fixtures have hook implementations that do not have full type
         # information specified in comment docblocks.
-        - tests/behat/fixtures_drupal/d10/web/modules/custom
         - tests/behat/fixtures_drupal/d11/web/modules/custom
         # Since tests and data providers do not have to have parameter docblocks,
         # it is not possible to specify the type of the parameter, so we ignore
