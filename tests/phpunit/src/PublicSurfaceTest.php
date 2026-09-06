@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\AfterStepScope;
+use Behat\Behat\Hook\Scope\BeforeFeatureScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\AfterFeature;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
@@ -15,7 +21,16 @@ use Behat\Hook\BeforeSuite;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Behat\Testwork\Hook\Scope\AfterSuiteScope;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\DateTrait;
+use DrevOps\BehatSteps\Drupal\HelperTrait;
+use DrevOps\BehatSteps\Drupal\OverrideTrait;
+use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\ResponsiveTrait;
+use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
+use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -26,6 +41,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * that exposes more than the surrounding code intends cannot be narrowed
  * before the next major. These tests hold the four conventions that keep the
  * surface deliberate.
+ *
+ * Each loop reads its subject into a variable first: a foreach directly over a
+ * method call is rewritten by Rector to a camel case value variable, which the
+ * snake case coding standard then rewrites back.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {
@@ -44,41 +63,42 @@ class PublicSurfaceTest extends UnitTestCase {
    * Hook attributes mapped to the scope class the hook method receives.
    */
   protected const HOOK_SCOPES = [
-    AfterFeature::class => 'Behat\Behat\Hook\Scope\AfterFeatureScope',
-    AfterScenario::class => 'Behat\Behat\Hook\Scope\AfterScenarioScope',
-    AfterStep::class => 'Behat\Behat\Hook\Scope\AfterStepScope',
-    AfterSuite::class => 'Behat\Testwork\Hook\Scope\AfterSuiteScope',
-    BeforeFeature::class => 'Behat\Behat\Hook\Scope\BeforeFeatureScope',
-    BeforeScenario::class => 'Behat\Behat\Hook\Scope\BeforeScenarioScope',
-    BeforeStep::class => 'Behat\Behat\Hook\Scope\BeforeStepScope',
-    BeforeSuite::class => 'Behat\Testwork\Hook\Scope\BeforeSuiteScope',
-    'Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate' => 'Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope',
+    AfterFeature::class => AfterFeatureScope::class,
+    AfterScenario::class => AfterScenarioScope::class,
+    AfterStep::class => AfterStepScope::class,
+    AfterSuite::class => AfterSuiteScope::class,
+    BeforeFeature::class => BeforeFeatureScope::class,
+    BeforeScenario::class => BeforeScenarioScope::class,
+    BeforeStep::class => BeforeStepScope::class,
+    BeforeSuite::class => BeforeSuiteScope::class,
+    BeforeNodeCreate::class => BeforeNodeCreateScope::class,
   ];
 
   /**
    * Public methods that carry no step or hook attribute, and why.
    */
   protected const ALLOWED_PUBLIC_METHODS = [
-    'DrevOps\BehatSteps\DateTrait::dateRelativeProcessValue' => 'Documented utility that resolves a relative date token outside a step.',
-    'DrevOps\BehatSteps\Drupal\OverrideTrait::createNodes' => 'Overrides a public Drupal Extension method.',
-    'DrevOps\BehatSteps\Drupal\OverrideTrait::createUsers' => 'Overrides a public Drupal Extension method.',
-    'DrevOps\BehatSteps\Drupal\OverrideTrait::iAmLoggedInAsUserWithRole' => 'Overrides a public Drupal Extension method.',
-    'DrevOps\BehatSteps\Drupal\TaxonomyTrait::createTerms' => 'Overrides a public Drupal Extension method.',
-    'DrevOps\BehatSteps\ResponsiveTrait::responsiveSetBreakpoints' => 'Documented utility that registers breakpoints outside a step.',
+    DateTrait::class . '::dateRelativeProcessValue' => 'Documented utility that resolves a relative date token outside a step.',
+    OverrideTrait::class . '::createNodes' => 'Overrides a public Drupal Extension method.',
+    OverrideTrait::class . '::createUsers' => 'Overrides a public Drupal Extension method.',
+    OverrideTrait::class . '::iAmLoggedInAsUserWithRole' => 'Overrides a public Drupal Extension method.',
+    TaxonomyTrait::class . '::createTerms' => 'Overrides a public Drupal Extension method.',
+    ResponsiveTrait::class . '::responsiveSetBreakpoints' => 'Documented utility that registers breakpoints outside a step.',
   ];
 
   /**
    * Constants whose name does not start with the trait prefix, and why.
    */
   protected const ALLOWED_CONSTANTS = [
-    'DrevOps\BehatSteps\Drupal\HelperTrait::ENTITY_CLEANUP_EXCLUDED_TYPES' => 'Named for the entityCleanup* member family it configures.',
+    HelperTrait::class . '::ENTITY_CLEANUP_EXCLUDED_TYPES' => 'Named for the entityCleanup* member family it configures.',
   ];
 
   #[DataProvider('dataProviderPublicMethodsAreStepsOrHooks')]
   public function testPublicMethodsAreStepsOrHooks(string $trait): void {
+    $methods = static::traitOwnMethods($trait);
     $violations = [];
 
-    foreach (static::traitOwnMethods($trait) as $method) {
+    foreach ($methods as $method) {
       $identifier = $trait . '::' . $method->getName();
 
       if (!$method->isPublic() || array_key_exists($identifier, static::ALLOWED_PUBLIC_METHODS)) {
@@ -99,10 +119,13 @@ class PublicSurfaceTest extends UnitTestCase {
 
   #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
   public function testHookMethodsDeclareTheirScope(string $trait): void {
+    $methods = static::traitOwnMethods($trait);
     $violations = [];
 
-    foreach (static::traitOwnMethods($trait) as $method) {
-      foreach (static::methodBehatAttributes($method) as $attribute) {
+    foreach ($methods as $method) {
+      $attributes = static::methodBehatAttributes($method);
+
+      foreach ($attributes as $attribute) {
         if (in_array($attribute, static::STEP_ATTRIBUTES, TRUE)) {
           continue;
         }
@@ -128,9 +151,10 @@ class PublicSurfaceTest extends UnitTestCase {
   public function testPropertiesDeclareNativeTypes(string $trait): void {
     $reflection = static::reflect($trait);
     $composed = static::composedPropertyNames($reflection);
+    $properties = $reflection->getProperties();
     $violations = [];
 
-    foreach ($reflection->getProperties() as $property) {
+    foreach ($properties as $property) {
       if (in_array($property->getName(), $composed, TRUE)) {
         continue;
       }
@@ -152,9 +176,10 @@ class PublicSurfaceTest extends UnitTestCase {
     $reflection = static::reflect($trait);
     $composed = static::composedConstantNames($reflection);
     $prefix = static::traitConstantPrefix($trait);
+    $constants = $reflection->getReflectionConstants();
     $violations = [];
 
-    foreach ($reflection->getReflectionConstants() as $constant) {
+    foreach ($constants as $constant) {
       if (in_array($constant->getName(), $composed, TRUE)) {
         continue;
       }
@@ -228,15 +253,19 @@ class PublicSurfaceTest extends UnitTestCase {
    */
   protected static function traitOwnMethods(string $trait): array {
     $reflection = static::reflect($trait);
+    $used_traits = $reflection->getTraits();
+    $own = $reflection->getMethods();
 
     $composed = [];
-    foreach ($reflection->getTraits() as $used) {
-      foreach ($used->getMethods() as $method) {
+    foreach ($used_traits as $used_trait) {
+      $methods = $used_trait->getMethods();
+
+      foreach ($methods as $method) {
         $composed[] = $method->getName();
       }
     }
 
-    return array_values(array_filter($reflection->getMethods(), static fn(\ReflectionMethod $method): bool => !in_array($method->getName(), $composed, TRUE)));
+    return array_values(array_filter($own, static fn(\ReflectionMethod $method): bool => !in_array($method->getName(), $composed, TRUE)));
   }
 
   /**
@@ -253,10 +282,13 @@ class PublicSurfaceTest extends UnitTestCase {
    *   Property names that originate in a composed trait.
    */
   protected static function composedPropertyNames(\ReflectionClass $reflection): array {
+    $used_traits = $reflection->getTraits();
     $names = [];
 
-    foreach ($reflection->getTraits() as $used) {
-      foreach ($used->getProperties() as $property) {
+    foreach ($used_traits as $used_trait) {
+      $properties = $used_trait->getProperties();
+
+      foreach ($properties as $property) {
         $names[] = $property->getName();
       }
     }
@@ -274,10 +306,13 @@ class PublicSurfaceTest extends UnitTestCase {
    *   Constant names that originate in a composed trait.
    */
   protected static function composedConstantNames(\ReflectionClass $reflection): array {
+    $used_traits = $reflection->getTraits();
     $names = [];
 
-    foreach ($reflection->getTraits() as $used) {
-      foreach ($used->getReflectionConstants() as $constant) {
+    foreach ($used_traits as $used_trait) {
+      $constants = $used_trait->getReflectionConstants();
+
+      foreach ($constants as $constant) {
         $names[] = $constant->getName();
       }
     }
@@ -298,9 +333,10 @@ class PublicSurfaceTest extends UnitTestCase {
    *   If the method carries a hook attribute absent from HOOK_SCOPES.
    */
   protected static function methodBehatAttributes(\ReflectionMethod $method): array {
+    $attributes = $method->getAttributes();
     $found = [];
 
-    foreach ($method->getAttributes() as $attribute) {
+    foreach ($attributes as $attribute) {
       $name = $attribute->getName();
 
       if (in_array($name, static::STEP_ATTRIBUTES, TRUE) || array_key_exists($name, static::HOOK_SCOPES)) {
@@ -355,7 +391,9 @@ class PublicSurfaceTest extends UnitTestCase {
       return '';
     }
     // @codeCoverageIgnoreEnd
-    foreach (file($file) ?: [] as $line) {
+    $lines = file($file) ?: [];
+
+    foreach ($lines as $line) {
       if (preg_match('/(^|\s)const\s+' . preg_quote($name, '/') . '\s*=/', $line) === 1) {
         return $line;
       }
