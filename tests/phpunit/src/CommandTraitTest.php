@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\CommandTrait;
+use DrevOps\BehatSteps\Exception\AssertionException;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -123,15 +124,15 @@ class CommandTraitTest extends UnitTestCase {
 
   public static function dataProviderAssertionFailures(): array {
     return [
-      'succeed on a failed command' => ['exit 1', 'commandAssertSuccess', [], \Exception::class, 'Expected the command to succeed, but it exited with code 1.'],
-      'fail on a successful command' => ['echo hello', 'commandAssertFailure', [], \Exception::class, 'Expected the command to fail, but it exited with code 0.'],
-      'exit code mismatch' => ['echo hello', 'commandAssertExitCode', ['3'], \Exception::class, 'Expected the command to exit with code 3, but it exited with code 0.'],
-      'output does not contain' => ['echo hello', 'commandAssertOutputContains', ['goodbye'], \Exception::class, 'Expected the command output to contain "goodbye"'],
-      'output unexpectedly contains' => ['echo hello', 'commandAssertOutputNotContains', ['hello'], \Exception::class, 'Expected the command output to not contain "hello"'],
-      'output does not equal' => ['echo hello', 'commandAssertOutputEquals', ['goodbye'], \Exception::class, 'Expected the command output to be "goodbye", but got "hello".'],
-      'error output does not contain' => ['echo hello', 'commandAssertErrorOutputContains', ['missing'], \Exception::class, 'Expected the command error output to contain "missing"'],
-      'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], \Exception::class, 'Expected the command to complete in less than 0.5 seconds'],
-      'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], \Exception::class, 'Expected the command to complete in more than 5 seconds'],
+      'succeed on a failed command' => ['exit 1', 'commandAssertSuccess', [], AssertionException::class, 'Expected the command to succeed, but it exited with code 1.'],
+      'fail on a successful command' => ['echo hello', 'commandAssertFailure', [], AssertionException::class, 'Expected the command to fail, but it exited with code 0.'],
+      'exit code mismatch' => ['echo hello', 'commandAssertExitCode', ['3'], AssertionException::class, 'Expected the command to exit with code 3, but it exited with code 0.'],
+      'output does not contain' => ['echo hello', 'commandAssertOutputContains', ['goodbye'], AssertionException::class, 'Expected the command output to contain "goodbye"'],
+      'output unexpectedly contains' => ['echo hello', 'commandAssertOutputNotContains', ['hello'], AssertionException::class, 'Expected the command output to not contain "hello"'],
+      'output does not equal' => ['echo hello', 'commandAssertOutputEquals', ['goodbye'], AssertionException::class, 'Expected the command output to be "goodbye", but got "hello".'],
+      'error output does not contain' => ['echo hello', 'commandAssertErrorOutputContains', ['missing'], AssertionException::class, 'Expected the command error output to contain "missing"'],
+      'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], AssertionException::class, 'Expected the command to complete in less than 0.5 seconds'],
+      'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], AssertionException::class, 'Expected the command to complete in more than 5 seconds'],
       'assertion before any command' => [NULL, 'commandAssertSuccess', [], \RuntimeException::class, 'No command has been run.'],
       'non-integer exit code word' => ['echo hello', 'commandAssertExitCode', ['three'], \RuntimeException::class, 'The expected exit code must be an integer, but got "three".'],
       'non-integer exit code float' => ['echo hello', 'commandAssertExitCode', ['3.5'], \RuntimeException::class, 'The expected exit code must be an integer, but got "3.5".'],

@@ -117,7 +117,11 @@ trait XmlTrait {
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseIsXml(): void {
-    $this->xmlEnsureDocument();
+    $error = $this->xmlContentError($this->xmlResolveContent());
+
+    if ($error !== NULL) {
+      throw new ExpectationException(sprintf('The response is not valid XML: %s.', $error), $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -133,16 +137,7 @@ trait XmlTrait {
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
-    // Resolve content the same way as xmlEnsureDocument().
-    $content = $this->xmlTestContent ?? $this->getSession()->getPage()->getContent();
-
-    $document = new \DOMDocument();
-    libxml_clear_errors();
-    $loaded = @$document->loadXML($content);
-    $errors = libxml_get_errors();
-    libxml_clear_errors();
-
-    if ($loaded && empty($errors)) {
+    if ($this->xmlContentError($this->xmlResolveContent()) === NULL) {
       throw new ExpectationException('The response is valid XML, but it should not be.', $this->getSession()->getDriver());
     }
   }
@@ -678,6 +673,40 @@ trait XmlTrait {
     }
 
     print $output;
+  }
+
+  /**
+   * Resolve the response content to assert against.
+   *
+   * @return string
+   *   The content set by a fixture step, or the live page content.
+   */
+  protected function xmlResolveContent(): string {
+    return $this->xmlTestContent ?? (string) $this->getSession()->getPage()->getContent();
+  }
+
+  /**
+   * Parse XML content and report why it is not well-formed.
+   *
+   * @param string $content
+   *   The XML content to parse.
+   *
+   * @return string|null
+   *   The formatted parse errors, or NULL when the content is well-formed.
+   */
+  protected function xmlContentError(string $content): ?string {
+    $document = new \DOMDocument();
+
+    libxml_clear_errors();
+    $loaded = @$document->loadXML($content);
+    $errors = libxml_get_errors();
+    libxml_clear_errors();
+
+    if ($loaded && $errors === []) {
+      return NULL;
+    }
+
+    return $this->xmlFormatErrors($errors);
   }
 
   /**

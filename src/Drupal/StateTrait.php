@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
  * Manage and assert Drupal State API values with automatic revert.
@@ -130,14 +131,14 @@ trait StateTrait {
   public function stateAssertHasValue(string $name, string $value): void {
     $state_value = $this->stateReadValue($name);
     if (!$state_value['exists']) {
-      throw new \Exception(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
+      throw new AssertionException(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
     }
 
     $expected = $this->stateNormaliseValue($value);
     $actual_stringified = $this->stateStringifyValue($state_value['value']);
     $expected_stringified = $this->stateStringifyValue($expected);
     if ($actual_stringified !== $expected_stringified) {
-      throw new \Exception(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
+      throw new AssertionException(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
     }
   }
 
@@ -152,7 +153,7 @@ trait StateTrait {
   public function stateAssertNotExists(string $name): void {
     $state_value = $this->stateReadValue($name);
     if ($state_value['exists']) {
-      throw new \Exception(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stateStringifyValue($state_value['value'])));
+      throw new AssertionException(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stateStringifyValue($state_value['value'])));
     }
   }
 

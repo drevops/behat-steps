@@ -285,12 +285,12 @@ trait MediaTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($bundle)) {
-      throw new \Exception('Cannot create media because it is missing the required bundle.');
+      throw new \RuntimeException('Cannot create media because it is missing the required bundle.');
     }
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
     if (!in_array($bundle, array_keys($bundles))) {
-      throw new \Exception(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
+      throw new \RuntimeException(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
     }
     // @codeCoverageIgnoreEnd
     $this->mediaExpandEntityFieldsFixtures($stub);

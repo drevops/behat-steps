@@ -112,7 +112,7 @@ trait BlockTrait {
           }
           // @codeCoverageIgnoreStart
           else {
-            throw new \InvalidArgumentException('Expected region as string.');
+            throw new \RuntimeException('Expected region as string.');
           }
           // @codeCoverageIgnoreEnd
           break;

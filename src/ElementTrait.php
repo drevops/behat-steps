@@ -1275,7 +1275,7 @@ JS;
   protected function elementExecuteJs(string $selector, string $script) {
     // @codeCoverageIgnoreStart
     if (!str_contains($script, '{{ELEMENT}}')) {
-      throw new \InvalidArgumentException('The script must contain the {{ELEMENT}} token to reference the element.');
+      throw new \RuntimeException('The script must contain the {{ELEMENT}} token to reference the element.');
     }
     // @codeCoverageIgnoreEnd
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);

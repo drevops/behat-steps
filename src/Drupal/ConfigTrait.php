@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
  * Assert and set stored Drupal configuration values with automatic revert.
@@ -307,18 +308,18 @@ trait ConfigTrait {
 
     if ($should_match) {
       if (!$is_set) {
-        throw new \Exception(sprintf('The config "%s" key "%s" is not set, but it should have the %s "%s".', $name, $key, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but it should have the %s "%s".', $name, $key, $descriptor, $expected));
       }
 
       if (!$matches) {
-        throw new \Exception(sprintf('The config "%s" key "%s" has the %s "%s", but it should have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
       }
 
       return;
     }
 
     if ($matches) {
-      throw new \Exception(sprintf('The config "%s" key "%s" has the %s "%s", but it should not have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
+      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should not have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
     }
   }
 
@@ -346,18 +347,18 @@ trait ConfigTrait {
 
     if ($should_contain) {
       if (!$is_set) {
-        throw new \Exception(sprintf('The config "%s" key "%s" is not set, but its %s should contain "%s".', $name, $key, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but its %s should contain "%s".', $name, $key, $descriptor, $expected));
       }
 
       if (!$contains) {
-        throw new \Exception(sprintf('The config "%s" key "%s" has the %s "%s", which does not contain "%s".', $name, $key, $descriptor, $actual_string, $expected));
+        throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which does not contain "%s".', $name, $key, $descriptor, $actual_string, $expected));
       }
 
       return;
     }
 
     if ($contains) {
-      throw new \Exception(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s" but should not.', $name, $key, $descriptor, $actual_string, $expected));
+      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s" but should not.', $name, $key, $descriptor, $actual_string, $expected));
     }
   }
 

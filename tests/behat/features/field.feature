@@ -300,9 +300,9 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should exist within the select element "non_existent_select"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "InvalidArgumentException" exception:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
-      Element "non_existent_select" is not found.
+      Select with id|name|label "non_existent_select" not found.
       """
 
   @api @trait:FieldTrait
@@ -315,9 +315,9 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should exist within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "InvalidArgumentException" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      Option "INVALID_OPTION" is not found in select "date_default_timezone".
+      The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings.
       """
 
   @api @trait:FieldTrait
@@ -330,9 +330,9 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should not exist within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "InvalidArgumentException" exception:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      Option "UTC" is found in select "date_default_timezone", but should not.
+      The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not exist.
       """
 
   @api @trait:FieldTrait
@@ -390,9 +390,9 @@ Feature: Check that FieldTrait works
       Then the option "UTC" should not exist within the select element "non_existent_select"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "InvalidArgumentException" exception:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
-      Element "non_existent_select" is not found.
+      Select with id|name|label "non_existent_select" not found.
       """
 
   @api @trait:FieldTrait

@@ -8,6 +8,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
  * Run local shell commands and assert on their result.
@@ -168,7 +169,7 @@ trait CommandTrait {
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== 0) {
-      throw new \Exception(sprintf('Expected the command to succeed, but it exited with code %d. Error output: %s.', $exit_code, $this->commandStderr));
+      throw new AssertionException(sprintf('Expected the command to succeed, but it exited with code %d. Error output: %s.', $exit_code, $this->commandStderr));
     }
   }
 
@@ -185,7 +186,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if ((int) $this->commandExitCode === 0) {
-      throw new \Exception('Expected the command to fail, but it exited with code 0.');
+      throw new AssertionException('Expected the command to fail, but it exited with code 0.');
     }
   }
 
@@ -205,7 +206,7 @@ trait CommandTrait {
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== $expected) {
-      throw new \Exception(sprintf('Expected the command to exit with code %d, but it exited with code %d.', $expected, $exit_code));
+      throw new AssertionException(sprintf('Expected the command to exit with code %d, but it exited with code %d.', $expected, $exit_code));
     }
   }
 
@@ -224,7 +225,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (!str_contains($this->commandStdout, $text)) {
-      throw new \Exception(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $text, $this->commandStdout));
+      throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $text, $this->commandStdout));
     }
   }
 
@@ -243,7 +244,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (str_contains($this->commandStdout, $text)) {
-      throw new \Exception(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $text, $this->commandStdout));
+      throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $text, $this->commandStdout));
     }
   }
 
@@ -264,7 +265,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (trim($this->commandStdout) !== trim($text)) {
-      throw new \Exception(sprintf('Expected the command output to be "%s", but got "%s".', trim($text), trim($this->commandStdout)));
+      throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($text), trim($this->commandStdout)));
     }
   }
 
@@ -283,7 +284,7 @@ trait CommandTrait {
     $this->commandAssertHasRun();
 
     if (!str_contains($this->commandStderr, $text)) {
-      throw new \Exception(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $text, $this->commandStderr));
+      throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $text, $this->commandStderr));
     }
   }
 
@@ -302,7 +303,7 @@ trait CommandTrait {
     $limit = $this->commandAssertNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration >= $limit) {
-      throw new \Exception(sprintf('Expected the command to complete in less than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
+      throw new AssertionException(sprintf('Expected the command to complete in less than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
     }
   }
 
@@ -321,7 +322,7 @@ trait CommandTrait {
     $limit = $this->commandAssertNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration <= $limit) {
-      throw new \Exception(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
+      throw new AssertionException(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
     }
   }
 

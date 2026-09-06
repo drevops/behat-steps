@@ -440,6 +440,16 @@ trait FieldTrait {
   }
 
   /**
+   * The path of the current page, as used in failure messages.
+   *
+   * @return string
+   *   The path component of the current URL.
+   */
+  protected function fieldCurrentPath(): string {
+    return (string) parse_url((string) $this->getSession()->getCurrentUrl(), PHP_URL_PATH);
+  }
+
+  /**
    * Wrap a string in an XPath-safe literal.
    *
    * Handles strings containing single quotes, double quotes, or both.
@@ -579,13 +589,15 @@ JS;
   #[Then('the option :option should exist within the select element :selector')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
+
     if ($select_element === NULL) {
-      throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
+
     if ($option_element === NULL) {
-      throw new \InvalidArgumentException(sprintf('Option "%s" is not found in select "%s".', $option, $selector));
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -599,13 +611,15 @@ JS;
   #[Then('the option :option should not exist within the select element :selector')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
+
     if ($select_element === NULL) {
-      throw new \InvalidArgumentException(sprintf('Element "%s" is not found.', $selector));
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
     }
 
     $option_element = $select_element->find('named', ['option', $option]);
+
     if ($option_element !== NULL) {
-      throw new \InvalidArgumentException(sprintf('Option "%s" is found in select "%s", but should not.', $option, $selector));
+      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page %s, but should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -619,8 +633,7 @@ JS;
   #[Then('the option :option should be selected within the select element :selector')]
   public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
-    $current_url = $this->getSession()->getCurrentUrl();
-    $path = parse_url((string) $current_url, PHP_URL_PATH);
+    $path = $this->fieldCurrentPath();
 
     if (!$select_field) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
@@ -650,8 +663,7 @@ JS;
   #[Then('the option :option should not be selected within the select element :selector')]
   public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
-    $current_url = $this->getSession()->getCurrentUrl();
-    $path = parse_url((string) $current_url, PHP_URL_PATH);
+    $path = $this->fieldCurrentPath();
 
     if (!$select_field) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);

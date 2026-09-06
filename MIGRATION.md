@@ -294,3 +294,41 @@ A scenario that asserted a falsy parameter away with `Then the current URL shoul
 ```gherkin
 Then the current URL should not have the "filter" parameter with the value "recent"
 ```
+## Unified assertion exceptions
+
+Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.
+
+| Failure | Exception |
+| --- | --- |
+| An assertion fails and the step can reach the page | `Behat\Mink\Exception\ExpectationException` |
+| An assertion fails and the step has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
+| A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+
+`ExpectationException` requires a Mink driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
+
+If your project catches an exception from one of these steps, update the type:
+
+| Trait | Was | Now |
+| --- | --- | --- |
+| `CommandTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
+| `Drupal\ConfigTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
+| `Drupal\ModuleTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
+| `Drupal\StateTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
+| `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
+| `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException` |
+| `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
+| `FieldTrait` (`the option ... should (not) exist within the select element ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select, `ExpectationException` for the option |
+| `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
+| `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
+
+3 failure messages changed along with their type:
+
+| Step | Was | Now |
+| --- | --- | --- |
+| `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
+| `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `The option "..." was not found in the select "..." on the page ....` |
+| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
+
+Behat reports every one of these as a failed step either way, so a scenario that simply runs to a failure behaves the same. Only code that catches a specific type, or asserts on the message text, needs changing.

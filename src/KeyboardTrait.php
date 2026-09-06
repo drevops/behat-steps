@@ -126,7 +126,7 @@ trait KeyboardTrait {
     ];
 
     if (strlen($char) < 1) {
-      throw new \InvalidArgumentException('The keyboard key must not be empty.');
+      throw new \RuntimeException('The keyboard key must not be empty.');
     }
 
     if (strlen($char) > 1) {

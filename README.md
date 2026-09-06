@@ -183,8 +183,17 @@ consistent error handling:
 |------------------------------------|------------------------------------------------------|
 | `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
 | `ExpectationException`             | Assertion fails (value mismatch, state verification) |
+| `AssertionException`               | Assertion fails in a step with no Mink session       |
 | `UnsupportedDriverActionException` | Feature requires specific driver (e.g., Selenium)    |
 | `\RuntimeException`                | Invalid input or processing error (not an assertion) |
+
+`ElementNotFoundException` extends `ExpectationException`, so catching
+`ExpectationException` covers both.
+
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that
+never touch the browser, such as `CommandTrait` and `Drupal\ConfigTrait`.
+`ExpectationException` needs a Mink driver, which those traits do not have, so
+they report a failed assertion with this instead.
 
 Example error messages:
 
