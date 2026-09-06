@@ -25,6 +25,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('extract_info')]
 #[CoversFunction('parse_class_comment')]
 #[CoversFunction('tag_registry')]
+#[CoversFunction('non_descriptive_placeholders')]
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
@@ -1276,6 +1277,91 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Missing "the", "a" or "no" in the step' . PHP_EOL],
       ],
+      'given starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given I accept all confirmation dialogs'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step starts with "I " but should state a precondition' . PHP_EOL],
+      ],
+      'then starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then I should see the modal'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step starts with "I " but should start with the asserted entity' . PHP_EOL],
+      ],
+      'optional token in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the table :selector should have :count row(s)'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Optional token "(s)" in the step' . PHP_EOL],
+      ],
+      'non-descriptive placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector should be displayed with an offset of :number pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":number" in the step' . PHP_EOL],
+      ],
+      'descriptive placeholders in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :parent should contain :count elements matching :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
       'missing example' => [
         [
           'TestTrait' => [
@@ -2091,6 +2177,20 @@ EOD,
     foreach ($registry as $prefix => $type) {
       $this->assertIsString($prefix);
       $this->assertContains($type, ['parametrized', 'flag']);
+    }
+  }
+
+  public function testNonDescriptivePlaceholders(): void {
+    $placeholders = non_descriptive_placeholders();
+
+    $this->assertContains('number', $placeholders);
+    $this->assertNotContains('count', $placeholders);
+    $this->assertNotContains('param', $placeholders);
+
+    // Names are compared against the placeholders extracted from a step
+    // pattern, which carry no leading colon.
+    foreach ($placeholders as $placeholder) {
+      $this->assertStringStartsNotWith(':', $placeholder);
     }
   }
 
