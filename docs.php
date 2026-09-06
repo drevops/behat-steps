@@ -728,7 +728,7 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Optional token "%s" in the step', $optional[0]));
       }
 
-      preg_match_all('/:([a-z_]+)/', $step, $placeholders);
+      preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $placeholders);
 
       foreach ($placeholders[1] as $placeholder) {
         if (in_array($placeholder, $non_descriptive_placeholders, TRUE)) {

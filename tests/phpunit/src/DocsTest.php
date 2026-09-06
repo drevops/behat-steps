@@ -1345,6 +1345,23 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":number" in the step' . PHP_EOL],
       ],
+      'camel case placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :stringValue element should be displayed'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
       'descriptive placeholders in step' => [
         [
           'TestTrait' => [
