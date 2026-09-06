@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
@@ -52,7 +54,7 @@ trait JsonTrait {
    * Clear cached JSON state before each scenario.
    */
   #[BeforeScenario]
-  public function jsonBeforeScenario(): void {
+  public function jsonBeforeScenario(BeforeScenarioScope $scope): void {
     $this->jsonResetState();
   }
 
@@ -60,7 +62,7 @@ trait JsonTrait {
    * Clear cached JSON state after each scenario.
    */
   #[AfterScenario]
-  public function jsonAfterScenario(): void {
+  public function jsonAfterScenario(AfterScenarioScope $scope): void {
     $this->jsonResetState();
   }
 

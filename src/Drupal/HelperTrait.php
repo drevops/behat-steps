@@ -43,7 +43,7 @@ trait HelperTrait {
    * Never deleted by this trait to avoid double-deletion with the base
    * extension (re-deleting a user or language throws, unlike nodes/terms).
    */
-  const HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES = [
+  protected const HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES = [
     'node',
     'user',
     'taxonomy_term',

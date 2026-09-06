@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Drupal;
 
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
@@ -35,7 +36,7 @@ trait BigPipeTrait {
   /**
    * Default maximum time to wait for BigPipe placeholders, in milliseconds.
    */
-  protected const DEFAULT_WAIT_TIMEOUT = 10000;
+  protected const BIG_PIPE_DEFAULT_WAIT_TIMEOUT = 10000;
 
   /**
    * Whether the automatic BigPipe wait is active for the current scenario.
@@ -45,7 +46,7 @@ trait BigPipeTrait {
   /**
    * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
    */
-  protected int $bigPipeWaitTimeout = self::DEFAULT_WAIT_TIMEOUT;
+  protected int $bigPipeWaitTimeout = self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
 
   /**
    * Resolve whether the automatic BigPipe wait applies to this scenario.
@@ -70,7 +71,7 @@ trait BigPipeTrait {
    * `bigPipeBeforeStep()` hook, inherited through `DrupalContext`.
    */
   #[BeforeStep]
-  public function bigPipeWaitBeforeStep(): void {
+  public function bigPipeWaitBeforeStep(BeforeStepScope $scope): void {
     if (!$this->bigPipeAutoWaitEnabled) {
       return;
     }

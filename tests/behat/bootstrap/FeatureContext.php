@@ -165,7 +165,7 @@ class FeatureContext extends DrupalContext {
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('test-bigpipe-timeout') ? 2000 : self::DEFAULT_WAIT_TIMEOUT;
+    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
   }
 
 }

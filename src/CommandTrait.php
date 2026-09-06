@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Then;
@@ -48,7 +50,7 @@ trait CommandTrait {
    * Clear captured command state before each scenario.
    */
   #[BeforeScenario]
-  public function commandBeforeScenario(): void {
+  public function commandBeforeScenario(BeforeScenarioScope $scope): void {
     $this->commandResetState();
   }
 
@@ -56,7 +58,7 @@ trait CommandTrait {
    * Clear captured command state after each scenario.
    */
   #[AfterScenario]
-  public function commandAfterScenario(): void {
+  public function commandAfterScenario(AfterScenarioScope $scope): void {
     $this->commandResetState();
   }
 

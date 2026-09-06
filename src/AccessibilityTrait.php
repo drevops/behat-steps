@@ -14,6 +14,8 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeSuite;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
+use Behat\Testwork\Hook\Scope\AfterSuiteScope;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 
 /**
  * Assess accessibility of rendered pages.
@@ -59,13 +61,13 @@ trait AccessibilityTrait {
    * shape. Threshold tags (`@accessibility:critical`, `@accessibility:serious`
    * etc.) and the gate-filter logic both compare against these values.
    */
-  public const IMPACT_CRITICAL = 'critical';
+  public const ACCESSIBILITY_IMPACT_CRITICAL = 'critical';
 
-  public const IMPACT_SERIOUS = 'serious';
+  public const ACCESSIBILITY_IMPACT_SERIOUS = 'serious';
 
-  public const IMPACT_MODERATE = 'moderate';
+  public const ACCESSIBILITY_IMPACT_MODERATE = 'moderate';
 
-  public const IMPACT_MINOR = 'minor';
+  public const ACCESSIBILITY_IMPACT_MINOR = 'minor';
 
   /**
    * In-memory cache for the engine JavaScript source, fetched once per process.
@@ -155,7 +157,7 @@ trait AccessibilityTrait {
    * Capture the working directory once, before any scenario can chdir().
    */
   #[BeforeSuite]
-  public static function accessibilityCaptureBaseDir(): void {
+  public static function accessibilityCaptureBaseDir(BeforeSuiteScope $scope): void {
     if (self::$accessibilityBaseDir === NULL) {
       $cwd = getcwd();
       // Leave the base unset when getcwd() fails so
@@ -174,7 +176,7 @@ trait AccessibilityTrait {
    * second suite in the same process from inheriting the first one's results.
    */
   #[BeforeSuite]
-  public static function accessibilityAggregateReset(): void {
+  public static function accessibilityAggregateReset(BeforeSuiteScope $scope): void {
     self::$accessibilityAggregate = [];
     self::$accessibilityAggregateReportDir = NULL;
   }
@@ -327,7 +329,7 @@ trait AccessibilityTrait {
    * Render the single cross-page report after the whole suite has run.
    */
   #[AfterSuite]
-  public static function accessibilityAggregateRender(): void {
+  public static function accessibilityAggregateRender(AfterSuiteScope $scope): void {
     static::accessibilityWriteAggregateReport();
   }
 
@@ -480,9 +482,9 @@ trait AccessibilityTrait {
   /**
    * Return the canonical impact levels in descending severity order.
    *
-   * Default: the four `IMPACT_*` constants on this trait. Engines with a
-   * different severity vocabulary map to these constants inside
-   * `accessibilityNormalizeResults()`.
+   * Default: the four `ACCESSIBILITY_IMPACT_*` constants on this trait.
+   * Engines with a different severity vocabulary map to these constants
+   * inside `accessibilityNormalizeResults()`.
    *
    * @return array<int, string>
    *   Impact identifiers ordered from most severe to least.
@@ -502,10 +504,10 @@ trait AccessibilityTrait {
    */
   protected static function accessibilityGetDefaultImpacts(): array {
     return [
-      self::IMPACT_CRITICAL,
-      self::IMPACT_SERIOUS,
-      self::IMPACT_MODERATE,
-      self::IMPACT_MINOR,
+      self::ACCESSIBILITY_IMPACT_CRITICAL,
+      self::ACCESSIBILITY_IMPACT_SERIOUS,
+      self::ACCESSIBILITY_IMPACT_MODERATE,
+      self::ACCESSIBILITY_IMPACT_MINOR,
     ];
   }
 
@@ -580,19 +582,19 @@ trait AccessibilityTrait {
         $impact = strtolower((string) ($issue['impact'] ?? ''));
         switch ($impact) {
           case 'critical':
-            $impact = self::IMPACT_CRITICAL;
+            $impact = self::ACCESSIBILITY_IMPACT_CRITICAL;
             break;
 
           case 'serious':
-            $impact = self::IMPACT_SERIOUS;
+            $impact = self::ACCESSIBILITY_IMPACT_SERIOUS;
             break;
 
           case 'moderate':
-            $impact = self::IMPACT_MODERATE;
+            $impact = self::ACCESSIBILITY_IMPACT_MODERATE;
             break;
 
           default:
-            $impact = self::IMPACT_MINOR;
+            $impact = self::ACCESSIBILITY_IMPACT_MINOR;
         }
 
         $nodes = [];
@@ -1170,7 +1172,7 @@ HTML;
 
     foreach ($pages as $url => $page) {
       foreach ($page['violations'] ?? [] as $violation) {
-        $impact = (string) ($violation['impact'] ?? self::IMPACT_MINOR);
+        $impact = (string) ($violation['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR);
         $totals[$impact] = ($totals[$impact] ?? 0) + 1;
 
         $rule_id = (string) ($violation['id'] ?? 'unknown');
@@ -1232,7 +1234,7 @@ HTML;
       foreach ($page['violations'] ?? [] as $violation) {
         $chips[] = [
           'id' => (string) ($violation['id'] ?? 'unknown'),
-          'impact' => strtolower((string) ($violation['impact'] ?? self::IMPACT_MINOR)),
+          'impact' => strtolower((string) ($violation['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR)),
           'count' => count($violation['nodes'] ?? []),
         ];
       }
@@ -1249,7 +1251,7 @@ HTML;
     foreach ($rollup['rules'] as $rule_id => $rule) {
       $rules[] = [
         'id' => (string) $rule_id,
-        'impact' => (string) ($rule['impact'] ?? self::IMPACT_MINOR),
+        'impact' => (string) ($rule['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR),
         'help' => (string) ($rule['help'] ?? ''),
         'helpUrl' => (string) ($rule['helpUrl'] ?? ''),
         'page_count' => count($rule['pages'] ?? []),
@@ -1370,17 +1372,17 @@ HTML;
       . sprintf('<div class="card "><span class="num">%d</span><span class="lbl">pages assessed</span></div>', (int) ($data['page_count'] ?? 0))
       . sprintf('<div class="card "><span class="num">%d</span><span class="lbl">scenarios</span></div>', (int) ($data['scenario_count'] ?? 0))
       . sprintf('<div class="card %s"><span class="num">%d</span><span class="lbl">violations</span></div>', $state, (int) ($data['total_violations'] ?? 0))
-      . sprintf('<div class="card crit"><span class="num">%d</span><span class="lbl">critical</span></div>', (int) ($totals[self::IMPACT_CRITICAL] ?? 0))
-      . sprintf('<div class="card ser"><span class="num">%d</span><span class="lbl">serious</span></div>', (int) ($totals[self::IMPACT_SERIOUS] ?? 0))
-      . sprintf('<div class="card mod"><span class="num">%d</span><span class="lbl">moderate</span></div>', (int) ($totals[self::IMPACT_MODERATE] ?? 0))
-      . sprintf('<div class="card min"><span class="num">%d</span><span class="lbl">minor</span></div>', (int) ($totals[self::IMPACT_MINOR] ?? 0))
+      . sprintf('<div class="card crit"><span class="num">%d</span><span class="lbl">critical</span></div>', (int) ($totals[self::ACCESSIBILITY_IMPACT_CRITICAL] ?? 0))
+      . sprintf('<div class="card ser"><span class="num">%d</span><span class="lbl">serious</span></div>', (int) ($totals[self::ACCESSIBILITY_IMPACT_SERIOUS] ?? 0))
+      . sprintf('<div class="card mod"><span class="num">%d</span><span class="lbl">moderate</span></div>', (int) ($totals[self::ACCESSIBILITY_IMPACT_MODERATE] ?? 0))
+      . sprintf('<div class="card min"><span class="num">%d</span><span class="lbl">minor</span></div>', (int) ($totals[self::ACCESSIBILITY_IMPACT_MINOR] ?? 0))
       . '</section>';
 
     $rows = [];
     foreach ($data['pages'] ?? [] as $page) {
       $chips = [];
       foreach ($page['violations'] ?? [] as $chip) {
-        $chips[] = sprintf('<span class="vtype %s">%s <b>%d</b></span>', htmlspecialchars((string) ($chip['impact'] ?? self::IMPACT_MINOR), ENT_QUOTES), htmlspecialchars((string) ($chip['id'] ?? 'unknown'), ENT_QUOTES), (int) ($chip['count'] ?? 0));
+        $chips[] = sprintf('<span class="vtype %s">%s <b>%d</b></span>', htmlspecialchars((string) ($chip['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR), ENT_QUOTES), htmlspecialchars((string) ($chip['id'] ?? 'unknown'), ENT_QUOTES), (int) ($chip['count'] ?? 0));
       }
       $vtypes = $chips === [] ? '<span class="muted">&mdash;</span>' : implode('', $chips);
       $rows[] = sprintf('<tr class="%s"><td class="url">%s</td><td class="vtypes">%s</td><td class="n">%d</td><td class="n">%d</td><td class="muted">%s</td></tr>', $chips === [] ? 'good' : 'bad', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), $vtypes, (int) ($page['incomplete'] ?? 0), (int) ($page['passes'] ?? 0), htmlspecialchars((string) ($page['scenarios'] ?? ''), ENT_QUOTES));
@@ -1399,7 +1401,7 @@ HTML;
         foreach ($rule['nodes'] ?? [] as $node) {
           $nodes[] = sprintf('<div class="node"><div class="where"><code>%s</code> &middot; <span class="muted">%s</span></div><pre>%s</pre></div>', htmlspecialchars((string) ($node['target'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['html'] ?? ''), ENT_QUOTES));
         }
-        $impact = htmlspecialchars((string) ($rule['impact'] ?? self::IMPACT_MINOR), ENT_QUOTES);
+        $impact = htmlspecialchars((string) ($rule['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR), ENT_QUOTES);
         $docs = ((string) ($rule['helpUrl'] ?? '')) !== '' ? sprintf(' &middot; <a href="%s" target="_blank" rel="noopener">docs</a>', htmlspecialchars((string) $rule['helpUrl'], ENT_QUOTES)) : '';
         $blocks[] = sprintf('<div class="rule"><h3><span class="impact %s">%s</span> <span class="rule-id">%s</span></h3><p class="meta">%s &middot; affects %d page(s) &middot; %d element(s)%s</p>%s</div>', $impact, $impact, htmlspecialchars((string) ($rule['id'] ?? 'unknown'), ENT_QUOTES), htmlspecialchars((string) ($rule['help'] ?? ''), ENT_QUOTES), (int) ($rule['page_count'] ?? 0), count($rule['nodes'] ?? []), $docs, implode('', $nodes));
       }

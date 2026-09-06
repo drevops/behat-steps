@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
@@ -48,7 +50,7 @@ trait XmlTrait {
    * Enable internal XML error handling before each scenario.
    */
   #[BeforeScenario]
-  public function xmlBeforeScenario(): void {
+  public function xmlBeforeScenario(BeforeScenarioScope $scope): void {
     libxml_use_internal_errors(TRUE);
     libxml_clear_errors();
 
@@ -64,7 +66,7 @@ trait XmlTrait {
    * Ensures fresh document parsing for each scenario.
    */
   #[AfterScenario]
-  public function xmlAfterScenario(): void {
+  public function xmlAfterScenario(AfterScenarioScope $scope): void {
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
