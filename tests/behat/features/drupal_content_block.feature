@@ -185,7 +185,7 @@ Feature: Check that ContentBlockTrait works
   @api
   Scenario: Create single content block with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following basic content blocks with fields:
+    And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block        |
       | body   | Created with vertical format |
       | status | 1                            |
@@ -197,7 +197,7 @@ Feature: Check that ContentBlockTrait works
   @api
   Scenario: Create multiple content blocks with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following basic content blocks with fields:
+    And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block 1 | [TEST] Vertical Block 2 | [TEST] Vertical Block 3 |
       | body   | First vertical block    | Second vertical block   | Third vertical block    |
       | status | 1                       | 1                       | 1                       |

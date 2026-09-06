@@ -25,15 +25,15 @@ trait SearchApiTrait {
    * @endcode
    */
   #[When('I add the :content_type content with the title :title to the search index')]
-  public function searchApiIndexContent(string $type, string $title): void {
+  public function searchApiIndexContent(string $content_type, string $title): void {
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
-    $nids = $this->contentLoadMultiple($type, [
+    $nids = $this->contentLoadMultiple($content_type, [
       'title' => $title,
     ]);
 
     if (empty($nids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $type, $title));
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $content_type, $title));
     }
 
     ksort($nids);
@@ -54,8 +54,8 @@ trait SearchApiTrait {
    * @endcode
    */
   #[When('I run search indexing for :count item(s)')]
-  public function searchApiDoIndex(string|int $limit): void {
-    $limit = (int) $limit;
+  public function searchApiDoIndex(string|int $count): void {
+    $count = (int) $count;
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
 
@@ -68,7 +68,7 @@ trait SearchApiTrait {
     }
     // @codeCoverageIgnoreEnd
     foreach ($indexes as $index) {
-      $index->indexItems($limit);
+      $index->indexItems($count);
     }
   }
 

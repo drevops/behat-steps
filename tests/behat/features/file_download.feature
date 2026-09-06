@@ -5,7 +5,7 @@ Feature: Check that FileDownloadTrait works
 
   Background:
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path                 |
       | document.pdf         |
       | image.png            |
@@ -275,7 +275,7 @@ Feature: Check that FileDownloadTrait works
   @api @trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that invalid ZIP file fails with an error
     Given some behat configuration
-    And the following managed files:
+    And the following managed files exist:
       | path                |
       | archive_invalid.zip |
     And scenario steps tagged with "@download @phpserver":

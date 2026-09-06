@@ -4,14 +4,14 @@ Feature: Check that FileTrait works
   So that users can test file functionality and operations
 
   @api
-  Scenario: Assert "When the following managed files:"
+  Scenario: Assert "When the following managed files exist:"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path         |
       | document.pdf |
       | image.png    |
       | audio.mp3    |
-    And the following managed files:
+    And the following managed files exist:
       | uuid                                 | path     |
       | 9cb1b484-db7b-4496-bd63-8c702e207704 | text.txt |
     Then "document.pdf" file object exists
@@ -21,20 +21,20 @@ Feature: Check that FileTrait works
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   @api
-  Scenario: Assert "When the following managed files: With subdirectory path"
+  Scenario: Assert "When the following managed files exist: With subdirectory path"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path                  |
       | subdir/document.pdf   |
     Then "document.pdf" file object exists
 
   @api
-  Scenario: Assert "When the following managed files: With uri"
+  Scenario: Assert "When the following managed files exist: With uri"
     Given I am logged in as a user with the "administrator" role
     And no "document.pdf" file object exists
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
-    When the following managed files:
+    When the following managed files exist:
       | path         | uri                        |
       | document.pdf | public://test/document.pdf |
       | image.png    | public://test/image.png    |
@@ -46,7 +46,7 @@ Feature: Check that FileTrait works
   @api
   Scenario: Assert "When the following managed files do not exist: With filename"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path         |
       | document.pdf |
       | image.png    |
@@ -66,7 +66,7 @@ Feature: Check that FileTrait works
   @api
   Scenario: Assert "When the following managed files do not exist: With uri"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path         |
       | document.pdf |
       | image.png    |
@@ -86,7 +86,7 @@ Feature: Check that FileTrait works
   @api
   Scenario: Assert "When the following managed files do not exist: With status"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path         |
       | document.pdf |
       | image.png    |
@@ -104,7 +104,7 @@ Feature: Check that FileTrait works
   @api
   Scenario: Assert "When the following managed files do not exist: With filemime"
     Given I am logged in as a user with the "administrator" role
-    When the following managed files:
+    When the following managed files exist:
       | path         |
       | document.pdf |
       | image.png    |
@@ -127,14 +127,14 @@ Feature: Check that FileTrait works
     And an unmanaged file at the URI "public://test2.txt" should not exist
 
     Given an unmanaged file at the URI "public://test3.txt" should not exist
-    When the unmanaged file at the URI "public://test3.txt" exists with "test content"
+    When the unmanaged file at the URI "public://test3.txt" exists with the content "test content"
     Then an unmanaged file at the URI "public://test3.txt" should exist
     And an unmanaged file at the URI "public://test3.txt" should contain "test content"
     And an unmanaged file at the URI "public://test3.txt" should contain "content"
     And an unmanaged file at the URI "public://test3.txt" should not contain "test more content"
 
     Given an unmanaged file at the URI "public://test-random/test4.txt" should not exist
-    When the unmanaged file at the URI "public://test-random/test4.txt" exists with "test content"
+    When the unmanaged file at the URI "public://test-random/test4.txt" exists with the content "test content"
     Then an unmanaged file at the URI "public://test-random/test4.txt" should exist
 
   @trait:Drupal\FileTrait
@@ -169,7 +169,7 @@ Feature: Check that FileTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the unmanaged file at the URI "public://test1.txt" exists with "test content"
+      Given the unmanaged file at the URI "public://test1.txt" exists with the content "test content"
       Then an unmanaged file at the URI "public://test1.txt" should exist
       And an unmanaged file at the URI "public://test1.txt" should contain "test other content"
       """
@@ -184,7 +184,7 @@ Feature: Check that FileTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the unmanaged file at the URI "public://test1.txt" exists with "test content"
+      Given the unmanaged file at the URI "public://test1.txt" exists with the content "test content"
       Then an unmanaged file at the URI "public://test1.txt" should exist
       And an unmanaged file at the URI "public://test1.txt" should not contain "test content"
       """

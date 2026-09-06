@@ -75,10 +75,10 @@ trait XmlTrait {
    * Set the response XML content from a fixture file.
    *
    * @code
-   * Given the response content from the file "xml_valid.xml"
+   * Given the response XML is loaded from the file "xml_valid.xml"
    * @endcode
    */
-  #[Given('the response content from the file :filename')]
+  #[Given('the response XML is loaded from the file :filename')]
   public function xmlSetResponseContentFromFile(string $filename): void {
     $this->xmlTestContent = $this->xmlReadFile($filename);
     $this->xmlDocument = NULL;
@@ -90,13 +90,13 @@ trait XmlTrait {
    * Set the response XML content directly from a PyString.
    *
    * @code
-   * Given the response content is the following:
+   * Given the response XML is the following:
    *   """
    *   <?xml version="1.0"?><root><item>value</item></root>
    *   """
    * @endcode
    */
-  #[Given('the response content is the following:')]
+  #[Given('the response XML is the following:')]
   public function xmlSetResponseContentDirect(PyStringNode $content): void {
     $this->xmlTestContent = $content->getRaw();
     $this->xmlDocument = NULL;
@@ -111,7 +111,7 @@ trait XmlTrait {
    * Then the response should be in XML format
    *
    * # Content set by a fixture step is validated instead of the page content.
-   * Given the response content from the file "xml_valid.xml"
+   * Given the response XML is loaded from the file "xml_valid.xml"
    * Then the response should be in XML format
    * @endcode
    */
@@ -127,7 +127,7 @@ trait XmlTrait {
    * Then the response should not be in XML format
    *
    * # Content set by a fixture step is validated instead of the page content.
-   * Given the response content from the file "xml_invalid.xml"
+   * Given the response XML is loaded from the file "xml_invalid.xml"
    * Then the response should not be in XML format
    * @endcode
    */
@@ -191,8 +191,8 @@ trait XmlTrait {
    * Then the XML element "/library/book[1]/author" should be equal to "John Doe"
    * @endcode
    */
-  #[Then('the XML element :element should be equal to :text')]
-  public function xmlAssertElementEquals(string $element, string $text): void {
+  #[Then('the XML element :element should be equal to :value')]
+  public function xmlAssertElementEquals(string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -208,8 +208,8 @@ trait XmlTrait {
     }
 
     $actual_text = trim($node->textContent);
-    if ($actual_text !== $text) {
-      throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but expected "%s".', $element, $actual_text, $text), $this->getSession()->getDriver());
+    if ($actual_text !== $value) {
+      throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but expected "%s".', $element, $actual_text, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -221,8 +221,8 @@ trait XmlTrait {
    * Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
    * @endcode
    */
-  #[Then('the XML element :element should not be equal to :text')]
-  public function xmlAssertElementNotEquals(string $element, string $text): void {
+  #[Then('the XML element :element should not be equal to :value')]
+  public function xmlAssertElementNotEquals(string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -238,7 +238,7 @@ trait XmlTrait {
     }
 
     $actual_text = trim($node->textContent);
-    if ($actual_text === $text) {
+    if ($actual_text === $value) {
       throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but it should not be.', $element, $actual_text), $this->getSession()->getDriver());
     }
   }
@@ -251,8 +251,8 @@ trait XmlTrait {
    * Then the XML element "/library/book[1]/description" should contain "detailed"
    * @endcode
    */
-  #[Then('the XML element :element should contain :text')]
-  public function xmlAssertElementContains(string $element, string $text): void {
+  #[Then('the XML element :element should contain :value')]
+  public function xmlAssertElementContains(string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -268,8 +268,8 @@ trait XmlTrait {
     }
 
     $actual_text = $node->textContent;
-    if (!str_contains($actual_text, $text)) {
-      throw new ExpectationException(sprintf('The XML element "%s" does not contain "%s". Actual content: "%s".', $element, $text, trim($actual_text)), $this->getSession()->getDriver());
+    if (!str_contains($actual_text, $value)) {
+      throw new ExpectationException(sprintf('The XML element "%s" does not contain "%s". Actual content: "%s".', $element, $value, trim($actual_text)), $this->getSession()->getDriver());
     }
   }
 
@@ -281,8 +281,8 @@ trait XmlTrait {
    * Then the XML element "/library/book[1]/title" should not contain "wrong"
    * @endcode
    */
-  #[Then('the XML element :element should not contain :text')]
-  public function xmlAssertElementNotContains(string $element, string $text): void {
+  #[Then('the XML element :element should not contain :value')]
+  public function xmlAssertElementNotContains(string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -298,8 +298,8 @@ trait XmlTrait {
     }
 
     $actual_text = $node->textContent;
-    if (str_contains($actual_text, $text)) {
-      throw new ExpectationException(sprintf('The XML element "%s" contains "%s", but it should not.', $element, $text), $this->getSession()->getDriver());
+    if (str_contains($actual_text, $value)) {
+      throw new ExpectationException(sprintf('The XML element "%s" contains "%s", but it should not.', $element, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -357,8 +357,8 @@ trait XmlTrait {
    * Then the XML attribute "category" on element "/library/book[1]" should be equal to "fiction"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on element :element should be equal to :text')]
-  public function xmlAssertAttributeEquals(string $attribute, string $element, string $text): void {
+  #[Then('the XML attribute :attribute on element :element should be equal to :value')]
+  public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -372,8 +372,8 @@ trait XmlTrait {
     }
 
     $actual_value = $node->getAttribute($attribute);
-    if ($actual_value !== $text) {
-      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but expected "%s".', $attribute, $element, $actual_value, $text), $this->getSession()->getDriver());
+    if ($actual_value !== $value) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but expected "%s".', $attribute, $element, $actual_value, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -385,8 +385,8 @@ trait XmlTrait {
    * Then the XML attribute "category" on element "/library/book[1]" should not be equal to "science"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on element :element should not be equal to :text')]
-  public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $text): void {
+  #[Then('the XML attribute :attribute on element :element should not be equal to :value')]
+  public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -400,7 +400,7 @@ trait XmlTrait {
     }
 
     $actual_value = $node->getAttribute($attribute);
-    if ($actual_value === $text) {
+    if ($actual_value === $value) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but it should not be.', $attribute, $element, $actual_value), $this->getSession()->getDriver());
     }
   }
@@ -413,8 +413,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on element "/library/book[1]" should contain "12"
    * @endcode
    */
-  #[Then('the XML attribute :attribute_name on element :element should contain :text')]
-  public function xmlAssertAttributeContains(string $attribute_name, string $element, string $text): void {
+  #[Then('the XML attribute :attribute on element :element should contain :value')]
+  public function xmlAssertAttributeContains(string $attribute, string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -423,13 +423,13 @@ trait XmlTrait {
     }
 
     $node = $nodes->item(0);
-    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute_name)) {
-      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute_name, $element), $this->getSession()->getDriver());
+    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
-    $actual_value = $node->getAttribute($attribute_name);
-    if (!str_contains($actual_value, $text)) {
-      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" does not contain "%s". Actual value: "%s".', $attribute_name, $element, $text, $actual_value), $this->getSession()->getDriver());
+    $actual_value = $node->getAttribute($attribute);
+    if (!str_contains($actual_value, $value)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" does not contain "%s". Actual value: "%s".', $attribute, $element, $value, $actual_value), $this->getSession()->getDriver());
     }
   }
 
@@ -441,8 +441,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on element "/library/book[1]" should not contain "999"
    * @endcode
    */
-  #[Then('the XML attribute :attribute_name on element :element should not contain :text')]
-  public function xmlAssertAttributeNotContains(string $attribute_name, string $element, string $text): void {
+  #[Then('the XML attribute :attribute on element :element should not contain :value')]
+  public function xmlAssertAttributeNotContains(string $attribute, string $element, string $value): void {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
@@ -451,13 +451,13 @@ trait XmlTrait {
     }
 
     $node = $nodes->item(0);
-    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute_name)) {
-      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute_name, $element), $this->getSession()->getDriver());
+    if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
-    $actual_value = $node->getAttribute($attribute_name);
-    if (str_contains($actual_value, $text)) {
-      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" contains "%s", but it should not.', $attribute_name, $element, $text), $this->getSession()->getDriver());
+    $actual_value = $node->getAttribute($attribute);
+    if (str_contains($actual_value, $value)) {
+      throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" contains "%s", but it should not.', $attribute, $element, $value), $this->getSession()->getDriver());
     }
   }
 

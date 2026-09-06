@@ -12,12 +12,12 @@ Feature: Check that TaxonomyTrait works
       | Tag3 |
 
   @api
-  Scenario: Assert "Then the vocabulary :machine_name with the name :name should exist" works
+  Scenario: Assert "Then the vocabulary :vocabulary with the name :name should exist" works
     Given I am logged in as a user with the "administrator" role
     Then the vocabulary "tags" with the name "Tags" should exist
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the vocabulary :machine_name with the name :name should exist" works with non-existing vocabulary
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary with the name :name should exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -31,7 +31,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the vocabulary :machine_name with the name :name should exist" works with existing vocabulary but incorrect name
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary with the name :name should exist" works with existing vocabulary but incorrect name
     Given some behat configuration
     And scenario steps:
       """
@@ -45,12 +45,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "Then the vocabulary :machine_name should not exist" works
+  Scenario: Assert "Then the vocabulary :vocabulary should not exist" works
     Given I am logged in as a user with the "administrator" role
     Then the vocabulary "noneixisting" should not exist
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the vocabulary :machine_name should not exist" works with existing vocabulary
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary should not exist" works with existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -64,12 +64,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works
+  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary should exist" works
     Given I am logged in as a user with the "administrator" role
     Then the taxonomy term "Tag1" from the vocabulary "tags" should exist
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works with non-existing vocabulary
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary should exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -83,7 +83,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist" works with non-existing term
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary should exist" works with non-existing term
     Given some behat configuration
     And scenario steps:
       """
@@ -97,12 +97,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works
+  Scenario: Assert "Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist" works
     Given I am logged in as a user with the "administrator" role
     Then the taxonomy term "Nonexisting" from the vocabulary "tags" should not exist
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works with non-existing vocabulary
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -116,7 +116,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist" works with an existing term
+  Scenario: Assert negative assertion for "Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist" works with an existing term
     Given some behat configuration
     And scenario steps:
       """
@@ -130,8 +130,8 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert "Given the following :vocabulary_machine_name vocabulary terms do not exist" works
-    Given the following "tags" vocabulary terms do not exist:
+  Scenario: Assert "Given the following :vocabulary terms do not exist" works
+    Given the following "tags" terms do not exist:
       | Tag1        |
       | Tag2        |
       | Nonexisting |
@@ -141,11 +141,11 @@ Feature: Check that TaxonomyTrait works
     And the taxonomy term "Tag3" from the vocabulary "tags" should exist
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Given the following :vocabulary_machine_name vocabulary terms do not exist" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "Given the following :vocabulary terms do not exist" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given the following "nonexisting" vocabulary terms do not exist:
+      Given the following "nonexisting" terms do not exist:
         | Tag1        |
       """
     When I run "behat --no-colors"
@@ -155,14 +155,14 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :vocabulary_machine_name term page with the name :term_name" works
+  Scenario: Assert "When I visit the :vocabulary term page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
     When I visit the "tags" term page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term page with the name :term_name" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -176,7 +176,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term page with the name :term_name" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
@@ -190,14 +190,14 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :vocabulary_machine_name term edit page with the name :term_name" works
+  Scenario: Assert "When I visit the :vocabulary term edit page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
     When I visit the "tags" term edit page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term edit page with the name :term_name" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term edit page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -211,7 +211,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term edit page with the name :term_name" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term edit page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
@@ -225,14 +225,14 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the :vocabulary_machine_name term delete page with the name :term_name" works
+  Scenario: Assert "When I visit the :vocabulary term delete page with the name :term_name" works
     Given I am logged in as a user with the "administrator" role
     When I visit the "tags" term delete page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term delete page with the name :term_name" fails with non-existing vocabulary
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term delete page with the name :term_name" fails with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
@@ -246,7 +246,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   @api @trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "When I visit the :vocabulary_machine_name term delete page with the name :term_name" fails with non-existing term
+  Scenario: Assert negative assertion for "When I visit the :vocabulary term delete page with the name :term_name" fails with non-existing term
     Given some behat configuration
     And scenario steps:
       """
@@ -262,7 +262,7 @@ Feature: Check that TaxonomyTrait works
   @api
   Scenario: Create single taxonomy term with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following tags terms with fields:
+    And the following tags terms with fields exist:
       | name        | [TEST] Vertical Tag  |
       | description | Vertical format term |
     When I go to "admin/structure/taxonomy/manage/tags/overview"
@@ -271,7 +271,7 @@ Feature: Check that TaxonomyTrait works
   @api
   Scenario: Create multiple taxonomy terms with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following tags terms with fields:
+    And the following tags terms with fields exist:
       | name        | [TEST] V-Tag 1      | [TEST] V-Tag 2       | [TEST] V-Tag 3      |
       | description | First vertical term | Second vertical term | Third vertical term |
     When I go to "admin/structure/taxonomy/manage/tags/overview"

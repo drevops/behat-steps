@@ -50,19 +50,19 @@ Feature: Check that MetatagTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the :metaName meta tag should not contain any HTML tags" works for clean meta tag
+  Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean meta tag
     Given I am an anonymous user
     When I visit "http://cli:8888/metatags.html"
     Then the "description" meta tag should not contain any HTML tags
 
   @phpserver
-  Scenario: Assert "Then the :metaName meta tag should not contain any HTML tags" works for clean OG meta tag
+  Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean OG meta tag
     Given I am an anonymous user
     When I visit "http://cli:8888/metatags.html"
     Then the "og:title" meta tag should not contain any HTML tags
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the :metaName meta tag should not contain any HTML tags" fails when meta tag contains HTML
+  Scenario: Assert that "Then the :meta_name meta tag should not contain any HTML tags" fails when meta tag contains HTML
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -76,7 +76,7 @@ Feature: Check that MetatagTrait works
       """
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the :metaName meta tag should not contain any HTML tags" fails when meta tag does not exist
+  Scenario: Assert that "Then the :meta_name meta tag should not contain any HTML tags" fails when meta tag does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

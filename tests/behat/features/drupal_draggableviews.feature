@@ -33,7 +33,7 @@ Feature: Check that DraggableviewsTrait works
     And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 1"
 
   @trait:Drupal\DraggableviewsTrait
-  Scenario: Assert that negative assertion for "When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:" step throws an exception
+  Scenario: Assert that negative assertion for "When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:" step throws an exception
     Given some behat configuration
     And scenario steps:
       """

@@ -1,5 +1,213 @@
 # Migration guide
 
+## Unified step text
+
+Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 73 steps now follow one set of conventions.
+
+- A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is now reserved for steps that assert on a whole body with no named target, such as `the modal should contain :text`.
+- A bundle placeholder is named after its entity type - `:content_type`, `:media_type`, `:content_block_type`, `:vocabulary`. Steps that are deliberately entity-agnostic keep `:bundle` (`EckTrait`, and the parent lookup in `ParagraphsTrait`).
+- A bundle placeholder that qualifies an entity noun comes before it, as in `the :media_type media`. One that is itself the subject follows its noun, as in `the media type :media_type`.
+- Every noun takes an article, `URL` is uppercase, and a named value reads `the value :value` rather than `the :value value`.
+- Placeholder names are `snake_case`.
+- A `Given` states a fact in the present tense. Verbless steps gained `exist`, bare noun phrases gained a verb, and the `has been cleared` family became `is empty`. Steps that already read `is empty`, `is enabled` or `is disabled` were left alone: they mirror the `should be ...` assertion they pair with, and forcing them into an `exists` form would say something different.
+
+Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
+
+Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaRemoveType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiDoIndex()` now take `$content_type` and `$count`.
+
+### CacheTrait
+
+| Before | After |
+| --- | --- |
+| `Given the page cache for the path :path has been cleared` | `Given the page cache for the path :path is empty` |
+| `Given the page cache for the paths matching :path_pattern has been cleared` | `Given the page cache for the paths matching :path_pattern is empty` |
+| `Given the render cache has been cleared` | `Given the render cache is empty` |
+
+### ConfigTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following config values:` | `Given the following config values exist:` |
+
+### ContentBlockTrait
+
+| Before | After |
+| --- | --- |
+| `When I edit the :type content block with the description :description` | `When I edit the :content_block_type content block with the description :description` |
+| `Then the content block type :type should exist` | `Then the content block type :content_block_type should exist` |
+| `Given the following :type content blocks do not exist:` | `Given the following :content_block_type content blocks do not exist:` |
+| `Given the following :type content blocks exist:` | `Given the following :content_block_type content blocks exist:` |
+| `Given the following :type content blocks with fields:` | `Given the following :content_block_type content blocks with fields exist:` |
+
+### ContentTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following :type content with fields:` | `Given the following :content_type content with fields exist:` |
+
+### DraggableviewsTrait
+
+| Before | After |
+| --- | --- |
+| `When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:` | `When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:` |
+
+### EmailTrait
+
+| Before | After |
+| --- | --- |
+| `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
+| `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
+
+### FieldTrait
+
+| Before | After |
+| --- | --- |
+| `When I fill in the WYSIWYG field :field with the :value` | `When I fill in the WYSIWYG field :field with the value :value` |
+| `When I fill in the field :selector with :value` | `When I fill in the field :selector with the value :value` |
+| `Given browser validation for the form :selector is disabled` | `Given the browser validation for the form :selector is disabled` |
+| `Then the field :name should exist` | `Then the field :field should exist` |
+| `Then the field :name should have :enabled_or_disabled state` | `Then the field :field should have the :enabled_or_disabled state` |
+| `Then the field :name should not exist` | `Then the field :field should not exist` |
+
+### FileDownloadTrait
+
+| Before | After |
+| --- | --- |
+| `Then the downloaded file name should contain :file_name_part` | `Then the downloaded file name should contain :partial_name` |
+
+### FileTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following managed files:` | `Given the following managed files exist:` |
+| `Given the unmanaged file at the URI :uri exists with :content` | `Given the unmanaged file at the URI :uri exists with the content :content` |
+
+### IframeTrait
+
+| Before | After |
+| --- | --- |
+| `When I switch to iframe with locator :locator` | `When I switch to the iframe with the selector :selector` |
+
+### JsonTrait
+
+| Before | After |
+| --- | --- |
+| `Given the response JSON content is the following:` | `Given the response JSON is the following:` |
+| `Given the response JSON from the file :filename` | `Given the response JSON is loaded from the file :filename` |
+
+### MediaTrait
+
+| Before | After |
+| --- | --- |
+| `Given :media_type media type does not exist` | `Given the media type :media_type does not exist` |
+| `When I edit the media :media_type with the name :name` | `When I edit the :media_type media with the name :name` |
+| `When I visit the media :media_type delete page with the name :name` | `When I visit the :media_type media delete page with the name :name` |
+| `When I visit the media :media_type revisions page with the name :name` | `When I visit the :media_type media revisions page with the name :name` |
+| `When I visit the media :media_type with the name :name` | `When I visit the :media_type media with the name :name` |
+| `Then the :media_type media type should exist` | `Then the media type :media_type should exist` |
+| `Then the :media_type media type should not exist` | `Then the media type :media_type should not exist` |
+| `Given the following :bundle media with fields:` | `Given the following :media_type media with fields exist:` |
+| `Given the following media :media_type do not exist:` | `Given the following :media_type media do not exist:` |
+| `Given the following media :media_type exist:` | `Given the following :media_type media exist:` |
+
+### MenuTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following menus:` | `Given the following menus exist:` |
+
+### MetatagTrait
+
+| Before | After |
+| --- | --- |
+| `Then the :metaName meta tag should not contain any HTML tags` | `Then the :meta_name meta tag should not contain any HTML tags` |
+
+### PathTrait
+
+| Before | After |
+| --- | --- |
+| `Then current url should have the :param parameter` | `Then the current URL should have the :param parameter` |
+| `Then current url should have the :param parameter with the :value value` | `Then the current URL should have the :param parameter with the value :value` |
+| `Then current url should not have the :param parameter` | `Then the current URL should not have the :param parameter` |
+| `Then current url should not have the :param parameter with the :value value` | `Then the current URL should not have the :param parameter with the value :value` |
+| `Given the basic authentication with the username :username and the password :password` | `Given the basic authentication has the username :username and the password :password` |
+
+### ResponseTrait
+
+| Before | After |
+| --- | --- |
+| `Then the response header :header_name should contain the value :header_value` | `Then the response header :name should contain the value :value` |
+| `Then the response header :header_name should not contain the value :header_value` | `Then the response header :name should not contain the value :value` |
+| `Then the response should contain the header :header_name` | `Then the response should contain the header :name` |
+| `Then the response should not contain the header :header_name` | `Then the response should not contain the header :name` |
+
+### ResponsiveTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following responsive breakpoints:` | `Given the following responsive breakpoints exist:` |
+
+### RestTrait
+
+| Before | After |
+| --- | --- |
+| `Given a REST header :name with value :value` | `Given the REST header :name has the value :value` |
+
+### StateTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following state values:` | `Given the following state values exist:` |
+
+### TableTrait
+
+| Before | After |
+| --- | --- |
+| `Then the :rowText row should contain the following:` | `Then the :row_text row should contain the following:` |
+
+### TaxonomyTrait
+
+| Before | After |
+| --- | --- |
+| `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :term_name` |
+| `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :term_name` |
+| `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :term_name` |
+| `Given the following :vocabulary terms with fields:` | `Given the following :vocabulary terms with fields exist:` |
+| `Given the following :vocabulary_machine_name vocabulary terms do not exist:` | `Given the following :vocabulary terms do not exist:` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist` |
+| `Then the vocabulary :machine_name should not exist` | `Then the vocabulary :vocabulary should not exist` |
+| `Then the vocabulary :machine_name with the name :name should exist` | `Then the vocabulary :vocabulary with the name :name should exist` |
+
+### UserTrait
+
+| Before | After |
+| --- | --- |
+| `Given the following roles:` | `Given the following roles exist:` |
+| `Given the following users with fields:` | `Given the following users with fields exist:` |
+| `Given the role :role_name with the permissions :permissions` | `Given the role :role_name has the permissions :permissions` |
+
+### WebformTrait
+
+| Before | After |
+| --- | --- |
+| `Given a webform :title from template :template` | `Given the webform :title exists from the template :template` |
+
+### XmlTrait
+
+| Before | After |
+| --- | --- |
+| `Then the XML attribute :attribute on element :element should be equal to :text` | `Then the XML attribute :attribute on element :element should be equal to :value` |
+| `Then the XML attribute :attribute on element :element should not be equal to :text` | `Then the XML attribute :attribute on element :element should not be equal to :value` |
+| `Then the XML attribute :attribute_name on element :element should contain :text` | `Then the XML attribute :attribute on element :element should contain :value` |
+| `Then the XML attribute :attribute_name on element :element should not contain :text` | `Then the XML attribute :attribute on element :element should not contain :value` |
+| `Then the XML element :element should be equal to :text` | `Then the XML element :element should be equal to :value` |
+| `Then the XML element :element should contain :text` | `Then the XML element :element should contain :value` |
+| `Then the XML element :element should not be equal to :text` | `Then the XML element :element should not be equal to :value` |
+| `Then the XML element :element should not contain :text` | `Then the XML element :element should not contain :value` |
+| `Given the response content from the file :filename` | `Given the response XML is loaded from the file :filename` |
+| `Given the response content is the following:` | `Given the response XML is the following:` |
+
 ## Optional dependencies moved to `require-dev` and `suggest`
 
 Trait-specific packages are no longer hard `require` dependencies. They now live in `require-dev` (so this library's own test suite still runs) and `suggest`, matching the existing treatment of `justinrainbow/json-schema`. Projects that relied on transitive installation must add the packages they use to their own `composer.json`.

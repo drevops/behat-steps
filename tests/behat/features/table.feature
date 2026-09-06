@@ -237,7 +237,7 @@ Feature: Check that TableTrait works
   # Row text.
 
   @phpserver
-  Scenario: Assert "Then the :rowText row should contain the following:" works as expected
+  Scenario: Assert "Then the :row_text row should contain the following:" works as expected
     Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the "Alpha item" row should contain the following:
@@ -245,7 +245,7 @@ Feature: Check that TableTrait works
       | Active  |
 
   @trait:TableTrait
-  Scenario: Assert "Then the :rowText row should contain the following:" fails when row not found
+  Scenario: Assert "Then the :row_text row should contain the following:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -261,7 +261,7 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the :rowText row should contain the following:" fails when text not found in row
+  Scenario: Assert "Then the :row_text row should contain the following:" fails when text not found in row
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

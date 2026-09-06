@@ -52,10 +52,10 @@ trait WebformTrait {
    *   The title (or partial title) of the template to clone.
    *
    * @code
-   *   Given a webform "My contact form" from template "Contact"
+   *   Given the webform "My contact form" exists from the template "Contact"
    * @endcode
    */
-  #[Given('a webform :title from template :template')]
+  #[Given('the webform :title exists from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {
     $templates = $this->webformTemplates($template);
 

@@ -76,13 +76,13 @@ trait UserTrait {
    *   Vertical format table with field names in first column.
    *
    * @code
-   *   Given the following users with fields:
+   *   Given the following users with fields exist:
    *     | name  | [TEST] user1         | [TEST] user2         |
    *     | mail  | user1@example.com    | user2@example.com    |
    *     | roles | editor               | author               |
    * @endcode
    */
-  #[Given('the following users with fields:')]
+  #[Given('the following users with fields exist:')]
   public function userCreateWithFields(TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
@@ -492,10 +492,10 @@ trait UserTrait {
    * Create a single role with specified permissions.
    *
    * @code
-   * Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+   * Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
    * @endcode
    */
-  #[Given('the role :role_name with the permissions :permissions')]
+  #[Given('the role :role_name has the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
     $permissions = $this->helperSplitCommaSeparated($permissions);
 
@@ -528,13 +528,13 @@ trait UserTrait {
    * Create multiple roles from the specified table.
    *
    * @code
-   * Given the following roles:
+   * Given the following roles exist:
    *   | name              | permissions                              |
    *   | Content Editor    | access content, create article content   |
    *   | Content Approver  | access content, edit any article content |
    * @endcode
    */
-  #[Given('the following roles:')]
+  #[Given('the following roles exist:')]
   public function userCreateRoles(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (!isset($hash['name'])) {

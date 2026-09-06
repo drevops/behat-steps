@@ -21,18 +21,18 @@ Feature: Check that FieldTrait works
     Then the field "field1" should not be empty
 
   @phpserver
-  Scenario: Assert "When I fill in the field :selector with :value" works with CSS selector
+  Scenario: Assert "When I fill in the field :selector with the value :value" works with CSS selector
     When I visit "http://cli:8888/fields.html"
-    And I fill in the field "#field1" with "CSS filled value"
+    And I fill in the field "#field1" with the value "CSS filled value"
     Then the field "field1" should not be empty
 
   @trait:FieldTrait
-  Scenario: Assert that "When I fill in the field :selector with :value" fails when element does not exist
+  Scenario: Assert that "When I fill in the field :selector with the value :value" fails when element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      And I fill in the field "#nonexistent-field" with "some value"
+      And I fill in the field "#nonexistent-field" with the value "some value"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -110,7 +110,7 @@ Feature: Check that FieldTrait works
   @phpserver
   Scenario Outline: Assert if field is disabled or enabled
     When I visit "http://cli:8888/fields.html"
-    Then the field "<field>" should have "<enabled_or_disabled>" state
+    Then the field "<field>" should have the "<enabled_or_disabled>" state
     Examples:
       | field          | enabled_or_disabled |
       | field1         | enabled             |
@@ -149,7 +149,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "The field :name should not exist" fails with an error
+  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for a label
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -163,7 +163,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error
+  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for an id
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -182,7 +182,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      Then the field "field3disabled" should have "enabled" state
+      Then the field "field3disabled" should have the "enabled" state
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -196,7 +196,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      Then the field "field1" should have "disabled" state
+      Then the field "field1" should have the "disabled" state
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -244,27 +244,27 @@ Feature: Check that FieldTrait works
       """
 
   @api
-  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
+  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
     Given the following page content:
       | title             |
       | [TEST] Page title |
     And I am logged in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST] Page title"
-    When I fill in the WYSIWYG field "Body" with the "[TEST] body"
-    And I fill in the WYSIWYG field "Description" with the "[TEST] description"
+    When I fill in the WYSIWYG field "Body" with the value "[TEST] body"
+    And I fill in the WYSIWYG field "Description" with the value "[TEST] description"
     And I press "Save"
     Then I should see "[TEST] body"
     And I should see "[TEST] description"
 
   @api @javascript
-  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
+  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected with JS driver
     Given the following page content:
       | title                       |
       | [TEST-JS-Driver] Page title |
     And I am logged in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
-    When I fill in the WYSIWYG field "Body" with the "[TEST-JS-Driver] body"
-    And I fill in the WYSIWYG field "Description" with the "[TEST-JS-Driver] description"
+    When I fill in the WYSIWYG field "Body" with the value "[TEST-JS-Driver] body"
+    And I fill in the WYSIWYG field "Description" with the value "[TEST-JS-Driver] description"
     And I press "Save"
     Then I should see "[TEST-JS-Driver] body"
     And I should see "[TEST-JS-Driver] description"
@@ -554,7 +554,7 @@ Feature: Check that FieldTrait works
   @javascript @phpserver
   Scenario: Disable browser validation for form after visiting page
     When I visit "http://cli:8888/fields.html"
-    And browser validation for the form "#login-form" is disabled
+    And the browser validation for the form "#login-form" is disabled
     And I press "Submit 1"
     # Server-side validation message should appear
     Then I should see "Please fill in all required fields"
@@ -562,7 +562,7 @@ Feature: Check that FieldTrait works
   @javascript @phpserver
   Scenario: Disable browser validation as the VERY FIRST step (fixes issue #423)
     # This is the VERY FIRST step - no page visited yet - this is the core issue being fixed
-    Given browser validation for the form "#login-form" is disabled
+    Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     # Server-side validation message should appear (browser validation was disabled)
@@ -570,15 +570,15 @@ Feature: Check that FieldTrait works
 
   @javascript @phpserver
   Scenario: Disable browser validation for multiple forms
-    Given browser validation for the form "#login-form" is disabled
-    And browser validation for the form "#contact-form" is disabled
+    Given the browser validation for the form "#login-form" is disabled
+    And the browser validation for the form "#contact-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     Then I should see "Please fill in all required fields"
 
   @javascript @behat-steps-skip:FieldTrait @phpserver
   Scenario: Skip FieldTrait hooks with behat-steps-skip tag
-    Given browser validation for the form "#login-form" is disabled
+    Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     # With the skip tag, validation disabling should not be applied
@@ -590,7 +590,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @behat-steps-skip:FieldTrait @phpserver":
       """
-      Given browser validation for the form "#login-form" is disabled
+      Given the browser validation for the form "#login-form" is disabled
       When I visit "http://cli:8888/fields.html"
       And I press "Submit 1"
       Then I should not see "Please fill in all required fields"
@@ -600,7 +600,7 @@ Feature: Check that FieldTrait works
 
   @phpserver
   Scenario: Validation step works without JavaScript driver
-    Given browser validation for the form "#login-form" is disabled
+    Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     # Without JavaScript, the registry stores the selector but AfterStep returns early
     # The step should not throw an error
@@ -643,7 +643,7 @@ Feature: Check that FieldTrait works
 
   @javascript @phpserver
   Scenario: Selector-based approach still works independently
-    Given browser validation for the form "#login-form" is disabled
+    Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     Then I should see "Login form error: Please fill in all required fields"
@@ -857,15 +857,15 @@ Feature: Check that FieldTrait works
   @api @javascript @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 5
     When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-    And I fill in the WYSIWYG field "Body" with the "Updated CKEditor 5 body content"
-    And I fill in the WYSIWYG field "Description" with the "Updated CKEditor 5 description"
+    And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 5 body content"
+    And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 5 description"
 
   # Non-commercial version of CKEditor 4 throw an error about being insecure.
   @api @javascript @js-errors @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 4
     When I visit "http://cli:8888/wysiwyg_ckeditor4.html"
-    And I fill in the WYSIWYG field "Body" with the "Updated CKEditor 4 body content"
-    And I fill in the WYSIWYG field "Description" with the "Updated CKEditor 4 description"
+    And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 4 body content"
+    And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 4 description"
 
   @trait:FieldTrait
   Scenario: Assert negative WYSIWYG field not found
@@ -873,7 +873,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-      When I fill in the WYSIWYG field "Non-existent WYSIWYG" with the "test content"
+      When I fill in the WYSIWYG field "Non-existent WYSIWYG" with the value "test content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -887,7 +887,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-      When I fill in the WYSIWYG field "noid" with the "test content"
+      When I fill in the WYSIWYG field "noid" with the value "test content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

@@ -4,8 +4,8 @@ Feature: Check that MenuTrait works
   So that users can test menu functionality
 
   @api
-  Scenario: Assert "When the following menus:"
-    When the following menus:
+  Scenario: Assert "When the following menus exist:"
+    When the following menus exist:
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
       | [TEST] menu 2 title | Test menu 2 description |
@@ -18,7 +18,7 @@ Feature: Check that MenuTrait works
 
   @api
   Scenario: Assert "When the menu :menu_name does not exist"
-    Given the following menus:
+    Given the following menus exist:
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
       | [TEST] menu 2 title | Test menu 2 description |
@@ -34,7 +34,7 @@ Feature: Check that MenuTrait works
 
   @api
   Scenario: Assert "When the following menu links exist/do not exist in the menu :menu_name"
-    When the following menus:
+    When the following menus exist:
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
     And the following menu links exist in the menu "[TEST] menu 1 title":

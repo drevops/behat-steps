@@ -108,13 +108,13 @@ trait ResponsiveTrait {
    * Set custom responsive breakpoints from a table.
    *
    * @code
-   * Given the following responsive breakpoints:
+   * Given the following responsive breakpoints exist:
    *   | name       | dimensions |
    *   | iphone_12  | 390x844    |
    *   | 4k_display | 3840x2160  |
    * @endcode
    */
-  #[Given('the following responsive breakpoints:')]
+  #[Given('the following responsive breakpoints exist:')]
   public function responsiveSetBreakpointsFromTable(TableNode $table): void {
     $breakpoints = [];
     foreach ($table->getHash() as $row) {

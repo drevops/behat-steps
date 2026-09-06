@@ -74,13 +74,13 @@ trait FileTrait {
    * Create managed files with properties provided in the table.
    *
    * @code
-   * Given the following managed files:
+   * Given the following managed files exist:
    *   | path         | uri                    | status |
    *   | document.pdf | public://document.pdf  | 1      |
    *   | image.jpg    | public://images/pic.jpg| 1      |
    * @endcode
    */
-  #[Given('the following managed files:')]
+  #[Given('the following managed files exist:')]
   public function fileCreateManaged(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (empty($hash['path'])) {
@@ -282,10 +282,10 @@ trait FileTrait {
    * Create an unmanaged file with specified content.
    *
    * @code
-   * Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
+   * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
    * @endcode
    */
-  #[Given('the unmanaged file at the URI :uri exists with :content')]
+  #[Given('the unmanaged file at the URI :uri exists with the content :content')]
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->fileCreateUnmanaged($uri, $content);
   }

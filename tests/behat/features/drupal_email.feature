@@ -12,7 +12,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -27,7 +27,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three   with   tabs and    spaces
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -62,9 +62,9 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the "test@example.com"
-    And an email should be sent to the "test@example.com"
-    And no emails should have been sent to the "test3@example.com"
+    Then an email should be sent to the address "test@example.com"
+    And an email should be sent to the address "test@example.com"
+    And no emails should have been sent to the address "test3@example.com"
     And the email header "Content-Type" should contain:
       """
       text/plain
@@ -82,7 +82,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email header "Content-Type" should exactly be:
       """
       text/plain; charset=utf-8; format=flowed; delsp=yes
@@ -169,7 +169,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -188,7 +188,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -212,7 +212,7 @@ Feature: Check that EmailTrait works
       "<content>"
       Line two of the test email content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
 
     And I follow link number "<number>" in the email with the subject "Test Email"
     Then the response status code should be 200
@@ -232,7 +232,7 @@ Feature: Check that EmailTrait works
       """
       Here is your link: http://example.com/reset-password
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     When I follow link number 1 in the email with the subject containing "Test Email"
     Then I should be on "http://example.com/reset-password"
 
@@ -245,7 +245,7 @@ Feature: Check that EmailTrait works
       "<content>"
       Line two of the test email content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
 
     When I clear the test email system queue
     Then no emails should have been sent
@@ -260,7 +260,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Test email content line two
@@ -288,7 +288,7 @@ Feature: Check that EmailTrait works
       """
       This email contains an attachment.
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "subject" should be:
       """
       Email with Attachment
@@ -301,7 +301,7 @@ Feature: Check that EmailTrait works
       """
       This email contains an attachment.
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
 
   @api @email
@@ -311,7 +311,7 @@ Feature: Check that EmailTrait works
       """
       Test content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
 
   @api @email
   Scenario: As a developer, I want to verify no emails sent to address assertion passes when address not used
@@ -319,7 +319,7 @@ Feature: Check that EmailTrait works
       """
       Test content
       """
-    Then no emails should have been sent to the "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @api @email
   Scenario: As a developer, I want to verify no emails sent to CC address assertion passes when address not used
@@ -327,7 +327,7 @@ Feature: Check that EmailTrait works
       """
       Test content with CC
       """
-    Then no emails should have been sent to the "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @api @email
   Scenario: As a developer, I want to verify no emails sent to BCC address assertion passes when address not used
@@ -335,7 +335,7 @@ Feature: Check that EmailTrait works
       """
       Test content with BCC
       """
-    Then no emails should have been sent to the "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @api @email @debug
   Scenario: As a developer, I want to verify email debug output is triggered with @debug tag
@@ -343,7 +343,7 @@ Feature: Check that EmailTrait works
       """
       Debug test content
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Debug test content
@@ -355,7 +355,7 @@ Feature: Check that EmailTrait works
     And scenario steps tagged with "@api @email":
       """
       Given I am logged in as a user with the "administrator" role
-      Then an email should be sent to the "test@example.com"
+      Then an email should be sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -385,7 +385,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with CC
         '''
-      Then no emails should have been sent to the "cc@example.com"
+      Then no emails should have been sent to the address "cc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -402,7 +402,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with BCC
         '''
-      Then no emails should have been sent to the "bcc@example.com"
+      Then no emails should have been sent to the address "bcc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -577,7 +577,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then no emails should have been sent to the "test@example.com"
+      Then no emails should have been sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -722,7 +722,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should be sent to the "test@example.com"
+      Then an email should be sent to the address "test@example.com"
       When I disable the test email system
       """
     When I run "behat --no-colors"
@@ -737,7 +737,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should be sent to the "test@example.com"
+      Then an email should be sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -748,7 +748,7 @@ Feature: Check that EmailTrait works
       """
       Test content with custom handler type
       """
-    Then an email should be sent to the "test@example.com"
+    Then an email should be sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Test content with custom handler type

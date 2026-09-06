@@ -125,18 +125,18 @@ Feature: Check that PathTrait works
   Scenario: Assert that URL has query parameter with a specific value
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
-    Then current url should have the "status" parameter
-    And current url should have the "status" parameter with the "1" value
-    And current url should have the "type" parameter
-    And current url should have the "type" parameter with the "article" value
+    Then the current URL should have the "status" parameter
+    And the current URL should have the "status" parameter with the value "1"
+    And the current URL should have the "type" parameter
+    And the current URL should have the "type" parameter with the value "article"
 
   @api
   Scenario: Assert that URL does not have query parameter with specific value
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
-    Then current url should not have the "status" parameter with the "0" value
-    And current url should not have the "other" parameter
-    And current url should not have the "type" parameter with the "page" value
+    Then the current URL should not have the "status" parameter with the value "0"
+    And the current URL should not have the "other" parameter
+    And the current URL should not have the "type" parameter with the value "page"
 
   @trait:PathTrait
   Scenario: Assert failure when URL should have parameter but doesn't
@@ -145,7 +145,7 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should have the "filter" parameter with the "recent" value
+      Then the current URL should have the "filter" parameter with the value "recent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -160,7 +160,7 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should have the "status" parameter with the "2" value
+      Then the current URL should have the "status" parameter with the value "2"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -175,7 +175,7 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should not have the "status" parameter with the "1" value
+      Then the current URL should not have the "status" parameter with the value "1"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -190,7 +190,7 @@ Feature: Check that PathTrait works
       """
       Given I am logged in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
-      Then current url should not have the "status" parameter
+      Then the current URL should not have the "status" parameter
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -202,7 +202,7 @@ Feature: Check that PathTrait works
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/content?status=1"
-    Then current url should not have the "nonexistent" parameter with the "value" value
+    Then the current URL should not have the "nonexistent" parameter with the value "value"
 
   @api
   Scenario: Assert "When I go back" navigates to the previous page
@@ -213,7 +213,7 @@ Feature: Check that PathTrait works
     Then the path should be "/user/login"
 
   @api
-  Scenario: Assert "When the basic authentication with the username :username and the password :password"
+  Scenario: Assert "Given the basic authentication has the username :username and the password :password"
     Given the following users:
       | name       | mail               | pass       |
       | admin-test | admin-test@bar.com | admin-test |
@@ -226,6 +226,6 @@ Feature: Check that PathTrait works
     And I go to "/mysite_core/test-basic-auth"
     Then I should get a "403" HTTP response
 
-    When the basic authentication with the username "admin-test" and the password "admin-test"
+    When the basic authentication has the username "admin-test" and the password "admin-test"
     And I go to "/mysite_core/test-basic-auth"
     Then I should get a "200" HTTP response

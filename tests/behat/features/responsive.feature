@@ -120,7 +120,7 @@ Feature: Check that ResponsiveTrait works
 
   @javascript @phpserver
   Scenario: Custom breakpoints can be registered and used
-    Given the following responsive breakpoints:
+    Given the following responsive breakpoints exist:
       | name       | dimensions |
       | iphone_12  | 390x844    |
       | 4k_display | 3840x2160  |
@@ -133,7 +133,7 @@ Feature: Check that ResponsiveTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the following responsive breakpoints:
+      Given the following responsive breakpoints exist:
         | name     | dimensions |
         | invalid  | 1920-1080  |
       When I am on "http://cli:8888/javascript_clean1.html"
@@ -149,7 +149,7 @@ Feature: Check that ResponsiveTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the following responsive breakpoints:
+      Given the following responsive breakpoints exist:
         | name     | dimensions |
         | invalid  | 1920xABC   |
       When I am on "http://cli:8888/javascript_clean1.html"
@@ -162,7 +162,7 @@ Feature: Check that ResponsiveTrait works
 
   @javascript @phpserver
   Scenario: Custom breakpoint overrides default breakpoint
-    Given the following responsive breakpoints:
+    Given the following responsive breakpoints exist:
       | name            | dimensions |
       | mobile_portrait | 375x812    |
     When I am on "http://cli:8888/javascript_clean1.html"

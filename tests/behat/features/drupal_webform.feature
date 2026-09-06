@@ -21,7 +21,7 @@ Feature: Check that WebformTrait works
     Given the webform "Non-existing webform" does not exist
 
   @api @module:webform_templates
-  Scenario: Assert "@Given a webform :title from template :template" works as expected
+  Scenario: Assert "@Given the webform :title exists from the template :template" works as expected
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test template form"
@@ -30,18 +30,18 @@ Feature: Check that WebformTrait works
     And I visit "/admin/structure/webform/manage/test_template_form/settings"
     And I check "Allow this webform to be used as a template"
     And I press "Save"
-    Given a webform "Cloned contact form" from template "Test template form"
+    Given the webform "Cloned contact form" exists from the template "Test template form"
     And I visit "/admin/structure/webform"
     Then I should see "Cloned contact form"
     # Clean up the template.
     When the webform "Test template form" does not exist
 
   @trait:Drupal\WebformTrait
-  Scenario: Assert "@Given a webform :title from template :template" fails for non-existing template
+  Scenario: Assert "@Given the webform :title exists from the template :template" fails for non-existing template
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
-      Given a webform "My form" from template "Non-existing template"
+      Given the webform "My form" exists from the template "Non-existing template"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

@@ -100,13 +100,13 @@ trait StateTrait {
    * Set multiple Drupal state values from a table.
    *
    * @code
-   * Given the following state values:
+   * Given the following state values exist:
    *   | name                   | value |
    *   | my_module.launched     | 1     |
    *   | my_module.feature_flag | 0     |
    * @endcode
    */
-  #[Given('the following state values:')]
+  #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
     $state = \Drupal::state();
     foreach ($table->getHash() as $row) {

@@ -31,12 +31,12 @@ trait MediaTrait {
    * Remove media type.
    *
    * @code
-   * Given "video" media type does not exist
+   * Given the media type "video" does not exist
    * @endcode
    */
-  #[Given(':media_type media type does not exist')]
-  public function mediaRemoveType(string $type): void {
-    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($type);
+  #[Given('the media type :media_type does not exist')]
+  public function mediaRemoveType(string $media_type): void {
+    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
       $type_entity->delete();
     }
@@ -46,13 +46,13 @@ trait MediaTrait {
    * Create media of a given type.
    *
    * @code
-   * Given the following media "video" exist:
+   * Given the following "video" media exist:
    *   | name     | field1   | field2 | field3           |
    *   | My media | file.jpg | value  | value            |
    *   | ...      | ...      | ...    | ...              |
    * @endcode
    */
-  #[Given('the following media :media_type exist:')]
+  #[Given('the following :media_type media exist:')]
   public function mediaCreate(string $media_type, TableNode $table): void {
     $this->mediaDelete($media_type, $table);
 
@@ -68,26 +68,26 @@ trait MediaTrait {
    * Supports both single and multiple entity creation using vertical table
    * format where fields are listed in rows instead of columns.
    *
-   * @param string $bundle
+   * @param string $media_type
    *   The media bundle machine name.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
    * @code
-   *   Given the following image media with fields:
+   *   Given the following image media with fields exist:
    *     | name              | [TEST] Image 1       | [TEST] Image 2       |
    *     | field_media_image | image1.jpg           | image2.jpg           |
    * @endcode
    */
-  #[Given('the following :bundle media with fields:')]
-  public function mediaCreateWithFields(string $bundle, TableNode $table): void {
+  #[Given('the following :media_type media with fields exist:')]
+  public function mediaCreateWithFields(string $media_type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
 
-    $this->mediaDelete($bundle, $horizontal_table);
+    $this->mediaDelete($media_type, $horizontal_table);
 
     foreach ($entities as $entity_data) {
-      $stub = new EntityStub('media', $bundle, $entity_data);
+      $stub = new EntityStub('media', $media_type, $entity_data);
       $this->mediaCreateSingle($stub);
     }
   }
@@ -96,13 +96,13 @@ trait MediaTrait {
    * Remove media defined by provided properties.
    *
    * @code
-   * Given the following media "image" do not exist:
+   * Given the following "image" media do not exist:
    *   | name               |
    *   | Media item         |
    *   | Another media item |
    * @endcode
    */
-  #[Given('the following media :media_type do not exist:')]
+  #[Given('the following :media_type media do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
     foreach ($table->getHash() as $media_hash) {
       $ids = $this->mediaLoadMultiple($media_type, $media_hash);
@@ -116,10 +116,10 @@ trait MediaTrait {
    * Navigate to edit media with specified type and name.
    *
    * @code
-   * When I edit the media "document" with the name "Test document"
+   * When I edit the "document" media with the name "Test document"
    * @endcode
    */
-  #[When('I edit the media :media_type with the name :name')]
+  #[When('I edit the :media_type media with the name :name')]
   public function mediaEditWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name, '/edit');
   }
@@ -128,10 +128,10 @@ trait MediaTrait {
    * Navigate to view page of media with specified type and name.
    *
    * @code
-   * When I visit the media "image" with the name "Test media image"
+   * When I visit the "image" media with the name "Test media image"
    * @endcode
    */
-  #[When('I visit the media :media_type with the name :name')]
+  #[When('I visit the :media_type media with the name :name')]
   public function mediaVisitViewWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name);
   }
@@ -140,10 +140,10 @@ trait MediaTrait {
    * Navigate to delete page of media with specified type and name.
    *
    * @code
-   * When I visit the media "image" delete page with the name "Test media image"
+   * When I visit the "image" media delete page with the name "Test media image"
    * @endcode
    */
-  #[When('I visit the media :media_type delete page with the name :name')]
+  #[When('I visit the :media_type media delete page with the name :name')]
   public function mediaVisitDeleteWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name, '/delete');
   }
@@ -152,10 +152,10 @@ trait MediaTrait {
    * Navigate to revisions page of media with specified type and name.
    *
    * @code
-   * When I visit the media "image" revisions page with the name "Test media image"
+   * When I visit the "image" media revisions page with the name "Test media image"
    * @endcode
    */
-  #[When('I visit the media :media_type revisions page with the name :name')]
+  #[When('I visit the :media_type media revisions page with the name :name')]
   public function mediaVisitRevisionsWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name, '/revisions');
   }
@@ -164,10 +164,10 @@ trait MediaTrait {
    * Assert that a media type exists.
    *
    * @code
-   * Then the "image" media type should exist
+   * Then the media type "image" should exist
    * @endcode
    */
-  #[Then('the :media_type media type should exist')]
+  #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -180,10 +180,10 @@ trait MediaTrait {
    * Assert that a media type does not exist.
    *
    * @code
-   * Then the "test_type" media type should not exist
+   * Then the media type "test_type" should not exist
    * @endcode
    */
-  #[Then('the :media_type media type should not exist')]
+  #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 

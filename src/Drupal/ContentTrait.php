@@ -79,23 +79,23 @@ trait ContentTrait {
    * Supports both single and multiple entity creation using vertical table
    * format where fields are listed in rows instead of columns.
    *
-   * @param string $type
+   * @param string $content_type
    *   The content type machine name.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
    * @code
-   *   Given the following page content with fields:
+   *   Given the following page content with fields exist:
    *     | title  | [TEST] Page 1        | [TEST] Page 2        |
    *     | body   | First page content   | Second page content  |
    *     | status | 1                    | 1                    |
    * @endcode
    */
-  #[Given('the following :type content with fields:')]
-  public function contentCreateWithFields(string $type, TableNode $table): void {
+  #[Given('the following :content_type content with fields exist:')]
+  public function contentCreateWithFields(string $content_type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
-    $this->createNodes($type, $horizontal_table);
+    $this->createNodes($content_type, $horizontal_table);
   }
 
   /**
