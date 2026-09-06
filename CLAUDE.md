@@ -59,9 +59,34 @@ ahoy copy-files
   - Omit unnecessary suffixes like `on the page`
   - Method names should begin with the trait name: `userAssertHasRoles()`
 
+- **Placeholder Names**: one concept gets one name across every trait. Reusing a
+  name that already exists is always preferred over inventing a synonym.
+  - Placeholder names are `snake_case` and match the method parameter name
+    exactly - Behat binds the argument by name, so a mismatch only surfaces at
+    run time
+  - A step that names its target (`:element`, `:path`, `:key`, `:field`)
+    compares against `:value`; `:text` is only for steps asserting on a whole
+    body with no named target, such as `the modal should contain :text`
+  - A bundle placeholder is named after its entity type - `:content_type`,
+    `:media_type`, `:content_block_type`, `:vocabulary` - unless the step is
+    deliberately entity-agnostic, where `:bundle` is correct
+  - A partial match reads `:partial_<thing>`, as in `:partial_name`
+
+- **Articles and Word Order**:
+  - Every noun takes an article, and `URL` is uppercase
+  - A named value reads `the value :value`, never `the :value value` or a bare
+    `:value`
+  - A bundle placeholder qualifying an entity noun comes before it
+    (`the :media_type media`); one that is itself the subject follows its noun
+    (`the media type :media_type`)
+
 - **Given Steps**:
   - Define test prerequisites
-  - Use words like `exists` or `have`
+  - State a fact in the present tense: `<subject> <verb> <complement>`. A
+    verbless step, a bare noun phrase, or the perfect tense (`has been cleared`)
+    is not a Given
+  - Use words like `exists` or `have`; `is`/`are` plus an adjective is also
+    correct where it mirrors the matching `should be ...` assertion
   - Avoid using `should` or `should not`
   - Avoid using `Given I`
 
@@ -89,7 +114,7 @@ ahoy copy-files
 - Email testing:
   - `I enable the test email system`
   - `I clear the test email system queue`
-  - `an email should be sent to the "..."`
+  - `an email should be sent to the address "..."`
 
 ## Skipping Before Scenario Hooks
 Some traits provide `beforeScenario` hook implementations that can be disabled by adding `behat-steps-skip:METHOD_NAME` tag to your test.
