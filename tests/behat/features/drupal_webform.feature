@@ -21,7 +21,7 @@ Feature: Check that WebformTrait works
     Given the webform "Non-existing webform" does not exist
 
   @api @module:webform_templates
-  Scenario: Assert "@Given a webform :title from template :template" works as expected
+  Scenario: Assert "@Given the webform :title exists from the template :template" works as expected
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test template form"
@@ -37,7 +37,7 @@ Feature: Check that WebformTrait works
     When the webform "Test template form" does not exist
 
   @trait:Drupal\WebformTrait
-  Scenario: Assert "@Given a webform :title from template :template" fails for non-existing template
+  Scenario: Assert "@Given the webform :title exists from the template :template" fails for non-existing template
     Given some behat configuration
     And scenario steps tagged with "@api":
       """

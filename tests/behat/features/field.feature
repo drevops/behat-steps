@@ -149,7 +149,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "The field :name should not exist" fails with an error
+  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for a label
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -163,7 +163,7 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error
+  Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for an id
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -244,7 +244,7 @@ Feature: Check that FieldTrait works
       """
 
   @api
-  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected
+  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
     Given the following page content:
       | title             |
       | [TEST] Page title |
@@ -257,7 +257,7 @@ Feature: Check that FieldTrait works
     And I should see "[TEST] description"
 
   @api @javascript
-  Scenario: Assert "When I fill in WYSIWYG "field" with "value"" works as expected with JS driver
+  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected with JS driver
     Given the following page content:
       | title                       |
       | [TEST-JS-Driver] Page title |

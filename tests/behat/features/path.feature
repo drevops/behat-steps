@@ -213,7 +213,7 @@ Feature: Check that PathTrait works
     Then the path should be "/user/login"
 
   @api
-  Scenario: Assert "When the basic authentication has the username :username and the password :password"
+  Scenario: Assert "Given the basic authentication has the username :username and the password :password"
     Given the following users:
       | name       | mail               | pass       |
       | admin-test | admin-test@bar.com | admin-test |
