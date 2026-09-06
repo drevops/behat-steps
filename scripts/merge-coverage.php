@@ -20,7 +20,15 @@ use SebastianBergmann\CodeCoverage\Report\Html\Facade;
 use SebastianBergmann\CodeCoverage\Report\Cobertura;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// The coverage files are serialised by the fixture site's php-code-coverage,
+// and only unserialise against that same installation, so prefer the fixture's
+// autoloader over the project's own.
+$autoloader = __DIR__ . '/../build/vendor/autoload.php';
+if (!file_exists($autoloader)) {
+  $autoloader = __DIR__ . '/../vendor/autoload.php';
+}
+
+require_once $autoloader;
 
 // Get coverage root path from command line argument or use default.
 define('COVERAGE_ROOT_PATH', $argv[1] ?? '/app/.logs/coverage');

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\ResponsiveTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * phpcs:disable Drupal.Commenting.FunctionComment
  */
-#[CoversClass(ResponsiveTrait::class)]
+#[CoversTrait(ResponsiveTrait::class)]
 class ResponsiveTraitTest extends UnitTestCase {
 
   /**

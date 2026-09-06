@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\DateTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for DateTrait.
  */
-#[CoversClass(DateTrait::class)]
+#[CoversTrait(DateTrait::class)]
 class DateTraitTest extends UnitTestCase {
 
   /**

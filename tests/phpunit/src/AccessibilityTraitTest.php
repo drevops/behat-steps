@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\AccessibilityTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for AccessibilityTrait.
  */
-#[CoversClass(AccessibilityTrait::class)]
+#[CoversTrait(AccessibilityTrait::class)]
 class AccessibilityTraitTest extends UnitTestCase {
 
   /**

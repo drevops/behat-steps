@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\HelperTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for HelperTrait.
  */
-#[CoversClass(HelperTrait::class)]
+#[CoversTrait(HelperTrait::class)]
 class HelperTraitTest extends UnitTestCase {
 
   /**

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\DiagnosticsTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for DiagnosticsTrait.
  */
-#[CoversClass(DiagnosticsTrait::class)]
+#[CoversTrait(DiagnosticsTrait::class)]
 class DiagnosticsTraitTest extends UnitTestCase {
 
   /**
