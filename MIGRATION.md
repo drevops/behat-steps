@@ -333,3 +333,76 @@ If your project catches an exception from one of these steps, update the type:
 | `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
 
 Behat reports every one of these as a failed step either way, so a scenario that simply runs to a failure behaves the same. Only code that catches a specific type, or asserts on the message text, needs changing.
+
+## Tightened public surface
+
+A handful of trait members exposed more than the surrounding code intended. Each one is reachable from a consuming context, so they're grouped here as breaking changes rather than fixed quietly. A `PublicSurfaceTest` now holds each of these conventions, so the surface stays deliberate from here on.
+
+### Internal helpers are now `protected`
+
+Neither method is a step or a hook, and both were only ever called from step methods in their own trait. Calling them from outside the context object no longer works; calling them from inside it is unchanged.
+
+| Method | Was | Now |
+| --- | --- | --- |
+| `KeyboardTrait::keyboardPressKeyOnElementSingle()` | `public` | `protected` |
+| `FileDownloadTrait::fileDownloadAssertLinkPresent()` | `public` | `protected` |
+
+`DateTrait::dateRelativeProcessValue()` and `ResponsiveTrait::responsiveSetBreakpoints()` stay public and are now documented as API in their docblocks. `DateTrait` also stays static on purpose: `dateNow()` is the supported seam for pinning the clock, and overriding it in your `FeatureContext` still works exactly as before.
+
+### Constants carry their trait prefix
+
+PHP treats two composed traits declaring the same constant name as a fatal error, so a generic name like `IMPACT_CRITICAL` is a collision waiting to happen in someone else's context.
+
+| Constant | Replacement |
+| --- | --- |
+| `AccessibilityTrait::IMPACT_CRITICAL` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_CRITICAL` |
+| `AccessibilityTrait::IMPACT_SERIOUS` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_SERIOUS` |
+| `AccessibilityTrait::IMPACT_MODERATE` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_MODERATE` |
+| `AccessibilityTrait::IMPACT_MINOR` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_MINOR` |
+| `Drupal\BigPipeTrait::DEFAULT_WAIT_TIMEOUT` | `Drupal\BigPipeTrait::BIG_PIPE_DEFAULT_WAIT_TIMEOUT` |
+
+`Drupal\HelperTrait::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES`, renamed in the section above, is also now explicitly `protected` instead of implicitly public.
+
+### `FieldTrait` no longer re-exports the keyboard steps
+
+`FieldTrait` composed `KeyboardTrait` without calling it, so a context composing only `FieldTrait` silently received every keyboard step. That composition is gone. If your context relies on those steps, compose the trait directly:
+
+```php
+use DrevOps\BehatSteps\KeyboardTrait;
+
+class FeatureContext extends DrupalContext {
+
+  use FieldTrait;
+  use KeyboardTrait;
+
+}
+```
+
+### Hooks declare their scope parameter
+
+Hook methods used to come in 3 shapes: taking and using the scope, taking and ignoring it, or declaring no parameter at all. They all declare it now, used or not, so there's one signature to match when you override one. If you override any of these in your `FeatureContext`, add the parameter:
+
+| Hook | New signature |
+| --- | --- |
+| `AccessibilityTrait::accessibilityAggregateRender()` | `(AfterSuiteScope $scope)` |
+| `AccessibilityTrait::accessibilityAggregateReset()` | `(BeforeSuiteScope $scope)` |
+| `AccessibilityTrait::accessibilityCaptureBaseDir()` | `(BeforeSuiteScope $scope)` |
+| `CommandTrait::commandAfterScenario()` | `(AfterScenarioScope $scope)` |
+| `CommandTrait::commandBeforeScenario()` | `(BeforeScenarioScope $scope)` |
+| `Drupal\BigPipeTrait::bigPipeWaitBeforeStep()` | `(BeforeStepScope $scope)` |
+| `JsonTrait::jsonAfterScenario()` | `(AfterScenarioScope $scope)` |
+| `JsonTrait::jsonBeforeScenario()` | `(BeforeScenarioScope $scope)` |
+| `XmlTrait::xmlAfterScenario()` | `(AfterScenarioScope $scope)` |
+| `XmlTrait::xmlBeforeScenario()` | `(BeforeScenarioScope $scope)` |
+
+### Properties declare native types
+
+5 properties relied on a `@var` docblock with no native type. They're typed now, which narrows what a subclass may assign to them.
+
+| Property | Type |
+| --- | --- |
+| `Drupal\FileTrait::$filesUnmanagedUris` | `array` |
+| `Drupal\RedirectTrait::$redirectAllowedStatusCodes` | `array` |
+| `Drupal\WatchdogTrait::$watchdogMessageTypes` | `array` |
+| `Drupal\WatchdogTrait::$watchdogScenarioStartTime` | `?int` |
+| `FileDownloadTrait::$fileDownloadDownloadedFileInfo` | `array` |
