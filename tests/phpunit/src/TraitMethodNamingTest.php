@@ -44,8 +44,10 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = self::traitPrefix($reflection->getShortName());
     $allowed = self::PARENT_OVERRIDES[$trait] ?? [];
 
+    $methods = $reflection->getMethods();
+
     $violations = [];
-    foreach ($reflection->getMethods() as $method) {
+    foreach ($methods as $method) {
       // A trait that composes another trait reports the composed methods
       // too; the file each method is declared in tells them apart.
       if (realpath((string) $method->getFileName()) !== $file) {
