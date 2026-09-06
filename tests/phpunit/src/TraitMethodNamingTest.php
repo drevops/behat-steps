@@ -30,8 +30,16 @@ class TraitMethodNamingTest extends UnitTestCase {
     TaxonomyTrait::class => ['createTerms'],
   ];
 
-  #[DataProvider('dataProviderTraits')]
-  public function testMethodNamesArePrefixedWithTraitName(string $trait, string $file): void {
+  /**
+   * Assert that every method a trait declares carries the trait's prefix.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderMethodsArePrefixed')]
+  public function testMethodsArePrefixed(string $trait, string $file): void {
     $reflection = new \ReflectionClass($trait);
     $prefix = self::traitPrefix($reflection->getShortName());
     $allowed = self::PARENT_OVERRIDES[$trait] ?? [];
@@ -56,7 +64,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $this->assertSame([], $violations, sprintf('Methods in %s must be prefixed with "%s".', $reflection->getShortName(), $prefix));
   }
 
-  public static function dataProviderTraits(): array {
+  public static function dataProviderMethodsArePrefixed(): array {
     $root = realpath(__DIR__ . '/../../../src');
     $files = [];
 

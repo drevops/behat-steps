@@ -402,8 +402,7 @@ class HelperTraitTestImplementation {
   public ?DrupalDriverInterface $driver = NULL;
 
   /**
-   * Records [type, id] pairs passed to the overridden
-   * helperEntityCleanupDelete().
+   * Records [type, id] pairs passed to the overridden helperEntityCleanupDelete().
    *
    * @var array<int, array{0: string, 1: int|string}>
    */
