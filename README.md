@@ -42,6 +42,16 @@ guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 We actively maintain this package and welcome [contributions](CONTRIBUTING.md)
 from the community.
 
+## Supported versions
+
+| Version | Behat | Drupal | PHP | Support |
+| --- | --- | --- | --- | --- |
+| 4.x | 3.32+, 4 | 11 | 8.3, 8.4, 8.5 | Active development |
+| 3.x | 3 | 10, 11 | 8.2, 8.3, 8.4, 8.5 | The current minor is LTS until 1 July 2027 and receives bugfixes and security updates only. |
+| 2.x | 3 | 9, 10 | 8.2+ | Unsupported |
+
+See [MIGRATION.md](MIGRATION.md) for migration guides.
+
 ## Available steps
 
 ### Index of Generic steps
