@@ -367,7 +367,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the roles :roles assigned" fails for for non-existing user
+  Scenario: Assert "Then the user :name should have the roles :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
@@ -421,7 +421,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the roles :roles assigned" fails for for non-existing user
+  Scenario: Assert "Then the user :name should not have the roles :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
@@ -451,7 +451,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should be blocked" fails for for non-existing user
+  Scenario: Assert "Then the user :name should be blocked" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
@@ -481,7 +481,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not be blocked" fails for for non-existing user
+  Scenario: Assert "Then the user :name should not be blocked" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
