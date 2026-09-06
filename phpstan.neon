@@ -6,7 +6,7 @@ parameters:
 
   level: 7
 
-  phpVersion: 80224
+  phpVersion: 80300
 
   paths:
     - docs.php

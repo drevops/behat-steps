@@ -61,9 +61,9 @@ return RectorConfig::configure()
     '*/node_modules/*',
     __DIR__ . '/tests/behat/bootstrap/BehatCliContext.php',
   ])
-  // PHP version upgrade sets - modernizes syntax to PHP 8.2.
-  // Includes all rules from PHP 5.3 through 8.2.
-  ->withPhpSets(php82: TRUE)
+  // PHP version upgrade sets - modernizes syntax to PHP 8.3.
+  // Includes all rules from PHP 5.3 through 8.3.
+  ->withPhpSets(php83: TRUE)
   ->withAttributesSets(behat: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(

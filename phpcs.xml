@@ -19,7 +19,7 @@
     <arg name="parallel" value="75"/>
 
     <!-- Lint code against min PHP version specified in composer.json. -->
-    <config name="testVersion" value="8.2"/>
+    <config name="testVersion" value="8.3"/>
 
     <file>docs.php</file>
     <file>scripts</file>
