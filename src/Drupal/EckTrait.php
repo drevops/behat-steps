@@ -172,7 +172,7 @@ trait EckTrait {
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {
-      $this->entityRegister($saved);
+      $this->helperEntityRegister($saved);
     }
   }
 

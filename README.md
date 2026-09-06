@@ -214,7 +214,7 @@ are cleaned up by the base Drupal Extension and are never registered here, so
 there is no double-deletion.
 
 To keep **all** registered entities after a scenario, add
-`@behat-steps-skip:entityCleanupAfterScenario` to the scenario or feature.
+`@behat-steps-skip:helperEntityCleanupAfterScenario` to the scenario or feature.
 
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example

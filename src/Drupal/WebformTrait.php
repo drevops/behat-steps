@@ -72,7 +72,7 @@ trait WebformTrait {
     $clone->set('template', FALSE);
     $clone->save();
 
-    $this->entityRegister($clone);
+    $this->helperEntityRegister($clone);
   }
 
   /**

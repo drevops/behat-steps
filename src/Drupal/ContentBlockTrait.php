@@ -189,7 +189,7 @@ trait ContentBlockTrait {
     $entity = BlockContent::create($stub->getValues());
     $entity->save();
 
-    $this->entityRegister($entity);
+    $this->helperEntityRegister($entity);
 
     return $entity;
   }

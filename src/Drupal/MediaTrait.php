@@ -266,7 +266,7 @@ trait MediaTrait {
   protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
     $this->parseEntityFields($stub);
     $entity = $this->mediaCreateEntity($stub);
-    $this->entityRegister($entity);
+    $this->helperEntityRegister($entity);
 
     return $entity;
   }

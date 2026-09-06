@@ -89,7 +89,7 @@ trait ParagraphsTrait {
       $parent_entity->save();
     }
 
-    $this->entityRegister($paragraph);
+    $this->helperEntityRegister($paragraph);
 
     return $paragraph;
   }

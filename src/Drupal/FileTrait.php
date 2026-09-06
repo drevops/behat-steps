@@ -114,7 +114,7 @@ trait FileTrait {
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->entityRegister($entity);
+    $this->helperEntityRegister($entity);
 
     return $entity;
   }

@@ -230,7 +230,7 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 ## Unified entity cleanup
 
-Traits that create Drupal entities now register them in a single shared registry and delete them in reverse creation order through one `entityCleanupAfterScenario` hook, instead of each trait running its own after-scenario cleanup.
+Traits that create Drupal entities now register them in a single shared registry and delete them in reverse creation order through one `helperEntityCleanupAfterScenario` hook, instead of each trait running its own after-scenario cleanup.
 
 The per-trait cleanup skip tags have been removed. Replace them as follows:
 
@@ -245,6 +245,35 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 | `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
 | `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:entityCleanupAfterScenario`.
+To skip cleanup of every registered entity at once, use `@behat-steps-skip:helperEntityCleanupAfterScenario`.
 
 `FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
+
+## Trait methods prefixed with their trait name
+
+Every method a trait contributes now begins with the trait's own name, so that traits mixed into one context cannot collide. Rename any call or override in a consumer context:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
+| `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
+| `Drupal\HelperTrait` | `entityRegister()` | `helperEntityRegister()` |
+| `Drupal\HelperTrait` | `entityRegisterId()` | `helperEntityRegisterId()` |
+| `Drupal\HelperTrait` | `entityCleanupAfterScenario()` | `helperEntityCleanupAfterScenario()` |
+| `Drupal\HelperTrait` | `entityCleanupRun()` | `helperEntityCleanupRun()` |
+| `Drupal\HelperTrait` | `entityCleanupDelete()` | `helperEntityCleanupDelete()` |
+| `Drupal\HelperTrait` | `entityCleanupSkippedTypes()` | `helperEntityCleanupSkippedTypes()` |
+| `Drupal\HelperTrait` | `$entityRegistry` | `$helperEntityRegistry` |
+| `Drupal\HelperTrait` | `ENTITY_CLEANUP_EXCLUDED_TYPES` | `HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES` |
+| `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
+| `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
+| `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
+| `WaitTrait` | `waitForAjaxToFinish()` | `waitForAjax()` |
+
+Gherkin step text is unchanged, so feature files need no edit for the renames above. One tag does change, because it names the hook method it skips:
+
+| Old tag | New tag |
+| --- | --- |
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:helperEntityCleanupAfterScenario` |
+
+`Drupal\OverrideTrait::createNodes()`, `::createUsers()`, `::iAmLoggedInAsUserWithRole()` and `Drupal\TaxonomyTrait::createTerms()` override Drupal Extension context methods and keep their names.
