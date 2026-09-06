@@ -85,7 +85,7 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the "test@example.com"
     And the email header "Content-Type" should exactly be:
       """
-      text/plain; charset=UTF-8
+      text/plain; charset=utf-8; format=flowed; delsp=yes
       """
     And the email header "X-Mailer" should exactly be:
       """
