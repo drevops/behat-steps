@@ -9,14 +9,14 @@ Feature: Check that ModalTrait works
   Scenario: Assert jQuery UI modal full lifecycle
     Given I am an anonymous user
     When I visit "http://cli:8888/modal_jquery_ui.html"
-    Then I should not see the modal
+    Then the modal should not be displayed
     When I click on the element "#open-settings"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     And the modal should contain "Settings modal content"
     And the modal should not contain "Confirmation modal content"
     When I close the modal
-    Then I should not see the modal
+    Then the modal should not be displayed
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with CSS selector
@@ -24,7 +24,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     When I click on ".btn-save" in the modal
 
   @javascript @phpserver
@@ -49,7 +49,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-confirm"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     And the modal should contain "Confirmation modal content"
     And the modal should not contain "Settings modal content"
 
@@ -59,14 +59,14 @@ Feature: Check that ModalTrait works
   Scenario: Assert native dialog full lifecycle
     Given I am an anonymous user
     When I visit "http://cli:8888/modal_native.html"
-    Then I should not see the modal
+    Then the modal should not be displayed
     When I click on the element "#open-info"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     And the modal should contain "Info modal content"
     And the modal should not contain "Delete modal content"
     When I click on "Close" in the modal
-    Then I should not see the modal
+    Then the modal should not be displayed
 
   @javascript @phpserver
   Scenario: Assert native dialog click with button text
@@ -99,14 +99,14 @@ Feature: Check that ModalTrait works
   Scenario: Assert custom modal full lifecycle
     Given I am an anonymous user
     When I visit "http://cli:8888/modal_custom.html"
-    Then I should not see the modal
+    Then the modal should not be displayed
     When I click on the element "#open-profile"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     And the modal should contain "Profile modal content"
     And the modal should not contain "Export modal content"
     When I close the modal
-    Then I should not see the modal
+    Then the modal should not be displayed
 
   @javascript @phpserver
   Scenario: Assert custom modal click with CSS selector
@@ -137,23 +137,23 @@ Feature: Check that ModalTrait works
   Scenario: Assert a visible modal is found when an earlier selector matches a hidden one
     Given I am an anonymous user
     When I visit "http://cli:8888/modal_mixed.html"
-    Then I should not see the modal
+    Then the modal should not be displayed
     When I click on the element "#open-native"
     And I wait for the modal to appear
-    Then I should see the modal
+    Then the modal should be displayed
     And the modal should contain "Native modal content"
     And the modal should not contain "Leftover jQuery UI modal content"
 
   # Negative tests.
 
   @trait:ModalTrait
-  Scenario: Assert "Then I should see the modal" fails when no modal is visible
+  Scenario: Assert "Then the modal should be displayed" fails when no modal is visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
       When I visit "http://cli:8888/modal_jquery_ui.html"
-      Then I should see the modal
+      Then the modal should be displayed
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -239,13 +239,13 @@ Feature: Check that ModalTrait works
       """
 
   @trait:ModalTrait
-  Scenario: Assert "Then I should not see the modal" passes when no modal is visible
+  Scenario: Assert "Then the modal should not be displayed" passes when no modal is visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
       When I visit "http://cli:8888/modal_jquery_ui.html"
-      Then I should not see the modal
+      Then the modal should not be displayed
       """
     When I run "behat --no-colors"
     Then it should pass

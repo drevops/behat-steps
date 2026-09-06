@@ -50,10 +50,9 @@ trait SearchApiTrait {
    *
    * @code
    * When I run search indexing for 5 items
-   * When I run search indexing for 1 item
    * @endcode
    */
-  #[When('I run search indexing for :count item(s)')]
+  #[When('I run search indexing for :count items')]
   public function searchApiDoIndex(string|int $count): void {
     $count = (int) $count;
 

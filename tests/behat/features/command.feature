@@ -131,7 +131,7 @@ Feature: Check that CommandTrait works
     And scenario steps:
       """
       When I run the command "sleep 2"
-      Then the command should complete in less than 1 second
+      Then the command should complete in less than 1 seconds
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

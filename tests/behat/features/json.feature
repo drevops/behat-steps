@@ -413,14 +413,14 @@ Feature: Check that JsonTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the JSON path :path should have :count element(s)" works for arrays and objects
+  Scenario: Assert "Then the JSON path :path should have :count elements" works for arrays and objects
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.items" should have "3" elements
     And the JSON path "$.user.roles" should have "2" elements
-    And the JSON path "$.user" should have "1" element
+    And the JSON path "$.user" should have "1" elements
 
   @trait:JsonTrait
-  Scenario: Assert that negative assertion for "Then the JSON path :path should have :count element(s)" fails with an error for wrong count
+  Scenario: Assert that negative assertion for "Then the JSON path :path should have :count elements" fails with an error for wrong count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -434,12 +434,12 @@ Feature: Check that JsonTrait works
       """
 
   @trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a scalar value
+  Scenario: Assert that "Then the JSON path :path should have :count elements" fails with an error for a scalar value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.name" should have "1" element
+      Then the JSON path "$.name" should have "1" elements
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -448,7 +448,7 @@ Feature: Check that JsonTrait works
       """
 
   @trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a non-numeric count
+  Scenario: Assert that "Then the JSON path :path should have :count elements" fails with an error for a non-numeric count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

@@ -323,17 +323,17 @@ Feature: Check that UserTrait works
       """
 
   @api
-  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
+  Scenario: Assert "Then the user :name should have the roles :roles assigned" works
     Given the following users:
       | name           | roles                         |
       | single_role    | administrator                 |
       | multiple_roles | administrator, content_editor |
-    Then the user "single_role" should have the role "administrator" assigned
-    And the user "multiple_roles" should have the role "administrator, content_editor" assigned
-    And the user "multiple_roles" should have the role "administrator,content_editor" assigned
+    Then the user "single_role" should have the roles "administrator" assigned
+    And the user "multiple_roles" should have the roles "administrator, content_editor" assigned
+    And the user "multiple_roles" should have the roles "administrator,content_editor" assigned
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
+  Scenario: Assert "Then the user :name should have the roles :roles assigned" fails for missing single role
     Given some behat configuration
     And scenario steps:
       """
@@ -341,7 +341,7 @@ Feature: Check that UserTrait works
         | name           | roles                         |
         | single_role    | administrator                 |
         | multiple_roles | administrator, content_editor |
-      Then the user "single_role" should have the role "content_editor" assigned
+      Then the user "single_role" should have the roles "content_editor" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -350,7 +350,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing multiple roles
+  Scenario: Assert "Then the user :name should have the roles :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
       """
@@ -367,11 +367,11 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for for non-existing user
+  Scenario: Assert "Then the user :name should have the roles :roles assigned" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Then the user "non_existing" should have the role "administrator" assigned
+      Then the user "non_existing" should have the roles "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -380,23 +380,23 @@ Feature: Check that UserTrait works
       """
 
   @api
-  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" works
+  Scenario: Assert "Then the user :name should not have the roles :roles assigned" works
     Given the following users:
       | name        | roles         |
       | single_role | administrator |
-    Then the user "single_role" should not have the role "content_editor" assigned
+    Then the user "single_role" should not have the roles "content_editor" assigned
     And the user "single_role" should not have the roles "content_editor, content_approver" assigned
-    And the user "single_role" should not have the role "content_editor,content_approver" assigned
+    And the user "single_role" should not have the roles "content_editor,content_approver" assigned
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for having a single role
+  Scenario: Assert "Then the user :name should not have the roles :roles assigned" fails for having a single role
     Given some behat configuration
     And scenario steps:
       """
       Given the following users:
         | name           | roles                         |
         | single_role    | administrator                 |
-      Then the user "single_role" should not have the role "administrator" assigned
+      Then the user "single_role" should not have the roles "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -405,7 +405,7 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for missing multiple roles
+  Scenario: Assert "Then the user :name should not have the roles :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
       """
@@ -421,11 +421,11 @@ Feature: Check that UserTrait works
       """
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for for non-existing user
+  Scenario: Assert "Then the user :name should not have the roles :roles assigned" fails for for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Then the user "non_existing" should not have the role "administrator" assigned
+      Then the user "non_existing" should not have the roles "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

@@ -6,19 +6,19 @@ Feature: Check that TableTrait works
   # Row count.
 
   @phpserver
-  Scenario: Assert "Then the table :selector should have :count row(s)" works as expected
+  Scenario: Assert "Then the table :selector should have :count rows" works as expected
     Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 rows
 
   @phpserver
-  Scenario: Assert "Then the table :selector should have :count row(s)" works with single row
+  Scenario: Assert "Then the table :selector should have :count rows" works with single row
     Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the table ".table-single" should have 1 row
+    Then the table ".table-single" should have 1 rows
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should have :count row(s)" fails when table not found
+  Scenario: Assert "Then the table :selector should have :count rows" fails when table not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -33,7 +33,7 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should have :count row(s)" fails when row count does not match
+  Scenario: Assert "Then the table :selector should have :count rows" fails when row count does not match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -50,19 +50,19 @@ Feature: Check that TableTrait works
   # Column count.
 
   @phpserver
-  Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
+  Scenario: Assert "Then the table :selector should have :count columns" works as expected
     Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 columns
 
   @phpserver
-  Scenario: Assert "Then the table :selector should have :count column(s)" works with different table
+  Scenario: Assert "Then the table :selector should have :count columns" works with different table
     Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should have 2 columns
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should have :count column(s)" fails when column count does not match
+  Scenario: Assert "Then the table :selector should have :count columns" fails when column count does not match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

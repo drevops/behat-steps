@@ -18,10 +18,9 @@ trait WaitTrait {
    *
    * @code
    * When I wait for 5 seconds
-   * When I wait for 1 second
    * @endcode
    */
-  #[When('I wait for :seconds second(s)')]
+  #[When('I wait for :seconds seconds')]
   public function waitSeconds(string|int $seconds): void {
     sleep((int) $seconds);
   }
@@ -33,10 +32,9 @@ trait WaitTrait {
    *
    * @code
    * When I wait for 5 seconds for AJAX to finish
-   * When I wait for 1 second for AJAX to finish
    * @endcode
    */
-  #[When('I wait for :seconds second(s) for AJAX to finish')]
+  #[When('I wait for :seconds seconds for AJAX to finish')]
   public function waitForAjax(string|int $seconds): void {
     $seconds = (int) $seconds;
 

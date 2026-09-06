@@ -717,12 +717,12 @@ JS;
    * Accept confirmation dialogs appearing on the page.
    *
    * @code
-   * Given I accept all confirmation dialogs
+   * Given confirmation dialogs are accepted
    * @endcode
    *
    * @javascript
    */
-  #[Given('I accept all confirmation dialogs')]
+  #[Given('confirmation dialogs are accepted')]
   public function elementAcceptConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
   }
@@ -731,12 +731,12 @@ JS;
    * Do not accept confirmation dialogs appearing on the page.
    *
    * @code
-   * Given I do not accept any confirmation dialogs
+   * Given confirmation dialogs are declined
    * @endcode
    *
    * @javascript
    */
-  #[Given('I do not accept any confirmation dialogs')]
+  #[Given('confirmation dialogs are declined')]
   public function elementDeclineConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
   }
@@ -1098,11 +1098,11 @@ JS;
    * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
    * @endcode
    */
-  #[Then('the element :selector should be displayed within a viewport with a top offset of :number pixels')]
-  public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $number): void {
+  #[Then('the element :selector should be displayed within a viewport with a top offset of :offset pixels')]
+  public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $offset): void {
     $this->elementAssertIsVisible($selector);
-    if (!$this->elementIsVisuallyVisible($selector, $number)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $number), $this->getSession()->getDriver());
+    if (!$this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -1113,10 +1113,10 @@ JS;
    * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
    * @endcode
    */
-  #[Then('the element :selector should not be displayed within a viewport with a top offset of :number pixels')]
-  public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $number): void {
-    if ($this->elementIsVisuallyVisible($selector, $number)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $number), $this->getSession()->getDriver());
+  #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
+  public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
+    if ($this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -1146,7 +1146,7 @@ JS;
    * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
    * @endcode
    */
-  #[Then('the element :parent should contain :count element(s) matching :selector')]
+  #[Then('the element :parent should contain :count elements matching :selector')]
   public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
     $parent_element = $this->getSession()->getPage()->find('css', $parent);
 

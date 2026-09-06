@@ -346,17 +346,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should have :count element(s)" works
+  Scenario: Assert "Then the XML element :element should have :count elements" works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//library" should have "3" elements
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should have :count element(s)" works with simple.xml
+  Scenario: Assert "Then the XML element :element should have :count elements" works with simple.xml
     When I go to "http://cli:8888/xml_simple.xml"
     Then the XML element "//root" should have "5" elements
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should have :count element(s)" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML element :element should have :count elements" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -370,7 +370,7 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should have :count element(s)" fails with an error for wrong count
+  Scenario: Assert that negative assertion for "Then the XML element :element should have :count elements" fails with an error for wrong count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

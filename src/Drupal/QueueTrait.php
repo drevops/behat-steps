@@ -48,12 +48,8 @@ trait QueueTrait {
    * @code
    * When I process 5 items from the "myqueue" queue
    * @endcode
-   *
-   * @code
-   * When I process 1 item from the "myqueue" queue
-   * @endcode
    */
-  #[When('I process :count item(s) from the :queue queue')]
+  #[When('I process :count items from the :queue queue')]
   public function queueProcessItems(int $count, string $queue): void {
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -111,12 +107,8 @@ trait QueueTrait {
    * @code
    * Then the "myqueue" queue should have 5 items
    * @endcode
-   *
-   * @code
-   * Then the "myqueue" queue should have 1 item
-   * @endcode
    */
-  #[Then('the :queue queue should have :count item(s)')]
+  #[Then('the :queue queue should have :count items')]
   public function queueAssertItemCount(string $queue, int $count): void {
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
