@@ -26,7 +26,8 @@ use Drupal\Driver\Entity\EntityStubInterface;
  * taxonomy_term, user_role, language, configurable_language) are never
  * registered here, so there is no double-deletion.
  *
- * Skip all cleanup with tag: `@behat-steps-skip:entityCleanupAfterScenario`
+ * Skip all cleanup with tag:
+ * `@behat-steps-skip:helperEntityCleanupAfterScenario`
  * Skip cleanup for one entity type with tag:
  * `@behat-steps-entity-cleanup-skip:media`
  *
@@ -42,7 +43,7 @@ trait HelperTrait {
    * Never deleted by this trait to avoid double-deletion with the base
    * extension (re-deleting a user or language throws, unlike nodes/terms).
    */
-  const ENTITY_CLEANUP_EXCLUDED_TYPES = [
+  const HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES = [
     'node',
     'user',
     'taxonomy_term',
@@ -60,7 +61,7 @@ trait HelperTrait {
    *
    * @var array<int, array{0: string, 1: int|string}>
    */
-  protected array $entityRegistry = [];
+  protected array $helperEntityRegistry = [];
 
   /**
    * Register a saved entity.
@@ -68,11 +69,11 @@ trait HelperTrait {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The saved entity to register.
    */
-  protected function entityRegister(EntityInterface $entity): void {
+  protected function helperEntityRegister(EntityInterface $entity): void {
     $id = $entity->id();
 
     if ($id !== NULL) {
-      $this->entityRegisterId($entity->getEntityTypeId(), $id);
+      $this->helperEntityRegisterId($entity->getEntityTypeId(), $id);
     }
   }
 
@@ -84,43 +85,43 @@ trait HelperTrait {
    * @param int|string $entity_id
    *   The entity id.
    */
-  protected function entityRegisterId(string $entity_type_id, int|string $entity_id): void {
-    $this->entityRegistry[] = [$entity_type_id, $entity_id];
+  protected function helperEntityRegisterId(string $entity_type_id, int|string $entity_id): void {
+    $this->helperEntityRegistry[] = [$entity_type_id, $entity_id];
   }
 
   /**
    * Delete registered entities in reverse creation order at scenario teardown.
    */
   #[AfterScenario('@api')]
-  public function entityCleanupAfterScenario(AfterScenarioScope $scope): void {
+  public function helperEntityCleanupAfterScenario(AfterScenarioScope $scope): void {
     $scenario = $scope->getScenario();
 
     if ($scenario->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
 
-    $this->entityCleanupRun($this->entityCleanupSkippedTypes($scenario->getTags()));
+    $this->helperEntityCleanupRun($this->helperEntityCleanupSkippedTypes($scenario->getTags()));
   }
 
   /**
    * Delete registered entities in reverse creation order, then reset.
    *
-   * Entity types in self::ENTITY_CLEANUP_EXCLUDED_TYPES (owned by the base
-   * Drupal Extension) or in $skip_types are left in place.
+   * Entity types in self::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES (owned by the
+   * base Drupal Extension) or in $skip_types are left in place.
    *
    * @param array<int, string> $skip_types
    *   Entity type ids to leave in place.
    */
-  protected function entityCleanupRun(array $skip_types): void {
-    foreach (array_reverse($this->entityRegistry) as [$entity_type_id, $entity_id]) {
-      if (in_array($entity_type_id, self::ENTITY_CLEANUP_EXCLUDED_TYPES, TRUE) || in_array($entity_type_id, $skip_types, TRUE)) {
+  protected function helperEntityCleanupRun(array $skip_types): void {
+    foreach (array_reverse($this->helperEntityRegistry) as [$entity_type_id, $entity_id]) {
+      if (in_array($entity_type_id, self::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES, TRUE) || in_array($entity_type_id, $skip_types, TRUE)) {
         continue;
       }
 
-      $this->entityCleanupDelete($entity_type_id, $entity_id);
+      $this->helperEntityCleanupDelete($entity_type_id, $entity_id);
     }
 
-    $this->entityRegistry = [];
+    $this->helperEntityRegistry = [];
   }
 
   /**
@@ -131,7 +132,7 @@ trait HelperTrait {
    * @param int|string $entity_id
    *   The entity id.
    */
-  protected function entityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
+  protected function helperEntityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
     $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
     $entity?->delete();
   }
@@ -146,7 +147,7 @@ trait HelperTrait {
    *   Entity type ids to skip, parsed from
    *   'behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
    */
-  protected function entityCleanupSkippedTypes(array $tags): array {
+  protected function helperEntityCleanupSkippedTypes(array $tags): array {
     $prefix = 'behat-steps-entity-cleanup-skip:';
     $types = [];
 

@@ -18,8 +18,8 @@ of tests. Follow these guidelines:
   - Avoid optional words like `(the|a)`. Provide a single form instead to ensure
     consistency.
   - Omit unnecessary suffixes like `on the page` since it is implied.
-  - All method names should begin with the trait name: `userAssertHasRoles()`
-    for `UserTrait`.
+  - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuLoadByLabel()`, not `loadMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
+  - A method that overrides a Drupal Extension context method, such as `OverrideTrait::createNodes()` or `TaxonomyTrait::createTerms()`, is the one exception: an override binds by name, so it keeps the parent's. List it in `PARENT_OVERRIDES` in `TraitMethodNamingTest` instead of renaming it.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the

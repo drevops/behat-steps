@@ -33,7 +33,7 @@ trait MenuTrait {
    */
   #[Given('the menu :menu_name does not exist')]
   public function menuDeleteSingle(string $menu_name): void {
-    $menu = $this->loadMenuByLabel($menu_name);
+    $menu = $this->menuLoadByLabel($menu_name);
     if ($menu instanceof MenuInterface) {
       $menu->delete();
     }
@@ -68,7 +68,7 @@ trait MenuTrait {
       $menu = Menu::create($menu_hash);
       $menu->save();
 
-      $this->entityRegister($menu);
+      $this->helperEntityRegister($menu);
     }
   }
 
@@ -90,7 +90,7 @@ trait MenuTrait {
     $this->helperAssertModuleEnabled('menu_link_content');
 
     foreach ($table->getColumn(0) as $title) {
-      $menu_link = $this->loadMenuLinkByTitle($title, $menu_name);
+      $menu_link = $this->menuLoadLinkByTitle($title, $menu_name);
       if ($menu_link instanceof MenuLinkContent) {
         $menu_link->delete();
       }
@@ -111,7 +111,7 @@ trait MenuTrait {
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $this->helperAssertModuleEnabled('menu_link_content');
 
-    $menu = $this->loadMenuByLabel($menu_name);
+    $menu = $this->menuLoadByLabel($menu_name);
 
     // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
@@ -126,7 +126,7 @@ trait MenuTrait {
         unset($menu_link_hash['uri']);
       }
       if (!empty($menu_link_hash['parent']) && is_string($menu_link_hash['parent'])) {
-        $parent_link = $this->loadMenuLinkByTitle($menu_link_hash['parent'], $menu_name);
+        $parent_link = $this->menuLoadLinkByTitle($menu_link_hash['parent'], $menu_name);
         if ($parent_link instanceof MenuLinkContent) {
           $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
         }
@@ -141,7 +141,7 @@ trait MenuTrait {
       }
       $menu_link = MenuLinkContent::create($menu_link_hash);
       $menu_link->save();
-      $this->entityRegister($menu_link);
+      $this->helperEntityRegister($menu_link);
     }
   }
 
@@ -154,7 +154,7 @@ trait MenuTrait {
    * @return \Drupal\system\MenuInterface|null
    *   The menu or NULL if not found.
    */
-  protected function loadMenuByLabel(string $label): ?MenuInterface {
+  protected function menuLoadByLabel(string $label): ?MenuInterface {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
     $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
@@ -182,8 +182,8 @@ trait MenuTrait {
    * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
    *   The menu link or NULL if not found.
    */
-  protected function loadMenuLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
-    $menu = $this->loadMenuByLabel($menu_name);
+  protected function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
+    $menu = $this->menuLoadByLabel($menu_name);
 
     // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
