@@ -3,13 +3,13 @@ Feature: Check that RestTrait works
   I want to provide tools for REST API testing
   So that users can send HTTP requests and assert responses
 
-  Scenario: Assert "Given a REST header :name with value :value" and "When I send a REST :method request to :url" work
-    Given a REST header "Accept" with value "text/html"
+  Scenario: Assert "Given the REST header :name has the value :value" and "When I send a REST :method request to :url" work
+    Given the REST header "Accept" has the value "text/html"
     When I send a REST "GET" request to "/"
     Then the REST response status code should be 200
 
   Scenario: Assert "When I send a REST :method request to :url with body:" works
-    Given a REST header "Content-Type" with value "text/plain"
+    Given the REST header "Content-Type" has the value "text/plain"
     When I send a REST "POST" request to "/" with body:
       """
       test body content
@@ -17,8 +17,8 @@ Feature: Check that RestTrait works
     Then the REST response status code should be 200
 
   Scenario: Assert multiple headers can be set
-    Given a REST header "Accept" with value "text/html"
-    And a REST header "X-Custom-Header" with value "custom-value"
+    Given the REST header "Accept" has the value "text/html"
+    And the REST header "X-Custom-Header" has the value "custom-value"
     When I send a REST "GET" request to "/"
     Then the REST response status code should be 200
 

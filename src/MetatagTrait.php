@@ -107,7 +107,7 @@ trait MetatagTrait {
    * Then the "description" meta tag should not contain any HTML tags
    * @endcode
    */
-  #[Then('the :metaName meta tag should not contain any HTML tags')]
+  #[Then('the :meta_name meta tag should not contain any HTML tags')]
   public function metatagAssertNoHtml(string $meta_name): void {
     $meta_tag = $this->metatagFindMeta($meta_name);
 

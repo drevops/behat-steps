@@ -228,14 +228,14 @@ trait FileDownloadTrait {
    * Then the downloaded file name should contain "report"
    * @endcode
    */
-  #[Then('the downloaded file name should contain :file_name_part')]
-  public function fileDownloadAssertFileNameContains(string $file_name_part): void {
+  #[Then('the downloaded file name should contain :partial_name')]
+  public function fileDownloadAssertFileNameContains(string $partial_name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
     }
 
-    if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $file_name_part)) {
-      throw new ExpectationException(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $file_name_part), $this->getSession()->getDriver());
+    if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name)) {
+      throw new ExpectationException(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name), $this->getSession()->getDriver());
     }
   }
 

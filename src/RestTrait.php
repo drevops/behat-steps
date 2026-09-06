@@ -47,11 +47,11 @@ trait RestTrait {
    * Set a REST header for subsequent requests.
    *
    * @code
-   * Given a REST header "Accept" with value "application/json"
-   * Given a REST header "Authorization" with value "Bearer abc123"
+   * Given the REST header "Accept" has the value "application/json"
+   * Given the REST header "Authorization" has the value "Bearer abc123"
    * @endcode
    */
-  #[Given('a REST header :name with value :value')]
+  #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
     $this->restHeaders[$name] = $value;
   }

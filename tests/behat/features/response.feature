@@ -4,12 +4,12 @@ Feature: Check that ResponseTrait works
   So that users can test server configuration and content delivery
 
   @phpserver
-  Scenario: Assert "Then the response should contain the header :header_name" works
+  Scenario: Assert "Then the response should contain the header :name" works
     When I go to "http://cli:8888/elements.html"
     Then the response should contain the header "Content-Type"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response should contain the header :header_name" fails with an error
+  Scenario: Assert that negative assertion for "Then the response should contain the header :name" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -23,12 +23,12 @@ Feature: Check that ResponseTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the response should not contain the header :header_name" works
+  Scenario: Assert "Then the response should not contain the header :name" works
     When I go to "http://cli:8888/elements.html"
     Then the response should not contain the header "NonExistingHeader"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response should not contain the header :header_name" fails with an error
+  Scenario: Assert that negative assertion for "Then the response should not contain the header :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
@@ -42,12 +42,12 @@ Feature: Check that ResponseTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the response header :header_name should contain the value :header_value" works
+  Scenario: Assert "Then the response header :name should contain the value :value" works
     When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should contain the value "text/html"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should contain the value :header_value" fails with an error for missing header
+  Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
@@ -61,7 +61,7 @@ Feature: Check that ResponseTrait works
       """
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should contain the value :header_value" fails with an error for invalid header value
+  Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:
       """
@@ -75,12 +75,12 @@ Feature: Check that ResponseTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the response header :header_name should not contain the value :header_value" works
+  Scenario: Assert "Then the response header :name should not contain the value :value" works
     When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should not contain the value :header_value" fails with an error for missing header
+  Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
@@ -94,7 +94,7 @@ Feature: Check that ResponseTrait works
       """
 
   @trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :header_name should not contain the value :header_value" fails with an error for invalid header value
+  Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:
       """

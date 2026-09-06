@@ -28,14 +28,14 @@ trait DraggableviewsTrait {
    *   | Third Article  |
    * @endcode
    */
-  #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:')]
-  public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $bundle, TableNode $order_table): void {
+  #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:')]
+  public function draggableViewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
     $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
 
     foreach ($order_table->getColumn(0) as $weight => $title) {
-      $node = $this->draggableViewsFindNode($bundle, ['title' => $title]);
+      $node = $this->draggableViewsFindNode($content_type, ['title' => $title]);
 
       if (empty($node)) {
         throw new \RuntimeException(sprintf('Unable to find the node "%s".', $title));

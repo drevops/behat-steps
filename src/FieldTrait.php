@@ -161,17 +161,17 @@ trait FieldTrait {
    * Then the field "field_body" should exist
    * @endcode
    */
-  #[Then('the field :name should exist')]
-  public function fieldAssertExists(string $name): NodeElement {
+  #[Then('the field :field should exist')]
+  public function fieldAssertExists(string $field): NodeElement {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($name);
-    $field = $field ?: $page->findById($name);
+    $field_element = $page->findField($field);
+    $field_element = $field_element ?: $page->findById($field);
 
-    if ($field === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $name);
+    if ($field_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $field);
     }
 
-    return $field;
+    return $field_element;
   }
 
   /**
@@ -182,14 +182,14 @@ trait FieldTrait {
    * Then the field "field_body" should not exist
    * @endcode
    */
-  #[Then('the field :name should not exist')]
-  public function fieldAssertNotExists(string $name): void {
+  #[Then('the field :field should not exist')]
+  public function fieldAssertNotExists(string $field): void {
     $page = $this->getSession()->getPage();
-    $field = $page->findField($name);
-    $field = $field ?: $page->findById($name);
+    $field_element = $page->findField($field);
+    $field_element = $field_element ?: $page->findById($field);
 
-    if ($field !== NULL) {
-      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $name), $this->getSession()->getDriver());
+    if ($field_element !== NULL) {
+      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -197,22 +197,22 @@ trait FieldTrait {
    * Assert whether the field has a state.
    *
    * @code
-   * Then the field "Body" should have "disabled" state
-   * Then the field "field_body" should have "disabled" state
-   * Then the field "Tags" should have "enabled" state
-   * Then the field "field_tags" should have "not enabled" state
+   * Then the field "Body" should have the "disabled" state
+   * Then the field "field_body" should have the "disabled" state
+   * Then the field "Tags" should have the "enabled" state
+   * Then the field "field_tags" should have the "not enabled" state
    * @endcode
    */
-  #[Then('the field :name should have :enabled_or_disabled state')]
-  public function fieldAssertState(string $name, string $enabled_or_disabled): void {
-    $field = $this->fieldAssertExists($name);
+  #[Then('the field :field should have the :enabled_or_disabled state')]
+  public function fieldAssertState(string $field, string $enabled_or_disabled): void {
+    $field_element = $this->fieldAssertExists($field);
 
-    if ($enabled_or_disabled === 'disabled' && !$field->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $name), $this->getSession()->getDriver());
+    if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
+      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
     }
 
-    if ($enabled_or_disabled !== 'disabled' && $field->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $name), $this->getSession()->getDriver());
+    if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
+      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -513,10 +513,10 @@ JS;
    * fill it in. If used with webdriver - it will fill in the field as normal.
    *
    * @code
-   * When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+   * When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
    * @endcode
    */
-  #[When('I fill in the WYSIWYG field :field with the :value')]
+  #[When('I fill in the WYSIWYG field :field with the value :value')]
   public function fieldFillWysiwyg(string $field, string $value): void {
     $field = $this->helperFixStepArgument($field);
     $value = $this->helperFixStepArgument($value);
@@ -885,11 +885,11 @@ JS;
    * (e.g., dynamically generated fields in Paragraphs or Layout Builder).
    *
    * @code
-   * When I fill in the field ".field--name-body textarea" with "Hello world"
-   * When I fill in the field "#edit-field-custom-0-value" with "Test value"
+   * When I fill in the field ".field--name-body textarea" with the value "Hello world"
+   * When I fill in the field "#edit-field-custom-0-value" with the value "Test value"
    * @endcode
    */
-  #[When('I fill in the field :selector with :value')]
+  #[When('I fill in the field :selector with the value :value')]
   public function fieldFillField(string $selector, string $value): void {
     $field = $this->getSession()->getPage()->find('css', $selector);
 
@@ -907,13 +907,13 @@ JS;
    * automatically applied after each step when the form becomes available.
    *
    * @code
-   * Given browser validation for the form "#node-article-form" is disabled
+   * Given the browser validation for the form "#node-article-form" is disabled
    * When I go to "node/add/article"
    * And I press "Save"
    * Then I should see "Title field is required"
    * @endcode
    */
-  #[Given('browser validation for the form :selector is disabled')]
+  #[Given('the browser validation for the form :selector is disabled')]
   public function fieldDisableFormBrowserValidation(string $selector): void {
     if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
       $this->fieldFormValidationRegistry[] = $selector;

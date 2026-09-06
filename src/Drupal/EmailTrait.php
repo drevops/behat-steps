@@ -117,10 +117,10 @@ trait EmailTrait {
    * Assert that an email should be sent to an address.
    *
    * @code
-   * Then an email should be sent to the "user@example.com"
+   * Then an email should be sent to the address "user@example.com"
    * @endcode
    */
-  #[Then('an email should be sent to the :address')]
+  #[Then('an email should be sent to the address :address')]
   public function emailAssertMessageSentTo(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
@@ -152,10 +152,10 @@ trait EmailTrait {
    * Assert that no email messages should be sent to a specified address.
    *
    * @code
-   * Then no emails should have been sent to the "user@example.com"
+   * Then no emails should have been sent to the address "user@example.com"
    * @endcode
    */
-  #[Then('no emails should have been sent to the :address')]
+  #[Then('no emails should have been sent to the address :address')]
   public function emailAssertNoMessagesSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);

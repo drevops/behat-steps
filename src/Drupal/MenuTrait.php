@@ -49,13 +49,13 @@ trait MenuTrait {
    * | ...          | ...             |
    *
    * @code
-   * Given the following menus:
+   * Given the following menus exist:
    *   | label            | description                    |
    *   | Footer Menu     | Links displayed in the footer  |
    *   | Secondary Menu  | Secondary navigation menu      |
    * @endcode
    */
-  #[Given('the following menus:')]
+  #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {

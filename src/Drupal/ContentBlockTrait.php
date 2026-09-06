@@ -31,12 +31,12 @@ trait ContentBlockTrait {
    * Then the content block type "Search" should exist
    * @endcode
    */
-  #[Then('the content block type :type should exist')]
-  public function contentBlockAssertTypeExists(string $type): void {
-    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($type);
+  #[Then('the content block type :content_block_type should exist')]
+  public function contentBlockAssertTypeExists(string $content_block_type): void {
+    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $type), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
     }
   }
 
@@ -55,12 +55,12 @@ trait ContentBlockTrait {
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
    */
-  #[Given('the following :type content blocks do not exist:')]
-  public function contentBlockDelete(string $type, TableNode $content_block_table): void {
+  #[Given('the following :content_block_type content blocks do not exist:')]
+  public function contentBlockDelete(string $content_block_type, TableNode $content_block_table): void {
     foreach ($content_block_table->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
         'info' => $description,
-        'type' => $type,
+        'type' => $content_block_type,
       ]);
 
       foreach ($content_blocks as $content_block) {
@@ -81,14 +81,14 @@ trait ContentBlockTrait {
    * When I edit the "basic" content block with the description "[TEST] Footer Block"
    * @endcode
    */
-  #[When('I edit the :type content block with the description :description')]
-  public function contentBlockEditBlockContentWithDescription(string $type, string $description): void {
-    $block_ids = $this->contentBlockLoadMultiple($type, [
+  #[When('I edit the :content_block_type content block with the description :description')]
+  public function contentBlockEditBlockContentWithDescription(string $content_block_type, string $description): void {
+    $block_ids = $this->contentBlockLoadMultiple($content_block_type, [
       'info' => $description,
     ]);
 
     if (empty($block_ids)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $type, $description));
+      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
     }
 
     ksort($block_ids);
@@ -113,7 +113,7 @@ trait ContentBlockTrait {
    * - created: Creation timestamp (format: YYYY-MM-DD H:MMam/pm)
    * - body: Block content (for blocks with a body field)
    *
-   * @param string $type
+   * @param string $content_block_type
    *   The content block type machine name.
    * @param \Behat\Gherkin\Node\TableNode $content_block_table
    *   Table containing field values for each block to create.
@@ -125,10 +125,10 @@ trait ContentBlockTrait {
    *     | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
    * @endcode
    */
-  #[Given('the following :type content blocks exist:')]
-  public function contentBlockCreate(string $type, TableNode $content_block_table): void {
+  #[Given('the following :content_block_type content blocks exist:')]
+  public function contentBlockCreate(string $content_block_type, TableNode $content_block_table): void {
     foreach ($content_block_table->getHash() as $hash) {
-      $this->contentBlockCreateSingle($type, $hash);
+      $this->contentBlockCreateSingle($content_block_type, $hash);
     }
   }
 
@@ -138,24 +138,24 @@ trait ContentBlockTrait {
    * Supports both single and multiple entity creation using vertical table
    * format where fields are listed in rows instead of columns.
    *
-   * @param string $type
+   * @param string $content_block_type
    *   The content block type machine name.
    * @param \Behat\Gherkin\Node\TableNode $table
    *   Vertical format table with field names in first column.
    *
    * @code
-   *   Given the following basic content blocks with fields:
+   *   Given the following basic content blocks with fields exist:
    *     | info   | [TEST] Block 1        | [TEST] Block 2        |
    *     | body   | First block content   | Second block content  |
    *     | status | 1                     | 1                     |
    * @endcode
    */
-  #[Given('the following :type content blocks with fields:')]
-  public function contentBlockCreateWithFields(string $type, TableNode $table): void {
+  #[Given('the following :content_block_type content blocks with fields exist:')]
+  public function contentBlockCreateWithFields(string $content_block_type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
 
     foreach ($entities as $entity_data) {
-      $this->contentBlockCreateSingle($type, $entity_data);
+      $this->contentBlockCreateSingle($content_block_type, $entity_data);
     }
   }
 

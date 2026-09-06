@@ -36,8 +36,8 @@ Feature: Check that StateTrait works
     Then the state "behat_steps_test.flag" should not exist
 
   @api
-  Scenario: Assert "Given the following state values:" sets multiple state values
-    Given the following state values:
+  Scenario: Assert "Given the following state values exist:" sets multiple state values
+    Given the following state values exist:
       | name                         | value |
       | behat_steps_test.launched    | 1     |
       | behat_steps_test.feature     | 0     |

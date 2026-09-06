@@ -16,7 +16,7 @@ Feature: Check that ConfigTrait works
 
   @api
   Scenario: Set multiple config values of different types from a table
-    Given the following config values:
+    Given the following config values exist:
       | name                   | key      | value           |
       | behat_steps_test.types | enabled  | true            |
       | behat_steps_test.types | disabled | false           |
@@ -49,7 +49,7 @@ Feature: Check that ConfigTrait works
 
   @api
   Scenario: Assert stored array membership and its negation
-    Given the following config values:
+    Given the following config values exist:
       | name                 | key   | value                 |
       | behat_steps_test.arr | roles | ["editor","reviewer"] |
     Then the config "behat_steps_test.arr" key "roles" should contain the value "editor"
@@ -203,7 +203,7 @@ Feature: Check that ConfigTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the following config values:
+      And the following config values exist:
         | name                      | key    |
         | behat_steps_test.settings | broken |
       """

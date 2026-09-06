@@ -21,18 +21,18 @@ trait IframeTrait {
    * Handles unnamed iframes by auto-assigning a name via JavaScript.
    *
    * @code
-   * When I switch to iframe with locator "iframe.payment-form"
-   * When I switch to iframe with locator "#recaptcha iframe"
+   * When I switch to the iframe with the selector "iframe.payment-form"
+   * When I switch to the iframe with the selector "#recaptcha iframe"
    * @endcode
    *
    * @javascript
    */
-  #[When('I switch to iframe with locator :locator')]
-  public function iframeSwitchTo(string $locator): void {
-    $iframe = $this->getSession()->getPage()->find('css', $locator);
+  #[When('I switch to the iframe with the selector :selector')]
+  public function iframeSwitchTo(string $selector): void {
+    $iframe = $this->getSession()->getPage()->find('css', $selector);
 
     if ($iframe === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $locator);
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
     }
 
     $iframe_name = $iframe->getAttribute('name');
@@ -49,10 +49,10 @@ trait IframeTrait {
         })()"
       );
 
-      $iframe = $this->getSession()->getPage()->find('css', $locator);
+      $iframe = $this->getSession()->getPage()->find('css', $selector);
 
       if ($iframe === NULL) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $locator);
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
       }
 
       $iframe_name = $iframe->getAttribute('name');

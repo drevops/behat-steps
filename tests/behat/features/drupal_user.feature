@@ -494,23 +494,23 @@ Feature: Check that UserTrait works
       """
 
   @api
-  Scenario: Assert "Given the role :role_name with the permissions :permissions" works
-    Given the role "Content Manager" with the permissions "access content, create article content"
+  Scenario: Assert "Given the role :role_name has the permissions :permissions" works
+    Given the role "Content Manager" has the permissions "access content, create article content"
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/people/roles"
     Then I should see "Content Manager"
 
   @api
-  Scenario: Assert "Given the role :role_name with the permissions :permissions" replaces existing role
-    Given the role "Editor" with the permissions "access content"
-    And the role "Editor" with the permissions "access content, create article content"
+  Scenario: Assert "Given the role :role_name has the permissions :permissions" replaces existing role
+    Given the role "Editor" has the permissions "access content"
+    And the role "Editor" has the permissions "access content, create article content"
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/people/roles"
     Then I should see "Editor"
 
   @api
-  Scenario: Assert "Given the following roles:" works with table
-    Given the following roles:
+  Scenario: Assert "Given the following roles exist:" works with table
+    Given the following roles exist:
       | name             | permissions                              |
       | Content Editor   | access content, create article content   |
       | Content Approver | access content, edit any article content |
@@ -520,8 +520,8 @@ Feature: Check that UserTrait works
     And I should see "Content Approver"
 
   @api
-  Scenario: Assert "Given the following roles:" works with empty permissions
-    Given the following roles:
+  Scenario: Assert "Given the following roles exist:" works with empty permissions
+    Given the following roles exist:
       | name           | permissions |
       | Limited Editor |             |
     And I am logged in as a user with the "administrator" role
@@ -529,11 +529,11 @@ Feature: Check that UserTrait works
     Then I should see "Limited Editor"
 
   @api @trait:Drupal\UserTrait
-  Scenario: Assert "Given the following roles:" fails when name column is missing
+  Scenario: Assert "Given the following roles exist:" fails when name column is missing
     Given some behat configuration
     And scenario steps:
       """
-      Given the following roles:
+      Given the following roles exist:
         | role        | permissions         |
         | Test Role   | access content      |
       """
@@ -546,7 +546,7 @@ Feature: Check that UserTrait works
   @api
   Scenario: Create single user with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following users with fields:
+    And the following users with fields exist:
       | name   | [TEST] vertical_user |
       | mail   | vertical@example.com |
       | status | 1                    |
@@ -556,7 +556,7 @@ Feature: Check that UserTrait works
   @api
   Scenario: Create multiple users with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following users with fields:
+    And the following users with fields exist:
       | name   | [TEST] vuser1      | [TEST] vuser2      | [TEST] vuser3      |
       | mail   | vuser1@example.com | vuser2@example.com | vuser3@example.com |
       | status | 1                  | 1                  | 1                  |

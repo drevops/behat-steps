@@ -96,10 +96,10 @@ trait PathTrait {
    * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
-   * Then current url should have the "filter" parameter
+   * Then the current URL should have the "filter" parameter
    * @endcode
    */
-  #[Then('current url should have the :param parameter')]
+  #[Then('the current URL should have the :param parameter')]
   public function pathAssertUrlHasParameter(string $param): void {
     $query = $this->pathGetCurrentUrlQuery();
 
@@ -114,10 +114,10 @@ trait PathTrait {
    * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
-   * Then current url should have the "filter" parameter with the "recent" value
+   * Then the current URL should have the "filter" parameter with the value "recent"
    * @endcode
    */
-  #[Then('current url should have the :param parameter with the :value value')]
+  #[Then('the current URL should have the :param parameter with the value :value')]
   public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
     $this->pathAssertUrlHasParameter($param);
 
@@ -136,10 +136,10 @@ trait PathTrait {
    * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
-   * Then current url should not have the "filter" parameter
+   * Then the current URL should not have the "filter" parameter
    * @endcode
    */
-  #[Then('current url should not have the :param parameter')]
+  #[Then('the current URL should not have the :param parameter')]
   public function pathAssertUrlHasNoParameter(string $param): void {
     $query = $this->pathGetCurrentUrlQuery();
 
@@ -154,10 +154,10 @@ trait PathTrait {
    * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
-   * Then current url should not have the "filter" parameter with the "recent" value
+   * Then the current URL should not have the "filter" parameter with the value "recent"
    * @endcode
    */
-  #[Then('current url should not have the :param parameter with the :value value')]
+  #[Then('the current URL should not have the :param parameter with the value :value')]
   public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 
@@ -174,10 +174,10 @@ trait PathTrait {
    * Set basic authentication for the current session.
    *
    * @code
-   * Given the basic authentication with the username "myusername" and the password "mypassword"
+   * Given the basic authentication has the username "myusername" and the password "mypassword"
    * @endcode
    */
-  #[Given('the basic authentication with the username :username and the password :password')]
+  #[Given('the basic authentication has the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
   }

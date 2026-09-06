@@ -24,10 +24,10 @@ trait CacheTrait {
    * the internal page cache to refresh the next time the path is requested.
    *
    * @code
-   * Given the page cache for the path "/about" has been cleared
+   * Given the page cache for the path "/about" is empty
    * @endcode
    */
-  #[Given('the page cache for the path :path has been cleared')]
+  #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
     if ($path === '') {
       throw new \InvalidArgumentException('The path must not be empty.');
@@ -47,10 +47,10 @@ trait CacheTrait {
    * (`%`, `_`, `\`) are escaped so they are treated literally.
    *
    * @code
-   * Given the page cache for the paths matching "/news*" has been cleared
+   * Given the page cache for the paths matching "/news*" is empty
    * @endcode
    */
-  #[Given('the page cache for the paths matching :path_pattern has been cleared')]
+  #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
     if ($path_pattern === '') {
       throw new \InvalidArgumentException('The path pattern must not be empty.');
@@ -82,10 +82,10 @@ trait CacheTrait {
    * Clear the render cache.
    *
    * @code
-   * Given the render cache has been cleared
+   * Given the render cache is empty
    * @endcode
    */
-  #[Given('the render cache has been cleared')]
+  #[Given('the render cache is empty')]
   public function cacheClearRender(): void {
     \Drupal::cache('render')->deleteAll();
   }

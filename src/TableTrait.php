@@ -206,7 +206,7 @@ trait TableTrait {
    *   | admin     |
    * @endcode
    */
-  #[Then('the :rowText row should contain the following:')]
+  #[Then('the :row_text row should contain the following:')]
   public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
     $row = $this->tableFindRowByText($row_text);
 

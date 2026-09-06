@@ -109,14 +109,14 @@ trait ConfigTrait {
    * Set multiple stored Drupal configuration values from a table.
    *
    * @code
-   * Given the following config values:
+   * Given the following config values exist:
    *   | name              | key          | value                   |
    *   | system.site       | name         | My site                 |
    *   | mymodule.settings | api.endpoint | https://api.example.com |
    *   | mymodule.settings | roles        | ["editor","reviewer"]   |
    * @endcode
    */
-  #[Given('the following config values:')]
+  #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {

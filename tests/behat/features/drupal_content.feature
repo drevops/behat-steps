@@ -279,7 +279,7 @@ Feature: Check that ContentTrait works
   @api
   Scenario: Create single node with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following page content with fields:
+    And the following page content with fields exist:
       | title  | [TEST] Vertical Page    |
       | body   | Vertical format content |
       | status | 1                       |
@@ -289,7 +289,7 @@ Feature: Check that ContentTrait works
   @api
   Scenario: Create multiple nodes with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following page content with fields:
+    And the following page content with fields exist:
       | title  | [TEST] V-Page 1    | [TEST] V-Page 2     | [TEST] V-Page 3    |
       | body   | First page content | Second page content | Third page content |
       | status | 1                  | 1                   | 1                  |

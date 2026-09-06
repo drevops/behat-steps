@@ -68,10 +68,10 @@ trait JsonTrait {
    * Set the response JSON content from a fixture file.
    *
    * @code
-   * Given the response JSON from the file "json_valid.json"
+   * Given the response JSON is loaded from the file "json_valid.json"
    * @endcode
    */
-  #[Given('the response JSON from the file :filename')]
+  #[Given('the response JSON is loaded from the file :filename')]
   public function jsonSetContentFromFile(string $filename): void {
     $this->jsonTestContent = $this->jsonReadFile($filename);
     $this->jsonData = NULL;
@@ -82,13 +82,13 @@ trait JsonTrait {
    * Set the response JSON content directly from a PyString.
    *
    * @code
-   * Given the response JSON content is the following:
+   * Given the response JSON is the following:
    *   """
    *   {"name": "John Doe", "roles": ["admin", "editor"]}
    *   """
    * @endcode
    */
-  #[Given('the response JSON content is the following:')]
+  #[Given('the response JSON is the following:')]
   public function jsonSetContent(PyStringNode $content): void {
     $this->jsonTestContent = $content->getRaw();
     $this->jsonData = NULL;
@@ -102,7 +102,7 @@ trait JsonTrait {
    * Then the response should be in JSON format
    *
    * # Content set by a fixture step is validated instead of the page content.
-   * Given the response JSON from the file "json_valid.json"
+   * Given the response JSON is loaded from the file "json_valid.json"
    * Then the response should be in JSON format
    * @endcode
    */

@@ -4,23 +4,23 @@ Feature: Check that CacheTrait works
   So that users can clear specific caches in their tests without a full rebuild
 
   @api
-  Scenario: Assert "Given the page cache for the path :path has been cleared" clears a single path
+  Scenario: Assert "Given the page cache for the path :path is empty" clears a single path
     Given I am logged in as a user with the "administrator" role
-    And the page cache for the path "/user" has been cleared
+    And the page cache for the path "/user" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   @api
-  Scenario: Assert "Given the page cache for the paths matching :path_pattern has been cleared" clears matching paths
+  Scenario: Assert "Given the page cache for the paths matching :path_pattern is empty" clears matching paths
     Given I am logged in as a user with the "administrator" role
-    And the page cache for the paths matching "/user*" has been cleared
+    And the page cache for the paths matching "/user*" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   @api
-  Scenario: Assert "Given the render cache has been cleared" clears the render cache
+  Scenario: Assert "Given the render cache is empty" clears the render cache
     Given I am logged in as a user with the "administrator" role
-    And the render cache has been cleared
+    And the render cache is empty
     When I go to "/user"
     Then I should see "Member for"
 
@@ -30,7 +30,7 @@ Feature: Check that CacheTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the page cache for the path "" has been cleared
+      And the page cache for the path "" is empty
       """
     When I run "behat --no-colors"
     Then it should fail with a "InvalidArgumentException" exception:
@@ -44,7 +44,7 @@ Feature: Check that CacheTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the page cache for the path "about" has been cleared
+      And the page cache for the path "about" is empty
       """
     When I run "behat --no-colors"
     Then it should fail with a "InvalidArgumentException" exception:
@@ -58,7 +58,7 @@ Feature: Check that CacheTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the page cache for the paths matching "" has been cleared
+      And the page cache for the paths matching "" is empty
       """
     When I run "behat --no-colors"
     Then it should fail with a "InvalidArgumentException" exception:
@@ -72,7 +72,7 @@ Feature: Check that CacheTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the page cache for the paths matching "news/*" has been cleared
+      And the page cache for the paths matching "news/*" is empty
       """
     When I run "behat --no-colors"
     Then it should fail with a "InvalidArgumentException" exception:

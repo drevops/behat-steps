@@ -11,13 +11,13 @@ Feature: Check that JsonTrait works
   @phpserver
   Scenario: Assert "Then the response should be in JSON format" honours content set from a fixture file over the page content
     When I go to "http://cli:8888/json_invalid.json"
-    And the response JSON from the file "json_valid.json"
+    And the response JSON is loaded from the file "json_valid.json"
     Then the response should be in JSON format
 
   @phpserver
   Scenario: Assert "Then the response should be in JSON format" honours content set from a PyString over the page content
     When I go to "http://cli:8888/json_invalid.json"
-    And the response JSON content is the following:
+    And the response JSON is the following:
       """
       {"name": "Blue Widget", "price": 9.99}
       """
@@ -56,16 +56,16 @@ Feature: Check that JsonTrait works
       The response is valid JSON, but it should not be.
       """
 
-  Scenario: Assert "Given the response JSON from the file :filename" works
-    Given the response JSON from the file "json_valid.json"
+  Scenario: Assert "Given the response JSON is loaded from the file :filename" works
+    Given the response JSON is loaded from the file "json_valid.json"
     Then the JSON path "$.name" should be equal to "John Doe"
 
   @trait:JsonTrait
-  Scenario: Assert that "Given the response JSON from the file :filename" fails with an exception for missing file
+  Scenario: Assert that "Given the response JSON is loaded from the file :filename" fails with an exception for missing file
     Given some behat configuration
     And scenario steps:
       """
-      Given the response JSON from the file "nonexistent.json"
+      Given the response JSON is loaded from the file "nonexistent.json"
       Then the JSON path "$.name" should exist
       """
     When I run "behat --no-colors"
@@ -74,8 +74,8 @@ Feature: Check that JsonTrait works
       does not exist
       """
 
-  Scenario: Assert "Given the response JSON content is the following:" works with direct PyString content
-    Given the response JSON content is the following:
+  Scenario: Assert "Given the response JSON is the following:" works with direct PyString content
+    Given the response JSON is the following:
       """
       {"name": "Blue Widget", "meta": {"sku": "p1"}, "tags": ["a", "b"]}
       """
@@ -102,7 +102,7 @@ Feature: Check that JsonTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the response JSON content is the following:
+      Given the response JSON is the following:
         '''
         42
         '''
@@ -474,7 +474,7 @@ Feature: Check that JsonTrait works
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
-      Given the response JSON content is the following:
+      Given the response JSON is the following:
         '''
         {"age": 42}
         '''
@@ -511,7 +511,7 @@ Feature: Check that JsonTrait works
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
-      Given the response JSON content is the following:
+      Given the response JSON is the following:
         '''
         {broken json
         '''
@@ -546,7 +546,7 @@ Feature: Check that JsonTrait works
       """
 
   Scenario: Assert "When I print last JSON response" works
-    Given the response JSON from the file "json_valid.json"
+    Given the response JSON is loaded from the file "json_valid.json"
     When I print last JSON response
 
   @trait:JsonTrait
@@ -554,7 +554,7 @@ Feature: Check that JsonTrait works
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
-      Given the response JSON content is the following:
+      Given the response JSON is the following:
         '''
         {broken json
         '''

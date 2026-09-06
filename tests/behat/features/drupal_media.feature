@@ -5,24 +5,24 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "When I attach the file :file to :field_name media field"
-    Given the following managed files:
+    Given the following managed files exist:
       | path         |
       | document.pdf |
 
-    When the following media "image" do not exist:
+    When the following "image" media do not exist:
       | name             | field_media_image |
       | Test media image | image.png         |
 
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
       | Test media image2 | image.png         |
 
-    And the following media "image" do not exist:
+    And the following "image" media do not exist:
       | name              |
       | Test media image2 |
 
-    And the following media "document" exist:
+    And the following "document" media exist:
       | name                | field_media_document |
       | Test media document | document.pdf         |
 
@@ -34,23 +34,23 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert navigate to edit media with specified type and name
-    Given the following managed files:
+    Given the following managed files exist:
       | path         |
       | document.pdf |
-    And the following media "document" exist:
+    And the following "document" media exist:
       | name                | field_media_document |
       | Test media document | document.pdf         |
     And I am logged in as a user with the "administrator" role
-    When I edit the media "document" with the name "Test media document"
+    When I edit the "document" media with the name "Test media document"
     Then I should see "Edit Document Test media document"
 
   @api
   Scenario: Assert media file field resolves a fixture path in a subdirectory
-    Given the following media "document" exist:
+    Given the following "document" media exist:
       | name                      | field_media_document |
       | Test subdirectory media   | subdir/document.pdf  |
     And I am logged in as a user with the "administrator" role
-    When I edit the media "document" with the name "Test subdirectory media"
+    When I edit the "document" media with the name "Test subdirectory media"
     Then I should see "Edit Document Test subdirectory media"
     And the response should contain ".pdf"
 
@@ -65,17 +65,17 @@ Feature: Check that MediaTrait works
     And I press "Save"
     When I visit "/admin/structure/media"
     Then I should see "test_media_type"
-    When "test_media_type" media type does not exist
+    When the media type "test_media_type" does not exist
     And I visit "/admin/structure/media"
     Then I should not see "test_media_type"
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I edit the media :media_type with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I edit the :media_type media with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I edit the media "document" with the name "Non-existent media"
+      When I edit the "document" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
@@ -85,12 +85,12 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert that mediaCreate() deletes existing media before creating
-    Given the following managed files:
+    Given the following managed files exist:
       | path      |
       | image.png |
 
     # Create initial media
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name                | field_media_image |
       | Duplicate test item | image.png         |
 
@@ -99,7 +99,7 @@ Feature: Check that MediaTrait works
     Then I should see the text "Duplicate test item"
 
     # Create media again with the same name - should replace the first one
-    When the following media "image" exist:
+    When the following "image" media exist:
       | name                | field_media_image |
       | Duplicate test item | image.png         |
 
@@ -111,10 +111,10 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Create single media with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following managed files:
+    And the following managed files exist:
       | path      |
       | image.png |
-    And the following image media with fields:
+    And the following image media with fields exist:
       | name              | [TEST] Vertical Image |
       | field_media_image | image.png             |
     When I go to "/admin/content/media"
@@ -123,10 +123,10 @@ Feature: Check that MediaTrait works
   @api
   Scenario: Create multiple media with vertical field format
     Given I am logged in as a user with the "administrator" role
-    And the following managed files:
+    And the following managed files exist:
       | path      |
       | image.png |
-    And the following image media with fields:
+    And the following image media with fields exist:
       | name              | [TEST] V-Image 1 | [TEST] V-Image 2 | [TEST] V-Image 3 |
       | field_media_image | image.png        | image.png        | image.png        |
     When I go to "/admin/content/media"
@@ -136,16 +136,16 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert that mediaCreateWithFields() deletes existing media before creating
-    Given the following managed files:
+    Given the following managed files exist:
       | path      |
       | image.png |
-    And the following image media with fields:
+    And the following image media with fields exist:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
     And I am logged in as a user with the "administrator" role
     And I visit "/admin/content/media"
     Then I should see the text "[TEST] Duplicate vertical"
-    When the following image media with fields:
+    When the following image media with fields exist:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
     And I visit "/admin/content/media"
@@ -153,24 +153,24 @@ Feature: Check that MediaTrait works
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements
 
   @api
-  Scenario: Assert "When I visit the media :media_type with the name :name" works
-    Given the following managed files:
+  Scenario: Assert "When I visit the :media_type media with the name :name" works
+    Given the following managed files exist:
       | path      |
       | image.png |
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
-    When I visit the media "image" with the name "Test media image"
+    When I visit the "image" media with the name "Test media image"
     Then the response should contain "200"
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I visit the media :media_type with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I visit the :media_type media with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit the media "image" with the name "Non-existent media"
+      When I visit the "image" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
@@ -179,25 +179,25 @@ Feature: Check that MediaTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the media :media_type delete page with the name :name" works
-    Given the following managed files:
+  Scenario: Assert "When I visit the :media_type media delete page with the name :name" works
+    Given the following managed files exist:
       | path      |
       | image.png |
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
-    When I visit the media "image" delete page with the name "Test media image"
+    When I visit the "image" media delete page with the name "Test media image"
     Then the response should contain "200"
     And I should see "Test media image"
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I visit the media :media_type delete page with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I visit the :media_type media delete page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit the media "image" delete page with the name "Non-existent media"
+      When I visit the "image" media delete page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
@@ -206,24 +206,24 @@ Feature: Check that MediaTrait works
       """
 
   @api
-  Scenario: Assert "When I visit the media :media_type revisions page with the name :name" works
-    Given the following managed files:
+  Scenario: Assert "When I visit the :media_type media revisions page with the name :name" works
+    Given the following managed files exist:
       | path      |
       | image.png |
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
-    When I visit the media "image" revisions page with the name "Test media image"
+    When I visit the "image" media revisions page with the name "Test media image"
     Then the response should contain "200"
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I visit the media :media_type revisions page with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I visit the :media_type media revisions page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I visit the media "image" revisions page with the name "Non-existent media"
+      When I visit the "image" media revisions page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
@@ -232,17 +232,17 @@ Feature: Check that MediaTrait works
       """
 
   @api
-  Scenario: Assert "Then the :media_type media type should exist" works
+  Scenario: Assert "Then the media type :media_type should exist" works
     Given I am logged in as a user with the "administrator" role
-    Then the "image" media type should exist
+    Then the media type "image" should exist
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "Then the :media_type media type should exist" fails with an error
+  Scenario: Assert that negative assertion for "Then the media type :media_type should exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      Then the "nonexistent_type" media type should exist
+      Then the media type "nonexistent_type" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -251,17 +251,17 @@ Feature: Check that MediaTrait works
       """
 
   @api
-  Scenario: Assert "Then the :media_type media type should not exist" works
+  Scenario: Assert "Then the media type :media_type should not exist" works
     Given I am logged in as a user with the "administrator" role
-    Then the "nonexistent_type" media type should not exist
+    Then the media type "nonexistent_type" should not exist
 
   @api @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "Then the :media_type media type should not exist" fails with an error
+  Scenario: Assert that negative assertion for "Then the media type :media_type should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      Then the "image" media type should not exist
+      Then the media type "image" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -271,10 +271,10 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the :media_type media with the name :name should exist" works
-    Given the following managed files:
+    Given the following managed files exist:
       | path      |
       | image.png |
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I am logged in as a user with the "administrator" role
@@ -301,16 +301,16 @@ Feature: Check that MediaTrait works
 
   @api @trait:Drupal\MediaTrait,Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should not exist" fails with an error
-    Given the following managed files:
+    Given the following managed files exist:
       | path      |
       | image.png |
     And some behat configuration
     And scenario steps:
       """
-      Given the following managed files:
+      Given the following managed files exist:
         | path      |
         | image.png |
-      And the following media "image" exist:
+      And the following "image" media exist:
         | name              | field_media_image |
         | Test media image  | image.png         |
       Then the "image" media with the name "Test media image" should not exist

@@ -1140,14 +1140,14 @@ Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 
 
 <details>
-  <summary><code>@Given browser validation for the form :selector is disabled</code></summary>
+  <summary><code>@Given the browser validation for the form :selector is disabled</code></summary>
 
 <br/>
 Disable browser validation for the form for validating errors
 <br/><br/>
 
 ```gherkin
-Given browser validation for the form "#node-article-form" is disabled
+Given the browser validation for the form "#node-article-form" is disabled
 When I go to "node/add/article"
 And I press "Save"
 Then I should see "Title field is required"
@@ -1189,14 +1189,14 @@ When I fill in the color field "#edit-text-color" with the value "#3366FF"
 </details>
 
 <details>
-  <summary><code>@When I fill in the WYSIWYG field :field with the :value</code></summary>
+  <summary><code>@When I fill in the WYSIWYG field :field with the value :value</code></summary>
 
 <br/>
 Set value for WYSIWYG field
 <br/><br/>
 
 ```gherkin
-When I fill in the WYSIWYG field "edit-body-0-value" with the "<p>This is a <strong>formatted</strong> paragraph.</p>"
+When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
 
 ```
 
@@ -1278,15 +1278,15 @@ When I choose the radio button "edit-field-choice-option-a"
 </details>
 
 <details>
-  <summary><code>@When I fill in the field :selector with :value</code></summary>
+  <summary><code>@When I fill in the field :selector with the value :value</code></summary>
 
 <br/>
 Fill in a field identified by CSS selector
 <br/><br/>
 
 ```gherkin
-When I fill in the field ".field--name-body textarea" with "Hello world"
-When I fill in the field "#edit-field-custom-0-value" with "Test value"
+When I fill in the field ".field--name-body textarea" with the value "Hello world"
+When I fill in the field "#edit-field-custom-0-value" with the value "Test value"
 
 ```
 
@@ -1394,7 +1394,7 @@ Then the field "Name" should not be empty
 </details>
 
 <details>
-  <summary><code>@Then the field :name should exist</code></summary>
+  <summary><code>@Then the field :field should exist</code></summary>
 
 <br/>
 Assert that field exists on the page using id,name,label or value
@@ -1409,7 +1409,7 @@ Then the field "field_body" should exist
 </details>
 
 <details>
-  <summary><code>@Then the field :name should not exist</code></summary>
+  <summary><code>@Then the field :field should not exist</code></summary>
 
 <br/>
 Assert that field does not exist on the page using id,name,label or value
@@ -1424,17 +1424,17 @@ Then the field "field_body" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the field :name should have :enabled_or_disabled state</code></summary>
+  <summary><code>@Then the field :field should have the :enabled_or_disabled state</code></summary>
 
 <br/>
 Assert whether the field has a state
 <br/><br/>
 
 ```gherkin
-Then the field "Body" should have "disabled" state
-Then the field "field_body" should have "disabled" state
-Then the field "Tags" should have "enabled" state
-Then the field "field_tags" should have "not enabled" state
+Then the field "Body" should have the "disabled" state
+Then the field "field_body" should have the "disabled" state
+Then the field "Tags" should have the "enabled" state
+Then the field "field_tags" should have the "not enabled" state
 
 ```
 
@@ -1646,7 +1646,7 @@ Then the downloaded file name should be "report.pdf"
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file name should contain :file_name_part</code></summary>
+  <summary><code>@Then the downloaded file name should contain :partial_name</code></summary>
 
 <br/>
 Assert the downloaded file name contains a specific string
@@ -1720,15 +1720,15 @@ Then the downloaded file should be a zip archive not containing the following fi
 
 
 <details>
-  <summary><code>@When I switch to iframe with locator :locator</code></summary>
+  <summary><code>@When I switch to the iframe with the selector :selector</code></summary>
 
 <br/>
 Switch to an iframe identified by CSS selector
 <br/><br/>
 
 ```gherkin
-When I switch to iframe with locator "iframe.payment-form"
-When I switch to iframe with locator "#recaptcha iframe"
+When I switch to the iframe with the selector "iframe.payment-form"
+When I switch to the iframe with the selector "#recaptcha iframe"
 
 ```
 
@@ -1797,28 +1797,28 @@ When I switch to the root document
 
 
 <details>
-  <summary><code>@Given the response JSON from the file :filename</code></summary>
+  <summary><code>@Given the response JSON is loaded from the file :filename</code></summary>
 
 <br/>
 Set the response JSON content from a fixture file
 <br/><br/>
 
 ```gherkin
-Given the response JSON from the file "json_valid.json"
+Given the response JSON is loaded from the file "json_valid.json"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the response JSON content is the following:</code></summary>
+  <summary><code>@Given the response JSON is the following:</code></summary>
 
 <br/>
 Set the response JSON content directly from a PyString
 <br/><br/>
 
 ```gherkin
-Given the response JSON content is the following:
+Given the response JSON is the following:
   """
   {"name": "John Doe", "roles": ["admin", "editor"]}
   """
@@ -1852,7 +1852,7 @@ Assert that a response is valid JSON
 Then the response should be in JSON format
 
 # Content set by a fixture step is validated instead of the page content.
-Given the response JSON from the file "json_valid.json"
+Given the response JSON is loaded from the file "json_valid.json"
 Then the response should be in JSON format
 
 ```
@@ -2328,7 +2328,7 @@ Then the meta tag should not exist with the following attributes:
 </details>
 
 <details>
-  <summary><code>@Then the :metaName meta tag should not contain any HTML tags</code></summary>
+  <summary><code>@Then the :meta_name meta tag should not contain any HTML tags</code></summary>
 
 <br/>
 Assert a meta tag does not contain HTML tags
@@ -2657,14 +2657,14 @@ Then the modal should not contain "Error message"
 
 
 <details>
-  <summary><code>@Given the basic authentication with the username :username and the password :password</code></summary>
+  <summary><code>@Given the basic authentication has the username :username and the password :password</code></summary>
 
 <br/>
 Set basic authentication for the current session
 <br/><br/>
 
 ```gherkin
-Given the basic authentication with the username "myusername" and the password "mypassword"
+Given the basic authentication has the username "myusername" and the password "mypassword"
 
 ```
 
@@ -2717,56 +2717,56 @@ Then the path should not be "<front>"
 </details>
 
 <details>
-  <summary><code>@Then current url should have the :param parameter</code></summary>
+  <summary><code>@Then the current URL should have the :param parameter</code></summary>
 
 <br/>
 Assert that current URL has a query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
-Then current url should have the "filter" parameter
+Then the current URL should have the "filter" parameter
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then current url should have the :param parameter with the :value value</code></summary>
+  <summary><code>@Then the current URL should have the :param parameter with the value :value</code></summary>
 
 <br/>
 Assert that current URL has a query parameter with a specific value
 <br/><br/>
 
 ```gherkin
-Then current url should have the "filter" parameter with the "recent" value
+Then the current URL should have the "filter" parameter with the value "recent"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then current url should not have the :param parameter</code></summary>
+  <summary><code>@Then the current URL should not have the :param parameter</code></summary>
 
 <br/>
 Assert that current URL has no query parameter with a non-empty value
 <br/><br/>
 
 ```gherkin
-Then current url should not have the "filter" parameter
+Then the current URL should not have the "filter" parameter
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then current url should not have the :param parameter with the :value value</code></summary>
+  <summary><code>@Then the current URL should not have the :param parameter with the value :value</code></summary>
 
 <br/>
 Assert that current URL does not have a query parameter with a value
 <br/><br/>
 
 ```gherkin
-Then current url should not have the "filter" parameter with the "recent" value
+Then the current URL should not have the "filter" parameter with the value "recent"
 
 ```
 
@@ -2781,7 +2781,7 @@ Then current url should not have the "filter" parameter with the "recent" value
 
 
 <details>
-  <summary><code>@Then the response should contain the header :header_name</code></summary>
+  <summary><code>@Then the response should contain the header :name</code></summary>
 
 <br/>
 Assert that a response contains a header with specified name
@@ -2795,7 +2795,7 @@ Then the response should contain the header "Connection"
 </details>
 
 <details>
-  <summary><code>@Then the response should not contain the header :header_name</code></summary>
+  <summary><code>@Then the response should not contain the header :name</code></summary>
 
 <br/>
 Assert that a response does not contain a header with a specified name
@@ -2809,7 +2809,7 @@ Then the response should not contain the header "Connection"
 </details>
 
 <details>
-  <summary><code>@Then the response header :header_name should contain the value :header_value</code></summary>
+  <summary><code>@Then the response header :name should contain the value :value</code></summary>
 
 <br/>
 Assert that a response contains a header with a specified name and value
@@ -2823,7 +2823,7 @@ Then the response header "Connection" should contain the value "Keep-Alive"
 </details>
 
 <details>
-  <summary><code>@Then the response header :header_name should not contain the value :header_value</code></summary>
+  <summary><code>@Then the response header :name should not contain the value :value</code></summary>
 
 <br/>
 Assert a response does not contain a header with a specified name and value
@@ -2883,14 +2883,14 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 
 
 <details>
-  <summary><code>@Given the following responsive breakpoints:</code></summary>
+  <summary><code>@Given the following responsive breakpoints exist:</code></summary>
 
 <br/>
 Set custom responsive breakpoints from a table
 <br/><br/>
 
 ```gherkin
-Given the following responsive breakpoints:
+Given the following responsive breakpoints exist:
   | name       | dimensions |
   | iphone_12  | 390x844    |
   | 4k_display | 3840x2160  |
@@ -2972,15 +2972,15 @@ When I set the viewport to "375" by "667"
 
 
 <details>
-  <summary><code>@Given a REST header :name with value :value</code></summary>
+  <summary><code>@Given the REST header :name has the value :value</code></summary>
 
 <br/>
 Set a REST header for subsequent requests
 <br/><br/>
 
 ```gherkin
-Given a REST header "Accept" with value "application/json"
-Given a REST header "Authorization" with value "Bearer abc123"
+Given the REST header "Accept" has the value "application/json"
+Given the REST header "Authorization" has the value "Bearer abc123"
 
 ```
 
@@ -3166,7 +3166,7 @@ Then the table ".mytable" should contain the following rows:
 </details>
 
 <details>
-  <summary><code>@Then the :rowText row should contain the following:</code></summary>
+  <summary><code>@Then the :row_text row should contain the following:</code></summary>
 
 <br/>
 Assert that a table row containing a text has the expected values
@@ -3230,28 +3230,28 @@ When I wait for 1 second for AJAX to finish
 
 
 <details>
-  <summary><code>@Given the response content from the file :filename</code></summary>
+  <summary><code>@Given the response XML is loaded from the file :filename</code></summary>
 
 <br/>
 Set the response XML content from a fixture file
 <br/><br/>
 
 ```gherkin
-Given the response content from the file "xml_valid.xml"
+Given the response XML is loaded from the file "xml_valid.xml"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the response content is the following:</code></summary>
+  <summary><code>@Given the response XML is the following:</code></summary>
 
 <br/>
 Set the response XML content directly from a PyString
 <br/><br/>
 
 ```gherkin
-Given the response content is the following:
+Given the response XML is the following:
   """
   <?xml version="1.0"?><root><item>value</item></root>
   """
@@ -3285,7 +3285,7 @@ Assert that a response is valid XML
 Then the response should be in XML format
 
 # Content set by a fixture step is validated instead of the page content.
-Given the response content from the file "xml_valid.xml"
+Given the response XML is loaded from the file "xml_valid.xml"
 Then the response should be in XML format
 
 ```
@@ -3303,7 +3303,7 @@ Assert that a response is not valid XML
 Then the response should not be in XML format
 
 # Content set by a fixture step is validated instead of the page content.
-Given the response content from the file "xml_invalid.xml"
+Given the response XML is loaded from the file "xml_invalid.xml"
 Then the response should not be in XML format
 
 ```
@@ -3341,7 +3341,7 @@ Then the XML element "/library/book[@id='999']" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should be equal to :text</code></summary>
+  <summary><code>@Then the XML element :element should be equal to :value</code></summary>
 
 <br/>
 Assert that an XML element content equals specified text
@@ -3356,7 +3356,7 @@ Then the XML element "/library/book[1]/author" should be equal to "John Doe"
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should not be equal to :text</code></summary>
+  <summary><code>@Then the XML element :element should not be equal to :value</code></summary>
 
 <br/>
 Assert that an XML element content does not equal specified text
@@ -3371,7 +3371,7 @@ Then the XML element "/library/book[1]/author" should not be equal to "Wrong Aut
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should contain :text</code></summary>
+  <summary><code>@Then the XML element :element should contain :value</code></summary>
 
 <br/>
 Assert that an XML element contains specified text
@@ -3386,7 +3386,7 @@ Then the XML element "/library/book[1]/description" should contain "detailed"
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should not contain :text</code></summary>
+  <summary><code>@Then the XML element :element should not contain :value</code></summary>
 
 <br/>
 Assert that an XML element does not contain specified text
@@ -3431,7 +3431,7 @@ Then the XML attribute "missing" on element "/library/book[1]" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on element :element should be equal to :text</code></summary>
+  <summary><code>@Then the XML attribute :attribute on element :element should be equal to :value</code></summary>
 
 <br/>
 Assert that an XML attribute value equals specified text
@@ -3446,7 +3446,7 @@ Then the XML attribute "category" on element "/library/book[1]" should be equal 
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on element :element should not be equal to :text</code></summary>
+  <summary><code>@Then the XML attribute :attribute on element :element should not be equal to :value</code></summary>
 
 <br/>
 Assert that an XML attribute value does not equal specified text
@@ -3461,7 +3461,7 @@ Then the XML attribute "category" on element "/library/book[1]" should not be eq
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute_name on element :element should contain :text</code></summary>
+  <summary><code>@Then the XML attribute :attribute on element :element should contain :value</code></summary>
 
 <br/>
 Assert that an XML attribute value contains specified text
@@ -3476,7 +3476,7 @@ Then the XML attribute "id" on element "/library/book[1]" should contain "12"
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute_name on element :element should not contain :text</code></summary>
+  <summary><code>@Then the XML attribute :attribute on element :element should not contain :value</code></summary>
 
 <br/>
 Assert that an XML attribute value does not contain specified text
@@ -3871,42 +3871,42 @@ Then the block "My block" should not exist in the "content" region
 
 
 <details>
-  <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
+  <summary><code>@Given the page cache for the path :path is empty</code></summary>
 
 <br/>
 Clear the page cache for a single path
 <br/><br/>
 
 ```gherkin
-Given the page cache for the path "/about" has been cleared
+Given the page cache for the path "/about" is empty
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the page cache for the paths matching :path_pattern has been cleared</code></summary>
+  <summary><code>@Given the page cache for the paths matching :path_pattern is empty</code></summary>
 
 <br/>
 Clear the page cache for all paths matching a glob-style pattern
 <br/><br/>
 
 ```gherkin
-Given the page cache for the paths matching "/news*" has been cleared
+Given the page cache for the paths matching "/news*" is empty
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the render cache has been cleared</code></summary>
+  <summary><code>@Given the render cache is empty</code></summary>
 
 <br/>
 Clear the render cache
 <br/><br/>
 
 ```gherkin
-Given the render cache has been cleared
+Given the render cache is empty
 
 ```
 
@@ -4018,14 +4018,14 @@ Given the config "system.site" key "page.front" has the value "/node"
 </details>
 
 <details>
-  <summary><code>@Given the following config values:</code></summary>
+  <summary><code>@Given the following config values exist:</code></summary>
 
 <br/>
 Set multiple stored Drupal configuration values from a table
 <br/><br/>
 
 ```gherkin
-Given the following config values:
+Given the following config values exist:
   | name              | key          | value                   |
   | system.site       | name         | My site                 |
   | mymodule.settings | api.endpoint | https://api.example.com |
@@ -4158,7 +4158,7 @@ Then the config "system.site" key "name" should not contain the effective value 
 
 
 <details>
-  <summary><code>@Given the following :type content blocks do not exist:</code></summary>
+  <summary><code>@Given the following :content_block_type content blocks do not exist:</code></summary>
 
 <br/>
 Remove content blocks of a specified type with the given descriptions
@@ -4174,7 +4174,7 @@ Given the following "basic" content blocks do not exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :type content blocks exist:</code></summary>
+  <summary><code>@Given the following :content_block_type content blocks exist:</code></summary>
 
 <br/>
 Create content blocks of the specified type with the given field values
@@ -4191,14 +4191,14 @@ Given the following "basic" content blocks exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :type content blocks with fields:</code></summary>
+  <summary><code>@Given the following :content_block_type content blocks with fields exist:</code></summary>
 
 <br/>
 Create content blocks with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following basic content blocks with fields:
+Given the following basic content blocks with fields exist:
   | info   | [TEST] Block 1        | [TEST] Block 2        |
   | body   | First block content   | Second block content  |
   | status | 1                     | 1                     |
@@ -4208,7 +4208,7 @@ Given the following basic content blocks with fields:
 </details>
 
 <details>
-  <summary><code>@When I edit the :type content block with the description :description</code></summary>
+  <summary><code>@When I edit the :content_block_type content block with the description :description</code></summary>
 
 <br/>
 Navigate to the edit page for a specified content block
@@ -4222,7 +4222,7 @@ When I edit the "basic" content block with the description "[TEST] Footer Block"
 </details>
 
 <details>
-  <summary><code>@Then the content block type :type should exist</code></summary>
+  <summary><code>@Then the content block type :content_block_type should exist</code></summary>
 
 <br/>
 Assert that a content block type exists
@@ -4285,14 +4285,14 @@ Given the following "article" content does not exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :type content with fields:</code></summary>
+  <summary><code>@Given the following :content_type content with fields exist:</code></summary>
 
 <br/>
 Create content with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following page content with fields:
+Given the following page content with fields exist:
   | title  | [TEST] Page 1        | [TEST] Page 2        |
   | body   | First page content   | Second page content  |
   | status | 1                    | 1                    |
@@ -4478,7 +4478,7 @@ Then "page" content with the title "Test page" should not be published
 
 
 <details>
-  <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:</code></summary>
+  <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:</code></summary>
 
 <br/>
 Save order of the Draggable Order items
@@ -4654,14 +4654,14 @@ When I disable the test email system
 </details>
 
 <details>
-  <summary><code>@Then an email should be sent to the :address</code></summary>
+  <summary><code>@Then an email should be sent to the address :address</code></summary>
 
 <br/>
 Assert that an email should be sent to an address
 <br/><br/>
 
 ```gherkin
-Then an email should be sent to the "user@example.com"
+Then an email should be sent to the address "user@example.com"
 
 ```
 
@@ -4682,14 +4682,14 @@ Then no emails should have been sent
 </details>
 
 <details>
-  <summary><code>@Then no emails should have been sent to the :address</code></summary>
+  <summary><code>@Then no emails should have been sent to the address :address</code></summary>
 
 <br/>
 Assert that no email messages should be sent to a specified address
 <br/><br/>
 
 ```gherkin
-Then no emails should have been sent to the "user@example.com"
+Then no emails should have been sent to the address "user@example.com"
 
 ```
 
@@ -4925,14 +4925,14 @@ Then the file "report.xlsx" should be attached to the email with the subject con
 
 
 <details>
-  <summary><code>@Given the following managed files:</code></summary>
+  <summary><code>@Given the following managed files exist:</code></summary>
 
 <br/>
 Create managed files with properties provided in the table
 <br/><br/>
 
 ```gherkin
-Given the following managed files:
+Given the following managed files exist:
   | path         | uri                    | status |
   | document.pdf | public://document.pdf  | 1      |
   | image.jpg    | public://images/pic.jpg| 1      |
@@ -4977,14 +4977,14 @@ Given the unmanaged file at the URI "public://sample.txt" exists
 </details>
 
 <details>
-  <summary><code>@Given the unmanaged file at the URI :uri exists with :content</code></summary>
+  <summary><code>@Given the unmanaged file at the URI :uri exists with the content :content</code></summary>
 
 <br/>
 Create an unmanaged file with specified content
 <br/><br/>
 
 ```gherkin
-Given the unmanaged file at the URI "public://data.txt" exists with "Sample content"
+Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
 
 ```
 
@@ -5059,28 +5059,28 @@ Then an unmanaged file at the URI "public://config.txt" should not contain "debu
 
 
 <details>
-  <summary><code>@Given :media_type media type does not exist</code></summary>
+  <summary><code>@Given the media type :media_type does not exist</code></summary>
 
 <br/>
 Remove media type
 <br/><br/>
 
 ```gherkin
-Given "video" media type does not exist
+Given the media type "video" does not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the following media :media_type exist:</code></summary>
+  <summary><code>@Given the following :media_type media exist:</code></summary>
 
 <br/>
 Create media of a given type
 <br/><br/>
 
 ```gherkin
-Given the following media "video" exist:
+Given the following "video" media exist:
   | name     | field1   | field2 | field3           |
   | My media | file.jpg | value  | value            |
   | ...      | ...      | ...    | ...              |
@@ -5090,14 +5090,14 @@ Given the following media "video" exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :bundle media with fields:</code></summary>
+  <summary><code>@Given the following :media_type media with fields exist:</code></summary>
 
 <br/>
 Create media entities with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following image media with fields:
+Given the following image media with fields exist:
   | name              | [TEST] Image 1       | [TEST] Image 2       |
   | field_media_image | image1.jpg           | image2.jpg           |
 
@@ -5106,14 +5106,14 @@ Given the following image media with fields:
 </details>
 
 <details>
-  <summary><code>@Given the following media :media_type do not exist:</code></summary>
+  <summary><code>@Given the following :media_type media do not exist:</code></summary>
 
 <br/>
 Remove media defined by provided properties
 <br/><br/>
 
 ```gherkin
-Given the following media "image" do not exist:
+Given the following "image" media do not exist:
   | name               |
   | Media item         |
   | Another media item |
@@ -5123,84 +5123,84 @@ Given the following media "image" do not exist:
 </details>
 
 <details>
-  <summary><code>@When I edit the media :media_type with the name :name</code></summary>
+  <summary><code>@When I edit the :media_type media with the name :name</code></summary>
 
 <br/>
 Navigate to edit media with specified type and name
 <br/><br/>
 
 ```gherkin
-When I edit the media "document" with the name "Test document"
+When I edit the "document" media with the name "Test document"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I visit the media :media_type with the name :name</code></summary>
+  <summary><code>@When I visit the :media_type media with the name :name</code></summary>
 
 <br/>
 Navigate to view page of media with specified type and name
 <br/><br/>
 
 ```gherkin
-When I visit the media "image" with the name "Test media image"
+When I visit the "image" media with the name "Test media image"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I visit the media :media_type delete page with the name :name</code></summary>
+  <summary><code>@When I visit the :media_type media delete page with the name :name</code></summary>
 
 <br/>
 Navigate to delete page of media with specified type and name
 <br/><br/>
 
 ```gherkin
-When I visit the media "image" delete page with the name "Test media image"
+When I visit the "image" media delete page with the name "Test media image"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I visit the media :media_type revisions page with the name :name</code></summary>
+  <summary><code>@When I visit the :media_type media revisions page with the name :name</code></summary>
 
 <br/>
 Navigate to revisions page of media with specified type and name
 <br/><br/>
 
 ```gherkin
-When I visit the media "image" revisions page with the name "Test media image"
+When I visit the "image" media revisions page with the name "Test media image"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the :media_type media type should exist</code></summary>
+  <summary><code>@Then the media type :media_type should exist</code></summary>
 
 <br/>
 Assert that a media type exists
 <br/><br/>
 
 ```gherkin
-Then the "image" media type should exist
+Then the media type "image" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the :media_type media type should not exist</code></summary>
+  <summary><code>@Then the media type :media_type should not exist</code></summary>
 
 <br/>
 Assert that a media type does not exist
 <br/><br/>
 
 ```gherkin
-Then the "test_type" media type should not exist
+Then the media type "test_type" should not exist
 
 ```
 
@@ -5259,14 +5259,14 @@ Given the menu "Test Menu" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the following menus:</code></summary>
+  <summary><code>@Given the following menus exist:</code></summary>
 
 <br/>
 Create menus
 <br/><br/>
 
 ```gherkin
-Given the following menus:
+Given the following menus exist:
   | label            | description                    |
   | Footer Menu     | Links displayed in the footer  |
   | Secondary Menu  | Secondary navigation menu      |
@@ -5765,14 +5765,14 @@ Given the state "my_module.launched" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the following state values:</code></summary>
+  <summary><code>@Given the following state values exist:</code></summary>
 
 <br/>
 Set multiple Drupal state values from a table
 <br/><br/>
 
 ```gherkin
-Given the following state values:
+Given the following state values exist:
   | name                   | value |
   | my_module.launched     | 1     |
   | my_module.feature_flag | 0     |
@@ -5820,14 +5820,14 @@ Then the state "my_module.launched" should not exist
 
 
 <details>
-  <summary><code>@Given the following :vocabulary terms with fields:</code></summary>
+  <summary><code>@Given the following :vocabulary terms with fields exist:</code></summary>
 
 <br/>
 Create taxonomy terms with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following tags terms with fields:
+Given the following tags terms with fields exist:
   | name        | [TEST] Behat    | [TEST] Testing  |
   | description | Testing tag     | QA tag          |
 
@@ -5836,14 +5836,14 @@ Given the following tags terms with fields:
 </details>
 
 <details>
-  <summary><code>@Given the following :vocabulary_machine_name vocabulary terms do not exist:</code></summary>
+  <summary><code>@Given the following :vocabulary terms do not exist:</code></summary>
 
 <br/>
 Remove terms from a specified vocabulary
 <br/><br/>
 
 ```gherkin
-Given the following "fruits" vocabulary terms do not exist:
+Given the following "fruits" terms do not exist:
   | Apple |
   | Pear  |
 
@@ -5852,7 +5852,7 @@ Given the following "fruits" vocabulary terms do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary_machine_name term page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term page with the name :term_name</code></summary>
 
 <br/>
 Visit specified vocabulary term page
@@ -5866,7 +5866,7 @@ When I visit the "fruits" term page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary_machine_name term edit page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term edit page with the name :term_name</code></summary>
 
 <br/>
 Visit specified vocabulary term edit page
@@ -5880,7 +5880,7 @@ When I visit the "fruits" term edit page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary_machine_name term delete page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term delete page with the name :term_name</code></summary>
 
 <br/>
 Visit specified vocabulary term delete page
@@ -5894,7 +5894,7 @@ When I visit the "tags" term delete page with the name "[TEST] Remove"
 </details>
 
 <details>
-  <summary><code>@Then the vocabulary :machine_name with the name :name should exist</code></summary>
+  <summary><code>@Then the vocabulary :vocabulary with the name :name should exist</code></summary>
 
 <br/>
 Assert that a vocabulary with a specific name exists
@@ -5908,7 +5908,7 @@ Then the vocabulary "topics" with the name "Topics" should exist
 </details>
 
 <details>
-  <summary><code>@Then the vocabulary :machine_name should not exist</code></summary>
+  <summary><code>@Then the vocabulary :vocabulary should not exist</code></summary>
 
 <br/>
 Assert that a vocabulary with a specific name does not exist
@@ -5922,7 +5922,7 @@ Then the vocabulary "topics" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist</code></summary>
+  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should exist</code></summary>
 
 <br/>
 Assert that a taxonomy term exist by name
@@ -5936,7 +5936,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist</code></summary>
+  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist</code></summary>
 
 <br/>
 Assert that a taxonomy term does not exist by name
@@ -6039,14 +6039,14 @@ Given the following users do not exist:
 </details>
 
 <details>
-  <summary><code>@Given the following users with fields:</code></summary>
+  <summary><code>@Given the following users with fields exist:</code></summary>
 
 <br/>
 Create users with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following users with fields:
+Given the following users with fields exist:
   | name  | [TEST] user1         | [TEST] user2         |
   | mail  | user1@example.com    | user2@example.com    |
   | roles | editor               | author               |
@@ -6100,28 +6100,28 @@ Given the last login time for the user "John" is "1732319174"
 </details>
 
 <details>
-  <summary><code>@Given the role :role_name with the permissions :permissions</code></summary>
+  <summary><code>@Given the role :role_name has the permissions :permissions</code></summary>
 
 <br/>
 Create a single role with specified permissions
 <br/><br/>
 
 ```gherkin
-Given the role "Content Manager" with the permissions "access content, create article content, edit any article content"
+Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the following roles:</code></summary>
+  <summary><code>@Given the following roles exist:</code></summary>
 
 <br/>
 Create multiple roles from the specified table
 <br/><br/>
 
 ```gherkin
-Given the following roles:
+Given the following roles exist:
   | name              | permissions                              |
   | Content Editor    | access content, create article content   |
   | Content Approver  | access content, edit any article content |
@@ -6371,14 +6371,14 @@ Given the webform "Test form" does not exist
 </details>
 
 <details>
-  <summary><code>@Given a webform :title from template :template</code></summary>
+  <summary><code>@Given the webform :title exists from the template :template</code></summary>
 
 <br/>
 Clone a webform template into a new webform with the given title
 <br/><br/>
 
 ```gherkin
-Given a webform "My contact form" from template "Contact"
+Given the webform "My contact form" exists from the template "Contact"
 
 ```
 

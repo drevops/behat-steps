@@ -4,31 +4,31 @@ Feature: Check that IframeTrait works
   So that users can test content inside iframes
 
   @javascript @phpserver
-  Scenario: Assert "When I switch to iframe with locator :locator" works for named iframe
+  Scenario: Assert "When I switch to the iframe with the selector :selector" works for named iframe
     Given I am an anonymous user
     When I visit "http://cli:8888/iframes.html"
-    And I switch to iframe with locator ".named-iframe"
+    And I switch to the iframe with the selector ".named-iframe"
     Then I should see "Content inside named iframe"
     When I switch to the root document
     Then I should see "Content in the root document"
 
   @javascript @phpserver
-  Scenario: Assert "When I switch to iframe with locator :locator" works for unnamed iframe
+  Scenario: Assert "When I switch to the iframe with the selector :selector" works for unnamed iframe
     Given I am an anonymous user
     When I visit "http://cli:8888/iframes.html"
-    And I switch to iframe with locator ".unnamed-iframe"
+    And I switch to the iframe with the selector ".unnamed-iframe"
     Then I should see "Content inside unnamed iframe"
     When I switch to the root document
     Then I should see "Content in the root document"
 
   @trait:IframeTrait
-  Scenario: Assert that "When I switch to iframe with locator :locator" fails when iframe does not exist
+  Scenario: Assert that "When I switch to the iframe with the selector :selector" fails when iframe does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I am an anonymous user
       When I visit "http://cli:8888/iframes.html"
-      And I switch to iframe with locator ".nonexistent-iframe"
+      And I switch to the iframe with the selector ".nonexistent-iframe"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
