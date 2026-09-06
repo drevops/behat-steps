@@ -13,6 +13,7 @@ use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
+use Drupal\node\NodeAccessRebuild;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\Entity\Workflow;
 
@@ -244,7 +245,7 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for all content')]
   public function contentRebuildAccessGrantsAll(): void {
-    node_access_rebuild(FALSE);
+    \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
   }
 
   /**

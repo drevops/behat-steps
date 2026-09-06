@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 4.x
 
   pull_request:
     types:
@@ -12,6 +13,7 @@ on:
       - reopened
     branches:
       - main
+      - 4.x
 
 defaults:
   run:
@@ -86,18 +88,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php_version: '8.2'
-            drupal_version: '10'
-            deps: 'normal'
-          - php_version: '8.2'
-            drupal_version: '10'
-            deps: 'lowest'
-          - php_version: '8.3'
-            drupal_version: '10'
-            deps: 'normal'
-          - php_version: '8.3'
-            drupal_version: '10'
-            deps: 'lowest'
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
@@ -105,33 +95,21 @@ jobs:
             drupal_version: '11'
             deps: 'lowest'
           - php_version: '8.4'
-            drupal_version: '10'
-            deps: 'normal'
-          - php_version: '8.4'
-            drupal_version: '10'
-            deps: 'lowest'
-          - php_version: '8.4'
             drupal_version: '11'
             deps: 'normal'
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'lowest'
-          # PHP 8.5 runs on Drupal 11.3 and newer only, so it has no Drupal 10
-          # leg. @see https://www.drupal.org/docs/getting-started/system-requirements/php-requirements
           - php_version: '8.5'
             drupal_version: '11'
             deps: 'normal'
           - php_version: '8.5'
             drupal_version: '11'
             deps: 'lowest'
-          # Selenium-less driver legs: run the same suite through headless
+          # Selenium-less driver leg: run the same suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
           # portable. The browser driver is Drupal-version independent, so a
-          # single normal-deps leg per Drupal version is enough.
-          - php_version: '8.3'
-            drupal_version: '10'
-            deps: 'normal'
-            driver: 'chrome_headless'
+          # single normal-deps leg is enough.
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
@@ -201,17 +179,12 @@ jobs:
 
       # Selenium-less leg: the same BDD suite driven through headless Chrome
       # over the DevTools Protocol, proving the steps work without Selenium.
-      # The Drupal 11 leg runs with coverage so the driver-specific branches
-      # (reachable only through chrome-mink) are measured and merged into the
-      # Codecov report alongside the Selenium2 coverage.
+      # It runs with coverage so the driver-specific branches (reachable only
+      # through chrome-mink) are measured and merged into the Codecov report
+      # alongside the Selenium2 coverage.
       - name: Run BDD tests with coverage with the chrome_headless driver
-        if: "matrix.driver == 'chrome_headless' && matrix.drupal_version == '11'"
+        if: "matrix.driver == 'chrome_headless'"
         run: ahoy test-bdd-coverage -- -p chrome_headless
-        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
-
-      - name: Run BDD tests with the chrome_headless driver
-        if: "matrix.driver == 'chrome_headless' && matrix.drupal_version != '11'"
-        run: ahoy test-bdd -- -p chrome_headless
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Process test logs and artifacts

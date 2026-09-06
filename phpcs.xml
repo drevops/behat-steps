@@ -19,13 +19,12 @@
     <arg name="parallel" value="75"/>
 
     <!-- Lint code against min PHP version specified in composer.json. -->
-    <config name="testVersion" value="8.2"/>
+    <config name="testVersion" value="8.3"/>
 
     <file>docs.php</file>
     <file>scripts</file>
     <file>src</file>
     <file>tests/behat/bootstrap</file>
-    <file>tests/behat/fixtures_drupal/d10/web/modules/custom</file>
     <file>tests/behat/fixtures_drupal/d11/web/modules/custom</file>
     <file>tests/phpunit/src</file>
 

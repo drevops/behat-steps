@@ -14,6 +14,7 @@ use Drupal\Core\Url;
 use Drupal\Driver\Entity\EntityStubInterface;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\OneTimeAuthentication;
 use Drupal\user\UserInterface;
 
 /**
@@ -279,7 +280,7 @@ trait UserTrait {
     $path = Url::fromRoute('user.reset', [
       'uid' => $user->id(),
       'timestamp' => $timestamp,
-      'hash' => user_pass_rehash($user, $timestamp),
+      'hash' => \Drupal::service(OneTimeAuthentication::class)->generateHmac($user, $timestamp),
     ])->toString();
 
     $this->visitPath($path);

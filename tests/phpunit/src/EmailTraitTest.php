@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\Drupal\EmailTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for EmailTrait.
  */
-#[CoversClass(EmailTrait::class)]
+#[CoversTrait(EmailTrait::class)]
 class EmailTraitTest extends UnitTestCase {
 
   use EmailTrait;

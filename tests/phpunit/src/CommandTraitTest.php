@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\CommandTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for CommandTrait.
  */
-#[CoversClass(CommandTrait::class)]
+#[CoversTrait(CommandTrait::class)]
 class CommandTraitTest extends UnitTestCase {
 
   /**

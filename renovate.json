@@ -20,15 +20,8 @@
             "pinDigests": false
         },
         {
-            "description": "The Drupal 11 fixture stays on 11.3 because 11.4 deprecates core functions whose replacements do not exist in Drupal 10, which this library still supports.",
-            "matchFileNames": ["tests/behat/fixtures_drupal/d11/composer.json"],
-            "matchPackageNames": ["drupal/core-*"],
-            "enabled": false
-        },
-        {
-            "description": "The Drupal 10 fixture keeps these packages below the releases that require Drupal 11 or PHP 8.3, neither of which the fixture and the lowest PHP version in the test matrix provide.",
-            "matchFileNames": ["tests/behat/fixtures_drupal/d10/composer.json"],
-            "matchPackageNames": ["drupal/dynamic_entity_reference", "drupal/scheduled_transitions", "drupal/testmode", "drush/drush"],
+            "description": "'scripts/provision.sh' copies these constraints into the fixture site, where Drupal core caps both below their latest release: 'drupal/core-recommended' pins 'justinrainbow/json-schema' to '~6.8.2', and 'drupal/core-dev' pins PHPUnit to 11, which 'dvdoug/behat-code-coverage' 5.5 does not support. Raising either floor makes the fixture unresolvable.",
+            "matchPackageNames": ["dvdoug/behat-code-coverage", "justinrainbow/json-schema"],
             "enabled": false
         },
         {

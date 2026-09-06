@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\FileDownloadTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for FileDownloadTrait.
  */
-#[CoversClass(FileDownloadTrait::class)]
+#[CoversTrait(FileDownloadTrait::class)]
 class FileDownloadTraitTest extends UnitTestCase {
 
   /**

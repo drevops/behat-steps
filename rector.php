@@ -16,13 +16,10 @@
 
 declare(strict_types=1);
 
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
-use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
@@ -31,7 +28,6 @@ use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
@@ -40,7 +36,6 @@ return RectorConfig::configure()
     '/app/scripts',
     '/app/src',
     '/app/tests/behat/bootstrap',
-    '/app/tests/behat/fixtures_drupal/d10/web/modules/custom',
     '/app/tests/behat/fixtures_drupal/d11/web/modules/custom',
     '/app/tests/phpunit/src',
   ])
@@ -48,8 +43,6 @@ return RectorConfig::configure()
     // Specific rules to skip based on project coding standards.
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
-    CountArrayToEmptyArrayComparisonRector::class,
-    DisallowedEmptyRuleFixerRector::class,
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
@@ -64,9 +57,9 @@ return RectorConfig::configure()
     '*/node_modules/*',
     __DIR__ . '/tests/behat/bootstrap/BehatCliContext.php',
   ])
-  // PHP version upgrade sets - modernizes syntax to PHP 8.2.
-  // Includes all rules from PHP 5.3 through 8.2.
-  ->withPhpSets(php82: TRUE)
+  // PHP version upgrade sets - modernizes syntax to PHP 8.3.
+  // Includes all rules from PHP 5.3 through 8.3.
+  ->withPhpSets(php83: TRUE)
   ->withAttributesSets(behat: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(

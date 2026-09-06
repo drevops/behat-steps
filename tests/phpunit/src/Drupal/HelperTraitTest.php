@@ -10,13 +10,13 @@ use Drupal\Driver\Core\CoreInterface;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;
 use Drupal\Driver\Entity\EntityStubInterface;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for Drupal HelperTrait.
  */
-#[CoversClass(HelperTrait::class)]
+#[CoversTrait(HelperTrait::class)]
 class HelperTraitTest extends UnitTestCase {
 
   /**

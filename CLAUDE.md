@@ -134,13 +134,13 @@ This ensures that the documentation remains in sync with the actual code impleme
 - Date range fields use `[value]` for start and `[end_value]` for end components
 
 ### Field Configuration Management
-- New field configurations must be added to **both** d10 and d11 fixtures
+- New field configurations must be added to **every** fixture under `tests/behat/fixtures_drupal/`
 - Field configs include: field storage, field instance, and form display updates
 - When adding fields, update `core.entity_form_display.node.page.default.yml` with:
   - Field references in dependencies config section
   - Module dependencies (e.g., `datetime`, `datetime_range`)
   - Widget configuration with type, weight, region, and settings
-- After creating configs in `build/config/sync`, copy to both fixture directories
+- After creating configs in `build/config/sync`, copy to every fixture directory
 - Use `ahoy drush cim -y` to import configurations into the build environment
 
 ### Test Organization and Tagging
