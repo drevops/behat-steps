@@ -277,3 +277,20 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 | `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:helperEntityCleanupAfterScenario` |
 
 `Drupal\OverrideTrait::createNodes()`, `::createUsers()`, `::iAmLoggedInAsUserWithRole()` and `Drupal\TaxonomyTrait::createTerms()` override Drupal Extension context methods and keep their names.
+
+## Query parameter presence
+
+`PathTrait` tested for a query parameter with `empty()`, which reads a parameter carrying `0` or an empty string as absent. Presence is now `array_key_exists()`, so `?page=0` and `?debug=` are parameters that are in the URL, and their value is compared separately.
+
+| Step | `?filter=0` before | `?filter=0` after |
+| --- | --- | --- |
+| `Then the current URL should have the :param parameter` | fails | passes |
+| `Then the current URL should have the :param parameter with the value :value` | fails | passes for the value `0` |
+| `Then the current URL should not have the :param parameter` | passes | fails |
+| `Then the current URL should not have the :param parameter with the value :value` | passes | fails for the value `0` |
+
+A scenario that asserted a falsy parameter away with `Then the current URL should not have the "filter" parameter` now needs to name the value it excludes:
+
+```gherkin
+Then the current URL should not have the "filter" parameter with the value "recent"
+```
