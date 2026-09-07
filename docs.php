@@ -23,6 +23,15 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 
+/**
+ * Matches a first-person pronoun anywhere in a step.
+ *
+ * A `When` narrates what the person does and reads in the first person. A
+ * `Given` states a precondition and a `Then` names the entity it asserts on,
+ * so neither refers to the person at all.
+ */
+const FIRST_PERSON = '/\b(I|my|me|myself|we|us|our)\b/';
+
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
@@ -694,17 +703,19 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
       }
 
-      if (str_starts_with($step, '@Given I ')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Given step starts with "I " but should state a precondition');
+      if (str_starts_with($step, '@Given') && preg_match(FIRST_PERSON, $step) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Given step is in the first person but should state a precondition');
       }
 
-      if (str_starts_with($step, '@When') && !str_contains($step, 'I ')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "I " in the step');
+      // "I " also sits inside an acronym such as "API ", so the first person is
+      // only established by the step opening with it.
+      if (str_starts_with($step, '@When') && !str_starts_with($step, '@When I ')) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'When step does not start with "I "');
       }
 
       if (str_starts_with($step, '@Then')) {
-        if (str_starts_with($step, '@Then I ')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step starts with "I " but should start with the asserted entity');
+        if (preg_match(FIRST_PERSON, $step) === 1) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step is in the first person but should start with the asserted entity');
         }
 
         if (!str_contains((string) $method['name'], 'Assert')) {

@@ -28,18 +28,18 @@ of tests. Follow these guidelines:
     test runs.
   - Use words like `exists` or `have`.
   - Avoid using `should` or `should not` (these are reserved for assertions).
-  - Refrain from using `Given I` (reserved for actions).
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. A precondition is a fact about the world, not something the person does.
 
 - **`When`**:
   - Describes an action and must contain an action verb.
-  - Use the format `When I <verb>`.
+  - Use the format `When I <verb>`. The step must start with `I ` - the first person is what separates an action from a precondition.
 
 - **`Then`**:
   - Specifies assertions and expectations.
   - Use `should` and `should not` to clearly indicate assertions.
   - Start the step with the entity being asserted, e.g.,
     `Then the link with a title :title exists`.
-  - Avoid using `Then I`.
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
 
 We have some automated check for the steps format.

@@ -90,17 +90,17 @@ ahoy copy-files
   - Use words like `exists` or `have`; `is`/`are` plus an adjective is also
     correct where it mirrors the matching `should be ...` assertion
   - Avoid using `should` or `should not`
-  - Avoid using `Given I`
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
 
 - **When Steps**:
   - Describe an action with an action verb
-  - Use the format `When I <verb>`
+  - Use the format `When I <verb>` - the step must start with `I `
 
 - **Then Steps**:
   - Specify assertions and expectations
   - Use `should` and `should not` for assertions
   - Start with the entity being asserted
-  - Avoid using `Then I`
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
   - Methods should include the `Assert` prefix
 
 ## Exception Types
@@ -123,8 +123,8 @@ In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertio
 
 ## Common Behat Step Patterns
 - Block assertions:
-  - `I should see the block with label "..."`
-  - `I should see the block with label "..." in the region "..."`
+  - `the block "..." should exist`
+  - `the block "..." should exist in the "..." region`
 
 - Content block operations:
   - `the content block type "..." should exist`

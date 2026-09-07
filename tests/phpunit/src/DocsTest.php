@@ -1207,7 +1207,7 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testMethod - Missing "I " in the step' . PHP_EOL],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
       ],
       'then without assert in method' => [
         [
@@ -1292,7 +1292,7 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testMethod - Given step starts with "I " but should state a precondition' . PHP_EOL],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
       ],
       'then starting with I' => [
         [
@@ -1309,7 +1309,75 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testAssertMethod - Then step starts with "I " but should start with the asserted entity' . PHP_EOL],
+        ['  TestTrait::testAssertMethod - Then step is in the first person but should start with the asserted entity' . PHP_EOL],
+      ],
+      'given with first person mid step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given the page I am on is cached'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
+      ],
+      'then with possessive first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then my account should be blocked from the site'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step is in the first person but should start with the asserted entity' . PHP_EOL],
+      ],
+      'when with an acronym containing I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When the Search API cron runs'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+      ],
+      'when in the first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When I run the Search API cron'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
       ],
       'non-descriptive placeholder in step' => [
         [
