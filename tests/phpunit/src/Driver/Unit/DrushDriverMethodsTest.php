@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Driver\Unit;
 
 use DrevOps\BehatSteps\Driver\DrushDriver;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Tests\Driver\Unit\Fixtures\ArgumentsExposingDrushDriver;
+use DrevOps\BehatSteps\Tests\Driver\Unit\Fixtures\RecordingDrushDriver;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -24,6 +26,22 @@ use PHPUnit\Framework\TestCase;
 #[Group('drivers')]
 #[Group('drush')]
 class DrushDriverMethodsTest extends TestCase {
+
+  /**
+   * Directory the throwaway Drush binary layouts are built under.
+   */
+  protected const TEMP_ROOT = __DIR__ . '/../../../../../.artifacts/tmp';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    if (!is_dir(self::TEMP_ROOT)) {
+      mkdir(self::TEMP_ROOT, 0777, TRUE);
+    }
+  }
 
   /**
    * Tests that 'bootstrap()' flips the bootstrapped flag.
@@ -124,6 +142,25 @@ class DrushDriverMethodsTest extends TestCase {
   }
 
   /**
+   * Tests 'userCreate()' rejects a response carrying no user id.
+   */
+  public function testUserCreateThrowsWhenDrushReportsNoUserId(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = "Nothing resembling a user id.\n";
+
+    $user = new EntityStub('user', NULL, [
+      'name' => 'bob',
+      'pass' => 'pw',
+      'mail' => 'bob@ex.co',
+    ]);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches("/did not report a user id after creating 'bob'/");
+
+    $driver->userCreate($user);
+  }
+
+  /**
    * Tests 'cacheClear()' with a drush-only bin skips the rebuild.
    */
   public function testCacheClearDrushOnlySkipsRebuild(): void {
@@ -159,25 +196,6 @@ class DrushDriverMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that 'drush()' falls back to stderr when stdout is empty.
-   *
-   * Uses 'true' as the binary (empty stdout, zero exit, empty stderr) to
-   * exercise the fallback branch.
-   */
-  public function testDrushFallsBackToErrorOutputWhenStdoutEmpty(): void {
-    $true = $this->resolveSystemBinary('true');
-    if ($true === NULL) {
-      $this->markTestSkipped('true binary is not available on this system.');
-    }
-
-    $driver = new DrushDriver('alias', binary: $true);
-
-    $result = $driver->drush('version');
-
-    $this->assertSame('', $result);
-  }
-
-  /**
    * Tests that 'drush()' always emits the '--no-ansi' flag.
    */
   public function testDrushAlwaysEmitsNoAnsiFlag(): void {
@@ -197,8 +215,8 @@ class DrushDriverMethodsTest extends TestCase {
    * Tests that 'resolveProjectDrush()' picks up COMPOSER_BIN_DIR first.
    */
   public function testResolveProjectDrushPrefersComposerBin(): void {
-    $temp_dir = sys_get_temp_dir() . '/drush-driver-test-' . uniqid();
-    mkdir($temp_dir);
+    $temp_dir = self::TEMP_ROOT . '/drush-driver-test-' . uniqid();
+    mkdir($temp_dir, 0777, TRUE);
     touch($temp_dir . '/drush');
     $previous = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR=' . $temp_dir);
@@ -218,7 +236,7 @@ class DrushDriverMethodsTest extends TestCase {
    * Tests that 'resolveProjectDrush()' falls back to 'vendor/bin/drush'.
    */
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
-    $temp_dir = sys_get_temp_dir() . '/drush-driver-cwd-' . uniqid();
+    $temp_dir = self::TEMP_ROOT . '/drush-driver-cwd-' . uniqid();
     mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
     touch($temp_dir . '/vendor/bin/drush');
     $previous_cwd = (string) getcwd();
@@ -291,25 +309,25 @@ class DrushDriverMethodsTest extends TestCase {
   public static function dataProviderParseArguments(): \Iterator {
     yield 'empty' => [[], ''];
     yield 'single flag' => [['yes' => NULL], ' --yes'];
-    yield 'single valued option' => [['format' => 'json'], ' --format=json'];
-    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ' --yes --format=json'];
-    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ' --format=json --root=/var/www'];
+    yield 'single valued option' => [['format' => 'json'], " --format='json'"];
+    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], " --yes --format='json'"];
+    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], " --format='json' --root='/var/www'"];
   }
 
   /**
- * Tests every command-issuing method drives 'drush()' as expected.
- *
- * @param string $method
- *   The driver method name.
- * @param array<int, mixed> $args
- *   Positional arguments for the driver method.
- * @param string|null $expected_command
- *   The first Drush command string expected to be invoked.
- * @param string $drush_response
- *   Raw output returned by the stubbed 'drush()' call.
- *
- * @dataProvider dataProviderInvokesDrush
- */
+   * Tests every command-issuing method drives 'drush()' as expected.
+   *
+   * @param string $method
+   *   The driver method name.
+   * @param array<int, mixed> $args
+   *   Positional arguments for the driver method.
+   * @param string|null $expected_command
+   *   The first Drush command string expected to be invoked.
+   * @param string $drush_response
+   *   Raw output returned by the stubbed 'drush()' call.
+   *
+   * @dataProvider dataProviderInvokesDrush
+   */
   #[DataProvider('dataProviderInvokesDrush')]
   public function testInvokesDrush(string $method, array $args, ?string $expected_command, string $drush_response = ''): void {
     $driver = $this->createDriver();
@@ -330,7 +348,7 @@ class DrushDriverMethodsTest extends TestCase {
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
 
-    yield 'userCreate' => ['userCreate', [$user], 'user-create'];
+    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
     yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
     yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
     yield 'watchdogFetch' => ['watchdogFetch', [10], 'watchdog-show'];
@@ -353,61 +371,6 @@ class DrushDriverMethodsTest extends TestCase {
    */
   protected function createDriver(): RecordingDrushDriver {
     return new RecordingDrushDriver('alias');
-  }
-
-}
-
-/**
- * Subclass of 'DrushDriver' that records every 'drush()' invocation.
- */
-class RecordingDrushDriver extends DrushDriver {
-
-  /**
-   * Log of 'drush()' invocations.
-   *
-   * @var array<int, array{command: string, arguments: array<int, string>, options: array<string, mixed>}>
-   */
-  public array $invocations = [];
-
-  /**
-   * The canned response to return from stubbed 'drush()' calls.
-   */
-  public string $drushResponse = '';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function drush(string $command, array $arguments = [], array $options = []): string {
-    $this->invocations[] = [
-      'command' => $command,
-      'arguments' => $arguments,
-      'options' => $options,
-    ];
-
-    return $this->drushResponse;
-  }
-
-}
-
-/**
- * Subclass of 'DrushDriver' that exposes the protected static parser.
- *
- * Used only by 'DrushDriverMethodsTest::testParseArguments()' to invoke the
- * protected 'parseArguments()' method directly without a Drush binary.
- */
-class ArgumentsExposingDrushDriver extends DrushDriver {
-
-  /**
-   * Public wrapper over the protected static parser.
-   *
-   * @param array<string, string|bool|null> $arguments
-   *   Argument map to serialise.
-   *
-   * @return string
-   *   The CLI option string produced by 'parseArguments()'.
-   */
-  public static function expose(array $arguments): string {
-    return self::parseArguments($arguments);
   }
 
 }

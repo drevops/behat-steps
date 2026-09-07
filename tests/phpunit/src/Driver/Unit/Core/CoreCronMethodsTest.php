@@ -37,9 +37,15 @@ class CoreCronMethodsTest extends TestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    if ($this->originalRequestTime !== NULL) {
+    if ($this->originalRequestTime === NULL) {
+      unset($_SERVER['REQUEST_TIME']);
+    }
+    else {
       $_SERVER['REQUEST_TIME'] = $this->originalRequestTime;
     }
+
+    \Drupal::unsetContainer();
+
     parent::tearDown();
   }
 

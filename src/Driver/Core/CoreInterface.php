@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver\Core;
 
+use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
@@ -33,6 +34,7 @@ use Drupal\Component\Utility\Random;
  * whether it can log a user in.
  */
 interface CoreInterface extends
+  BatchCapabilityInterface,
   BlockCapabilityInterface,
   CacheCapabilityInterface,
   ConfigCapabilityInterface,
@@ -80,11 +82,6 @@ interface CoreInterface extends
    *   Absolute paths to enabled extensions.
    */
   public function getExtensionPathList(): array;
-
-  /**
-   * Processes an outstanding Drupal batch, if any.
-   */
-  public function processBatch(): void;
 
   /**
    * Returns a field handler for the given stub/field.

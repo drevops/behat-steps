@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\entity_test\Entity\EntityTest;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -42,6 +44,17 @@ class ListIntegerHandlerKernelTest extends FieldHandlerKernelTestBase {
 
     // Pass the label; handler replaces with integer key 2.
     $this->assertFieldRoundTripViaDriver('field_priority', ['Medium']);
+
+    // Pin the translation explicitly so a regression where the handler stops
+    // converting labels to keys is caught even though the mutated-stub
+    // round-trip would otherwise pass.
+    $stub = new EntityStub('entity_test', 'entity_test', [
+      'name' => 'pinned',
+      'field_priority' => ['Medium'],
+    ]);
+    $this->core->entityCreate($stub);
+    $reloaded = EntityTest::load($stub->getValue('id'));
+    $this->assertSame('2', $reloaded->get('field_priority')->value);
   }
 
 }

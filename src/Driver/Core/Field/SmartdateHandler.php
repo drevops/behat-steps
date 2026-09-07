@@ -13,8 +13,14 @@ class SmartdateHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function normalise(mixed $values): array {
-    if (!is_array($values) || $values === []) {
+    if ($values === []) {
       return [];
+    }
+
+    // A bare scalar is the start of a single delta; wrapping it here lets the
+    // positional branch below read it as '[start]'.
+    if (!is_array($values)) {
+      $values = [$values];
     }
 
     // A list whose first element is an array is treated as a list of

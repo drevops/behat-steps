@@ -755,7 +755,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('No role "%s" exists.', $role));
     }
 
-    $account = User::load($this->resolveUid($stub));
+    $account = $this->loadUser($stub);
     $account->addRole(reset($rids));
     $account->save();
   }
@@ -785,6 +785,30 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     return $uid;
+  }
+
+  /**
+   * Loads the account a stub points at.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The user stub to load the account for.
+   *
+   * @return \Drupal\user\Entity\User
+   *   The loaded account.
+   *
+   * @throws \InvalidArgumentException
+   *   Thrown when the stub carries no id, or when the id it carries no
+   *   longer resolves to an account.
+   */
+  protected function loadUser(EntityStubInterface $stub): User {
+    $uid = $this->resolveUid($stub);
+    $account = User::load($uid);
+
+    if (!$account instanceof User) {
+      throw new \InvalidArgumentException(sprintf('No user with id "%s" exists.', $uid));
+    }
+
+    return $account;
   }
 
   /**
@@ -1222,6 +1246,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function mailStopCollecting(): void {
+    if (!array_key_exists('system.mail', $this->originalConfiguration)) {
+      return;
+    }
+
     $config = \Drupal::configFactory()->getEditable('system.mail');
     $config->setData($this->originalConfiguration['system.mail'])->save();
     // Re-enable the mailsystem module's mail if enabled.
@@ -1316,6 +1344,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       return;
     }
 
+    if (!array_key_exists('mailsystem.settings', $this->originalConfiguration)) {
+      return;
+    }
+
     \Drupal::configFactory()->getEditable('mailsystem.settings')
       ->setData($this->originalConfiguration['mailsystem.settings'])
       ->save();
@@ -1325,8 +1357,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function login(EntityStubInterface $stub): void {
-    $account = User::load($this->resolveUid($stub));
-    \Drupal::service('account_switcher')->switchTo($account);
+    \Drupal::service('account_switcher')->switchTo($this->loadUser($stub));
   }
 
   /**

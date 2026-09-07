@@ -193,7 +193,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    */
   public function configSet(string $name, string $key, mixed $value): void {
     $payload = json_encode($value);
-    $this->drush('config:set', [$name, $key, escapeshellarg((string) $payload)], [
+    $this->drush('config:set', [$name, $key, (string) $payload], [
       'yes' => NULL,
       'input-format' => 'json',
     ]);
@@ -229,10 +229,10 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
     $rid = $id ?? strtolower($random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($random->name(8, TRUE)));
 
-    $this->drush('role:create', [$rid, sprintf('"%s"', $role_label)], []);
+    $this->drush('role:create', [$rid, $role_label], []);
 
     foreach ($permissions as $permission) {
-      $this->drush('role:perm:add', [$rid, sprintf('"%s"', $permission)], []);
+      $this->drush('role:perm:add', [$rid, $permission], []);
     }
 
     return $rid;
@@ -249,20 +249,19 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function userCreate(EntityStubInterface $stub): void {
-    $arguments = [escapeshellarg((string) $stub->getValue('name'))];
+    $arguments = [(string) $stub->getValue('name')];
     $options = [
-      'password' => escapeshellarg((string) $stub->getValue('pass')),
-      'mail' => escapeshellarg((string) $stub->getValue('mail')),
+      'password' => (string) $stub->getValue('pass'),
+      'mail' => (string) $stub->getValue('mail'),
     ];
 
     $result = $this->drush('user-create', $arguments, $options);
     $uid = $this->parseUserId($result);
 
     if (!$uid) {
-      // Drush did not return a parseable user id - the user record cannot
-      // be reasoned about. Skip post-create aliases rather than dispatch
-      // them with a null-backed entity.
-      return;
+      // Without an id the account cannot be referenced again, so post-create
+      // aliases such as roles would silently never be applied.
+      throw new \RuntimeException(sprintf("Drush did not report a user id after creating '%s'. Output: %s", $stub->getValue('name'), $result));
     }
 
     $stub->setValue('uid', $uid);
@@ -277,7 +276,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function userDelete(EntityStubInterface $stub): void {
-    $arguments = [escapeshellarg((string) $stub->getValue('name'))];
+    $arguments = [(string) $stub->getValue('name')];
     $options = [
       'yes' => NULL,
       'delete-content' => NULL,
@@ -290,8 +289,8 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    */
   public function userAddRole(EntityStubInterface $stub, string $role): void {
     $arguments = [
-      escapeshellarg($role),
-      escapeshellarg((string) $stub->getValue('name')),
+      $role,
+      (string) $stub->getValue('name'),
     ];
     $this->drush('user-add-role', $arguments);
   }
@@ -335,6 +334,9 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   /**
    * Execute a drush command, returning its result without throwing on failure.
    *
+   * The command line runs through a shell, so every argument and option value
+   * is escaped here. Callers pass raw values.
+   *
    * @param string $command
    *   The Drush command to execute.
    * @param array<int, string> $arguments
@@ -346,7 +348,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    *   The exit code together with the captured stdout and stderr.
    */
   public function drushResult(string $command, array $arguments = [], array $options = []): DrushResult {
-    $argument_string = implode(' ', $arguments);
+    $argument_string = implode(' ', array_map(escapeshellarg(...), $arguments));
 
     $options['no-ansi'] = NULL;
 
@@ -382,7 +384,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
     $result = $this->drushResult($command, $arguments, $options);
 
     if ($result->exitCode !== 0) {
-      throw new \RuntimeException($result->errorOutput);
+      throw new \RuntimeException(sprintf("Drush command '%s' exited with code %d. %s", $command, $result->exitCode, $result->errorOutput));
     }
 
     // Some Drush commands write to stderr instead of stdout.
@@ -493,6 +495,9 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   /**
    * Parse arguments into a string.
    *
+   * Option values are escaped for the shell; option names are not, so they
+   * must be literals supplied by this class.
+   *
    * @param array<string, string|bool|null> $arguments
    *   An array of argument/option names to values.
    *
@@ -507,7 +512,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
         $option_string .= ' --' . $name;
       }
       else {
-        $option_string .= ' --' . $name . '=' . $value;
+        $option_string .= ' --' . $name . '=' . escapeshellarg((string) $value);
       }
     }
     return $option_string;

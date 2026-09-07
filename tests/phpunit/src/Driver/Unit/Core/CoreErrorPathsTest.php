@@ -87,9 +87,12 @@ class CoreErrorPathsTest extends TestCase {
 
   /**
    * Helper to build a Core instance pointed at a valid path.
+   *
+   * None of the error paths under test reach the filesystem, so any existing
+   * directory serves as the root.
    */
   protected function createCore(): Core {
-    return new Core(sys_get_temp_dir());
+    return new Core(__DIR__);
   }
 
 }

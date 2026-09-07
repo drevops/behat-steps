@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver\Core\Field;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 
 /**
@@ -77,6 +78,12 @@ class EntityReferenceRevisionsHandler extends AbstractHandler {
 
       if ($target === NULL) {
         throw new \Exception(sprintf("Entity '%s' of type '%s' no longer exists.", $resolved_id, $entity_type_id));
+      }
+
+      // The entity query above filters by bundle, but an integer lookup
+      // bypasses it and loads directly, so check the loaded target here.
+      if ($target_bundles && $target instanceof EntityInterface && !in_array($target->bundle(), $target_bundles, TRUE)) {
+        throw new \Exception(sprintf("Entity '%s' of type '%s' is of bundle '%s', which the field does not accept. Allowed: %s.", $resolved_id, $entity_type_id, $target->bundle(), implode(', ', $target_bundles)));
       }
 
       $record[$this->mainProperty] = $resolved_id;

@@ -39,6 +39,11 @@ use PHPUnit\Framework\TestCase;
 class DrupalDriverTest extends TestCase {
 
   /**
+   * A directory carrying the entry file 'detectMajorVersion()' requires.
+   */
+  protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/driver/drupal-root';
+
+  /**
    * Tests that DrupalDriver implements its composite contract.
    */
   public function testImplementsDrupalDriverInterface(): void {
@@ -93,7 +98,7 @@ class DrupalDriverTest extends TestCase {
     $this->expectExceptionMessageMatches('/Unable to extract major Drupal core version/');
 
     FakeVersionDrupalDriver::$nextVersion = 'zz.x';
-    new FakeVersionDrupalDriver(__DIR__, 'default');
+    new FakeVersionDrupalDriver(self::DRUPAL_ROOT, 'default');
   }
 
   /**
@@ -104,6 +109,16 @@ class DrupalDriverTest extends TestCase {
     $this->expectExceptionMessageMatches('/Unsupported Drupal core version/');
 
     FakeVersionDrupalDriver::$nextVersion = '10.4.0';
+    new FakeVersionDrupalDriver(self::DRUPAL_ROOT, 'default');
+  }
+
+  /**
+   * Tests that a root without Drupal's entry files is rejected.
+   */
+  public function testDetectMajorVersionRejectsRootWithoutDrupal(): void {
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessageMatches('/No Drupal installation found at/');
+
     new FakeVersionDrupalDriver(__DIR__, 'default');
   }
 

@@ -67,7 +67,13 @@ class AuthorAlias implements PreCreateAliasInterface {
    * {@inheritdoc}
    */
   public function applyToStub(EntityStubInterface $stub): void {
-    $name = (string) $stub->getValue('author');
+    $author = $stub->getValue('author');
+
+    if ($author !== NULL && !is_scalar($author) && !$author instanceof \Stringable) {
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the 'author' creation alias is %s, which cannot be read as a username.", get_debug_type($author)));
+    }
+
+    $name = (string) $author;
 
     if ($name === '') {
       throw new CreationAliasResolutionException("Cannot create node because the 'author' creation alias is set but empty.");

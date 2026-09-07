@@ -35,9 +35,16 @@ class SmartdateHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
       NULL,
     ];
-    yield 'non-array returns empty list' => [
-      'not-an-array',
-      [],
+    yield 'scalar becomes the start of one delta' => [
+      1784106000,
+      [[
+        'value' => 1784106000,
+        'end_value' => NULL,
+        'duration' => 0,
+        'rrule' => NULL,
+        'rrule_index' => NULL,
+        'timezone' => '',
+      ]],
       NULL,
       NULL,
     ];

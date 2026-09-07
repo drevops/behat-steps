@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrushDriver;
 use DrevOps\BehatSteps\Driver\DrushDriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
+use DrevOps\BehatSteps\Tests\Driver\Unit\Fixtures\TestDrushDriver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -98,20 +99,6 @@ class DrushDriverTest extends TestCase {
       " --------- ----------- ----------- --------------- ------------- \n  User ID   User name   User mail   User roles      User status  \n --------- ----------- ----------- --------------- ------------- \n  1         admin       a@ex.co     administrator   1            \n --------- ----------- ----------- --------------- ------------- \n",
       1,
     ];
-  }
-
-}
-
-/**
- * Testable subclass that exposes protected helpers.
- */
-class TestDrushDriver extends DrushDriver {
-
-  /**
-   * Exposes 'parseUserId()' for testing.
-   */
-  public function callParseUserId(string $info): ?int {
-    return $this->parseUserId($info);
   }
 
 }

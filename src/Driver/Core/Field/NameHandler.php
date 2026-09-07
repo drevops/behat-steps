@@ -50,8 +50,12 @@ class NameHandler extends AbstractHandler {
       return [$this->normaliseString($values, $enabled)];
     }
 
-    if (!is_array($values) || $values === []) {
+    if ($values === []) {
       return [];
+    }
+
+    if (!is_array($values)) {
+      throw new \InvalidArgumentException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
     }
 
     if (!array_is_list($values)) {
@@ -60,15 +64,17 @@ class NameHandler extends AbstractHandler {
 
     $names = [];
 
-    foreach ($values as $value) {
+    foreach ($values as $delta => $value) {
       if (is_string($value)) {
         $names[] = $this->normaliseString($value, $enabled);
         continue;
       }
 
-      if (is_array($value)) {
-        $names[] = $this->normaliseArray($value, $enabled);
+      if (!is_array($value)) {
+        throw new \InvalidArgumentException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
       }
+
+      $names[] = $this->normaliseArray($value, $enabled);
     }
 
     return $names;
@@ -113,6 +119,10 @@ class NameHandler extends AbstractHandler {
    */
   protected function normaliseString(string $value, array $enabled): array {
     $parts = array_map(trim(...), explode(',', $value));
+
+    if (count($parts) > 2) {
+      throw new \RuntimeException(sprintf('The name shorthand accepts "Family" or "Family, Given"; "%s" has %d comma-separated parts. Pass a keyed array to set more components.', $value, count($parts)));
+    }
 
     if (!in_array(self::COMPONENT_FAMILY, $enabled, TRUE)) {
       throw new \RuntimeException('Cannot use the "Family, Given" shorthand because the "family" component is disabled on this field.');

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
 use DrevOps\BehatSteps\Driver\Core\Field\NameHandler;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\entity_test\Entity\EntityTest;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -53,6 +55,17 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->attachField('field_author', 'name');
 
     $this->assertFieldRoundTripViaDriver('field_author', ['Doe, Jane']);
+
+    // Pin the component split explicitly: the mutated-stub round-trip would
+    // still pass if the handler swapped the two components.
+    $stub = new EntityStub('entity_test', 'entity_test', [
+      'name' => 'pinned',
+      'field_author' => ['Doe, Jane'],
+    ]);
+    $this->core->entityCreate($stub);
+    $values = EntityTest::load($stub->getValue('id'))->get('field_author')->getValue();
+    $this->assertSame('Jane', $values[0]['given']);
+    $this->assertSame('Doe', $values[0]['family']);
   }
 
   /**
@@ -73,6 +86,21 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaDriver('field_author', [
       ['Dr', 'Jane', 'Doe'],
     ]);
+
+    // Pin the positional mapping: the values must land on the three enabled
+    // components in canonical order, leaving the disabled ones empty.
+    $stub = new EntityStub('entity_test', 'entity_test', [
+      'name' => 'pinned',
+      'field_author' => [['Dr', 'Jane', 'Doe']],
+    ]);
+    $this->core->entityCreate($stub);
+    $values = EntityTest::load($stub->getValue('id'))->get('field_author')->getValue();
+    $this->assertSame('Dr', $values[0]['title']);
+    $this->assertSame('Jane', $values[0]['given']);
+    $this->assertSame('Doe', $values[0]['family']);
+    $this->assertEmpty($values[0]['middle']);
+    $this->assertEmpty($values[0]['generational']);
+    $this->assertEmpty($values[0]['credentials']);
   }
 
 }
