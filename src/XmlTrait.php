@@ -117,10 +117,10 @@ trait XmlTrait {
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseIsXml(): void {
-    $error = $this->xmlContentError($this->xmlResolveContent());
+    $parsed = $this->xmlParse($this->xmlResolveContent());
 
-    if ($error !== NULL) {
-      throw new ExpectationException(sprintf('The response is not valid XML: %s.', $error), $this->getSession()->getDriver());
+    if (!$parsed['loaded']) {
+      throw new ExpectationException(sprintf('The response is not valid XML: %s.', $this->xmlFormatErrors($parsed['errors'])), $this->getSession()->getDriver());
     }
   }
 
@@ -137,7 +137,9 @@ trait XmlTrait {
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
-    if ($this->xmlContentError($this->xmlResolveContent()) === NULL) {
+    $parsed = $this->xmlParse($this->xmlResolveContent());
+
+    if ($parsed['loaded'] && $parsed['errors'] === []) {
       throw new ExpectationException('The response is valid XML, but it should not be.', $this->getSession()->getDriver());
     }
   }
@@ -686,27 +688,24 @@ trait XmlTrait {
   }
 
   /**
-   * Parse XML content and report why it is not well-formed.
+   * Parse XML content without disturbing the cached document.
    *
    * @param string $content
    *   The XML content to parse.
    *
-   * @return string|null
-   *   The formatted parse errors, or NULL when the content is well-formed.
+   * @return array{loaded: bool, errors: array<int, \LibXMLError>}
+   *   Whether the content parsed into a document, and the errors libxml raised
+   *   while parsing it. A document can parse and still raise errors.
    */
-  protected function xmlContentError(string $content): ?string {
+  protected function xmlParse(string $content): array {
     $document = new \DOMDocument();
 
     libxml_clear_errors();
-    $loaded = @$document->loadXML($content);
+    $loaded = (bool) @$document->loadXML($content);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 
-    if ($loaded && $errors === []) {
-      return NULL;
-    }
-
-    return $this->xmlFormatErrors($errors);
+    return ['loaded' => $loaded, 'errors' => $errors];
   }
 
   /**

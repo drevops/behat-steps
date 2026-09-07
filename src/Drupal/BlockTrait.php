@@ -247,7 +247,7 @@ trait BlockTrait {
    *   Then the block "My block" should exist
    * @endcode
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found.
    */
   #[Then('the block :label should exist')]
@@ -269,7 +269,7 @@ trait BlockTrait {
    *   Then the block "My block" should not exist
    * @endcode
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found.
    */
   #[Then('the block :label should not exist')]
@@ -293,7 +293,7 @@ trait BlockTrait {
    *   Then the block "My block" should exist in the "content" region
    * @endcode
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found in the given region.
    */
   #[Then('the block :label should exist in the :region region')]
@@ -320,7 +320,7 @@ trait BlockTrait {
    *   Then the block "My block" should not exist in the "content" region
    * @endcode
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found in the given region.
    */
   #[Then('the block :label should not exist in the :region region')]

@@ -137,10 +137,8 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     $files = scandir($traits_path) ?: [];
     foreach ($files as $file) {
       $file_path = $traits_path . DIRECTORY_SEPARATOR . $file;
-      if (is_file($file_path)) {
-        if (file_declares_trait($file_path)) {
-          $traits_files[] = basename($file, '.php');
-        }
+      if (is_file($file_path) && file_declares_trait($file_path)) {
+        $traits_files[] = basename($file, '.php');
       }
       elseif (is_dir($file_path) && $file !== '.' && $file !== '..') {
         $subdir_files = scandir($file_path) ?: [];
