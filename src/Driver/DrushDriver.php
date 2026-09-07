@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver;
 
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Driver\Alias\CreationAliasRegistryTrait;
+use DrevOps\BehatSteps\Driver\Alias\RolesAlias;
 use DrevOps\BehatSteps\Driver\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Drush\DrushResult;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
-use DrevOps\BehatSteps\Driver\Alias\CreationAliasRegistryTrait;
-use DrevOps\BehatSteps\Driver\Alias\RolesAlias;
+use Drupal\Component\Utility\Random;
 use Symfony\Component\Process\Process;
 
 /**

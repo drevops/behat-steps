@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core;
 
-use Drupal\content_moderation\Entity\ContentModerationState;
-use Drupal\content_moderation\Plugin\WorkflowType\ContentModeration;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\content_moderation\Entity\ContentModerationState;
+use Drupal\content_moderation\Plugin\WorkflowType\ContentModeration;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\workflows\Entity\Workflow;

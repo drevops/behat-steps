@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit;
 
-use Drupal\Component\Utility\Random;
 use DrevOps\BehatSteps\Driver\DrushDriver;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

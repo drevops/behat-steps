@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver;
 
-use Drupal\Component\Utility\Random;
 use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\Core;
@@ -12,6 +11,7 @@ use DrevOps\BehatSteps\Driver\Core\CoreInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
+use Drupal\Component\Utility\Random;
 
 /**
  * Fully bootstraps Drupal and uses native API calls.

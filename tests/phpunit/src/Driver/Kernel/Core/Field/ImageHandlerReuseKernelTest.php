@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\Group;
 

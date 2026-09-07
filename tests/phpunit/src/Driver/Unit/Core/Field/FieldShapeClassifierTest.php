@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core\Field;
 
+use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifier;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\TypedData\DataReferenceTargetDefinition;
 use Drupal\Core\TypedData\MapDataDefinition;
-use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifier;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 

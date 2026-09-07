@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core;
 
-use Drupal\block\Entity\Block;
-use Drupal\block_content\Entity\BlockContent;
-use Drupal\block_content\Entity\BlockContentType;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\block\Entity\Block;
+use Drupal\block_content\Entity\BlockContent;
+use Drupal\block_content\Entity\BlockContentType;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

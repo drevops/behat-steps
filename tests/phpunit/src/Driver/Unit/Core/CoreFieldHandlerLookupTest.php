@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core;
 
+use DrevOps\BehatSteps\Driver\Core\Core;
+use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
+use DrevOps\BehatSteps\Driver\Core\Field\AddressHandler;
+use DrevOps\BehatSteps\Driver\Core\Field\DefaultHandler;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use DrevOps\BehatSteps\Driver\Core\Core;
-use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
-use DrevOps\BehatSteps\Driver\Core\Field\AddressHandler;
-use DrevOps\BehatSteps\Driver\Core\Field\DefaultHandler;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 

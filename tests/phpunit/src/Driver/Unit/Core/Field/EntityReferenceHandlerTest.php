@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core\Field;
 
-use PHPUnit\Framework\MockObject\MockObject;
+use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
+use DrevOps\BehatSteps\Driver\Core\Field\EntityReferenceHandler;
+use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
-use DrevOps\BehatSteps\Driver\Core\Field\EntityReferenceHandler;
-use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests the EntityReferenceHandler field handler.

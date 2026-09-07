@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 use ConsumerProject\Driver\ConsumerCore;
 use ConsumerProject\Driver\Field\StringLongHandler as ConsumerStringLongHandler;
 use ConsumerProject\Driver\Field\TextLongHandler as ConsumerTextLongHandler;
-use Drupal\Core\Entity\ContentEntityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Core\Entity\ContentEntityInterface;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

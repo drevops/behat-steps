@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core;
 
-use Drupal\commerce_product\Entity\Product;
-use Drupal\commerce_store\Entity\Store;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_store\Entity\Store;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

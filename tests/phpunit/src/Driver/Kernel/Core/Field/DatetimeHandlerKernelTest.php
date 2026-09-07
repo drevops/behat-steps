@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
-use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

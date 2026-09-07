@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core;
 
-use Drupal\Core\CronInterface;
 use DrevOps\BehatSteps\Driver\Core\Core;
+use Drupal\Core\CronInterface;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for 'Core::cronRun()' on the default Drupal core.

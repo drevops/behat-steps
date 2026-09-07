@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver\Core\Field;
 
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
  * Base class for field handlers.

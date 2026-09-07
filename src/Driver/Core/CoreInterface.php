@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver\Core;
 
-use Drupal\Component\Utility\Random;
 use DrevOps\BehatSteps\Driver\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
@@ -20,6 +19,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use Drupal\Component\Utility\Random;
 
 /**
  * Contract for a Drupal-backed core implementation.

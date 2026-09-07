@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit;
 
-use Drupal\Component\Utility\Random;
 use DrevOps\BehatSteps\Driver\BlackboxDriver;
 use DrevOps\BehatSteps\Driver\BlackboxDriverInterface;
 use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
@@ -19,9 +18,10 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Group;
+use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests BlackboxDriver's interface and capability surface.

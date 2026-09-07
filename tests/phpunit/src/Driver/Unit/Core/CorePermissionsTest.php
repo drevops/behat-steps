@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core;
 
 use DrevOps\BehatSteps\Driver\Core\Core;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests permission label and machine name conversion in the Drupal 8+ driver.

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Driver\Core\Field;
 
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**

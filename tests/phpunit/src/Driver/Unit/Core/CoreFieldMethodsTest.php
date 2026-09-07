@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core;
 
-use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifier;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

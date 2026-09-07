@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core\Field;
 
-use Drupal\Core\DependencyInjection\ContainerBuilder;
 use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FileHandler;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -135,10 +135,10 @@ class FileHandlerTest extends FieldHandlerUnitTestBase {
       'File field "target_id" must not be NULL or empty.',
     ];
     yield 'unreadable path bubbles up as Exception' => [
-      ['/tmp/drupal-driver-nonexistent-file.bin'],
+      ['/nonexistent/missing-file.bin'],
       NULL,
       \Exception::class,
-      'Error reading file /tmp/drupal-driver-nonexistent-file.bin.',
+      'Error reading file /nonexistent/missing-file.bin.',
     ];
   }
 

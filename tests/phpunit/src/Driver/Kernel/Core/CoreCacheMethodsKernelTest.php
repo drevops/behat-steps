@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core;
 
-use Drupal\Component\Utility\Random;
 use DrevOps\BehatSteps\Driver\Core\Core;
+use Drupal\Component\Utility\Random;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\Group;
 

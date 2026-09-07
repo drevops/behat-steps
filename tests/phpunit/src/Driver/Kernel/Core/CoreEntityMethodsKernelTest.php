@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core;
 
-use Drupal\Core\Entity\EntityInterface;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use Drupal\entity_test\EntityTestHelper;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\entity_test\EntityTestHelper;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\Group;

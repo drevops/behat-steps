@@ -21,9 +21,9 @@ use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Driver\SubDriverFinderInterface;
 use DrevOps\BehatSteps\Tests\Driver\Unit\Fixtures\FakeVersionDrupalDriver;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests that DrupalDriver declares the full capability surface.

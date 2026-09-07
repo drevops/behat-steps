@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Driver\Unit\Exception;
 
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the UnsupportedDriverActionException.

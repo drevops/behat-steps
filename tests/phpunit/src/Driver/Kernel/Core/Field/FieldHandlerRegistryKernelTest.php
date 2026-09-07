@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Core\Entity\ContentEntityInterface;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

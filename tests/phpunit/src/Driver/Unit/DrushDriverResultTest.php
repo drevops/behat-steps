@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit;
 
-use DrevOps\BehatSteps\Driver\Drush\DrushResult;
 use DrevOps\BehatSteps\Driver\DrushDriver;
+use DrevOps\BehatSteps\Driver\Drush\DrushResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

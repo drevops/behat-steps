@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\entity_test\EntityTestHelper;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Base class for field handler kernel round-trip tests.

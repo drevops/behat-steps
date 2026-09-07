@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit;
 
-use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Core99\Core as Core99Core;
+use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests DrupalDriver::setCoreFromVersion() lookup chain.

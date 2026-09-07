@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core\Field;
 
-use Drupal\Core\DependencyInjection\ContainerBuilder;
 use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\SupportedImageHandler;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -111,10 +111,10 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
       'Supported image field "target_id" must not be NULL or empty.',
     ];
     yield 'unreadable path bubbles up as Exception' => [
-      '/tmp/drupal-driver-nonexistent-supported-image.jpg',
+      '/nonexistent/missing-supported-image.jpg',
       NULL,
       \Exception::class,
-      'Error reading file /tmp/drupal-driver-nonexistent-supported-image.jpg.',
+      'Error reading file /nonexistent/missing-supported-image.jpg.',
     ];
   }
 

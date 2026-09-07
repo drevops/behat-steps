@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Driver\Unit\Core\Field;
 
-use Drupal\Core\Field\FieldDefinitionInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Driver\Core\Field\BooleanHandler;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use PHPUnit\Framework\Attributes\Group;
 
 /**

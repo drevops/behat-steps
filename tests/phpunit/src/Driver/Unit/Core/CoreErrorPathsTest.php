@@ -26,7 +26,7 @@ class CoreErrorPathsTest extends TestCase {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Could not resolve Drupal root/');
 
-    new Core('/absolutely/not/a/real/path/for/drupal-driver-tests');
+    new Core('/absolutely/not/a/real/path/for/behat-steps-tests');
   }
 
   /**
