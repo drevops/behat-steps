@@ -202,6 +202,9 @@ class PublicSurfaceTest extends UnitTestCase {
   /**
    * Return every trait shipped in the library, keyed by name.
    *
+   * The conventions below describe traits mixed into a consuming context, so
+   * classes under `src` are outside their scope.
+   *
    * @return array<string, array{string}>
    *   Fully qualified trait names, as data provider rows.
    */
@@ -217,6 +220,11 @@ class PublicSurfaceTest extends UnitTestCase {
 
       $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
       $trait = 'DrevOps\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+
+      if (!trait_exists($trait)) {
+        continue;
+      }
+
       $traits[$trait] = [$trait];
     }
 
