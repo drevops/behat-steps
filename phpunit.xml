@@ -26,6 +26,7 @@
         <include>
             <directory>src</directory>
             <file>docs.php</file>
+            <file>scripts/lint-layers.php</file>
         </include>
         <exclude>
             <directory>src/Driver</directory>
