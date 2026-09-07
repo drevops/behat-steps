@@ -66,9 +66,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that a negative name reads `Assert<Subject>Not<Predicate>`.
    *
-   * `Not` is the only negation particle, so the determiner `No` never opens a
-   * negated noun. A negative name is then its positive counterpart with `Not`
-   * inserted and nothing else changed.
+   * `Not` is the only negation particle, so neither the determiner `No` nor a
+   * `DoesNot` or `DoNot` auxiliary opens a negated word. A negative name is
+   * then its positive counterpart with `Not` inserted and nothing else
+   * changed.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -77,9 +78,9 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNegationSpelledNot')]
   public function testNegationSpelledNot(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/No[A-Z]/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/(?:No|DoesNot|DoNot)[A-Z]/', $name) === 1));
 
-    $this->assertSame([], $violations, 'Negate with "Not" placed before the predicate, not with "No" before a noun: "userAssertNotHasRoles", not "userAssertHasNoRoles".');
+    $this->assertSame([], $violations, 'Negate with a bare "Not" placed before the predicate: "userAssertNotHasRoles", not "userAssertHasNoRoles" or "userAssertDoesNotHaveRoles".');
   }
 
   public static function dataProviderNegationSpelledNot(): array {
