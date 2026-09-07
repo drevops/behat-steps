@@ -37,7 +37,7 @@ trait FileTrait {
    *
    * @var array<int, string>
    */
-  protected $filesUnmanagedUris = [];
+  protected array $filesUnmanagedUris = [];
 
   /**
    * Ensure private and temp directories exist.

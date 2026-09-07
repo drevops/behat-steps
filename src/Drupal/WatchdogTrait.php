@@ -34,17 +34,15 @@ trait WatchdogTrait {
 
   /**
    * Start time for each scenario.
-   *
-   * @var int|null
    */
-  protected $watchdogScenarioStartTime;
+  protected ?int $watchdogScenarioStartTime = NULL;
 
   /**
    * Array of watchdog message types.
    *
    * @var array<int, string>
    */
-  protected $watchdogMessageTypes = [];
+  protected array $watchdogMessageTypes = [];
 
   /**
    * Title of the current scenario.

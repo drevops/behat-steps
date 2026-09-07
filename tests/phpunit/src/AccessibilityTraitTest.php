@@ -27,7 +27,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $this->testObject = new AccessibilityTraitTestImplementation();
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset();
+    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
   }
 
   /**
@@ -35,7 +35,7 @@ class AccessibilityTraitTest extends UnitTestCase {
    */
   protected function tearDown(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset();
+    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
 
     parent::tearDown();
   }
@@ -91,7 +91,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testCaptureBaseDirSetsWhenUnset(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
 
-    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir();
+    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir($this->createBeforeSuiteScope());
 
     $this->assertSame(getcwd(), AccessibilityTraitTestImplementation::testGetBaseDir());
   }
@@ -99,7 +99,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testCaptureBaseDirDoesNotOverwrite(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir('/sentinel/base');
 
-    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir();
+    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir($this->createBeforeSuiteScope());
 
     $this->assertSame('/sentinel/base', AccessibilityTraitTestImplementation::testGetBaseDir());
   }
@@ -220,7 +220,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
 
-    AccessibilityTraitTestImplementation::accessibilityAggregateRender();
+    AccessibilityTraitTestImplementation::accessibilityAggregateRender($this->createAfterSuiteScope());
 
     $this->assertNotEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
   }
@@ -320,7 +320,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir('/sentinel');
 
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset();
+    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
 
     $this->assertSame([], AccessibilityTraitTestImplementation::testGetAggregate());
     $this->assertNull(AccessibilityTraitTestImplementation::testGetAggregateReportDir());

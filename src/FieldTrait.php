@@ -32,7 +32,6 @@ use Behat\Step\When;
 trait FieldTrait {
 
   use HelperTrait;
-  use KeyboardTrait;
 
   /**
    * Registry of form selectors that should have validation disabled.

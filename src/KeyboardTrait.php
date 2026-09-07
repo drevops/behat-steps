@@ -91,7 +91,7 @@ trait KeyboardTrait {
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid driver.
    */
-  public function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
+  protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
     $driver = $this->getSession()->getDriver();
 
     if ($driver instanceof BrowserKitDriver) {

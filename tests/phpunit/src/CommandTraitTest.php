@@ -78,7 +78,7 @@ class CommandTraitTest extends UnitTestCase {
 
   public function testBeforeScenarioResetsState(): void {
     $this->testObject->commandRun('echo hello');
-    $this->testObject->commandBeforeScenario();
+    $this->testObject->commandBeforeScenario($this->createBeforeScenarioScope());
 
     $this->assertNull($this->testObject->exitCode());
     $this->assertSame('', $this->testObject->stdout());
@@ -86,7 +86,7 @@ class CommandTraitTest extends UnitTestCase {
 
   public function testAfterScenarioResetsState(): void {
     $this->testObject->commandRun('echo hello');
-    $this->testObject->commandAfterScenario();
+    $this->testObject->commandAfterScenario($this->createAfterScenarioScope());
 
     $this->assertNull($this->testObject->exitCode());
     $this->assertSame('', $this->testObject->stdout());

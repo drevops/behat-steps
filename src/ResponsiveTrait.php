@@ -88,6 +88,9 @@ trait ResponsiveTrait {
   /**
    * Set custom breakpoints.
    *
+   * Public API: a composing context may call this directly to register
+   * breakpoints outside a step.
+   *
    * Custom breakpoints override default breakpoints with the same name.
    *
    * @param array<string, string> $breakpoints

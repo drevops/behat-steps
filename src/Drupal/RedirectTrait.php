@@ -32,7 +32,7 @@ trait RedirectTrait {
    *
    * @var int[]
    */
-  protected static $redirectAllowedStatusCodes = [301, 302, 303, 307, 308];
+  protected static array $redirectAllowedStatusCodes = [301, 302, 303, 307, 308];
 
   /**
    * Create one or more redirects.
