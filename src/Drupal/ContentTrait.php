@@ -37,6 +37,24 @@ trait ContentTrait {
   use HelperTrait;
 
   /**
+   * Expand fixture file paths for file/image fields on nodes.
+   *
+   * Rewrites fixture paths (e.g. 'document.pdf', 'images/photo.png') on
+   * 'file' and 'image' field types to absolute paths under the Mink
+   * 'files_path'. drupal-driver's FileHandler can then read and upload them
+   * during node creation.
+   *
+   * Without this, scenarios with file fields on nodes have to pre-create
+   * managed files explicitly via FileTrait.
+   *
+   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
+   */
+  #[BeforeNodeCreate]
+  public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
+    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
+  }
+
+  /**
    * Delete content type.
    *
    * @code
@@ -156,23 +174,6 @@ trait ContentTrait {
   #[When('I visit the :content_type content revisions page with the title :title')]
   public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title, '/revisions');
-  }
-
-  /**
-   * Visit the action page of the content with a specified title.
-   *
-   * @param string $content_type
-   *   The content type.
-   * @param string $title
-   *   The title of the content.
-   * @param string $action_subpath
-   *   The operation to perform.
-   */
-  protected function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
-    $nid = $this->contentResolveNidByTitle($content_type, $title);
-    $path = $this->locatePath('/node/' . $nid . $action_subpath);
-
-    $this->getSession()->visit($path);
   }
 
   /**
@@ -337,21 +338,20 @@ trait ContentTrait {
   }
 
   /**
-   * Expand fixture file paths for file/image fields on nodes.
+   * Visit the action page of the content with a specified title.
    *
-   * Rewrites fixture paths (e.g. 'document.pdf', 'images/photo.png') on
-   * 'file' and 'image' field types to absolute paths under the Mink
-   * 'files_path'. drupal-driver's FileHandler can then read and upload them
-   * during node creation.
-   *
-   * Without this, scenarios with file fields on nodes have to pre-create
-   * managed files explicitly via FileTrait.
-   *
-   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
+   * @param string $content_type
+   *   The content type.
+   * @param string $title
+   *   The title of the content.
+   * @param string $action_subpath
+   *   The operation to perform.
    */
-  #[BeforeNodeCreate]
-  public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
+  protected function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
+    $nid = $this->contentResolveNidByTitle($content_type, $title);
+    $path = $this->locatePath('/node/' . $nid . $action_subpath);
+
+    $this->getSession()->visit($path);
   }
 
   /**

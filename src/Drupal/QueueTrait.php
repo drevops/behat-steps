@@ -28,6 +28,23 @@ trait QueueTrait {
   protected array $queueNames = [];
 
   /**
+   * Clean up queues after scenario.
+   */
+  #[AfterScenario('@queue')]
+  public function queueAfterScenario(AfterScenarioScope $scope): void {
+    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+      return;
+    }
+
+    foreach ($this->queueNames as $queue_name) {
+      $queue_instance = \Drupal::service('queue')->get($queue_name);
+      $queue_instance->deleteQueue();
+    }
+
+    $this->queueNames = [];
+  }
+
+  /**
    * Empty a queue.
    *
    * @code
@@ -141,23 +158,6 @@ trait QueueTrait {
     if ($actual !== 0) {
       throw new ExpectationException(sprintf('Expected queue "%s" to be empty, but it has %d items.', $queue, $actual), $this->getSession()->getDriver());
     }
-  }
-
-  /**
-   * Clean up queues after scenario.
-   */
-  #[AfterScenario('@queue')]
-  public function queueAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    foreach ($this->queueNames as $queue_name) {
-      $queue_instance = \Drupal::service('queue')->get($queue_name);
-      $queue_instance->deleteQueue();
-    }
-
-    $this->queueNames = [];
   }
 
   /**

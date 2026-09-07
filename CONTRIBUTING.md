@@ -81,6 +81,20 @@ A documented override point that supplies a value is `<trait>Get<Noun>()`, boole
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
+## Member ordering within a trait
+
+Traits lay their members out in this order:
+
+1. Trait composition (`use`), then constants, then properties.
+2. Hooks (`#[BeforeScenario]`, `#[AfterStep]` and the like).
+3. `Given` steps, then `When` steps, then `Then` steps.
+4. Other public methods.
+5. Protected helpers.
+
+Within each of those groups, keep the members in whatever order reads best - the rule settles the groups, not what happens inside one. `tests/phpunit/src/MemberOrderTest.php` enforces it.
+
+Reordering an existing trait into this layout leaves [STEPS.md](STEPS.md) untouched. `docs.php` already groups steps by `Given`, `When` and `Then` and keeps source order inside each group, so this layout only applies a sort the generated documentation applies anyway.
+
 ## Unsettled style questions
 
 Four style questions have no dominant form in this codebase. Both sides of each are correct and behavior-identical where they appear, and converging any of them would churn 25 to 75 sites for no functional gain. Match the surrounding file and do not convert existing code from one form to the other as a drive-by change.

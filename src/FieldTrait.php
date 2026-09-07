@@ -117,143 +117,27 @@ trait FieldTrait {
   }
 
   /**
-   * Assert that field is empty.
+   * Disable browser validation for the form for validating errors.
+   *
+   * The form selector is registered and validation disabling will be
+   * automatically applied after each step when the form becomes available.
    *
    * @code
-   * Then the field "Name" should be empty
+   * Given the browser validation for the form "#node-article-form" is disabled
+   * When I go to "node/add/article"
+   * And I press "Save"
+   * Then I should see "Title field is required"
    * @endcode
    */
-  #[Then('the field :field should be empty')]
-  public function fieldAssertEmpty(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    $value = $field_element->getValue();
-
-    if ($value !== NULL && $value !== '') {
-      throw new ExpectationException(sprintf('The field "%s" is not empty, but should be.', $field), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a field is not empty.
-   *
-   * @code
-   * Then the field "Name" should not be empty
-   * @endcode
-   */
-  #[Then('the field :field should not be empty')]
-  public function fieldAssertNotEmpty(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    $value = $field_element->getValue();
-
-    if ($value === NULL || $value === '') {
-      throw new ExpectationException(sprintf('The field "%s" is empty, but should not be.', $field), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that field exists on the page using id,name,label or value.
-   *
-   * @code
-   * Then the field "Body" should exist
-   * Then the field "field_body" should exist
-   * @endcode
-   */
-  #[Then('the field :field should exist')]
-  public function fieldAssertExists(string $field): NodeElement {
-    $page = $this->getSession()->getPage();
-    $field_element = $page->findField($field);
-    $field_element = $field_element ?: $page->findById($field);
-
-    if ($field_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $field);
+  #[Given('the browser validation for the form :selector is disabled')]
+  public function fieldDisableFormBrowserValidation(string $selector): void {
+    if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
+      $this->fieldFormValidationRegistry[] = $selector;
     }
 
-    return $field_element;
-  }
-
-  /**
-   * Assert that field does not exist on the page using id,name,label or value.
-   *
-   * @code
-   * Then the field "Body" should not exist
-   * Then the field "field_body" should not exist
-   * @endcode
-   */
-  #[Then('the field :field should not exist')]
-  public function fieldAssertNotExists(string $field): void {
-    $page = $this->getSession()->getPage();
-    $field_element = $page->findField($field);
-    $field_element = $field_element ?: $page->findById($field);
-
-    if ($field_element !== NULL) {
-      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
+    if ($this->helperIsJavascriptSupported()) {
+      $this->fieldDisableFormValidation($selector);
     }
-  }
-
-  /**
-   * Assert whether the field has a state.
-   *
-   * @code
-   * Then the field "Body" should have the "disabled" state
-   * Then the field "field_body" should have the "disabled" state
-   * Then the field "Tags" should have the "enabled" state
-   * Then the field "field_tags" should have the "not enabled" state
-   * @endcode
-   */
-  #[Then('the field :field should have the :enabled_or_disabled state')]
-  public function fieldAssertState(string $field, string $enabled_or_disabled): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
-    }
-
-    if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a field is marked as required.
-   *
-   * Checks three common markers in order:
-   * 1. The native HTML `required` attribute on the field.
-   * 2. The `form-required` CSS class on the field or its label.
-   * 3. A `*` character inside the `<label>` associated with the field.
-   *
-   * @code
-   * Then the field "Email" should be required
-   * @endcode
-   */
-  #[Then('the field :field should be required')]
-  public function fieldAssertRequired(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    if ($this->fieldIsMarkedRequired($field_element)) {
-      return;
-    }
-
-    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but should be.', $field), $this->getSession()->getDriver());
-  }
-
-  /**
-   * Assert that a field is not marked as required.
-   *
-   * @code
-   * Then the field "Nickname" should not be required
-   * @endcode
-   */
-  #[Then('the field :field should not be required')]
-  public function fieldAssertNotRequired(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    if (!$this->fieldIsMarkedRequired($field_element)) {
-      return;
-    }
-
-    throw new ExpectationException(sprintf('The field "%s" is marked as required, but should not be.', $field), $this->getSession()->getDriver());
   }
 
   /**
@@ -364,107 +248,6 @@ trait FieldTrait {
   }
 
   /**
-   * CSS selectors for the "Add another item" button.
-   *
-   * Returned selectors are tried in order. Override in a subclass to
-   * customise the selectors for custom themes or widget implementations.
-   *
-   * @return array<int, string>
-   *   CSS selectors to probe for the add-another-item button.
-   */
-  protected function fieldGetAddMoreButtonSelectors(): array {
-    return [
-      'input[value="Add another item"]',
-      'button.field-add-more-submit',
-    ];
-  }
-
-  /**
-   * CSS selectors that indicate a required-field marker.
-   *
-   * Nothing consumes this list yet: ::fieldIsMarkedRequired() probes for the
-   * `required` attribute and the `form-required` class directly. It is kept as
-   * the intended override point for that check.
-   *
-   * @return array<int, string>
-   *   CSS selectors to probe for a required marker.
-   */
-  protected function fieldGetRequiredMarkerSelectors(): array {
-    return ['.form-required', '[required]'];
-  }
-
-  /**
-   * Check if a given field element is marked as required.
-   *
-   * Checks the native `required` attribute, the `form-required` class on
-   * the field or any associated label, and the presence of a `*` character
-   * inside any associated label.
-   */
-  protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
-    if ($field_element->hasAttribute('required')) {
-      return TRUE;
-    }
-
-    $classes = (string) $field_element->getAttribute('class');
-    if (str_contains($classes, 'form-required')) {
-      return TRUE;
-    }
-
-    $page = $this->getSession()->getPage();
-
-    $field_id = $field_element->getAttribute('id');
-    $label = NULL;
-    if ($field_id !== NULL && $field_id !== '') {
-      $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
-    }
-
-    $label ??= $field_element->find('xpath', 'ancestor::label[1]');
-
-    if ($label instanceof NodeElement) {
-      $label_classes = (string) $label->getAttribute('class');
-      if (str_contains($label_classes, 'form-required')) {
-        return TRUE;
-      }
-
-      if (str_contains($label->getText(), '*')) {
-        return TRUE;
-      }
-
-      if ($label->find('css', '.form-required') !== NULL) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
-   * The path of the current page, as used in failure messages.
-   *
-   * @return string
-   *   The path component of the current URL.
-   */
-  protected function fieldCurrentPath(): string {
-    return (string) parse_url((string) $this->getSession()->getCurrentUrl(), PHP_URL_PATH);
-  }
-
-  /**
-   * Wrap a string in an XPath-safe literal.
-   *
-   * Handles strings containing single quotes, double quotes, or both.
-   */
-  protected function fieldXpathLiteral(string $value): string {
-    if (!str_contains($value, "'")) {
-      return "'" . $value . "'";
-    }
-    if (!str_contains($value, '"')) {
-      return '"' . $value . '"';
-    }
-    $parts = explode("'", $value);
-    return "concat('" . implode("', \"'\", '", $parts) . "')";
-  }
-
-  /**
    * Fill value for color field.
    *
    * @code
@@ -487,32 +270,6 @@ trait FieldTrait {
       })();
 JS;
     return $this->getSession()->evaluateScript($script);
-  }
-
-  /**
-   * Assert that a color field has a value.
-   *
-   * @code
-   * Then the color field "#edit-background-color" should have the value "#FF5733"
-   * @endcode
-   */
-  #[Then('the color field :field should have the value :value')]
-  public function fieldAssertColorFieldHasValue(string $field, string $value): void {
-    $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
-    $script = <<<JS
-      (function() {
-        var element = document.querySelector({$field_js});
-        if (!element) {
-          throw new Error('Element not found: ' + {$field_js});
-        }
-        return element.value;
-      })();
-JS;
-    $actual = $this->getSession()->evaluateScript($script);
-
-    if ($actual !== $value) {
-      throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
-    }
   }
 
   /**
@@ -576,107 +333,6 @@ JS;
 JS;
     }
     $this->getSession()->executeScript($script);
-  }
-
-  /**
-   * Assert that a select has an option.
-   *
-   * @code
-   * Then the option "Administrator" should exist within the select element "edit-roles"
-   * @endcode
-   */
-  #[Then('the option :option should exist within the select element :selector')]
-  public function fieldAssertSelectOptionExists(string $selector, string $option): void {
-    $select_element = $this->getSession()->getPage()->findField($selector);
-
-    if ($select_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_element = $select_element->find('named', ['option', $option]);
-
-    if ($option_element === NULL) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a select does not have an option.
-   *
-   * @code
-   * Then the option "Guest" should not exist within the select element "edit-roles"
-   * @endcode
-   */
-  #[Then('the option :option should not exist within the select element :selector')]
-  public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
-    $select_element = $this->getSession()->getPage()->findField($selector);
-
-    if ($select_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_element = $select_element->find('named', ['option', $option]);
-
-    if ($option_element !== NULL) {
-      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page %s, but should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a select option is selected.
-   *
-   * @code
-   * Then the option "Administrator" should be selected within the select element "edit-roles"
-   * @endcode
-   */
-  #[Then('the option :option should be selected within the select element :selector')]
-  public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    $path = $this->fieldCurrentPath();
-
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_field = $select_field->find('named', [
-      'option',
-      $option,
-    ]);
-
-    if (!$option_field) {
-      throw new ExpectationException(sprintf('No option is selected in the %s select on the page %s.', $selector, $path), $this->getSession()->getDriver());
-    }
-
-    if (!$option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $option, $path), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a select option is not selected.
-   *
-   * @code
-   * Then the option "Editor" should not be selected within the select element "edit-roles"
-   * @endcode
-   */
-  #[Then('the option :option should not be selected within the select element :selector')]
-  public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    $path = $this->fieldCurrentPath();
-
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_field = $select_field->find('named', ['option', $option]);
-
-    if (!$option_field) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $path), $this->getSession()->getDriver());
-    }
-
-    if ($option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $option, $selector, $path), $this->getSession()->getDriver());
-    }
   }
 
   /**
@@ -836,60 +492,6 @@ JS;
   }
 
   /**
-   * Assert that a radio button is selected.
-   *
-   * @param string $selector
-   *   The radio button id, name, label or value.
-   *
-   * @code
-   *   Then the radio button "Option A" should be selected
-   *   Then the radio button "edit-field-choice-option-a" should be selected
-   * @endcode
-   */
-  #[Then('the radio button :selector should be selected')]
-  public function fieldAssertRadioSelected(string $selector): void {
-    $selector = $this->helperFixStepArgument($selector);
-
-    $page = $this->getSession()->getPage();
-    $radio_button = $page->findField($selector);
-
-    if ($radio_button === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
-    }
-
-    if (!$radio_button->isChecked()) {
-      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but should be.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that a radio button is not selected.
-   *
-   * @param string $selector
-   *   The radio button id, name, label or value.
-   *
-   * @code
-   *   Then the radio button "Option B" should not be selected
-   *   Then the radio button "edit-field-choice-option-b" should not be selected
-   * @endcode
-   */
-  #[Then('the radio button :selector should not be selected')]
-  public function fieldAssertRadioNotSelected(string $selector): void {
-    $selector = $this->helperFixStepArgument($selector);
-
-    $page = $this->getSession()->getPage();
-    $radio_button = $page->findField($selector);
-
-    if ($radio_button === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
-    }
-
-    if ($radio_button->isChecked()) {
-      throw new ExpectationException(sprintf('The radio button "%s" is selected, but should not be.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
    * Fill in a field identified by CSS selector.
    *
    * Use this when the field cannot be reliably located by label, id, or name
@@ -909,56 +511,6 @@ JS;
     }
 
     $field->setValue($value);
-  }
-
-  /**
-   * Disable browser validation for the form for validating errors.
-   *
-   * The form selector is registered and validation disabling will be
-   * automatically applied after each step when the form becomes available.
-   *
-   * @code
-   * Given the browser validation for the form "#node-article-form" is disabled
-   * When I go to "node/add/article"
-   * And I press "Save"
-   * Then I should see "Title field is required"
-   * @endcode
-   */
-  #[Given('the browser validation for the form :selector is disabled')]
-  public function fieldDisableFormBrowserValidation(string $selector): void {
-    if (!in_array($selector, $this->fieldFormValidationRegistry, TRUE)) {
-      $this->fieldFormValidationRegistry[] = $selector;
-    }
-
-    if ($this->helperIsJavascriptSupported()) {
-      $this->fieldDisableFormValidation($selector);
-    }
-  }
-
-  /**
-   * Disable browser validation for forms.
-   *
-   * Silently handles cases where forms don't exist yet (deferred execution).
-   *
-   * @param string|null $selector
-   *   The CSS selector for form(s). If NULL, disables all forms on page.
-   */
-  protected function fieldDisableFormValidation(?string $selector = NULL): void {
-    $selector ??= 'form';
-    $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
-
-    $script = <<<JS
-      (function() {
-        var forms = document.querySelectorAll({$selector_js});
-        if (forms.length > 0) {
-          forms.forEach(function(form) {
-            form.setAttribute('novalidate', 'novalidate');
-          });
-        }
-      })();
-JS;
-
-    $this->getSession()->executeScript($script);
   }
 
   /**
@@ -1037,6 +589,454 @@ JS;
     if ($time !== '') {
       $this->fieldFillDatetimeHelper($label, 'end_value', 'time', $time);
     }
+  }
+
+  /**
+   * Assert that field is empty.
+   *
+   * @code
+   * Then the field "Name" should be empty
+   * @endcode
+   */
+  #[Then('the field :field should be empty')]
+  public function fieldAssertEmpty(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    $value = $field_element->getValue();
+
+    if ($value !== NULL && $value !== '') {
+      throw new ExpectationException(sprintf('The field "%s" is not empty, but should be.', $field), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a field is not empty.
+   *
+   * @code
+   * Then the field "Name" should not be empty
+   * @endcode
+   */
+  #[Then('the field :field should not be empty')]
+  public function fieldAssertNotEmpty(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    $value = $field_element->getValue();
+
+    if ($value === NULL || $value === '') {
+      throw new ExpectationException(sprintf('The field "%s" is empty, but should not be.', $field), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that field exists on the page using id,name,label or value.
+   *
+   * @code
+   * Then the field "Body" should exist
+   * Then the field "field_body" should exist
+   * @endcode
+   */
+  #[Then('the field :field should exist')]
+  public function fieldAssertExists(string $field): NodeElement {
+    $page = $this->getSession()->getPage();
+    $field_element = $page->findField($field);
+    $field_element = $field_element ?: $page->findById($field);
+
+    if ($field_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $field);
+    }
+
+    return $field_element;
+  }
+
+  /**
+   * Assert that field does not exist on the page using id,name,label or value.
+   *
+   * @code
+   * Then the field "Body" should not exist
+   * Then the field "field_body" should not exist
+   * @endcode
+   */
+  #[Then('the field :field should not exist')]
+  public function fieldAssertNotExists(string $field): void {
+    $page = $this->getSession()->getPage();
+    $field_element = $page->findField($field);
+    $field_element = $field_element ?: $page->findById($field);
+
+    if ($field_element !== NULL) {
+      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert whether the field has a state.
+   *
+   * @code
+   * Then the field "Body" should have the "disabled" state
+   * Then the field "field_body" should have the "disabled" state
+   * Then the field "Tags" should have the "enabled" state
+   * Then the field "field_tags" should have the "not enabled" state
+   * @endcode
+   */
+  #[Then('the field :field should have the :enabled_or_disabled state')]
+  public function fieldAssertState(string $field, string $enabled_or_disabled): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
+      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
+    }
+
+    if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
+      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a field is marked as required.
+   *
+   * Checks three common markers in order:
+   * 1. The native HTML `required` attribute on the field.
+   * 2. The `form-required` CSS class on the field or its label.
+   * 3. A `*` character inside the `<label>` associated with the field.
+   *
+   * @code
+   * Then the field "Email" should be required
+   * @endcode
+   */
+  #[Then('the field :field should be required')]
+  public function fieldAssertRequired(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    if ($this->fieldIsMarkedRequired($field_element)) {
+      return;
+    }
+
+    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but should be.', $field), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert that a field is not marked as required.
+   *
+   * @code
+   * Then the field "Nickname" should not be required
+   * @endcode
+   */
+  #[Then('the field :field should not be required')]
+  public function fieldAssertNotRequired(string $field): void {
+    $field_element = $this->fieldAssertExists($field);
+
+    if (!$this->fieldIsMarkedRequired($field_element)) {
+      return;
+    }
+
+    throw new ExpectationException(sprintf('The field "%s" is marked as required, but should not be.', $field), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert that a color field has a value.
+   *
+   * @code
+   * Then the color field "#edit-background-color" should have the value "#FF5733"
+   * @endcode
+   */
+  #[Then('the color field :field should have the value :value')]
+  public function fieldAssertColorFieldHasValue(string $field, string $value): void {
+    $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
+    $script = <<<JS
+      (function() {
+        var element = document.querySelector({$field_js});
+        if (!element) {
+          throw new Error('Element not found: ' + {$field_js});
+        }
+        return element.value;
+      })();
+JS;
+    $actual = $this->getSession()->evaluateScript($script);
+
+    if ($actual !== $value) {
+      throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a select has an option.
+   *
+   * @code
+   * Then the option "Administrator" should exist within the select element "edit-roles"
+   * @endcode
+   */
+  #[Then('the option :option should exist within the select element :selector')]
+  public function fieldAssertSelectOptionExists(string $selector, string $option): void {
+    $select_element = $this->getSession()->getPage()->findField($selector);
+
+    if ($select_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
+    }
+
+    $option_element = $select_element->find('named', ['option', $option]);
+
+    if ($option_element === NULL) {
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a select does not have an option.
+   *
+   * @code
+   * Then the option "Guest" should not exist within the select element "edit-roles"
+   * @endcode
+   */
+  #[Then('the option :option should not exist within the select element :selector')]
+  public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
+    $select_element = $this->getSession()->getPage()->findField($selector);
+
+    if ($select_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
+    }
+
+    $option_element = $select_element->find('named', ['option', $option]);
+
+    if ($option_element !== NULL) {
+      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page %s, but should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a select option is selected.
+   *
+   * @code
+   * Then the option "Administrator" should be selected within the select element "edit-roles"
+   * @endcode
+   */
+  #[Then('the option :option should be selected within the select element :selector')]
+  public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    $path = $this->fieldCurrentPath();
+
+    if (!$select_field) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
+    }
+
+    $option_field = $select_field->find('named', [
+      'option',
+      $option,
+    ]);
+
+    if (!$option_field) {
+      throw new ExpectationException(sprintf('No option is selected in the %s select on the page %s.', $selector, $path), $this->getSession()->getDriver());
+    }
+
+    if (!$option_field->isSelected()) {
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $option, $path), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a select option is not selected.
+   *
+   * @code
+   * Then the option "Editor" should not be selected within the select element "edit-roles"
+   * @endcode
+   */
+  #[Then('the option :option should not be selected within the select element :selector')]
+  public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
+    $select_field = $this->getSession()->getPage()->findField($selector);
+    $path = $this->fieldCurrentPath();
+
+    if (!$select_field) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
+    }
+
+    $option_field = $select_field->find('named', ['option', $option]);
+
+    if (!$option_field) {
+      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $path), $this->getSession()->getDriver());
+    }
+
+    if ($option_field->isSelected()) {
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but should not be.', $option, $selector, $path), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a radio button is selected.
+   *
+   * @param string $selector
+   *   The radio button id, name, label or value.
+   *
+   * @code
+   *   Then the radio button "Option A" should be selected
+   *   Then the radio button "edit-field-choice-option-a" should be selected
+   * @endcode
+   */
+  #[Then('the radio button :selector should be selected')]
+  public function fieldAssertRadioSelected(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $page = $this->getSession()->getPage();
+    $radio_button = $page->findField($selector);
+
+    if ($radio_button === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
+    }
+
+    if (!$radio_button->isChecked()) {
+      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but should be.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a radio button is not selected.
+   *
+   * @param string $selector
+   *   The radio button id, name, label or value.
+   *
+   * @code
+   *   Then the radio button "Option B" should not be selected
+   *   Then the radio button "edit-field-choice-option-b" should not be selected
+   * @endcode
+   */
+  #[Then('the radio button :selector should not be selected')]
+  public function fieldAssertRadioNotSelected(string $selector): void {
+    $selector = $this->helperFixStepArgument($selector);
+
+    $page = $this->getSession()->getPage();
+    $radio_button = $page->findField($selector);
+
+    if ($radio_button === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
+    }
+
+    if ($radio_button->isChecked()) {
+      throw new ExpectationException(sprintf('The radio button "%s" is selected, but should not be.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * CSS selectors for the "Add another item" button.
+   *
+   * Returned selectors are tried in order. Override in a subclass to
+   * customise the selectors for custom themes or widget implementations.
+   *
+   * @return array<int, string>
+   *   CSS selectors to probe for the add-another-item button.
+   */
+  protected function fieldGetAddMoreButtonSelectors(): array {
+    return [
+      'input[value="Add another item"]',
+      'button.field-add-more-submit',
+    ];
+  }
+
+  /**
+   * CSS selectors that indicate a required-field marker.
+   *
+   * Nothing consumes this list yet: ::fieldIsMarkedRequired() probes for the
+   * `required` attribute and the `form-required` class directly. It is kept as
+   * the intended override point for that check.
+   *
+   * @return array<int, string>
+   *   CSS selectors to probe for a required marker.
+   */
+  protected function fieldGetRequiredMarkerSelectors(): array {
+    return ['.form-required', '[required]'];
+  }
+
+  /**
+   * Check if a given field element is marked as required.
+   *
+   * Checks the native `required` attribute, the `form-required` class on
+   * the field or any associated label, and the presence of a `*` character
+   * inside any associated label.
+   */
+  protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
+    if ($field_element->hasAttribute('required')) {
+      return TRUE;
+    }
+
+    $classes = (string) $field_element->getAttribute('class');
+    if (str_contains($classes, 'form-required')) {
+      return TRUE;
+    }
+
+    $page = $this->getSession()->getPage();
+
+    $field_id = $field_element->getAttribute('id');
+    $label = NULL;
+    if ($field_id !== NULL && $field_id !== '') {
+      $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
+    }
+
+    $label ??= $field_element->find('xpath', 'ancestor::label[1]');
+
+    if ($label instanceof NodeElement) {
+      $label_classes = (string) $label->getAttribute('class');
+      if (str_contains($label_classes, 'form-required')) {
+        return TRUE;
+      }
+
+      if (str_contains($label->getText(), '*')) {
+        return TRUE;
+      }
+
+      if ($label->find('css', '.form-required') !== NULL) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * The path of the current page, as used in failure messages.
+   *
+   * @return string
+   *   The path component of the current URL.
+   */
+  protected function fieldCurrentPath(): string {
+    return (string) parse_url((string) $this->getSession()->getCurrentUrl(), PHP_URL_PATH);
+  }
+
+  /**
+   * Wrap a string in an XPath-safe literal.
+   *
+   * Handles strings containing single quotes, double quotes, or both.
+   */
+  protected function fieldXpathLiteral(string $value): string {
+    if (!str_contains($value, "'")) {
+      return "'" . $value . "'";
+    }
+    if (!str_contains($value, '"')) {
+      return '"' . $value . '"';
+    }
+    $parts = explode("'", $value);
+    return "concat('" . implode("', \"'\", '", $parts) . "')";
+  }
+
+  /**
+   * Disable browser validation for forms.
+   *
+   * Silently handles cases where forms don't exist yet (deferred execution).
+   *
+   * @param string|null $selector
+   *   The CSS selector for form(s). If NULL, disables all forms on page.
+   */
+  protected function fieldDisableFormValidation(?string $selector = NULL): void {
+    $selector ??= 'form';
+    $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
+
+    $script = <<<JS
+      (function() {
+        var forms = document.querySelectorAll({$selector_js});
+        if (forms.length > 0) {
+          forms.forEach(function(form) {
+            form.setAttribute('novalidate', 'novalidate');
+          });
+        }
+      })();
+JS;
+
+    $this->getSession()->executeScript($script);
   }
 
   /**

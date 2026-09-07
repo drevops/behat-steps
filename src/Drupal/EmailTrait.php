@@ -114,6 +114,137 @@ trait EmailTrait {
   }
 
   /**
+   * Follow a specific link number in an email with the given subject.
+   *
+   * @code
+   * When I follow link number "1" in the email with the subject "Account Verification"
+   * @endcode
+   */
+  #[When('I follow link number :link_number in the email with the subject :subject')]
+  public function emailFollowLinkNumber(string $link_number, string $subject): void {
+    $link_number = $this->emailAssertLinkNumber($link_number);
+
+    $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
+
+    if (!$message) {
+      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
+    }
+
+    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
+      $body = $message['params']['body'];
+    }
+    // @codeCoverageIgnoreStart
+    elseif (is_string($message['body'])) {
+      $body = $message['body'];
+    }
+    else {
+      throw new \RuntimeException('No body found in email.');
+    }
+    // @codeCoverageIgnoreEnd
+    $links = self::emailExtractLinks($body);
+
+    if (empty($links)) {
+      throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
+    }
+
+    if (count($links) < $link_number) {
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
+    }
+
+    $link = $links[$link_number - 1];
+    $this->getSession()->visit($link);
+  }
+
+  /**
+   * Follow a specific link number in an email whose subject contains the given substring.
+   *
+   * @code
+   * When I follow link number "1" in the email with the subject containing "Verification"
+   * @endcode
+   */
+  #[When('I follow link number :link_number in the email with the subject containing :subject')]
+  public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
+    $link_number = $this->emailAssertLinkNumber($link_number);
+
+    $message = NULL;
+    foreach ($this->emailGetCollectedMessages() as $m) {
+      if (str_contains(strtolower((string) $m['subject']), strtolower($subject))) {
+        $message = $m;
+        break;
+      }
+    }
+
+    if (!$message) {
+      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
+    }
+
+    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
+      $body = $message['params']['body'];
+    }
+    // @codeCoverageIgnoreStart
+    elseif (is_string($message['body'])) {
+      $body = $message['body'];
+    }
+    else {
+      throw new \RuntimeException('No body found in email.');
+    }
+    // @codeCoverageIgnoreEnd
+    $links = self::emailExtractLinks($body);
+
+    if (empty($links)) {
+      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
+    }
+
+    if (count($links) < $link_number) {
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
+    }
+
+    $link = $links[$link_number - 1];
+
+    $this->getSession()->visit($link);
+  }
+
+  /**
+   * Enable the test email system.
+   *
+   * @code
+   * When I enable the test email system
+   * @endcode
+   */
+  #[When('I enable the test email system')]
+  public function emailEnableTestSystem(): void {
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = self::emailGetMailSystemDefault($type);
+      if (!self::emailGetMailSystemOriginal($type)) {
+        self::emailSetMailSystemOriginal($type, $original_test_system);
+      }
+      self::emailSetMailSystemDefault($type, 'test_mail_collector');
+    }
+
+    // Clearing here lets this step definition be reused to clear existing
+    // mail.
+    $this->emailClearTestQueue(TRUE);
+  }
+
+  /**
+   * Disable test email system.
+   *
+   * @code
+   * When I disable the test email system
+   * @endcode
+   */
+  #[When('I disable the test email system')]
+  public function emailDisableTestEmailSystem(): void {
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = self::emailGetMailSystemOriginal($type);
+      self::emailSetMailSystemDefault($type, $original_test_system);
+    }
+
+    self::emailDeleteMailSystemOriginal();
+    $this->emailClearTestQueue(TRUE);
+  }
+
+  /**
    * Assert that an email should be sent to an address.
    *
    * @code
@@ -380,97 +511,6 @@ trait EmailTrait {
   }
 
   /**
-   * Follow a specific link number in an email with the given subject.
-   *
-   * @code
-   * When I follow link number "1" in the email with the subject "Account Verification"
-   * @endcode
-   */
-  #[When('I follow link number :link_number in the email with the subject :subject')]
-  public function emailFollowLinkNumber(string $link_number, string $subject): void {
-    $link_number = $this->emailAssertLinkNumber($link_number);
-
-    $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
-
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
-    }
-
-    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
-      $body = $message['params']['body'];
-    }
-    // @codeCoverageIgnoreStart
-    elseif (is_string($message['body'])) {
-      $body = $message['body'];
-    }
-    else {
-      throw new \RuntimeException('No body found in email.');
-    }
-    // @codeCoverageIgnoreEnd
-    $links = self::emailExtractLinks($body);
-
-    if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
-    }
-
-    if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
-    }
-
-    $link = $links[$link_number - 1];
-    $this->getSession()->visit($link);
-  }
-
-  /**
-   * Follow a specific link number in an email whose subject contains the given substring.
-   *
-   * @code
-   * When I follow link number "1" in the email with the subject containing "Verification"
-   * @endcode
-   */
-  #[When('I follow link number :link_number in the email with the subject containing :subject')]
-  public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
-    $link_number = $this->emailAssertLinkNumber($link_number);
-
-    $message = NULL;
-    foreach ($this->emailGetCollectedMessages() as $m) {
-      if (str_contains(strtolower((string) $m['subject']), strtolower($subject))) {
-        $message = $m;
-        break;
-      }
-    }
-
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
-    }
-
-    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
-      $body = $message['params']['body'];
-    }
-    // @codeCoverageIgnoreStart
-    elseif (is_string($message['body'])) {
-      $body = $message['body'];
-    }
-    else {
-      throw new \RuntimeException('No body found in email.');
-    }
-    // @codeCoverageIgnoreEnd
-    $links = self::emailExtractLinks($body);
-
-    if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
-    }
-
-    if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
-    }
-
-    $link = $links[$link_number - 1];
-
-    $this->getSession()->visit($link);
-  }
-
-  /**
    * Assert that a file is attached to an email message with specified subject.
    *
    * @code
@@ -526,46 +566,6 @@ trait EmailTrait {
     }
 
     throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
-  }
-
-  /**
-   * Enable the test email system.
-   *
-   * @code
-   * When I enable the test email system
-   * @endcode
-   */
-  #[When('I enable the test email system')]
-  public function emailEnableTestSystem(): void {
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = self::emailGetMailSystemDefault($type);
-      if (!self::emailGetMailSystemOriginal($type)) {
-        self::emailSetMailSystemOriginal($type, $original_test_system);
-      }
-      self::emailSetMailSystemDefault($type, 'test_mail_collector');
-    }
-
-    // Clearing here lets this step definition be reused to clear existing
-    // mail.
-    $this->emailClearTestQueue(TRUE);
-  }
-
-  /**
-   * Disable test email system.
-   *
-   * @code
-   * When I disable the test email system
-   * @endcode
-   */
-  #[When('I disable the test email system')]
-  public function emailDisableTestEmailSystem(): void {
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = self::emailGetMailSystemOriginal($type);
-      self::emailSetMailSystemDefault($type, $original_test_system);
-    }
-
-    self::emailDeleteMailSystemOriginal();
-    $this->emailClearTestQueue(TRUE);
   }
 
   /**

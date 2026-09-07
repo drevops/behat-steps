@@ -64,13 +64,6 @@ trait DateTrait {
   }
 
   /**
-   * Assert that string has a token.
-   */
-  protected static function dateRelativeStringHasToken(string $string): bool {
-    return str_contains($string, '[relative:');
-  }
-
-  /**
    * Process date values to convert relative timestamps to actual values.
    *
    * Public API: a composing context may call this directly to resolve a token
@@ -129,6 +122,13 @@ trait DateTrait {
 
       return $formatted;
     }, $value);
+  }
+
+  /**
+   * Assert that string has a token.
+   */
+  protected static function dateRelativeStringHasToken(string $string): bool {
+    return str_contains($string, '[relative:');
   }
 
   /**

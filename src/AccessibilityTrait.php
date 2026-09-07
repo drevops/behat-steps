@@ -296,36 +296,6 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Fail the scenario when collected results breach the automatic gate.
-   *
-   * @throws \Behat\Mink\Exception\ExpectationException
-   *   If a violation at or above the threshold was collected.
-   */
-  protected function accessibilityEnforceGate(): void {
-    $threshold = $this->accessibilityEffectiveThreshold();
-    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
-    $messages = [];
-
-    foreach ($this->accessibilityResults as $r) {
-      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
-
-      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
-        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
-      }
-      if ($check_incomplete) {
-        foreach ($r['result']['incomplete'] ?? [] as $i) {
-          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
-        }
-      }
-    }
-
-    if ($messages !== []) {
-      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-  }
-
-  /**
    * Render the single cross-page report after the whole suite has run.
    */
   #[AfterSuite]
@@ -377,6 +347,36 @@ trait AccessibilityTrait {
       ),
       $this->getSession()->getDriver()
     );
+  }
+
+  /**
+   * Fail the scenario when collected results breach the automatic gate.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If a violation at or above the threshold was collected.
+   */
+  protected function accessibilityEnforceGate(): void {
+    $threshold = $this->accessibilityEffectiveThreshold();
+    $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
+    $messages = [];
+
+    foreach ($this->accessibilityResults as $r) {
+      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
+
+      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
+        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
+      }
+      if ($check_incomplete) {
+        foreach ($r['result']['incomplete'] ?? [] as $i) {
+          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
+        }
+      }
+    }
+
+    if ($messages !== []) {
+      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
   }
 
   /**
