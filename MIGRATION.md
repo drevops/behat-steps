@@ -208,6 +208,33 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | `Given the response content from the file :filename` | `Given the response XML is loaded from the file :filename` |
 | `Given the response content is the following:` | `Given the response XML is the following:` |
 
+## I-prefixed step text and placeholder types
+
+A further six steps changed, on two conventions the unification pass above did not cover: a `Given` or `Then` step does not begin with `I`, and a placeholder names the value's role rather than its type. The two sets do not overlap - check both when upgrading.
+
+A `Given` step states a precondition rather than narrating an action, so it does not begin with `I`:
+
+| Before | After |
+| --- | --- |
+| `Given I accept all confirmation dialogs` | `Given confirmation dialogs are accepted` |
+| `Given I do not accept any confirmation dialogs` | `Given confirmation dialogs are declined` |
+
+A `Then` step begins with the entity being asserted rather than with `I`:
+
+| Before | After |
+| --- | --- |
+| `Then I should see the modal` | `Then the modal should be displayed` |
+| `Then I should not see the modal` | `Then the modal should not be displayed` |
+
+Placeholders name the value's role rather than its type, so `:number` became `:offset`:
+
+| Before | After |
+| --- | --- |
+| `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within a viewport with a top offset of :offset pixels` |
+| `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels` |
+
+This also renames the `$number` argument of `ElementTrait::elementAssertIsVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertIsNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
+
 ## Optional dependencies moved to `require-dev` and `suggest`
 
 Trait-specific packages are no longer hard `require` dependencies. They now live in `require-dev` (so this library's own test suite still runs) and `suggest`, matching the existing treatment of `justinrainbow/json-schema`. Projects that relied on transitive installation must add the packages they use to their own `composer.json`.

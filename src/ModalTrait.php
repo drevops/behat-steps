@@ -26,12 +26,12 @@ trait ModalTrait {
    * Assert that the modal is visible.
    *
    * @code
-   * Then I should see the modal
+   * Then the modal should be displayed
    * @endcode
    *
    * @javascript
    */
-  #[Then('I should see the modal')]
+  #[Then('the modal should be displayed')]
   public function modalAssertVisible(): void {
     $modal = $this->modalFind();
 
@@ -44,12 +44,12 @@ trait ModalTrait {
    * Assert that the modal is not visible.
    *
    * @code
-   * Then I should not see the modal
+   * Then the modal should not be displayed
    * @endcode
    *
    * @javascript
    */
-  #[Then('I should not see the modal')]
+  #[Then('the modal should not be displayed')]
   public function modalAssertNotVisible(): void {
     $modal = $this->modalFind();
 

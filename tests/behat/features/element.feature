@@ -220,21 +220,21 @@ Feature: Check that ElementTrait works
     Then I should see an ".overlay-visible" element
 
   @javascript @phpserver
-  Scenario: Assert Accept/Not Accept confirmation
+  Scenario: Assert "Given confirmation dialogs are accepted" works
     Given I visit "http://cli:8888/elements_relative.html"
+    And confirmation dialogs are accepted
     Then I should see the button "Test confirm"
     And I should not see the button "You pressed OK!"
-    When I accept all confirmation dialogs
-    And I press the "Test confirm" button
+    When I press the "Test confirm" button
     Then I should see the button "You pressed OK!"
 
   @javascript @phpserver
-  Scenario: Assert Not Accept confirmation
+  Scenario: Assert "Given confirmation dialogs are declined" works
     Given I visit "http://cli:8888/elements_relative.html"
+    And confirmation dialogs are declined
     Then I should see the button "Test confirm"
     And I should not see the button "You canceled!"
-    When I do not accept any confirmation dialogs
-    And I press the "Test confirm" button
+    When I press the "Test confirm" button
     Then I should see the button "You canceled!"
 
   @javascript @phpserver
@@ -299,17 +299,17 @@ Feature: Check that ElementTrait works
       """
 
   @api @javascript @phpserver
-  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :number pixels" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
 
   @api @javascript @phpserver
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
 
   @api @javascript @phpserver @skipped
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :number pixels" fails as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """

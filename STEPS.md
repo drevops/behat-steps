@@ -590,28 +590,28 @@ When I drop the following files on the ".dropzone" dropzone:
 
 
 <details>
-  <summary><code>@Given I accept all confirmation dialogs</code></summary>
+  <summary><code>@Given confirmation dialogs are accepted</code></summary>
 
 <br/>
 Accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given I accept all confirmation dialogs
+Given confirmation dialogs are accepted
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given I do not accept any confirmation dialogs</code></summary>
+  <summary><code>@Given confirmation dialogs are declined</code></summary>
 
 <br/>
 Do not accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given I do not accept any confirmation dialogs
+Given confirmation dialogs are declined
 
 ```
 
@@ -1070,7 +1070,7 @@ Then the element ".hero-banner" should be displayed within a viewport
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :number pixels</code></summary>
+  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :offset pixels</code></summary>
 
 <br/>
 Assert that element with specified CSS is displayed within a viewport with a top offset
@@ -1084,7 +1084,7 @@ Then the element ".sticky-header" should be displayed within a viewport with a t
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels</code></summary>
+  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels</code></summary>
 
 <br/>
 Assert that element with specified CSS is not displayed within a viewport with a top offset
@@ -2591,28 +2591,28 @@ When I wait for the modal to appear
 </details>
 
 <details>
-  <summary><code>@Then I should see the modal</code></summary>
+  <summary><code>@Then the modal should be displayed</code></summary>
 
 <br/>
 Assert that the modal is visible
 <br/><br/>
 
 ```gherkin
-Then I should see the modal
+Then the modal should be displayed
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then I should not see the modal</code></summary>
+  <summary><code>@Then the modal should not be displayed</code></summary>
 
 <br/>
 Assert that the modal is not visible
 <br/><br/>
 
 ```gherkin
-Then I should not see the modal
+Then the modal should not be displayed
 
 ```
 

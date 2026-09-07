@@ -25,6 +25,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('extract_info')]
 #[CoversFunction('parse_class_comment')]
 #[CoversFunction('tag_registry')]
+#[CoversFunction('non_descriptive_placeholders')]
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
@@ -1206,7 +1207,7 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testMethod - Missing "I " in the step' . PHP_EOL],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
       ],
       'then without assert in method' => [
         [
@@ -1275,6 +1276,227 @@ EOD,
           ],
         ],
         ['  TestTrait::testAssertMethod - Missing "the", "a" or "no" in the step' . PHP_EOL],
+      ],
+      'given starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given I accept all confirmation dialogs'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
+      ],
+      'then starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then I should see the modal'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step is in the first person but should start with the asserted entity' . PHP_EOL],
+      ],
+      'given with title case first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given My account exists'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
+      ],
+      'then with an all caps acronym' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the US date format should be used'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'given with first person mid step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given the page I am on is cached'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
+      ],
+      'then with possessive first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then my account should be blocked from the site'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step is in the first person but should start with the asserted entity' . PHP_EOL],
+      ],
+      'when with an acronym containing I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When the Search API cron runs'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+      ],
+      'when in the first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When I run the Search API cron'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'bare category placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the content :type should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":type" in the step' . PHP_EOL],
+      ],
+      'non-descriptive placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector should be displayed with an offset of :number pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":number" in the step' . PHP_EOL],
+      ],
+      'camel case placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :stringValue element should be displayed'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":stringValue" in the step is not snake_case' . PHP_EOL],
+      ],
+      'numbered placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector1 should stack above the element :selector2'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'descriptive placeholders in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :parent should contain :count elements matching :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
       ],
       'missing example' => [
         [
@@ -2091,6 +2313,20 @@ EOD,
     foreach ($registry as $prefix => $type) {
       $this->assertIsString($prefix);
       $this->assertContains($type, ['parametrized', 'flag']);
+    }
+  }
+
+  public function testNonDescriptivePlaceholders(): void {
+    $placeholders = non_descriptive_placeholders();
+
+    $this->assertContains('number', $placeholders);
+    $this->assertNotContains('count', $placeholders);
+    $this->assertNotContains('param', $placeholders);
+
+    // Names are compared against the placeholders extracted from a step
+    // pattern, which carry no leading colon.
+    foreach ($placeholders as $placeholder) {
+      $this->assertStringStartsNotWith(':', $placeholder);
     }
   }
 

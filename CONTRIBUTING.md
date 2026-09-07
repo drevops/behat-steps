@@ -16,7 +16,9 @@ of tests. Follow these guidelines:
   - For anything identified by a property, use `with`: <code>Then the link :
     link <b>with</b> the title :title should exist</code>
   - Avoid optional words like `(the|a)`. Provide a single form instead to ensure
-    consistency.
+    consistency. The `(s)` plural token is the exception: a step whose noun
+    agrees with a count or a list keeps it, as in `:count row(s)` and
+    `the role(s) :roles`, so both forms read naturally.
   - Omit unnecessary suffixes like `on the page` since it is implied.
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuLoadByLabel()`, not `loadMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
   - A method that overrides a Drupal Extension context method, such as `OverrideTrait::createNodes()` or `TaxonomyTrait::createTerms()`, is the one exception: an override binds by name, so it keeps the parent's. List it in `PARENT_OVERRIDES` in `TraitMethodNamingTest` instead of renaming it.
@@ -26,18 +28,18 @@ of tests. Follow these guidelines:
     test runs.
   - Use words like `exists` or `have`.
   - Avoid using `should` or `should not` (these are reserved for assertions).
-  - Refrain from using `Given I` (reserved for actions).
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. A precondition is a fact about the world, not something the person does.
 
 - **`When`**:
   - Describes an action and must contain an action verb.
-  - Use the format `When I <verb>`.
+  - Use the format `When I <verb>`. The step must start with `I` followed by a space - the first person is what separates an action from a precondition.
 
 - **`Then`**:
   - Specifies assertions and expectations.
   - Use `should` and `should not` to clearly indicate assertions.
   - Start the step with the entity being asserted, e.g.,
     `Then the link with a title :title exists`.
-  - Avoid using `Then I`.
+  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
 
 We have some automated check for the steps format.
