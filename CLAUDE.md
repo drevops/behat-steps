@@ -101,6 +101,24 @@ ahoy copy-files
   - Avoid using `Then I`
   - Methods should include the `Assert` prefix
 
+## Exception Types
+
+Which exception a step throws is part of the public contract - consumers catch on it, and the `@trait:` harness asserts on it. Pick the type by what failed, never by what the surrounding code happens to use:
+
+| Failure | Throw |
+| --- | --- |
+| An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
+| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
+| The current driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+
+Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
+
+A trait without a Mink session is one that never calls `$this->getSession()` - `CommandTrait`, `Drupal\ConfigTrait`, `Drupal\ModuleTrait`, `Drupal\StateTrait` and `Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
+
+In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
+
 ## Common Behat Step Patterns
 - Block assertions:
   - `I should see the block with label "..."`

@@ -32,7 +32,7 @@ Feature: Check that XmlTrait works
     Then the response should be in XML format
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the response should be in XML format" fails with an exception
+  Scenario: Assert that negative assertion for "Then the response should be in XML format" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -40,9 +40,9 @@ Feature: Check that XmlTrait works
       Then the response should be in XML format
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with an error:
       """
-      Failed to load XML
+      The response is not valid XML
       """
 
   @phpserver

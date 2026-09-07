@@ -175,16 +175,19 @@ your host - as long as that browser can reach your site's `base_url`.
 
 ### Exceptions
 
-This library uses [Mink exception classes](https://mink.behat.org/en/latest/)
-for
-consistent error handling:
+This library reports failures with a small, fixed set of exception types, mostly [Mink's](https://mink.behat.org/en/latest/):
 
 | Exception                          | When thrown                                          |
 |------------------------------------|------------------------------------------------------|
 | `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
 | `ExpectationException`             | Assertion fails (value mismatch, state verification) |
+| `AssertionException`               | Assertion fails in a step with no Mink session       |
 | `UnsupportedDriverActionException` | Feature requires specific driver (e.g., Selenium)    |
 | `\RuntimeException`                | Invalid input or processing error (not an assertion) |
+
+`ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
+
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `CommandTrait` and `Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 

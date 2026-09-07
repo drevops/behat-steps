@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Exception\AssertionException;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -181,7 +182,7 @@ trait RedirectTrait {
     }
 
     if ($missing !== []) {
-      throw new \Exception(sprintf('The following redirects should exist but were not found: %s.', implode(', ', $missing)));
+      throw new AssertionException(sprintf('The following redirects should exist but were not found: %s.', implode(', ', $missing)));
     }
   }
 
@@ -217,7 +218,7 @@ trait RedirectTrait {
     }
 
     if ($present !== []) {
-      throw new \Exception(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
+      throw new AssertionException(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
     }
   }
 

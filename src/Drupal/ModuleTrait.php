@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
  * Enable and disable Drupal modules with automatic state restoration.
@@ -165,7 +166,7 @@ trait ModuleTrait {
   #[Then('the :module module should be enabled')]
   public function moduleAssertEnabled(string $module): void {
     if (!$this->moduleIsEnabled($module)) {
-      throw new \Exception(sprintf('The module "%s" is not enabled, but it should be.', $module));
+      throw new AssertionException(sprintf('The module "%s" is not enabled, but it should be.', $module));
     }
   }
 
@@ -179,7 +180,7 @@ trait ModuleTrait {
   #[Then('the :module module should be disabled')]
   public function moduleAssertDisabled(string $module): void {
     if ($this->moduleIsEnabled($module)) {
-      throw new \Exception(sprintf('The module "%s" is enabled, but it should not be.', $module));
+      throw new AssertionException(sprintf('The module "%s" is enabled, but it should not be.', $module));
     }
   }
 
@@ -196,7 +197,7 @@ trait ModuleTrait {
   public function moduleAssertEnabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       if (!$this->moduleIsEnabled($module)) {
-        throw new \Exception(sprintf('The module "%s" is not enabled, but it should be.', $module));
+        throw new AssertionException(sprintf('The module "%s" is not enabled, but it should be.', $module));
       }
     }
   }
@@ -214,7 +215,7 @@ trait ModuleTrait {
   public function moduleAssertDisabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
       if ($this->moduleIsEnabled($module)) {
-        throw new \Exception(sprintf('The module "%s" is enabled, but it should not be.', $module));
+        throw new AssertionException(sprintf('The module "%s" is enabled, but it should not be.', $module));
       }
     }
   }

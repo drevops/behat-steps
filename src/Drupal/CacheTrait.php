@@ -30,11 +30,11 @@ trait CacheTrait {
   #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
     if ($path === '') {
-      throw new \InvalidArgumentException('The path must not be empty.');
+      throw new \RuntimeException('The path must not be empty.');
     }
 
     if (!str_starts_with($path, '/')) {
-      throw new \InvalidArgumentException(sprintf('The path "%s" must start with a leading slash.', $path));
+      throw new \RuntimeException(sprintf('The path "%s" must start with a leading slash.', $path));
     }
 
     Cache::invalidateTags(['http_response', 'url:' . $path]);
@@ -53,11 +53,11 @@ trait CacheTrait {
   #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
     if ($path_pattern === '') {
-      throw new \InvalidArgumentException('The path pattern must not be empty.');
+      throw new \RuntimeException('The path pattern must not be empty.');
     }
 
     if (!str_starts_with($path_pattern, '/')) {
-      throw new \InvalidArgumentException(sprintf('The path pattern "%s" must start with a leading slash.', $path_pattern));
+      throw new \RuntimeException(sprintf('The path pattern "%s" must start with a leading slash.', $path_pattern));
     }
 
     $bin = $this->cacheGetPageCacheBin();

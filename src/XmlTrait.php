@@ -117,7 +117,11 @@ trait XmlTrait {
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseIsXml(): void {
-    $this->xmlEnsureDocument();
+    $parsed = $this->xmlParse($this->xmlResolveContent());
+
+    if (!$parsed['loaded']) {
+      throw new ExpectationException(sprintf('The response is not valid XML: %s.', $this->xmlFormatErrors($parsed['errors'])), $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -133,16 +137,9 @@ trait XmlTrait {
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseIsNotXml(): void {
-    // Resolve content the same way as xmlEnsureDocument().
-    $content = $this->xmlTestContent ?? $this->getSession()->getPage()->getContent();
+    $parsed = $this->xmlParse($this->xmlResolveContent());
 
-    $document = new \DOMDocument();
-    libxml_clear_errors();
-    $loaded = @$document->loadXML($content);
-    $errors = libxml_get_errors();
-    libxml_clear_errors();
-
-    if ($loaded && empty($errors)) {
+    if ($parsed['loaded'] && $parsed['errors'] === []) {
       throw new ExpectationException('The response is valid XML, but it should not be.', $this->getSession()->getDriver());
     }
   }
@@ -678,6 +675,37 @@ trait XmlTrait {
     }
 
     print $output;
+  }
+
+  /**
+   * Resolve the response content to assert against.
+   *
+   * @return string
+   *   The content set by a fixture step, or the live page content.
+   */
+  protected function xmlResolveContent(): string {
+    return $this->xmlTestContent ?? (string) $this->getSession()->getPage()->getContent();
+  }
+
+  /**
+   * Parse XML content without disturbing the cached document.
+   *
+   * @param string $content
+   *   The XML content to parse.
+   *
+   * @return array{loaded: bool, errors: array<int, \LibXMLError>}
+   *   Whether the content parsed into a document, and the errors libxml raised
+   *   while parsing it. A document can parse and still raise errors.
+   */
+  protected function xmlParse(string $content): array {
+    $document = new \DOMDocument();
+
+    libxml_clear_errors();
+    $loaded = (bool) @$document->loadXML($content);
+    $errors = libxml_get_errors();
+    libxml_clear_errors();
+
+    return ['loaded' => $loaded, 'errors' => $errors];
   }
 
   /**

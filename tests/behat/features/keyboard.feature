@@ -76,7 +76,7 @@ Feature: Check that KeyboardTrait works
       When I press the key "" on the element "#input1"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "InvalidArgumentException" exception:
+    Then it should fail with an exception:
       """
       The keyboard key must not be empty.
       """

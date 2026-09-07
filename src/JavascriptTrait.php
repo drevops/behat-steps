@@ -104,7 +104,7 @@ trait JavascriptTrait {
    * reported here instead. The scenario has already failed by then, so the
    * assertion cannot mask a passing scenario from the rerun cache.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
    */
   #[AfterScenario('@javascript')]
@@ -172,7 +172,7 @@ trait JavascriptTrait {
    * on the last step rather than on every step lets the registry accumulate
    * errors from every page the scenario visited.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
    */
   #[AfterStep]
@@ -320,7 +320,7 @@ JS;
   /**
    * Assert that no JavaScript errors were collected.
    *
-   * @throws \Exception
+   * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
    */
   protected function javascriptAssertNoErrors(): void {

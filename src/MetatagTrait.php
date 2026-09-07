@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
 
@@ -59,7 +60,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new \Exception(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)));
+      throw new ExpectationException(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)), $this->getSession()->getDriver());
     }
   }
 
@@ -91,7 +92,7 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        throw new \Exception(sprintf('Meta tag with specified attributes should not exist: %s.', json_encode($attributes)));
+        throw new ExpectationException(sprintf('Meta tag with specified attributes should not exist: %s.', json_encode($attributes)), $this->getSession()->getDriver());
       }
     }
   }
@@ -112,13 +113,13 @@ trait MetatagTrait {
     $meta_tag = $this->metatagFindMeta($meta_name);
 
     if ($meta_tag === NULL) {
-      throw new \Exception(sprintf('Meta tag with name or property "%s" not found.', $meta_name));
+      throw new ExpectationException(sprintf('Meta tag with name or property "%s" not found.', $meta_name), $this->getSession()->getDriver());
     }
 
     $content = (string) $meta_tag->getAttribute('content');
 
     if ($content !== strip_tags($content)) {
-      throw new \Exception(sprintf('The "%s" meta tag contains HTML tags: %s.', $meta_name, $content));
+      throw new ExpectationException(sprintf('The "%s" meta tag contains HTML tags: %s.', $meta_name, $content), $this->getSession()->getDriver());
     }
   }
 
@@ -139,11 +140,11 @@ trait MetatagTrait {
     $href = $this->metatagGetCanonicalHref();
 
     if ($href === NULL || $href === '') {
-      throw new \Exception('The canonical URL is not set.');
+      throw new ExpectationException('The canonical URL is not set.', $this->getSession()->getDriver());
     }
 
     if ($this->metatagResolveUrl($href) !== $this->metatagResolveUrl($url)) {
-      throw new \Exception(sprintf('The canonical URL is "%s", but expected "%s".', $href, $url));
+      throw new ExpectationException(sprintf('The canonical URL is "%s", but expected "%s".', $href, $url), $this->getSession()->getDriver());
     }
   }
 
@@ -159,7 +160,7 @@ trait MetatagTrait {
     $href = $this->metatagGetCanonicalHref();
 
     if ($href === NULL || $href === '') {
-      throw new \Exception('The canonical URL is not set.');
+      throw new ExpectationException('The canonical URL is not set.', $this->getSession()->getDriver());
     }
   }
 
@@ -175,7 +176,7 @@ trait MetatagTrait {
     $href = $this->metatagGetCanonicalHref();
 
     if ($href !== NULL && $href !== '') {
-      throw new \Exception(sprintf('The canonical URL should not be set, but found "%s".', $href));
+      throw new ExpectationException(sprintf('The canonical URL should not be set, but found "%s".', $href), $this->getSession()->getDriver());
     }
   }
 
@@ -192,7 +193,7 @@ trait MetatagTrait {
   #[Then('the page should be indexable')]
   public function metatagAssertIndexable(): void {
     if (!$this->metatagIsIndexable()) {
-      throw new \Exception('The page is not indexable: a "noindex" directive is present in the robots meta tag or the "X-Robots-Tag" header.');
+      throw new ExpectationException('The page is not indexable: a "noindex" directive is present in the robots meta tag or the "X-Robots-Tag" header.', $this->getSession()->getDriver());
     }
   }
 
@@ -206,7 +207,7 @@ trait MetatagTrait {
   #[Then('the page should not be indexable')]
   public function metatagAssertNotIndexable(): void {
     if ($this->metatagIsIndexable()) {
-      throw new \Exception('The page is indexable, but it should not be: no "noindex" directive found in the robots meta tag or the "X-Robots-Tag" header.');
+      throw new ExpectationException('The page is indexable, but it should not be: no "noindex" directive found in the robots meta tag or the "X-Robots-Tag" header.', $this->getSession()->getDriver());
     }
   }
 
@@ -226,7 +227,7 @@ trait MetatagTrait {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (!in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new \Exception(sprintf('The robots meta tag does not include the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)));
+      throw new ExpectationException(sprintf('The robots meta tag does not include the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)), $this->getSession()->getDriver());
     }
   }
 
@@ -243,7 +244,7 @@ trait MetatagTrait {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new \Exception(sprintf('The robots meta tag includes the "%s" directive, but it should not.', $directive));
+      throw new ExpectationException(sprintf('The robots meta tag includes the "%s" directive, but it should not.', $directive), $this->getSession()->getDriver());
     }
   }
 
@@ -264,16 +265,16 @@ trait MetatagTrait {
     $alternates = $this->metatagGetHreflangAlternates();
 
     if ($alternates === []) {
-      throw new \Exception('No hreflang alternate links were found on the page.');
+      throw new ExpectationException('No hreflang alternate links were found on the page.', $this->getSession()->getDriver());
     }
 
     foreach ($alternates as $alternate) {
       if ($alternate['href'] === '') {
-        throw new \Exception(sprintf('The hreflang alternate for "%s" has an empty href.', $alternate['hreflang']));
+        throw new ExpectationException(sprintf('The hreflang alternate for "%s" has an empty href.', $alternate['hreflang']), $this->getSession()->getDriver());
       }
 
       if (!$this->metatagIsValidHreflang($alternate['hreflang'])) {
-        throw new \Exception(sprintf('The hreflang value "%s" is not a valid language code.', $alternate['hreflang']));
+        throw new ExpectationException(sprintf('The hreflang value "%s" is not a valid language code.', $alternate['hreflang']), $this->getSession()->getDriver());
       }
     }
 
@@ -285,7 +286,7 @@ trait MetatagTrait {
       }
     }
 
-    throw new \Exception(sprintf('No self-referencing hreflang alternate was found for the current URL "%s".', $current));
+    throw new ExpectationException(sprintf('No self-referencing hreflang alternate was found for the current URL "%s".', $current), $this->getSession()->getDriver());
   }
 
   /**
@@ -314,7 +315,7 @@ trait MetatagTrait {
       }
 
       if (!$this->metatagHtmlLinksBackTo($this->metatagFetchUrl($target), $current, $target)) {
-        throw new \Exception(sprintf('The hreflang alternate "%s" (%s) does not link back to the current URL "%s".', $alternate['hreflang'], $target, $current));
+        throw new ExpectationException(sprintf('The hreflang alternate "%s" (%s) does not link back to the current URL "%s".', $alternate['hreflang'], $target, $current), $this->getSession()->getDriver());
       }
     }
   }
@@ -531,7 +532,7 @@ trait MetatagTrait {
 
     if ($handle === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('Failed to initialise a request for "%s".', $url));
+      throw new \RuntimeException(sprintf('Failed to initialise a request for "%s".', $url));
       // @codeCoverageIgnoreEnd
     }
 
@@ -544,12 +545,12 @@ trait MetatagTrait {
 
     if (!is_string($body)) {
       // @codeCoverageIgnoreStart
-      throw new \Exception(sprintf('Failed to fetch the hreflang alternate page "%s".', $url));
+      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s".', $url));
       // @codeCoverageIgnoreEnd
     }
 
     if ($status >= 400) {
-      throw new \Exception(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status));
+      throw new ExpectationException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status), $this->getSession()->getDriver());
     }
 
     return $body;
@@ -649,7 +650,7 @@ trait MetatagTrait {
     }
 
     if ($missing !== []) {
-      throw new \Exception(sprintf('The following required %s meta tags are missing or empty: %s.', $label, implode(', ', $missing)));
+      throw new ExpectationException(sprintf('The following required %s meta tags are missing or empty: %s.', $label, implode(', ', $missing)), $this->getSession()->getDriver());
     }
   }
 

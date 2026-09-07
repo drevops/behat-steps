@@ -97,6 +97,21 @@ function main(array $options = []): void {
 // @codeCoverageIgnoreEnd
 
 /**
+ * Check whether a PHP file declares a trait.
+ *
+ * @param string $file_path
+ *   Path to the PHP file.
+ *
+ * @return bool
+ *   TRUE when the file declares a trait.
+ */
+function file_declares_trait(string $file_path): bool {
+  $contents = file_get_contents($file_path);
+
+  return $contents !== FALSE && preg_match('/^\s*trait\s+\w+/m', $contents) === 1;
+}
+
+/**
  * Parse info from the class.
  *
  * @param class-string $class_name
@@ -122,13 +137,14 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     $files = scandir($traits_path) ?: [];
     foreach ($files as $file) {
       $file_path = $traits_path . DIRECTORY_SEPARATOR . $file;
-      if (is_file($file_path)) {
+      if (is_file($file_path) && file_declares_trait($file_path)) {
         $traits_files[] = basename($file, '.php');
       }
       elseif (is_dir($file_path) && $file !== '.' && $file !== '..') {
         $subdir_files = scandir($file_path) ?: [];
         foreach ($subdir_files as $subdir_file) {
-          if (is_file($file_path . DIRECTORY_SEPARATOR . $subdir_file)) {
+          $subdir_file_path = $file_path . DIRECTORY_SEPARATOR . $subdir_file;
+          if (is_file($subdir_file_path) && file_declares_trait($subdir_file_path)) {
             $traits_files[] = basename($subdir_file, '.php');
           }
         }

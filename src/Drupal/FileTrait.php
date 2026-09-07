@@ -332,7 +332,7 @@ trait FileTrait {
     $file_content = @file_get_contents($uri);
     // @codeCoverageIgnoreStart
     if ($file_content === FALSE) {
-      throw new \Exception(sprintf('Unable to read file "%s".', $uri));
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
     // @codeCoverageIgnoreEnd
     if (!str_contains($file_content, $content)) {
@@ -354,7 +354,7 @@ trait FileTrait {
     $file_content = @file_get_contents($uri);
     // @codeCoverageIgnoreStart
     if ($file_content === FALSE) {
-      throw new \Exception(sprintf('Unable to read file "%s".', $uri));
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
     // @codeCoverageIgnoreEnd
     if (str_contains($file_content, $content)) {
