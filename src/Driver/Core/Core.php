@@ -766,9 +766,25 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Prefers the saved-entity slot - that is the only authoritative source
    * after 'userCreate()' - then falls back to a 'uid' value the caller may
    * have populated manually.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The user stub to read the id from.
+   *
+   * @return int|string
+   *   The user id.
+   *
+   * @throws \InvalidArgumentException
+   *   Thrown when the stub carries no id. Uid 0 is the anonymous user, so a
+   *   caller that acts on an unresolved stub acts on the wrong account.
    */
-  protected function resolveUid(EntityStubInterface $stub): int|string|null {
-    return $stub->getId() ?? $stub->getValue('uid');
+  protected function resolveUid(EntityStubInterface $stub): int|string {
+    $uid = $stub->getId() ?? $stub->getValue('uid');
+
+    if ($uid === NULL) {
+      throw new \InvalidArgumentException('Cannot resolve a user id from the stub: neither the saved entity nor a "uid" value is set.');
+    }
+
+    return $uid;
   }
 
   /**
