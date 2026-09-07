@@ -109,7 +109,7 @@ trait JsonTrait {
    * @endcode
    */
   #[Then('the response should be in JSON format')]
-  public function jsonAssertResponseIsJson(): void {
+  public function jsonAssertResponseJson(): void {
     $this->jsonDecodeLoose($this->jsonResolveContent());
   }
 
@@ -121,7 +121,7 @@ trait JsonTrait {
    * @endcode
    */
   #[Then('the response should not be in JSON format')]
-  public function jsonAssertResponseIsNotJson(): void {
+  public function jsonAssertResponseNotJson(): void {
     $content = $this->jsonResolveContent();
 
     json_decode((string) $content);

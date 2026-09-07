@@ -131,7 +131,7 @@ trait WatchdogTrait {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
     }
 
-    $this->watchdogAssertNoErrors(sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine));
+    $this->watchdogAssertNotHasErrors(sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine));
   }
 
   /**
@@ -163,7 +163,7 @@ trait WatchdogTrait {
       $context = sprintf('during the teardown of scenario "%s" (line %s), which "behat --rerun" cannot record', $this->watchdogScenarioTitle, $this->watchdogScenarioLine);
     }
 
-    $this->watchdogAssertNoErrors($context);
+    $this->watchdogAssertNotHasErrors($context);
   }
 
   /**
@@ -177,7 +177,7 @@ trait WatchdogTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If errors at or above the severity threshold were logged.
    */
-  protected function watchdogAssertNoErrors(string $context): void {
+  protected function watchdogAssertNotHasErrors(string $context): void {
     $database = Database::getConnection();
 
     // Select entries for every tracked message type that appeared from the

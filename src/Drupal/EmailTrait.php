@@ -141,7 +141,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('no emails should have been sent')]
-  public function emailAssertNoMessagesSent(): void {
+  public function emailAssertMessagesNotSent(): void {
     $messages = $this->emailGetCollectedMessages();
     if (count($messages) > 0) {
       throw new ExpectationException('No emails should have been sent, but some were found: ' . PHP_EOL . print_r($messages, TRUE), $this->getSession()->getDriver());
@@ -156,7 +156,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('no emails should have been sent to the address :address')]
-  public function emailAssertNoMessagesSentToAddress(string $address): void {
+  public function emailAssertMessagesNotSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->helperSplitCommaSeparated((string) $message['to']);
       if (in_array($address, $to, TRUE)) {
@@ -217,7 +217,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email header :header should exactly be:')]
-  public function emailAssertMessageHeader(string $header, PyStringNode $string): void {
+  public function emailAssertMessageHeaderEquals(string $header, PyStringNode $string): void {
     $this->emailAssertMessageHeaderContains($header, $string, TRUE);
   }
 
@@ -235,7 +235,7 @@ trait EmailTrait {
   #[Then('an email should be sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
     $this->emailAssertMessageSentTo($address);
-    $this->emailAssertMessageField('body', $string);
+    $this->emailAssertMessageFieldEquals('body', $string);
   }
 
   /**
@@ -282,8 +282,8 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
-    $this->emailAssertNoMessagesSentToAddress($address);
-    $this->emailAssertMessageFieldNotExact('body', $string);
+    $this->emailAssertMessagesNotSentToAddress($address);
+    $this->emailAssertMessageFieldNotEquals('body', $string);
   }
 
   /**
@@ -298,7 +298,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    $this->emailAssertNoMessagesSentToAddress($address);
+    $this->emailAssertMessagesNotSentToAddress($address);
     $this->emailAssertMessageFieldNotContains('body', $string);
   }
 
@@ -332,7 +332,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email field :field should be:')]
-  public function emailAssertMessageField(string $field, PyStringNode $string): void {
+  public function emailAssertMessageFieldEquals(string $field, PyStringNode $string): void {
     $this->emailAssertMessageFieldContains($field, $string, TRUE);
   }
 
@@ -375,7 +375,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email field :field should not be:')]
-  public function emailAssertMessageFieldNotExact(string $field, PyStringNode $string): void {
+  public function emailAssertMessageFieldNotEquals(string $field, PyStringNode $string): void {
     $this->emailAssertMessageFieldNotContains($field, $string, TRUE);
   }
 

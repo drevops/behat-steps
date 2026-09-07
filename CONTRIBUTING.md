@@ -45,13 +45,41 @@ of tests. Follow these guidelines:
 We have some automated check for the steps format.
 Run `ahoy lint-docs` to validate the format of the steps.
 
-## Assertion Method Naming Conventions
+## Method naming conventions
 
-- **Existence assertions**:
-  - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `vocabularyAssertNotExists()`)
-  - Plural subjects → `Exist` or `NotExist` (e.g., `termsAssertExist()`)
-- **Contains assertions**: Always use `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `headerAssertNotContains()`)
-- Never use "DoesNot" or "DoNot" patterns - use "Not" prefix directly
+Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this and the three conventions below.
+
+### Assertions
+
+An assertion method reads `<trait>Assert<Subject><Predicate>`.
+
+- **Existence**:
+  - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
+  - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
+- **Containment**: always `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
+- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`.
+- **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
+
+### Negation
+
+`Not` is the only negation particle, and it sits immediately after `Assert<Subject>`, directly before the predicate it negates. A negative name is its positive counterpart with `Not` inserted and nothing else changed.
+
+| Instead of | Write |
+| --- | --- |
+| `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
+| `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
+| `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
+| `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
+
+The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out.
+
+### Consumer override points
+
+A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityResolveTags()` or `contentResolveNidByTitle()`.
+
+### Spelling
+
+`Normalize`, not `Normalise`, in method names and in prose.
 
 ## Unsettled style questions
 

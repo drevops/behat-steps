@@ -310,7 +310,7 @@ trait FileDownloadTrait {
    * @endcode
    */
   #[Then('the downloaded file should be a zip archive not containing the following files partially named:')]
-  public function fileDownloadAssertNoZipContainsPartial(TableNode $files): void {
+  public function fileDownloadAssertZipNotContainsPartial(TableNode $files): void {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];

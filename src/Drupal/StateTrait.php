@@ -81,7 +81,7 @@ trait StateTrait {
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
     $this->stateStoreOriginalValue($name);
-    \Drupal::state()->set($name, $this->stateNormaliseValue($value));
+    \Drupal::state()->set($name, $this->stateNormalizeValue($value));
   }
 
   /**
@@ -116,7 +116,7 @@ trait StateTrait {
       }
       $name = $row['name'];
       $this->stateStoreOriginalValue($name);
-      $state->set($name, $this->stateNormaliseValue($row['value']));
+      $state->set($name, $this->stateNormalizeValue($row['value']));
     }
   }
 
@@ -134,7 +134,7 @@ trait StateTrait {
       throw new AssertionException(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
     }
 
-    $expected = $this->stateNormaliseValue($value);
+    $expected = $this->stateNormalizeValue($value);
     $actual_stringified = $this->stateStringifyValue($state_value['value']);
     $expected_stringified = $this->stateStringifyValue($expected);
     if ($actual_stringified !== $expected_stringified) {
@@ -196,17 +196,17 @@ trait StateTrait {
   }
 
   /**
-   * Normalise a string value from a step into the shape actually stored.
+   * Normalize a string value from a step into the shape actually stored.
    *
    * @param string $value
    *   The raw value captured from the step or table cell.
    *
    * @return mixed
-   *   The normalised value: decoded JSON for array/object input, integer or
+   *   The normalized value: decoded JSON for array/object input, integer or
    *   float for numeric input, boolean for "true"/"false", NULL for "null",
    *   or the original string otherwise.
    */
-  protected function stateNormaliseValue(string $value): mixed {
+  protected function stateNormalizeValue(string $value): mixed {
     $trimmed = trim($value);
 
     if ($trimmed === '') {

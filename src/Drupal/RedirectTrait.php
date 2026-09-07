@@ -133,7 +133,7 @@ trait RedirectTrait {
    *
    * The `from` column is required. The `to` and `status_code` columns are
    * optional: when blank or omitted, only the source path is matched. When
-   * `to` is provided, internal paths (`/about`) are normalised to
+   * `to` is provided, internal paths (`/about`) are normalized to
    * `internal:/about` to match the storage format. When `status_code` is
    * provided, it is validated against the allowed set (301, 302, 303, 307,
    * 308).
@@ -223,7 +223,7 @@ trait RedirectTrait {
   }
 
   /**
-   * Normalise the status code value from a table cell.
+   * Normalize the status code value from a table cell.
    *
    * @param string|null $value
    *   The raw value from the table cell, or NULL when the column is missing.
@@ -252,14 +252,14 @@ trait RedirectTrait {
   }
 
   /**
-   * Normalise a source path the same way the `redirect` module stores it.
+   * Normalize a source path the same way the `redirect` module stores it.
    */
   protected function redirectNormalizeSource(string $path): string {
     return ltrim(trim($path), '/');
   }
 
   /**
-   * Normalise a destination URI the same way `Redirect::setRedirect()` does.
+   * Normalize a destination URI the same way `Redirect::setRedirect()` does.
    *
    * Internal paths gain an `internal:/` prefix; external `http(s)://` URLs
    * pass through unchanged. Values that already begin with `internal:` are

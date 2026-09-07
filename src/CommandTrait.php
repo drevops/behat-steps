@@ -102,7 +102,7 @@ trait CommandTrait {
 
     $stdout = '';
     $stderr = '';
-    $timeout = $this->commandTimeout();
+    $timeout = $this->commandGetTimeout();
 
     while (!feof($pipes[1]) || !feof($pipes[2])) {
       if (microtime(TRUE) - $started > $timeout) {
@@ -381,7 +381,7 @@ trait CommandTrait {
   /**
    * The maximum time, in seconds, a command may run before it is terminated.
    */
-  protected function commandTimeout(): int {
+  protected function commandGetTimeout(): int {
     return 300;
   }
 

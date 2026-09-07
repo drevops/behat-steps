@@ -132,12 +132,12 @@ class FeatureContext extends DrupalContext {
   }
 
   /**
-   * Override elementScrollIntoViewCenter() to allow runtime toggling.
+   * Override elementGetScrollIntoViewCenter() to allow runtime toggling.
    *
    * This cannot be moved to FeatureContextTrait because traits cannot override
    * methods from other traits.
    */
-  protected function elementScrollIntoViewCenter(): bool {
+  protected function elementGetScrollIntoViewCenter(): bool {
     return $this->testElementScrollCenter;
   }
 

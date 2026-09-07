@@ -27,9 +27,9 @@ use Behat\Testwork\Tester\Result\ExceptionResult;
  *
  * The trait is opt-in: `use` it in the context and it is active with no further
  * configuration. Every field is individually toggleable by overriding its
- * `diagnosticsShow*()` method to return FALSE, and each value source degrades
- * gracefully to nothing when the driver cannot provide it - a failed step is
- * never turned into a different failure by this trait.
+ * `diagnosticsGetShow*()` method to return FALSE, and each value source
+ * degrades gracefully to nothing when the driver cannot provide it - a failed
+ * step is never turned into a different failure by this trait.
  *
  * Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
  *
@@ -126,35 +126,35 @@ trait DiagnosticsTrait {
   protected function diagnosticsBuildBlock(): string {
     $lines = [];
 
-    if ($this->diagnosticsShowUrl()) {
+    if ($this->diagnosticsGetShowUrl()) {
       $url = $this->diagnosticsGetUrl();
       if ($url !== NULL) {
         $lines[] = 'URL: ' . $url;
       }
     }
 
-    if ($this->diagnosticsShowStatusCode()) {
+    if ($this->diagnosticsGetShowStatusCode()) {
       $status = $this->diagnosticsGetStatusCode();
       if ($status !== NULL) {
         $lines[] = 'HTTP status: ' . $status;
       }
     }
 
-    if ($this->diagnosticsShowDriver()) {
+    if ($this->diagnosticsGetShowDriver()) {
       $driver = $this->diagnosticsGetDriverName();
       if ($driver !== NULL) {
         $lines[] = 'Mink driver: ' . $driver;
       }
     }
 
-    if ($this->diagnosticsShowJsErrors()) {
+    if ($this->diagnosticsGetShowJsErrors()) {
       $errors = $this->diagnosticsGetJsErrors();
       if ($errors !== []) {
         $lines[] = 'JS console errors: ' . implode('; ', $errors);
       }
     }
 
-    if ($this->diagnosticsShowRerun()) {
+    if ($this->diagnosticsGetShowRerun()) {
       $rerun = $this->diagnosticsGetRerunCommand();
       if ($rerun !== NULL) {
         $lines[] = 'Re-run: ' . $rerun;
@@ -165,7 +165,7 @@ trait DiagnosticsTrait {
       return '';
     }
 
-    return $this->diagnosticsHeader() . PHP_EOL . implode(PHP_EOL, $lines);
+    return $this->diagnosticsGetHeader() . PHP_EOL . implode(PHP_EOL, $lines);
   }
 
   /**
@@ -258,7 +258,7 @@ trait DiagnosticsTrait {
       return NULL;
     }
 
-    return sprintf('%s %s:%d', $this->diagnosticsRerunBinary(), $this->diagnosticsRelativePath($this->diagnosticsFeatureFile), $this->diagnosticsScenarioLine);
+    return sprintf('%s %s:%d', $this->diagnosticsGetRerunBinary(), $this->diagnosticsRelativePath($this->diagnosticsFeatureFile), $this->diagnosticsScenarioLine);
   }
 
   /**
@@ -284,49 +284,49 @@ trait DiagnosticsTrait {
   /**
    * Return the header line that precedes the diagnostics block.
    */
-  protected function diagnosticsHeader(): string {
+  protected function diagnosticsGetHeader(): string {
     return '--- Failure diagnostics ---';
   }
 
   /**
    * Return the binary used in the re-run command. Override to customise.
    */
-  protected function diagnosticsRerunBinary(): string {
+  protected function diagnosticsGetRerunBinary(): string {
     return 'vendor/bin/behat';
   }
 
   /**
    * Return TRUE to include the current URL. Override to suppress.
    */
-  protected function diagnosticsShowUrl(): bool {
+  protected function diagnosticsGetShowUrl(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the HTTP status code. Override to suppress.
    */
-  protected function diagnosticsShowStatusCode(): bool {
+  protected function diagnosticsGetShowStatusCode(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the Mink driver class. Override to suppress.
    */
-  protected function diagnosticsShowDriver(): bool {
+  protected function diagnosticsGetShowDriver(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include JavaScript console errors. Override to suppress.
    */
-  protected function diagnosticsShowJsErrors(): bool {
+  protected function diagnosticsGetShowJsErrors(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the re-run command. Override to suppress.
    */
-  protected function diagnosticsShowRerun(): bool {
+  protected function diagnosticsGetShowRerun(): bool {
     return TRUE;
   }
 

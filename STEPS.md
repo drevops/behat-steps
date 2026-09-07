@@ -513,9 +513,9 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  
 >  The trait is opt-in: `use` it in the context and it is active with no further
 >  configuration. Every field is individually toggleable by overriding its
->  `diagnosticsShow*()` method to return FALSE, and each value source degrades
->  gracefully to nothing when the driver cannot provide it - a failed step is
->  never turned into a different failure by this trait.
+>  `diagnosticsGetShow*()` method to return FALSE, and each value source
+>  degrades gracefully to nothing when the driver cannot provide it - a failed
+>  step is never turned into a different failure by this trait.
 >  <br/><br/>
 >  Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
 >  <br/><br/>

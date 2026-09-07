@@ -158,7 +158,7 @@ class CommandTraitTestImplementation {
   /**
    * {@inheritdoc}
    */
-  protected function commandTimeout(): int {
+  protected function commandGetTimeout(): int {
     return $this->timeoutOverride;
   }
 

@@ -35,13 +35,13 @@ trait ElementTrait {
    * @code
    * class FeatureContext extends DrupalContext {
    *   use ElementTrait;
-   *   protected function elementScrollIntoViewCenter(): bool {
+   *   protected function elementGetScrollIntoViewCenter(): bool {
    *     return FALSE;
    *   }
    * }
    * @endcode
    */
-  protected function elementScrollIntoViewCenter(): bool {
+  protected function elementGetScrollIntoViewCenter(): bool {
     return TRUE;
   }
 
@@ -319,7 +319,7 @@ trait ElementTrait {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
 
-    $property_js = json_encode($this->elementNormaliseCssProperty($property), JSON_UNESCAPED_SLASHES);
+    $property_js = json_encode($this->elementNormalizeCssProperty($property), JSON_UNESCAPED_SLASHES);
     $script = sprintf('return window.getComputedStyle({{ELEMENT}}).getPropertyValue(%s).trim();', $property_js);
     $actual = (string) $this->elementExecuteJs($selector, $script);
 
@@ -354,7 +354,7 @@ trait ElementTrait {
    *   The property name in kebab-case. Custom properties are returned as-is,
    *   because they are case-sensitive.
    */
-  protected function elementNormaliseCssProperty(string $property): string {
+  protected function elementNormalizeCssProperty(string $property): string {
     if (str_starts_with($property, '--')) {
       return $property;
     }
@@ -631,8 +631,8 @@ JS;
    * @javascript
    */
   #[Then('the element :selector should be pinned to the top of the viewport')]
-  public function elementAssertIsPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTop($selector, 2, FALSE);
+  public function elementAssertPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTopWithin($selector, 2, FALSE);
   }
 
   /**
@@ -645,8 +645,8 @@ JS;
    * @javascript
    */
   #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
-  public function elementAssertIsPinnedToTopWithTolerance(string $selector, int $tolerance): void {
-    $this->elementAssertPinnedToTop($selector, $tolerance, FALSE);
+  public function elementAssertPinnedToTopWithTolerance(string $selector, int $tolerance): void {
+    $this->elementAssertPinnedToTopWithin($selector, $tolerance, FALSE);
   }
 
   /**
@@ -660,8 +660,8 @@ JS;
    * @javascript
    */
   #[Then('the element :selector should not be pinned to the top of the viewport')]
-  public function elementAssertIsNotPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTop($selector, 2, TRUE);
+  public function elementAssertNotPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTopWithin($selector, 2, TRUE);
   }
 
   /**
@@ -678,7 +678,7 @@ JS;
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    */
-  protected function elementAssertPinnedToTop(string $selector, int $tolerance, bool $is_inverted): void {
+  protected function elementAssertPinnedToTopWithin(string $selector, int $tolerance, bool $is_inverted): void {
     if ($tolerance < 0) {
       throw new ExpectationException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance), $this->getSession()->getDriver());
     }
@@ -822,8 +822,8 @@ JS;
    * Scroll to an element with ID.
    *
    * By default, scrolls the element to the center of the viewport. Override
-   * the elementScrollIntoViewCenter() method to return FALSE to use the legacy
-   * behavior that aligns the element to the top of the viewport.
+   * the elementGetScrollIntoViewCenter() method to return FALSE to use the
+   * legacy behavior that aligns the element to the top of the viewport.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -831,7 +831,7 @@ JS;
    */
   #[When('I scroll to the element :selector')]
   public function elementScrollTo(string $selector): void {
-    if ($this->elementScrollIntoViewCenter()) {
+    if ($this->elementGetScrollIntoViewCenter()) {
       $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });');
     }
     else {
@@ -1039,7 +1039,7 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should be displayed')]
-  public function elementAssertIsVisible(string $selector): void {
+  public function elementAssertVisible(string $selector): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -1064,7 +1064,7 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should not be displayed')]
-  public function elementAssertIsNotVisible(string $selector): void {
+  public function elementAssertNotVisible(string $selector): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -1083,8 +1083,8 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should be displayed within a viewport')]
-  public function elementAssertIsVisuallyVisible(string $selector): void {
-    $this->elementAssertIsVisible($selector);
+  public function elementAssertVisuallyVisible(string $selector): void {
+    $this->elementAssertVisible($selector);
 
     if (!$this->elementIsVisuallyVisible($selector, 0)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector), $this->getSession()->getDriver());
@@ -1099,8 +1099,8 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should be displayed within a viewport with a top offset of :offset pixels')]
-  public function elementAssertIsVisuallyVisibleWithOffset(string $selector, int $offset): void {
-    $this->elementAssertIsVisible($selector);
+  public function elementAssertVisuallyVisibleWithOffset(string $selector, int $offset): void {
+    $this->elementAssertVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
     }
@@ -1114,7 +1114,7 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
-  public function elementAssertIsNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
+  public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
@@ -1133,7 +1133,7 @@ JS;
    * @endcode
    */
   #[Then('the element :selector should not be displayed within a viewport')]
-  public function elementAssertIsVisuallyHidden(string $selector, int $offset = 0): void {
+  public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());
     }
