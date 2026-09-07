@@ -205,6 +205,79 @@ Feature: Check that PathTrait works
     Then the current URL should not have the "nonexistent" parameter with the value "value"
 
   @api
+  Scenario: Assert that a URL parameter with a zero or empty value counts as present
+    Given I am an anonymous user
+    When I visit "/user/login?filter=0&empty=&keyword=recent"
+    Then the current URL should have the "filter" parameter
+    And the current URL should have the "filter" parameter with the value "0"
+    And the current URL should have the "empty" parameter
+    And the current URL should have the "empty" parameter with the value ""
+    And the current URL should have the "keyword" parameter with the value "recent"
+    And the current URL should not have the "missing" parameter
+    And the current URL should not have the "missing" parameter with the value "0"
+    And the current URL should not have the "filter" parameter with the value "1"
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL parameter with a zero value should not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/user/login?filter=0"
+      Then the current URL should not have the "filter" parameter
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The parameter "filter" is in the URL but should not be
+      """
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL parameter with an empty value should not exist
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/user/login?empty="
+      Then the current URL should not have the "empty" parameter
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The parameter "empty" is in the URL but should not be
+      """
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL parameter should not have the zero value it carries
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/user/login?filter=0"
+      Then the current URL should not have the "filter" parameter with the value "0"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The parameter "filter" with value "0" is in the URL but should not be
+      """
+
+  @trait:PathTrait
+  Scenario: Assert failure when URL parameter should not have the empty value it carries
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am an anonymous user
+      When I visit "/user/login?empty="
+      Then the current URL should not have the "empty" parameter with the value ""
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The parameter "empty" with value "" is in the URL but should not be
+      """
+
+  @api
   Scenario: Assert "When I go back" navigates to the previous page
     Given I am an anonymous user
     When I go to "/user/login"

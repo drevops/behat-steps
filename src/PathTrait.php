@@ -91,9 +91,7 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL has a query parameter with a non-empty value.
-   *
-   * A parameter carrying an empty string or "0" counts as absent.
+   * Assert that current URL has a query parameter.
    *
    * @code
    * Then the current URL should have the "filter" parameter
@@ -103,15 +101,13 @@ trait PathTrait {
   public function pathAssertUrlHasParameter(string $param): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (empty($query[$param])) {
+    if (!array_key_exists($param, $query)) {
       throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $param), $this->getSession()->getDriver());
     }
   }
 
   /**
    * Assert that current URL has a query parameter with a specific value.
-   *
-   * A parameter carrying an empty string or "0" counts as absent.
    *
    * @code
    * Then the current URL should have the "filter" parameter with the value "recent"
@@ -131,9 +127,7 @@ trait PathTrait {
   }
 
   /**
-   * Assert that current URL has no query parameter with a non-empty value.
-   *
-   * A parameter carrying an empty string or "0" counts as absent.
+   * Assert that current URL has no query parameter.
    *
    * @code
    * Then the current URL should not have the "filter" parameter
@@ -143,7 +137,7 @@ trait PathTrait {
   public function pathAssertUrlHasNoParameter(string $param): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (!empty($query[$param])) {
+    if (array_key_exists($param, $query)) {
       throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $param), $this->getSession()->getDriver());
     }
   }
@@ -151,7 +145,7 @@ trait PathTrait {
   /**
    * Assert that current URL does not have a query parameter with a value.
    *
-   * A parameter carrying an empty string or "0" counts as absent.
+   * An absent parameter satisfies the assertion.
    *
    * @code
    * Then the current URL should not have the "filter" parameter with the value "recent"
@@ -161,7 +155,7 @@ trait PathTrait {
   public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (empty($query[$param])) {
+    if (!array_key_exists($param, $query)) {
       return;
     }
 
