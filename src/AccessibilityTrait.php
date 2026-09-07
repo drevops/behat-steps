@@ -382,20 +382,60 @@ trait AccessibilityTrait {
    *
    * Default: fetched once per process from accessibilityGetCdnUrl(). Override
    * to ship the engine script from a vendored package or asset path.
+   *
+   * A read is bounded by accessibilityGetFetchTimeout() and retried up to
+   * accessibilityGetFetchAttempts() times, so a stalled or throttled source
+   * costs a bounded wait per attempt instead of blocking until PHP's own
+   * default_socket_timeout expires.
    */
   protected function accessibilityGetJs(): string {
     if (self::$accessibilityCachedJs !== NULL) {
       return self::$accessibilityCachedJs;
     }
 
-    $content = @file_get_contents($this->accessibilityGetCdnUrl());
+    $url = $this->accessibilityGetCdnUrl();
+    $timeout = $this->accessibilityGetFetchTimeout();
+    $attempts = max(1, $this->accessibilityGetFetchAttempts());
+    $context = stream_context_create(['http' => ['timeout' => $timeout]]);
+    $content = FALSE;
+
+    for ($attempt = 1; $attempt <= $attempts; $attempt++) {
+      $content = @file_get_contents($url, FALSE, $context);
+
+      if ($content !== FALSE && $content !== '') {
+        break;
+      }
+
+      if ($attempt < $attempts) {
+        usleep($attempt * 500000);
+      }
+    }
+
     if ($content === FALSE || $content === '') {
-      throw new \RuntimeException(sprintf('Failed to fetch accessibility engine from %s.', $this->accessibilityGetCdnUrl()));
+      throw new \RuntimeException(sprintf('Failed to fetch accessibility engine from %s after %d attempt(s) with a %d second timeout.', $url, $attempts, $timeout));
     }
 
     self::$accessibilityCachedJs = $content;
 
     return $content;
+  }
+
+  /**
+   * Return the per-attempt timeout, in seconds, for the engine fetch.
+   *
+   * Default: 10 seconds. Override to suit a slower source.
+   */
+  protected function accessibilityGetFetchTimeout(): int {
+    return 10;
+  }
+
+  /**
+   * Return how many times the engine fetch is attempted before failing.
+   *
+   * Default: 3. Values below 1 are treated as 1.
+   */
+  protected function accessibilityGetFetchAttempts(): int {
+    return 3;
   }
 
   /**
