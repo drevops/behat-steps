@@ -396,11 +396,10 @@ trait AccessibilityTrait {
     $url = $this->accessibilityGetCdnUrl();
     $timeout = $this->accessibilityGetFetchTimeout();
     $attempts = max(1, $this->accessibilityGetFetchAttempts());
-    $context = stream_context_create(['http' => ['timeout' => $timeout]]);
     $content = FALSE;
 
     for ($attempt = 1; $attempt <= $attempts; $attempt++) {
-      $content = @file_get_contents($url, FALSE, $context);
+      $content = $this->accessibilityFetchJs($url, $timeout);
 
       if ($content !== FALSE && $content !== '') {
         break;
@@ -418,6 +417,27 @@ trait AccessibilityTrait {
     self::$accessibilityCachedJs = $content;
 
     return $content;
+  }
+
+  /**
+   * Read the engine source once from the given location.
+   *
+   * Default: a single read bounded by the given timeout, returning FALSE
+   * when the read fails. Override to fetch through an HTTP client of your
+   * own; accessibilityGetJs() supplies the retries around it.
+   *
+   * @param string $url
+   *   Location the engine source is read from.
+   * @param int $timeout
+   *   Timeout, in seconds, for this read.
+   *
+   * @return string|false
+   *   The engine source, or FALSE when the read fails.
+   */
+  protected function accessibilityFetchJs(string $url, int $timeout): string|false {
+    $context = stream_context_create(['http' => ['timeout' => $timeout]]);
+
+    return @file_get_contents($url, FALSE, $context);
   }
 
   /**

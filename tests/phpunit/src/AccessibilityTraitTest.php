@@ -28,6 +28,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->testObject = new AccessibilityTraitTestImplementation();
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
     AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
     AccessibilityTraitTestImplementation::accessibilityAggregateReset();
   }
 
@@ -37,6 +38,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   protected function tearDown(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
     AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
     AccessibilityTraitTestImplementation::accessibilityAggregateReset();
 
     parent::tearDown();
@@ -76,6 +78,46 @@ class AccessibilityTraitTest extends UnitTestCase {
     file_put_contents($path, 'CHANGED');
     $this->assertSame('ENGINE', $this->testObject->testGetJs());
     $this->assertSame(1, $this->testObject->engineReads);
+  }
+
+  public function testGetJsRetriesUntilReadSucceeds(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = 2;
+    $object->engineContent = 'ENGINE';
+
+    $this->assertSame('ENGINE', $object->testGetJs());
+    $this->assertSame(3, $object->engineReads);
+  }
+
+  public function testGetJsStopsAfterConfiguredAttempts(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = PHP_INT_MAX;
+    $object->engineAttempts = 2;
+
+    try {
+      $object->testGetJs();
+      $this->fail('Expected a RuntimeException.');
+    }
+    catch (\RuntimeException $runtime_exception) {
+      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $runtime_exception->getMessage());
+    }
+
+    $this->assertSame(2, $object->engineReads);
+  }
+
+  public function testGetJsReadsOnceWhenRetriesAreDisabled(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = PHP_INT_MAX;
+    $object->engineAttempts = 0;
+
+    $this->expectException(\RuntimeException::class);
+
+    try {
+      $object->testGetJs();
+    }
+    finally {
+      $this->assertSame(1, $object->engineReads);
+    }
   }
 
   public function testGetJsRetriesThenFails(): void {
@@ -776,6 +818,61 @@ class AccessibilityTraitFetchDefaultsTestImplementation {
 
   public function testGetFetchAttempts(): int {
     return $this->accessibilityGetFetchAttempts();
+  }
+
+}
+
+/**
+ * A test implementation that counts reads and controls their outcome.
+ */
+class AccessibilityTraitRetryTestImplementation {
+
+  use AccessibilityTrait;
+
+  /**
+   * Count of reads issued by the retry loop.
+   */
+  public int $engineReads = 0;
+
+  /**
+   * Number of leading reads that fail before one succeeds.
+   */
+  public int $engineFailures = 0;
+
+  /**
+   * Source returned by a read that succeeds.
+   */
+  public string $engineContent = '';
+
+  /**
+   * Number of attempts the retry loop is allowed.
+   */
+  public int $engineAttempts = 3;
+
+  protected function accessibilityGetCdnUrl(): string {
+    return 'https://example.com/engine.js';
+  }
+
+  protected function accessibilityGetFetchAttempts(): int {
+    return $this->engineAttempts;
+  }
+
+  protected function accessibilityGetFetchTimeout(): int {
+    return 1;
+  }
+
+  protected function accessibilityFetchJs(string $url, int $timeout): string|false {
+    $this->engineReads++;
+
+    return $this->engineReads <= $this->engineFailures ? FALSE : $this->engineContent;
+  }
+
+  public function testGetJs(): string {
+    return $this->accessibilityGetJs();
+  }
+
+  public static function testSetCachedJs(?string $js): void {
+    self::$accessibilityCachedJs = $js;
   }
 
 }
