@@ -117,14 +117,14 @@ class AccessibilityTraitTest extends UnitTestCase {
       'generation timestamp passed in by the writer' => ['generated 2026-01-02 03:04'],
       'seven summary cards in the specified order with counts' => [
         '<section class="cards">'
-        . '<div class="card "><span class="num">2</span><span class="lbl">pages assessed</span></div>'
-        . '<div class="card "><span class="num">2</span><span class="lbl">scenarios</span></div>'
-        . '<div class="card fail"><span class="num">3</span><span class="lbl">violations</span></div>'
-        . '<div class="card crit"><span class="num">2</span><span class="lbl">critical</span></div>'
-        . '<div class="card ser"><span class="num">1</span><span class="lbl">serious</span></div>'
-        . '<div class="card mod"><span class="num">0</span><span class="lbl">moderate</span></div>'
-        . '<div class="card min"><span class="num">0</span><span class="lbl">minor</span></div>'
-        . '</section>',
+          . '<div class="card "><span class="num">2</span><span class="lbl">pages assessed</span></div>'
+          . '<div class="card "><span class="num">2</span><span class="lbl">scenarios</span></div>'
+          . '<div class="card fail"><span class="num">3</span><span class="lbl">violations</span></div>'
+          . '<div class="card crit"><span class="num">2</span><span class="lbl">critical</span></div>'
+          . '<div class="card ser"><span class="num">1</span><span class="lbl">serious</span></div>'
+          . '<div class="card mod"><span class="num">0</span><span class="lbl">moderate</span></div>'
+          . '<div class="card min"><span class="num">0</span><span class="lbl">minor</span></div>'
+          . '</section>',
       ],
       'critical chip carries its affected-element count' => ['<span class="vtype critical">image-alt <b>2</b></span>'],
       'serious chip carries its affected-element count' => ['<span class="vtype serious">color-contrast <b>1</b></span>'],
