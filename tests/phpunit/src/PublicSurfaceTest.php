@@ -25,7 +25,6 @@ use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\DateTrait;
-use DrevOps\BehatSteps\Drupal\HelperTrait;
 use DrevOps\BehatSteps\Drupal\OverrideTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\ResponsiveTrait;
@@ -89,9 +88,7 @@ class PublicSurfaceTest extends UnitTestCase {
   /**
    * Constants whose name does not start with the trait prefix, and why.
    */
-  protected const ALLOWED_CONSTANTS = [
-    HelperTrait::class . '::ENTITY_CLEANUP_EXCLUDED_TYPES' => 'Named for the entityCleanup* member family it configures.',
-  ];
+  protected const ALLOWED_CONSTANTS = [];
 
   #[DataProvider('dataProviderPublicMethodsAreStepsOrHooks')]
   public function testPublicMethodsAreStepsOrHooks(string $trait): void {

@@ -27,28 +27,28 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    * Build a scope for a BeforeSuite hook.
    */
   protected function createBeforeSuiteScope(): BeforeSuiteScope {
-    return new BeforeSuiteScope($this->createMock(Environment::class), $this->createMock(SpecificationIterator::class));
+    return new BeforeSuiteScope($this->createStub(Environment::class), $this->createStub(SpecificationIterator::class));
   }
 
   /**
    * Build a scope for an AfterSuite hook.
    */
   protected function createAfterSuiteScope(): AfterSuiteScope {
-    return new AfterSuiteScope($this->createMock(Environment::class), $this->createMock(SpecificationIterator::class), $this->createMock(TestResult::class));
+    return new AfterSuiteScope($this->createStub(Environment::class), $this->createStub(SpecificationIterator::class), $this->createStub(TestResult::class));
   }
 
   /**
    * Build a scope for a BeforeScenario hook.
    */
   protected function createBeforeScenarioScope(): BeforeScenarioScope {
-    return new BeforeScenarioScope($this->createMock(Environment::class), $this->createMock(FeatureNode::class), $this->createMock(ScenarioInterface::class));
+    return new BeforeScenarioScope($this->createStub(Environment::class), $this->createStub(FeatureNode::class), $this->createStub(ScenarioInterface::class));
   }
 
   /**
    * Build a scope for an AfterScenario hook.
    */
   protected function createAfterScenarioScope(): AfterScenarioScope {
-    return new AfterScenarioScope($this->createMock(Environment::class), $this->createMock(FeatureNode::class), $this->createMock(ScenarioInterface::class), $this->createMock(TestResult::class));
+    return new AfterScenarioScope($this->createStub(Environment::class), $this->createStub(FeatureNode::class), $this->createStub(ScenarioInterface::class), $this->createStub(TestResult::class));
   }
 
 }
