@@ -763,7 +763,8 @@ function validate(array $info): array {
  *
  * A placeholder is the only description a step gives of what a consumer must
  * pass, so it names the thing (`:tolerance`, `:selector`, `:count`) rather than
- * the PHP type it arrives as. Add a name here to keep it out of step patterns.
+ * the PHP type it arrives as or the bare category it belongs to. Add a name
+ * here to keep it out of step patterns.
  *
  * @return array<int, string>
  *   List of rejected placeholder names, without the leading colon.
@@ -781,6 +782,7 @@ function non_descriptive_placeholders(): array {
     'integer',
     'number',
     'string',
+    'type',
     'var',
   ];
 }

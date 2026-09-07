@@ -1413,6 +1413,23 @@ EOD,
         ],
         [],
       ],
+      'bare category placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the content :type should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":type" in the step' . PHP_EOL],
+      ],
       'non-descriptive placeholder in step' => [
         [
           'TestTrait' => [
