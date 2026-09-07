@@ -32,7 +32,7 @@ of tests. Follow these guidelines:
 
 - **`When`**:
   - Describes an action and must contain an action verb.
-  - Use the format `When I <verb>`. The step must start with `I ` - the first person is what separates an action from a precondition.
+  - Use the format `When I <verb>`. The step must start with `I` followed by a space - the first person is what separates an action from a precondition.
 
 - **`Then`**:
   - Specifies assertions and expectations.

@@ -1311,6 +1311,40 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Then step is in the first person but should start with the asserted entity' . PHP_EOL],
       ],
+      'given with title case first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given My account exists'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Given step is in the first person but should state a precondition' . PHP_EOL],
+      ],
+      'then with an all caps acronym' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the US date format should be used'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
       'given with first person mid step' => [
         [
           'TestTrait' => [

@@ -30,7 +30,7 @@ use Behat\Step\When;
  * `Given` states a precondition and a `Then` names the entity it asserts on,
  * so neither refers to the person at all.
  */
-const FIRST_PERSON = '/\b(I|my|me|myself|we|us|our)\b/';
+const FIRST_PERSON = '/\b(I|[Mm]y|[Mm]e|[Mm]yself|[Ww]e|[Uu]s|[Oo]ur)\b/';
 
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart

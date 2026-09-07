@@ -94,7 +94,7 @@ ahoy copy-files
 
 - **When Steps**:
   - Describe an action with an action verb
-  - Use the format `When I <verb>` - the step must start with `I `
+  - Use the format `When I <verb>` - the step must start with `I` followed by a space
 
 - **Then Steps**:
   - Specify assertions and expectations
