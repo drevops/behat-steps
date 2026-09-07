@@ -110,7 +110,7 @@ from the community.
 
 ## 📚 Documentation
 
-- [2 styles, 2 jobs - the vocabulary and the toolbox](docs/2-styles-2-jobs.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
+- [Scenario styles - the vocabulary and the toolbox](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
 
 ## 📦 Installation
 

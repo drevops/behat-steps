@@ -1,4 +1,4 @@
-# 2 styles, 2 jobs - the vocabulary and the toolbox
+# Scenario styles - the vocabulary and the toolbox
 
 Why a generic step library and BDD's own teaching point in different directions, and how this stack serves both.
 
