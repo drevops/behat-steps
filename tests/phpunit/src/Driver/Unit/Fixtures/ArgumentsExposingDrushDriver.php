@@ -20,10 +20,10 @@ class ArgumentsExposingDrushDriver extends DrushDriver {
    * @param array<string, string|bool|null> $arguments
    *   Argument map to serialise.
    *
-   * @return string
-   *   The CLI option string produced by 'parseArguments()'.
+   * @return array<int, string>
+   *   The argv entries produced by 'parseArguments()'.
    */
-  public static function expose(array $arguments): string {
+  public static function expose(array $arguments): array {
     return self::parseArguments($arguments);
   }
 

@@ -293,25 +293,52 @@ class DrushDriverMethodsTest extends TestCase {
    *
    * @param array<string, string|bool|null> $options
    *   Options passed to 'parseArguments()'.
-   * @param string $expected
-   *   The expected concatenated CLI option string.
+   * @param array<int, string> $expected
+   *   The expected argv entries.
    *
    * @dataProvider dataProviderParseArguments
    */
   #[DataProvider('dataProviderParseArguments')]
-  public function testParseArguments(array $options, string $expected): void {
+  public function testParseArguments(array $options, array $expected): void {
     $this->assertSame($expected, ArgumentsExposingDrushDriver::expose($options));
+  }
+
+  /**
+   * Tests 'parseArguments()' rejects an option name that is not a bare name.
+   *
+   * @param string $name
+   *   The option name to reject.
+   *
+   * @dataProvider dataProviderParseArgumentsRejectsName
+   */
+  #[DataProvider('dataProviderParseArgumentsRejectsName')]
+  public function testParseArgumentsRejectsName(string $name): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Invalid Drush option name: ' . $name);
+
+    ArgumentsExposingDrushDriver::expose([$name => 'value']);
+  }
+
+  /**
+   * Data provider for 'testParseArgumentsRejectsName()'.
+   */
+  public static function dataProviderParseArgumentsRejectsName(): \Iterator {
+    yield 'space' => ['two words'];
+    yield 'leading dash' => ['-format'];
+    yield 'equals sign' => ['format=json'];
+    yield 'slash' => ['some/path'];
   }
 
   /**
    * Data provider for 'testParseArguments()'.
    */
   public static function dataProviderParseArguments(): \Iterator {
-    yield 'empty' => [[], ''];
-    yield 'single flag' => [['yes' => NULL], ' --yes'];
-    yield 'single valued option' => [['format' => 'json'], " --format='json'"];
-    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], " --yes --format='json'"];
-    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], " --format='json' --root='/var/www'"];
+    yield 'empty' => [[], []];
+    yield 'single flag' => [['yes' => NULL], ['--yes']];
+    yield 'single valued option' => [['format' => 'json'], ['--format=json']];
+    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ['--yes', '--format=json']];
+    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ['--format=json', '--root=/var/www']];
+    yield 'value carrying shell syntax stays one argument' => [['name' => '$(id)'], ['--name=$(id)']];
   }
 
   /**

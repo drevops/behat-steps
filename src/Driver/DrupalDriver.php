@@ -419,22 +419,19 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
       '/core/includes/bootstrap.inc',
     ];
 
-    $loaded = FALSE;
-
+    // A root missing either file cannot define '\Drupal' itself, so VERSION
+    // would describe whichever installation the process loaded first.
+    // 'Core::bootstrap()' requires both files as well.
     foreach ($version_files as $path) {
-      if (!file_exists($this->drupalRoot . $path)) {
+      if (file_exists($this->drupalRoot . $path)) {
         continue;
       }
 
-      require_once $this->drupalRoot . $path;
-      $loaded = TRUE;
+      throw new BootstrapException(sprintf('No Drupal installation found at %s: %s is missing.', $this->drupalRoot, $path));
     }
 
-    // Without one of those files the '\Drupal' class either does not exist or
-    // belongs to some other installation already loaded in this process, so
-    // its VERSION would describe a root that was never asked for.
-    if (!$loaded) {
-      throw new BootstrapException(sprintf('No Drupal installation found at %s: it contains neither %s.', $this->drupalRoot, implode(' nor ', $version_files)));
+    foreach ($version_files as $path) {
+      require_once $this->drupalRoot . $path;
     }
 
     $version_string = $this->readVersionConstant();

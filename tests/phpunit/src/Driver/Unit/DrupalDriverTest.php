@@ -122,4 +122,60 @@ class DrupalDriverTest extends TestCase {
     new FakeVersionDrupalDriver(__DIR__, 'default');
   }
 
+  /**
+   * Tests that a root missing either entry file is rejected.
+   *
+   * @param string $present
+   *   The entry file the root carries, relative to it.
+   * @param string $missing
+   *   The entry file the root lacks, named in the expected message.
+   *
+   * @dataProvider dataProviderDetectMajorVersionRejectsPartialRoot
+   */
+  #[DataProvider('dataProviderDetectMajorVersionRejectsPartialRoot')]
+  public function testDetectMajorVersionRejectsPartialRoot(string $present, string $missing): void {
+    $root = self::DRUPAL_ROOT . '/../partial-root-' . md5($present);
+    mkdir(dirname($root . $present), 0777, TRUE);
+    touch($root . $present);
+
+    try {
+      $this->expectException(BootstrapException::class);
+      $this->expectExceptionMessage($missing . ' is missing');
+
+      new FakeVersionDrupalDriver($root, 'default');
+    }
+    finally {
+      unlink($root . $present);
+      $this->removeTree($root);
+    }
+  }
+
+  /**
+   * Data provider for 'testDetectMajorVersionRejectsPartialRoot()'.
+   */
+  public static function dataProviderDetectMajorVersionRejectsPartialRoot(): \Iterator {
+    yield 'bootstrap include missing' => ['/autoload.php', '/core/includes/bootstrap.inc'];
+    yield 'autoloader missing' => ['/core/includes/bootstrap.inc', '/autoload.php'];
+  }
+
+  /**
+   * Removes a directory and every empty directory it contains.
+   *
+   * @param string $directory
+   *   The directory to remove.
+   */
+  protected function removeTree(string $directory): void {
+    $entries = (array) scandir($directory);
+
+    foreach ($entries as $entry) {
+      if ($entry === '.' || $entry === '..') {
+        continue;
+      }
+
+      $this->removeTree($directory . '/' . $entry);
+    }
+
+    rmdir($directory);
+  }
+
 }

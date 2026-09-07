@@ -23,7 +23,7 @@ class ProcessStubDrushDriver extends DrushDriver {
   /**
    * {@inheritdoc}
    */
-  protected function runProcess(string $cmd): Process {
+  protected function runProcess(array $argv): Process {
     if (!$this->stubProcess instanceof Process) {
       throw new \LogicException('A stub process must be set before the driver runs a command.');
     }

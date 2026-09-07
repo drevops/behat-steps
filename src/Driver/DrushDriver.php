@@ -332,10 +332,26 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
+   * Splits the common drush arguments into individual argv entries.
+   *
+   * @return array<int, string>
+   *   One entry per whitespace-separated argument, empty when none are set.
+   */
+  protected function getArgumentList(): array {
+    $arguments = trim($this->arguments);
+
+    if ($arguments === '') {
+      return [];
+    }
+
+    return explode(' ', (string) preg_replace('/\s+/', ' ', $arguments));
+  }
+
+  /**
    * Execute a drush command, returning its result without throwing on failure.
    *
-   * The command line runs through a shell, so every argument and option value
-   * is escaped here. Callers pass raw values.
+   * The command runs without a shell, so no value passed here is subject to
+   * shell interpretation.
    *
    * @param string $command
    *   The Drush command to execute.
@@ -348,16 +364,18 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    *   The exit code together with the captured stdout and stderr.
    */
   public function drushResult(string $command, array $arguments = [], array $options = []): DrushResult {
-    $argument_string = implode(' ', array_map(escapeshellarg(...), $arguments));
-
     $options['no-ansi'] = NULL;
 
-    $option_string = static::parseArguments($options);
-    $alias = isset($this->alias) ? '@' . $this->alias : '--root=' . $this->root;
-    $global = $this->getArguments();
+    $argv = [
+      $this->binary,
+      isset($this->alias) ? '@' . $this->alias : '--root=' . $this->root,
+      ...static::parseArguments($options),
+      ...$this->getArgumentList(),
+      $command,
+      ...$arguments,
+    ];
 
-    $cmd = sprintf('%s %s %s %s %s %s', $this->binary, $alias, $option_string, $global, $command, $argument_string);
-    $process = $this->runProcess($cmd);
+    $process = $this->runProcess($argv);
 
     // A signalled process yields a NULL exit code; classify that as a failure
     // rather than letting it read as success.
@@ -411,16 +429,16 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Builds, runs, and returns a process for the given shell command line.
+   * Builds, runs, and returns a process for the given argument vector.
    *
-   * @param string $cmd
-   *   The full shell command line to execute.
+   * @param array<int, string> $argv
+   *   The binary followed by its arguments, one entry each.
    *
    * @return \Symfony\Component\Process\Process
    *   The process after it has finished running.
    */
-  protected function runProcess(string $cmd): Process {
-    $process = Process::fromShellCommandline($cmd);
+  protected function runProcess(array $argv): Process {
+    $process = new Process($argv);
     $process->setTimeout(3600);
     $process->run();
 
@@ -493,29 +511,29 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Parse arguments into a string.
-   *
-   * Option values are escaped for the shell; option names are not, so they
-   * must be literals supplied by this class.
+   * Parse options into individual argv entries.
    *
    * @param array<string, string|bool|null> $arguments
-   *   An array of argument/option names to values.
+   *   An array of option names to values. A NULL value yields a bare flag.
    *
-   * @return string
-   *   The parsed arguments.
+   * @return array<int, string>
+   *   One entry per option.
+   *
+   * @throws \RuntimeException
+   *   Thrown when an option name is not a bare long-option name.
    */
-  protected static function parseArguments(array $arguments): string {
-    $option_string = '';
+  protected static function parseArguments(array $arguments): array {
+    $options = [];
 
     foreach ($arguments as $name => $value) {
-      if ($value === NULL) {
-        $option_string .= ' --' . $name;
+      if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $name) !== 1) {
+        throw new \RuntimeException(sprintf('Invalid Drush option name: %s.', $name));
       }
-      else {
-        $option_string .= ' --' . $name . '=' . escapeshellarg((string) $value);
-      }
+
+      $options[] = $value === NULL ? '--' . $name : '--' . $name . '=' . $value;
     }
-    return $option_string;
+
+    return $options;
   }
 
 }
