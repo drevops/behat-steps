@@ -23,6 +23,88 @@ use Behat\Step\When;
 trait ModalTrait {
 
   /**
+   * Close the modal by clicking the close button.
+   *
+   * @code
+   * When I close the modal
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I close the modal')]
+  public function modalClose(): void {
+    $modal = $this->modalFindVisible();
+    $close = $this->modalFindElementIn($modal, $this->modalGetCloseSelectors());
+
+    if ($close === NULL) {
+      throw new ExpectationException('The modal close button was not found.', $this->getSession()->getDriver());
+    }
+
+    $close->click();
+  }
+
+  /**
+   * Click an element in the modal by CSS selector, button label, or link text.
+   *
+   * Resolves the element in the following order:
+   * 1. CSS selector (e.g., ".btn-save", "a.close").
+   * 2. Button by id, name, value, or visible text (via Mink findButton).
+   * 3. Link by visible text or title (via Mink findLink).
+   *
+   * @code
+   * When I click on "Save" in the modal
+   * When I click on ".btn-save" in the modal
+   * When I click on "Cancel" in the modal
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I click on :selector in the modal')]
+  public function modalClick(string $selector): void {
+    $modal = $this->modalFindVisible();
+
+    $element = $modal->find('css', $selector);
+
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findButton($selector);
+    }
+
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findLink($selector);
+    }
+
+    if ($element === NULL || !$element->isVisible()) {
+      throw new ExpectationException(sprintf('The element "%s" was not found in the modal.', $selector), $this->getSession()->getDriver());
+    }
+
+    $element->click();
+  }
+
+  /**
+   * Wait for the modal to appear.
+   *
+   * @code
+   * When I wait for the modal to appear
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I wait for the modal to appear')]
+  public function modalWaitForAppear(): void {
+    $timeout = $this->modalGetWaitTimeout();
+
+    $result = $this->getSession()->getPage()->waitFor($timeout, function (): bool {
+      $modal = $this->modalFind();
+
+      return $modal !== NULL && $modal->isVisible();
+    });
+
+    if (!$result) {
+      throw new ExpectationException(sprintf('The modal did not appear within %d seconds.', $timeout), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert that the modal is visible.
    *
    * @code
@@ -105,88 +187,6 @@ trait ModalTrait {
 
     if (str_contains((string) $actual_text, $text)) {
       throw new ExpectationException(sprintf('The modal contains the text "%s", but it should not.', $text), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Close the modal by clicking the close button.
-   *
-   * @code
-   * When I close the modal
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I close the modal')]
-  public function modalClose(): void {
-    $modal = $this->modalFindVisible();
-    $close = $this->modalFindElementIn($modal, $this->modalGetCloseSelectors());
-
-    if ($close === NULL) {
-      throw new ExpectationException('The modal close button was not found.', $this->getSession()->getDriver());
-    }
-
-    $close->click();
-  }
-
-  /**
-   * Click an element in the modal by CSS selector, button label, or link text.
-   *
-   * Resolves the element in the following order:
-   * 1. CSS selector (e.g., ".btn-save", "a.close").
-   * 2. Button by id, name, value, or visible text (via Mink findButton).
-   * 3. Link by visible text or title (via Mink findLink).
-   *
-   * @code
-   * When I click on "Save" in the modal
-   * When I click on ".btn-save" in the modal
-   * When I click on "Cancel" in the modal
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I click on :selector in the modal')]
-  public function modalClick(string $selector): void {
-    $modal = $this->modalFindVisible();
-
-    $element = $modal->find('css', $selector);
-
-    if ($element === NULL || !$element->isVisible()) {
-      $element = $modal->findButton($selector);
-    }
-
-    if ($element === NULL || !$element->isVisible()) {
-      $element = $modal->findLink($selector);
-    }
-
-    if ($element === NULL || !$element->isVisible()) {
-      throw new ExpectationException(sprintf('The element "%s" was not found in the modal.', $selector), $this->getSession()->getDriver());
-    }
-
-    $element->click();
-  }
-
-  /**
-   * Wait for the modal to appear.
-   *
-   * @code
-   * When I wait for the modal to appear
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I wait for the modal to appear')]
-  public function modalWaitForAppear(): void {
-    $timeout = $this->modalGetWaitTimeout();
-
-    $result = $this->getSession()->getPage()->waitFor($timeout, function (): bool {
-      $modal = $this->modalFind();
-
-      return $modal !== NULL && $modal->isVisible();
-    });
-
-    if (!$result) {
-      throw new ExpectationException(sprintf('The modal did not appear within %d seconds.', $timeout), $this->getSession()->getDriver());
     }
   }
 

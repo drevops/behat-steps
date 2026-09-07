@@ -21,28 +21,169 @@ use Behat\Step\When;
 trait ElementTrait {
 
   /**
-   * Whether to scroll elements to the center of the viewport.
+   * Accept confirmation dialogs appearing on the page.
    *
-   * Returns TRUE (default) to use scrollIntoView() with center alignment,
-   * which positions the element in the middle of the viewport. This avoids
-   * interaction failures caused by sticky headers, admin toolbars, or fixed
-   * navigation.
-   *
-   * Returns FALSE to use the scrollIntoView(true) behavior, which aligns
-   * the element to the top of the viewport.
-   *
-   * Override this method in the context class to change the behavior:
    * @code
-   * class FeatureContext extends DrupalContext {
-   *   use ElementTrait;
-   *   protected function elementGetScrollIntoViewCenter(): bool {
-   *     return FALSE;
-   *   }
-   * }
+   * Given confirmation dialogs are accepted
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Given('confirmation dialogs are accepted')]
+  public function elementAcceptConfirmation(): void {
+    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
+  }
+
+  /**
+   * Do not accept confirmation dialogs appearing on the page.
+   *
+   * @code
+   * Given confirmation dialogs are declined
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Given('confirmation dialogs are declined')]
+  public function elementDeclineConfirmation(): void {
+    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
+  }
+
+  /**
+   * Click on the element defined by the selector.
+   *
+   * @code
+   * When I click on the element ".button"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I click on the element :selector')]
+  public function elementClick(string $selector): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $element->click();
+  }
+
+  /**
+   * Click on the element at the 1-based index among all selector matches.
+   *
+   * Useful when a selector matches several repeated components (cards, rows,
+   * menu items) and only the Nth one should be clicked.
+   *
+   * @code
+   * When I click on the element ".card" with the index 2
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I click on the element :selector with the index :index')]
+  public function elementClickByIndex(string $selector, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('css', $selector);
+    $this->elementFindNthOrFail($elements, $index, sprintf('element matching "%s"', $selector))->click();
+  }
+
+  /**
+   * Follow the link at the 1-based index among all links with the text.
+   *
+   * @code
+   * When I follow the link "Read more" with the index 2
    * @endcode
    */
-  protected function elementGetScrollIntoViewCenter(): bool {
-    return TRUE;
+  #[When('I follow the link :text with the index :index')]
+  public function elementFollowLinkByIndex(string $text, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['link', $text]);
+    $this->elementFindNthOrFail($elements, $index, sprintf('link "%s"', $text))->click();
+  }
+
+  /**
+   * Press the button at the 1-based index among all buttons with the label.
+   *
+   * @code
+   * When I press the button "Delete" with the index 2
+   * @endcode
+   */
+  #[When('I press the button :label with the index :index')]
+  public function elementPressButtonByIndex(string $label, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['button', $label]);
+    $this->elementFindNthOrFail($elements, $index, sprintf('button "%s"', $label))->press();
+  }
+
+  /**
+   * When I trigger the JS event :event on the element :selector.
+   *
+   * @code
+   * When I trigger the JS event "click" on the element "#submit-button"
+   * @endcode
+   */
+  #[When('I trigger the JS event :event on the element :selector')]
+  public function elementTriggerEvent(string $event, string $selector): void {
+    $event_js = json_encode($event, JSON_UNESCAPED_SLASHES);
+    $this->elementExecuteJs($selector, sprintf('var event = new Event(%s, { bubbles: true }); {{ELEMENT}}.dispatchEvent(event); return true;', $event_js));
+  }
+
+  /**
+   * Scroll to an element with ID.
+   *
+   * By default, scrolls the element to the center of the viewport. Override
+   * the elementGetScrollIntoViewCenter() method to return FALSE to use the
+   * legacy behavior that aligns the element to the top of the viewport.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * @endcode
+   */
+  #[When('I scroll to the element :selector')]
+  public function elementScrollTo(string $selector): void {
+    if ($this->elementGetScrollIntoViewCenter()) {
+      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });');
+    }
+    else {
+      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
+    }
+  }
+
+  /**
+   * Hover over an element identified by CSS selector.
+   *
+   * @code
+   * When I hover over the element ".menu-item"
+   * When I hover over the element "#tooltip-trigger"
+   * @endcode
+   */
+  #[When('I hover over the element :selector')]
+  public function elementHover(string $selector): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $element->mouseOver();
+  }
+
+  /**
+   * Focus on an element by CSS selector.
+   *
+   * @code
+   * When I focus on the element "#edit-name"
+   * When I focus on the element ".form-text"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[When('I focus on the element :selector')]
+  public function elementFocus(string $selector): void {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if (!$element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $this->elementExecuteJs($selector, '{{ELEMENT}}.focus();');
   }
 
   /**
@@ -162,71 +303,6 @@ trait ElementTrait {
   }
 
   /**
-   * Assert an element with selector and attribute with a value.
-   *
-   * @param string $selector
-   *   The CSS selector.
-   * @param string $attribute
-   *   The attribute name.
-   * @param mixed $value
-   *   The value to assert.
-   * @param bool $is_exact
-   *   Whether to assert the value exactly.
-   * @param bool $is_inverted
-   *   Whether to assert the value is not present.
-   *
-   * @throws \Behat\Mink\Exception\ElementNotFoundException
-   *   If no element matches the selector.
-   * @throws \Behat\Mink\Exception\ExpectationException
-   *   If the attribute or its value does not match the expectation.
-   */
-  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    if (empty($elements)) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $attribute_found = FALSE;
-    $attribute_value_found = FALSE;
-    foreach ($elements as $element) {
-      $attribute_value = (string) $element->getAttribute($attribute);
-      if (!empty($attribute_value)) {
-        $attribute_found = TRUE;
-        if ($is_exact) {
-          if ($attribute_value === (string) $value) {
-            $attribute_value_found = TRUE;
-            break;
-          }
-        }
-        elseif (str_contains($attribute_value, (string) $value)) {
-          $attribute_value_found = TRUE;
-          break;
-        }
-      }
-    }
-
-    if (!$attribute_found) {
-      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
-    }
-
-    if ($is_inverted && $attribute_value_found) {
-      $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-
-    if (!$is_inverted && !$attribute_value_found) {
-      $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
-      throw new ExpectationException($message, $this->getSession()->getDriver());
-    }
-  }
-
-  /**
    * Assert an element has a computed CSS property with a value.
    *
    * The value is compared against the value computed by the browser, not
@@ -290,6 +366,416 @@ trait ElementTrait {
   #[Then('the element :selector should not have the CSS property :property with the value containing :value')]
   public function elementAssertNotHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
     $this->elementAssertCssProperty($selector, $property, $value, FALSE, TRUE);
+  }
+
+  /**
+   * Assert that one element stacks above another.
+   *
+   * Compares the effective paint order rather than the `z-index` property:
+   * a `z-index` read from an element is only meaningful within its own
+   * stacking context, so a child of a stacking-context-forming ancestor can
+   * carry a high `z-index` and still paint below an element with a lower one.
+   *
+   * The comparison walks the stacking context chain of both elements, finds
+   * the context they share, and compares the two participants that branch off
+   * it, using document order to break a tie. Painting order within a single
+   * stacking context (floats, inline content and positioned descendants) is
+   * not modelled.
+   *
+   * @code
+   * Then the element "#modal" should stack above the element "#page-header"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack above the element :selector2')]
+  public function elementAssertStacksAbove(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, TRUE);
+  }
+
+  /**
+   * Assert that one element stacks below another.
+   *
+   * @code
+   * Then the element "#page-header" should stack below the element "#modal"
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector1 should stack below the element :selector2')]
+  public function elementAssertStacksBelow(string $selector1, string $selector2): void {
+    $this->elementAssertStackingOrder($selector1, $selector2, FALSE);
+  }
+
+  /**
+   * Assert the element :selector should be at the top of the viewport.
+   *
+   * @code
+   * Then the element "#header" should be at the top of the viewport
+   * @endcode
+   */
+  #[Then('the element :selector should be at the top of the viewport')]
+  public function elementAssertElementAtTopOfViewport(string $selector): void {
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
+    if (!$result) {
+      throw new ExpectationException(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the element :selector should be centered in the viewport.
+   *
+   * Checks that the vertical center of the element is within the middle third
+   * of the viewport.
+   *
+   * @code
+   * Then the element "#content" should be centered in the viewport
+   * @endcode
+   */
+  #[Then('the element :selector should be centered in the viewport')]
+  public function elementAssertElementCenteredInViewport(string $selector): void {
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
+    if (!$result) {
+      throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that an element is pinned to the top of the viewport.
+   *
+   * The element's top edge has to sit within 2 pixels of the viewport top,
+   * which absorbs the sub-pixel offsets that normal rendering produces. Use
+   * the step with an explicit tolerance for layouts that need more slack.
+   *
+   * This asserts where the element currently renders, so scroll the page
+   * first to tell a pinned element apart from one that merely starts at the
+   * top of the document.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * Then the element "#header" should be pinned to the top of the viewport
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should be pinned to the top of the viewport')]
+  public function elementAssertPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTopWithin($selector, 2, FALSE);
+  }
+
+  /**
+   * Assert that an element is pinned to the top of the viewport within a tolerance.
+   *
+   * @code
+   * Then the element "#header" should be pinned to the top of the viewport within 10 pixels
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
+  public function elementAssertPinnedToTopWithTolerance(string $selector, int $tolerance): void {
+    $this->elementAssertPinnedToTopWithin($selector, $tolerance, FALSE);
+  }
+
+  /**
+   * Assert that an element is not pinned to the top of the viewport.
+   *
+   * @code
+   * When I scroll to the element "#footer"
+   * Then the element "#header" should not be pinned to the top of the viewport
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not be pinned to the top of the viewport')]
+  public function elementAssertNotPinnedToTop(string $selector): void {
+    $this->elementAssertPinnedToTopWithin($selector, 2, TRUE);
+  }
+
+  /**
+   * Assert that the element has keyboard focus.
+   *
+   * Verifies that the element matched by the selector is the current
+   * `document.activeElement`. This is the canonical check for tab-order tests,
+   * skip-link behaviour, modal focus traps, autofocus, and focus-after-action
+   * flows.
+   *
+   * @code
+   * Then the element "#edit-name" should have keyboard focus
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have keyboard focus')]
+  public function elementAssertHasKeyboardFocus(string $selector): void {
+    $this->elementAssertKeyboardFocus($selector, FALSE);
+  }
+
+  /**
+   * Assert that the element does not have keyboard focus.
+   *
+   * @code
+   * Then the element "#edit-name" should not have keyboard focus
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have keyboard focus')]
+  public function elementAssertNotHasKeyboardFocus(string $selector): void {
+    $this->elementAssertKeyboardFocus($selector, TRUE);
+  }
+
+  /**
+   * Assert that the element has a visible focus indicator.
+   *
+   * Verifies that the element renders a visible focus indicator via either
+   * a CSS outline (non-`none` outline-style with a width greater than 0) or
+   * a non-`none` box-shadow. Guards WCAG 2.4.7 (Focus Visible) and catches
+   * accidental `outline: none` regressions introduced by stylesheet changes.
+   *
+   * @code
+   * Then the element "#edit-name" should have a visible focus outline
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should have a visible focus outline')]
+  public function elementAssertHasVisibleFocusOutline(string $selector): void {
+    $this->elementAssertVisibleFocusOutline($selector, FALSE);
+  }
+
+  /**
+   * Assert that the element does not have a visible focus indicator.
+   *
+   * @code
+   * Then the element "#decorative-icon" should not have a visible focus outline
+   * @endcode
+   *
+   * @javascript
+   */
+  #[Then('the element :selector should not have a visible focus outline')]
+  public function elementAssertNotHasVisibleFocusOutline(string $selector): void {
+    $this->elementAssertVisibleFocusOutline($selector, TRUE);
+  }
+
+  /**
+   * Assert that element with specified CSS is visible on page.
+   *
+   * @code
+   * Then the element ".alert-success" should be displayed
+   * @endcode
+   */
+  #[Then('the element :selector should be displayed')]
+  public function elementAssertVisible(string $selector): void {
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
+
+    if ($elements === []) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
+        return;
+      }
+    }
+
+    throw new ExpectationException(sprintf('None of the elements defined by "%s" selector are visible on the page.', $selector), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert that element with specified CSS is not visible on page.
+   *
+   * @code
+   * Then the element ".error-message" should not be displayed
+   * @endcode
+   */
+  #[Then('the element :selector should not be displayed')]
+  public function elementAssertNotVisible(string $selector): void {
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
+
+    foreach ($elements as $element) {
+      if ($element->isVisible()) {
+        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
+      }
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is displayed within a viewport.
+   *
+   * @code
+   * Then the element ".hero-banner" should be displayed within a viewport
+   * @endcode
+   */
+  #[Then('the element :selector should be displayed within a viewport')]
+  public function elementAssertVisuallyVisible(string $selector): void {
+    $this->elementAssertVisible($selector);
+
+    if (!$this->elementIsVisuallyVisible($selector, 0)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is displayed within a viewport with a top offset.
+   *
+   * @code
+   * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+   * @endcode
+   */
+  #[Then('the element :selector should be displayed within a viewport with a top offset of :offset pixels')]
+  public function elementAssertVisuallyVisibleWithOffset(string $selector, int $offset): void {
+    $this->elementAssertVisible($selector);
+    if (!$this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is not displayed within a viewport with a top offset.
+   *
+   * @code
+   * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+   * @endcode
+   */
+  #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
+  public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
+    if ($this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $offset), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that element with specified CSS is visually hidden on page.
+   *
+   * Visually hidden means either:
+   * - element is not rendered in the layout (i.e., CSS is "display: none").
+   * - element is rendered in the layout, but not visible to the viewer (i.e.,
+   *   when one of the screen reader-only techniques is used).
+   *
+   * @code
+   * Then the element ".visually-hidden" should not be displayed within a viewport
+   * @endcode
+   */
+  #[Then('the element :selector should not be displayed within a viewport')]
+  public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
+    if ($this->elementIsVisuallyVisible($selector, $offset)) {
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the number of elements matching a selector within a parent element.
+   *
+   * @code
+   * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
+   * @endcode
+   */
+  #[Then('the element :parent should contain :count element(s) matching :selector')]
+  public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
+    $parent_element = $this->getSession()->getPage()->find('css', $parent);
+
+    if (!$parent_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $parent);
+    }
+
+    $actual = count($parent_element->findAll('css', $selector));
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected the element "%s" to contain %d element(s) matching "%s", but found %d.', $parent, $count, $selector, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Whether to scroll elements to the center of the viewport.
+   *
+   * Returns TRUE (default) to use scrollIntoView() with center alignment,
+   * which positions the element in the middle of the viewport. This avoids
+   * interaction failures caused by sticky headers, admin toolbars, or fixed
+   * navigation.
+   *
+   * Returns FALSE to use the scrollIntoView(true) behavior, which aligns
+   * the element to the top of the viewport.
+   *
+   * Override this method in the context class to change the behavior:
+   * @code
+   * class FeatureContext extends DrupalContext {
+   *   use ElementTrait;
+   *   protected function elementGetScrollIntoViewCenter(): bool {
+   *     return FALSE;
+   *   }
+   * }
+   * @endcode
+   */
+  protected function elementGetScrollIntoViewCenter(): bool {
+    return TRUE;
+  }
+
+  /**
+   * Assert an element with selector and attribute with a value.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   * @param string $attribute
+   *   The attribute name.
+   * @param mixed $value
+   *   The value to assert.
+   * @param bool $is_exact
+   *   Whether to assert the value exactly.
+   * @param bool $is_inverted
+   *   Whether to assert the value is not present.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If no element matches the selector.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the attribute or its value does not match the expectation.
+   */
+  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
+    $page = $this->getSession()->getPage();
+    $elements = $page->findAll('css', $selector);
+
+    if (empty($elements)) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    $attribute_found = FALSE;
+    $attribute_value_found = FALSE;
+    foreach ($elements as $element) {
+      $attribute_value = (string) $element->getAttribute($attribute);
+      if (!empty($attribute_value)) {
+        $attribute_found = TRUE;
+        if ($is_exact) {
+          if ($attribute_value === (string) $value) {
+            $attribute_value_found = TRUE;
+            break;
+          }
+        }
+        elseif (str_contains($attribute_value, (string) $value)) {
+          $attribute_value_found = TRUE;
+          break;
+        }
+      }
+    }
+
+    if (!$attribute_found) {
+      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
+    }
+
+    if ($is_inverted && $attribute_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
+
+    if (!$is_inverted && !$attribute_value_found) {
+      $message = $is_exact
+        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
+      throw new ExpectationException($message, $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -360,45 +846,6 @@ trait ElementTrait {
     }
 
     return strtolower((string) preg_replace('/([a-z0-9])([A-Z])/', '$1-$2', $property));
-  }
-
-  /**
-   * Assert that one element stacks above another.
-   *
-   * Compares the effective paint order rather than the `z-index` property:
-   * a `z-index` read from an element is only meaningful within its own
-   * stacking context, so a child of a stacking-context-forming ancestor can
-   * carry a high `z-index` and still paint below an element with a lower one.
-   *
-   * The comparison walks the stacking context chain of both elements, finds
-   * the context they share, and compares the two participants that branch off
-   * it, using document order to break a tie. Painting order within a single
-   * stacking context (floats, inline content and positioned descendants) is
-   * not modelled.
-   *
-   * @code
-   * Then the element "#modal" should stack above the element "#page-header"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector1 should stack above the element :selector2')]
-  public function elementAssertStacksAbove(string $selector1, string $selector2): void {
-    $this->elementAssertStackingOrder($selector1, $selector2, TRUE);
-  }
-
-  /**
-   * Assert that one element stacks below another.
-   *
-   * @code
-   * Then the element "#page-header" should stack below the element "#modal"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector1 should stack below the element :selector2')]
-  public function elementAssertStacksBelow(string $selector1, string $selector2): void {
-    $this->elementAssertStackingOrder($selector1, $selector2, FALSE);
   }
 
   /**
@@ -580,91 +1027,6 @@ JS;
   }
 
   /**
-   * Assert the element :selector should be at the top of the viewport.
-   *
-   * @code
-   * Then the element "#header" should be at the top of the viewport
-   * @endcode
-   */
-  #[Then('the element :selector should be at the top of the viewport')]
-  public function elementAssertElementAtTopOfViewport(string $selector): void {
-    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
-    if (!$result) {
-      throw new ExpectationException(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert the element :selector should be centered in the viewport.
-   *
-   * Checks that the vertical center of the element is within the middle third
-   * of the viewport.
-   *
-   * @code
-   * Then the element "#content" should be centered in the viewport
-   * @endcode
-   */
-  #[Then('the element :selector should be centered in the viewport')]
-  public function elementAssertElementCenteredInViewport(string $selector): void {
-    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
-    if (!$result) {
-      throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that an element is pinned to the top of the viewport.
-   *
-   * The element's top edge has to sit within 2 pixels of the viewport top,
-   * which absorbs the sub-pixel offsets that normal rendering produces. Use
-   * the step with an explicit tolerance for layouts that need more slack.
-   *
-   * This asserts where the element currently renders, so scroll the page
-   * first to tell a pinned element apart from one that merely starts at the
-   * top of the document.
-   *
-   * @code
-   * When I scroll to the element "#footer"
-   * Then the element "#header" should be pinned to the top of the viewport
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should be pinned to the top of the viewport')]
-  public function elementAssertPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTopWithin($selector, 2, FALSE);
-  }
-
-  /**
-   * Assert that an element is pinned to the top of the viewport within a tolerance.
-   *
-   * @code
-   * Then the element "#header" should be pinned to the top of the viewport within 10 pixels
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
-  public function elementAssertPinnedToTopWithTolerance(string $selector, int $tolerance): void {
-    $this->elementAssertPinnedToTopWithin($selector, $tolerance, FALSE);
-  }
-
-  /**
-   * Assert that an element is not pinned to the top of the viewport.
-   *
-   * @code
-   * When I scroll to the element "#footer"
-   * Then the element "#header" should not be pinned to the top of the viewport
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should not be pinned to the top of the viewport')]
-  public function elementAssertNotPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTopWithin($selector, 2, TRUE);
-  }
-
-  /**
    * Assert that an element is pinned to the top of the viewport.
    *
    * @param string $selector
@@ -711,238 +1073,6 @@ JS;
     if ($is_inverted && $is_pinned) {
       throw new ExpectationException(sprintf('Expected element "%s" to not be pinned to the top of the viewport, but its top edge is at %s pixels.', $selector, $top), $this->getSession()->getDriver());
     }
-  }
-
-  /**
-   * Accept confirmation dialogs appearing on the page.
-   *
-   * @code
-   * Given confirmation dialogs are accepted
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Given('confirmation dialogs are accepted')]
-  public function elementAcceptConfirmation(): void {
-    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
-  }
-
-  /**
-   * Do not accept confirmation dialogs appearing on the page.
-   *
-   * @code
-   * Given confirmation dialogs are declined
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Given('confirmation dialogs are declined')]
-  public function elementDeclineConfirmation(): void {
-    $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
-  }
-
-  /**
-   * Click on the element defined by the selector.
-   *
-   * @code
-   * When I click on the element ".button"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I click on the element :selector')]
-  public function elementClick(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $element->click();
-  }
-
-  /**
-   * Click on the element at the 1-based index among all selector matches.
-   *
-   * Useful when a selector matches several repeated components (cards, rows,
-   * menu items) and only the Nth one should be clicked.
-   *
-   * @code
-   * When I click on the element ".card" with the index 2
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I click on the element :selector with the index :index')]
-  public function elementClickByIndex(string $selector, int $index): void {
-    $elements = $this->getSession()->getPage()->findAll('css', $selector);
-    $this->elementFindNthOrFail($elements, $index, sprintf('element matching "%s"', $selector))->click();
-  }
-
-  /**
-   * Follow the link at the 1-based index among all links with the text.
-   *
-   * @code
-   * When I follow the link "Read more" with the index 2
-   * @endcode
-   */
-  #[When('I follow the link :text with the index :index')]
-  public function elementFollowLinkByIndex(string $text, int $index): void {
-    $elements = $this->getSession()->getPage()->findAll('named', ['link', $text]);
-    $this->elementFindNthOrFail($elements, $index, sprintf('link "%s"', $text))->click();
-  }
-
-  /**
-   * Press the button at the 1-based index among all buttons with the label.
-   *
-   * @code
-   * When I press the button "Delete" with the index 2
-   * @endcode
-   */
-  #[When('I press the button :label with the index :index')]
-  public function elementPressButtonByIndex(string $label, int $index): void {
-    $elements = $this->getSession()->getPage()->findAll('named', ['button', $label]);
-    $this->elementFindNthOrFail($elements, $index, sprintf('button "%s"', $label))->press();
-  }
-
-  /**
-   * When I trigger the JS event :event on the element :selector.
-   *
-   * @code
-   * When I trigger the JS event "click" on the element "#submit-button"
-   * @endcode
-   */
-  #[When('I trigger the JS event :event on the element :selector')]
-  public function elementTriggerEvent(string $event, string $selector): void {
-    $event_js = json_encode($event, JSON_UNESCAPED_SLASHES);
-    $this->elementExecuteJs($selector, sprintf('var event = new Event(%s, { bubbles: true }); {{ELEMENT}}.dispatchEvent(event); return true;', $event_js));
-  }
-
-  /**
-   * Scroll to an element with ID.
-   *
-   * By default, scrolls the element to the center of the viewport. Override
-   * the elementGetScrollIntoViewCenter() method to return FALSE to use the
-   * legacy behavior that aligns the element to the top of the viewport.
-   *
-   * @code
-   * When I scroll to the element "#footer"
-   * @endcode
-   */
-  #[When('I scroll to the element :selector')]
-  public function elementScrollTo(string $selector): void {
-    if ($this->elementGetScrollIntoViewCenter()) {
-      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView({ behavior: "auto", block: "center", inline: "center" });');
-    }
-    else {
-      $this->elementExecuteJs($selector, '{{ELEMENT}}.scrollIntoView(true);');
-    }
-  }
-
-  /**
-   * Hover over an element identified by CSS selector.
-   *
-   * @code
-   * When I hover over the element ".menu-item"
-   * When I hover over the element "#tooltip-trigger"
-   * @endcode
-   */
-  #[When('I hover over the element :selector')]
-  public function elementHover(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if ($element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $element->mouseOver();
-  }
-
-  /**
-   * Focus on an element by CSS selector.
-   *
-   * @code
-   * When I focus on the element "#edit-name"
-   * When I focus on the element ".form-text"
-   * @endcode
-   *
-   * @javascript
-   */
-  #[When('I focus on the element :selector')]
-  public function elementFocus(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $this->elementExecuteJs($selector, '{{ELEMENT}}.focus();');
-  }
-
-  /**
-   * Assert that the element has keyboard focus.
-   *
-   * Verifies that the element matched by the selector is the current
-   * `document.activeElement`. This is the canonical check for tab-order tests,
-   * skip-link behaviour, modal focus traps, autofocus, and focus-after-action
-   * flows.
-   *
-   * @code
-   * Then the element "#edit-name" should have keyboard focus
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should have keyboard focus')]
-  public function elementAssertHasKeyboardFocus(string $selector): void {
-    $this->elementAssertKeyboardFocus($selector, FALSE);
-  }
-
-  /**
-   * Assert that the element does not have keyboard focus.
-   *
-   * @code
-   * Then the element "#edit-name" should not have keyboard focus
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should not have keyboard focus')]
-  public function elementAssertNotHasKeyboardFocus(string $selector): void {
-    $this->elementAssertKeyboardFocus($selector, TRUE);
-  }
-
-  /**
-   * Assert that the element has a visible focus indicator.
-   *
-   * Verifies that the element renders a visible focus indicator via either
-   * a CSS outline (non-`none` outline-style with a width greater than 0) or
-   * a non-`none` box-shadow. Guards WCAG 2.4.7 (Focus Visible) and catches
-   * accidental `outline: none` regressions introduced by stylesheet changes.
-   *
-   * @code
-   * Then the element "#edit-name" should have a visible focus outline
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should have a visible focus outline')]
-  public function elementAssertHasVisibleFocusOutline(string $selector): void {
-    $this->elementAssertVisibleFocusOutline($selector, FALSE);
-  }
-
-  /**
-   * Assert that the element does not have a visible focus indicator.
-   *
-   * @code
-   * Then the element "#decorative-icon" should not have a visible focus outline
-   * @endcode
-   *
-   * @javascript
-   */
-  #[Then('the element :selector should not have a visible focus outline')]
-  public function elementAssertNotHasVisibleFocusOutline(string $selector): void {
-    $this->elementAssertVisibleFocusOutline($selector, TRUE);
   }
 
   /**
@@ -1028,136 +1158,6 @@ JS;
 
     if ($is_inverted && $is_visible) {
       throw new ExpectationException(sprintf('Expected element "%s" to not have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that element with specified CSS is visible on page.
-   *
-   * @code
-   * Then the element ".alert-success" should be displayed
-   * @endcode
-   */
-  #[Then('the element :selector should be displayed')]
-  public function elementAssertVisible(string $selector): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    if ($elements === []) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    foreach ($elements as $element) {
-      if ($element->isVisible()) {
-        return;
-      }
-    }
-
-    throw new ExpectationException(sprintf('None of the elements defined by "%s" selector are visible on the page.', $selector), $this->getSession()->getDriver());
-  }
-
-  /**
-   * Assert that element with specified CSS is not visible on page.
-   *
-   * @code
-   * Then the element ".error-message" should not be displayed
-   * @endcode
-   */
-  #[Then('the element :selector should not be displayed')]
-  public function elementAssertNotVisible(string $selector): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    foreach ($elements as $element) {
-      if ($element->isVisible()) {
-        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
-      }
-    }
-  }
-
-  /**
-   * Assert that element with specified CSS is displayed within a viewport.
-   *
-   * @code
-   * Then the element ".hero-banner" should be displayed within a viewport
-   * @endcode
-   */
-  #[Then('the element :selector should be displayed within a viewport')]
-  public function elementAssertVisuallyVisible(string $selector): void {
-    $this->elementAssertVisible($selector);
-
-    if (!$this->elementIsVisuallyVisible($selector, 0)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that element with specified CSS is displayed within a viewport with a top offset.
-   *
-   * @code
-   * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
-   * @endcode
-   */
-  #[Then('the element :selector should be displayed within a viewport with a top offset of :offset pixels')]
-  public function elementAssertVisuallyVisibleWithOffset(string $selector, int $offset): void {
-    $this->elementAssertVisible($selector);
-    if (!$this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that element with specified CSS is not displayed within a viewport with a top offset.
-   *
-   * @code
-   * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
-   * @endcode
-   */
-  #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
-  public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
-    if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $offset), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert that element with specified CSS is visually hidden on page.
-   *
-   * Visually hidden means either:
-   * - element is not rendered in the layout (i.e., CSS is "display: none").
-   * - element is rendered in the layout, but not visible to the viewer (i.e.,
-   *   when one of the screen reader-only techniques is used).
-   *
-   * @code
-   * Then the element ".visually-hidden" should not be displayed within a viewport
-   * @endcode
-   */
-  #[Then('the element :selector should not be displayed within a viewport')]
-  public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
-    if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Assert the number of elements matching a selector within a parent element.
-   *
-   * @code
-   * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
-   * @endcode
-   */
-  #[Then('the element :parent should contain :count element(s) matching :selector')]
-  public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
-    $parent_element = $this->getSession()->getPage()->find('css', $parent);
-
-    if (!$parent_element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $parent);
-    }
-
-    $actual = count($parent_element->findAll('css', $selector));
-
-    if ($actual !== $count) {
-      throw new ExpectationException(sprintf('Expected the element "%s" to contain %d element(s) matching "%s", but found %d.', $parent, $count, $selector, $actual), $this->getSession()->getDriver());
     }
   }
 

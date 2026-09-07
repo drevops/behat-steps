@@ -82,32 +82,6 @@ trait WatchdogTrait {
   }
 
   /**
-   * Parse scenario tags into message types.
-   *
-   * @code
-   * @watchdog:my_module_type @watchdog:my_other_module_type
-   * @endcode
-   *
-   * @param array<int, string> $tags
-   *   Array of scenario tags.
-   * @param string $prefix
-   *   Optional tag prefix to filter by.
-   *
-   * @return array<int, string>
-   *   Array of message types. 'php' is always added to the list.
-   */
-  protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {
-    $types = [];
-    foreach ($tags as $tag) {
-      if (str_starts_with((string) $tag, $prefix) && strlen((string) $tag) > strlen($prefix)) {
-        $types[] = substr((string) $tag, strlen($prefix));
-      }
-    }
-
-    return array_unique(array_merge($types, ['php']));
-  }
-
-  /**
    * Check for every error logged since the scenario started, on its last step.
    *
    * Add @error to any scenario that is expected to trigger an error - the
@@ -164,6 +138,32 @@ trait WatchdogTrait {
     }
 
     $this->watchdogAssertNotHasErrors($context);
+  }
+
+  /**
+   * Parse scenario tags into message types.
+   *
+   * @code
+   * @watchdog:my_module_type @watchdog:my_other_module_type
+   * @endcode
+   *
+   * @param array<int, string> $tags
+   *   Array of scenario tags.
+   * @param string $prefix
+   *   Optional tag prefix to filter by.
+   *
+   * @return array<int, string>
+   *   Array of message types. 'php' is always added to the list.
+   */
+  protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {
+    $types = [];
+    foreach ($tags as $tag) {
+      if (str_starts_with((string) $tag, $prefix) && strlen((string) $tag) > strlen($prefix)) {
+        $types[] = substr((string) $tag, strlen($prefix));
+      }
+    }
+
+    return array_unique(array_merge($types, ['php']));
   }
 
   /**
