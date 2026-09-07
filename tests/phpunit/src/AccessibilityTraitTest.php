@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\AccessibilityTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for AccessibilityTrait.
  */
-#[CoversClass(AccessibilityTrait::class)]
+#[CoversTrait(AccessibilityTrait::class)]
 class AccessibilityTraitTest extends UnitTestCase {
 
   /**
@@ -27,6 +27,8 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $this->testObject = new AccessibilityTraitTestImplementation();
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
+    AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
     AccessibilityTraitTestImplementation::accessibilityAggregateReset();
   }
 
@@ -35,6 +37,8 @@ class AccessibilityTraitTest extends UnitTestCase {
    */
   protected function tearDown(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
+    AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
     AccessibilityTraitTestImplementation::accessibilityAggregateReset();
 
     parent::tearDown();
@@ -60,6 +64,100 @@ class AccessibilityTraitTest extends UnitTestCase {
       'similar prefix not stripped' => ['http://nginx:8080', 'http://nginx:8080extra/foo', 'http://nginx:8080extra/foo'],
       'no base url returns input unchanged' => ['', 'http://nginx:8080/contact', 'http://nginx:8080/contact'],
     ];
+  }
+
+  public function testGetJsReadsSourceOnce(): void {
+    $path = static::locationsTmp() . '/axe-engine.js';
+    file_put_contents($path, 'ENGINE');
+    $this->testObject->engineUrl = $path;
+
+    $this->assertSame('ENGINE', $this->testObject->testGetJs());
+
+    // A second call is served from the process cache, so the source is read
+    // only once even though the getter would return the same path.
+    file_put_contents($path, 'CHANGED');
+    $this->assertSame('ENGINE', $this->testObject->testGetJs());
+    $this->assertSame(1, $this->testObject->engineReads);
+  }
+
+  public function testGetJsRetriesUntilReadSucceeds(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = 2;
+    $object->engineContent = 'ENGINE';
+
+    $this->assertSame('ENGINE', $object->testGetJs());
+    $this->assertSame(3, $object->engineReads);
+  }
+
+  public function testGetJsStopsAfterConfiguredAttempts(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = PHP_INT_MAX;
+    $object->engineAttempts = 2;
+
+    try {
+      $object->testGetJs();
+      $this->fail('Expected a RuntimeException.');
+    }
+    catch (\RuntimeException $runtime_exception) {
+      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $runtime_exception->getMessage());
+    }
+
+    $this->assertSame(2, $object->engineReads);
+  }
+
+  public function testGetJsReadsOnceWhenRetriesAreDisabled(): void {
+    $object = new AccessibilityTraitRetryTestImplementation();
+    $object->engineFailures = PHP_INT_MAX;
+    $object->engineAttempts = 0;
+
+    $this->expectException(\RuntimeException::class);
+
+    try {
+      $object->testGetJs();
+    }
+    finally {
+      $this->assertSame(1, $object->engineReads);
+    }
+  }
+
+  public function testGetJsRetriesThenFails(): void {
+    $this->testObject->engineUrl = static::locationsTmp() . '/absent-engine.js';
+    $this->testObject->engineAttempts = 2;
+    $this->testObject->engineTimeout = 1;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('after 2 attempt(s) with a 1 second timeout');
+
+    $this->testObject->testGetJs();
+  }
+
+  public function testGetJsTreatsEmptySourceAsFailure(): void {
+    $path = static::locationsTmp() . '/empty-engine.js';
+    file_put_contents($path, '');
+    $this->testObject->engineUrl = $path;
+    $this->testObject->engineAttempts = 1;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('after 1 attempt(s)');
+
+    $this->testObject->testGetJs();
+  }
+
+  public function testGetJsClampsAttemptsToOne(): void {
+    $this->testObject->engineUrl = static::locationsTmp() . '/absent-engine.js';
+    $this->testObject->engineAttempts = 0;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('after 1 attempt(s)');
+
+    $this->testObject->testGetJs();
+  }
+
+  public function testGetJsFetchDefaults(): void {
+    $object = new AccessibilityTraitFetchDefaultsTestImplementation();
+
+    $this->assertSame(10, $object->testGetFetchTimeout());
+    $this->assertSame(3, $object->testGetFetchAttempts());
   }
 
   public function testGetReportDirUsesCapturedBaseDir(): void {
@@ -661,6 +759,120 @@ class AccessibilityTraitTestImplementation {
     $this->accessibilityScenarioThreshold = $threshold;
 
     return $this->accessibilityRenderJunit();
+  }
+
+  /**
+   * Source the engine is read from.
+   */
+  public string $engineUrl = '';
+
+  /**
+   * Number of attempts the engine fetch is allowed.
+   */
+  public int $engineAttempts = 3;
+
+  /**
+   * Per-attempt timeout for the engine fetch.
+   */
+  public int $engineTimeout = 10;
+
+  /**
+   * Count of reads issued against the source.
+   */
+  public int $engineReads = 0;
+
+  protected function accessibilityGetCdnUrl(): string {
+    $this->engineReads++;
+
+    return $this->engineUrl;
+  }
+
+  protected function accessibilityGetFetchAttempts(): int {
+    return $this->engineAttempts;
+  }
+
+  protected function accessibilityGetFetchTimeout(): int {
+    return $this->engineTimeout;
+  }
+
+  public function testGetJs(): string {
+    return $this->accessibilityGetJs();
+  }
+
+  public static function testSetCachedJs(?string $js): void {
+    self::$accessibilityCachedJs = $js;
+  }
+
+}
+
+/**
+ * A test implementation that keeps the trait's own engine fetch defaults.
+ */
+class AccessibilityTraitFetchDefaultsTestImplementation {
+
+  use AccessibilityTrait;
+
+  public function testGetFetchTimeout(): int {
+    return $this->accessibilityGetFetchTimeout();
+  }
+
+  public function testGetFetchAttempts(): int {
+    return $this->accessibilityGetFetchAttempts();
+  }
+
+}
+
+/**
+ * A test implementation that counts reads and controls their outcome.
+ */
+class AccessibilityTraitRetryTestImplementation {
+
+  use AccessibilityTrait;
+
+  /**
+   * Count of reads issued by the retry loop.
+   */
+  public int $engineReads = 0;
+
+  /**
+   * Number of leading reads that fail before one succeeds.
+   */
+  public int $engineFailures = 0;
+
+  /**
+   * Source returned by a read that succeeds.
+   */
+  public string $engineContent = '';
+
+  /**
+   * Number of attempts the retry loop is allowed.
+   */
+  public int $engineAttempts = 3;
+
+  protected function accessibilityGetCdnUrl(): string {
+    return 'https://example.com/engine.js';
+  }
+
+  protected function accessibilityGetFetchAttempts(): int {
+    return $this->engineAttempts;
+  }
+
+  protected function accessibilityGetFetchTimeout(): int {
+    return 1;
+  }
+
+  protected function accessibilityFetchJs(string $url, int $timeout): string|false {
+    $this->engineReads++;
+
+    return $this->engineReads <= $this->engineFailures ? FALSE : $this->engineContent;
+  }
+
+  public function testGetJs(): string {
+    return $this->accessibilityGetJs();
+  }
+
+  public static function testSetCachedJs(?string $js): void {
+    self::$accessibilityCachedJs = $js;
   }
 
 }
