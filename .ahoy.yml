@@ -116,7 +116,8 @@ commands:
       ahoy cli "vendor/bin/phpcs" && \
       ahoy cli "DRUPAL_ROOT=build/web DRUPAL_VENDOR_ROOT=build/vendor vendor/bin/phpstan" && \
       ahoy cli "vendor/bin/rector --dry-run" && \
-      ahoy cli "vendor/bin/gherkinlint lint tests/behat/features"
+      ahoy cli "vendor/bin/gherkinlint lint tests/behat/features" && \
+      ahoy cli "php scripts/lint-layers.php"
 
   lint-fix:
     usage: Fix code.
@@ -140,6 +141,14 @@ commands:
   test-unit-coverage:
     usage: Run Unit tests with coverage.
     cmd: ahoy cli "php -d pcov.directory=. ./vendor/bin/phpunit -c phpunit.xml $@"
+
+  test-unit-driver:
+    usage: Run driver Unit and Kernel tests.
+    cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit-driver.xml --no-coverage $@"
+
+  test-unit-driver-coverage:
+    usage: Run driver Unit and Kernel tests with coverage.
+    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src/Driver vendor/bin/phpunit -c /app/phpunit-driver.xml $@"
 
   test-bdd:
     usage: Run BDD tests.

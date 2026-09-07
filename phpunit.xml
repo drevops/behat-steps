@@ -16,6 +16,8 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests/phpunit/src/</directory>
+            <!-- The driver suites need a bootstrapped Drupal; see phpunit-driver.xml. -->
+            <exclude>tests/phpunit/src/Driver</exclude>
         </testsuite>
     </testsuites>
     <source restrictNotices="true"
@@ -26,6 +28,7 @@
             <file>docs.php</file>
         </include>
         <exclude>
+            <directory>src/Driver</directory>
             <directory>tests/phpunit/src</directory>
         </exclude>
     </source>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PHPUnit configuration for the driver layer.
+
+  The driver talks to Drupal directly, so its suites run against the
+  provisioned fixture site in build/ and are bootstrapped by Drupal's own test
+  bootstrap. Run them with `ahoy test-unit-driver`, which invokes the build's
+  PHPUnit from that directory against this configuration.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="build/web/core/tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache/driver"
+         colors="true"
+         executionOrder="depends,defects"
+         failOnWarning="true"
+         beStrictAboutCoverageMetadata="false"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true">
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <env name="SIMPLETEST_BASE_URL" value="http://nginx"/>
+        <env name="SIMPLETEST_DB" value="sqlite://localhost/:memory:"/>
+        <env name="BROWSERTEST_OUTPUT_DIRECTORY" value=".logs/browser_output"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/phpunit/src/Driver/Unit</directory>
+        </testsuite>
+        <testsuite name="kernel">
+            <directory>tests/phpunit/src/Driver/Kernel</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src/Driver</directory>
+        </include>
+    </source>
+    <coverage pathCoverage="false"
+              ignoreDeprecatedCodeUnits="true">
+        <report>
+            <html outputDirectory=".logs/coverage/driver/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
+            <cobertura outputFile=".logs/coverage/driver/cobertura.xml"/>
+        </report>
+    </coverage>
+    <logging>
+        <junit outputFile=".logs/phpunit/junit-driver.xml"/>
+    </logging>
+</phpunit>

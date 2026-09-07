@@ -219,6 +219,11 @@ class PublicSurfaceTest extends UnitTestCase {
       }
 
       $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
+
+      if (!static::isVocabularyPath($relative)) {
+        continue;
+      }
+
       $trait = 'DrevOps\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
 
       if (!trait_exists($trait)) {

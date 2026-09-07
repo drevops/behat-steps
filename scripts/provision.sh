@@ -49,7 +49,15 @@ $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"],
 unset($package_filtered["require-dev"]["php"]);
 
 $package_filtered["autoload"] = $package["autoload"];
+
+// The build sits one level below the package root, so every package-relative
+// autoload path gains a "../" prefix. The driver test suites run from the build
+// and resolve the package, its tests and their fixtures through these entries.
 $package_filtered["autoload-dev"]["psr-4"]["DrevOps\\BehatSteps\\"] = "../src/";
+
+foreach ($package["autoload-dev"]["psr-4"] as $namespace => $namespace_path) {
+  $package_filtered["autoload-dev"]["psr-4"][$namespace] = "../" . $namespace_path;
+}
 
 echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"

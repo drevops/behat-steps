@@ -160,6 +160,11 @@ class TraitMethodNamingTest extends UnitTestCase {
 
       $path = (string) $file->getRealPath();
       $relative = substr($path, strlen((string) $root) + 1);
+
+      if (!static::isVocabularyPath($relative)) {
+        continue;
+      }
+
       $trait = 'DrevOps\\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', substr($relative, 0, -strlen('.php')));
 
       $files[$relative] = [$trait, $path];

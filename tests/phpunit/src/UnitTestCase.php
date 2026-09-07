@@ -24,6 +24,20 @@ use Behat\Testwork\Tester\Result\TestResult;
 abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   /**
+   * Indicates whether a path under `src/` holds step vocabulary.
+   *
+   * The conventions the discovery-driven tests hold describe traits mixed
+   * into a consuming context. The driver layer is library code with its own
+   * shapes, so its traits are outside their scope.
+   *
+   * @param string $relative_path
+   *   A path relative to `src/`.
+   */
+  protected static function isVocabularyPath(string $relative_path): bool {
+    return !str_starts_with($relative_path, 'Driver' . DIRECTORY_SEPARATOR);
+  }
+
+  /**
    * Build a scope for a BeforeSuite hook.
    */
   protected function createBeforeSuiteScope(): BeforeSuiteScope {

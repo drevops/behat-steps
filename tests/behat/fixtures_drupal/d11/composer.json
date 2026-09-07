@@ -29,7 +29,14 @@
         "webflo/drupal-finder": "^1.3.1"
     },
     "require-dev": {
+        "drupal/address": "^2.0.4",
+        "drupal/commerce": "^3.0",
         "drupal/core-dev": "~11.4.0",
+        "drupal/date_recur": "^3.6",
+        "drupal/name": "^1.2",
+        "drupal/smart_date": "^4.2",
+        "drupal/supported_image": "^1",
+        "drupal/time_field": "^2.2.1",
         "phpunit/php-code-coverage": "^11.0.12"
     },
     "conflict": {
