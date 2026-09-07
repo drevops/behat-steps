@@ -505,7 +505,7 @@ Two of the four header assertions were verb-first and two subject-first. The exi
 
 ### Consumer override points are `Get`-prefixed
 
-A documented override point that supplies a value now reads `<trait>Get<Noun>()`, booleans included. The 30 that already did are unchanged.
+A documented override point that supplies a value now reads `<trait>Get<Noun>()`, booleans included. The ones that already did are unchanged.
 
 | Trait | Old | New |
 | --- | --- | --- |
