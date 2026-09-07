@@ -294,6 +294,7 @@ A scenario that asserted a falsy parameter away with `Then the current URL shoul
 ```gherkin
 Then the current URL should not have the "filter" parameter with the value "recent"
 ```
+
 ## Unified assertion exceptions
 
 Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.
