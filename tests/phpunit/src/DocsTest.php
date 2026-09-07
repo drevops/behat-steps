@@ -1343,6 +1343,23 @@ EOD,
             ],
           ],
         ],
+        ['  TestTrait::testAssertMethod - Placeholder ":stringValue" in the step is not snake_case' . PHP_EOL],
+      ],
+      'numbered placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector1 should stack above the element :selector2'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
         [],
       ],
       'descriptive placeholders in step' => [

@@ -724,11 +724,17 @@ function validate(array $info): array {
         }
       }
 
+      // Match names that the snake_case rule rejects too, so a violation is
+      // reported rather than truncated to a legal prefix.
       preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $placeholders);
 
       foreach ($placeholders[1] as $placeholder) {
         if (in_array($placeholder, $non_descriptive_placeholders, TRUE)) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Non-descriptive placeholder ":%s" in the step', $placeholder));
+        }
+
+        if (preg_match('/^[a-z][a-z0-9_]*$/', $placeholder) !== 1) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step is not snake_case', $placeholder));
         }
       }
 
