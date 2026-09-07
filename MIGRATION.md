@@ -433,3 +433,88 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 | `Drupal\WatchdogTrait::$watchdogMessageTypes` | `array` |
 | `Drupal\WatchdogTrait::$watchdogScenarioStartTime` | `?int` |
 | `FileDownloadTrait::$fileDownloadDownloadedFileInfo` | `array` |
+
+## One shape per naming idea
+
+Method names carried six shapes for "assert the negative", two spellings of "normalize", and two shapes for a consumer override point. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+
+`CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
+
+### Negation is spelled `Not`, in one slot
+
+`Not` sits immediately after `Assert<Subject>`, directly before the predicate it negates, so a negative name is its positive counterpart with `Not` inserted and nothing else changed. The determiner `No`, the copula `Is`, and antonyms standing in for a negation are gone.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessagesNotSentToAddress()` |
+| `Drupal\FileTrait` | `fileAssertUnmanagedHasNoContent()` | `fileAssertUnmanagedNotHasContent()` |
+| `Drupal\UserTrait` | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
+| `Drupal\UserTrait` | `userAssertIsBlocked()` | `userAssertBlocked()` |
+| `Drupal\UserTrait` | `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
+| `Drupal\WatchdogTrait` | `watchdogAssertNoErrors()` | `watchdogAssertNotHasErrors()` |
+| `ElementTrait` | `elementAssertIsNotPinnedToTop()` | `elementAssertNotPinnedToTop()` |
+| `ElementTrait` | `elementAssertIsNotVisible()` | `elementAssertNotVisible()` |
+| `ElementTrait` | `elementAssertIsNotVisuallyVisibleWithOffset()` | `elementAssertNotVisuallyVisibleWithOffset()` |
+| `ElementTrait` | `elementAssertIsPinnedToTop()` | `elementAssertPinnedToTop()` |
+| `ElementTrait` | `elementAssertIsPinnedToTopWithTolerance()` | `elementAssertPinnedToTopWithTolerance()` |
+| `ElementTrait` | `elementAssertIsVisible()` | `elementAssertVisible()` |
+| `ElementTrait` | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
+| `ElementTrait` | `elementAssertIsVisuallyVisible()` | `elementAssertVisuallyVisible()` |
+| `ElementTrait` | `elementAssertIsVisuallyVisibleWithOffset()` | `elementAssertVisuallyVisibleWithOffset()` |
+| `ElementTrait` | `elementAssertPinnedToTop()` (protected helper) | `elementAssertPinnedToTopWithin()` |
+| `FileDownloadTrait` | `fileDownloadAssertNoZipContainsPartial()` | `fileDownloadAssertZipNotContainsPartial()` |
+| `JavascriptTrait` | `javascriptAssertNoErrors()` | `javascriptAssertNotHasErrors()` |
+| `JsonTrait` | `jsonAssertResponseIsJson()` | `jsonAssertResponseJson()` |
+| `JsonTrait` | `jsonAssertResponseIsNotJson()` | `jsonAssertResponseNotJson()` |
+| `LinkTrait` | `linkAssertLinkIsAbsolute()` | `linkAssertAbsolute()` |
+| `LinkTrait` | `linkAssertLinkIsNotAbsolute()` | `linkAssertNotAbsolute()` |
+| `MetatagTrait` | `metatagAssertNoHtml()` | `metatagAssertNotContainsHtml()` |
+| `PathTrait` | `pathAssertUrlHasNoParameter()` | `pathAssertUrlNotHasParameter()` |
+| `PathTrait` | `pathAssertUrlHasNoParameterWithValue()` | `pathAssertUrlNotHasParameterWithValue()` |
+| `XmlTrait` | `xmlAssertResponseIsXml()` | `xmlAssertResponseXml()` |
+| `XmlTrait` | `xmlAssertResponseIsNotXml()` | `xmlAssertResponseNotXml()` |
+
+`ElementTrait::elementAssertPinnedToTop()` appears on both sides of that table. The public step took the name once its copula was dropped, and the protected helper that backs all three pinned-to-top steps moved to `elementAssertPinnedToTopWithin()`, after the tolerance it takes.
+
+Three `Drupal\EmailTrait` methods asserted an exact match under names that gave no way to derive one from the other. They now carry the `Equals` predicate the rest of the library uses.
+
+| Old | New |
+| --- | --- |
+| `emailAssertMessageField()` | `emailAssertMessageFieldEquals()` |
+| `emailAssertMessageFieldNotExact()` | `emailAssertMessageFieldNotEquals()` |
+| `emailAssertMessageHeader()` | `emailAssertMessageHeaderEquals()` |
+
+### `ResponseTrait` header assertions read subject first
+
+Two of the four header assertions were verb-first and two subject-first. The existence pair joins the value pair, so `Header` opens the predicate in all four.
+
+| Old | New |
+| --- | --- |
+| `responseAssertContainsHeader()` | `responseAssertHeaderExists()` |
+| `responseAssertNotContainsHeader()` | `responseAssertHeaderNotExists()` |
+
+`responseAssertHeaderContains()` and `responseAssertHeaderNotContains()` are unchanged.
+
+### `Normalize`, not `Normalise`
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\StateTrait` | `stateNormaliseValue()` | `stateNormalizeValue()` |
+| `ElementTrait` | `elementNormaliseCssProperty()` | `elementNormalizeCssProperty()` |
+
+### Consumer override points are `Get`-prefixed
+
+A documented override point that supplies a value now reads `<trait>Get<Noun>()`, booleans included. The 30 that already did are unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `CommandTrait` | `commandTimeout()` | `commandGetTimeout()` |
+| `DiagnosticsTrait` | `diagnosticsHeader()` | `diagnosticsGetHeader()` |
+| `DiagnosticsTrait` | `diagnosticsRerunBinary()` | `diagnosticsGetRerunBinary()` |
+| `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowDriver()` |
+| `DiagnosticsTrait` | `diagnosticsShowJsErrors()` | `diagnosticsGetShowJsErrors()` |
+| `DiagnosticsTrait` | `diagnosticsShowRerun()` | `diagnosticsGetShowRerun()` |
+| `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
+| `DiagnosticsTrait` | `diagnosticsShowUrl()` | `diagnosticsGetShowUrl()` |
+| `ElementTrait` | `elementScrollIntoViewCenter()` | `elementGetScrollIntoViewCenter()` |

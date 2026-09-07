@@ -42,7 +42,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @param string $file
    *   The absolute path to the file declaring the trait.
    */
-  #[DataProvider('dataProviderTraitFiles')]
+  #[DataProvider('dataProviderMethodsArePrefixed')]
   public function testMethodsArePrefixed(string $trait, string $file): void {
     $reflection = new \ReflectionClass($trait);
     $prefix = self::traitPrefix($reflection->getShortName());
@@ -60,7 +60,95 @@ class TraitMethodNamingTest extends UnitTestCase {
     $this->assertSame([], $violations, sprintf('Methods in %s must be prefixed with "%s".', $reflection->getShortName(), $prefix));
   }
 
-  public static function dataProviderTraitFiles(): array {
+  public static function dataProviderMethodsArePrefixed(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a negative name reads `Assert<Subject>Not<Predicate>`.
+   *
+   * `Not` is the only negation particle, so the determiner `No` never opens a
+   * negated noun. A negative name is then its positive counterpart with `Not`
+   * inserted and nothing else changed.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderNegationSpelledNot')]
+  public function testNegationSpelledNot(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/No[A-Z]/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Negate with "Not" placed before the predicate, not with "No" before a noun: "userAssertNotHasRoles", not "userAssertHasNoRoles".');
+  }
+
+  public static function dataProviderNegationSpelledNot(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that an assertion name carries no copula.
+   *
+   * `Assert` already states that the subject is something, so a further `Is`
+   * only moves the negation particle out of its one slot.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsCarryNoCopula')]
+  public function testAssertionsCarryNoCopula(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Drop the "Is" copula from assertion names: "elementAssertVisible" and "elementAssertNotVisible", not "elementAssertIsVisible" and "elementAssertIsNotVisible".');
+  }
+
+  public static function dataProviderAssertionsCarryNoCopula(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that names spell normalisation the American way.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderSpellingIsAmerican')]
+  public function testSpellingIsAmerican(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
+
+    $this->assertSame([], $violations, 'Spell it "Normalize", not "Normalise".');
+  }
+
+  public static function dataProviderSpellingIsAmerican(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * The allowlist is not a place to retire a method that no longer exists.
+   */
+  public function testParentOverrideAllowlistIsCurrent(): void {
+    foreach (self::PARENT_OVERRIDES as $trait => $methods) {
+      $reflection = new \ReflectionClass($trait);
+
+      foreach ($methods as $method) {
+        $this->assertTrue($reflection->hasMethod($method), sprintf('%s::%s() is allowlisted but does not exist.', $reflection->getShortName(), $method));
+        $this->assertFalse(self::hasPrefix($method, self::traitPrefix($reflection->getShortName())), sprintf('%s::%s() is allowlisted but already conforms; remove the entry.', $reflection->getShortName(), $method));
+      }
+    }
+  }
+
+  /**
+   * Pair every trait under `src/` with the file that declares it.
+   *
+   * @return array<string, array{string, string}>
+   *   Trait name and absolute file path, keyed by the path relative to `src/`.
+   */
+  protected static function discoverTraitFiles(): array {
     $root = realpath(__DIR__ . '/../../../src');
     $files = [];
 
@@ -80,72 +168,6 @@ class TraitMethodNamingTest extends UnitTestCase {
     ksort($files);
 
     return $files;
-  }
-
-  /**
-   * Assert that a negative name reads `Assert<Subject>Not<Predicate>`.
-   *
-   * `Not` is the only negation particle, so the determiner `No` never opens a
-   * negated noun. A negative name is then its positive counterpart with `Not`
-   * inserted and nothing else changed.
-   *
-   * @param class-string $trait
-   *   The trait to check.
-   * @param string $file
-   *   The absolute path to the file declaring the trait.
-   */
-  #[DataProvider('dataProviderTraitFiles')]
-  public function testNegationSpelledNot(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/No[A-Z]/', $name) === 1));
-
-    $this->assertSame([], $violations, 'Negate with "Not" placed before the predicate, not with "No" before a noun: "userAssertNotHasRoles", not "userAssertHasNoRoles".');
-  }
-
-  /**
-   * Assert that an assertion name carries no copula.
-   *
-   * `Assert` already states that the subject is something, so a further `Is`
-   * only moves the negation particle out of its one slot.
-   *
-   * @param class-string $trait
-   *   The trait to check.
-   * @param string $file
-   *   The absolute path to the file declaring the trait.
-   */
-  #[DataProvider('dataProviderTraitFiles')]
-  public function testAssertionsCarryNoCopula(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
-
-    $this->assertSame([], $violations, 'Drop the "Is" copula from assertion names: "elementAssertVisible" and "elementAssertNotVisible", not "elementAssertIsVisible" and "elementAssertIsNotVisible".');
-  }
-
-  /**
-   * Assert that names spell normalisation the American way.
-   *
-   * @param class-string $trait
-   *   The trait to check.
-   * @param string $file
-   *   The absolute path to the file declaring the trait.
-   */
-  #[DataProvider('dataProviderTraitFiles')]
-  public function testSpellingIsAmerican(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
-
-    $this->assertSame([], $violations, 'Spell it "Normalize", not "Normalise".');
-  }
-
-  /**
-   * The allowlist is not a place to retire a method that no longer exists.
-   */
-  public function testParentOverrideAllowlistIsCurrent(): void {
-    foreach (self::PARENT_OVERRIDES as $trait => $methods) {
-      $reflection = new \ReflectionClass($trait);
-
-      foreach ($methods as $method) {
-        $this->assertTrue($reflection->hasMethod($method), sprintf('%s::%s() is allowlisted but does not exist.', $reflection->getShortName(), $method));
-        $this->assertFalse(self::hasPrefix($method, self::traitPrefix($reflection->getShortName())), sprintf('%s::%s() is allowlisted but already conforms; remove the entry.', $reflection->getShortName(), $method));
-      }
-    }
   }
 
   /**
