@@ -55,7 +55,9 @@ ahoy copy-files
   - Use descriptive placeholder names
   - Use `the following` for tabled content
   - Use `with` for properties: `Then the link with the title :title should exist`
-  - Avoid optional words like `(the|a)`
+  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a
+    noun agreeing with a count or a list keeps: `:count row(s)`, `the role(s)
+    :roles`
   - Omit unnecessary suffixes like `on the page`
   - Method names should begin with the trait name: `userAssertHasRoles()`
 

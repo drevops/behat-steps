@@ -262,7 +262,7 @@ Then the command error output should contain "No such file"
 </details>
 
 <details>
-  <summary><code>@Then the command should complete in less than :seconds seconds</code></summary>
+  <summary><code>@Then the command should complete in less than :seconds second(s)</code></summary>
 
 <br/>
 Assert that the command completed in less than a number of seconds
@@ -277,15 +277,15 @@ Then the command should complete in less than 5 seconds
 </details>
 
 <details>
-  <summary><code>@Then the command should complete in more than :seconds seconds</code></summary>
+  <summary><code>@Then the command should complete in more than :seconds second(s)</code></summary>
 
 <br/>
 Assert that the command completed in more than a number of seconds
 <br/><br/>
 
 ```gherkin
-When I run the command "sleep 3"
-Then the command should complete in more than 2 seconds
+When I run the command "sleep 2"
+Then the command should complete in more than 1 second
 
 ```
 
@@ -1112,7 +1112,7 @@ Then the element ".visually-hidden" should not be displayed within a viewport
 </details>
 
 <details>
-  <summary><code>@Then the element :parent should contain :count elements matching :selector</code></summary>
+  <summary><code>@Then the element :parent should contain :count element(s) matching :selector</code></summary>
 
 <br/>
 Assert the number of elements matching a selector within a parent element
@@ -2030,7 +2030,7 @@ Then the JSON path "$.disabled" should be false
 </details>
 
 <details>
-  <summary><code>@Then the JSON path :path should have :count elements</code></summary>
+  <summary><code>@Then the JSON path :path should have :count element(s)</code></summary>
 
 <br/>
 Assert that the array or object at a JSONPath has a number of elements
@@ -3061,7 +3061,7 @@ Then the REST response should contain "success"
 
 
 <details>
-  <summary><code>@Then the table :selector should have :count rows</code></summary>
+  <summary><code>@Then the table :selector should have :count row(s)</code></summary>
 
 <br/>
 Assert that a table has the expected number of rows in its tbody
@@ -3075,7 +3075,7 @@ Then the table ".mytable" should have 5 rows
 </details>
 
 <details>
-  <summary><code>@Then the table :selector should have :count columns</code></summary>
+  <summary><code>@Then the table :selector should have :count column(s)</code></summary>
 
 <br/>
 Assert that a table has the expected number of columns
@@ -3189,7 +3189,7 @@ Then the "Article title" row should contain the following:
 
 
 <details>
-  <summary><code>@When I wait for :seconds seconds</code></summary>
+  <summary><code>@When I wait for :seconds second(s)</code></summary>
 
 <br/>
 Wait for a specified number of seconds
@@ -3197,13 +3197,14 @@ Wait for a specified number of seconds
 
 ```gherkin
 When I wait for 5 seconds
+When I wait for 1 second
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I wait for :seconds seconds for AJAX to finish</code></summary>
+  <summary><code>@When I wait for :seconds second(s) for AJAX to finish</code></summary>
 
 <br/>
 Wait for the AJAX calls to finish
@@ -3211,6 +3212,7 @@ Wait for the AJAX calls to finish
 
 ```gherkin
 When I wait for 5 seconds for AJAX to finish
+When I wait for 1 second for AJAX to finish
 
 ```
 
@@ -3489,7 +3491,7 @@ Then the XML attribute "id" on element "/library/book[1]" should not contain "99
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should have :count elements</code></summary>
+  <summary><code>@Then the XML element :element should have :count element(s)</code></summary>
 
 <br/>
 Assert that an XML element has a specific number of child elements
@@ -5512,7 +5514,7 @@ Given the "myqueue" queue is empty
 </details>
 
 <details>
-  <summary><code>@When I process :count items from the :queue queue</code></summary>
+  <summary><code>@When I process :count item(s) from the :queue queue</code></summary>
 
 <br/>
 Process a specific number of items from a queue
@@ -5520,6 +5522,7 @@ Process a specific number of items from a queue
 
 ```gherkin
 When I process 5 items from the "myqueue" queue
+When I process 1 item from the "myqueue" queue
 
 ```
 
@@ -5540,7 +5543,7 @@ When I process all items from the "myqueue" queue
 </details>
 
 <details>
-  <summary><code>@Then the :queue queue should have :count items</code></summary>
+  <summary><code>@Then the :queue queue should have :count item(s)</code></summary>
 
 <br/>
 Assert that a queue has a specific number of items
@@ -5548,6 +5551,7 @@ Assert that a queue has a specific number of items
 
 ```gherkin
 Then the "myqueue" queue should have 5 items
+Then the "myqueue" queue should have 1 item
 
 ```
 
@@ -5674,7 +5678,7 @@ When I add the "article" content with the title "Test Article" to the search ind
 </details>
 
 <details>
-  <summary><code>@When I run search indexing for :count items</code></summary>
+  <summary><code>@When I run search indexing for :count item(s)</code></summary>
 
 <br/>
 Run indexing for a specific number of items
@@ -5682,6 +5686,7 @@ Run indexing for a specific number of items
 
 ```gherkin
 When I run search indexing for 5 items
+When I run search indexing for 1 item
 
 ```
 
@@ -6239,7 +6244,7 @@ When I visit my own password reset link
 </details>
 
 <details>
-  <summary><code>@Then the user :name should have the roles :roles assigned</code></summary>
+  <summary><code>@Then the user :name should have the role(s) :roles assigned</code></summary>
 
 <br/>
 Assert that a user has roles assigned
@@ -6253,7 +6258,7 @@ Then the user "John" should have the roles "administrator, editor" assigned
 </details>
 
 <details>
-  <summary><code>@Then the user :name should not have the roles :roles assigned</code></summary>
+  <summary><code>@Then the user :name should not have the role(s) :roles assigned</code></summary>
 
 <br/>
 Assert that a user does not have roles assigned

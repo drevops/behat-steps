@@ -1146,7 +1146,7 @@ JS;
    * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
    * @endcode
    */
-  #[Then('the element :parent should contain :count elements matching :selector')]
+  #[Then('the element :parent should contain :count element(s) matching :selector')]
   public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
     $parent_element = $this->getSession()->getPage()->find('css', $parent);
 

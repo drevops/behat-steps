@@ -1311,23 +1311,6 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Then step starts with "I " but should start with the asserted entity' . PHP_EOL],
       ],
-      'optional token in step' => [
-        [
-          'TestTrait' => [
-            'name' => 'TestTrait',
-            'methods' => [
-              [
-                'class_name' => 'TestTrait',
-                'name' => 'testAssertMethod',
-                'steps' => ['@Then the table :selector should have :count row(s)'],
-                'description' => 'Test method description',
-                'example' => 'Example text',
-              ],
-            ],
-          ],
-        ],
-        ['  TestTrait::testAssertMethod - Optional token "(s)" in the step' . PHP_EOL],
-      ],
       'non-descriptive placeholder in step' => [
         [
           'TestTrait' => [

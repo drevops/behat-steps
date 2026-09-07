@@ -28,7 +28,7 @@ trait TableTrait {
    * Then the table ".mytable" should have 5 rows
    * @endcode
    */
-  #[Then('the table :selector should have :count rows')]
+  #[Then('the table :selector should have :count row(s)')]
   public function tableAssertRowCount(string $selector, int $count): void {
     $table = $this->tableFind($selector);
     $actual = count($this->tableGetRows($table));
@@ -45,7 +45,7 @@ trait TableTrait {
    * Then the table ".mytable" should have 5 columns
    * @endcode
    */
-  #[Then('the table :selector should have :count columns')]
+  #[Then('the table :selector should have :count column(s)')]
   public function tableAssertColumnCount(string $selector, int $count): void {
     $table = $this->tableFind($selector);
     $actual = count($this->tableGetHeaders($table));

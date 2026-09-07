@@ -466,7 +466,7 @@ trait XmlTrait {
    * Then the XML element "/library" should have "3" elements
    * @endcode
    */
-  #[Then('the XML element :element should have :count elements')]
+  #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
     $this->xmlEnsureDocument();
 

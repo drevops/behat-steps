@@ -49,7 +49,7 @@ Feature: Ensure Search API functionality works
     And I should see the text "[MYTEST] TESTPUBLISHEDARTICLE 2"
 
   @api
-  Scenario: Assert "When I run search indexing for :count items" works as expected
+  Scenario: Assert "When I run search indexing for :count item(s)" works as expected
     Given the following article content:
       | title                                     | moderation_state |
       | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
@@ -66,7 +66,7 @@ Feature: Ensure Search API functionality works
     And I should not see the text "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
     # Run indexing for a limited number of items (e.g., 1 item).
-    When I run search indexing for 1 items
+    When I run search indexing for 1 item
 
     # Perform another search to verify the indexing.
     When I go to "/search"

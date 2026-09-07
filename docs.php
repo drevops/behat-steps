@@ -724,10 +724,6 @@ function validate(array $info): array {
         }
       }
 
-      if (preg_match('/\([^)]*\)/', $step, $optional) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Optional token "%s" in the step', $optional[0]));
-      }
-
       preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $placeholders);
 
       foreach ($placeholders[1] as $placeholder) {

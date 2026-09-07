@@ -328,7 +328,7 @@ trait JsonTrait {
    * Then the JSON path "$.user" should have "2" elements
    * @endcode
    */
-  #[Then('the JSON path :path should have :count elements')]
+  #[Then('the JSON path :path should have :count element(s)')]
   public function jsonAssertPathCount(string $path, string $count): void {
     $value = $this->jsonResolveSingle($path);
 

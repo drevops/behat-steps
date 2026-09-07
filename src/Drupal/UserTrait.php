@@ -293,7 +293,7 @@ trait UserTrait {
    * Then the user "John" should have the roles "administrator, editor" assigned
    * @endcode
    */
-  #[Then('the user :name should have the roles :roles assigned')]
+  #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
@@ -311,7 +311,7 @@ trait UserTrait {
    * Then the user "John" should not have the roles "administrator, editor" assigned
    * @endcode
    */
-  #[Then('the user :name should not have the roles :roles assigned')]
+  #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertHasNoRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 

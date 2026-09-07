@@ -296,7 +296,7 @@ trait CommandTrait {
    * Then the command should complete in less than 5 seconds
    * @endcode
    */
-  #[Then('the command should complete in less than :seconds seconds')]
+  #[Then('the command should complete in less than :seconds second(s)')]
   public function commandAssertDurationLessThan(string $seconds): void {
     $this->commandAssertHasRun();
 
@@ -311,11 +311,11 @@ trait CommandTrait {
    * Assert that the command completed in more than a number of seconds.
    *
    * @code
-   * When I run the command "sleep 3"
-   * Then the command should complete in more than 2 seconds
+   * When I run the command "sleep 2"
+   * Then the command should complete in more than 1 second
    * @endcode
    */
-  #[Then('the command should complete in more than :seconds seconds')]
+  #[Then('the command should complete in more than :seconds second(s)')]
   public function commandAssertDurationMoreThan(string $seconds): void {
     $this->commandAssertHasRun();
 

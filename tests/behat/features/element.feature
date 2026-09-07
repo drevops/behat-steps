@@ -780,7 +780,7 @@ Feature: Check that ElementTrait works
     Then I should see "Link Testing Fixture"
 
   @phpserver
-  Scenario: Assert "Then the element :parent should contain :count elements matching :selector" counts matches within a parent
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
     When I visit "http://cli:8888/elements.html"
     Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
 
@@ -827,7 +827,7 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count elements matching :selector" fails on a count mismatch
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -841,12 +841,12 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count elements matching :selector" fails when the parent is missing
+  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the element "#does-not-exist" should contain 1 elements matching ".nth-child"
+      Then the element "#does-not-exist" should contain 1 element matching ".nth-child"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

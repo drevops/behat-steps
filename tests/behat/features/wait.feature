@@ -4,15 +4,18 @@ Feature: Check that WaitTrait works
   So that users can synchronize tests with page loading and AJAX events
 
   @api
-  Scenario: Assert "When I wait for :seconds seconds"
+  Scenario: Assert "When I wait for :seconds second(s)"
     When I go to the homepage
-    And I wait for 1 seconds
+    And I wait for 1 second
     Then I save screenshot
     When I wait for 2 seconds
     Then I save screenshot
+    When I wait for 1 second
+    Then I save screenshot
+    When I wait for 2 seconds
 
   @api @javascript
-  Scenario: Assert "When I wait for :seconds seconds for AJAX to finish"
+  Scenario: Assert "When I wait for :seconds second(s) for AJAX to finish"
     Given I am logged in as a user with the "administrator" role
     When I visit "admin/structure/types/manage/page/form-display"
     Then I should not see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
@@ -21,7 +24,7 @@ Feature: Check that WaitTrait works
     Then I should see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
 
   @trait:WaitTrait
-  Scenario: Assert that "When I wait for :seconds seconds for AJAX to finish" fails when AJAX does not complete in time
+  Scenario: Assert that "When I wait for :seconds second(s) for AJAX to finish" fails when AJAX does not complete in time
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
@@ -35,7 +38,7 @@ Feature: Check that WaitTrait works
       """
 
   @trait:WaitTrait
-  Scenario: Assert that negative assertion for "When I wait for :seconds seconds for AJAX to finish" can be used only with JS-capable driver
+  Scenario: Assert that negative assertion for "When I wait for :seconds second(s) for AJAX to finish" can be used only with JS-capable driver
     Given some behat configuration
     And scenario steps tagged with "@api":
       """
