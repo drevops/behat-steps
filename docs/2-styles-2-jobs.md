@@ -41,7 +41,7 @@ That is what "domain steps" means: the Gherkin speaks the project's language, an
 
 3 arguments, all old and all well-tested. Audience: BDD's founding purpose is scenarios as a conversation artifact with stakeholders - "I fill in Title" is noise to a product owner, "I publish a page" is signal. Resilience: when the form is redesigned, an imperative suite changes in every scenario that touches the form, while a declarative suite changes in exactly 1 definition, because the scenario asserted the behavior, not the widget path. Intent: an imperative scenario can pass while the actual requirement fails, because it verifies mechanics, not meaning.
 
-There is a famous precedent. Cucumber - Behat's Ruby ancestor - used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern. The critique is real and has history behind it.
+There is a famous precedent. `cucumber-rails`, the Rails integration for Cucumber - Behat's Ruby ancestor - used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern. The critique is real and has history behind it.
 
 ## Why the imperative style wins in this ecosystem anyway
 
