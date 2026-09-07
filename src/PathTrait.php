@@ -134,7 +134,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should not have the :param parameter')]
-  public function pathAssertUrlHasNoParameter(string $param): void {
+  public function pathAssertUrlNotHasParameter(string $param): void {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (array_key_exists($param, $query)) {
@@ -152,7 +152,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should not have the :param parameter with the value :value')]
-  public function pathAssertUrlHasNoParameterWithValue(string $param, string $value): void {
+  public function pathAssertUrlNotHasParameterWithValue(string $param, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (!array_key_exists($param, $query)) {

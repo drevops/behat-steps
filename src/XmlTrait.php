@@ -118,7 +118,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should be in XML format')]
-  public function xmlAssertResponseIsXml(): void {
+  public function xmlAssertResponseXml(): void {
     $parsed = $this->xmlParse($this->xmlResolveContent());
 
     if (!$parsed['loaded']) {
@@ -138,7 +138,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should not be in XML format')]
-  public function xmlAssertResponseIsNotXml(): void {
+  public function xmlAssertResponseNotXml(): void {
     $parsed = $this->xmlParse($this->xmlResolveContent());
 
     if ($parsed['loaded'] && $parsed['errors'] === []) {

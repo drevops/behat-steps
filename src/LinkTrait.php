@@ -172,7 +172,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link should be an absolute link')]
-  public function linkAssertLinkIsAbsolute(string $link): void {
+  public function linkAssertAbsolute(string $link): void {
     $link_element = $this->getSession()->getPage()->findLink($link);
 
     if (!$link_element) {
@@ -194,7 +194,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link should not be an absolute link')]
-  public function linkAssertLinkIsNotAbsolute(string $link): void {
+  public function linkAssertNotAbsolute(string $link): void {
     $link_element = $this->getSession()->getPage()->findLink($link);
 
     if (!$link_element) {

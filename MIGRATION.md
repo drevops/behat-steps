@@ -233,7 +233,7 @@ Placeholders name the value's role rather than its type, so `:number` became `:o
 | `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within a viewport with a top offset of :offset pixels` |
 | `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels` |
 
-This also renames the `$number` argument of `ElementTrait::elementAssertIsVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertIsNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
+This also renames the `$number` argument of `ElementTrait::elementAssertVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
 
 ## Optional dependencies moved to `require-dev` and `suggest`
 

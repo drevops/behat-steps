@@ -230,7 +230,7 @@ class DiagnosticsTraitTestImplementation {
   public bool $sessionAvailable = TRUE;
 
   /**
-   * Per-field toggle state, keyed to match the diagnosticsShow*() overrides.
+   * Per-field toggle state, keyed to match the diagnosticsGetShow*() overrides.
    *
    * @var array<string, bool>
    */
@@ -293,23 +293,23 @@ class DiagnosticsTraitTestImplementation {
     return $this->diagnosticsGetRerunCommand();
   }
 
-  protected function diagnosticsShowUrl(): bool {
+  protected function diagnosticsGetShowUrl(): bool {
     return $this->show['url'];
   }
 
-  protected function diagnosticsShowStatusCode(): bool {
+  protected function diagnosticsGetShowStatusCode(): bool {
     return $this->show['status'];
   }
 
-  protected function diagnosticsShowDriver(): bool {
+  protected function diagnosticsGetShowDriver(): bool {
     return $this->show['driver'];
   }
 
-  protected function diagnosticsShowJsErrors(): bool {
+  protected function diagnosticsGetShowJsErrors(): bool {
     return $this->show['js'];
   }
 
-  protected function diagnosticsShowRerun(): bool {
+  protected function diagnosticsGetShowRerun(): bool {
     return $this->show['rerun'];
   }
 

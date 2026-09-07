@@ -312,7 +312,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user :name should not have the role(s) :roles assigned')]
-  public function userAssertHasNoRoles(string $name, string $roles): void {
+  public function userAssertNotHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
     $roles = $this->helperSplitCommaSeparated($roles);
@@ -385,7 +385,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user :name should be blocked')]
-  public function userAssertIsBlocked(string $name): void {
+  public function userAssertBlocked(string $name): void {
     $user = $this->userLoadByName($name);
 
     if ($user->isActive()) {
@@ -401,7 +401,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user :name should not be blocked')]
-  public function userAssertIsNotBlocked(string $name): void {
+  public function userAssertNotBlocked(string $name): void {
     $user = $this->userLoadByName($name);
 
     if (!$user->isActive()) {

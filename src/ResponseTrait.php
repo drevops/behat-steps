@@ -22,7 +22,7 @@ trait ResponseTrait {
    * @endcode
    */
   #[Then('the response should contain the header :name')]
-  public function responseAssertContainsHeader(string $name): void {
+  public function responseAssertHeaderExists(string $name): void {
     $header = $this->getSession()->getResponseHeader($name);
 
     if (!$header) {
@@ -38,7 +38,7 @@ trait ResponseTrait {
    * @endcode
    */
   #[Then('the response should not contain the header :name')]
-  public function responseAssertNotContainsHeader(string $name): void {
+  public function responseAssertHeaderNotExists(string $name): void {
     $header = $this->getSession()->getResponseHeader($name);
 
     if ($header) {

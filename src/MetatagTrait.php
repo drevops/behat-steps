@@ -109,7 +109,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the :meta_name meta tag should not contain any HTML tags')]
-  public function metatagAssertNoHtml(string $meta_name): void {
+  public function metatagAssertNotContainsHtml(string $meta_name): void {
     $meta_tag = $this->metatagFindMeta($meta_name);
 
     if ($meta_tag === NULL) {
