@@ -121,7 +121,13 @@ class AddressHandler extends AbstractHandler {
    */
   protected function normaliseDelta(mixed $value, array $visible_fields): array {
     if (is_string($value)) {
-      return [reset($visible_fields) => $value];
+      $first_field = reset($visible_fields);
+
+      if ($first_field === FALSE) {
+        throw new \RuntimeException('Cannot map an address value because the field has no visible sub-fields.');
+      }
+
+      return [$first_field => $value];
     }
 
     $normalised = [];

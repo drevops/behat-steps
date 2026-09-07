@@ -88,7 +88,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns the target_id stored on the first delta of the named field.
    */
-  private function loadFieldTargetId(int|string $entity_id, string $field_name): int|string {
+  protected function loadFieldTargetId(int|string $entity_id, string $field_name): int|string {
     $entity = \Drupal::entityTypeManager()
       ->getStorage(self::ENTITY_TYPE)
       ->loadUnchanged($entity_id);
@@ -100,7 +100,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Creates a managed File at the given URI with the given contents.
    */
-  private function createManagedFileAt(string $uri, string $contents): File {
+  protected function createManagedFileAt(string $uri, string $contents): File {
     file_put_contents($uri, $contents);
 
     $file = File::create([
@@ -116,7 +116,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns the total number of managed File entities currently in storage.
    */
-  private function fileEntityCount(): int {
+  protected function fileEntityCount(): int {
     return (int) \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

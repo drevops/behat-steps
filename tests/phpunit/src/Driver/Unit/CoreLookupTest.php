@@ -56,7 +56,7 @@ class CoreLookupTest extends TestCase {
    * Creates a DrupalDriver instance with a fixed version, bypassing bootstrap.
    *
    * Uses ReflectionClass to skip the constructor (which requires a real Drupal
-   * root) and injects the required private properties directly.
+   * root) and injects the required protected properties directly.
    *
    * @param int $version
    *   The Drupal major version to report.

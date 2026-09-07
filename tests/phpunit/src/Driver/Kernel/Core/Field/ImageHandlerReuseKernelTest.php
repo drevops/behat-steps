@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Driver\Kernel\Core\Field;
 
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -97,19 +98,22 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Loads the first field-item of the named field on the given entity id.
    */
-  private function loadFirstItem(int|string $entity_id, string $field_name): object {
+  protected function loadFirstItem(int|string $entity_id, string $field_name): FieldItemInterface {
     $entity = \Drupal::entityTypeManager()
       ->getStorage(self::ENTITY_TYPE)
       ->loadUnchanged($entity_id);
     $this->assertInstanceOf(ContentEntityInterface::class, $entity);
 
-    return $entity->get($field_name)->first();
+    $item = $entity->get($field_name)->first();
+    $this->assertInstanceOf(FieldItemInterface::class, $item);
+
+    return $item;
   }
 
   /**
    * Creates a managed File at the given URI with the given contents.
    */
-  private function createManagedFileAt(string $uri, string $contents): File {
+  protected function createManagedFileAt(string $uri, string $contents): File {
     file_put_contents($uri, $contents);
 
     $file = File::create([
@@ -125,7 +129,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns the total number of managed File entities currently in storage.
    */
-  private function fileEntityCount(): int {
+  protected function fileEntityCount(): int {
     return (int) \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

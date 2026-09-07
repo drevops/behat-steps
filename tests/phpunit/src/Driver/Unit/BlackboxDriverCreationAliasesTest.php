@@ -29,10 +29,7 @@ class BlackboxDriverCreationAliasesTest extends TestCase {
    * Tests that BlackboxDriver does NOT implement the capability.
    */
   public function testDoesNotImplementCreationAliasCapability(): void {
-    $this->assertFalse(is_subclass_of(BlackboxDriver::class, CreationAliasCapabilityInterface::class));
-
-    $driver = new BlackboxDriver();
-    $this->assertNotInstanceOf(CreationAliasCapabilityInterface::class, $driver);
+    $this->assertNotContains(CreationAliasCapabilityInterface::class, (array) class_implements(BlackboxDriver::class));
   }
 
 }

@@ -95,7 +95,7 @@ class DrushDriverMethodsTest extends TestCase {
     $driver = $this->createDriver();
     $driver->drushResponse = 'magic-output';
 
-    $result = $driver->__call('status', [['format=json']]);
+    $result = $driver->__call('status', ['format=json']);
 
     $this->assertSame('magic-output', $result);
     $this->assertNotEmpty($driver->invocations);
@@ -206,7 +206,8 @@ class DrushDriverMethodsTest extends TestCase {
     try {
       $driver = new DrushDriver('alias');
       $this->assertSame($temp_dir . '/drush', $driver->binary);
-    } finally {
+    }
+    finally {
       putenv('COMPOSER_BIN_DIR' . ($previous === FALSE ? '' : '=' . $previous));
       unlink($temp_dir . '/drush');
       rmdir($temp_dir);
@@ -220,7 +221,7 @@ class DrushDriverMethodsTest extends TestCase {
     $temp_dir = sys_get_temp_dir() . '/drush-driver-cwd-' . uniqid();
     mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
     touch($temp_dir . '/vendor/bin/drush');
-    $previous_cwd = getcwd();
+    $previous_cwd = (string) getcwd();
     $previous_composer = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR');
     chdir($temp_dir);
@@ -228,7 +229,8 @@ class DrushDriverMethodsTest extends TestCase {
     try {
       $driver = new DrushDriver('alias');
       $this->assertSame(getcwd() . '/vendor/bin/drush', $driver->binary);
-    } finally {
+    }
+    finally {
       chdir($previous_cwd);
       if ($previous_composer !== FALSE) {
         putenv('COMPOSER_BIN_DIR=' . $previous_composer);

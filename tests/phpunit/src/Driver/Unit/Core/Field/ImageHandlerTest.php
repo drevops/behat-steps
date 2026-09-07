@@ -21,7 +21,7 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
   /**
    * Absolute path to the bundled fixture file.
    */
-  protected const FIXTURE_PATH = __DIR__ . '/../../../../../../fixtures/files/fixture.bin';
+  protected const FIXTURE_PATH = self::FIXTURES_PATH . 'fixture.bin';
 
   /**
    * File id 'file.repository::writeData()' returns from the upload-path stub.
@@ -139,9 +139,9 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
    * Builds a fake File entity exposing 'id()'.
    */
   protected static function createFakeFile(int $id): object {
-    return new class($id) {
+    return new readonly class($id) {
 
-      public function __construct(protected readonly int $id) {}
+      public function __construct(protected int $id) {}
 
       /**
        * Returns the configured file entity id.
@@ -165,9 +165,9 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
   protected function createFileRepository(int $upload_id): object {
     $file = self::createFakeFile($upload_id);
 
-    return new class($file) {
+    return new readonly class($file) {
 
-      public function __construct(protected readonly object $file) {}
+      public function __construct(protected object $file) {}
 
       /**
        * Returns the configured file entity for any write.
@@ -192,13 +192,13 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
       $files_by_uri[$uri] = self::createFakeFile($id);
     }
 
-    $storage = new class($files_by_uri) {
+    $storage = new readonly class($files_by_uri) {
 
       /**
        * @param array<string, object> $files_by_uri
        *   Files keyed by URI.
        */
-      public function __construct(protected readonly array $files_by_uri) {}
+      public function __construct(protected array $files_by_uri) {}
 
       /**
        * Returns the file matching the given URI, or an empty list.
@@ -219,9 +219,9 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
 
     };
 
-    return new class($storage) {
+    return new readonly class($storage) {
 
-      public function __construct(protected readonly object $storage) {}
+      public function __construct(protected object $storage) {}
 
       /**
        * Returns the stub file storage.

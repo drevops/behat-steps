@@ -30,6 +30,11 @@ use Drupal\field\Entity\FieldStorageConfig;
 abstract class FieldHandlerKernelTestBase extends KernelTestBase {
 
   /**
+   * Absolute path to the driver fixture files, with a trailing separator.
+   */
+  protected const FIXTURES_PATH = __DIR__ . '/../../../../../fixtures/driver/files/';
+
+  /**
    * Baseline modules every field handler kernel test needs.
    *
    * Subclasses redeclare $modules as [...self::BASE_MODULES, 'handler_module'].
@@ -69,14 +74,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     $this->installConfig(['system']);
 
     // entity_test does not auto-register a default bundle in kernel tests.
-    // Drupal 11.2+ provides EntityTestHelper::createBundle() and deprecates
-    // the legacy procedural helper; older cores only have the function.
-    if (class_exists(EntityTestHelper::class)) {
-      EntityTestHelper::createBundle(self::BUNDLE);
-    }
-    else {
-      entity_test_create_bundle(self::BUNDLE);
-    }
+    EntityTestHelper::createBundle(self::BUNDLE);
 
     // Core::bootstrap() is NOT called: KernelTestBase has already booted the
     // kernel. We only need a Core instance to call the driver API methods on.

@@ -200,9 +200,9 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
    * Builds an entity storage stub whose 'getQuery()' returns the given query.
    */
   protected function createStorageWithQuery(QueryInterface $query): object {
-    return new class($query) {
+    return new readonly class($query) {
 
-      public function __construct(protected readonly QueryInterface $query) {}
+      public function __construct(protected QueryInterface $query) {}
 
       /**
        * Returns the injected entity query.

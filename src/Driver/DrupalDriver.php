@@ -34,11 +34,6 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   protected readonly string $drupalRoot;
 
   /**
-   * URI for the Drupal installation.
-   */
-  protected readonly string $uri;
-
-  /**
    * Drupal core version.
    */
   protected int $version;
@@ -54,7 +49,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
    * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
    *   Thrown when the Drupal installation is not found in the given root path.
    */
-  public function __construct(string $drupal_root, string $uri) {
+  public function __construct(string $drupal_root, protected readonly string $uri) {
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
@@ -62,7 +57,6 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
     }
 
     $this->drupalRoot = $resolved;
-    $this->uri = $uri;
     $this->version = $this->detectMajorVersion();
   }
 
@@ -125,7 +119,13 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
         continue;
       }
 
-      $this->core = new $class($this->drupalRoot, $this->uri);
+      $core = new $class($this->drupalRoot, $this->uri);
+
+      if (!$core instanceof CoreInterface) {
+        throw new BootstrapException(sprintf('%s must implement %s', $class, CoreInterface::class));
+      }
+
+      $this->core = $core;
 
       return;
     }

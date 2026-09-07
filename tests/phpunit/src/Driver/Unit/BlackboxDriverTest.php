@@ -86,8 +86,7 @@ class BlackboxDriverTest extends TestCase {
  */
   #[DataProvider('dataProviderDoesNotImplementCapability')]
   public function testDoesNotImplementCapability(string $capability_class): void {
-    $driver = new BlackboxDriver();
-    $this->assertNotInstanceOf($capability_class, $driver, sprintf(
+    $this->assertNotContains($capability_class, (array) class_implements(BlackboxDriver::class), sprintf(
       'BlackboxDriver must not claim to implement %s.',
       $capability_class
     ));

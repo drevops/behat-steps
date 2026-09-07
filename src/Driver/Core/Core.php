@@ -51,11 +51,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   protected string $drupalRoot;
 
   /**
-   * URI of the Drupal site.
-   */
-  protected string $uri;
-
-  /**
    * Random value generator.
    */
   protected Random $random;
@@ -103,7 +98,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @param \Drupal\Component\Utility\Random|null $random
    *   Optional random-value generator.
    */
-  public function __construct(string $drupal_root, string $uri = 'default', ?Random $random = NULL) {
+  public function __construct(string $drupal_root, protected string $uri = 'default', ?Random $random = NULL) {
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
@@ -111,7 +106,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     $this->drupalRoot = $resolved;
-    $this->uri = $uri;
     $this->random = $random ?? new Random();
 
     $this->registerDefaultFieldHandlers();
@@ -600,7 +594,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return array<int, string>
    *   Integer level keyed to symbolic name.
    */
-  private function severityLabels(): array {
+  protected function severityLabels(): array {
     return [
       0 => 'emergency',
       1 => 'alert',
@@ -655,7 +649,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       user_role_grant_permissions($role->id(), $permissions);
     }
 
-    return $role->id();
+    return (string) $role->id();
   }
 
   /**
@@ -690,9 +684,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   protected function getAllPermissions(): array {
     $permissions = &drupal_static(__FUNCTION__);
 
-    if (!isset($permissions)) {
-      $permissions = \Drupal::service('user.permissions')->getPermissions();
-    }
+    $permissions ??= \Drupal::service('user.permissions')->getPermissions();
 
     return $permissions;
   }
@@ -742,7 +734,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function userDelete(EntityStubInterface $stub): void {
-    user_cancel([], $this->resolveUid($stub), 'user_cancel_delete');
+    user_cancel([], (int) $this->resolveUid($stub), 'user_cancel_delete');
     // user_cancel() schedules the deletion via batch; drive the batch to
     // completion so callers see synchronous deletion.
     $this->processBatch();
@@ -792,11 +784,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     if ('default' !== $this->uri) {
       // Fake the necessary HTTP headers that Drupal needs:
       $drupal_base_url = parse_url($this->uri);
-      // If there's no url scheme set, add http:// and re-parse the url
-      // so the host and path values are set accurately.
-      if (!array_key_exists('scheme', $drupal_base_url)) {
-        $drupal_base_url = parse_url($this->uri);
+
+      if ($drupal_base_url === FALSE) {
+        throw new BootstrapException(sprintf('Cannot parse the site URI %s', $this->uri));
       }
+
       // Fill in defaults.
       $drupal_base_url += [
         'path' => NULL,
@@ -1105,6 +1097,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $bundle_key = $definition->getKey('bundle');
     $id_key = $definition->getKey('id');
 
+    if (!is_string($id_key)) {
+      throw new \InvalidArgumentException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
+    }
+
     // Sync the typed bundle property into the values bag so
     // storage->create() picks it up under the entity type's own bundle key.
     if ($bundle_key && !$stub->hasValue($bundle_key) && $stub->getBundle() !== NULL) {
@@ -1324,7 +1320,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     // AccountSwitcher::switchBack() throws RuntimeException when the stack is
     // empty. Loop until that happens to ensure all stacked accounts are popped.
     try {
-      while (TRUE) {
+      for (;;) {
         \Drupal::service('account_switcher')->switchBack();
       }
     }
@@ -1343,9 +1339,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   The original value of the configuration.
    */
   protected function storeOriginalConfiguration(string $name, mixed $value): void {
-    if (!isset($this->originalConfiguration[$name])) {
-      $this->originalConfiguration[$name] = $value;
-    }
+    $this->originalConfiguration[$name] ??= $value;
   }
 
 }

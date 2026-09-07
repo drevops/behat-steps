@@ -25,6 +25,11 @@ use PHPUnit\Framework\TestCase;
 abstract class FieldHandlerUnitTestBase extends TestCase {
 
   /**
+   * Absolute path to the driver fixture files, with a trailing separator.
+   */
+  protected const FIXTURES_PATH = __DIR__ . '/../../../../../fixtures/driver/files/';
+
+  /**
    * Produces the configured handler under test.
    */
   abstract protected function createHandler(): FieldHandlerInterface;
@@ -37,7 +42,7 @@ abstract class FieldHandlerUnitTestBase extends TestCase {
    * @param mixed $expected
    *   The expected storage-shape output, or NULL when an exception is
    *   expected.
-   * @param string|null $exception
+   * @param class-string<\Throwable>|null $exception
    *   The expected exception class, or NULL for the happy path.
    * @param string|null $exception_message
    *   Substring the exception message must contain, or NULL.

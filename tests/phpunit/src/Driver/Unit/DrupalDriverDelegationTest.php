@@ -222,7 +222,7 @@ class DrupalDriverDelegationTest extends TestCase {
    * Creates a 'DrupalDriver' with an injected core and a fixed version.
    *
    * Bypasses the constructor (which requires a real Drupal installation) and
-   * sets the private properties directly via reflection.
+   * sets the protected properties directly via reflection.
    */
   protected function createDriverWithCore(CoreInterface $core, int $version = 11): DrupalDriver {
     $reflection = new \ReflectionClass(DrupalDriver::class);

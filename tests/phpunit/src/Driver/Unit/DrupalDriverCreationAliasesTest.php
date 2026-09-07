@@ -32,7 +32,7 @@ class DrupalDriverCreationAliasesTest extends TestCase {
    * Tests that DrupalDriver implements the opt-in capability interface.
    */
   public function testImplementsCreationAliasCapability(): void {
-    $this->assertTrue(is_subclass_of(DrupalDriver::class, CreationAliasCapabilityInterface::class));
+    $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrupalDriver::class));
   }
 
   /**

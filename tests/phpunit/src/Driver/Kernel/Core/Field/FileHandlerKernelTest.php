@@ -53,7 +53,7 @@ class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
   public function testFileRoundTrip(): void {
     $this->attachField('field_attachment', 'file');
 
-    $fixture = dirname(__DIR__, 6) . '/fixtures/files/sample.txt';
+    $fixture = self::FIXTURES_PATH . 'sample.txt';
 
     $this->assertFieldRoundTripViaDriver('field_attachment', [$fixture]);
 

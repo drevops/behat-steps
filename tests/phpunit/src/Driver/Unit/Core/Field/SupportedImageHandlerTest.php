@@ -21,7 +21,7 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
   /**
    * Absolute path to the bundled fixture file.
    */
-  protected const FIXTURE_PATH = __DIR__ . '/../../../../../../fixtures/files/fixture.bin';
+  protected const FIXTURE_PATH = self::FIXTURES_PATH . 'fixture.bin';
 
   /**
    * File id 'file.repository::writeData()' returns from the stub.
@@ -122,9 +122,9 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
    * Builds a fake File entity exposing 'id()'.
    */
   protected static function createFakeFile(int $id): object {
-    return new class($id) {
+    return new readonly class($id) {
 
-      public function __construct(protected readonly int $id) {}
+      public function __construct(protected int $id) {}
 
       /**
        * Returns the configured file entity id.
@@ -148,9 +148,9 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
   protected function createFileRepository(int $upload_id): object {
     $file = self::createFakeFile($upload_id);
 
-    return new class($file) {
+    return new readonly class($file) {
 
-      public function __construct(protected readonly object $file) {}
+      public function __construct(protected object $file) {}
 
       /**
        * Returns the configured file entity for any write.

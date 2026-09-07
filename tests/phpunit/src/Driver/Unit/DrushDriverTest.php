@@ -26,8 +26,10 @@ class DrushDriverTest extends TestCase {
    * Tests that DrushDriver implements its composite contract.
    */
   public function testImplementsDrushDriverInterface(): void {
-    $this->assertTrue(is_subclass_of(DrushDriver::class, DrushDriverInterface::class));
-    $this->assertTrue(is_subclass_of(DrushDriver::class, DriverInterface::class));
+    $interfaces = (array) class_implements(DrushDriver::class);
+
+    $this->assertContains(DrushDriverInterface::class, $interfaces);
+    $this->assertContains(DriverInterface::class, $interfaces);
   }
 
   /**

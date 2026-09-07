@@ -57,7 +57,7 @@ class ImageHandlerKernelTest extends FieldHandlerKernelTestBase {
   public function testImageRoundTrip(): void {
     $this->attachField('field_photo', 'image');
 
-    $fixture = dirname(__DIR__, 6) . '/fixtures/files/sample.jpg';
+    $fixture = self::FIXTURES_PATH . 'sample.jpg';
 
     $this->assertFieldRoundTripViaDriver('field_photo', [
       [

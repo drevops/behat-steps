@@ -29,7 +29,7 @@ class DrushDriverCreationAliasesTest extends TestCase {
    * Tests that DrushDriver implements the opt-in capability interface.
    */
   public function testImplementsCreationAliasCapability(): void {
-    $this->assertTrue(is_subclass_of(DrushDriver::class, CreationAliasCapabilityInterface::class));
+    $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrushDriver::class));
   }
 
   /**

@@ -12,11 +12,6 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 abstract class Exception extends \Exception {
 
   /**
-   * The driver where the exception occurred.
-   */
-  private readonly ?DriverInterface $driver;
-
-  /**
    * Initializes Drupal driver manager exception.
    *
    * @param string $message
@@ -28,8 +23,7 @@ abstract class Exception extends \Exception {
    * @param \Exception $previous
    *   Optional previous exception that was thrown.
    */
-  public function __construct(string $message, ?DriverInterface $driver = NULL, int $code = 0, ?\Exception $previous = NULL) {
-    $this->driver = $driver;
+  public function __construct(string $message, protected readonly ?DriverInterface $driver = NULL, int $code = 0, ?\Exception $previous = NULL) {
     parent::__construct($message, $code, $previous);
   }
 

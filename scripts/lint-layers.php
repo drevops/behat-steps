@@ -67,6 +67,7 @@ function lint_layers(array $options = []): void {
   echo sprintf("%s references neither %s: %d files checked.\n", LAYER_DIRECTORY, implode(' nor ', LAYER_FORBIDDEN_ROOTS), count($files));
   exit(0);
 }
+
 // @codeCoverageIgnoreEnd
 
 /**

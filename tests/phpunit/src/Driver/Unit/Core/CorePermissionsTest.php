@@ -122,9 +122,9 @@ class CorePermissionsTest extends TestCase {
    * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
    */
   protected function stringable(string $label): object {
-    return new class($label) {
+    return new readonly class($label) {
 
-      public function __construct(private readonly string $label) {}
+      public function __construct(protected string $label) {}
 
       /**
        * Renders the stringable into its label.

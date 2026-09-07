@@ -89,7 +89,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     // checkPermissions() can validate it in isolation without pulling in node.
     $permission = 'access user profiles';
     $role_id = $this->core->roleCreate([$permission]);
-    $this->assertIsString($role_id);
     $role = Role::load($role_id);
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission($permission));

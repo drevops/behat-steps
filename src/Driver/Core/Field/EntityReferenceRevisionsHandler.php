@@ -19,6 +19,10 @@ class EntityReferenceRevisionsHandler extends AbstractHandler {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_definition = $entity_type_manager->getDefinition($entity_type_id);
     $id_key = $entity_definition->getKey('id');
+
+    if (!is_string($id_key)) {
+      throw new \RuntimeException(sprintf("Cannot resolve a reference to '%s' because it declares no id key.", $entity_type_id));
+    }
     $label_key = $entity_type_id !== 'user' ? $entity_definition->getKey('label') : 'name';
 
     $target_bundles = $this->getTargetBundles();

@@ -68,25 +68,33 @@ class LintLayersTest extends UnitTestCase {
     $this->assertSame($expected, layer_file_violations($file, ['Behat', 'Mink']));
   }
 
+  /**
+   * Fixture rows for the violation scan.
+   *
+   * The classes named here do not exist. The scan reads tokens rather than
+   * resolving them, and an expected symbol that matches a real class is
+   * rewritten to a '::class' constant by static tooling, which drops the
+   * leading separator the scan reports.
+   */
   public static function dataProviderFileViolations(): array {
     return [
       'import' => [
-        "<?php\n\nuse Behat\\Mink\\Session;\n",
-        [['line' => 3, 'symbol' => 'Behat\\Mink\\Session']],
+        "<?php\n\nuse Behat\\Mink\\FakeSession;\n",
+        [['line' => 3, 'symbol' => 'Behat\\Mink\\FakeSession']],
       ],
       'fully qualified reference' => [
-        "<?php\n\n\$session = new \\Behat\\Mink\\Session();\n",
-        [['line' => 3, 'symbol' => '\\Behat\\Mink\\Session']],
+        "<?php\n\n\$session = new \\Behat\\Mink\\FakeSession();\n",
+        [['line' => 3, 'symbol' => '\\Behat\\Mink\\FakeSession']],
       ],
       'class name in a string literal' => [
-        "<?php\n\n\$class = 'Mink\\Driver\\CoreDriver';\n",
-        [['line' => 3, 'symbol' => 'Mink\\Driver\\CoreDriver']],
+        "<?php\n\n\$class = 'Mink\\Driver\\FakeDriver';\n",
+        [['line' => 3, 'symbol' => 'Mink\\Driver\\FakeDriver']],
       ],
       'several references' => [
-        "<?php\n\nuse Behat\\Mink\\Session;\nuse Mink\\Thing;\n",
+        "<?php\n\nuse Behat\\Mink\\FakeSession;\nuse Mink\\FakeThing;\n",
         [
-          ['line' => 3, 'symbol' => 'Behat\\Mink\\Session'],
-          ['line' => 4, 'symbol' => 'Mink\\Thing'],
+          ['line' => 3, 'symbol' => 'Behat\\Mink\\FakeSession'],
+          ['line' => 4, 'symbol' => 'Mink\\FakeThing'],
         ],
       ],
       'permitted namespace' => [

@@ -42,9 +42,11 @@ class DrupalDriverTest extends TestCase {
    * Tests that DrupalDriver implements its composite contract.
    */
   public function testImplementsDrupalDriverInterface(): void {
-    $this->assertTrue(is_subclass_of(DrupalDriver::class, DrupalDriverInterface::class));
-    $this->assertTrue(is_subclass_of(DrupalDriver::class, DriverInterface::class));
-    $this->assertTrue(is_subclass_of(DrupalDriver::class, SubDriverFinderInterface::class));
+    $interfaces = (array) class_implements(DrupalDriver::class);
+
+    $this->assertContains(DrupalDriverInterface::class, $interfaces);
+    $this->assertContains(DriverInterface::class, $interfaces);
+    $this->assertContains(SubDriverFinderInterface::class, $interfaces);
   }
 
   /**

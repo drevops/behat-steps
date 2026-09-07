@@ -20,7 +20,7 @@ class ImageHandler extends FileHandler {
       $file = $this->resolveExistingFile($file_path) ?? $this->uploadAndSave($file_path);
 
       $expanded[] = [
-        $this->mainProperty => $file->id(),
+        $this->mainProperty => $this->fileId($file),
         'alt' => $record['alt'] ?? NULL,
         'title' => $record['title'] ?? NULL,
       ];

@@ -167,21 +167,16 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * argument should be promoted to 'type' before the entity is saved.
    */
   public function testEntityCreatePromotesTypedBundle(): void {
-    // Feature-detect the helper the same way the field-handler base does:
-    // Drupal 11.2+ ships EntityTestHelper; older cores only expose the
-    // procedural helper.
-    if (class_exists(EntityTestHelper::class)) {
-      EntityTestHelper::createBundle('custom_bundle');
-    }
-    else {
-      entity_test_create_bundle('custom_bundle');
-    }
+    EntityTestHelper::createBundle('custom_bundle');
 
     $stub = new EntityStub('entity_test', 'custom_bundle', ['name' => 'sam']);
     $created = $this->core->entityCreate($stub);
 
     $this->assertSame('custom_bundle', $stub->getValue('type'), 'typed bundle was promoted to the bundle key.');
-    $this->assertSame('custom_bundle', $created->getSavedEntity()->bundle());
+
+    $saved = $created->getSavedEntity();
+    $this->assertInstanceOf(EntityInterface::class, $saved);
+    $this->assertSame('custom_bundle', $saved->bundle());
   }
 
   /**

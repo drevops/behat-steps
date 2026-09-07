@@ -78,7 +78,13 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
       $this->alias = ltrim($alias, '@');
     }
     else {
-      $this->root = realpath($root_path);
+      $resolved = realpath($root_path);
+
+      if ($resolved === FALSE) {
+        throw new BootstrapException(sprintf('No Drupal installation found at %s', $root_path));
+      }
+
+      $this->root = $resolved;
     }
 
     // When the default 'drush' binary is used, try to resolve the
@@ -296,7 +302,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   public function watchdogFetch(int $count = 10, ?string $type = NULL, ?string $severity = NULL): string {
     // parseArguments() maps NULL values to bare --flag, so only include
     // filters that have been explicitly set.
-    $options = ['count' => $count];
+    $options = ['count' => (string) $count];
 
     if ($type !== NULL) {
       $options['type'] = $type;
@@ -412,7 +418,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    *   The process after it has finished running.
    */
   protected function runProcess(string $cmd): Process {
-    $process = method_exists(Process::class, 'fromShellCommandline') ? Process::fromShellCommandline($cmd) : new Process($cmd);
+    $process = Process::fromShellCommandline($cmd);
     $process->setTimeout(3600);
     $process->run();
 
@@ -487,7 +493,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   /**
    * Parse arguments into a string.
    *
-   * @param array<string, string|null> $arguments
+   * @param array<string, string|bool|null> $arguments
    *   An array of argument/option names to values.
    *
    * @return string

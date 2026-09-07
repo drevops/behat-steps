@@ -40,7 +40,7 @@ class ParentTermAlias implements PreCreateAliasInterface {
    *   'taxonomy_term' storage.
    */
   public function __construct(?\Closure $parent_lookup = NULL) {
-    $this->parentLookup = $parent_lookup ?? static function (string $parent_name, string $vid): int|string|null {
+    $this->parentLookup = $parent_lookup ?? static function (string $parent_name, string $vid): ?string {
       $tids = \Drupal::entityQuery('taxonomy_term')
         ->accessCheck(FALSE)
         ->condition('name', $parent_name)

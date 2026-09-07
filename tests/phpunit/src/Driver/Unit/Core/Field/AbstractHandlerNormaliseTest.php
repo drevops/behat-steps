@@ -27,7 +27,7 @@ class AbstractHandlerNormaliseTest extends TestCase {
    * @param array<int, array<string, mixed>>|null $expected
    *   The expected canonical list of records, or NULL when an exception is
    *   expected.
-   * @param string|null $exception
+   * @param class-string<\Throwable>|null $exception
    *   The expected exception class, or NULL for the happy path.
    * @param string|null $exception_message
    *   Substring the exception message must contain, or NULL.

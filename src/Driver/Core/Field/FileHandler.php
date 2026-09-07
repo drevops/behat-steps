@@ -37,13 +37,34 @@ class FileHandler extends AbstractHandler {
       $file = $this->resolveExistingFile($file_path) ?? $this->uploadAndSave($file_path);
 
       $files[] = [
-        $this->mainProperty => $file->id(),
+        $this->mainProperty => $this->fileId($file),
         'display' => $record['display'] ?? 1,
         'description' => $record['description'] ?? '',
       ];
     }
 
     return $files;
+  }
+
+  /**
+   * Reads the id from a saved file entity.
+   *
+   * The file arrives as a bare object so a unit-test double can stand in
+   * without implementing Drupal's File entity contract, which leaves the
+   * 'id()' call unchecked until here.
+   *
+   * @param object $file
+   *   A File entity, or a File-compatible stub in tests.
+   *
+   * @return string|int|null
+   *   The file entity id.
+   */
+  protected function fileId(object $file): string|int|null {
+    if (!method_exists($file, 'id')) {
+      throw new \RuntimeException(sprintf('%s cannot stand in for a File entity because it does not expose id().', $file::class));
+    }
+
+    return $file->id();
   }
 
   /**

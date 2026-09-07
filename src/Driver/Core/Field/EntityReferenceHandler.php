@@ -17,6 +17,10 @@ class EntityReferenceHandler extends AbstractHandler {
     $entity_definition = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
     $id_key = $entity_definition->getKey('id');
 
+    if (!is_string($id_key)) {
+      throw new \RuntimeException(sprintf("Cannot resolve a reference to '%s' because it declares no id key.", $entity_type_id));
+    }
+
     // User entities return FALSE for getKey('label'), so use 'name' directly.
     $label_key = $entity_type_id !== 'user' ? $entity_definition->getKey('label') : 'name';
 

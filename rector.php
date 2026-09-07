@@ -26,8 +26,11 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
+use Rector\EarlyReturn\Rector\StmtsAwareInterface\ReturnEarlyIfVariableRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
+use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
@@ -46,8 +49,17 @@ return RectorConfig::configure()
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
+    // The project uses protected throughout, including on final classes.
+    PrivatizeFinalClassPropertyRector::class,
+    // Replaces an assignment with a return, which leaves a by-reference
+    // 'drupal_static()' cache unpopulated.
+    ReturnEarlyIfVariableRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
     RenameForeachValueVariableToMatchExprVariableRector::class,
+    // Renames a loop value after the call's return type, which names a row
+    // after the statement it came from and reads as camelCase where the
+    // coding standard wants snake_case.
+    RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
     RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
@@ -73,6 +85,10 @@ return RectorConfig::configure()
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
+  ])
+  // The fixture site owns the Drupal classes the analysed code references.
+  ->withBootstrapFiles([
+    __DIR__ . '/scripts/drupal-autoload.php',
   ])
   // Configure Drupal autoloading.
   ->withAutoloadPaths((function (): array {

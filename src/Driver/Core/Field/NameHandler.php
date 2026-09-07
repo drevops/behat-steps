@@ -12,10 +12,15 @@ namespace DrevOps\BehatSteps\Driver\Core\Field;
 class NameHandler extends AbstractHandler {
 
   public const COMPONENT_TITLE = 'title';
+
   public const COMPONENT_GIVEN = 'given';
+
   public const COMPONENT_MIDDLE = 'middle';
+
   public const COMPONENT_FAMILY = 'family';
+
   public const COMPONENT_GENERATIONAL = 'generational';
+
   public const COMPONENT_CREDENTIALS = 'credentials';
 
   /**

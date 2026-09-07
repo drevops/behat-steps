@@ -61,7 +61,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
    *
    * @var array<string, string>
    */
-  private const SKIP = [
+  protected const array SKIP = [
     'password' => 'Write-only field; hashed by the user storage layer on save.',
     'comment' => 'Composite field driven by the comment module lifecycle; not stub-expandable.',
     'path' => 'Computed from the path_alias table; stubbing the value has no storage effect.',
@@ -111,7 +111,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns TRUE when Core has a handler class registered for this type.
    */
-  private function isHandlerRegistered(string $type): bool {
+  protected function isHandlerRegistered(string $type): bool {
     $property = new \ReflectionProperty(Core::class, 'fieldHandlers');
     $handlers = $property->getValue($this->core);
 
@@ -126,7 +126,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
    * or a complex/nested value, and Core throws for those when it would
    * otherwise fall back to the default.
    */
-  private function isDefaultHandlerSafe(string $type): bool {
+  protected function isDefaultHandlerSafe(string $type): bool {
     try {
       $storage = BaseFieldDefinition::create($type);
       $shape = $this->core->getFieldShapeClassifier();
