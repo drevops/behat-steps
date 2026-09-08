@@ -61,7 +61,7 @@ trait WatchdogTrait {
    */
   #[BeforeScenario('@api')]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

@@ -4455,7 +4455,7 @@ When I wait for the batch job to finish
 >  The wait is best-effort: on timeout the step still runs, so a genuinely stuck
 >  placeholder surfaces as the real assertion failure rather than being masked
 >  here. Non-JavaScript scenarios are left untouched, where BigPipe renders
->  server-side (see the drupal-extension `@bigpipe` cookie handling).
+>  server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>

@@ -54,14 +54,15 @@ trait EmailTrait {
    */
   #[BeforeScenario('@api')]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->drupal();
-
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
+
     if (!$scope->getScenario()->hasTag('email')) {
       return;
     }
+
+    $this->drupal();
 
     if ($scope->getScenario()->hasTag('debug')) {
       $this->emailDebug = TRUE;
@@ -88,7 +89,7 @@ trait EmailTrait {
    */
   #[AfterScenario('@api')]
   public function emailAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

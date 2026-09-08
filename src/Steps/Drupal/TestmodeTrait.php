@@ -26,7 +26,7 @@ trait TestmodeTrait {
    */
   #[BeforeScenario('@api')]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
     if ($scope->getScenario()->hasTag('testmode')) {
@@ -39,7 +39,7 @@ trait TestmodeTrait {
    */
   #[AfterScenario('@api')]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
     if ($scope->getScenario()->hasTag('testmode')) {

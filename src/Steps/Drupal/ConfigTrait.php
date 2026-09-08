@@ -72,15 +72,15 @@ trait ConfigTrait {
    */
   #[AfterScenario('@api')]
   public function configAfterScenario(AfterScenarioScope $scope): void {
-    $this->drupal();
-
     if (
-      $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
-      || $scope->getScenario()->hasTag('behat-steps-skip:ConfigTrait')
+      $this->skipTag(__FUNCTION__, $scope)
+      || $this->skipTag('ConfigTrait', $scope)
     ) {
       $this->configOriginalData = [];
       return;
     }
+
+    $this->drupal();
 
     foreach ($this->configOriginalData as $name => $snapshot) {
       $config = \Drupal::configFactory()->getEditable($name);

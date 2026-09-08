@@ -22,7 +22,7 @@ use Behat\Step\When;
  *
  * Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait RestTrait {
 
@@ -33,7 +33,7 @@ trait RestTrait {
    */
   #[BeforeScenario]
   public function restBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

@@ -50,15 +50,15 @@ trait StateTrait {
    */
   #[AfterScenario('@api')]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
-    $this->drupal();
-
     if (
-      $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
-      || $scope->getScenario()->hasTag('behat-steps-skip:StateTrait')
+      $this->skipTag(__FUNCTION__, $scope)
+      || $this->skipTag('StateTrait', $scope)
     ) {
       $this->stateOriginalValues = [];
       return;
     }
+
+    $this->drupal();
 
     $state = \Drupal::state();
     foreach ($this->stateOriginalValues as $name => $snapshot) {

@@ -91,13 +91,13 @@ trait ConfigOverrideTrait {
     $this->configOverrideSkipBeforeStep = FALSE;
     $this->configOverrideClearSignal();
 
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 
     // BeforeStep scope does not have access to scenario tags, so resolve the
     // skip flag here.
-    if ($scope->getScenario()->hasTag('behat-steps-skip:configOverrideBeforeStep')) {
+    if ($this->skipTag('configOverrideBeforeStep', $scope)) {
       $this->configOverrideSkipBeforeStep = TRUE;
     }
 

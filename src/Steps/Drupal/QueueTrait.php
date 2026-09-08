@@ -35,11 +35,11 @@ trait QueueTrait {
    */
   #[AfterScenario('@queue')]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
-    $this->drupal();
-
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
+
+    $this->drupal();
 
     foreach ($this->queueNames as $queue_name) {
       $queue_instance = \Drupal::service('queue')->get($queue_name);

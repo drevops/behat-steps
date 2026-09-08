@@ -26,11 +26,11 @@ trait TimeTrait {
    */
   #[AfterScenario('@api')]
   public function timeCleanup(AfterScenarioScope $scope): void {
-    $this->drupal();
-
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
+
+    $this->drupal();
 
     \Drupal::state()->delete('testing.time');
   }

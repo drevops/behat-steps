@@ -39,7 +39,7 @@ trait ModuleTrait {
    */
   #[BeforeScenario('@api')]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
     $tags = $scope->getScenario()->getTags();
@@ -68,7 +68,7 @@ trait ModuleTrait {
    */
   #[AfterScenario('@api')]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

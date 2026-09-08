@@ -24,7 +24,7 @@ use Behat\Mink\Exception\DriverException;
  * The wait is best-effort: on timeout the step still runs, so a genuinely stuck
  * placeholder surfaces as the real assertion failure rather than being masked
  * here. Non-JavaScript scenarios are left untouched, where BigPipe renders
- * server-side (see the drupal-extension `@bigpipe` cookie handling).
+ * server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *
@@ -55,22 +55,15 @@ trait BigPipeTrait {
    */
   #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
-    $scenario = $scope->getScenario();
-    $feature = $scope->getFeature();
-
     // Resolved here, not in the BeforeStep hook, because a BeforeStep scope
     // cannot read scenario-level tags.
-    $is_javascript = $feature->hasTag('javascript') || $scenario->hasTag('javascript');
-    $is_skipped = $feature->hasTag('behat-steps-skip:BigPipeTrait') || $scenario->hasTag('behat-steps-skip:BigPipeTrait');
+    $is_javascript = $scope->getFeature()->hasTag('javascript') || $scope->getScenario()->hasTag('javascript');
 
-    $this->bigPipeAutoWaitEnabled = $is_javascript && !$is_skipped;
+    $this->bigPipeAutoWaitEnabled = $is_javascript && !$this->skipTag('BigPipeTrait', $scope);
   }
 
   /**
    * Wait for BigPipe placeholders to settle before each step runs.
-   *
-   * Named to avoid overriding the drupal-extension BigPipeTrait's own
-   * `bigPipeBeforeStep()` hook, inherited through `DrupalContext`.
    */
   #[BeforeStep]
   public function bigPipeWaitBeforeStep(BeforeStepScope $scope): void {

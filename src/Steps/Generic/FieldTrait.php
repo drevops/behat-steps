@@ -29,7 +29,7 @@ use Behat\Step\When;
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait FieldTrait {
 
@@ -57,7 +57,7 @@ trait FieldTrait {
    */
   #[BeforeScenario]
   public function fieldBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
+    if ($this->skipTag('FieldTrait', $scope)) {
       $this->fieldFormValidationEnabled = FALSE;
       $this->fieldFormValidationRegistry = [];
       $this->fieldDisableAllFormValidation = FALSE;
@@ -75,12 +75,6 @@ trait FieldTrait {
    */
   #[AfterStep]
   public function fieldAfterStep(AfterStepScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:FieldTrait')) {
-      // @codeCoverageIgnoreStart
-      return;
-      // @codeCoverageIgnoreEnd
-    }
-
     if (!$this->fieldFormValidationEnabled) {
       return;
     }
@@ -106,7 +100,7 @@ trait FieldTrait {
    */
   #[AfterScenario]
   public function fieldAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:FieldTrait')) {
+    if ($this->skipTag('FieldTrait', $scope)) {
       $this->fieldFormValidationEnabled = FALSE;
       $this->fieldFormValidationRegistry = [];
       $this->fieldDisableAllFormValidation = FALSE;
