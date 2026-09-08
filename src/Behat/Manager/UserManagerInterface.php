@@ -85,13 +85,16 @@ interface UserManagerInterface {
   public function currentUserIsAnonymous(): bool;
 
   /**
-   * Checks if the current user has the given role.
+   * Checks whether the current user holds the given roles.
+   *
+   * Both the query and the user's own role value are comma-separated lists,
+   * and surrounding whitespace on either side is ignored.
    *
    * @param string $role
-   *   A single role, or multiple comma-separated roles in a single string.
+   *   A single role, or several roles as one comma-separated string.
    *
    * @return bool
-   *   TRUE if the currently logged in user has this role (or roles).
+   *   TRUE when the current user holds every role named in the query.
    */
   public function currentUserHasRole(string $role): bool;
 

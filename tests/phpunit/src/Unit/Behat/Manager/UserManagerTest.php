@@ -158,6 +158,11 @@ class UserManagerTest extends TestCase {
     yield 'user with matching role' => [self::userStub(['name' => 'alice', 'role' => 'editor']), 'editor', TRUE];
     yield 'user with non-matching role' => [self::userStub(['name' => 'alice', 'role' => 'editor']), 'admin', FALSE];
     yield 'user with empty role' => [self::userStub(['name' => 'alice', 'role' => '']), 'editor', FALSE];
+    yield 'query is empty' => [self::userStub(['name' => 'alice', 'role' => 'editor']), '', FALSE];
+    yield 'one of several held roles' => [self::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer', TRUE];
+    yield 'every queried role is held' => [self::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer,editor', TRUE];
+    yield 'one queried role is missing' => [self::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'editor, admin', FALSE];
+    yield 'whitespace around a role is ignored' => [self::userStub(['name' => 'alice', 'role' => ' editor ']), ' editor ', TRUE];
   }
 
   /**

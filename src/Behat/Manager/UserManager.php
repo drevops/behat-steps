@@ -102,7 +102,19 @@ class UserManager implements UserManagerInterface {
 
     $current_role = $this->user->getValue('role');
 
-    return $current_role !== NULL && $current_role === $role;
+    if ($current_role === NULL || $current_role === '') {
+      return FALSE;
+    }
+
+    $held = array_map(trim(...), explode(',', (string) $current_role));
+
+    foreach (explode(',', $role) as $wanted) {
+      if (!in_array(trim($wanted), $held, TRUE)) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
   }
 
 }
