@@ -9,7 +9,7 @@ Feature: Check that RedirectTrait works
       | from         | to          |
       | /old-path-1  | /user/login |
       | /old-path-2  | /user/login |
-    When I am an anonymous user
+    When the user is anonymous
     And I go to "/old-path-1"
     Then the path should be "/user/login"
 
@@ -24,7 +24,7 @@ Feature: Check that RedirectTrait works
       | /explicit-301     | /user/login | 301         |
       | /explicit-302     | /user/login | 302         |
       | /explicit-307     | /user/login | 307         |
-    When I am an anonymous user
+    When the user is anonymous
     And I go to "/default-status"
     Then the path should be "/user/login"
 
@@ -42,7 +42,7 @@ Feature: Check that RedirectTrait works
     Given the following redirects exist:
       | from           | to          |
       | no-leading     | /user/login |
-    When I am an anonymous user
+    When the user is anonymous
     And I go to "/no-leading"
     Then the path should be "/user/login"
 
@@ -51,7 +51,7 @@ Feature: Check that RedirectTrait works
     Given the following redirects exist:
       | from   | to                                |
       | /promo | https://example.com/promo-landing |
-    When I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "/admin/config/search/redirect"
     Then I should see the text "promo"
 
@@ -63,7 +63,7 @@ Feature: Check that RedirectTrait works
       | /delete-me  | /user/login |
     When the following redirects do not exist:
       | /delete-me |
-    And I am an anonymous user
+    And the user is anonymous
     And I go to "/keep-me"
     Then the path should be "/user/login"
 
@@ -78,7 +78,7 @@ Feature: Check that RedirectTrait works
     When the following redirects do not exist:
       | /never-created |
       | /also-missing  |
-    And I am an anonymous user
+    And the user is anonymous
     And I go to "/present"
     Then the path should be "/user/login"
 
@@ -89,7 +89,7 @@ Feature: Check that RedirectTrait works
       | /strip-slash | /user/login |
     When the following redirects do not exist:
       | strip-slash |
-    And I am an anonymous user
+    And the user is anonymous
     And I go to "/strip-slash"
     Then the path should not be "/user/login"
 

@@ -63,6 +63,14 @@ default:
           error: '.messages.messages--error'
           success: '.messages.messages--status'
           warning: '.messages.messages--warning'
+      regions:
+        content: '#content'
+        sidebar: '#sidebar'
+        footer: '#footer'
+      mappings:
+        paths:
+          User Login: '/user/login'
+          User Registration: '/user/register'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:

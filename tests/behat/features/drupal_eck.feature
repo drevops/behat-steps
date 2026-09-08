@@ -7,7 +7,7 @@ Feature: Check that EckTrait works
     Given the following eck "test_bundle" "test_entity_type" entities do not exist:
       | title             |
       | [TEST] ECK Entity |
-    And the following "tags" terms:
+    And the following "tags" terms exist:
       | name |
       | T2   |
     And the following eck "test_bundle" "test_entity_type" entities exist:
@@ -16,7 +16,7 @@ Feature: Check that EckTrait works
 
   @api
   Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
@@ -26,7 +26,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
@@ -37,7 +37,7 @@ Feature: Check that EckTrait works
 
   @api
   Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
@@ -46,7 +46,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
@@ -60,7 +60,7 @@ Feature: Check that EckTrait works
     Given the following eck "test_bundle" "test_entity_type" entities exist:
       | title                   | field_test_text   |
       | [TEST] Skip Cleanup ECK | Skip cleanup test |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] Skip Cleanup ECK"
     Then I should see "[TEST] Skip Cleanup ECK"
     # ECK entity will not be auto-deleted due to skip tag
@@ -75,7 +75,7 @@ Feature: Check that EckTrait works
       | title                     | field_test_text     |
       | [TEST] Auto Cleanup ECK 1 | Auto cleanup test 1 |
       | [TEST] Auto Cleanup ECK 2 | Auto cleanup test 2 |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] Auto Cleanup ECK 1"
     Then I should see "[TEST] Auto Cleanup ECK 1"
     # ECK entities will be auto-deleted by the shared entity cleanup hook

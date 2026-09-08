@@ -66,7 +66,12 @@ trait QueueTrait {
 
     $values = $fields->getRowsHash();
     $data = $values['data'] ?? '{}';
-    $decoded = json_decode((string) $data, TRUE);
+
+    if (!is_string($data)) {
+      throw new \RuntimeException('The "data" value must be a single JSON string.');
+    }
+
+    $decoded = json_decode($data, TRUE);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
       throw new \RuntimeException(sprintf('The "data" value is not valid JSON: %s.', json_last_error_msg()));

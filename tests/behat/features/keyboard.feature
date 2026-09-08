@@ -6,7 +6,7 @@ Feature: Check that KeyboardTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "When I press the keys :keys on the element :selector" succeeds as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
     Then the "input1" field should not contain "hello"
     When I press the keys "hello" on the element "#input1"
@@ -14,7 +14,7 @@ Feature: Check that KeyboardTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
     Then the "input1" field should not contain "hello"
     When I press the key "h" on the element "#input1"
@@ -29,7 +29,7 @@ Feature: Check that KeyboardTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
       When I press the key "h" on the element "#input1"
       """
@@ -41,7 +41,7 @@ Feature: Check that KeyboardTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char" succeeds as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
     Then the element "#sr-only-focusable" should not be displayed within a viewport
     When I press the key "tab"
@@ -49,7 +49,7 @@ Feature: Check that KeyboardTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected with "tab" key
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
     Then the "input2" field should not contain "h"
     When I press the key "tab" on the element "#input1"
@@ -58,7 +58,7 @@ Feature: Check that KeyboardTrait works
 
   @api @javascript @phpserver
   Scenario: Assert step definition "When I press the keys :keys" succeeds as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
     And I fill in "input1" with ""
     Then the "input1" field should not contain "helloworld"
@@ -71,7 +71,7 @@ Feature: Check that KeyboardTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
       When I press the key "" on the element "#input1"
       """
@@ -86,7 +86,7 @@ Feature: Check that KeyboardTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
       When I press the key "unsupportedkey" on the element "#input1"
       """
@@ -101,7 +101,7 @@ Feature: Check that KeyboardTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
       When I press the key "h" on the element "#non-existent-element"
       """
@@ -116,7 +116,7 @@ Feature: Check that KeyboardTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
       When I press the keys "abc"
       """

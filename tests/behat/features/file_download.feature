@@ -4,7 +4,7 @@ Feature: Check that FileDownloadTrait works
   So that users can verify file downloads work correctly
 
   Background:
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When the following managed files exist:
       | path                 |
       | document.pdf         |
@@ -103,7 +103,7 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
       And the downloaded file name should be "archive_multiple.zip"
@@ -177,7 +177,7 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
       Then the downloaded file should be a zip archive containing the following files named:
@@ -195,7 +195,7 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
       Then the downloaded file should be a zip archive not containing the following files partially named:
@@ -280,7 +280,7 @@ Feature: Check that FileDownloadTrait works
       | archive_invalid.zip |
     And scenario steps tagged with "@download @phpserver":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I log in as a user with the "administrator" role
       When I download the file from the URL "http://cli:8888/archive_invalid.zip"
       Then the downloaded file should be a zip archive containing the following files named:
         | test.txt |

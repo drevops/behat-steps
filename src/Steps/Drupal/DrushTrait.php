@@ -25,9 +25,9 @@ use DrevOps\BehatSteps\Driver\DrushDriver;
 trait DrushTrait {
 
   /**
-   * Output of the most recent Drush command.
+   * Output of the most recent Drush command, NULL until one has run.
    */
-  protected string|bool|null $drushOutput = NULL;
+  protected ?string $drushOutput = NULL;
 
   /**
    * Run a Drush command.
@@ -38,7 +38,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    $this->drushOutput = $this->drushDriver()->{$command}() ?: TRUE;
+    $this->drushOutput = (string) $this->drushDriver()->{$command}();
   }
 
   /**
@@ -54,7 +54,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    $this->drushOutput = $this->drushDriver()->{$command}($this->drushFixArgument($arguments)) ?? TRUE;
+    $this->drushOutput = (string) $this->drushDriver()->{$command}($this->drushFixArgument($arguments));
   }
 
   /**
@@ -93,7 +93,7 @@ trait DrushTrait {
    */
   #[When('I print the last drush output')]
   public function drushPrintOutput(): void {
-    print (string) $this->drushReadOutput();
+    print $this->drushReadOutput();
   }
 
   /**
@@ -105,8 +105,8 @@ trait DrushTrait {
    */
   #[Then('the drush output should contain the value :value')]
   public function drushAssertOutputContains(string $value): void {
-    if (!str_contains((string) $this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf("The last drush command output does not contain \"%s\". It was:\n\n%s", $value, (string) $this->drushOutput), $this->getSession()->getDriver());
+    if (!str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
+      throw new ExpectationException(sprintf("The last drush command output does not contain \"%s\". It was:\n\n%s", $value, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -119,8 +119,8 @@ trait DrushTrait {
    */
   #[Then('the drush output should not contain the value :value')]
   public function drushAssertOutputNotContains(string $value): void {
-    if (str_contains((string) $this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf("The last drush command output contains \"%s\". It was:\n\n%s", $value, (string) $this->drushOutput), $this->getSession()->getDriver());
+    if (str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
+      throw new ExpectationException(sprintf("The last drush command output contains \"%s\". It was:\n\n%s", $value, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -133,8 +133,8 @@ trait DrushTrait {
    */
   #[Then('the drush output should match the pattern :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {
-    if (preg_match($pattern, (string) $this->drushReadOutput()) !== 1) {
-      throw new ExpectationException(sprintf("The last drush command output does not match \"%s\". It was:\n\n%s", $pattern, (string) $this->drushOutput), $this->getSession()->getDriver());
+    if (preg_match($pattern, $this->drushReadOutput()) !== 1) {
+      throw new ExpectationException(sprintf("The last drush command output does not match \"%s\". It was:\n\n%s", $pattern, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -144,7 +144,7 @@ trait DrushTrait {
    * @throws \RuntimeException
    *   When no Drush command has run in this scenario.
    */
-  protected function drushReadOutput(): string|bool {
+  protected function drushReadOutput(): string {
     if ($this->drushOutput === NULL) {
       throw new \RuntimeException('No drush command has run in this scenario, so there is no output to read.');
     }

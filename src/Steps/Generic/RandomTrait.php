@@ -171,9 +171,7 @@ trait RandomTrait {
     $key = $name . ':' . $type . ':' . implode(',', $args);
     $this->randomLiterals[$literal] = $key;
 
-    if (!isset($this->randomValues[$key])) {
-      $this->randomValues[$key] = $this->randomGenerate($type, $args);
-    }
+    $this->randomValues[$key] ??= $this->randomGenerate($type, $args);
 
     return $this->randomValues[$key];
   }

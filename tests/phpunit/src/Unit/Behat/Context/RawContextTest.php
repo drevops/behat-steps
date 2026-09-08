@@ -635,9 +635,9 @@ class RawContextTest extends UnitTestCase {
   /**
    * Builds an after-scenario scope carrying the given tags.
    *
-   * @param array<int, string> $scenario_tags
+   * @param list<string> $scenario_tags
    *   Tags on the scenario.
-   * @param array<int, string> $feature_tags
+   * @param list<string> $feature_tags
    *   Tags on the feature.
    */
   protected function createAfterScenarioScope(array $scenario_tags = [], array $feature_tags = []): AfterScenarioScope {

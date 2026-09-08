@@ -49,6 +49,7 @@ from the community.
 | Class | Description |
 | --- | --- |
 | [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [BasicAuthTrait](STEPS.md#basicauthtrait) | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](STEPS.md#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
@@ -62,9 +63,13 @@ from the community.
 | [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
+| [MappingTrait](STEPS.md#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MessageTrait](STEPS.md#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
+| [RandomTrait](STEPS.md#randomtrait) | Replace random-value tokens in step arguments and table cells. |
+| [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](STEPS.md#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
@@ -76,21 +81,24 @@ from the community.
 
 | Class | Description |
 | --- | --- |
+| [Drupal\BatchTrait](STEPS.md#drupalbatchtrait) | Wait for Drupal's Batch API to finish. |
 | [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
-| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
+| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigOverrideTrait](STEPS.md#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
 | [Drupal\ConfigTrait](STEPS.md#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\DrushTrait](STEPS.md#drupaldrushtrait) | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](STEPS.md#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\LanguageTrait](STEPS.md#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\ModuleTrait](STEPS.md#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\OverrideTrait](STEPS.md#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](STEPS.md#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](STEPS.md#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |

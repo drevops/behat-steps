@@ -30,6 +30,7 @@ use Rector\EarlyReturn\Rector\StmtsAwareInterface\ReturnEarlyIfVariableRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
+use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
@@ -50,6 +51,7 @@ return RectorConfig::configure()
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
     // The project uses protected throughout, including on final classes.
+    PrivatizeFinalClassMethodRector::class,
     PrivatizeFinalClassPropertyRector::class,
     // Replaces an assignment with a return, which leaves a by-reference
     // 'drupal_static()' cache unpopulated.

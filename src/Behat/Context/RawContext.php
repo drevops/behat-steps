@@ -32,6 +32,9 @@ use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
@@ -488,6 +491,31 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
+   * Expands a stub's raw Gherkin values into the storage field shape.
+   *
+   * Table cells arrive as written - a bare scalar, a comma-separated list, or
+   * a compound 'key:"value"' cell - and the parser resolves each against the
+   * field's own definition before the driver saves the entity.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The stub, mutated in place.
+   * @param array<int, string> $ignored_properties
+   *   Value names to leave untouched, such as base properties the caller
+   *   handles itself.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
+   *   When the scenario does not run on the in-process Drupal driver.
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    $classifier = $this->drupal()->getCore()->getFieldClassifier();
+
+    $parser = $this->getFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
+    $parser->ignoring($ignored_properties);
+
+    $stub->setValues($parser->parse($stub->getValues()));
+  }
+
+  /**
    * Registers an entity saved outside the create pipeline for cleanup.
    *
    * A step that saves an entity through Drupal's API rather than the driver
@@ -702,6 +730,22 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
         throw $exception;
       }
     }
+  }
+
+  /**
+   * Builds the entity-field parser for one parsing call.
+   *
+   * Override in the consuming context to swap in a custom implementation.
+   *
+   * @param string $entity_type
+   *   The entity type the values belong to.
+   * @param \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface $classifier
+   *   The classifier resolving each value's field definition.
+   * @param string|null $bundle
+   *   The bundle, or NULL for an entity type without bundles.
+   */
+  protected function getFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
+    return new EntityFieldParser($entity_type, $classifier, $bundle);
   }
 
   /**

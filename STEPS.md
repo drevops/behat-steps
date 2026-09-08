@@ -5,6 +5,7 @@
 | Class | Description |
 | --- | --- |
 | [AccessibilityTrait](#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [BasicAuthTrait](#basicauthtrait) | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
@@ -18,9 +19,13 @@
 | [JsonTrait](#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
+| [MappingTrait](#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MessageTrait](#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](#modaltrait) | Interact with and assert modals. |
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
+| [RandomTrait](#randomtrait) | Replace random-value tokens in step arguments and table cells. |
+| [RegionTrait](#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
@@ -32,21 +37,24 @@
 
 | Class | Description |
 | --- | --- |
+| [Drupal\BatchTrait](#drupalbatchtrait) | Wait for Drupal's Batch API to finish. |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
-| [Drupal\CacheTrait](#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
+| [Drupal\CacheTrait](#drupalcachetrait) | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigOverrideTrait](#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\DrushTrait](#drupaldrushtrait) | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\LanguageTrait](#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
@@ -125,6 +133,21 @@ Then the current page should pass accessibility checks for tags "wcag2a"
 ```
 
 </details>
+
+## BasicAuthTrait
+
+[Source](src/Steps/Generic/BasicAuthTrait.php), [Example](tests/behat/features/basic_auth.feature)
+
+>  Keep HTTP basic authentication applied across session resets.
+>  - Re-apply the configured credentials before every scenario and step.
+>  
+>  Mink resets the session before every scenario and on every fast logout,
+>  which clears request headers and drops the credentials. A site behind
+>  webserver-level basic auth would start answering 401 mid-scenario without
+>  this. The hooks are a no-op when no credentials are configured.
+>  <br/><br/>
+>  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
+
 
 ## CommandTrait
 
@@ -731,6 +754,62 @@ Focus on an element by CSS selector
 ```gherkin
 When I focus on the element "#edit-name"
 When I focus on the element ".form-text"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the heading :heading should exist</code></summary>
+
+<br/>
+Assert that a heading with the text exists
+<br/><br/>
+
+```gherkin
+Then the heading "Latest news" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the heading :heading should not exist</code></summary>
+
+<br/>
+Assert that no heading with the text exists
+<br/><br/>
+
+```gherkin
+Then the heading "Admin" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the button :button should exist</code></summary>
+
+<br/>
+Assert that a button exists
+<br/><br/>
+
+```gherkin
+Then the button "Save" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the button :button should not exist</code></summary>
+
+<br/>
+Assert that a button does not exist
+<br/><br/>
+
+```gherkin
+Then the button "Delete" should not exist
 
 ```
 
@@ -2288,6 +2367,242 @@ Then the link "Return to site content" should not be an absolute link
 
 </details>
 
+## MappingTrait
+
+[Source](src/Steps/Generic/MappingTrait.php), [Example](tests/behat/features/mapping.feature)
+
+>  Replace `{{ Key }}` tokens in step arguments and table cells.
+>  - Resolve a token against the `mappings:` groups in the configuration.
+>  - Fail the step when a key is not mapped.
+>  
+>  Whitespace inside the braces is ignored, so `{{ Key }}` and `{{Key}}`
+>  resolve identically. Keys are unique across groups, so the group a key was
+>  declared in does not take part in the lookup.
+>  <br/><br/>
+>  Resolution keys off the token's own braces rather than the placeholder name,
+>  so one map covers every step taking a string without the step opting in.
+>  <br/><br/>
+>  Operates on Gherkin text alone: no Mink session and no driver, so the trait
+>  works in any suite.
+
+
+## MessageTrait
+
+[Source](src/Steps/Generic/MessageTrait.php), [Example](tests/behat/features/message.feature)
+
+>  Assert status, error, warning and success messages rendered on the page.
+>  - Match a single message by substring, per message type.
+>  - Match a table of messages in one step.
+>  
+>  Each message type resolves to a CSS selector configured under the
+>  `selectors: messages:` map in the extension configuration, keyed `default`,
+>  `error`, `success` and `warning`. A message matches when the text of any
+>  element found by that selector contains the expected string.
+
+
+<details>
+  <summary><code>@Then the message :message should exist</code></summary>
+
+<br/>
+Assert that a status message is present
+<br/><br/>
+
+```gherkin
+Then the message "Changes saved" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the message :message should not exist</code></summary>
+
+<br/>
+Assert that a status message is absent
+<br/><br/>
+
+```gherkin
+Then the message "Access denied" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the error message :message should exist</code></summary>
+
+<br/>
+Assert that an error message is present
+<br/><br/>
+
+```gherkin
+Then the error message "Username field is required" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the error message :message should not exist</code></summary>
+
+<br/>
+Assert that an error message is absent
+<br/><br/>
+
+```gherkin
+Then the error message "Access denied" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the success message :message should exist</code></summary>
+
+<br/>
+Assert that a success message is present
+<br/><br/>
+
+```gherkin
+Then the success message "Article has been created" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the success message :message should not exist</code></summary>
+
+<br/>
+Assert that a success message is absent
+<br/><br/>
+
+```gherkin
+Then the success message "Changes saved" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the warning message :message should exist</code></summary>
+
+<br/>
+Assert that a warning message is present
+<br/><br/>
+
+```gherkin
+Then the warning message "This action cannot be undone" should exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the warning message :message should not exist</code></summary>
+
+<br/>
+Assert that a warning message is absent
+<br/><br/>
+
+```gherkin
+Then the warning message "deprecated" should not exist
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following error messages should exist:</code></summary>
+
+<br/>
+Assert that every error message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following error messages should exist:
+  | Username field is required |
+  | Password field is required |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following error messages should not exist:</code></summary>
+
+<br/>
+Assert that no error message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following error messages should not exist:
+  | Access denied |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following success messages should exist:</code></summary>
+
+<br/>
+Assert that every success message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following success messages should exist:
+  | Article has been created |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following success messages should not exist:</code></summary>
+
+<br/>
+Assert that no success message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following success messages should not exist:
+  | Changes saved |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following warning messages should exist:</code></summary>
+
+<br/>
+Assert that every warning message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following warning messages should exist:
+  | This action cannot be undone |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the following warning messages should not exist:</code></summary>
+
+<br/>
+Assert that no warning message in the table is present
+<br/><br/>
+
+```gherkin
+Then the following warning messages should not exist:
+  | deprecated |
+
+```
+
+</details>
+
 ## MetatagTrait
 
 [Source](src/Steps/Generic/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
@@ -2676,6 +2991,21 @@ Given the basic authentication has the username "myusername" and the password "m
 </details>
 
 <details>
+  <summary><code>@When I visit :path</code></summary>
+
+<br/>
+Navigate to a path
+<br/><br/>
+
+```gherkin
+When I visit "/about-us"
+When I visit "https://example.com/about-us"
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I go back</code></summary>
 
 <br/>
@@ -2772,6 +3102,315 @@ Assert that current URL does not have a query parameter with a value
 
 ```gherkin
 Then the current URL should not have the "filter" parameter with the value "recent"
+
+```
+
+</details>
+
+## RandomTrait
+
+[Source](src/Steps/Generic/RandomTrait.php), [Example](tests/behat/features/random.feature)
+
+>  Replace random-value tokens in step arguments and table cells.
+>  - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.
+>  - Return one value per token for the whole scenario.
+>  
+>  Built-in types are `string`, `name`, `machine_name`, `int`, `email` and
+>  `uuid`. The default is `string` with length `10`, so `[?title]`,
+>  `[?title:string]` and `[?title:string,10]` share one value.
+>  <br/><br/>
+>  Operates on Gherkin text alone: no Mink session and no driver, so the trait
+>  works in any suite.
+
+
+## RegionTrait
+
+[Source](src/Steps/Generic/RegionTrait.php), [Example](tests/behat/features/region.feature)
+
+>  Interact with and assert against named page regions.
+>  - Click links, press buttons, fill fields and toggle checkboxes in a region.
+>  - Assert text, headings, links, buttons and elements within a region.
+>  
+>  A region name resolves through the `region` Mink selector, which reads the
+>  `regions:` map in the extension configuration. Every step throws when the
+>  name is not mapped or the mapped selector matches nothing on the page.
+
+
+<details>
+  <summary><code>@When I click the link :link in the region :region</code></summary>
+
+<br/>
+Click a link within a region
+<br/><br/>
+
+```gherkin
+When I click the link "Read more" in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I press the button :button in the region :region</code></summary>
+
+<br/>
+Press a button within a region
+<br/><br/>
+
+```gherkin
+When I press the button "Save" in the region "sidebar"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I fill in the field :field with :value in the region :region</code></summary>
+
+<br/>
+Fill a field within a region
+<br/><br/>
+
+```gherkin
+When I fill in the field "Search" with "test" in the region "header"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I check the checkbox :checkbox in the region :region</code></summary>
+
+<br/>
+Check a checkbox within a region
+<br/><br/>
+
+```gherkin
+When I check the checkbox "Published" in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I uncheck the checkbox :checkbox in the region :region</code></summary>
+
+<br/>
+Uncheck a checkbox within a region
+<br/><br/>
+
+```gherkin
+When I uncheck the checkbox "Promoted" in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the region :region should contain the text :text</code></summary>
+
+<br/>
+Assert that a region contains the text
+<br/><br/>
+
+```gherkin
+Then the region "content" should contain the text "Welcome"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the region :region should not contain the text :text</code></summary>
+
+<br/>
+Assert that a region does not contain the text
+<br/><br/>
+
+```gherkin
+Then the region "content" should not contain the text "Error"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the region :region should contain the heading :heading</code></summary>
+
+<br/>
+Assert that a region contains the heading
+<br/><br/>
+
+```gherkin
+Then the region "sidebar" should contain the heading "Latest news"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the region :region should not contain the heading :heading</code></summary>
+
+<br/>
+Assert that a region does not contain the heading
+<br/><br/>
+
+```gherkin
+Then the region "sidebar" should not contain the heading "Admin"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the link :link should exist in the region :region</code></summary>
+
+<br/>
+Assert that a region contains the link
+<br/><br/>
+
+```gherkin
+Then the link "About us" should exist in the region "footer"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the link :link should not exist in the region :region</code></summary>
+
+<br/>
+Assert that a region does not contain the link
+<br/><br/>
+
+```gherkin
+Then the link "Admin" should not exist in the region "footer"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the button :button should exist in the region :region</code></summary>
+
+<br/>
+Assert that a region contains the button
+<br/><br/>
+
+```gherkin
+Then the button "Save" should exist in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the button :button should not exist in the region :region</code></summary>
+
+<br/>
+Assert that a region does not contain the button
+<br/><br/>
+
+```gherkin
+Then the button "Delete" should not exist in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should exist in the region :region</code></summary>
+
+<br/>
+Assert that a region contains an element matching the selector
+<br/><br/>
+
+```gherkin
+Then the element "blockquote" should exist in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector should not exist in the region :region</code></summary>
+
+<br/>
+Assert that a region contains no element matching the selector
+<br/><br/>
+
+```gherkin
+Then the element "blockquote" should not exist in the region "content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector in the region :region should have the text :text</code></summary>
+
+<br/>
+Assert that an element in a region has the exact text
+<br/><br/>
+
+```gherkin
+Then the element "h2" in the region "content" should have the text "News"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector in the region :region should not have the text :text</code></summary>
+
+<br/>
+Assert that no element in a region has the exact text
+<br/><br/>
+
+```gherkin
+Then the element "h2" in the region "content" should not have the text "News"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector in the region :region should have the attribute :attribute with the value :value</code></summary>
+
+<br/>
+Assert that an element in a region has the attribute value
+<br/><br/>
+
+```gherkin
+Then the element "img" in the region "content" should have the attribute "alt" with the value "Logo"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value</code></summary>
+
+<br/>
+Assert that an element in a region with the text has the attribute value
+<br/><br/>
+
+```gherkin
+Then the element "a" with the text "Home" in the region "header" should have the attribute "href" with the value "/"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value</code></summary>
+
+<br/>
+Assert that an element in a region with the text has the CSS value
+<br/><br/>
+
+```gherkin
+Then the element "span" with the text "New" in the region "content" should have the CSS property "color" with the value "rgb(255, 0, 0)"
 
 ```
 
@@ -3063,7 +3702,36 @@ Then the REST response should contain "success"
 >  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
 >  - Assert bulk row content against expected values.
+>  - Click links and press buttons within a row identified by its text.
 
+
+<details>
+  <summary><code>@When I click the link :link in the row :row_text</code></summary>
+
+<br/>
+Click a link within a row
+<br/><br/>
+
+```gherkin
+When I click the link "Edit" in the row "Article title"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I press the button :button in the row :row_text</code></summary>
+
+<br/>
+Press a button within a row
+<br/><br/>
+
+```gherkin
+When I press the button "Remove" in the row "Article title"
+
+```
+
+</details>
 
 <details>
   <summary><code>@Then the table :selector should have :count row(s)</code></summary>
@@ -3186,12 +3854,91 @@ Then the "Article title" row should contain the following:
 
 </details>
 
+<details>
+  <summary><code>@Then the row :row_text should contain the text :text</code></summary>
+
+<br/>
+Assert that a row contains the text
+<br/><br/>
+
+```gherkin
+Then the row "Article title" should contain the text "Published"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the row :row_text should not contain the text :text</code></summary>
+
+<br/>
+Assert that a row does not contain the text
+<br/><br/>
+
+```gherkin
+Then the row "Article title" should not contain the text "Unpublished"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the link :link should exist in the row :row_text</code></summary>
+
+<br/>
+Assert that a row contains the link
+<br/><br/>
+
+```gherkin
+Then the link "Edit" should exist in the row "Article title"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the link :link should not exist in the row :row_text</code></summary>
+
+<br/>
+Assert that a row does not contain the link
+<br/><br/>
+
+```gherkin
+Then the link "Delete" should not exist in the row "Article title"
+
+```
+
+</details>
+
 ## WaitTrait
 
 [Source](src/Steps/Generic/WaitTrait.php), [Example](tests/behat/features/wait.feature)
 
 >  Wait for a period of time or for AJAX to finish.
+>  - Wait a fixed number of seconds.
+>  - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
+>  every step that navigates or submits.
+>  <br/><br/>
+>  Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
+>  updates through `Drupal.ajax`, so an assertion following a click can read the
+>  page before the update lands. The wait here watches both.
+>  <br/><br/>
+>  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
+
+<details>
+  <summary><code>@When I wait for AJAX to finish</code></summary>
+
+<br/>
+Wait for the AJAX calls to finish, using the configured timeout
+<br/><br/>
+
+```gherkin
+When I wait for AJAX to finish
+
+```
+
+</details>
 
 <details>
   <summary><code>@When I wait for :seconds second(s)</code></summary>
@@ -3666,6 +4413,31 @@ Then the response should be a valid Atom feed
 
 
 
+## Drupal\BatchTrait
+
+[Source](src/Steps/Drupal/BatchTrait.php), [Example](tests/behat/features/drupal_batch.feature)
+
+>  Wait for Drupal's Batch API to finish.
+>  - Poll the batch progress element until it leaves the page.
+>  
+>  A batch page reloads itself until the operation completes, so a following
+>  assertion would otherwise read the progress screen rather than the result.
+
+
+<details>
+  <summary><code>@When I wait for the batch job to finish</code></summary>
+
+<br/>
+Wait for the batch job to finish
+<br/><br/>
+
+```gherkin
+When I wait for the batch job to finish
+
+```
+
+</details>
+
 ## Drupal\BigPipeTrait
 
 [Source](src/Steps/Drupal/BigPipeTrait.php), [Example](tests/behat/features/drupal_big_pipe.feature)
@@ -3868,12 +4640,25 @@ Then the block "My block" should not exist in the "content" region
 
 [Source](src/Steps/Drupal/CacheTrait.php), [Example](tests/behat/features/drupal_cache.feature)
 
->  Invalidate specific Drupal caches from within a scenario.
->  <br/><br/>
->  Provides targeted cache-clearing steps for single paths, path patterns, and
->  the render cache. A full cache clear is intentionally out of scope because
->  `DrupalContext::@Given the cache has been cleared` already covers it.
+>  Invalidate Drupal caches and run cron from within a scenario.
+>  - Clear every cache bin, or target a single path, a path pattern, or the
+>  render cache.
+>  - Run cron, which also flushes the caches cron itself invalidates.
 
+
+<details>
+  <summary><code>@Given the cache is empty</code></summary>
+
+<br/>
+Clear every cache bin
+<br/><br/>
+
+```gherkin
+Given the cache is empty
+
+```
+
+</details>
 
 <details>
   <summary><code>@Given the page cache for the path :path is empty</code></summary>
@@ -3912,6 +4697,20 @@ Clear the render cache
 
 ```gherkin
 Given the render cache is empty
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run cron</code></summary>
+
+<br/>
+Run cron
+<br/><br/>
+
+```gherkin
+When I run cron
 
 ```
 
@@ -4306,6 +5105,23 @@ Given the following page content with fields exist:
 </details>
 
 <details>
+  <summary><code>@Given the following :content_type content exist:</code></summary>
+
+<br/>
+Create content of a type from a table of field values
+<br/><br/>
+
+```gherkin
+Given the following page content exist:
+  | title         | status |
+  | [TEST] Page 1 | 1      |
+  | [TEST] Page 2 | 0      |
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I visit the :content_type content page with the title :title</code></summary>
 
 <br/>
@@ -4498,6 +5314,133 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 
 </details>
 
+## Drupal\DrushTrait
+
+[Source](src/Steps/Drupal/DrushTrait.php), [Example](tests/behat/features/drupal_drush.feature)
+
+>  Run Drush commands and assert their output.
+>  - Run a command with or without arguments, through the Drush driver.
+>  - Run a command that is expected to fail and keep its error output.
+>  - Assert the last command's output by substring or regular expression.
+>  
+>  Steps route through the `drush` driver rather than the scenario's default
+>  driver, so they work in a scenario running on any other driver as long as
+>  `drush:` is configured.
+
+
+<details>
+  <summary><code>@When I run the drush command :command</code></summary>
+
+<br/>
+Run a Drush command
+<br/><br/>
+
+```gherkin
+When I run the drush command "status"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run the drush command :command with the arguments :arguments</code></summary>
+
+<br/>
+Run a Drush command with arguments
+<br/><br/>
+
+```gherkin
+When I run the drush command "pm:list" with the arguments "--status=enabled"
+When I run the drush command "config:get" with the arguments "system.site uuid"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run the failing drush command :command</code></summary>
+
+<br/>
+Run a Drush command that is expected to fail
+<br/><br/>
+
+```gherkin
+When I run the failing drush command "pm:uninstall no_such_module"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I run the failing drush command :command with the arguments :arguments</code></summary>
+
+<br/>
+Run a Drush command with arguments that is expected to fail
+<br/><br/>
+
+```gherkin
+When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I print the last drush output</code></summary>
+
+<br/>
+Print the output of the most recent Drush command
+<br/><br/>
+
+```gherkin
+When I print the last drush output
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the drush output should contain the value :value</code></summary>
+
+<br/>
+Assert that the last Drush output contains the value
+<br/><br/>
+
+```gherkin
+Then the drush output should contain the value "Drupal version"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the drush output should not contain the value :value</code></summary>
+
+<br/>
+Assert that the last Drush output does not contain the value
+<br/><br/>
+
+```gherkin
+Then the drush output should not contain the value "error"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the drush output should match the pattern :pattern</code></summary>
+
+<br/>
+Assert that the last Drush output matches the pattern
+<br/><br/>
+
+```gherkin
+Then the drush output should match the pattern "/Drupal [0-9]+/"
+
+```
+
+</details>
+
 ## Drupal\EckTrait
 
 [Source](src/Steps/Drupal/EckTrait.php), [Example](tests/behat/features/drupal_eck.feature)
@@ -4616,6 +5559,20 @@ When I follow link number "1" in the email with the subject "Account Verificatio
 </details>
 
 <details>
+  <summary><code>@When I follow the link containing :url_fragment in the email</code></summary>
+
+<br/>
+Follow the first link containing a fragment in an email
+<br/><br/>
+
+```gherkin
+When I follow the link containing "user/reset" in the email
+
+```
+
+</details>
+
+<details>
   <summary><code>@When I follow link number :link_number in the email with the subject containing :subject</code></summary>
 
 <br/>
@@ -4666,6 +5623,48 @@ Assert that an email should be sent to an address
 
 ```gherkin
 Then an email should be sent to the address "user@example.com"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the number of sent emails should be :count</code></summary>
+
+<br/>
+Assert the number of emails sent
+<br/><br/>
+
+```gherkin
+Then the number of sent emails should be 2
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the number of emails sent to the address :address should be :count</code></summary>
+
+<br/>
+Assert the number of emails sent to an address
+<br/><br/>
+
+```gherkin
+Then the number of emails sent to the address "user@example.com" should be 2
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the number of emails sent with the subject :subject should be :count</code></summary>
+
+<br/>
+Assert the number of emails sent with a subject
+<br/><br/>
+
+```gherkin
+Then the number of emails sent with the subject "Welcome" should be 1
 
 ```
 
@@ -4915,6 +5914,39 @@ Then the file "report.xlsx" should be attached to the email with the subject con
 
 </details>
 
+## Drupal\EntityTrait
+
+[Source](src/Steps/Drupal/EntityTrait.php), [Example](tests/behat/features/drupal_entity.feature)
+
+>  Create entities of a type that has no dedicated trait.
+>  - Create entities of any type from a table of field values.
+>  
+>  Covers types such as `commerce_product`, `group` or `paragraph`, where a
+>  dedicated trait would add vocabulary without adding behaviour. Entities
+>  created here are removed after the scenario along with every other entity
+>  the scenario created.
+>  <br/><br/>
+>  Skip cleanup for one type with tag:
+>  `@behat-steps-entity-cleanup-skip:commerce_product`.
+
+
+<details>
+  <summary><code>@Given the following :entity_type entities exist:</code></summary>
+
+<br/>
+Create entities of a type from a table of field values
+<br/><br/>
+
+```gherkin
+Given the following "commerce_product" entities exist:
+  | title | type    | status |
+  | TNT   | product | 1      |
+  | Anvil | product | 1      |
+
+```
+
+</details>
+
 ## Drupal\FileTrait
 
 [Source](src/Steps/Drupal/FileTrait.php), [Example](tests/behat/features/drupal_file.feature)
@@ -5045,6 +6077,34 @@ Assert that an unmanaged file exists and does not have specified content
 
 ```gherkin
 Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+
+```
+
+</details>
+
+## Drupal\LanguageTrait
+
+[Source](src/Steps/Drupal/LanguageTrait.php), [Example](tests/behat/features/drupal_language.feature)
+
+>  Create the languages a scenario needs.
+>  - Add languages by their ISO code, skipping ones already installed.
+>  
+>  Languages created here are removed after the scenario along with every other
+>  entity the scenario created.
+
+
+<details>
+  <summary><code>@Given the following languages exist:</code></summary>
+
+<br/>
+Create the listed languages
+<br/><br/>
+
+```gherkin
+Given the following languages exist:
+  | langcode |
+  | fr       |
+  | de       |
 
 ```
 
@@ -5448,22 +6508,6 @@ Then the following modules should be disabled:
 
 </details>
 
-## Drupal\OverrideTrait
-
-[Source](src/Steps/Drupal/OverrideTrait.php), [Example](tests/behat/features/drupal_override.feature)
-
->  Override Drupal Extension behaviors.
->  - Automated entity deletion before creation to avoid duplicates.
->  - Improved user authentication handling for anonymous users.
->  
->  Use with caution: depending on your version of Drupal Extension, PHP and
->  Composer, the step definition string (/^Given etc.../) may need to be defined
->  for these overrides. If you encounter errors about missing or duplicated
->  step definitions, do not include this trait and rather copy the contents of
->  this file into your feature context file and copy the step definition strings
->  from the Drupal Extension.
-
-
 ## Drupal\ParagraphsTrait
 
 [Source](src/Steps/Drupal/ParagraphsTrait.php), [Example](tests/behat/features/drupal_paragraphs.feature)
@@ -5498,10 +6542,25 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 [Source](src/Steps/Drupal/QueueTrait.php), [Example](tests/behat/features/drupal_queue.feature)
 
 >  Manage and assert Drupal queue state.
->  - Clear queues before scenarios.
+>  - Add items to a queue and clear queues before scenarios.
 >  - Process queue items during tests.
 >  - Assert queue item counts.
 
+
+<details>
+  <summary><code>@Given the following item is in the :queue queue:</code></summary>
+
+<br/>
+Add an item to a queue
+<br/><br/>
+
+```gherkin
+Given the following item is in the "myqueue" queue:
+  | data | {"nid":1} |
+
+```
+
+</details>
 
 <details>
   <summary><code>@Given the :queue queue is empty</code></summary>
@@ -5840,6 +6899,22 @@ Given the following tags terms with fields exist:
 </details>
 
 <details>
+  <summary><code>@Given the following :vocabulary terms exist:</code></summary>
+
+<br/>
+Create taxonomy terms in a vocabulary from a table of field values
+<br/><br/>
+
+```gherkin
+Given the following tags terms exist:
+  | name         | description |
+  | [TEST] Behat | Testing tag |
+
+```
+
+</details>
+
+<details>
   <summary><code>@Given the following :vocabulary terms do not exist:</code></summary>
 
 <br/>
@@ -6060,6 +7135,36 @@ Given the following users with fields exist:
 </details>
 
 <details>
+  <summary><code>@Given the following users exist:</code></summary>
+
+<br/>
+Create users from a table of field values
+<br/><br/>
+
+```gherkin
+Given the following users exist:
+  | name         | mail              | roles  |
+  | [TEST] user1 | user1@example.com | editor |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Given the user is anonymous</code></summary>
+
+<br/>
+Log the current user out so the session is anonymous
+<br/><br/>
+
+```gherkin
+Given the user is anonymous
+
+```
+
+</details>
+
+<details>
   <summary><code>@Given the password for the user :name is :password</code></summary>
 
 <br/>
@@ -6129,6 +7234,80 @@ Given the following roles exist:
   | name              | permissions                              |
   | Content Editor    | access content, create article content   |
   | Content Approver  | access content, edit any article content |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log in as a user with the :roles role(s)</code></summary>
+
+<br/>
+Create a user with the roles and log in as them
+<br/><br/>
+
+```gherkin
+When I log in as a user with the "editor" role
+When I log in as a user with the "editor, admin" roles
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log in as a user with the :roles role(s) and the following fields:</code></summary>
+
+<br/>
+Create a user with the roles and fields, and log in as them
+<br/><br/>
+
+```gherkin
+When I log in as a user with the "editor" role and the following fields:
+  | field_user_name    | John  |
+  | field_user_surname | Smith |
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log in as a user with the :permissions permission(s)</code></summary>
+
+<br/>
+Create a role carrying the permissions, then log in as a user with it
+<br/><br/>
+
+```gherkin
+When I log in as a user with the "administer nodes" permission
+When I log in as a user with the "administer nodes, access content" permissions
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log in as the user :name</code></summary>
+
+<br/>
+Log in as an existing user created earlier in the scenario
+<br/><br/>
+
+```gherkin
+When I log in as the user "[TEST] user1"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@When I log out</code></summary>
+
+<br/>
+Log the current user out
+<br/><br/>
+
+```gherkin
+When I log out
 
 ```
 

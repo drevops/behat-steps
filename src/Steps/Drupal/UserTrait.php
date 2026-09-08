@@ -135,89 +135,13 @@ trait UserTrait {
   }
 
   /**
-   * Create a user with the roles and log in as them.
-   *
-   * Several roles are given as a comma-separated list. The `authenticated`
-   * role is implied by having an account, so it is not assigned.
-   *
-   * @code
-   * Given I am logged in as a user with the "editor" role
-   * Given I am logged in as a user with the "editor, admin" roles
-   * @endcode
-   */
-  #[Given('I am logged in as a user with the :roles role(s)')]
-  public function userLogInWithRoles(string $roles): void {
-    $this->userCreateAndLogIn($roles);
-  }
-
-  /**
-   * Create a user with the roles and fields, and log in as them.
-   *
-   * @code
-   *   Given I am logged in as a user with the "editor" role and the following fields:
-   *     | field_user_name    | John  |
-   *     | field_user_surname | Smith |
-   * @endcode
-   */
-  #[Given('I am logged in as a user with the :roles role(s) and the following fields:')]
-  public function userLogInWithRolesAndFields(string $roles, TableNode $fields): void {
-    $this->userCreateAndLogIn($roles, $fields->getRowsHash());
-  }
-
-  /**
-   * Create a role carrying the permissions, then log in as a user with it.
-   *
-   * Several permissions are given as a comma-separated list.
-   *
-   * @code
-   * Given I am logged in as a user with the "administer nodes" permission
-   * Given I am logged in as a user with the "administer nodes, access content" permissions
-   * @endcode
-   */
-  #[Given('I am logged in as a user with the :permissions permission(s)')]
-  public function userLogInWithPermissions(string $permissions): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof RoleCapabilityInterface || !$driver instanceof UserCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support role and user management.', $driver::class));
-    }
-
-    $role = $driver->roleCreate(array_map(trim(...), explode(',', $permissions)));
-    $this->roles[] = $role;
-
-    $stub = $this->userBuildStub();
-    $this->userCreate($stub);
-    $driver->userAddRole($stub, $role);
-
-    $this->login($stub);
-  }
-
-  /**
-   * Log in as an existing user created earlier in the scenario.
-   *
-   * @code
-   * Given I am logged in as "[TEST] user1"
-   * @endcode
-   */
-  #[Given('I am logged in as :name')]
-  public function userLogInAs(string $name): void {
-    $user = $this->getUserManager()->getUser($name);
-
-    if (!$user instanceof EntityStubInterface) {
-      throw new \RuntimeException(sprintf('No user named "%s" was created in this scenario.', $name));
-    }
-
-    $this->login($user);
-  }
-
-  /**
    * Log the current user out so the session is anonymous.
    *
    * @code
-   * Given I am an anonymous user
+   * Given the user is anonymous
    * @endcode
    */
-  #[Given('I am an anonymous user')]
+  #[Given('the user is anonymous')]
   public function userLogOutSession(): void {
     $this->logout(TRUE);
   }
@@ -349,6 +273,76 @@ trait UserTrait {
   }
 
   /**
+   * Create a user with the roles and log in as them.
+   *
+   * Several roles are given as a comma-separated list. The `authenticated`
+   * role is implied by having an account, so it is not assigned.
+   *
+   * @code
+   * When I log in as a user with the "editor" role
+   * When I log in as a user with the "editor, admin" roles
+   * @endcode
+   */
+  #[When('I log in as a user with the :roles role(s)')]
+  public function userLogInWithRoles(string $roles): void {
+    $this->userCreateAndLogIn($roles);
+  }
+
+  /**
+   * Create a user with the roles and fields, and log in as them.
+   *
+   * @code
+   *   When I log in as a user with the "editor" role and the following fields:
+   *     | field_user_name    | John  |
+   *     | field_user_surname | Smith |
+   * @endcode
+   */
+  #[When('I log in as a user with the :roles role(s) and the following fields:')]
+  public function userLogInWithRolesAndFields(string $roles, TableNode $fields): void {
+    $this->userCreateAndLogIn($roles, $fields->getRowsHash());
+  }
+
+  /**
+   * Create a role carrying the permissions, then log in as a user with it.
+   *
+   * Several permissions are given as a comma-separated list.
+   *
+   * @code
+   * When I log in as a user with the "administer nodes" permission
+   * When I log in as a user with the "administer nodes, access content" permissions
+   * @endcode
+   */
+  #[When('I log in as a user with the :permissions permission(s)')]
+  public function userLogInWithPermissions(string $permissions): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof RoleCapabilityInterface || !$driver instanceof UserCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support role and user management.', $driver::class));
+    }
+
+    $role = $driver->roleCreate(array_map(trim(...), explode(',', $permissions)));
+    $this->roles[] = $role;
+
+    $stub = $this->userBuildStub();
+    $this->userCreate($stub);
+    $driver->userAddRole($stub, $role);
+
+    $this->login($stub);
+  }
+
+  /**
+   * Log in as an existing user created earlier in the scenario.
+   *
+   * @code
+   * When I log in as the user "[TEST] user1"
+   * @endcode
+   */
+  #[When('I log in as the user :name')]
+  public function userLogInAs(string $name): void {
+    $this->login($this->getUserManager()->getUser($name));
+  }
+
+  /**
    * Log the current user out.
    *
    * @code
@@ -457,19 +451,11 @@ trait UserTrait {
   public function userVisitOwnPasswordResetLink(): void {
     $current_user = $this->getUserManager()->getCurrentUser();
 
-    // 6.x stores EntityStubInterface stubs; legacy versions store \stdClass
-    // with ->name.
-    if ($current_user instanceof EntityStubInterface) {
-      $name = (string) $current_user->getValue('name');
-    }
-    elseif ($current_user instanceof \stdClass && isset($current_user->name)) {
-      $name = (string) $current_user->name;
-    }
-    else {
+    if (!$current_user instanceof EntityStubInterface) {
       throw new \RuntimeException('Current user is not logged in.');
     }
 
-    $user = $this->userLoadByName($name);
+    $user = $this->userLoadByName((string) $current_user->getValue('name'));
     $this->userVisitPasswordResetLinkForUser($user);
   }
 
@@ -731,17 +717,11 @@ trait UserTrait {
     if ($name === 'current') {
       $user = $this->getUserManager()->getCurrentUser();
 
-      // 6.x stores EntityStubInterface stubs; legacy versions store
-      // \stdClass with ->uid.
-      if ($user instanceof EntityStubInterface) {
-        $uid = $user->getId();
-      }
-      elseif ($user instanceof \stdClass && isset($user->uid)) {
-        $uid = $user->uid;
-      }
-      else {
+      if (!$user instanceof EntityStubInterface) {
         throw new \RuntimeException('Current user is not logged in.');
       }
+
+      $uid = $user->getId();
     }
     else {
       $user = $this->userLoadByName($name);

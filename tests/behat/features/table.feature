@@ -7,13 +7,13 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 rows
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works with single row
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-single" should have 1 row
 
@@ -22,7 +22,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".nonexistent" should have 1 rows
       """
@@ -37,7 +37,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 rows
       """
@@ -51,13 +51,13 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 columns
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works with different table
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should have 2 columns
 
@@ -66,7 +66,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 columns
       """
@@ -80,7 +80,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following columns:" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following columns:
       | Name     |
@@ -92,7 +92,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following columns:
         | NonExistent |
@@ -107,7 +107,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should be empty" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-empty" should be empty
 
@@ -116,7 +116,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be empty
       """
@@ -128,7 +128,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should not be empty" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should not be empty
 
@@ -137,7 +137,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-empty" should not be empty
       """
@@ -151,13 +151,13 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with ascending order
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should be sorted by "Name" in "ascending" order
 
   @phpserver
   Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with descending order
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should be sorted by "Name" in "descending" order
 
@@ -166,7 +166,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be sorted by "Name" in "invalid" order
       """
@@ -181,7 +181,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-desc" should be sorted by "Name" in "ascending" order
       """
@@ -196,7 +196,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be sorted by "NonExistent" in "ascending" order
       """
@@ -210,7 +210,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following rows:
       | Name       | Status   |
@@ -222,7 +222,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following rows:
         | Name         |
@@ -238,7 +238,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the :row_text row should contain the following:" works as expected
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     Then the "Alpha item" row should contain the following:
       | Type A  |
@@ -249,7 +249,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the "NonExistent" row should contain the following:
         | some text |
@@ -265,7 +265,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/table.html"
       Then the "Alpha item" row should contain the following:
         | NonExistent |

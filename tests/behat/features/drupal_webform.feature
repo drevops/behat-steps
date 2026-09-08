@@ -5,7 +5,7 @@ Feature: Check that WebformTrait works
 
   @api
   Scenario: Assert "@Given the webform :title does not exist" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test webform to delete"
     And I fill in "Machine-readable name" with "test_webform_to_delete"
@@ -22,7 +22,7 @@ Feature: Check that WebformTrait works
 
   @api @module:webform_templates
   Scenario: Assert "@Given the webform :title exists from the template :template" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test template form"
     And I fill in "Machine-readable name" with "test_template_form"

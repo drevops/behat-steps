@@ -63,10 +63,6 @@ trait EmailTrait {
       return;
     }
 
-    // Force the lazy 6.x driver to boot Drupal so '\Drupal::config()' below is
-    // safe regardless of hook ordering between traits.
-    $this->getDriver();
-
     if ($scope->getScenario()->hasTag('debug')) {
       $this->emailDebug = TRUE;
     }
@@ -309,10 +305,10 @@ trait EmailTrait {
    * the messages a later action produced.
    *
    * @code
-   * Then 2 emails should have been sent
+   * Then the number of sent emails should be 2
    * @endcode
    */
-  #[Then(':count email(s) should have been sent')]
+  #[Then('the number of sent emails should be :count')]
   public function emailAssertMessageCount(int $count): void {
     $actual = count($this->emailGetCollectedMessages());
 
@@ -325,10 +321,10 @@ trait EmailTrait {
    * Assert the number of emails sent to an address.
    *
    * @code
-   * Then 2 emails should have been sent to the address "user@example.com"
+   * Then the number of emails sent to the address "user@example.com" should be 2
    * @endcode
    */
-  #[Then(':count email(s) should have been sent to the address :address')]
+  #[Then('the number of emails sent to the address :address should be :count')]
   public function emailAssertMessageCountToAddress(int $count, string $address): void {
     $actual = 0;
 
@@ -347,10 +343,10 @@ trait EmailTrait {
    * Assert the number of emails sent with a subject.
    *
    * @code
-   * Then 1 email should have been sent with the subject "Welcome"
+   * Then the number of emails sent with the subject "Welcome" should be 1
    * @endcode
    */
-  #[Then(':count email(s) should have been sent with the subject :subject')]
+  #[Then('the number of emails sent with the subject :subject should be :count')]
   public function emailAssertMessageCountWithSubject(int $count, string $subject): void {
     $actual = 0;
 

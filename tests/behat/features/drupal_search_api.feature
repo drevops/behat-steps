@@ -11,7 +11,7 @@ Feature: Ensure Search API functionality works
       | title                                        | moderation_state |
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
       | [MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT     | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     # Initial search without indexed nodes.
     And I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
@@ -38,7 +38,7 @@ Feature: Ensure Search API functionality works
       | title                           | moderation_state |
       | TESTPUBLISHEDARTICLE 1          | published        |
       | [MYTEST] TESTPUBLISHEDARTICLE 2 | published        |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I add the "article" content with the title "TESTPUBLISHEDARTICLE 1" to the search index
     And I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE 2" to the search index
 
@@ -55,7 +55,7 @@ Feature: Ensure Search API functionality works
       | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
 
     # Initial search without indexed nodes.
     When I go to "/search"
@@ -106,7 +106,7 @@ Feature: Ensure Search API functionality works
       | title                                    | moderation_state |
       | [MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT | published        |
       | [MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT | published        |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
 
     # Initial search without indexed nodes.
     When I go to "/search"

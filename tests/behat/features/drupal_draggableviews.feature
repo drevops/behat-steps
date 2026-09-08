@@ -5,11 +5,11 @@ Feature: Check that DraggableviewsTrait works
 
   @api
   Scenario: Assert save order of the Draggable Order items
-    Given the following "draggableviews_demo" content:
+    Given the following "draggableviews_demo" content exist:
       | title  | status | created           |
       | Test 1 | 1      | 2014-10-17 8:00am |
       | Test 2 | 1      | 2014-10-17 9:00am |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
 
     When I visit "/draggableviews-demo"
     And I save screenshot
@@ -19,7 +19,7 @@ Feature: Check that DraggableviewsTrait works
     When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
       | Test 1 |
       | Test 2 |
-    And the cache has been cleared
+    And the cache is empty
     And I visit "/draggableviews-demo"
     Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 1"
     And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 2"
@@ -27,7 +27,7 @@ Feature: Check that DraggableviewsTrait works
     When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
       | Test 2 |
       | Test 1 |
-    And the cache has been cleared
+    And the cache is empty
     And I visit "/draggableviews-demo"
     Then the ".view-draggableviews-demo .views-row:first-child .views-field-title" element should contain "Test 2"
     And the ".view-draggableviews-demo .views-row:nth-child(2) .views-field-title" element should contain "Test 1"
@@ -37,11 +37,11 @@ Feature: Check that DraggableviewsTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following "draggableviews_demo" content:
+      Given the following "draggableviews_demo" content exist:
         | title  | status | created           |
         | Test 1 | 1      | 2014-10-17 8:00am |
         | Test 2 | 1      | 2014-10-17 9:00am |
-      And I am logged in as a user with the "administrator" role
+      And I log in as a user with the "administrator" role
       When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
         | Test 1 |
         | Test 2 |
