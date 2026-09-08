@@ -35,12 +35,20 @@ class HookAttributeReaderTest extends TestCase {
     $this->assertSame([HookedContext::class, 'beforeNode'], $callees[0]->getCallable());
   }
 
-  public function testAnInstanceHookIsCallableForBehatToBind(): void {
+  public function testAnInstanceHookResolvesToItsContextMethod(): void {
     $callees = $this->read('afterNode');
 
     $this->assertCount(1, $callees);
     $this->assertInstanceOf(AfterNodeCreate::class, $callees[0]);
-    $this->assertSame([HookedContext::class, 'afterNode'], $callees[0]->getCallable());
+
+    // Behat 3 takes the '[class, method]' pair and Behat 4 wraps an instance
+    // method in a late-bound callable, so assert the method the callee
+    // resolves to rather than the shape it is carried in.
+    $reflection = $callees[0]->getReflection();
+
+    $this->assertInstanceOf(\ReflectionMethod::class, $reflection);
+    $this->assertSame(HookedContext::class, $reflection->getDeclaringClass()->getName());
+    $this->assertSame('afterNode', $reflection->getName());
   }
 
   public function testTheFilterStringIsCarriedOntoTheCall(): void {
