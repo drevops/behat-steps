@@ -529,6 +529,16 @@ class RawContextTest extends UnitTestCase {
     yield 'absent value' => [NULL];
   }
 
+  public function testUnreadableTimestampIsReported(): void {
+    $stub = new EntityStub('node', 'page', ['created' => 'not a date at all']);
+    $context = $this->createContext(new DrupalDriver(self::DRUPAL_ROOT, 'default'));
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
+
+    RawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+  }
+
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);

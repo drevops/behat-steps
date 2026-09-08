@@ -88,6 +88,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
   /**
    * Converts textual node timestamps into the numeric form storage expects.
+   *
+   * @throws \RuntimeException
+   *   When a timestamp value cannot be read as a date.
    */
   #[BeforeNodeCreate]
   public static function alterNodeParameters(BeforeNodeCreateScope $scope): void {
@@ -109,9 +112,17 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     foreach (['changed', 'created', 'revision_timestamp'] as $field) {
       $value = $stub->getValue($field);
 
-      if ($value !== NULL && $value !== '' && !is_numeric($value)) {
-        $stub->setValue($field, strtotime((string) $value));
+      if ($value === NULL || $value === '' || is_numeric($value)) {
+        continue;
       }
+
+      $timestamp = strtotime((string) $value);
+
+      if ($timestamp === FALSE) {
+        throw new \RuntimeException(sprintf('Unable to read the "%s" value "%s" as a date.', $field, (string) $value));
+      }
+
+      $stub->setValue($field, $timestamp);
     }
   }
 
