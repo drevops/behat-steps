@@ -17,7 +17,7 @@ use Drupal\block\Entity\Block;
  * - Place blocks in regions and assert their configured region.
  * - Created blocks are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait BlockTrait {
 
@@ -36,6 +36,8 @@ trait BlockTrait {
    */
   #[Given('the instance of :admin_label block exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
+    $this->drupal();
+
     $block = NULL;
 
     /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
@@ -71,7 +73,7 @@ trait BlockTrait {
 
     $this->blockConfigure($admin_label, $fields);
 
-    $this->helperEntityRegister($block);
+    $this->entityRegister($block);
   }
 
   /**
@@ -347,6 +349,8 @@ trait BlockTrait {
    *   The loaded block entity, or NULL when no block carries that label.
    */
   protected function blockLoadByLabel(string $label): ?Block {
+    $this->drupal();
+
     $default_theme = \Drupal::config('system.theme')->get('default');
 
     $blocks = \Drupal::entityTypeManager()

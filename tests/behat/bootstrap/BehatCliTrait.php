@@ -49,14 +49,7 @@ trait BehatCliTrait {
       return;
     }
 
-    // The generated 'FeatureContext.php' normally includes a 'bootstrapDrupal'
-    // workaround that primes the lazy 6.x driver before any trait hook runs.
-    // Scenarios tagged '@behat-cli-no-bootstrap' opt out of that workaround so
-    // a trait under test can be exercised in true isolation - useful for
-    // proving a trait bootstraps Drupal itself when its hooks call '\Drupal::'.
-    $bootstrap_workaround = !$scope->getScenario()->hasTag('behat-cli-no-bootstrap');
-
-    $this->behatCliWriteFeatureContextFile($traits, $bootstrap_workaround);
+    $this->behatCliWriteFeatureContextFile($traits);
   }
 
   #[BeforeStep]
@@ -78,21 +71,14 @@ trait BehatCliTrait {
    *
    * @param array $traits
    *   Optional array of trait classes.
-   * @param bool $bootstrap_workaround
-   *   When TRUE (default), the generated context includes a 'bootstrapDrupal'
-   *   '@BeforeScenario @api' hook that primes the lazy 6.x driver. Pass FALSE
-   *   to omit that hook so a trait under test can be exercised in true
-   *   isolation - useful for proving a trait bootstraps Drupal itself when
-   *   its hooks call '\Drupal::' before any step runs.
    *
    * @return string
    *   Path to written file.
    */
-  public function behatCliWriteFeatureContextFile(array $traits = [], bool $bootstrap_workaround = TRUE): string {
+  public function behatCliWriteFeatureContextFile(array $traits = []): string {
     $tokens = [
       '{{USE_DECLARATION}}' => '',
       '{{USE_IN_CLASS}}' => '',
-      '{{BOOTSTRAP_METHOD}}' => '',
     ];
     foreach ($traits as $trait) {
       // A tag names the trait's context and short name, as in
@@ -106,37 +92,17 @@ trait BehatCliTrait {
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 
-    if ($bootstrap_workaround) {
-      $tokens['{{BOOTSTRAP_METHOD}}'] = <<<'EOL'
-
-  /**
-   * Force Drupal bootstrap before any @api scenario step runs.
-   *
-   * The 6.x driver bootstraps Drupal lazily on the first 'getDriver()'
-   * call, and many trait step methods touch '\Drupal::' directly without
-   * going through 'getDriver()'. Calling 'getDriver()' once here primes
-   * the container for the rest of the scenario.
-   *
-   * @BeforeScenario @api
-   */
-  public function bootstrapDrupal(): void {
-    $this->getDriver();
-  }
-
-EOL;
-    }
-
     $content = <<<'EOL'
 <?php
 
-use Drupal\DrupalExtension\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 {{USE_DECLARATION}}
 
-class FeatureContext extends DrupalContext {
+class FeatureContext extends RawContext {
   {{USE_IN_CLASS}}
 
   use FeatureContextTrait;
-{{BOOTSTRAP_METHOD}}
+
   /**
    * @Given I throw test exception with message :message
    */
@@ -234,7 +200,7 @@ default:
     default:
       contexts:
         - FeatureContext
-        - Drupal\DrupalExtension\Context\MinkContext
+        - Behat\MinkExtension\Context\MinkContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
         - DrevOps\BehatPhpServer\PhpServerContext:
             webroot: '%paths.base%/tests/behat/fixtures'
@@ -265,10 +231,16 @@ default:
                 - '--no-first-run'           # Skips the initial setup screen that Chrome typically shows when running for the first time.
                 - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
 
-    Drupal\DrupalExtension:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
       api_driver: drupal
       drupal:
         drupal_root: /app/build/web
+      selectors:
+        messages:
+          default: '.messages'
+          error: '.messages.messages--error'
+          success: '.messages.messages--status'
+          warning: '.messages.messages--warning'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:

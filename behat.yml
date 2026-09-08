@@ -14,9 +14,7 @@ default:
       contexts:
         - FeatureContext
         - BehatCliContext
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MarkupContext
-        - Drupal\DrupalExtension\Context\MessageContext
+        - Behat\MinkExtension\Context\MinkContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
         - DrevOps\BehatPhpServer\PhpServerContext:
             webroot: '%paths.base%/tests/behat/fixtures'
@@ -49,7 +47,7 @@ default:
                 - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
 
     # Provides integration with Drupal APIs.
-    Drupal\DrupalExtension:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
       blackbox: ~
       api_driver: drupal
       drush_driver: drush

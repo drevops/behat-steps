@@ -13,7 +13,7 @@ use Drupal\node\Entity\Node;
  * - Add content to an index
  * - Run indexing for a specific number of items.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait SearchApiTrait {
 
@@ -57,6 +57,8 @@ trait SearchApiTrait {
    */
   #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $count): void {
+    $this->drupal();
+
     $count = (int) $count;
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
@@ -86,6 +88,8 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API cron')]
   public function searchApiRunCron(): void {
+    $this->drupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     \Drupal::moduleHandler()->invoke('search_api', 'cron');
@@ -104,6 +108,8 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API Solr cron')]
   public function searchApiRunSolrCron(): void {
+    $this->drupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $module_handler = \Drupal::moduleHandler();

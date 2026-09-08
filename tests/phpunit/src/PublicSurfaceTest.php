@@ -24,12 +24,10 @@ use Behat\Step\When;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Steps\Drupal\OverrideTrait;
-use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
+use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Steps\Generic\DateTrait;
 use DrevOps\BehatSteps\Steps\Generic\ResponsiveTrait;
-use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
-use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -78,10 +76,6 @@ class PublicSurfaceTest extends UnitTestCase {
    */
   protected const ALLOWED_PUBLIC_METHODS = [
     DateTrait::class . '::dateRelativeProcessValue' => 'Documented utility that resolves a relative date token outside a step.',
-    OverrideTrait::class . '::createNodes' => 'Overrides a public Drupal Extension method.',
-    OverrideTrait::class . '::createUsers' => 'Overrides a public Drupal Extension method.',
-    OverrideTrait::class . '::iAmLoggedInAsUserWithRole' => 'Overrides a public Drupal Extension method.',
-    TaxonomyTrait::class . '::createTerms' => 'Overrides a public Drupal Extension method.',
     ResponsiveTrait::class . '::responsiveSetBreakpoints' => 'Documented utility that registers breakpoints outside a step.',
   ];
 

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Gherkin\Node\FeatureNode;
+use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Call\Callee;
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Call\Handler\RuntimeCallHandler;
@@ -12,6 +15,7 @@ use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
+use Behat\Testwork\Tester\Result\TestResult;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
@@ -302,7 +306,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([$term, $node, $block]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame(['entity', 'node', 'term'], $deleted);
     $this->assertSame([], $context->getCreatedStubs());
@@ -323,7 +327,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
   }
 
   public static function dataProviderLanguageIsRemovedThroughLanguageCapability(): \Iterator {
@@ -338,7 +342,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -347,7 +351,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -356,7 +360,7 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createContentDriver();
     $driver->expects($this->never())->method('entityDelete');
 
-    $this->createContext($driver)->cleanEntities();
+    $this->createContext($driver)->cleanEntities($this->createAfterScenarioScope());
   }
 
   public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
@@ -367,7 +371,7 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager)->cleanUsers();
+    $this->createContext($driver, $user_manager)->cleanUsers($this->createAfterScenarioScope());
 
     $this->assertFalse($user_manager->hasUsers());
   }
@@ -376,7 +380,7 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->cleanUsers($this->createAfterScenarioScope());
 
     $this->assertTrue($user_manager->hasUsers());
   }
@@ -386,7 +390,7 @@ class RawContextTest extends UnitTestCase {
     $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
     $authentication_manager->expects($this->once())->method('fastLogout');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
@@ -396,14 +400,14 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testCreatedRolesAreDeleted(): void {
@@ -413,7 +417,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor', 'reviewer']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getRoles());
   }
@@ -422,7 +426,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -431,7 +435,7 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createDriver([RoleCapabilityInterface::class]);
     $driver->expects($this->never())->method('roleDelete');
 
-    $this->createContext($driver)->cleanRoles();
+    $this->createContext($driver)->cleanRoles($this->createAfterScenarioScope());
   }
 
   public function testStaticCachesAreClearedOnCacheCapableDriver(): void {
@@ -465,7 +469,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
   }
 
   public static function dataProviderCleanupOptOut(): \Iterator {
@@ -484,7 +488,7 @@ class RawContextTest extends UnitTestCase {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testTheOptOutAlsoSkipsRoleCleanup(): void {
@@ -493,7 +497,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -626,6 +630,21 @@ class RawContextTest extends UnitTestCase {
     $context->setAuthenticationManager($authentication_manager ?? $this->createMock(AuthenticationManagerInterface::class));
 
     return $context;
+  }
+
+  /**
+   * Builds an after-scenario scope carrying the given tags.
+   *
+   * @param array<int, string> $scenario_tags
+   *   Tags on the scenario.
+   * @param array<int, string> $feature_tags
+   *   Tags on the feature.
+   */
+  protected function createAfterScenarioScope(array $scenario_tags = [], array $feature_tags = []): AfterScenarioScope {
+    $scenario = new ScenarioNode('Scenario', $scenario_tags, [], 'Scenario', 1);
+    $feature = new FeatureNode('Feature', NULL, $feature_tags, NULL, [$scenario], 'Feature', 'en', __DIR__ . '/feature.feature', 1);
+
+    return new AfterScenarioScope($this->createMock(Environment::class), $feature, $scenario, $this->createMock(TestResult::class));
   }
 
   /**

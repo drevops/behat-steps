@@ -4,163 +4,28 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Hook\AfterScenario;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait as CommonHelperTrait;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Driver\DrupalDriverInterface;
-use Drupal\Driver\Entity\EntityStubInterface;
 
 /**
  * Internal Drupal helper methods for Behat step definitions.
  *
  * Drupal-specific counterpart to the generic HelperTrait: fixture path
- * expansion for file and image fields, managed-file lookups, and a shared
- * per-scenario entity registry. Creation steps register the entities they
- * create; a separate teardown step deletes the registered entities in reverse
- * creation order at scenario end. Includes the generic helper trait so a
- * consumer trait can rely on a single include for both generic and Drupal
- * helpers.
+ * expansion for file and image fields, managed-file lookups, and node id
+ * queries. Includes the generic helper trait so a consumer trait can rely on a
+ * single include for both generic and Drupal helpers.
  *
- * Entity types owned by the base Drupal Extension cleanup (node, user,
- * taxonomy_term, user_role, language, configurable_language) are never
- * registered here, so there is no double-deletion.
- *
- * Skip all cleanup with tag:
- * `@behat-steps-skip:helperEntityCleanupAfterScenario`
- * Skip cleanup for one entity type with tag:
- * `@behat-steps-entity-cleanup-skip:media`
+ * Entities saved outside the driver's create pipeline join the scenario
+ * teardown through 'RawContext::entityRegister()'.
  *
  * This is an internal trait and should not be used directly in step definitions.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait HelperTrait {
 
   use CommonHelperTrait;
-
-  /**
-   * Entity types owned by the base Drupal Extension's own cleanup.
-   *
-   * Never deleted by this trait to avoid double-deletion with the base
-   * extension (re-deleting a user or language throws, unlike nodes/terms).
-   */
-  protected const HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES = [
-    'node',
-    'user',
-    'taxonomy_term',
-    'user_role',
-    'language',
-    'configurable_language',
-  ];
-
-  /**
-   * Entities registered during the scenario, in creation order.
-   *
-   * Each item is a [entity_type_id, entity_id] pair. Ids are stored as scalars
-   * so each entity is reloaded fresh at cleanup time and an already-deleted row
-   * is tolerated.
-   *
-   * @var array<int, array{0: string, 1: int|string}>
-   */
-  protected array $helperEntityRegistry = [];
-
-  /**
-   * Delete registered entities in reverse creation order at scenario teardown.
-   */
-  #[AfterScenario('@api')]
-  public function helperEntityCleanupAfterScenario(AfterScenarioScope $scope): void {
-    $scenario = $scope->getScenario();
-
-    if ($scenario->hasTag('behat-steps-skip:' . __FUNCTION__)) {
-      return;
-    }
-
-    $this->helperEntityCleanupRun($this->helperEntityCleanupSkippedTypes($scenario->getTags()));
-  }
-
-  /**
-   * Register a saved entity.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The saved entity to register.
-   */
-  protected function helperEntityRegister(EntityInterface $entity): void {
-    $id = $entity->id();
-
-    if ($id !== NULL) {
-      $this->helperEntityRegisterId($entity->getEntityTypeId(), $id);
-    }
-  }
-
-  /**
-   * Register an entity by type and id.
-   *
-   * @param string $entity_type_id
-   *   The entity type machine name.
-   * @param int|string $entity_id
-   *   The entity id.
-   */
-  protected function helperEntityRegisterId(string $entity_type_id, int|string $entity_id): void {
-    $this->helperEntityRegistry[] = [$entity_type_id, $entity_id];
-  }
-
-  /**
-   * Delete registered entities in reverse creation order, then reset.
-   *
-   * Entity types in self::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES (owned by the
-   * base Drupal Extension) or in $skip_types are left in place.
-   *
-   * @param array<int, string> $skip_types
-   *   Entity type ids to leave in place.
-   */
-  protected function helperEntityCleanupRun(array $skip_types): void {
-    foreach (array_reverse($this->helperEntityRegistry) as [$entity_type_id, $entity_id]) {
-      if (in_array($entity_type_id, self::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES, TRUE) || in_array($entity_type_id, $skip_types, TRUE)) {
-        continue;
-      }
-
-      $this->helperEntityCleanupDelete($entity_type_id, $entity_id);
-    }
-
-    $this->helperEntityRegistry = [];
-  }
-
-  /**
-   * Load an entity by type and id and delete it when it still exists.
-   *
-   * @param string $entity_type_id
-   *   The entity type machine name.
-   * @param int|string $entity_id
-   *   The entity id.
-   */
-  protected function helperEntityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
-    $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
-    $entity?->delete();
-  }
-
-  /**
-   * Collect entity types named in the scenario's per-type bypass tags.
-   *
-   * @param array<int, string> $tags
-   *   The scenario's tag names (without the leading '@').
-   *
-   * @return array<int, string>
-   *   Entity type ids to skip, parsed from
-   *   'behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
-   */
-  protected function helperEntityCleanupSkippedTypes(array $tags): array {
-    $prefix = 'behat-steps-entity-cleanup-skip:';
-    $types = [];
-
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, $prefix)) {
-        $types[] = substr($tag, strlen($prefix));
-      }
-    }
-
-    return $types;
-  }
 
   /**
    * Expand fixture file paths for file/image fields on an entity stub.
@@ -173,13 +38,9 @@ trait HelperTrait {
    * already exists in public:// or private://, so existing files take
    * precedence.
    *
-   * Requires a Drupal context: the consumer must expose 'getMinkParameter()'
-   * and 'getDriver()' (e.g. via MinkContext / RawDrupalContext) and Drupal
-   * must be bootstrapped at call time.
-   *
    * @param string $entity_type
    *   The entity type machine name (e.g. 'node', 'media').
-   * @param \Drupal\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub mutated in place.
    */
   protected function helperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
@@ -364,6 +225,8 @@ trait HelperTrait {
    *   private://basename.
    */
   protected function helperManagedFileExists(string $basename): bool {
+    $this->drupal();
+
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;
     }
@@ -391,6 +254,8 @@ trait HelperTrait {
    *   Array of node ids.
    */
   protected function helperLoadNodeIds(string $content_type, array $conditions = []): array {
+    $this->drupal();
+
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $content_type);
@@ -421,6 +286,8 @@ trait HelperTrait {
    *   When the module is not enabled.
    */
   protected function helperAssertModuleEnabled(string $module, string $package = ''): void {
+    $this->drupal();
+
     // @codeCoverageIgnoreStart
     if (\Drupal::moduleHandler()->moduleExists($module)) {
       return;

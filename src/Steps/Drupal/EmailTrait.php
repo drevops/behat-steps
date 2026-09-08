@@ -31,7 +31,7 @@ use Drupal\Core\Database\StatementInterface;
  * - `@email:{type}` - enable email tracking using a `{type}` handler
  * - `@debug` (enable detailed logs)
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait EmailTrait {
 
@@ -54,6 +54,8 @@ trait EmailTrait {
    */
   #[BeforeScenario('@api')]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->drupal();
+
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -108,6 +110,8 @@ trait EmailTrait {
    */
   #[When('I clear the test email system queue')]
   public function emailClearTestQueue(bool $force = FALSE): void {
+    $this->drupal();
+
     if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
@@ -155,6 +159,38 @@ trait EmailTrait {
 
     $link = $links[$link_number - 1];
     $this->getSession()->visit($link);
+  }
+
+  /**
+   * Follow the first link containing a fragment in an email.
+   *
+   * Searches every collected message for a link whose URL contains the
+   * fragment, so a scenario can follow a one-time login or confirmation link
+   * without knowing its position in the body.
+   *
+   * @code
+   * When I follow the link containing "user/reset" in the email
+   * @endcode
+   */
+  #[When('I follow the link containing :url_fragment in the email')]
+  public function emailFollowLinkContaining(string $url_fragment): void {
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      $body = $message['params']['body'] ?? $message['body'] ?? '';
+
+      if (!is_string($body)) {
+        continue;
+      }
+
+      foreach (self::emailExtractLinks($body) as $link) {
+        if (str_contains($link, $url_fragment)) {
+          $this->getSession()->visit($link);
+
+          return;
+        }
+      }
+    }
+
+    throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $url_fragment), $this->getSession()->getDriver());
   }
 
   /**
@@ -264,6 +300,69 @@ trait EmailTrait {
     }
 
     throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert the number of emails sent.
+   *
+   * Counts every collected message, so clear the queue first to count only
+   * the messages a later action produced.
+   *
+   * @code
+   * Then 2 emails should have been sent
+   * @endcode
+   */
+  #[Then(':count email(s) should have been sent')]
+  public function emailAssertMessageCount(int $count): void {
+    $actual = count($this->emailGetCollectedMessages());
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent, but %d were found.', $count, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the number of emails sent to an address.
+   *
+   * @code
+   * Then 2 emails should have been sent to the address "user@example.com"
+   * @endcode
+   */
+  #[Then(':count email(s) should have been sent to the address :address')]
+  public function emailAssertMessageCountToAddress(int $count, string $address): void {
+    $actual = 0;
+
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      if (in_array($address, $this->helperSplitCommaSeparated((string) $message['to']), TRUE)) {
+        $actual++;
+      }
+    }
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent to "%s", but %d were found.', $count, $address, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the number of emails sent with a subject.
+   *
+   * @code
+   * Then 1 email should have been sent with the subject "Welcome"
+   * @endcode
+   */
+  #[Then(':count email(s) should have been sent with the subject :subject')]
+  public function emailAssertMessageCountWithSubject(int $count, string $subject): void {
+    $actual = 0;
+
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      if ((string) $message['subject'] === $subject) {
+        $actual++;
+      }
+    }
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent with the subject "%s", but %d were found.', $count, $subject, $actual), $this->getSession()->getDriver());
+    }
   }
 
   /**

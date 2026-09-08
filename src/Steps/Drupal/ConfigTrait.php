@@ -72,6 +72,8 @@ trait ConfigTrait {
    */
   #[AfterScenario('@api')]
   public function configAfterScenario(AfterScenarioScope $scope): void {
+    $this->drupal();
+
     if (
       $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
       || $scope->getScenario()->hasTag('behat-steps-skip:ConfigTrait')
@@ -102,6 +104,8 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
+    $this->drupal();
+
     $this->configSnapshot($name);
     \Drupal::configFactory()->getEditable($name)->set($key, $this->configCastValue($value))->save();
   }
@@ -119,6 +123,8 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
+    $this->drupal();
+
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The config values table must contain "name", "key" and "value" columns.');
@@ -248,6 +254,8 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   protected function configReadStored(string $name, string $key): mixed {
+    $this->drupal();
+
     return \Drupal::configFactory()->getEditable($name)->get($key);
   }
 
@@ -263,6 +271,8 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   protected function configReadEffective(string $name, string $key): mixed {
+    $this->drupal();
+
     return \Drupal::config($name)->get($key);
   }
 
@@ -273,6 +283,8 @@ trait ConfigTrait {
    *   The configuration object name.
    */
   protected function configSnapshot(string $name): void {
+    $this->drupal();
+
     if (array_key_exists($name, $this->configOriginalData)) {
       return;
     }

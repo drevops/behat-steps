@@ -230,6 +230,8 @@ trait ModuleTrait {
    *   TRUE if the module is enabled, FALSE otherwise.
    */
   protected function moduleIsEnabled(string $module): bool {
+    $this->drupal();
+
     return \Drupal::moduleHandler()->moduleExists($module);
   }
 
@@ -240,6 +242,8 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleEnable(string $module): void {
+    $this->drupal();
+
     // @codeCoverageIgnoreStart
     if ($this->moduleIsEnabled($module)) {
       return;
@@ -267,6 +271,8 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleDisable(string $module): void {
+    $this->drupal();
+
     // @codeCoverageIgnoreStart
     if (!$this->moduleIsEnabled($module)) {
       return;
@@ -293,6 +299,8 @@ trait ModuleTrait {
    *   TRUE if the module's code is present, FALSE otherwise.
    */
   protected function moduleIsPresent(string $module): bool {
+    $this->drupal();
+
     $module_list = \Drupal::service('extension.list.module')->getList();
     return isset($module_list[$module]);
   }

@@ -9,9 +9,12 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Url;
-use Drupal\Driver\Entity\EntityStubInterface;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\OneTimeAuthentication;
@@ -26,7 +29,7 @@ use Drupal\user\UserInterface;
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait UserTrait {
 
@@ -88,7 +91,135 @@ trait UserTrait {
   public function userCreateWithFields(TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
-    $this->createUsers($horizontal_table);
+    $this->userCreateMultiple($horizontal_table);
+  }
+
+  /**
+   * Create users from a table of field values.
+   *
+   * Each row becomes one user; each column is a base property or a field. A
+   * `roles` column takes a comma-separated list, assigned after the account is
+   * saved. A row without a `pass` column gets a random password.
+   *
+   * @code
+   *   Given the following users exist:
+   *     | name         | mail              | roles  |
+   *     | [TEST] user1 | user1@example.com | editor |
+   * @endcode
+   */
+  #[Given('the following users exist:')]
+  public function userCreateMultiple(TableNode $table): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof UserCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user creation.', $driver::class));
+    }
+
+    foreach ($table->getHash() as $values) {
+      $roles = [];
+
+      if (isset($values['roles'])) {
+        $roles = array_filter(array_map(trim(...), explode(',', (string) $values['roles'])));
+        unset($values['roles']);
+      }
+
+      $values['pass'] ??= $this->getRandom()->name();
+
+      $stub = new EntityStub('user', NULL, $values);
+      $this->userCreate($stub);
+
+      foreach ($roles as $role) {
+        $driver->userAddRole($stub, $role);
+      }
+    }
+  }
+
+  /**
+   * Create a user with the roles and log in as them.
+   *
+   * Several roles are given as a comma-separated list. The `authenticated`
+   * role is implied by having an account, so it is not assigned.
+   *
+   * @code
+   * Given I am logged in as a user with the "editor" role
+   * Given I am logged in as a user with the "editor, admin" roles
+   * @endcode
+   */
+  #[Given('I am logged in as a user with the :roles role(s)')]
+  public function userLogInWithRoles(string $roles): void {
+    $this->userCreateAndLogIn($roles);
+  }
+
+  /**
+   * Create a user with the roles and fields, and log in as them.
+   *
+   * @code
+   *   Given I am logged in as a user with the "editor" role and the following fields:
+   *     | field_user_name    | John  |
+   *     | field_user_surname | Smith |
+   * @endcode
+   */
+  #[Given('I am logged in as a user with the :roles role(s) and the following fields:')]
+  public function userLogInWithRolesAndFields(string $roles, TableNode $fields): void {
+    $this->userCreateAndLogIn($roles, $fields->getRowsHash());
+  }
+
+  /**
+   * Create a role carrying the permissions, then log in as a user with it.
+   *
+   * Several permissions are given as a comma-separated list.
+   *
+   * @code
+   * Given I am logged in as a user with the "administer nodes" permission
+   * Given I am logged in as a user with the "administer nodes, access content" permissions
+   * @endcode
+   */
+  #[Given('I am logged in as a user with the :permissions permission(s)')]
+  public function userLogInWithPermissions(string $permissions): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof RoleCapabilityInterface || !$driver instanceof UserCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support role and user management.', $driver::class));
+    }
+
+    $role = $driver->roleCreate(array_map(trim(...), explode(',', $permissions)));
+    $this->roles[] = $role;
+
+    $stub = $this->userBuildStub();
+    $this->userCreate($stub);
+    $driver->userAddRole($stub, $role);
+
+    $this->login($stub);
+  }
+
+  /**
+   * Log in as an existing user created earlier in the scenario.
+   *
+   * @code
+   * Given I am logged in as "[TEST] user1"
+   * @endcode
+   */
+  #[Given('I am logged in as :name')]
+  public function userLogInAs(string $name): void {
+    $user = $this->getUserManager()->getUser($name);
+
+    if (!$user instanceof EntityStubInterface) {
+      throw new \RuntimeException(sprintf('No user named "%s" was created in this scenario.', $name));
+    }
+
+    $this->login($user);
+  }
+
+  /**
+   * Log the current user out so the session is anonymous.
+   *
+   * @code
+   * Given I am an anonymous user
+   * @endcode
+   */
+  #[Given('I am an anonymous user')]
+  public function userLogOutSession(): void {
+    $this->logout(TRUE);
   }
 
   /**
@@ -166,6 +297,8 @@ trait UserTrait {
    */
   #[Given('the role :role_name has the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
+    $this->drupal();
+
     $permissions = $this->helperSplitCommaSeparated($permissions);
 
     $rid = strtolower($role_name);
@@ -213,6 +346,18 @@ trait UserTrait {
       $permissions = $hash['permissions'] ?: '';
       $this->userCreateRole($hash['name'], $permissions);
     }
+  }
+
+  /**
+   * Log the current user out.
+   *
+   * @code
+   * When I log out
+   * @endcode
+   */
+  #[When('I log out')]
+  public function userLogOut(): void {
+    $this->logout(TRUE);
   }
 
   /**
@@ -429,12 +574,66 @@ trait UserTrait {
   }
 
   /**
+   * Create a user carrying the roles and extra fields, and log in as them.
+   *
+   * @param string $roles
+   *   One role, or several as a comma-separated list.
+   * @param array<string, mixed> $extra_fields
+   *   Additional values to set on the account.
+   *
+   * @throws \RuntimeException
+   *   When the active driver cannot assign roles.
+   */
+  protected function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof UserCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user role assignment.', $driver::class));
+    }
+
+    $stub = $this->userBuildStub($extra_fields);
+    $this->userCreate($stub);
+
+    foreach (array_map(trim(...), explode(',', $roles)) as $role) {
+      if (!in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
+        $driver->userAddRole($stub, $role);
+      }
+    }
+
+    $this->login($stub);
+  }
+
+  /**
+   * Build a user stub with a random name, password and email.
+   *
+   * @param array<string, mixed> $extra_fields
+   *   Additional values to set on the account.
+   */
+  protected function userBuildStub(array $extra_fields = []): EntityStubInterface {
+    $name = (string) $this->getRandom()->name(8);
+
+    $stub = new EntityStub('user', NULL, [
+      'name' => $name,
+      'pass' => (string) $this->getRandom()->name(16),
+      'mail' => $name . '@example.com',
+    ]);
+
+    foreach ($extra_fields as $field => $value) {
+      $stub->setValue($field, $value);
+    }
+
+    return $stub;
+  }
+
+  /**
    * Visit the password reset link for a given user object.
    *
    * @param \Drupal\user\UserInterface $user
    *   The user object.
    */
   protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
+    $this->drupal();
+
     $timestamp = \Drupal::time()->getRequestTime();
 
     $path = Url::fromRoute('user.reset', [
@@ -458,6 +657,8 @@ trait UserTrait {
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
   protected function userExistsByMail(string $mail): bool {
+    $this->drupal();
+
     $ids = \Drupal::entityTypeManager()
       ->getStorage('user')
       ->getQuery()
@@ -479,6 +680,8 @@ trait UserTrait {
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []): array {
+    $this->drupal();
+
     $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
 
     foreach ($conditions as $k => $v) {

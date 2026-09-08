@@ -26,6 +26,8 @@ trait TimeTrait {
    */
   #[AfterScenario('@api')]
   public function timeCleanup(AfterScenarioScope $scope): void {
+    $this->drupal();
+
     if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
       return;
     }
@@ -45,6 +47,8 @@ trait TimeTrait {
    */
   #[When('I set system time to :value')]
   public function timeSet(string $value): void {
+    $this->drupal();
+
     \Drupal::state()->set('testing.time', (int) $value);
   }
 
@@ -57,6 +61,8 @@ trait TimeTrait {
    */
   #[When('I reset system time')]
   public function timeReset(): void {
+    $this->drupal();
+
     \Drupal::state()->delete('testing.time');
   }
 

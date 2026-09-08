@@ -50,6 +50,8 @@ trait StateTrait {
    */
   #[AfterScenario('@api')]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
+    $this->drupal();
+
     if (
       $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
       || $scope->getScenario()->hasTag('behat-steps-skip:StateTrait')
@@ -80,6 +82,8 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
+    $this->drupal();
+
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->set($name, $this->stateNormalizeValue($value));
   }
@@ -93,6 +97,8 @@ trait StateTrait {
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
+    $this->drupal();
+
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->delete($name);
   }
@@ -109,6 +115,8 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
+    $this->drupal();
+
     $state = \Drupal::state();
     foreach ($table->getHash() as $row) {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
@@ -172,6 +180,8 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   protected function stateReadValue(string $name): array {
+    $this->drupal();
+
     $key_value = \Drupal::keyValue('state');
 
     if (!$key_value->has($name)) {

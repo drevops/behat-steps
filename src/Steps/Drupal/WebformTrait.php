@@ -15,7 +15,7 @@ use Behat\Step\Given;
  *
  * Requires `drupal/webform` module.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait WebformTrait {
 
@@ -74,7 +74,7 @@ trait WebformTrait {
     $clone->set('template', FALSE);
     $clone->save();
 
-    $this->helperEntityRegister($clone);
+    $this->entityRegister($clone);
   }
 
   /**
@@ -102,6 +102,8 @@ trait WebformTrait {
    *   An array of matching webform entities.
    */
   protected function webformLoadAll(string $title): array {
+    $this->drupal();
+
     // Clear config factory cache to pick up webform changes made via the
     // admin UI in a separate process.
     \Drupal::configFactory()->reset();
@@ -138,6 +140,8 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
+    $this->drupal();
+
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);
     $machine_name = trim($machine_name, '_');

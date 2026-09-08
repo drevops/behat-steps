@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Environment\Environment;
@@ -32,8 +34,11 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use Drupal\Component\Utility\Random;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -131,10 +136,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *
    * Walks 'createdStubs' in reverse order so dependent entities (a node
    * referencing a term, say) come down before the entities they reference.
+   *
+   * Skip the whole pass with '@behat-steps-skip:cleanEntities', or one entity
+   * type with '@behat-steps-entity-cleanup-skip:<entity_type_id>'.
    */
   #[AfterScenario]
-  public function cleanEntities(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanEntities(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanEntities', $scope)) {
       return;
     }
 
@@ -142,9 +150,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
+    $skip_types = $this->entityCleanupSkippedTypes($scope);
     $driver = $this->getDriver();
 
     foreach (array_reverse($this->createdStubs) as $stub) {
+      if (in_array($stub->getEntityType(), $skip_types, TRUE)) {
+        continue;
+      }
+
       $this->deleteStub($stub, $driver);
     }
 
@@ -161,8 +174,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Later scenarios in the same run inherit that login.
    */
   #[AfterScenario]
-  public function cleanUsers(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanUsers(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanUsers', $scope)) {
       return;
     }
 
@@ -196,8 +209,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Removes any created roles.
    */
   #[AfterScenario]
-  public function cleanRoles(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanRoles(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanRoles', $scope)) {
       return;
     }
 
@@ -299,6 +312,32 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   public function getDriver(?string $name = NULL): DriverInterface {
     return $this->getDriverManager()->getDriver($name);
+  }
+
+  /**
+   * Returns the bootstrapped in-process Drupal driver.
+   *
+   * The sanctioned gateway to Drupal's API: a trait calls it before touching
+   * '\Drupal::' statics, because the container exists only once the driver has
+   * bootstrapped. Bootstrapping happens on the first call of a scenario and is
+   * a no-op afterwards.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
+   *   When the scenario runs on a driver that does not bootstrap Drupal
+   *   in-process, such as the Blackbox or Drush driver.
+   */
+  public function drupal(): DrupalDriver {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof DrupalDriver) {
+      throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the active driver "%s" does not provide. Tag the scenario "@api" so it runs on the in-process Drupal driver.', $driver::class));
+    }
+
+    if (!$driver->isBootstrapped()) {
+      $driver->bootstrap();
+    }
+
+    return $driver;
   }
 
   /**
@@ -449,6 +488,28 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
+   * Registers an entity saved outside the create pipeline for cleanup.
+   *
+   * A step that saves an entity through Drupal's API rather than the driver
+   * calls this so the entity joins the same reverse-order teardown. Only the
+   * type and id are kept, so cleanup reloads the entity and tolerates a row
+   * the scenario already deleted.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The saved entity.
+   */
+  public function entityRegister(EntityInterface $entity): void {
+    $id = $entity->id();
+    $id_key = $entity->getEntityType()->getKey('id');
+
+    if ($id === NULL || !is_string($id_key) || $id_key === '') {
+      return;
+    }
+
+    $this->createdStubs[] = new EntityStub($entity->getEntityTypeId(), $entity->bundle(), [$id_key => $id]);
+  }
+
+  /**
    * Creates a language.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
@@ -559,6 +620,52 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     return !in_array(strtolower(trim($env)), ['1', 'true', 'yes', 'on'], TRUE);
+  }
+
+  /**
+   * Determines whether a scenario opts out of a hook.
+   *
+   * One tag form covers every hook in the library:
+   * '@behat-steps-skip:<Name>', where '<Name>' is either a hook method name or
+   * a trait name. Feature tags and scenario tags are read together, so the tag
+   * works on either line.
+   *
+   * @param string $name
+   *   The hook method name or trait name the tag would carry.
+   * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
+   *   The scenario scope the hook received.
+   *
+   * @return bool
+   *   TRUE when the scenario or its feature carries the skip tag.
+   */
+  protected function skipTag(string $name, ScenarioScope $scope): bool {
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+
+    return in_array('behat-steps-skip:' . $name, $tags, TRUE);
+  }
+
+  /**
+   * Collects the entity types named in per-type cleanup bypass tags.
+   *
+   * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
+   *   The scenario scope the hook received.
+   *
+   * @return array<int, string>
+   *   Entity type ids parsed from
+   *   '@behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
+   */
+  protected function entityCleanupSkippedTypes(ScenarioScope $scope): array {
+    $prefix = 'behat-steps-entity-cleanup-skip:';
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $types = [];
+
+    foreach ($tags as $tag) {
+      if (str_starts_with($tag, $prefix)) {
+        $types[] = substr($tag, strlen($prefix));
+      }
+    }
+
+    return $types;
   }
 
   /**

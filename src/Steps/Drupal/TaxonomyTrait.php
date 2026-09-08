@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -19,7 +20,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Navigate to term pages
  * - Verify vocabulary configurations.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait TaxonomyTrait {
 
@@ -46,7 +47,27 @@ trait TaxonomyTrait {
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
-    $this->createTerms($vocabulary, $horizontal_table);
+    $this->taxonomyCreate($vocabulary, $horizontal_table);
+  }
+
+  /**
+   * Create taxonomy terms in a vocabulary from a table of field values.
+   *
+   * Each row becomes one term; each column is a base property or a field. The
+   * vocabulary accepts either its machine name or its human label.
+   *
+   * @code
+   *   Given the following tags terms exist:
+   *     | name         | description |
+   *     | [TEST] Behat | Testing tag |
+   * @endcode
+   */
+  #[Given('the following :vocabulary terms exist:')]
+  public function taxonomyCreate(string $vocabulary, TableNode $table): void {
+    foreach ($table->getHash() as $values) {
+      $values['vocabulary_machine_name'] = $vocabulary;
+      $this->termCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
+    }
   }
 
   /**
@@ -60,6 +81,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms do not exist:')]
   public function taxonomyDeleteTerms(string $vocabulary, TableNode $terms_table): void {
+    $this->drupal();
+
     $vocab = Vocabulary::load($vocabulary);
 
     if (!$vocab) {
@@ -161,6 +184,8 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should exist')]
   public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary): void {
+    $this->drupal();
+
     $vocab = Vocabulary::load($vocabulary);
 
     if (!$vocab) {
@@ -188,6 +213,8 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary): void {
+    $this->drupal();
+
     $vocab = Vocabulary::load($vocabulary);
 
     if (!$vocab) {
@@ -204,15 +231,6 @@ trait TaxonomyTrait {
     if (count($found) > 0) {
       throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary), $this->getSession()->getDriver());
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function createTerms(mixed $vocabulary, TableNode $table): void {
-    $vocabulary = (string) $vocabulary;
-    $this->taxonomyDeleteTerms($vocabulary, $table);
-    parent::createTerms($vocabulary, $table);
   }
 
   /**
@@ -260,6 +278,8 @@ trait TaxonomyTrait {
    *   Array of term ids.
    */
   protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
+    $this->drupal();
+
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)
       ->condition('vid', $vocabulary);

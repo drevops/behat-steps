@@ -8,8 +8,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Driver\Capability\ContentCapabilityInterface;
-use Drupal\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -18,7 +18,7 @@ use Drupal\Driver\Entity\EntityStub;
  * - Visit and edit ECK entity pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait EckTrait {
 
@@ -52,6 +52,8 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
+    $this->drupal();
+
     foreach ($table->getHash() as $entity_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
 
@@ -72,6 +74,8 @@ trait EckTrait {
    */
   #[When('I visit eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
+    $this->drupal();
+
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
@@ -97,6 +101,8 @@ trait EckTrait {
    */
   #[When('I edit eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
+    $this->drupal();
+
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
@@ -127,6 +133,8 @@ trait EckTrait {
    *   Array of entity ids.
    */
   protected function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
+    $this->drupal();
+
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
       ->condition('type', $bundle);
@@ -174,7 +182,7 @@ trait EckTrait {
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {
-      $this->helperEntityRegister($saved);
+      $this->entityRegister($saved);
     }
   }
 

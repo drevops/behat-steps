@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Driver\DrupalDriverInterface;
-use Drupal\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -20,7 +20,7 @@ use Drupal\paragraphs\ParagraphInterface;
  * - Attach paragraphs to various entity types with parent-child relationships.
  * - Created paragraph items are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ParagraphsTrait {
 
@@ -63,7 +63,7 @@ trait ParagraphsTrait {
    *   Field name on the entity that refers paragraphs item.
    * @param string $paragraph_bundle
    *   Paragraphs item bundle name.
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   Stub with filled-in fields. Fields are merged with created
    *   paragraphs item object.
    * @param bool $save_entity
@@ -91,7 +91,7 @@ trait ParagraphsTrait {
       $parent_entity->save();
     }
 
-    $this->helperEntityRegister($paragraph);
+    $this->entityRegister($paragraph);
 
     return $paragraph;
   }
@@ -112,6 +112,8 @@ trait ParagraphsTrait {
    *   Found entity or NULL if not found.
    */
   protected function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
+    $this->drupal();
+
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
       ->condition($entity_type === 'taxonomy_term' ? 'vid' : 'type', $bundle)
@@ -133,7 +135,7 @@ trait ParagraphsTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   Stub object.
    */
   protected function paragraphsExpandEntityFields(EntityStub $stub): void {
@@ -165,6 +167,8 @@ trait ParagraphsTrait {
    *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
+    $this->drupal();
+
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
 
