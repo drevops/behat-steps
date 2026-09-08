@@ -122,9 +122,12 @@ trait ConfigOverrideTrait {
   #[BeforeStep]
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideSkipBeforeStep || $this->configOverrideDisabledNames === []) {
-      // Nothing to propagate - clear the driver-level header too so a
-      // previously-set value does not remain in effect for this step.
+      // Nothing to propagate. The process-level signal outlives the scenario
+      // that set it and 'configOverrideBeforeScenario()' only runs for '@api',
+      // so it is cleared here as well as the driver-level header.
+      $this->configOverrideClearSignal();
       $this->configOverrideClearDriverHeader();
+
       return;
     }
 
