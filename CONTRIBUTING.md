@@ -151,14 +151,16 @@ Tests live under `tests/phpunit/src/` in a directory named after their suite:
 `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
 
 ```bash
-ahoy test-unit            # Run the unit suite
+ahoy test-unit      # Run the unit suite
 
-ahoy test-unit-coverage   # Run it with code coverage
+ahoy test-kernel    # Run the kernel suite
 
-ahoy test-kernel          # Run the kernel suite
-
-ahoy test-kernel-coverage # Run it with code coverage
+ahoy test-coverage  # Run both suites and write one coverage report
 ```
+
+Coverage is collected across both suites in a single run, so the report covers
+everything the tests reach. Its output paths are declared in
+[phpunit.xml](phpunit.xml).
 
 ### Behat tests
 

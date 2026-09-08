@@ -50,7 +50,12 @@
     </source>
     <coverage pathCoverage="false"
               ignoreDeprecatedCodeUnits="true"
-              disableCodeCoverageIgnore="false"/>
+              disableCodeCoverageIgnore="false">
+        <report>
+            <html outputDirectory=".logs/coverage/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
+            <cobertura outputFile=".logs/coverage/phpunit/cobertura.xml"/>
+        </report>
+    </coverage>
     <logging>
         <junit outputFile=".logs/phpunit/junit.xml"/>
     </logging>

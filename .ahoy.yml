@@ -138,17 +138,13 @@ commands:
     usage: Run Unit tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit.xml --testsuite unit --no-coverage $@"
 
-  test-unit-coverage:
-    usage: Run Unit tests with coverage.
-    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/phpunit -c /app/phpunit.xml --testsuite unit --coverage-cobertura /app/.logs/coverage/unit/cobertura.xml --coverage-html /app/.logs/coverage/unit/.coverage-html $@"
-
   test-kernel:
     usage: Run Kernel tests.
     cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit.xml --testsuite kernel --no-coverage $@"
 
-  test-kernel-coverage:
-    usage: Run Kernel tests with coverage.
-    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/phpunit -c /app/phpunit.xml --testsuite kernel --coverage-cobertura /app/.logs/coverage/kernel/cobertura.xml --coverage-html /app/.logs/coverage/kernel/.coverage-html $@"
+  test-coverage:
+    usage: Run Unit and Kernel tests with coverage.
+    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/phpunit -c /app/phpunit.xml $@"
 
   test-bdd:
     usage: Run BDD tests.
