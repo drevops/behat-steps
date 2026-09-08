@@ -327,9 +327,12 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $driver->nodeCreate($stub);
     $this->restoreScalarBaseFields($stub, $scalars);
 
+    // Register before the post-create hooks run: a hook that throws still
+    // leaves the entity behind, and cleanup can only remove what it knows.
+    $this->createdStubs[] = $stub;
+
     $this->dispatchHooks(AfterNodeCreateScope::class, $stub);
     $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
-    $this->createdStubs[] = $stub;
 
     return $stub;
   }
@@ -360,9 +363,12 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $driver->userCreate($stub);
     $this->restoreScalarBaseFields($stub, $scalars);
 
+    // Register before the post-create hooks run: a hook that throws still
+    // leaves the user behind, and cleanup can only remove what it knows.
+    $this->getUserManager()->addUser($stub);
+
     $this->dispatchHooks(AfterUserCreateScope::class, $stub);
     $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
-    $this->getUserManager()->addUser($stub);
 
     return $stub;
   }
@@ -402,9 +408,12 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $driver->termCreate($stub);
     $this->restoreScalarBaseFields($stub, $scalars);
 
+    // Register before the post-create hooks run: a hook that throws still
+    // leaves the term behind, and cleanup can only remove what it knows.
+    $this->createdStubs[] = $stub;
+
     $this->dispatchHooks(AfterTermCreateScope::class, $stub);
     $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
-    $this->createdStubs[] = $stub;
 
     return $stub;
   }
@@ -430,8 +439,11 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $driver->entityCreate($stub);
     $this->restoreScalarBaseFields($stub, $scalars);
 
-    $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
+    // Register before the post-create hook runs: a hook that throws still
+    // leaves the entity behind, and cleanup can only remove what it knows.
     $this->createdStubs[] = $stub;
+
+    $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }
@@ -463,8 +475,11 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return FALSE;
     }
 
-    $this->dispatchHooks(AfterLanguageCreateScope::class, $result);
+    // Register before the post-create hook runs: a hook that throws still
+    // leaves the language behind, and cleanup can only remove what it knows.
     $this->createdStubs[] = $result;
+
+    $this->dispatchHooks(AfterLanguageCreateScope::class, $result);
 
     return $result;
   }
