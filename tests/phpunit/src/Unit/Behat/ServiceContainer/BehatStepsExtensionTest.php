@@ -116,6 +116,13 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertFalse($container->getParameter('behat_steps.driver.drush.root'));
   }
 
+  public function testDrupalDriverRequiresItsRoot(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The child config "drupal_root" under "behat_steps.drupal" must be configured');
+
+    $this->load(['drupal' => []]);
+  }
+
   public function testDrushDriverRequiresAliasOrRoot(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Drush `alias` or `root` path is required for the Drush driver.');
