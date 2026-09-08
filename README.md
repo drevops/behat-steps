@@ -122,7 +122,7 @@ composer require --dev drevops/behat-steps:^3
 
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
-- **Drupal traits** (`DrevOps\BehatSteps\Drupal\*`) need `drupal/drupal-extension`.
+- **Drupal traits** (`DrevOps\BehatSteps\Steps\Drupal\*`) need `drupal/drupal-extension`.
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
 
@@ -134,7 +134,7 @@ Add required traits to your
 ```php
 <?php
 
-use DrevOps\BehatSteps\CookieTrait;
+use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
 
 /**
  * Defines application features from the specific context.
@@ -191,7 +191,7 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `CommandTrait` and `Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Generic\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 

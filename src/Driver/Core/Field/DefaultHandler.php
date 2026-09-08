@@ -15,7 +15,7 @@ namespace DrevOps\BehatSteps\Driver\Core\Field;
  * value - so by the time this handler runs the field is known to be a
  * plain-scalar shape safe to pass through.
  *
- * See 'src/Drupal/Driver/Core/Field/README.md' for the full handler-selection
+ * See 'src/Driver/Core/Field/README.md' for the full handler-selection
  * table.
  */
 class DefaultHandler extends AbstractHandler {

@@ -13,7 +13,7 @@ namespace DrevOps\BehatSteps\Driver\Core\Field;
  * classification - that decision lives in the consumer (e.g. 'Core' decides
  * which F-rows participate in its handler-expansion pipeline).
  *
- * See 'src/Drupal/Driver/Core/Field/README.md' for the full truth table, the
+ * See 'src/Driver/Core/Field/README.md' for the full truth table, the
  * example fields per row, the handler-selection sub-table, and how 'Core'
  * consumes the classifications.
  */

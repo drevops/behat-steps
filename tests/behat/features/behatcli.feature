@@ -15,7 +15,7 @@ Feature: Behat CLI context
       """
       <?php
       use Drupal\DrupalExtension\Context\DrupalContext;
-      use DrevOps\BehatSteps\PathTrait;
+      use DrevOps\BehatSteps\Steps\Generic\PathTrait;
       class FeatureContext extends DrupalContext {
         use PathTrait;
 

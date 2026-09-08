@@ -1,0 +1,275 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Steps\Generic;
+
+use Behat\Behat\Hook\Scope\AfterStepScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+
+/**
+ * Internal generic helper methods for Behat step definitions.
+ *
+ * This trait provides common, framework-agnostic helper methods that can be
+ * used across multiple Behat step definition traits. Include this trait in any
+ * trait that needs access to shared helper functionality. Drupal-specific
+ * helpers live in the Drupal\HelperTrait counterpart.
+ *
+ * This is an internal trait and should not be used directly in step definitions.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ */
+trait HelperTrait {
+
+  /**
+   * Line of the last step of the current scenario.
+   */
+  protected int $helperLastStepLine = 0;
+
+  /**
+   * Request headers shared by the traits that issue their own HTTP requests.
+   *
+   * @var array<string, string>
+   */
+  protected array $helperRequestHeaders = [];
+
+  /**
+   * Set a request header for subsequent requests.
+   */
+  protected function helperSetRequestHeader(string $name, string $value): void {
+    $this->helperRequestHeaders[$name] = $value;
+  }
+
+  /**
+   * Drop a request header from subsequent requests.
+   */
+  protected function helperUnsetRequestHeader(string $name): void {
+    unset($this->helperRequestHeaders[$name]);
+  }
+
+  /**
+   * Read the accumulated request headers.
+   *
+   * @return array<string, string>
+   *   Header values keyed by header name.
+   */
+  protected function helperGetRequestHeaders(): array {
+    return $this->helperRequestHeaders;
+  }
+
+  /**
+   * Drop every accumulated request header.
+   */
+  protected function helperResetRequestHeaders(): void {
+    $this->helperRequestHeaders = [];
+  }
+
+  /**
+   * Record the line of the scenario's last step.
+   *
+   * A hook that runs once per scenario, yet raises its verdict at step
+   * scope for Behat to record it, must recognise the last step. Step scopes
+   * expose no scenario, so the line is resolved here and compared later.
+   */
+  protected function helperSetLastStepLine(BeforeScenarioScope $scope): void {
+    $steps = $scope->getScenario()->getSteps();
+    $last = end($steps);
+
+    $this->helperLastStepLine = $last === FALSE ? 0 : $last->getLine();
+  }
+
+  /**
+   * Whether the given step is the last step of the current scenario.
+   *
+   * Outline examples reuse the outline's step lines and a background runs as a
+   * separate step container, so the line identifies the step in both.
+   */
+  protected function helperIsLastStep(AfterStepScope $scope): bool {
+    return $this->helperLastStepLine !== 0 && $scope->getStep()->getLine() === $this->helperLastStepLine;
+  }
+
+  /**
+   * Transpose a vertical table format (field/value columns) to entity arrays.
+   *
+   * Supports both single and multiple entity creation:
+   *
+   * Single entity (2 columns):
+   *   | name  | John  |
+   *   | age   | 30    |
+   *
+   * Multiple entities (3+ columns):
+   *   | name  | John      | Jane      |
+   *   | age   | 30        | 25        |
+   *
+   * Returns:
+   *   Single entity: [['name' => 'John', 'age' => '30']]
+   *   Multiple entities: [['name' => 'John', 'age' => '30'], ['name' => 'Jane', 'age' => '25']]
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   The vertical format table.
+   *
+   * @return array<int, array<string, string>>
+   *   Array of entity data arrays. Each entity is an associative array.
+   *
+   * @throws \RuntimeException
+   *   If table doesn't have at least 2 columns or has no rows.
+   */
+  protected function helperTransposeVerticalTable(TableNode $table): array {
+    $rows = $table->getRows();
+
+    $first_row = $rows[0];
+    if (count($first_row) < 2) {
+      throw new \RuntimeException('Vertical table must have at least 2 columns (field name and value).');
+    }
+
+    $field_names = array_column($rows, 0);
+    $duplicate_fields = array_filter(array_count_values($field_names), fn(int $count): bool => $count > 1);
+
+    if (!empty($duplicate_fields)) {
+      throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));
+    }
+
+    foreach ($field_names as $field_name) {
+      if (trim((string) $field_name) === '') {
+        throw new \RuntimeException('Field names cannot be empty.');
+      }
+    }
+
+    $num_entities = count($first_row) - 1;
+
+    $entities = array_fill(0, $num_entities, []);
+
+    foreach ($rows as $row) {
+      $field_name = array_shift($row);
+
+      // Gherkin rejects a table whose rows have differing column counts, so
+      // row length needs no validation here.
+      foreach ($row as $index => $value) {
+        $entities[$index][$field_name] = $value;
+      }
+    }
+
+    return $entities;
+  }
+
+  /**
+   * Convert vertical format entities to horizontal TableNode.
+   *
+   * Converts an array of entities (from helperTransposeVerticalTable) back
+   * to horizontal format TableNode expected by DrupalExtension methods.
+   *
+   * @param array<int, array<string, string>> $entities
+   *   Array of entity data arrays from helperTransposeVerticalTable().
+   *
+   * @return \Behat\Gherkin\Node\TableNode
+   *   TableNode in horizontal format (first row is headers, subsequent rows
+   *   are values). Returns empty TableNode if input is empty.
+   */
+  protected function helperBuildHorizontalTable(array $entities): TableNode {
+    // @codeCoverageIgnoreStart
+    if (empty($entities)) {
+      return new TableNode([]);
+    }
+    // @codeCoverageIgnoreEnd
+    $field_names = array_keys($entities[0]);
+    $rows = [$field_names];
+
+    foreach ($entities as $entity) {
+      $rows[] = array_values($entity);
+    }
+
+    return new TableNode($rows);
+  }
+
+  /**
+   * Unescape quoted strings in step arguments.
+   *
+   * Converts `\"` back to `"` in Behat step arguments.
+   *
+   * @param string $argument
+   *   The step argument to process.
+   *
+   * @return string
+   *   The unescaped argument.
+   */
+  protected function helperFixStepArgument(string $argument): string {
+    return str_replace('\\"', '"', $argument);
+  }
+
+  /**
+   * Normalize whitespace in text for comparison.
+   *
+   * Collapses multiple whitespace characters (spaces, tabs, newlines) into
+   * single spaces and trims leading/trailing whitespace.
+   *
+   * @param string $text
+   *   The text to normalize.
+   *
+   * @return string
+   *   The normalized text.
+   */
+  protected function helperNormalizeWhitespace(string $text): string {
+    return trim((string) preg_replace('/\s+/', ' ', $text));
+  }
+
+  /**
+   * Split comma-separated string and trim values.
+   *
+   * Splits a comma-separated string into an array and trims whitespace
+   * from each value.
+   *
+   * @param string $text
+   *   The comma-separated string.
+   *
+   * @return array<int, string>
+   *   Array of trimmed values.
+   */
+  protected function helperSplitCommaSeparated(string $text): array {
+    return array_map(trim(...), explode(',', $text));
+  }
+
+  /**
+   * Convert an arbitrary string into a filesystem-safe slug.
+   *
+   * Lowercases the input and collapses any run of non-alphanumeric
+   * characters to a single hyphen. Trims leading and trailing hyphens and
+   * falls back to `untitled` when the result would otherwise be empty.
+   *
+   * @param string $value
+   *   The string to slugify.
+   *
+   * @return string
+   *   The slugified string.
+   */
+  protected function helperSlug(string $value): string {
+    $value = strtolower(trim($value));
+    $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+
+    return trim($value, '-') ?: 'untitled';
+  }
+
+  /**
+   * Check if JavaScript is supported by the current driver.
+   *
+   * Ensures the driver is started before checking JavaScript capability.
+   *
+   * @return bool
+   *   TRUE if JavaScript is supported, FALSE otherwise.
+   */
+  protected function helperIsJavascriptSupported(): bool {
+    try {
+      $driver = $this->getSession()->getDriver();
+      if (!$driver->isStarted()) {
+        $driver->start();
+      }
+      $driver->evaluateScript('true');
+      return TRUE;
+    }
+    catch (UnsupportedDriverActionException | \Exception) {
+      return FALSE;
+    }
+  }
+
+}

@@ -30,7 +30,7 @@ trait BehatCliTrait {
     $traits = [];
 
     // Scan scenario tags and extract trait names from tags starting with
-    // 'trait:'. For example, @trait:PathTrait or @trait:D7\\UserTrait.
+    // 'trait:'. For example, @trait:PathTrait or @trait:Drupal\\UserTrait.
     foreach ($scope->getScenario()->getTags() as $tag) {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
@@ -95,61 +95,15 @@ trait BehatCliTrait {
       '{{BOOTSTRAP_METHOD}}' => '',
     ];
     foreach ($traits as $trait) {
-      // Check if trait contains slash to determine if it's in a subdirectory.
-      $trait_parts = explode('\\', (string) $trait);
-      $trait_name = end($trait_parts);
-      $trait_namespace = implode('\\', array_slice($trait_parts, 0, -1));
+      // A tag names the trait's context and short name, as in
+      // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
+      $qualified = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+      // Two contexts can hold the same short name, so each import carries a
+      // context-qualified alias and one tag can name both.
+      $alias = str_replace('\\', '_', (string) $qualified);
 
-      // Check if the trait is in a subdirectory (indicated by namespace parts)
-      if (!empty($trait_namespace)) {
-        // The trait name already includes namespace.
-        $trait_class = '\\DrevOps\\BehatSteps\\' . $trait;
-        $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s;' . PHP_EOL, $trait);
-      }
-      else {
-        // First try to find the trait in the base namespace.
-        $trait_class = '\\DrevOps\\BehatSteps\\' . $trait;
-        $context_dir = NULL;
-
-        // Check if trait exists in the base namespace.
-        if (class_exists($trait_class)) {
-          // Get the file path to determine if it's in a subdirectory.
-          $reflection = new \ReflectionClass($trait_class);
-          $file_path = $reflection->getFileName();
-
-          if ($file_path) {
-            // Found in the base namespace.
-            $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s;' . PHP_EOL, $trait);
-          }
-        }
-        else {
-          // Not found in base namespace, let's check subdirectories
-          // Get a list of directories under src/.
-          $base_dir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
-          $dirs = array_filter(glob($base_dir . DIRECTORY_SEPARATOR . '*'), is_dir(...));
-
-          // Convert directory names to potential namespace parts.
-          foreach ($dirs as $dir) {
-            $context_dir = basename($dir);
-            $context_trait_class = sprintf('\\DrevOps\\BehatSteps\\%s\\%s', $context_dir, $trait);
-
-            if (class_exists($context_trait_class)) {
-              // Found in a subdirectory.
-              $trait_class = $context_trait_class;
-              $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s\\%s;' . PHP_EOL, $context_dir, $trait);
-              break;
-            }
-          }
-
-          // If not found in any subdirectory, default to base namespace.
-          if (!class_exists($trait_class)) {
-            $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\%s;' . PHP_EOL, $trait);
-          }
-        }
-      }
-      $trait_name_parts = explode('\\', (string) $trait);
-      $trait_name = end($trait_name_parts);
-      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $trait_name);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\Steps\\%s as %s;' . PHP_EOL, $qualified, $alias);
+      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 
     if ($bootstrap_workaround) {
