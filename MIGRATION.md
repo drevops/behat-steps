@@ -615,8 +615,6 @@ PHP treats two composed traits declaring the same constant name as a fatal error
 | `AccessibilityTrait::IMPACT_MINOR` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_MINOR` |
 | `Drupal\BigPipeTrait::DEFAULT_WAIT_TIMEOUT` | `Drupal\BigPipeTrait::BIG_PIPE_DEFAULT_WAIT_TIMEOUT` |
 
-`Drupal\HelperTrait::HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES`, renamed in the section above, is also now explicitly `protected` instead of implicitly public.
-
 ### `FieldTrait` no longer re-exports the keyboard steps
 
 `FieldTrait` composed `KeyboardTrait` without calling it, so a context composing only `FieldTrait` silently received every keyboard step. That composition is gone. If your context relies on those steps, compose the trait directly:

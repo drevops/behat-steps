@@ -71,7 +71,7 @@ trait HelperTrait {
         continue;
       }
 
-      // Hooks fired by 'RawDrupalContext::nodeCreate()' run before
+      // Hooks fired by 'RawContext::nodeCreate()' run before
       // 'parseEntityFields()', so on the node path the value is the raw
       // compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
