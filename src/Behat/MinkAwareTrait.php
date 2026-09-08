@@ -116,9 +116,14 @@ trait MinkAwareTrait {
    * Override to provide a custom routing mechanism.
    */
   public function locatePath(string $path): string {
-    $start_url = rtrim((string) $this->getMinkParameter('base_url'), '/') . '/';
+    // Only a full HTTP scheme makes the path absolute, so a relative path
+    // that merely starts with the same letters still resolves against
+    // 'base_url'.
+    if (preg_match('#^https?://#i', $path) === 1) {
+      return $path;
+    }
 
-    return str_starts_with($path, 'http') ? $path : $start_url . ltrim($path, '/');
+    return rtrim((string) $this->getMinkParameter('base_url'), '/') . '/' . ltrim($path, '/');
   }
 
 }

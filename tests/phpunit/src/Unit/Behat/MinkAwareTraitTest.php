@@ -89,6 +89,9 @@ class MinkAwareTraitTest extends TestCase {
     yield 'trailing and leading slashes collapse' => ['http://localhost/', '/user', 'http://localhost/user'];
     yield 'path without a leading slash' => ['http://localhost', 'user', 'http://localhost/user'];
     yield 'absolute URL is left alone' => ['http://localhost', 'http://example.com/user', 'http://example.com/user'];
+    yield 'https URL is left alone' => ['http://localhost', 'HTTPS://example.com/user', 'HTTPS://example.com/user'];
+    yield 'path starting with the scheme letters is relative' => ['http://localhost', '/http-status', 'http://localhost/http-status'];
+    yield 'bare path starting with the scheme letters is relative' => ['http://localhost', 'httpbin', 'http://localhost/httpbin'];
   }
 
   public function testVisitPathVisitsTheLocatedUrl(): void {
