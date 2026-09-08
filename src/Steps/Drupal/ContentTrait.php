@@ -211,6 +211,8 @@ trait ContentTrait {
    */
   #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
+    $this->drupal();
+
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
     $state_is_valid = FALSE;
@@ -434,6 +436,8 @@ trait ContentTrait {
    *   The node.
    */
   protected function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
+    $this->drupal();
+
     $node = Node::load($this->contentResolveNidByTitle($content_type, $title));
 
     // @codeCoverageIgnoreStart

@@ -63,6 +63,8 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreate(TableNode $table): void {
+    $this->drupal();
+
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     foreach ($table->getHash() as $row) {
@@ -274,6 +276,8 @@ trait RedirectTrait {
    * returned as-is to avoid double-prefixing.
    */
   protected function redirectNormalizeDestination(string $uri): string {
+    $this->drupal();
+
     if (str_starts_with($uri, 'internal:')) {
       return $uri;
     }

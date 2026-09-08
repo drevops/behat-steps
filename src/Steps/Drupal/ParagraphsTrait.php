@@ -74,6 +74,8 @@ trait ParagraphsTrait {
    *   Created paragraphs item.
    */
   protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
+    $this->drupal();
+
     $values = $stub->getValues();
     $values['type'] = $paragraph_bundle;
 

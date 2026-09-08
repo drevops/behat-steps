@@ -187,6 +187,8 @@ trait ContentBlockTrait {
    *   When the entity cannot be saved.
    */
   protected function contentBlockCreateSingle(string $type, array $values): BlockContent {
+    $this->drupal();
+
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
     $this->parseEntityFields($stub);

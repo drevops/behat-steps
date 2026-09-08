@@ -28,6 +28,8 @@ trait SearchApiTrait {
    */
   #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $content_type, string $title): void {
+    $this->drupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $nids = $this->helperLoadNodeIds($content_type, [

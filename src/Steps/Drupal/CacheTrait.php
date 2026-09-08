@@ -52,6 +52,8 @@ trait CacheTrait {
    */
   #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
+    $this->drupal();
+
     if ($path === '') {
       throw new \RuntimeException('The path must not be empty.');
     }
@@ -75,6 +77,8 @@ trait CacheTrait {
    */
   #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
+    $this->drupal();
+
     if ($path_pattern === '') {
       throw new \RuntimeException('The path pattern must not be empty.');
     }

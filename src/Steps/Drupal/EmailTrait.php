@@ -721,6 +721,8 @@ trait EmailTrait {
    *   Array of collected emails.
    */
   protected function emailGetCollectedMessages(): array {
+    $this->drupal();
+
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
     $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");

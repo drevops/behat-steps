@@ -103,6 +103,8 @@ trait WatchdogTrait {
       return;
     }
 
+    $this->drupal();
+
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
     }
@@ -126,6 +128,8 @@ trait WatchdogTrait {
     if (!isset($this->watchdogScenarioStartTime)) {
       return;
     }
+
+    $this->drupal();
 
     // The step hook throws for a missing table because it runs while the
     // verdict is still open. This hook runs after it, where throwing would
@@ -180,6 +184,8 @@ trait WatchdogTrait {
    *   If errors at or above the severity threshold were logged.
    */
   protected function watchdogAssertNotHasErrors(string $context): void {
+    $this->drupal();
+
     $database = Database::getConnection();
 
     // Select entries for every tracked message type that appeared from the

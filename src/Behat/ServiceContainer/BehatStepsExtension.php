@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Mink\Element\DocumentElement as MinkDocumentElement;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -43,6 +45,14 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function load(ContainerBuilder $container, array $config): void {
+    // Installed before Mink autoloads its own class, so the replacement takes
+    // effect for every element the session builds. The guard reads declared
+    // classes only, so it neither triggers the autoload it is replacing nor
+    // re-declares the name when a suite loads the extension more than once.
+    if (!class_exists(MinkDocumentElement::class, FALSE)) {
+      class_alias(DocumentElement::class, MinkDocumentElement::class, TRUE);
+    }
+
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));
     $loader->load('services.yml');
     $container->setParameter('behat_steps.default_driver', $config['default_driver']);

@@ -35,7 +35,7 @@ trait QueueTrait {
    */
   #[AfterScenario('@queue')]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->queueNames === [] || $this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

@@ -59,6 +59,8 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
+    $this->drupal();
+
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
         $menu_id = strtolower((string) $menu_hash['label']);
@@ -111,6 +113,8 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
+    $this->drupal();
+
     $this->helperAssertModuleEnabled('menu_link_content');
 
     $menu = $this->menuLoadByLabel($menu_name);

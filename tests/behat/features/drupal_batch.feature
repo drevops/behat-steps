@@ -8,4 +8,4 @@ Feature: Check that BatchTrait works
     Given the user is anonymous
     When I visit "/"
     And I wait for the batch job to finish
-    Then the response status code should be 200
+    Then I should see "Log in"
