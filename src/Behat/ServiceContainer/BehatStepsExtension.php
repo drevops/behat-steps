@@ -91,7 +91,7 @@ class BehatStepsExtension implements ExtensionInterface {
             . '  Content: "#main .region-content"' . PHP_EOL
             . '  Right sidebar: "#sidebar-second"' . PHP_EOL)
           ->useAttributeAsKey('key')
-          ->prototype('variable')->end()
+          ->prototype('scalar')->end()
         ->end()
         ->arrayNode('text')
           ->info(

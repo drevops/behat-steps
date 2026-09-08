@@ -81,7 +81,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
     }
     $login_element->click();
 
-    $login_wait = $this->getParameter('login_wait');
+    $login_wait = (int) $this->getParameter('login_wait');
     if ($login_wait > 0) {
       // Wait for the redirect away from the login form.
       $timeout = microtime(TRUE) + $login_wait;
