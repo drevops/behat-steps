@@ -21,8 +21,12 @@
         "behat/behat": "^3.32.0",
         "behat/mink": ">=1.13.0",
         "drupal/core-utility": "^11",
+        "friends-of-behat/mink-extension": "^2.7.5",
+        "symfony/config": "^6.4.3 || ^7",
         "symfony/dependency-injection": "^6.4 || ^7",
-        "symfony/process": "^6.4 || ^7"
+        "symfony/event-dispatcher": "^6.4 || ^7",
+        "symfony/process": "^6.4 || ^7",
+        "symfony/yaml": "^6.4 || ^7"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^1.1.0",

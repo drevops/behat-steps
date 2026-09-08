@@ -108,20 +108,30 @@ Calling an instance method through `self::` or `static::` is not in this list - 
 
 ## Layers
 
-The package ships 2 layers, and the dependency only runs one way.
+The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/RawContext` is the base context a consuming `FeatureContext` extends, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator. `RawContext` registers no step definitions - it owns the scenario lifecycle only.
 - **`src/Steps`** is the step vocabulary - traits a consuming `FeatureContext` mixes in. `Generic/` holds the framework-agnostic ones, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
 A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in the step-free `HelperTrait` of its context.
 
-[scripts/lint-layers.php](scripts/lint-layers.php) holds that boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+[scripts/lint-layers.php](scripts/lint-layers.php) holds the lower boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+
+## Behat 4 readiness
+
+`src/Behat` plugs into 4 Behat extension points, and each one is written to satisfy Behat 3.32 and Behat 4 at the same time. Keep it that way when touching them.
+
+- **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.32 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.32 interface is not narrowed.
+- **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
+- **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
+- **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
 
 ## Dependency policy
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
 
-- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the driver layer needs at runtime. The driver ships in `src/`, so every consumer loads it: `drupal/core-utility`, `symfony/dependency-injection`, `symfony/process`.
+- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the driver and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `drupal/core-utility`, `symfony/process` for the driver, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `RawContext`'s Mink ancestor.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).

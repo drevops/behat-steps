@@ -1,0 +1,27 @@
+parameters:
+  behat_steps.driver.drupal.class: DrevOps\BehatSteps\Driver\DrupalDriver
+
+  # Random generator.
+  behat_steps.random.class: Drupal\Component\Utility\Random
+
+  # Core controller.
+  behat_steps.driver.core.class: DrevOps\BehatSteps\Driver\Core\Core
+
+services:
+  behat_steps.driver.random:
+    class: "%behat_steps.random.class%"
+  behat_steps.driver.drupal:
+    class: "%behat_steps.driver.drupal.class%"
+    arguments:
+      - "%behat_steps.driver.drupal.drupal_root%"
+      - "%mink.base_url%"
+    tags:
+      - { name: behat_steps.driver, alias: drupal }
+  behat_steps.driver.core:
+    class: "%behat_steps.driver.core.class%"
+    tags:
+      - { name: behat_steps.core }
+    arguments:
+      - "%behat_steps.driver.drupal.drupal_root%"
+      - "%mink.base_url%"
+      - "@behat_steps.driver.random"
