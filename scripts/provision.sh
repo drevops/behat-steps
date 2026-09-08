@@ -61,6 +61,14 @@ foreach ($package["autoload-dev"]["psr-4"] as $namespace => $namespace_path) {
   $package_filtered["autoload-dev"]["psr-4"][$namespace] = "../" . $namespace_path;
 }
 
+// Drupal maps its own test namespaces from its PHPUnit bootstrap rather than
+// from a Composer entry, so a tool that loads only the autoloader cannot
+// resolve a class such as "KernelTestBase". Registering them here makes the
+// site autoloader complete on its own.
+foreach (["BuildTests", "FunctionalJavascriptTests", "FunctionalTests", "KernelTests", "TestSite", "Tests", "TestTools"] as $test_namespace) {
+  $package_filtered["autoload-dev"]["psr-4"]["Drupal\\" . $test_namespace . "\\"] = "web/core/tests/Drupal/" . $test_namespace . "/";
+}
+
 echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 

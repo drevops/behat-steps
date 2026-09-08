@@ -86,19 +86,20 @@ return RectorConfig::configure()
   ->withRules([
     DeclareStrictTypesRector::class,
   ])
-  // The fixture site owns the Drupal classes the analysed code references.
+  // The fixture site owns the Drupal classes the analysed code references, so
+  // its autoloader has to be loaded rather than only scanned: resolving a
+  // parent class such as 'KernelTestBase' needs the class, not its file.
   ->withBootstrapFiles([
-    __DIR__ . '/scripts/drupal-autoload.php',
+    '/app/build/web/autoload.php',
   ])
-  // Configure Drupal autoloading.
-  ->withAutoloadPaths((function (): array {
-    return [
-      '/app/build/web/core',
-      '/app/build/web/modules',
-      '/app/build/web/themes',
-      '/app/build/web/profiles',
-    ];
-  })())
+  // Contrib classes are registered by Drupal at runtime rather than by
+  // Composer, so the extension directories are scanned as well.
+  ->withAutoloadPaths([
+    '/app/build/web/core',
+    '/app/build/web/modules',
+    '/app/build/web/themes',
+    '/app/build/web/profiles',
+  ])
   // Drupal file extensions.
   ->withFileExtensions([
     'php',
