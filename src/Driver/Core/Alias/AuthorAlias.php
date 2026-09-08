@@ -1,0 +1,104 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Driver\Core\Alias;
+
+use DrevOps\BehatSteps\Driver\Alias\PreCreateAliasInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Driver\Exception\CreationAliasResolutionException;
+
+/**
+ * Resolves a username on a node stub into the corresponding 'uid' value.
+ *
+ * Reads the value at 'author', looks up the user by name, and writes the
+ * user's id to 'uid'. The 'author' key is removed from the stub once
+ * resolved. Throws when the username does not match any existing user.
+ */
+class AuthorAlias implements PreCreateAliasInterface {
+
+  /**
+   * Lookup callable for resolving a username to a user object.
+   *
+   * Receives a username and returns the user object (with an 'id()'
+   * method) when found, or NULL when not.
+   *
+   * @var \Closure(string): ?object
+   */
+  protected \Closure $userLookup;
+
+  /**
+   * Constructs the alias.
+   *
+   * @param \Closure(string): ?object|null $user_lookup
+   *   Lookup callable. NULL loads the user by name via the entity storage.
+   */
+  public function __construct(?\Closure $user_lookup = NULL) {
+    $this->userLookup = $user_lookup ?? static function (string $name): ?object {
+      $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $name]);
+      $user = reset($users);
+
+      return $user ?: NULL;
+    };
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getName(): string {
+    return 'author';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityType(): string {
+    return 'node';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescription(): string {
+    return "Resolves a username supplied via 'author' to the owning user's 'uid'. Throws when the user does not exist.";
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyToStub(EntityStubInterface $stub): void {
+    $author = $stub->getValue('author');
+
+    if ($author !== NULL && !is_scalar($author) && !$author instanceof \Stringable) {
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the 'author' creation alias is %s, which cannot be read as a username.", get_debug_type($author)));
+    }
+
+    $name = (string) $author;
+
+    if ($name === '') {
+      throw new CreationAliasResolutionException("Cannot create node because the 'author' creation alias is set but empty.");
+    }
+
+    $user = ($this->userLookup)($name);
+
+    if ($user === NULL) {
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because user '%s', referenced via the 'author' creation alias, does not exist.", $name));
+    }
+
+    if (!method_exists($user, 'id')) {
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the 'author' lookup returned an object without an 'id()' method while resolving '%s'.", $name));
+    }
+
+    $resolved_uid = $user->id();
+
+    if (!is_numeric($resolved_uid) || (int) $resolved_uid <= 0) {
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the user resolved from 'author' = '%s' has an invalid id.", $name));
+    }
+
+    // Cast to int so the downstream entity-reference handler treats the
+    // value as a pre-resolved id and skips its own validation query.
+    $stub->setValue('uid', (int) $resolved_uid);
+    $stub->removeValue('author');
+  }
+
+}

@@ -38,9 +38,11 @@ $package_filtered["require-dev"] = $package["require"];
 // each suggested package back in to run the full Behat suite.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_intersect_key($package["require-dev"], $package["suggest"]));
 
-// Deps required to run Behat tests.
+// Deps required to run the Behat and PHPUnit suites, which both execute from
+// the build so that Drupal classes resolve.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_filter($package["require-dev"], function ($ver, $name) {
   return in_array($name, [
+    "alexskrypnyk/phpunit-helpers",
     "drevops/behat-phpserver",
     "drevops/behat-screenshot",
     "dvdoug/behat-code-coverage",
@@ -49,7 +51,23 @@ $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"],
 unset($package_filtered["require-dev"]["php"]);
 
 $package_filtered["autoload"] = $package["autoload"];
+
+// The build sits one level below the package root, so every package-relative
+// autoload path gains a "../" prefix. The driver test suites run from the build
+// and resolve the package, its tests and their fixtures through these entries.
 $package_filtered["autoload-dev"]["psr-4"]["DrevOps\\BehatSteps\\"] = "../src/";
+
+foreach ($package["autoload-dev"]["psr-4"] as $namespace => $namespace_path) {
+  $package_filtered["autoload-dev"]["psr-4"][$namespace] = "../" . $namespace_path;
+}
+
+// Drupal maps its own test namespaces from its PHPUnit bootstrap rather than
+// from a Composer entry, so a tool that loads only the autoloader cannot
+// resolve a class such as "KernelTestBase". Registering them here makes the
+// site autoloader complete on its own.
+foreach (["BuildTests", "FunctionalJavascriptTests", "FunctionalTests", "KernelTests", "TestSite", "Tests", "TestTools"] as $test_namespace) {
+  $package_filtered["autoload-dev"]["psr-4"]["Drupal\\" . $test_namespace . "\\"] = "web/core/tests/Drupal/" . $test_namespace . "/";
+}
 
 echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"

@@ -1,0 +1,82 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
+
+use DrevOps\BehatSteps\Driver\Core\Field\ListStringHandler;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\entity_test\Entity\EntityTest;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
+/**
+ * Kernel round-trip test for list_string fields via the Core driver.
+ *
+ * The list_string field is single-property but its handler translates labels
+ * to the machine keys declared in the field's allowed_values storage
+ * setting. This test exercises that translation end-to-end: the driver
+ * receives a label, the handler swaps it for the key, storage accepts the
+ * key, and the round-trip returns the key unchanged.
+ *
+ * @group fields
+ */
+#[CoversClass(ListStringHandler::class)]
+#[Group('fields')]
+class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
+
+  /**
+   * {@inheritdoc}
+   *
+   * @var array<string>
+   */
+  protected static $modules = [
+    ...self::BASE_MODULES,
+    'options',
+  ];
+
+  /**
+   * Tests that a label is translated to its allowed_values key on round-trip.
+   */
+  public function testLabelToKeyRoundTrip(): void {
+    $this->attachField('field_status', 'list_string', [
+      'allowed_values' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+      ],
+    ]);
+
+    // Pass the label; the handler replaces it with 'active' (the key).
+    // After the driver mutates the stub, the assertion sees the key and
+    // compares it against what storage returned.
+    $this->assertFieldRoundTripViaDriver('field_status', ['Active']);
+
+    // Pin the translation explicitly so a regression where the handler stops
+    // converting labels to keys is caught even though the mutated-stub
+    // round-trip would otherwise pass.
+    $stub = new EntityStub('entity_test', 'entity_test', [
+      'name' => 'pinned',
+      'field_status' => ['Active'],
+    ]);
+    $this->core->entityCreate($stub);
+    $reloaded = EntityTest::load($stub->getValue('id'));
+    $this->assertSame('active', $reloaded->get('field_status')->value);
+  }
+
+  /**
+   * Tests that a value already equal to an allowed key round-trips as-is.
+   */
+  public function testKeyPassesThroughRoundTrip(): void {
+    $this->attachField('field_status', 'list_string', [
+      'allowed_values' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+      ],
+    ]);
+
+    // 'inactive' is not a label, so the handler leaves it untouched and the
+    // key reaches storage directly.
+    $this->assertFieldRoundTripViaDriver('field_status', ['inactive']);
+  }
+
+}

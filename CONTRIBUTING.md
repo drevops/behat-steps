@@ -106,11 +106,20 @@ Four style questions have no dominant form in this codebase. Both sides of each 
 
 Calling an instance method through `self::` or `static::` is not in this list - that was unambiguous and has been converged to `$this->`.
 
+## Layers
+
+The package ships 2 layers, and the dependency only runs one way.
+
+- **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
+- **Everything else under `src/`** is the step vocabulary - traits a consuming `FeatureContext` mixes in.
+
+[scripts/lint-layers.php](scripts/lint-layers.php) holds that boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+
 ## Dependency policy
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
 
-- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink`.
+- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the driver layer needs at runtime. The driver ships in `src/`, so every consumer loads it: `drupal/core-utility`, `symfony/dependency-injection`, `symfony/process`.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
@@ -130,19 +139,28 @@ Use `ahoy --help` to see the list of available commands.
 
 ## Running tests
 
-There are two types of tests in this repository: unit tests and Behat tests.
+There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests.
 
-### Unit tests
+### Unit and kernel tests
 
-Unit tests are run using PHPUnit installed in the root of the repository and
-are independent of the Drupal version. This allows us to use the latest
-features of PHPUnit.
+Both suites are declared in [phpunit.xml](phpunit.xml) and run against the
+fixture site, because the driver layer and the tests around it resolve Drupal
+classes from there. Run `ahoy build` first.
+
+Tests live under `tests/phpunit/src/` in a directory named after their suite:
+`Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
 
 ```bash
-ahoy test-unit          # Run all unit tests
+ahoy test-unit      # Run the unit suite
 
-ahoy test-unit-coverage # Run tests with code coverage
+ahoy test-kernel    # Run the kernel suite
+
+ahoy test-coverage  # Run both suites and write one coverage report
 ```
+
+Coverage is collected across both suites in a single run, so the report covers
+everything the tests reach. Its output paths are declared in
+[phpunit.xml](phpunit.xml).
 
 ### Behat tests
 
