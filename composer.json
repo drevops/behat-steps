@@ -25,7 +25,7 @@
         "symfony/process": "^6.4 || ^7"
     },
     "require-dev": {
-        "alexskrypnyk/phpunit-helpers": "^1.0.0",
+        "alexskrypnyk/phpunit-helpers": "^1.1.0",
         "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",

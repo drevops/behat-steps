@@ -38,9 +38,11 @@ $package_filtered["require-dev"] = $package["require"];
 // each suggested package back in to run the full Behat suite.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_intersect_key($package["require-dev"], $package["suggest"]));
 
-// Deps required to run Behat tests.
+// Deps required to run the Behat and PHPUnit suites, which both execute from
+// the build so that Drupal classes resolve.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_filter($package["require-dev"], function ($ver, $name) {
   return in_array($name, [
+    "alexskrypnyk/phpunit-helpers",
     "drevops/behat-phpserver",
     "drevops/behat-screenshot",
     "dvdoug/behat-code-coverage",

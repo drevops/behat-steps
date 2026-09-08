@@ -139,30 +139,25 @@ Use `ahoy --help` to see the list of available commands.
 
 ## Running tests
 
-There are 3 types of tests in this repository: unit tests, driver tests and Behat tests.
+There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests.
 
-### Unit tests
+### Unit and kernel tests
 
-Unit tests are run using PHPUnit installed in the root of the repository and
-are independent of the Drupal version. This allows us to use the latest
-features of PHPUnit.
+Both suites are declared in [phpunit.xml](phpunit.xml) and run against the
+fixture site, because the driver layer and the tests around it resolve Drupal
+classes from there. Run `ahoy build` first.
 
-```bash
-ahoy test-unit          # Run all unit tests
-
-ahoy test-unit-coverage # Run tests with code coverage
-```
-
-### Driver tests
-
-The driver talks to Drupal directly, so its unit and kernel suites run against the fixture site rather than the repository root, using the build's own PHPUnit through [phpunit-driver.xml](phpunit-driver.xml). Run `ahoy build` first.
+Tests live under `tests/phpunit/src/` in a directory named after their suite:
+`Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
 
 ```bash
-ahoy test-unit-driver          # Run the driver unit and kernel suites
+ahoy test-unit            # Run the unit suite
 
-ahoy test-unit-driver-coverage # Run them with code coverage
+ahoy test-unit-coverage   # Run it with code coverage
 
-ahoy test-unit-driver -- --testsuite=unit # Run one of the two suites
+ahoy test-kernel          # Run the kernel suite
+
+ahoy test-kernel-coverage # Run it with code coverage
 ```
 
 ### Behat tests

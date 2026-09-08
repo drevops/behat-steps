@@ -136,19 +136,19 @@ commands:
 
   test-unit:
     usage: Run Unit tests.
-    cmd: ahoy cli "./vendor/bin/phpunit -c phpunit.xml --no-coverage $@"
+    cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit.xml --testsuite unit --no-coverage $@"
 
   test-unit-coverage:
     usage: Run Unit tests with coverage.
-    cmd: ahoy cli "php -d pcov.directory=. ./vendor/bin/phpunit -c phpunit.xml $@"
+    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/phpunit -c /app/phpunit.xml --testsuite unit --coverage-cobertura /app/.logs/coverage/unit/cobertura.xml --coverage-html /app/.logs/coverage/unit/.coverage-html $@"
 
-  test-unit-driver:
-    usage: Run driver Unit and Kernel tests.
-    cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit-driver.xml --no-coverage $@"
+  test-kernel:
+    usage: Run Kernel tests.
+    cmd: ahoy cli "cd /app/build && vendor/bin/phpunit -c /app/phpunit.xml --testsuite kernel --no-coverage $@"
 
-  test-unit-driver-coverage:
-    usage: Run driver Unit and Kernel tests with coverage.
-    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src/Driver vendor/bin/phpunit -c /app/phpunit-driver.xml $@"
+  test-kernel-coverage:
+    usage: Run Kernel tests with coverage.
+    cmd: ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/phpunit -c /app/phpunit.xml --testsuite kernel --coverage-cobertura /app/.logs/coverage/kernel/cobertura.xml --coverage-html /app/.logs/coverage/kernel/.coverage-html $@"
 
   test-bdd:
     usage: Run BDD tests.

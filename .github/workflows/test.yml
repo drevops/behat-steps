@@ -167,14 +167,14 @@ jobs:
         run: ahoy test-unit
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
-      - name: Run driver tests with coverage
+      - name: Run Kernel tests with coverage
         if: "matrix.driver != 'chrome_headless' && matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'"
-        run: ahoy test-unit-driver-coverage
+        run: ahoy test-kernel-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
-      - name: Run driver tests
+      - name: Run Kernel tests
         if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
-        run: ahoy test-unit-driver
+        run: ahoy test-kernel
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests with coverage

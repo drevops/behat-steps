@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+<!--
+  The suites run against the provisioned fixture site in build/ and are
+  bootstrapped by Drupal's own test bootstrap: the driver layer and the traits
+  that exercise it resolve Drupal classes from there, and the kernel suite
+  needs a bootable Drupal. Run them with `ahoy test-unit` and `ahoy test-kernel`.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="build/web/core/tests/bootstrap.php"
          cacheDirectory=".phpunit.cache"
+         colors="true"
          executionOrder="depends,defects"
          requireCoverageMetadata="true"
          beStrictAboutCoverageMetadata="false"
@@ -13,11 +20,20 @@
          displayDetailsOnTestsThatTriggerNotices="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnPhpunitDeprecations="true">
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <env name="SIMPLETEST_BASE_URL" value="http://nginx"/>
+        <env name="SIMPLETEST_DB" value="sqlite://localhost/:memory:"/>
+        <env name="BROWSERTEST_OUTPUT_DIRECTORY" value=".logs/browser_output"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
     <testsuites>
-        <testsuite name="default">
+        <testsuite name="unit">
             <directory>tests/phpunit/src/</directory>
-            <!-- The driver suites need a bootstrapped Drupal; see phpunit-driver.xml. -->
-            <exclude>tests/phpunit/src/Driver</exclude>
+            <exclude>tests/phpunit/src/Kernel</exclude>
+        </testsuite>
+        <testsuite name="kernel">
+            <directory>tests/phpunit/src/Kernel</directory>
         </testsuite>
     </testsuites>
     <source restrictNotices="true"
@@ -29,18 +45,12 @@
             <file>scripts/lint-layers.php</file>
         </include>
         <exclude>
-            <directory>src/Driver</directory>
             <directory>tests/phpunit/src</directory>
         </exclude>
     </source>
     <coverage pathCoverage="false"
               ignoreDeprecatedCodeUnits="true"
-              disableCodeCoverageIgnore="false">
-        <report>
-            <html outputDirectory=".logs/coverage/phpunit/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
-            <cobertura outputFile=".logs/coverage/phpunit/cobertura.xml"/>
-        </report>
-    </coverage>
+              disableCodeCoverageIgnore="false"/>
     <logging>
         <junit outputFile=".logs/phpunit/junit.xml"/>
     </logging>
