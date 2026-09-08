@@ -98,10 +98,12 @@ trait BehatCliTrait {
       // A tag names the trait's context and short name, as in
       // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
       $qualified = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
-      $trait_parts = explode('\\', (string) $qualified);
+      // Two contexts can hold the same short name, so each import carries a
+      // context-qualified alias and one tag can name both.
+      $alias = str_replace('\\', '_', (string) $qualified);
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\Steps\\%s;' . PHP_EOL, $qualified);
-      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, end($trait_parts));
+      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\Steps\\%s as %s;' . PHP_EOL, $qualified, $alias);
+      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 
     if ($bootstrap_workaround) {
