@@ -86,10 +86,9 @@ class AuthenticationManagerTest extends TestCase {
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->with('Log in')->willReturn($submit);
     $page->method('has')->willReturn(TRUE);
-    $page->expects($this->exactly(2))->method('fillField')->willReturnCallback(function (string $field, string $value) use ($expected_value): void {
-      if ($field === 'Username') {
-        $this->assertSame($expected_value, $value);
-      }
+    $filled = [];
+    $page->expects($this->exactly(2))->method('fillField')->willReturnCallback(function (string $field, string $value) use (&$filled): void {
+      $filled[$field] = $value;
     });
 
     $session = $this->createSessionMock($page);
@@ -104,6 +103,8 @@ class AuthenticationManagerTest extends TestCase {
     $manager = $this->createManager($session, NULL, NULL, $params);
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'mail' => 'admin@example.com', 'pass' => 'password']);
     $manager->logIn($user);
+
+    $this->assertSame($expected_value, $filled['Username'] ?? NULL);
   }
 
   public static function dataProviderLogInFieldValue(): \Iterator {

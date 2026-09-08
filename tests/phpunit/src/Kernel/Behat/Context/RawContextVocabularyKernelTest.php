@@ -80,7 +80,11 @@ class RawContextVocabularyKernelTest extends KernelTestBase {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
     $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, ContentCapabilityInterface::class]);
-    $driver->method('termCreate')->willReturn($stub);
+    $driver->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+      $this->assertSame('tags', $received->getValue('vocabulary_machine_name'));
+
+      return $stub;
+    });
 
     $environment = $this->createMock(Environment::class);
 
