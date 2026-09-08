@@ -103,7 +103,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
       $missing,
       sprintf(
         "Field types with no handler and no SKIP entry: %s.\n"
-        . 'Add a dedicated handler under src/Drupal/Driver/Core/Field/ (named <Type>Handler.php), '
+        . 'Add a dedicated handler under src/Driver/Core/Field/ (named <Type>Handler.php), '
         . 'or add a SKIP entry with a documented reason.',
         implode(', ', $missing),
       ),

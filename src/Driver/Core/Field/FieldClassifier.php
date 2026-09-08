@@ -11,7 +11,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 /**
  * Default Drupal 11 field classifier.
  *
- * See 'src/Drupal/Driver/Core/Field/README.md' for the full truth table.
+ * See 'src/Driver/Core/Field/README.md' for the full truth table.
  */
 class FieldClassifier implements FieldClassifierInterface {
 

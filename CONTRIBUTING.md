@@ -111,7 +111,9 @@ Calling an instance method through `self::` or `static::` is not in this list - 
 The package ships 2 layers, and the dependency only runs one way.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **Everything else under `src/`** is the step vocabulary - traits a consuming `FeatureContext` mixes in.
+- **`src/Steps`** is the step vocabulary - traits a consuming `FeatureContext` mixes in. `Generic/` holds the framework-agnostic ones, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
+
+A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in the step-free `HelperTrait` of its context.
 
 [scripts/lint-layers.php](scripts/lint-layers.php) holds that boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 

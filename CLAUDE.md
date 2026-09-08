@@ -7,6 +7,12 @@ This repository contains Behat step definitions for PHP projects (with specializ
 
 Source files are located in the `src` directory. Each trait is organized into a separate file, and the steps are defined within those files.
 
+The step vocabulary lives under `src/Steps/`, split into `Generic/` (`DrevOps\BehatSteps\Steps\Generic`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The driver layer under `src/Driver/` is library code, not vocabulary.
+
+Step traits never `use` other step traits. Shared logic belongs in the step-free `HelperTrait` pair - `Steps\Generic\HelperTrait` for framework-agnostic helpers, `Steps\Drupal\HelperTrait` for Drupal ones.
+
+Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` for the Mink session, `Drupal\DrupalExtension\Context\RawDrupalContext` for the Drupal driver, `Drupal\DrupalExtension\Context\DrupalContext` for its entity-creation steps. A trait that calls nothing outside itself carries none.
+
 
 ## Installation & Requirements for cosnuming this library
 ```bash
@@ -117,7 +123,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
-A trait without a Mink session is one that never calls `$this->getSession()` - `CommandTrait`, `Drupal\ConfigTrait`, `Drupal\ModuleTrait`, `Drupal\StateTrait` and `Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
+A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Generic\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
 In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 

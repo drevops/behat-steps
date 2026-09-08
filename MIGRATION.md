@@ -241,7 +241,7 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 
 | Package | Add it to your `require-dev` when you use |
 | --- | --- |
-| `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Drupal\*`) |
+| `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Steps\Drupal\*`) |
 | `softcreatr/jsonpath` | `JsonTrait` JSON path steps (`the JSON path ... should ...`) |
 
 `@javascript` scenarios need a JavaScript-capable Mink driver. The steps are driver agnostic, so install **one** of these interchangeable drivers - both run the full `@javascript` suite and both are exercised by this library's CI:
@@ -275,6 +275,41 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 To skip cleanup of every registered entity at once, use `@behat-steps-skip:helperEntityCleanupAfterScenario`.
 
 `FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
+
+## Trait namespaces re-rooted under `Steps`
+
+The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Generic\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:
+
+```php
+// Before.
+use DrevOps\BehatSteps\CookieTrait;
+use DrevOps\BehatSteps\Drupal\ContentTrait;
+
+// After.
+use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
+```
+
+`DrevOps\BehatSteps\Exception\AssertionException` did not move.
+
+## Traits declare the context class they need
+
+Every trait that reaches beyond its own methods now carries a `@phpstan-require-extends` annotation naming the base class it needs: `Behat\MinkExtension\Context\RawMinkContext` for traits that only use the Mink session, `Drupal\DrupalExtension\Context\RawDrupalContext` for traits that use the Drupal driver, and `Drupal\DrupalExtension\Context\DrupalContext` for the four traits that call its entity-creation steps. Traits that call nothing outside themselves carry no annotation.
+
+Composition is unchanged at run time, but a project running PHPStan now gets an error when a context uses a trait without extending the class that trait needs. The fix is to extend the named class, which is what the trait already assumed.
+
+## Step traits no longer compose other step traits
+
+Shared logic lives in the step-free `HelperTrait` pair, so that composing one trait cannot pull in another trait's steps.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Steps\Drupal\HelperTrait::helperLoadNodeIds()` |
+| `Steps\Generic\RestTrait` | `$restHeaders` | `Steps\Generic\HelperTrait::$helperRequestHeaders`, read and written through `helperSetRequestHeader()`, `helperUnsetRequestHeader()`, `helperGetRequestHeaders()` and `helperResetRequestHeaders()` |
+
+`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Steps\Drupal\HelperTrait` and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
+
+`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the shared header bag instead, so the signal reaches `RestTrait` whether or not the context composes it.
 
 ## Trait methods prefixed with their trait name
 
@@ -395,7 +430,7 @@ PHP treats two composed traits declaring the same constant name as a fatal error
 `FieldTrait` composed `KeyboardTrait` without calling it, so a context composing only `FieldTrait` silently received every keyboard step. That composition is gone. If your context relies on those steps, compose the trait directly:
 
 ```php
-use DrevOps\BehatSteps\KeyboardTrait;
+use DrevOps\BehatSteps\Steps\Generic\KeyboardTrait;
 
 class FeatureContext extends DrupalContext {
 

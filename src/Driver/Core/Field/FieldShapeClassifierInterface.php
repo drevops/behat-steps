@@ -19,7 +19,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  * neither an entity reference nor complex - it is a plain scalar the default
  * relays, and value translation for it belongs in a dedicated handler.
  *
- * See 'src/Drupal/Driver/Core/Field/README.md' for the value-shape axis and how
+ * See 'src/Driver/Core/Field/README.md' for the value-shape axis and how
  * 'Core' consumes it during handler selection.
  */
 interface FieldShapeClassifierInterface {

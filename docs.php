@@ -321,6 +321,14 @@ function parse_class_comment(string $trait_name, string $comment): array {
     return trim($l);
   }, $lines);
 
+  // Static-analysis annotations state the trait's contract for tooling, not
+  // for the reader of the generated documentation.
+  $lines = array_values(array_filter($lines, static fn(string $l): bool => !str_starts_with($l, '@phpstan-')));
+
+  while ($lines !== [] && end($lines) === '') {
+    array_pop($lines);
+  }
+
   // @codeCoverageIgnoreStart
   if (empty($lines)) {
     throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));

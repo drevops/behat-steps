@@ -1007,7 +1007,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $types = [];
 
     foreach ($fields as $field_name => $field) {
-      // See src/Drupal/Driver/Core/Field/README.md. Only F1, F5, F9 enter the
+      // See src/Driver/Core/Field/README.md. Only F1, F5, F9 enter the
       // expansion pipeline; the OR below names those rows explicitly.
       // F5 is additionally scoped to the bundle when known - otherwise a
       // configurable field storage attached only to other bundles would slip

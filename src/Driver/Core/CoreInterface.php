@@ -126,7 +126,7 @@ interface CoreInterface extends
    *
    * Returns the map of every F1, F5, and F9 field that should be routed
    * through the handler pipeline for this entity type. See
-   * 'src/Drupal/Driver/Core/Field/README.md' for the classification rules.
+   * 'src/Driver/Core/Field/README.md' for the classification rules.
    *
    * @param string $entity_type
    *   The entity type ID.
@@ -143,7 +143,7 @@ interface CoreInterface extends
    * Returns the field classifier, lazily instantiating on first access.
    *
    * Consumers call into the field classifier to ask which F-row a field belongs
-   * to (F1, F2, ..., F9). See 'src/Drupal/Driver/Core/Field/README.md'.
+   * to (F1, F2, ..., F9). See 'src/Driver/Core/Field/README.md'.
    *
    * @return \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface
    *   The field classifier instance.
@@ -155,7 +155,7 @@ interface CoreInterface extends
    *
    * Consumers call into the field shape classifier to ask a field's stored
    * value shape - whether it is an entity reference or a complex/nested value -
-   * during handler selection. See 'src/Drupal/Driver/Core/Field/README.md'.
+   * during handler selection. See 'src/Driver/Core/Field/README.md'.
    *
    * @return \DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface
    *   The field shape classifier instance.
