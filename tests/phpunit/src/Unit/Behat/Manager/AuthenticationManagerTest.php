@@ -1,0 +1,802 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
+
+use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
+use Behat\Mink\Element\DocumentElement;
+use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\DriverException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
+use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticationManager;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserManager;
+use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Tests the login, logout and basic-auth flows against a stubbed session.
+ */
+#[CoversClass(AuthenticationManager::class)]
+class AuthenticationManagerTest extends TestCase {
+
+  protected const EXTENSION_PARAMS = [
+    'text' => [
+      'log_in' => 'Log in',
+      'log_out' => 'Log out',
+      'login_url' => '/user/login',
+      'logout_url' => '/user/logout',
+      'logout_confirm_url' => '/user/logout/confirm',
+      'username_field' => 'Username',
+      'password_field' => 'Password',
+    ],
+    'selectors' => [
+      'logged_in_selector' => 'body.logged-in',
+      'login_form_selector' => 'form#user-login',
+    ],
+  ];
+
+  protected const MINK_PARAMS = [
+    'base_url' => 'http://localhost',
+  ];
+
+  public function testImplementsInterfaces(): void {
+    $manager = $this->createManager();
+    $this->assertInstanceOf(AuthenticationManagerInterface::class, $manager);
+    $this->assertInstanceOf(FastLogoutInterface::class, $manager);
+  }
+
+  public function testLogInSuccess(): void {
+    $submit = $this->createMock(NodeElement::class);
+    $submit->expects($this->once())->method('click');
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $user_manager = new UserManager();
+    $driver_manager = $this->createDriverManagerMock();
+    $manager = $this->createManager($session, $user_manager, $driver_manager);
+
+    $user = new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']);
+    $manager->logIn($user);
+    $this->assertSame($user, $user_manager->getCurrentUser());
+  }
+
+  #[DataProvider('dataProviderLogInFieldValue')]
+  public function testLogInFieldValue(?string $login_field, string $expected_value): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+    $page->expects($this->exactly(2))->method('fillField')->willReturnCallback(function (string $field, string $value) use ($expected_value): void {
+      if ($field === 'Username') {
+        $this->assertSame($expected_value, $value);
+      }
+    });
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $params = self::EXTENSION_PARAMS;
+    if ($login_field !== NULL) {
+      $params['login_field'] = $login_field;
+    }
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $user = new EntityStub('user', NULL, ['name' => 'admin', 'mail' => 'admin@example.com', 'pass' => 'password']);
+    $manager->logIn($user);
+  }
+
+  public static function dataProviderLogInFieldValue(): \Iterator {
+    yield 'defaults to name when not configured' => [NULL, 'admin'];
+    yield 'explicit name uses name' => ['name', 'admin'];
+    yield 'mail uses mail' => ['mail', 'admin@example.com'];
+  }
+
+  public function testLogInThrowsWhenNoSubmitButton(): void {
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->willReturn(NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
+
+    $manager = $this->createManager($session);
+
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('Submit button matching css "login form" not found.');
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+  }
+
+  #[DataProvider('dataProviderLogInThrowsWhenNotLoggedIn')]
+  public function testLogInThrowsWhenNotLoggedIn(EntityStubInterface $user, string $expected_message): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->willReturn($submit);
+    $page->method('has')->willReturn(FALSE);
+    $page->method('findLink')->willReturn(NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $manager = $this->createManager($session);
+
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage($expected_message);
+    $manager->logIn($user);
+  }
+
+  public static function dataProviderLogInThrowsWhenNotLoggedIn(): \Iterator {
+    yield 'user without role' => [
+      new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']),
+      "Unable to determine if logged in because 'Log out' ('log_out') link cannot be found for user 'admin'",
+    ];
+    yield 'user with role' => [
+      new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass', 'role' => 'administrator']),
+      "Unable to determine if logged in because 'Log out' ('log_out') link cannot be found for user 'admin' with role 'administrator'",
+    ];
+  }
+
+  public function testLogInCallsBackendDriver(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $auth_driver = $this->createAuthDriverMock();
+    $auth_driver->expects($this->once())->method('login');
+
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($auth_driver);
+
+    $manager = $this->createManager($session, NULL, $driver_manager);
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+  }
+
+  public function testLogout(): void {
+    $page = $this->createMock(DocumentElement::class);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout');
+
+    $user_manager = new UserManager();
+    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+
+    $driver_manager = $this->createDriverManagerMock();
+    $manager = $this->createManager($session, $user_manager, $driver_manager);
+    $manager->logOut();
+    $this->assertFalse($user_manager->getCurrentUser());
+  }
+
+  public function testLogoutWithConfirmationPage(): void {
+    $submit = $this->createMock(NodeElement::class);
+    $submit->expects($this->once())->method('click');
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log out')->willReturn($submit);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout/confirm');
+
+    $user_manager = new UserManager();
+    $driver_manager = $this->createDriverManagerMock();
+    $manager = $this->createManager($session, $user_manager, $driver_manager);
+    $manager->logOut();
+    $this->assertFalse($user_manager->getCurrentUser());
+  }
+
+  public function testLogoutWithConfirmationPageThrowsWhenNoButton(): void {
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->willReturn(NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout/confirm');
+
+    $manager = $this->createManager($session);
+
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('Logout button matching css "logout confirmation page" not found.');
+    $manager->logOut();
+  }
+
+  public function testLogoutCallsBackendDriver(): void {
+    $page = $this->createMock(DocumentElement::class);
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout');
+
+    $auth_driver = $this->createAuthDriverMock();
+    $auth_driver->expects($this->once())->method('logout');
+
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($auth_driver);
+
+    $manager = $this->createManager($session, NULL, $driver_manager);
+    $manager->logOut();
+  }
+
+  #[DataProvider('dataProviderLoggedIn')]
+  public function testLoggedIn(bool $session_started, bool $has_logged_in_selector, bool $has_login_form, bool $has_logout_link, bool $expected): void {
+    $page = $this->createMock(DocumentElement::class);
+
+    $has_map = [];
+    if ($session_started) {
+      $has_map[] = ['css', 'body.logged-in', $has_logged_in_selector];
+      if (!$has_logged_in_selector) {
+        $has_map[] = ['css', 'form#user-login', $has_login_form];
+      }
+    }
+    $page->method('has')->willReturnMap($has_map);
+    $page->method('findLink')->willReturn($has_logout_link ? $this->createMock(NodeElement::class) : NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn($session_started);
+
+    $manager = $this->createManager($session);
+    $this->assertSame($expected, $manager->loggedIn());
+  }
+
+  public static function dataProviderLoggedIn(): \Iterator {
+    yield 'session not started' => [FALSE, FALSE, FALSE, FALSE, FALSE];
+    yield 'logged in selector found' => [TRUE, TRUE, FALSE, FALSE, TRUE];
+    yield 'login form found means not logged in' => [TRUE, FALSE, TRUE, FALSE, FALSE];
+    yield 'logout link found means logged in' => [TRUE, FALSE, FALSE, TRUE, TRUE];
+    yield 'nothing found means not logged in' => [TRUE, FALSE, FALSE, FALSE, FALSE];
+  }
+
+  public function testLoggedInReturnsFalseWhenPageNotAvailable(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(TRUE);
+    $session->method('getPage')->willReturn(NULL);
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $this->assertFalse($manager->loggedIn());
+  }
+
+  /**
+   * Tests that loggedIn() polls for the logout link when login_wait > 0.
+   *
+   * Simulates the Critical CSS / late JS race: the logged-in selector
+   * never appears, the login form is absent (we are logged in), and the
+   * logout link is initially missing but materialises a few polls later.
+   * With login_wait > 0, the third-resort check must keep polling.
+   */
+  public function testLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
+    $link = $this->createMock(NodeElement::class);
+
+    $call_count = 0;
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('has')->willReturn(FALSE);
+    $page->method('findLink')->willReturnCallback(function () use (&$call_count, $link): ?NodeElement {
+      $call_count++;
+      return $call_count >= 3 ? $link : NULL;
+    });
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 2;
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $this->assertTrue($manager->loggedIn());
+    $this->assertGreaterThanOrEqual(3, $call_count);
+  }
+
+  /**
+   * Tests that loggedIn() does not poll when login_wait is 0.
+   *
+   * Confirms the wait loop is skipped entirely when waiting is disabled,
+   * preserving the historical single-lookup behaviour for the third-
+   * resort check.
+   */
+  public function testLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
+    $call_count = 0;
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('has')->willReturn(FALSE);
+    $page->method('findLink')->willReturnCallback(function () use (&$call_count): ?NodeElement {
+      $call_count++;
+      return NULL;
+    });
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 0;
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $this->assertFalse($manager->loggedIn());
+    $this->assertSame(1, $call_count);
+  }
+
+  /**
+   * Tests that loggedIn() returns FALSE when the wait elapses.
+   *
+   * The logout link never appears, so the wait expires after login_wait
+   * seconds and the method falls through to the anonymous-state cleanup.
+   */
+  public function testLoggedInReturnsFalseWhenLogoutLinkWaitTimesOut(): void {
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('has')->willReturn(FALSE);
+    $page->method('findLink')->willReturn(NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 1;
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $start = microtime(TRUE);
+    $this->assertFalse($manager->loggedIn());
+    $elapsed = microtime(TRUE) - $start;
+    $this->assertGreaterThanOrEqual(1.0, $elapsed);
+  }
+
+  public function testLoggedInHandlesDriverException(): void {
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('has')->willReturnCallback(function ($selector, $locator): true {
+      if ($locator === 'body.logged-in') {
+            throw new DriverException('Not loaded');
+      }
+        return TRUE;
+    });
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $manager = $this->createManager($session);
+    // Should not throw — login form is found so returns false.
+    $this->assertFalse($manager->loggedIn());
+  }
+
+  public function testFastLogoutResetsSession(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(TRUE);
+    $session->expects($this->once())->method('reset');
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $user_manager = new UserManager();
+    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+
+    $driver_manager = $this->createDriverManagerMock();
+    $manager = new AuthenticationManager($mink, $user_manager, $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager->fastLogout();
+
+    $this->assertFalse($user_manager->getCurrentUser());
+  }
+
+  public function testFastLogoutSkipsResetWhenNotStarted(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(FALSE);
+    $session->expects($this->never())->method('reset');
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $driver_manager = $this->createDriverManagerMock();
+    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager->fastLogout();
+  }
+
+  public function testFastLogoutCallsBackendDriver(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(FALSE);
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $auth_driver = $this->createAuthDriverMock();
+    $auth_driver->expects($this->once())->method('logout');
+
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($auth_driver);
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager->fastLogout();
+  }
+
+  /**
+   * Tests that applyBasicAuth() applies credentials parsed from base_url.
+   *
+   * @param string $base_url
+   *   The configured Mink 'base_url'.
+   * @param array{0: string, 1: string}|null $expected
+   *   The [username, password] expected to be applied, or NULL when basic
+   *   auth should not be applied at all.
+   */
+  #[DataProvider('dataProviderApplyBasicAuth')]
+  public function testApplyBasicAuth(string $base_url, ?array $expected): void {
+    $session = $this->createMock(Session::class);
+
+    if ($expected === NULL) {
+      $session->expects($this->never())->method('setBasicAuth');
+    }
+    else {
+      $session->expects($this->once())->method('setBasicAuth')->with($expected[0], $expected[1]);
+    }
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => $base_url], self::EXTENSION_PARAMS);
+    $manager->applyBasicAuth();
+  }
+
+  public static function dataProviderApplyBasicAuth(): \Iterator {
+    yield 'base_url userinfo is used' => [
+      'http://bob:s3cret@localhost',
+      ['bob', 's3cret'],
+    ];
+    yield 'base_url user without password uses empty password' => [
+      'http://bob@localhost',
+      ['bob', ''],
+    ];
+    yield 'url-encoded userinfo is decoded' => [
+      'http://bob%40corp:p%40ss@localhost',
+      ['bob@corp', 'p@ss'],
+    ];
+    yield 'literal plus in userinfo is preserved' => [
+      'http://bob+corp:p+ss@localhost',
+      ['bob+corp', 'p+ss'],
+    ];
+    yield 'no credentials is a no-op' => [
+      'http://localhost',
+      NULL,
+    ];
+  }
+
+  public function testFastLogoutReappliesBasicAuth(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(TRUE);
+    $session->expects($this->once())->method('reset');
+    $session->expects($this->once())->method('setBasicAuth')->with('alice', 'secret');
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $manager->fastLogout();
+  }
+
+  /**
+   * Tests that fastLogout() skips basic auth when the session is not started.
+   *
+   * Nothing was reset, so there are no cleared headers to restore.
+   */
+  public function testFastLogoutSkipsBasicAuthWhenSessionNotStarted(): void {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(FALSE);
+    $session->expects($this->never())->method('setBasicAuth');
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $manager->fastLogout();
+  }
+
+  /**
+   * Tests that applyBasicAuth() swallows an unsupported-driver exception.
+   *
+   * JavaScript drivers cannot set basic auth headers and throw; the call must
+   * be a no-op for them rather than aborting the scenario.
+   */
+  public function testApplyBasicAuthIgnoresUnsupportedDriver(): void {
+    $session = $this->createMock(Session::class);
+    $session->expects($this->once())->method('setBasicAuth')->willThrowException(new UnsupportedDriverActionException('Basic auth setup is not supported by %s', $this->createMock(MinkDriverInterface::class)));
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $manager->applyBasicAuth();
+  }
+
+  public function testGetLogoutElement(): void {
+    $link = $this->createMock(NodeElement::class);
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findLink')->with('Log out')->willReturn($link);
+
+    $session = $this->createSessionMock($page);
+    $manager = $this->createManager($session);
+    $this->assertSame($link, $manager->getLogoutElement());
+  }
+
+  protected function createSessionMock(?DocumentElement $page = NULL): Session {
+    $session = $this->createMock(Session::class);
+    $session->method('getPage')->willReturn($page ?? $this->createMock(DocumentElement::class));
+    $session->method('getDriver')->willReturn($this->createMock(MinkDriverInterface::class));
+    return $session;
+  }
+
+  /**
+   * Creates a mock for the AuthenticationCapability and DriverInterface.
+   *
+   * @return \DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The mocked driver.
+   */
+  protected function createAuthDriverMock(): AuthenticationCapabilityInterface&DriverInterface&MockObject {
+    /** @var \DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject $driver */
+    $driver = $this->createMockForIntersectionOfInterfaces([
+      AuthenticationCapabilityInterface::class,
+      DriverInterface::class,
+    ]);
+    $driver->method('isBootstrapped')->willReturn(TRUE);
+    return $driver;
+  }
+
+  protected function createDriverManagerMock(): DriverManagerInterface {
+    $driver = $this->createMock(DriverInterface::class);
+    $driver->method('isBootstrapped')->willReturn(TRUE);
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($driver);
+    return $driver_manager;
+  }
+
+  public function testLogInSkipsWaitWhenLoginWaitIsZero(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // getCurrentUrl should never be called for wait purposes when disabled.
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 0;
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+  }
+
+  public function testLogInWaitsForLoggedInSelector(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $call_count = 0;
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    // Simulate: logged_in_selector not found on first call, found on second.
+    $page->method('has')->willReturnCallback(function (string $selector, string $locator) use (&$call_count): bool {
+      if ($locator === 'body.logged-in') {
+        $call_count++;
+        // First two calls return FALSE (during wait loop and loggedIn check),
+        // then return TRUE.
+        return $call_count > 2;
+      }
+      return FALSE;
+    });
+    $page->method('find')->willReturnCallback(function (string $selector, string $locator) use ($page): ?DocumentElement {
+      if ($locator === 'body') {
+        return $page;
+      }
+      return NULL;
+    });
+
+    $url_call_count = 0;
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // Simulate URL change after login (redirect).
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturnCallback(function () use (&$url_call_count): string {
+      $url_call_count++;
+      return $url_call_count <= 1 ? 'http://localhost/user/login' : 'http://localhost/user/1';
+    });
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 1;
+
+    $user_manager = new UserManager();
+    $manager = $this->createManager($session, $user_manager, NULL, $params);
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+
+    $this->assertNotFalse($user_manager->getCurrentUser());
+  }
+
+  /**
+   * Tests that logIn() polls until the page body renders.
+   *
+   * A driver can return a page whose body has not been written yet, so the
+   * wait loop keeps looking rather than moving on to the logged-in check.
+   */
+  public function testLogInWaitsForTheBodyToRender(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $find_count = 0;
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+    $page->method('find')->willReturnCallback(function (string $selector, string $locator) use (&$find_count, $page): ?DocumentElement {
+      if ($locator !== 'body') {
+        return NULL;
+      }
+
+      $find_count++;
+
+      return $find_count >= 3 ? $page : NULL;
+    });
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
+
+    $params = self::EXTENSION_PARAMS;
+    $params['login_wait'] = 2;
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+
+    $this->assertGreaterThanOrEqual(3, $find_count);
+  }
+
+  /**
+   * Tests that logIn() without login_wait throws when selector is delayed.
+   *
+   * Demonstrates the race condition: without login_wait, a delayed
+   * logged_in_selector causes login to fail even though login succeeded.
+   */
+  public function testLogInFailsWithoutLoginWaitWhenSelectorDelayed(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->willReturnCallback(fn(string $text): ?NodeElement => $text === 'Log in' ? $submit : NULL);
+    // logged_in_selector is never found (simulates slow JS).
+    $page->method('has')->willReturn(FALSE);
+    $page->method('findLink')->willReturn(NULL);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
+
+    // No login_wait configured — the race condition scenario.
+    $manager = $this->createManager($session);
+
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage("Unable to determine if logged in");
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+  }
+
+  public function testLogInVisitsConfiguredLoginUrl(): void {
+    $submit = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+    $page->method('has')->willReturn(TRUE);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/custom-login');
+
+    $params = self::EXTENSION_PARAMS;
+    $params['text']['login_url'] = '/custom-login';
+
+    $manager = $this->createManager($session, NULL, NULL, $params);
+    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+  }
+
+  public function testLogoutVisitsConfiguredLogoutUrl(): void {
+    $page = $this->createMock(DocumentElement::class);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/custom-logout');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/custom-logout');
+
+    $params = self::EXTENSION_PARAMS;
+    $params['text']['logout_url'] = '/custom-logout';
+
+    $user_manager = new UserManager();
+    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+
+    $manager = $this->createManager($session, $user_manager, NULL, $params);
+    $manager->logOut();
+    $this->assertFalse($user_manager->getCurrentUser());
+  }
+
+  public function testLogoutConfirmUsesConfiguredUrls(): void {
+    $submit = $this->createMock(NodeElement::class);
+    $submit->expects($this->once())->method('click');
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log out')->willReturn($submit);
+
+    $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/custom-logout');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/custom-logout/confirm');
+
+    $params = self::EXTENSION_PARAMS;
+    $params['text']['logout_url'] = '/custom-logout';
+    $params['text']['logout_confirm_url'] = '/custom-logout/confirm';
+
+    $user_manager = new UserManager();
+    $manager = $this->createManager($session, $user_manager, NULL, $params);
+    $manager->logOut();
+    $this->assertFalse($user_manager->getCurrentUser());
+  }
+
+  /**
+   * Creates a AuthenticationManager with optional overrides.
+   *
+   * @param \Behat\Mink\Session|null $session
+   *   Optional Mink session override.
+   * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface|null $user_manager
+   *   Optional user manager override.
+   * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface|null $driver_manager
+   *   Optional driver manager override.
+   * @param array<string, mixed>|null $parameters
+   *   Optional Drupal parameters override.
+   */
+  protected function createManager(?Session $session = NULL, ?UserManagerInterface $user_manager = NULL, ?DriverManagerInterface $driver_manager = NULL, ?array $parameters = NULL): AuthenticationManager {
+    $session ??= $this->createSessionMock();
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+
+    return new AuthenticationManager(
+          $mink,
+          $user_manager ?? new UserManager(),
+          $driver_manager ?? $this->createDriverManagerMock(),
+          self::MINK_PARAMS,
+          $parameters ?? self::EXTENSION_PARAMS
+      );
+  }
+
+}

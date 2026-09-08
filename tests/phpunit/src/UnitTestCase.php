@@ -9,7 +9,11 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioInterface;
+use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Environment\Environment;
+use Behat\Testwork\Environment\EnvironmentManager;
+use Behat\Testwork\Hook\HookDispatcher;
+use Behat\Testwork\Hook\HookRepository;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Testwork\Specification\SpecificationIterator;
@@ -35,6 +39,16 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    */
   protected static function isVocabularyPath(string $relative_path): bool {
     return str_starts_with($relative_path, 'Steps' . DIRECTORY_SEPARATOR);
+  }
+
+  /**
+   * Build a hook dispatcher that finds no hooks.
+   *
+   * The dispatcher and everything it composes are final, so a test that needs
+   * one builds the real chain over an empty environment manager.
+   */
+  protected function createHookDispatcher(): HookDispatcher {
+    return new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter());
   }
 
   /**

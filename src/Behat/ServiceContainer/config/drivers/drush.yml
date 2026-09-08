@@ -1,0 +1,18 @@
+parameters:
+  behat_steps.driver.drush.class: DrevOps\BehatSteps\Driver\DrushDriver
+
+  # Random generator.
+  behat_steps.random.class: Drupal\Component\Utility\Random
+
+services:
+  behat_steps.driver.random:
+    class: "%behat_steps.random.class%"
+  behat_steps.driver.drush:
+    class: "%behat_steps.driver.drush.class%"
+    arguments:
+      - "%behat_steps.driver.drush.alias%"
+      - "%behat_steps.driver.drush.root%"
+      - "%behat_steps.driver.drush.binary%"
+      - "@behat_steps.driver.random"
+    tags:
+      - { name: behat_steps.driver, alias: drush }

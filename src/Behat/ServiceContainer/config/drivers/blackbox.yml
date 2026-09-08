@@ -1,0 +1,8 @@
+parameters:
+  behat_steps.driver.blackbox.class: DrevOps\BehatSteps\Driver\BlackboxDriver
+
+services:
+  behat_steps.driver.blackbox:
+    class: "%behat_steps.driver.blackbox.class%"
+    tags:
+      - { name: behat_steps.driver, alias: blackbox }

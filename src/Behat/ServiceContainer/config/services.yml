@@ -1,0 +1,54 @@
+parameters:
+  behat_steps.driver_manager.class: DrevOps\BehatSteps\Behat\Manager\DriverManager
+  behat_steps.authentication_manager.class: DrevOps\BehatSteps\Behat\Manager\AuthenticationManager
+  behat_steps.user_manager.class: DrevOps\BehatSteps\Behat\Manager\UserManager
+  behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
+  behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
+  behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
+  behat_steps.region_selector.class: DrevOps\BehatSteps\Behat\Selector\RegionSelector
+  behat_steps.parameters: {}
+  behat_steps.regions: {}
+
+services:
+  behat_steps.driver_manager:
+    class: "%behat_steps.driver_manager.class%"
+    arguments:
+      - {}
+  behat_steps.authentication_manager:
+    class: "%behat_steps.authentication_manager.class%"
+    arguments:
+      - "@mink"
+      - "@behat_steps.user_manager"
+      - "@behat_steps.driver_manager"
+      - "%mink.parameters%"
+      - "%behat_steps.parameters%"
+  behat_steps.user_manager:
+    class: "%behat_steps.user_manager.class%"
+  behat_steps.context.initializer:
+    class: "%behat_steps.context.initializer.class%"
+    arguments:
+      - "@behat_steps.driver_manager"
+      - "%behat_steps.parameters%"
+      - "@hook.dispatcher"
+      - "@behat_steps.authentication_manager"
+      - "@behat_steps.user_manager"
+    tags:
+      - { name: context.initializer }
+  behat_steps.context.attribute_reader:
+    class: "%behat_steps.context.attribute_reader.class%"
+    tags:
+      - { name: context.attribute_reader }
+  behat_steps.listener.driver:
+    class: "%behat_steps.listener.driver.class%"
+    arguments:
+      - "@behat_steps.driver_manager"
+      - "%behat_steps.parameters%"
+    tags:
+      - { name: event_dispatcher.subscriber, priority: 0 }
+  behat_steps.region_selector:
+    class: "%behat_steps.region_selector.class%"
+    arguments:
+      - "@mink.selector.css"
+      - "%behat_steps.regions%"
+    tags:
+      - { name: mink.selector, alias: region }
