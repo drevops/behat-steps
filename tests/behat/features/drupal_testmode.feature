@@ -4,7 +4,7 @@ Feature: Ensure TestmodeTrait works.
   So that users can focus on test-specific content in their tests
 
   Background:
-    Given the following article content:
+    Given the following article content exist:
       | title              |
       | Article 1          |
       | Article 2          |
@@ -18,25 +18,25 @@ Feature: Ensure TestmodeTrait works.
   Scenario: Assert visiting test content page without test mode will put the required content on the second page
     Given I log in as a user with the "administrator" role
     When I go to "/content_test"
-    Then I should see the text "Article 1"
-    And I should see the text "Article 2"
-    And I should see the text "Article 3"
-    And I should see the text "Article 4"
-    And I should see the text "Article 5"
-    And I should not see the text "[MYTEST] Article 6"
-    And I should not see the text "[MYTEST] Article 7"
+    Then I should see "Article 1"
+    And I should see "Article 2"
+    And I should see "Article 3"
+    And I should see "Article 4"
+    And I should see "Article 5"
+    And I should not see "[MYTEST] Article 6"
+    And I should not see "[MYTEST] Article 7"
 
   @api @testmode
   Scenario: Assert visiting test content page with test mode will put the required content on the second page
     Given I log in as a user with the "administrator" role
     When I go to "/content_test"
-    Then I should not see the text "Article 1"
-    And I should not see the text "Article 2"
-    And I should not see the text "Article 3"
-    And I should not see the text "Article 4"
-    And I should not see the text "Article 5"
-    And I should see the text "[MYTEST] Article 6"
-    And I should see the text "[MYTEST] Article 7"
+    Then I should not see "Article 1"
+    And I should not see "Article 2"
+    And I should not see "Article 3"
+    And I should not see "Article 4"
+    And I should not see "Article 5"
+    And I should see "[MYTEST] Article 6"
+    And I should see "[MYTEST] Article 7"
     And I save screenshot
 
   @api @trait:Drupal\TestmodeTrait

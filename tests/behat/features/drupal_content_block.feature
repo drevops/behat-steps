@@ -50,7 +50,7 @@ Feature: Check that ContentBlockTrait works
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Non-existent Block |
-    Then I should not see the text "[TEST] Non-existent Block"
+    Then I should not see "[TEST] Non-existent Block"
 
   @api @skipped
   Scenario: Edit a content block
@@ -155,11 +155,11 @@ Feature: Check that ContentBlockTrait works
       | info                   | status | body                       |
       | [TEST] Temporary Block | 1      | This block will be deleted |
     When I go to "admin/content/block"
-    Then I should see the text "[TEST] Temporary Block"
+    Then I should see "[TEST] Temporary Block"
     When the following "basic" content blocks do not exist:
       | [TEST] Temporary Block |
     And I go to "admin/content/block"
-    Then I should not see the text "[TEST] Temporary Block"
+    Then I should not see "[TEST] Temporary Block"
 
   @api @trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
@@ -167,7 +167,7 @@ Feature: Check that ContentBlockTrait works
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Content Block That Doesn't Exist |
-    Then I should not see the text "[TEST] Content Block That Doesn't Exist"
+    Then I should not see "[TEST] Content Block That Doesn't Exist"
 
   @api @behat-steps-entity-cleanup-skip:block_content
   Scenario: Content blocks are not automatically cleaned up when skip tag is used

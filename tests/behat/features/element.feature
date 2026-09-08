@@ -225,7 +225,7 @@ Feature: Check that ElementTrait works
     And confirmation dialogs are accepted
     Then the button "Test confirm" should exist
     And the button "You pressed OK!" should not exist
-    When I press the "Test confirm" button
+    When I press "Test confirm"
     Then the button "You pressed OK!" should exist
 
   @javascript @phpserver
@@ -234,7 +234,7 @@ Feature: Check that ElementTrait works
     And confirmation dialogs are declined
     Then the button "Test confirm" should exist
     And the button "You canceled!" should not exist
-    When I press the "Test confirm" button
+    When I press "Test confirm"
     Then the button "You canceled!" should exist
 
   @javascript @phpserver

@@ -11,7 +11,7 @@ Feature: Check that DateTrait works
     And I select "Published" from "edit-moderation-state-0-state"
     And I press "Save"
     Then the response status code should be 200
-    And I should see the text "[TEST] Article 1 first 2014-07-15 and second 2015-07-15"
+    And I should see "[TEST] Article 1 first 2014-07-15 and second 2015-07-15"
 
   @api
   Scenario: Assert that relative date works in table transform
@@ -20,7 +20,7 @@ Feature: Check that DateTrait works
       | [TEST] Article 1 | [relative:-10 years] | 1      | published        |
     When I visit the "article" content page with the title "[TEST] Article 1"
     Then the response status code should be 200
-    And I should see the text "201"
+    And I should see "201"
 
   @api
   Scenario: Assert that relative date works in table transform for seconds
@@ -30,7 +30,7 @@ Feature: Check that DateTrait works
     And I select "Published" from "edit-moderation-state-0-state"
     And I press "Save"
     Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 5 seconds 2024-07-15 12:00:05"
+    And I should see "[TEST] Article relative 5 seconds 2024-07-15 12:00:05"
 
   @api
   Scenario: Assert that relative date works in table transform for seconds under a minute
@@ -40,7 +40,7 @@ Feature: Check that DateTrait works
     And I select "Published" from "edit-moderation-state-0-state"
     And I press "Save"
     Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 30 seconds 2024-07-15 12:00:30"
+    And I should see "[TEST] Article relative 30 seconds 2024-07-15 12:00:30"
 
   @api
   Scenario: Assert that relative date works in table transform for seconds over a minute
@@ -50,4 +50,4 @@ Feature: Check that DateTrait works
     And I select "Published" from "edit-moderation-state-0-state"
     And I press "Save"
     Then the response status code should be 200
-    And I should see the text "[TEST] Article relative 65 seconds 2024-07-15 12:01:05"
+    And I should see "[TEST] Article relative 65 seconds 2024-07-15 12:01:05"

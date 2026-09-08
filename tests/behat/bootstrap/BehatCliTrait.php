@@ -23,6 +23,16 @@ use Behat\Hook\BeforeStep;
  */
 trait BehatCliTrait {
 
+  /**
+   * Traits every generated context composes, on top of the ones under test.
+   *
+   * @var array<int, string>
+   */
+  protected const BEHAT_CLI_BASELINE_TRAITS = [
+    'Generic\PathTrait',
+    'Drupal\UserTrait',
+  ];
+
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $this->behatCliCopyFixtures();
@@ -80,10 +90,19 @@ trait BehatCliTrait {
       '{{USE_DECLARATION}}' => '',
       '{{USE_IN_CLASS}}' => '',
     ];
-    foreach ($traits as $trait) {
+
+    // Navigation and session steps appear in nearly every generated scenario
+    // as setup for the trait under test, so the baseline carries them. A
+    // baseline trait that is itself under test is composed once.
+    $qualified_traits = [];
+
+    foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
       // A tag names the trait's context and short name, as in
       // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
-      $qualified = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+    }
+
+    foreach (array_unique($qualified_traits) as $qualified) {
       // Two contexts can hold the same short name, so each import carries a
       // context-qualified alias and one tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);

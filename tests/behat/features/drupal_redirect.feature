@@ -53,7 +53,7 @@ Feature: Check that RedirectTrait works
       | /promo | https://example.com/promo-landing |
     When I log in as a user with the "administrator" role
     And I go to "/admin/config/search/redirect"
-    Then I should see the text "promo"
+    Then I should see "promo"
 
   @api
   Scenario: Assert "Given the following redirects do not exist:" removes targeted redirects only

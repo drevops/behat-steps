@@ -28,9 +28,9 @@ Feature: Check that MediaTrait works
 
     And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "Test media image"
-    And I should not see the text "Test media image2"
-    And I should see the text "Test media document"
+    Then I should see "Test media image"
+    And I should not see "Test media image2"
+    And I should see "Test media document"
 
   @api
   Scenario: Assert navigate to edit media with specified type and name
@@ -96,7 +96,7 @@ Feature: Check that MediaTrait works
 
     And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "Duplicate test item"
+    Then I should see "Duplicate test item"
 
     # Create media again with the same name - should replace the first one
     When the following "image" media exist:
@@ -104,7 +104,7 @@ Feature: Check that MediaTrait works
       | Duplicate test item | image.png         |
 
     And I visit "/admin/content/media"
-    Then I should see the text "Duplicate test item"
+    Then I should see "Duplicate test item"
     # Verify only one media item exists by checking there's exactly one row in the table
     And I should see 1 ".view-media td:contains('Duplicate test item')" elements
 
@@ -144,12 +144,12 @@ Feature: Check that MediaTrait works
       | field_media_image | image.png                 |
     And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "[TEST] Duplicate vertical"
+    Then I should see "[TEST] Duplicate vertical"
     When the following image media with fields exist:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
     And I visit "/admin/content/media"
-    Then I should see the text "[TEST] Duplicate vertical"
+    Then I should see "[TEST] Duplicate vertical"
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements
 
   @api

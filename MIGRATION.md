@@ -255,9 +255,210 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 ```
 
+## DrupalExtension step text mapped to the v4 vocabulary
+
+The Drupal Extension's contexts are gone. Their behaviour lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
+
+The suite registers `Behat\MinkExtension\Context\MinkContext` for the base browser vocabulary, so `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file`, `the response status code should be` and the other upstream Mink steps are unchanged. The table below covers only the steps the Drupal Extension added on top.
+
+### Session and users
+
+| Before | After |
+| --- | --- |
+| `Given I am an anonymous user` | `Given the user is anonymous` |
+| `Given I am not logged in` | `Given the user is anonymous` |
+| `When I log out` | `When I log out` |
+| `Given I am logged in as a user with the :role role(s)` | `When I log in as a user with the :roles role(s)` |
+| `Given I am logged in as a/an :role` | `When I log in as a user with the :roles role(s)` |
+| `Given I am logged in as a user with the :role role(s) and I have the following fields:` | `When I log in as a user with the :roles role(s) and the following fields:` |
+| `Given I am logged in as a user with the :permissions permission(s)` | `When I log in as a user with the :permissions permission(s)` |
+| `Given I am logged in as :name` | `When I log in as the user :name` |
+| `Given the following users:` | `Given the following users exist:` |
+
+### Content, terms, entities and languages
+
+| Before | After |
+| --- | --- |
+| `Given the following :type content:` | `Given the following :content_type content exist:` |
+| `Given the following :vocabulary terms:` | `Given the following :vocabulary terms exist:` |
+| `Given the following :type entities:` | `Given the following :entity_type entities exist:` |
+| `Given the/these (following )languages are available:` | `Given the following languages exist:` |
+| `Given a/an :type with the title :title` | `Given the following :content_type content exist:` then `When I visit the :content_type content page with the title :title` |
+| `Given a/an :type content with the title :title` | as above |
+| `Given I am viewing a/an :type with the title :title` | as above |
+| `Given I am viewing a/an :type content with the title :title` | as above |
+| `Given I am viewing a/an :type with the following fields:` | `Given the following :content_type content exist:` then `When I visit the :content_type content page with the title :title` |
+| `Given I am viewing a/an :type content with the following fields:` | as above |
+| `Given I am viewing my :type with the title :title` | `Given the following :content_type content exist:` with an `author` column, then visit the page |
+| `Given I am viewing my :type content with the title :title` | as above |
+| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:` then `When I visit the :vocabulary term page with the name :term_name` |
+| `Given I am viewing a/an :vocabulary term with the name :name` | as above |
+| `Then I should be able to edit the :type` | `Given the following :content_type content exist:`, `When I visit the :content_type content edit page with the title :title`, `Then the response status code should be 200` |
+| `Then I should be able to edit the :type content` | as above |
+
+### Cache, cron, batch and queues
+
+| Before | After |
+| --- | --- |
+| `Given the cache has been cleared` | `Given the cache is empty` |
+| `Given I run cron` | `When I run cron` |
+| `Given I wait for the batch job to finish` | `When I wait for the batch job to finish` |
+| `Given the following item is in the system queue:` | `Given the following item is in the :queue queue:` |
+
+### Navigation, buttons, headings and fields
+
+| Before | After |
+| --- | --- |
+| `Given I am at :path` | `When I visit :path` then `Then the response status code should be 200` |
+| `When I visit :path` | `When I visit :path` |
+| `When I click :link` | `When I follow :link` (Mink) |
+| `Given for :field I enter :value` | `When I fill in :field with :value` (Mink) |
+| `Given I enter :value for :field` | `When I fill in :value for :field` (Mink) |
+| `When I press the :button button` | `When I press :button` (Mink) |
+| `Given I check the box :checkbox` | `When I check :checkbox` (Mink) |
+| `Given I uncheck the box :checkbox` | `When I uncheck :checkbox` (Mink) |
+| `When I select the radio button :label` | `When I choose the radio button :selector` |
+| `When I select the radio button :label with the id :id` | `When I choose the radio button :selector` with the id as the selector |
+| `Given I press the :char key in the :field field` | `When I press the key :key on the element :selector` |
+| `When I :action details labelled :summary` | `When I click on the element :selector` targeting the `summary` element |
+| `When I drag element :source onto element :target` | dropped; use a JavaScript step in the project's own context |
+| `Then I should get a :code HTTP response` | `Then the response status code should be :code` (Mink) |
+| `Then I should not get a :code HTTP response` | `Then the response status code should not be :code` (Mink) |
+| `Then I should see the text :text` | `Then I should see :text` (Mink) |
+| `Then I should not see the text :text` | `Then I should not see :text` (Mink) |
+| `Then I should see the link :link` | `Then the link :link with the href :href should exist` |
+| `Then I should not see the link :link` | `Then the link :link with the href :href should not exist` |
+| `Then I should not visibly see the link :link` | `Then the element :selector should not be displayed` |
+| `Then I should see the button :button` | `Then the button :button should exist` |
+| `Then I should see the :button button` | `Then the button :button should exist` |
+| `Then I should not see the button :button` | `Then the button :button should not exist` |
+| `Then I should not see the :button button` | `Then the button :button should not exist` |
+| `Then I should see the heading :heading` | `Then the heading :heading should exist` |
+| `Then I should not see the heading :heading` | `Then the heading :heading should not exist` |
+
+### Regions
+
+Every region step drops the optional `( region)` suffix and names the region last, so one phrasing covers each action.
+
+| Before | After |
+| --- | --- |
+| `When I follow/click :link in the :region( region)` | `When I click the link :link in the region :region` |
+| `Given I press :button in the :region( region)` | `When I press the button :button in the region :region` |
+| `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with :value in the region :region` |
+| `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with :value in the region :region` |
+| `Given I check :locator in the :region( region)` | `When I check the checkbox :checkbox in the region :region` |
+| `Given I uncheck :checkbox in the :region( region)` | `When I uncheck the checkbox :checkbox in the region :region` |
+| `Then I should see( the text) :text in the :region( region)` | `Then the region :region should contain the text :text` |
+| `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the text :text` |
+| `Then I should see the heading :heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
+| `Then I should see the :heading heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
+| `Then I should see the link :link in the :region( region)` | `Then the link :link should exist in the region :region` |
+| `Then I should not see the link :link in the :region( region)` | `Then the link :link should not exist in the region :region` |
+| `Then I should see the button :button in the :region( region)` | `Then the button :button should exist in the region :region` |
+| `Then I should see the :button button in the :region( region)` | `Then the button :button should exist in the region :region` |
+| `Then I should not see the button :button in the :region( region)` | `Then the button :button should not exist in the region :region` |
+| `Then I should not see the :button button in the :region( region)` | `Then the button :button should not exist in the region :region` |
+| `Then I should see the :tag element in the :region( region)` | `Then the element :selector should exist in the region :region` |
+| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector should not exist in the region :region` |
+| `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the text :text` |
+| `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the text :text` |
+| `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the region :region should have the attribute :attribute with the value :value` |
+| `Then I should see :text in the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value` |
+| `Then I should see :text in the :tag element with the :property CSS property set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value` |
+
+### Messages
+
+The `( containing)` variants are gone: every message step matches on a substring, which is what both forms always did.
+
+| Before | After |
+| --- | --- |
+| `Then I should see the message( containing) :message` | `Then the message :message should exist` |
+| `Then I should not see the message( containing) :message` | `Then the message :message should not exist` |
+| `Then I should see the error message( containing) :message` | `Then the error message :message should exist` |
+| `Then I should not see the error message( containing) :message` | `Then the error message :message should not exist` |
+| `Then I should see the success message( containing) :message` | `Then the success message :message should exist` |
+| `Then I should not see the success message( containing) :message` | `Then the success message :message should not exist` |
+| `Then I should see the warning message( containing) :message` | `Then the warning message :message should exist` |
+| `Then I should not see the warning message( containing) :message` | `Then the warning message :message should not exist` |
+| `Then I should see the following error message(s):` | `Then the following error messages should exist:` |
+| `Then I should not see the following error messages:` | `Then the following error messages should not exist:` |
+| `Then I should see the following success messages:` | `Then the following success messages should exist:` |
+| `Then I should not see the following success messages:` | `Then the following success messages should not exist:` |
+| `Then I should see the following warning message(s):` | `Then the following warning messages should exist:` |
+| `Then I should not see the following warning messages:` | `Then the following warning messages should not exist:` |
+
+The message tables lose their header row: each row is a message, with no `error messages` heading cell.
+
+### Table rows
+
+| Before | After |
+| --- | --- |
+| `Given I click :link in the :rowText row` | `When I click the link :link in the row :row_text` |
+| `Given I press :button in the :rowText row` | `When I press the button :button in the row :row_text` |
+| `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the text :text` |
+| `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the text :text` |
+| `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row :row_text` |
+| `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row :row_text` |
+
+### Mail
+
+`Steps\Drupal\EmailTrait` carries the mail vocabulary. It collects mail through Drupal's test mail collector, so a scenario enables collection with the `@email` tag or `When I enable the test email system`, and the assertions read the collected messages.
+
+The Drupal Extension's `new` mail family tracked messages sent since the previous assertion. Clear the queue explicitly instead: `When I clear the test email system queue` leaves only the messages a later action produces.
+
+| Before | After |
+| --- | --- |
+| `When I send the following mail:` | dropped; trigger the site behaviour that sends the mail |
+| `When I send the following email:` | dropped; trigger the site behaviour that sends the mail |
+| `Then the following (e)mail(s) should have been sent:` | `Then the email field :field should contain:` |
+| `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should be sent to the address :address with the content:` |
+| `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` against `subject` |
+| `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | the two steps above, combined |
+| `Then the following new (e)mail(s) should have been sent...` | clear the queue, then use the non-`new` step |
+| `Then there should be a total of :count (e)mail(s) sent` | `Then the number of sent emails should be :count` |
+| `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` |
+| `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` |
+| `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
+| `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :file_name should be attached to the email with the subject :subject` |
+| `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
+| `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link containing :url_fragment in the email` |
+| `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
+| `When I follow the link to :urlFragment from the (e)mail with the subject :subject` | `When I follow link number :link_number in the email with the subject :subject` |
+
+### Config
+
+| Before | After |
+| --- | --- |
+| `Given I set the configuration item :name with key :key to :value` | `Given the config :name key :key has the value :value` |
+| `Given I set the configuration item :name with key :key with the following values:` | `Given the following config values exist:` |
+
+### Drush
+
+| Before | After |
+| --- | --- |
+| `Given I run drush :command` | `When I run the drush command :command` |
+| `Given I run drush :command :arguments` | `When I run the drush command :command with the arguments :arguments` |
+| `Given I run the failing drush command :command` | `When I run the failing drush command :command` |
+| `Given I run the failing drush command :command :arguments` | `When I run the failing drush command :command with the arguments :arguments` |
+| `When I print the last drush output` | `When I print the last drush output` |
+| `Then the drush output should contain :output` | `Then the drush output should contain the value :value` |
+| `Then the drush output should not contain :output` | `Then the drush output should not contain the value :value` |
+| `Then the drush output should match :regex` | `Then the drush output should match the pattern :pattern` |
+
+### AJAX and debugging
+
+| Before | After |
+| --- | --- |
+| `Given I wait for AJAX to finish` | `When I wait for AJAX to finish` |
+| `When (I )break` | dropped; use a debugger or `When I print last response` (Mink) |
+
+Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Generic\RandomTrait` and `Steps\Generic\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
+
 ## Unified entity cleanup
 
-Traits that create Drupal entities now register them in a single shared registry and delete them in reverse creation order through one `helperEntityCleanupAfterScenario` hook, instead of each trait running its own after-scenario cleanup.
+Every entity a scenario creates - through a creation step, through the driver, or through Drupal's API in a project's own step - is registered on `RawContext` and deleted in reverse creation order by one `cleanEntities` hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+
+A project's own step registers an entity it saved with `$this->entityRegister($entity)`.
 
 The per-trait cleanup skip tags have been removed. Replace them as follows:
 
@@ -272,7 +473,7 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 | `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
 | `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:helperEntityCleanupAfterScenario`.
+To skip cleanup of every registered entity at once, use `@behat-steps-skip:cleanEntities`. The companion hooks take `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles`.
 
 `FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
@@ -294,9 +495,9 @@ use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 
 ## Traits declare the context class they need
 
-Every trait that reaches beyond its own methods now carries a `@phpstan-require-extends` annotation naming the base class it needs: `Behat\MinkExtension\Context\RawMinkContext` for traits that only use the Mink session, `Drupal\DrupalExtension\Context\RawDrupalContext` for traits that use the Drupal driver, and `Drupal\DrupalExtension\Context\DrupalContext` for the four traits that call its entity-creation steps. Traits that call nothing outside themselves carry no annotation.
+Every trait that reaches beyond its own methods carries a `@phpstan-require-extends` annotation naming the base class it needs: `Behat\MinkExtension\Context\RawMinkContext` for traits that only use the Mink session, and `DrevOps\BehatSteps\Behat\Context\RawContext` for traits that use the driver, the entity lifecycle or the extension configuration. Traits that call nothing outside themselves carry no annotation.
 
-Composition is unchanged at run time, but a project running PHPStan now gets an error when a context uses a trait without extending the class that trait needs. The fix is to extend the named class, which is what the trait already assumed.
+Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class that trait needs. The fix is to extend the named class, which is what the trait already assumed.
 
 ## Step traits no longer compose other step traits
 
@@ -319,14 +520,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityRegister()` | `helperEntityRegister()` |
-| `Drupal\HelperTrait` | `entityRegisterId()` | `helperEntityRegisterId()` |
-| `Drupal\HelperTrait` | `entityCleanupAfterScenario()` | `helperEntityCleanupAfterScenario()` |
-| `Drupal\HelperTrait` | `entityCleanupRun()` | `helperEntityCleanupRun()` |
-| `Drupal\HelperTrait` | `entityCleanupDelete()` | `helperEntityCleanupDelete()` |
-| `Drupal\HelperTrait` | `entityCleanupSkippedTypes()` | `helperEntityCleanupSkippedTypes()` |
-| `Drupal\HelperTrait` | `$entityRegistry` | `$helperEntityRegistry` |
-| `Drupal\HelperTrait` | `ENTITY_CLEANUP_EXCLUDED_TYPES` | `HELPER_ENTITY_CLEANUP_EXCLUDED_TYPES` |
+| `Drupal\HelperTrait` | `entityRegister()` | `Behat\Context\RawContext::entityRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
@@ -336,9 +530,7 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 
 | Old tag | New tag |
 | --- | --- |
-| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:helperEntityCleanupAfterScenario` |
-
-`Drupal\OverrideTrait::createNodes()`, `::createUsers()`, `::iAmLoggedInAsUserWithRole()` and `Drupal\TaxonomyTrait::createTerms()` override Drupal Extension context methods and keep their names.
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:cleanEntities` |
 
 ## Query parameter presence
 

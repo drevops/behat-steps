@@ -25,7 +25,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "@Given the following :content_type content does not exist:" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title              |
       | [TEST] Page title1 |
       | [TEST] Page title2 |
@@ -45,7 +45,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             |
       | [TEST] Page title |
     And I log in as a user with the "administrator" role
@@ -82,7 +82,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content edit page with the title :title" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             |
       | [TEST] Page title |
     And I log in as a user with the "administrator" role
@@ -119,7 +119,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content delete page with the title :title" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             |
       | [TEST] Page title |
     And I log in as a user with the "administrator" role
@@ -156,7 +156,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content scheduled transitions page with the title :title" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             |
       | [TEST] Page title |
     And I log in as a user with the "administrator" role
@@ -193,7 +193,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             | moderation_state |
       | [TEST] Page title | draft            |
     And the user is anonymous
@@ -236,7 +236,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following landing_page content:
+      Given the following landing_page content exist:
         | title             |
         | [TEST] Page title |
       Given I log in as a user with the "administrator" role
@@ -250,7 +250,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I visit the :content_type content revisions page with the title :title" works as expected
-    Given the following article content:
+    Given the following article content exist:
       | title                | body        |
       | [TEST] Article title | First draft |
     And I log in as a user with the "administrator" role
@@ -308,7 +308,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following page content:
+      Given the following page content exist:
         | title              |
         | [TEST] Exists page |
       Then "page" content with the title "[TEST] Exists page" should not exist
@@ -321,7 +321,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title                    |
       | [TEST] Grants page title |
     And I log in as a user with the "administrator" role
@@ -331,7 +331,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I rebuild the access grants for all content" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title                        |
       | [TEST] Grants all page title |
     And I log in as a user with the "administrator" role
@@ -355,7 +355,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert file field on node resolves bare fixture filename without explicit managed file
-    Given the following article content:
+    Given the following article content exist:
       | title                | field_file |
       | [TEST] Fixture file  | text.txt   |
     And I log in as a user with the "administrator" role
@@ -365,7 +365,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert image field on node resolves bare fixture filename without explicit managed file
-    Given the following article content:
+    Given the following article content exist:
       | title                 | field_image |
       | [TEST] Fixture image  | image.png   |
     And I log in as a user with the "administrator" role
@@ -374,7 +374,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert file field on node resolves compound fixture filename without explicit managed file
-    Given the following article content:
+    Given the following article content exist:
       | title                         | field_file                                       |
       | [TEST] Compound fixture file  | target_id:"text.txt", description:"My document"  |
     And I log in as a user with the "administrator" role
@@ -384,7 +384,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert image field on node resolves compound fixture filename without explicit managed file
-    Given the following article content:
+    Given the following article content exist:
       | title                          | field_image                              |
       | [TEST] Compound fixture image  | target_id:"image.png", alt:"My image"    |
     And I log in as a user with the "administrator" role
@@ -393,7 +393,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert file field on node resolves fixture path in a subdirectory
-    Given the following article content:
+    Given the following article content exist:
       | title                          | field_file          |
       | [TEST] Subdirectory file       | subdir/document.pdf |
     And I log in as a user with the "administrator" role
@@ -403,7 +403,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert file field on node resolves compound fixture path in a subdirectory
-    Given the following article content:
+    Given the following article content exist:
       | title                            | field_file                                              |
       | [TEST] Compound subdirectory file | target_id:"subdir/document.pdf", description:"My doc"  |
     And I log in as a user with the "administrator" role
@@ -413,7 +413,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title                   |
       | [TEST] Alias page title |
     And I log in as a user with the "administrator" role
@@ -424,7 +424,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an alias without a leading slash
-    Given the following page content:
+    Given the following page content exist:
       | title                            |
       | [TEST] Alias no slash page title |
     And I log in as a user with the "administrator" role
@@ -435,7 +435,7 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" replaces an existing alias instead of adding a second one
-    Given the following page content:
+    Given the following page content exist:
       | title                            |
       | [TEST] Alias replaced page title |
     And I log in as a user with the "administrator" role
@@ -482,7 +482,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following page content:
+      Given the following page content exist:
         | title                         |
         | [TEST] Empty alias page title |
       When I set the path alias of the "page" content with the title "[TEST] Empty alias page title" to ""
@@ -495,21 +495,21 @@ Feature: Check that ContentTrait works
 
   @api
   Scenario: Assert "Then :content_type content with the title :title should be published" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title                       | moderation_state |
       | [TEST] Published page title | published        |
     Then "page" content with the title "[TEST] Published page title" should be published
 
   @api
   Scenario: Assert "Then :content_type content with the title :title should not be published" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title                         | moderation_state |
       | [TEST] Unpublished page title | draft            |
     Then "page" content with the title "[TEST] Unpublished page title" should not be published
 
   @api
   Scenario: Assert publish state assertions resolve the most recently created content when titles are duplicated
-    Given the following page content:
+    Given the following page content exist:
       | title                       | moderation_state |
       | [TEST] Duplicate page title | published        |
       | [TEST] Duplicate page title | draft            |
@@ -520,7 +520,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following page content:
+      Given the following page content exist:
         | title                         | moderation_state |
         | [TEST] Unpublished page title | draft            |
       Then "page" content with the title "[TEST] Unpublished page title" should be published
@@ -536,7 +536,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the following page content:
+      Given the following page content exist:
         | title                       | moderation_state |
         | [TEST] Published page title | published        |
       Then "page" content with the title "[TEST] Published page title" should not be published

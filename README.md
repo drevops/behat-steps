@@ -130,7 +130,6 @@ composer require --dev drevops/behat-steps:^3
 
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
-- **Drupal traits** (`DrevOps\BehatSteps\Steps\Drupal\*`) need `drupal/drupal-extension`.
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
 
@@ -142,20 +141,35 @@ Add required traits to your
 ```php
 <?php
 
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends DrupalContext {
+class FeatureContext extends RawContext {
 
   use CookieTrait;
 
 }
 ```
 
-Ensure that your [`behat.yml`](behat.yml) has all the required extensions
-enabled.
+`RawContext` registers no steps of its own: it owns the scenario lifecycle -
+driver access, authentication, entity creation and cleanup - and you compose the
+vocabulary you want on top. For a suite that needs no PHP at all, register
+`DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
+plus a curated set of the broadly-safe traits.
+
+Ensure that your [`behat.yml`](behat.yml) enables the extension:
+
+```yaml
+default:
+  extensions:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      api_driver: drupal
+      drupal:
+        drupal_root: web
+```
 
 ### JavaScript drivers
 
@@ -210,26 +224,36 @@ Select with id|name|label "My Select" not found.
 The cookie with name "session" was not set.
 ```
 
-### Skipping before scenario hooks
+### Skipping hooks
 
-Some traits provide `beforeScenario` hook implementations. These can be disabled
-by adding `@behat-steps-skip:METHOD_NAME` tag to your test.
+Several traits carry hooks that run around every scenario or step. One tag form
+turns any of them off:
 
-For example, to skip `beforeScenario` hook from `ElementTrait`, add
-`@behat-steps-skip:ElementTrait` tag to the feature.
+```
+@behat-steps-skip:NAME
+```
+
+`NAME` is either the hook method (`@behat-steps-skip:emailBeforeScenario`) or
+the trait it belongs to (`@behat-steps-skip:ElementTrait`), and the tag works on
+the `Feature:` line as well as the `Scenario:` line.
 
 ### Automatic entity cleanup
 
-Traits that create Drupal entities (content blocks, media, managed files,
-paragraphs, ECK entities, menus and menu links, redirects, blocks and webforms)
-register each created entity in a shared registry and delete them in reverse
-creation order at the end of the scenario, keeping the test database clean
-across long suites. Nodes, users, taxonomy terms, roles and language entities
-are cleaned up by the base Drupal Extension and are never registered here, so
-there is no double-deletion.
+Every entity a scenario creates - through a creation step, through the driver,
+or through Drupal's API in one of your own steps - is registered on the context
+and deleted in reverse creation order at the end of the scenario, keeping the
+test database clean across long suites. Reverse order means a node comes down
+before the term it references.
 
-To keep **all** registered entities after a scenario, add
-`@behat-steps-skip:helperEntityCleanupAfterScenario` to the scenario or feature.
+A step of your own registers what it saved:
+
+```php
+$this->entityRegister($entity);
+```
+
+To keep **all** entities after a scenario, add `@behat-steps-skip:cleanEntities`
+to the scenario or feature. `@behat-steps-skip:cleanUsers` and
+`@behat-steps-skip:cleanRoles` do the same for users and roles.
 
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example

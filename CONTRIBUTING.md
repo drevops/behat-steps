@@ -21,7 +21,6 @@ of tests. Follow these guidelines:
     `the role(s) :roles`, so both forms read naturally.
   - Omit unnecessary suffixes like `on the page` since it is implied.
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuLoadByLabel()`, not `loadMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
-  - A method that overrides a Drupal Extension context method, such as `OverrideTrait::createNodes()` or `TaxonomyTrait::createTerms()`, is the one exception: an override binds by name, so it keeps the parent's. List it in `PARENT_OVERRIDES` in `TraitMethodNamingTest` instead of renaming it.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
@@ -115,6 +114,17 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Be
 - **`src/Steps`** is the step vocabulary - traits a consuming `FeatureContext` mixes in. `Generic/` holds the framework-agnostic ones, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
 A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in the step-free `HelperTrait` of its context.
+
+## What a trait needs from the driver
+
+A step is only as portable as the driver behind it, so each trait falls into one of three bands. Which band a trait is in decides whether a scenario has to be tagged `@api`.
+
+- **Nothing.** Every trait under `src/Steps/Generic` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
+- **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
+- **A capability interface.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps ask the active driver for a named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver that implements it, which for most is the Drush driver as well as the in-process one, and they throw naming the missing capability when it does not.
+- **The in-process driver.** Every other trait under `src/Steps/Drupal` reaches Drupal's API directly. Each such method calls `RawContext::drupal()` first, which bootstraps the in-process driver and returns it, or throws a `BootstrapException` naming the requirement when the scenario is running on the Blackbox or Drush driver. Those scenarios carry `@api`.
+
+A new step that touches `\Drupal::` calls `$this->drupal();` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
 
 [scripts/lint-layers.php](scripts/lint-layers.php) holds the lower boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 
