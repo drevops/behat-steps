@@ -65,6 +65,15 @@ class DriverListenerTest extends TestCase {
     yield 'the last matching tag wins' => [['api'], ['javascript'], 'drush'];
   }
 
+  public function testMissingDriverConfigurationIsReported(): void {
+    $listener = new DriverListener($this->createMock(DriverManagerInterface::class), []);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No driver is configured for this scenario: set "default_driver" in the extension configuration.');
+
+    $listener->prepareDefaultDriver($this->createEvent([], []));
+  }
+
   public function testTheEnvironmentIsHandedToTheManager(): void {
     $event = $this->createEvent([], []);
 

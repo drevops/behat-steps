@@ -49,9 +49,12 @@ class DriverListener implements EventSubscriberInterface {
    *
    * Both subscribed events carry a 'BeforeScenarioTested', an example's
    * scenario being the outline row itself.
+   *
+   * @throws \RuntimeException
+   *   When neither a tag nor 'default_driver' names a driver.
    */
   public function prepareDefaultDriver(BeforeScenarioTested $event): void {
-    $driver = $this->parameters['default_driver'];
+    $driver = $this->parameters['default_driver'] ?? NULL;
 
     $tags = $event->getFeature()->getTags();
     $scenario = $event->getScenario();
@@ -64,6 +67,10 @@ class DriverListener implements EventSubscriberInterface {
       if (!empty($this->parameters[$tag . '_driver'])) {
         $driver = $this->parameters[$tag . '_driver'];
       }
+    }
+
+    if (!is_string($driver) || $driver === '') {
+      throw new \RuntimeException('No driver is configured for this scenario: set "default_driver" in the extension configuration.');
     }
 
     $this->driverManager->setDefaultDriverName($driver);
