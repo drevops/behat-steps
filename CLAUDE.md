@@ -267,7 +267,7 @@ ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 php scripts/check-coverage.php SomeTrait
 
 # Output shows:
-# Class: DrevOps\BehatSteps\SomeTrait
+# Class: DrevOps\BehatSteps\Steps\Generic\SomeTrait
 # Line rate: 0.95901639344262 (95.90%)
 #
 # Uncovered lines:
@@ -280,10 +280,10 @@ php scripts/check-coverage.php SomeTrait
 ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 
 # Check API-only coverage
-grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Generic\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
 
 # Check MERGED coverage (THIS IS THE TRUE COVERAGE)
-grep 'class name="DrevOps\\BehatSteps\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Generic\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
 ```
 
 **Coverage Check Script Usage**:
