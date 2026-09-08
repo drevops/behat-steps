@@ -14,6 +14,8 @@ use Behat\Step\Given;
  * - Cloned webforms are automatically removed at the end of the scenario.
  *
  * Requires `drupal/webform` module.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait WebformTrait {
 

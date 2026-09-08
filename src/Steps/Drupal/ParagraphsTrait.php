@@ -19,6 +19,8 @@ use Drupal\paragraphs\ParagraphInterface;
  * - Test nested paragraph structures and reference field handling.
  * - Attach paragraphs to various entity types with parent-child relationships.
  * - Created paragraph items are automatically removed at the end of the scenario.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait ParagraphsTrait {
 

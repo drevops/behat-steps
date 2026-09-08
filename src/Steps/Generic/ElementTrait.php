@@ -17,6 +17,8 @@ use Behat\Step\When;
  * - Assert element visibility, attribute values, and viewport positioning.
  * - Execute JavaScript-based interactions with element state verification.
  * - Handle confirmation dialogs and scrolling operations.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ElementTrait {
 

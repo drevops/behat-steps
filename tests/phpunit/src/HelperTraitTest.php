@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -58,7 +59,7 @@ class HelperTraitTest extends UnitTestCase {
  *
  * Exposes the protected helper methods under the test.
  */
-class HelperTraitTestImplementation {
+class HelperTraitTestImplementation extends RawMinkContext {
 
   use HelperTrait;
 

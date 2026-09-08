@@ -16,6 +16,8 @@ use Drupal\system\MenuInterface;
  * - Create and remove menus by label.
  * - Create and remove menu links, including parent-child hierarchies.
  * - Created menus and menu links are automatically removed at the end of the scenario.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait MenuTrait {
 

@@ -12,6 +12,8 @@ use Drupal\node\Entity\Node;
  *
  * - Add content to an index
  * - Run indexing for a specific number of items.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait SearchApiTrait {
 

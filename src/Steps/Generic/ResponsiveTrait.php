@@ -54,6 +54,8 @@ use Behat\Step\When;
  *   }
  * }
  * @endcode
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ResponsiveTrait {
 

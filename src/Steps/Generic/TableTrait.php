@@ -18,6 +18,8 @@ use Behat\Step\Then;
  * - Assert table sort order by column.
  * - Assert text values present in a specific table row.
  * - Assert bulk row content against expected values.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait TableTrait {
 

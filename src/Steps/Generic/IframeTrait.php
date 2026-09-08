@@ -12,6 +12,8 @@ use Behat\Step\When;
  *
  * - Switch to iframes by CSS selector, including unnamed iframes.
  * - Switch back to the root (top-level) document.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait IframeTrait {
 

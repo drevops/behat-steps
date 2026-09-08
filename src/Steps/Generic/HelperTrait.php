@@ -18,6 +18,8 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  * helpers live in the Drupal\HelperTrait counterpart.
  *
  * This is an internal trait and should not be used directly in step definitions.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait HelperTrait {
 

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Mink\Driver\CoreDriver;
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Session;
+use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\DiagnosticsTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -215,7 +219,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
 /**
  * Test implementation of DiagnosticsTrait.
  */
-class DiagnosticsTraitTestImplementation {
+class DiagnosticsTraitTestImplementation extends RawMinkContext {
 
   use DiagnosticsTrait;
 
@@ -246,7 +250,7 @@ class DiagnosticsTraitTestImplementation {
     $this->session = new DiagnosticsFakeSession();
   }
 
-  public function getSession(): DiagnosticsFakeSession {
+  public function getSession(mixed $name = NULL): DiagnosticsFakeSession {
     if (!$this->sessionAvailable) {
       throw new \RuntimeException('Session is not available.');
     }
@@ -335,7 +339,7 @@ class DiagnosticsTraitJsRegistryImplementation extends DiagnosticsTraitTestImple
  * Assigning a Throwable to one of the *Error properties makes the matching
  * accessor throw, exercising the trait's graceful-degradation paths.
  */
-class DiagnosticsFakeSession {
+class DiagnosticsFakeSession extends Session {
 
   /**
    * The current page URL returned by getCurrentUrl().
@@ -350,7 +354,7 @@ class DiagnosticsFakeSession {
   /**
    * The driver instance returned by getDriver().
    */
-  public object $driver;
+  public DriverInterface $driver;
 
   /**
    * The live browser error buffer returned by evaluateScript().
@@ -381,6 +385,8 @@ class DiagnosticsFakeSession {
 
   public function __construct() {
     $this->driver = new DiagnosticsFakeDriver();
+
+    parent::__construct($this->driver);
   }
 
   public function getCurrentUrl(): string {
@@ -399,7 +405,7 @@ class DiagnosticsFakeSession {
     return $this->status;
   }
 
-  public function getDriver(): object {
+  public function getDriver(): DriverInterface {
     if ($this->driverError instanceof \Throwable) {
       throw $this->driverError;
     }
@@ -420,6 +426,6 @@ class DiagnosticsFakeSession {
 /**
  * A stand-in driver used only for its class name.
  */
-class DiagnosticsFakeDriver {
+class DiagnosticsFakeDriver extends CoreDriver {
 
 }

@@ -16,6 +16,8 @@ use Behat\Step\When;
  * - Trigger key press events including special keys and key combinations.
  * - Assert keyboard navigation and shortcut functionality.
  * - Support for targeted key presses on specific page elements.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait KeyboardTrait {
 

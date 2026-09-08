@@ -25,6 +25,8 @@ use Behat\Step\When;
  * the multi-file path - this trait reproduces it.
  *
  * `@javascript`-only: requires a headless browser session.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait DropzoneTrait {
 

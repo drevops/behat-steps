@@ -17,6 +17,8 @@ use Drupal\Driver\Entity\EntityStub;
  * - Create structured ECK entities with defined field values.
  * - Visit and edit ECK entity pages.
  * - Created entities are automatically removed at the end of the scenario.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait EckTrait {
 

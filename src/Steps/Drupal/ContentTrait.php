@@ -31,6 +31,8 @@ use Drupal\workflows\Entity\Workflow;
  * The path alias step requires the core `path` module to be enabled. When the
  * contrib `pathauto` module is enabled, automatic alias generation is switched
  * off for the content so that the provided alias is preserved.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
  */
 trait ContentTrait {
 

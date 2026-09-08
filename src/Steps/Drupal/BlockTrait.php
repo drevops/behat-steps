@@ -16,6 +16,8 @@ use Drupal\block\Entity\Block;
  * - Create and configure blocks with custom visibility conditions.
  * - Place blocks in regions and assert their configured region.
  * - Created blocks are automatically removed at the end of the scenario.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait BlockTrait {
 

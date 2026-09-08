@@ -27,6 +27,8 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
  * `@behat-steps-skip:fileAfterScenario`
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait FileTrait {
 

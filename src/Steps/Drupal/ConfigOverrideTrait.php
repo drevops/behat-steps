@@ -58,6 +58,8 @@ use Behat\Mink\Driver\Selenium2Driver;
  *
  * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
  * and `@behat-steps-skip:configOverrideBeforeStep`.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ConfigOverrideTrait {
 

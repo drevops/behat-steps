@@ -32,6 +32,8 @@ use Drupal\Driver\Entity\EntityStubInterface;
  * `@behat-steps-entity-cleanup-skip:media`
  *
  * This is an internal trait and should not be used directly in step definitions.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait HelperTrait {
 

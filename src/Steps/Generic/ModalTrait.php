@@ -19,6 +19,8 @@ use Behat\Step\When;
  * Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
  * modals, native HTML dialog element, custom modals) via overridable
  * selector methods. All steps require a JavaScript-enabled driver.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ModalTrait {
 

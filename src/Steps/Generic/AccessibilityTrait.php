@@ -48,6 +48,8 @@ use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
  * as pages are assessed. Printing is off by default; set the
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait AccessibilityTrait {
 

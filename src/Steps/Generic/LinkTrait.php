@@ -15,6 +15,8 @@ use Behat\Step\When;
  * - Find links by title, URL, text content, and class attributes.
  * - Test link existence, visibility, and destination accuracy.
  * - Assert absolute and relative link paths.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait LinkTrait {
 

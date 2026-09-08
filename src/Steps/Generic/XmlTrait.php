@@ -21,6 +21,8 @@ use Behat\Step\When;
  * - Assert XML element existence and content.
  * - Assert XML attribute values.
  * - Assert XML structure and namespace usage.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait XmlTrait {
 

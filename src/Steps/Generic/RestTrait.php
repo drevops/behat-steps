@@ -21,6 +21,8 @@ use Behat\Step\When;
  * - Assert response status codes and body content.
  *
  * Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait RestTrait {
 

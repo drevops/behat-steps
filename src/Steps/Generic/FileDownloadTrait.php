@@ -30,6 +30,8 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Special tags:
  * - `@download` - enable download handling
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait FileDownloadTrait {
 

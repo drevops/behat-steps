@@ -18,6 +18,8 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Create term vocabulary structures using field values.
  * - Navigate to term pages
  * - Verify vocabulary configurations.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
  */
 trait TaxonomyTrait {
 

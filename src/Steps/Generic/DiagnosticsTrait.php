@@ -44,6 +44,8 @@ use Behat\Testwork\Tester\Result\ExceptionResult;
  *   # Mink driver: Behat\Mink\Driver\BrowserKitDriver
  *   # Re-run: vendor/bin/behat features/example.feature:3
  * @endcode
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait DiagnosticsTrait {
 

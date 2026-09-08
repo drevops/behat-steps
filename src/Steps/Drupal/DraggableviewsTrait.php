@@ -13,6 +13,8 @@ use Drupal\node\NodeInterface;
 
 /**
  * Order items in the Drupal Draggable Views.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait DraggableviewsTrait {
 

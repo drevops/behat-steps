@@ -22,6 +22,8 @@ use Drupal\media\MediaInterface;
  * - Visit media view, edit, delete and revision pages.
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait MediaTrait {
 

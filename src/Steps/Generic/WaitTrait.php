@@ -8,6 +8,8 @@ use Behat\Step\When;
 
 /**
  * Wait for a period of time or for AJAX to finish.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait WaitTrait {
 

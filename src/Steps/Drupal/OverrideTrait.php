@@ -20,6 +20,8 @@ use Behat\Hook\BeforeScenario;
  * step definitions, do not include this trait and rather copy the contents of
  * this file into your feature context file and copy the step definition strings
  * from the Drupal Extension.
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
  */
 trait OverrideTrait {
 

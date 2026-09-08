@@ -13,6 +13,8 @@ use Behat\Step\Then;
  *
  * - Assert cookie existence and values with exact or partial matching.
  * - Support both WebDriver and BrowserKit drivers for test compatibility.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait CookieTrait {
 

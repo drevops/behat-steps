@@ -30,6 +30,8 @@ use Behat\Mink\Exception\DriverException;
  *
  * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
  * `FeatureContext` to change the maximum wait.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait BigPipeTrait {
 

@@ -11,6 +11,8 @@ use Behat\Step\Then;
  * Verify HTTP responses with status code and header checks.
  *
  * - Assert HTTP header presence and values.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ResponseTrait {
 

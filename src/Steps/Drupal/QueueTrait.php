@@ -17,6 +17,8 @@ use Behat\Step\When;
  * - Clear queues before scenarios.
  * - Process queue items during tests.
  * - Assert queue item counts.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait QueueTrait {
 

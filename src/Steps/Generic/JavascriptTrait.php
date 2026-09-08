@@ -42,6 +42,8 @@ use Behat\Mink\Exception\ExpectationException;
  * Scenario: Legacy page with known errors (will not fail)
  *   Given I visit "/legacy-page"
  * @endcode
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait JavascriptTrait {
 

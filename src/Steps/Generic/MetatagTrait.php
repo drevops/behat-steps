@@ -18,6 +18,8 @@ use Behat\Step\Then;
  * - Assert canonical URL, robots directives and indexability.
  * - Assert hreflang alternates are valid and reciprocal.
  * - Assert Open Graph and Twitter Card completeness.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait MetatagTrait {
 

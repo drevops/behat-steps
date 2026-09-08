@@ -28,6 +28,8 @@ use JsonSchema\Validator;
  *
  * The JSON Schema steps require the optional `justinrainbow/json-schema`
  * package: `composer require --dev justinrainbow/json-schema`.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait JsonTrait {
 

@@ -30,6 +30,8 @@ use Drupal\Core\Database\StatementInterface;
  * - `@email` - enable email tracking using a default handler
  * - `@email:{type}` - enable email tracking using a `{type}` handler
  * - `@debug` (enable detailed logs)
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait EmailTrait {
 

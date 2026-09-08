@@ -22,6 +22,8 @@ use Drupal\redirect\Entity\Redirect;
  * Requires the `redirect` contrib module to be installed and enabled in the
  * consumer project: add `drupal/redirect` to `composer.json` and enable the
  * module as part of the site's standard setup (e.g. in `core.extension.yml`).
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
  */
 trait RedirectTrait {
 

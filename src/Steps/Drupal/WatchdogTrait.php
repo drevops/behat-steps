@@ -27,6 +27,8 @@ use Drupal\Core\Database\Database;
  * Special tags:
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
  * - `@error` - add to scenarios that are expected to trigger an error.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait WatchdogTrait {
 

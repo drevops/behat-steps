@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\ResponsiveTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -312,7 +313,7 @@ class ResponsiveTraitTest extends UnitTestCase {
 /**
  * Test implementation of ResponsiveTrait.
  */
-class ResponsiveTraitTestImplementation {
+class ResponsiveTraitTestImplementation extends RawMinkContext {
 
   use ResponsiveTrait;
 

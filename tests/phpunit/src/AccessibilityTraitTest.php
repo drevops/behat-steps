@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\AccessibilityTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -42,7 +43,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderFormatUrl')]
   public function testFormatUrl(string $base_url, string $url, string $expected): void {
-    $this->testObject->baseUrl = $base_url;
+    $this->testObject->setMinkParameter('base_url', $base_url);
 
     $this->assertSame($expected, $this->testObject->testFormatUrl($url));
   }
@@ -327,7 +328,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateCaptureFormatsUrlsAndRecordsEntry(): void {
-    $this->testObject->baseUrl = 'http://nginx:8080';
+    $this->testObject->setMinkParameter('base_url', 'http://nginx:8080');
 
     $this->testObject->testCapture(
       [['url' => 'http://nginx:8080/contact', 'rules' => 'wcag2a', 'result' => ['violations' => [], 'incomplete' => [], 'passes' => []]]],
@@ -578,18 +579,9 @@ class AccessibilityTraitTest extends UnitTestCase {
 /**
  * Test implementation of AccessibilityTrait.
  */
-class AccessibilityTraitTestImplementation {
+class AccessibilityTraitTestImplementation extends RawMinkContext {
 
   use AccessibilityTrait;
-
-  /**
-   * Base URL returned by the stubbed Mink parameter accessor.
-   */
-  public string $baseUrl = '';
-
-  public function getMinkParameter(string $name): mixed {
-    return $name === 'base_url' ? $this->baseUrl : NULL;
-  }
 
   public function testFormatUrl(string $url): string {
     return $this->accessibilityFormatUrl($url);

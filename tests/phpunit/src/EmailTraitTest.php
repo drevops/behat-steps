@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
+use Drupal\DrupalExtension\Context\RawDrupalContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -14,11 +15,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversTrait(EmailTrait::class)]
 class EmailTraitTest extends UnitTestCase {
 
-  use EmailTrait;
-
   #[DataProvider('dataProviderExtractLinks')]
   public function testExtractLinks(string $input, array $expected): void {
-    $result = $this->emailExtractLinks($input);
+    $result = EmailTraitTestImplementation::callEmailExtractLinks($input);
     $this->assertEquals($expected, $result);
   }
 
@@ -73,6 +72,30 @@ class EmailTraitTest extends UnitTestCase {
         ['http://example.com', 'https://example.org'],
       ],
     ];
+  }
+
+}
+
+/**
+ * Test implementation of EmailTrait.
+ *
+ * Exposes the protected link extractor under test.
+ */
+class EmailTraitTestImplementation extends RawDrupalContext {
+
+  use EmailTrait;
+
+  /**
+   * Extract all links from provided string.
+   *
+   * @param string $string
+   *   String to extract links from.
+   *
+   * @return array<int, string>
+   *   Array of extracted links.
+   */
+  public static function callEmailExtractLinks(string $string): array {
+    return static::emailExtractLinks($string);
   }
 
 }

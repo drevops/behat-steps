@@ -10,6 +10,7 @@ use Drupal\Driver\Core\CoreInterface;
 use Drupal\Driver\DrupalDriverInterface;
 use Drupal\Driver\Entity\EntityStub;
 use Drupal\Driver\Entity\EntityStubInterface;
+use Drupal\DrupalExtension\Context\RawDrupalContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -380,7 +381,7 @@ class HelperTraitTest extends UnitTestCase {
  * Drupal-dependent 'helperManagedFileExists()' so unit tests can simulate
  * pre-existing managed files without bootstrapping Drupal.
  */
-class HelperTraitTestImplementation {
+class HelperTraitTestImplementation extends RawDrupalContext {
 
   use HelperTrait;
 
@@ -466,11 +467,11 @@ class HelperTraitTestImplementation {
     $this->deleted[] = [$entity_type_id, $entity_id];
   }
 
-  public function getMinkParameter(string $name): mixed {
+  public function getMinkParameter(mixed $name): mixed {
     return $name === 'files_path' ? $this->minkFilesPath : NULL;
   }
 
-  public function getDriver(): ?DrupalDriverInterface {
+  public function getDriver(?string $name = NULL): ?DrupalDriverInterface {
     return $this->driver;
   }
 

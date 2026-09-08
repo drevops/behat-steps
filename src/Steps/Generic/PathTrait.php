@@ -15,6 +15,8 @@ use Behat\Step\When;
  * - Assert current page location with front page special handling.
  * - Configure basic authentication for protected path access.
  * - Validate URL query parameters with expected values.
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait PathTrait {
 

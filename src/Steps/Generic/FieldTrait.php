@@ -28,6 +28,8 @@ use Behat\Step\When;
  * - Use @disable-form-validation tag to automatically disable validation for all forms.
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
+ *
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait FieldTrait {
 

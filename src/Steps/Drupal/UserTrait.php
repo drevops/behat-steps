@@ -25,6 +25,8 @@ use Drupal\user\UserInterface;
  * - Visit user profile pages for editing and deletion.
  * - Assert user roles.
  * - Assert user account status (active/inactive).
+ *
+ * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
  */
 trait UserTrait {
 
