@@ -151,6 +151,11 @@ classes from there. Run `ahoy build` first.
 
 Tests live under `tests/phpunit/src/` in a directory named after their suite:
 `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
+Inside a suite directory the path mirrors `src/`, so
+`src/Steps/Drupal/HelperTrait.php` is tested by
+`tests/phpunit/src/Unit/Steps/Drupal/HelperTraitTest.php`. Tests with no
+counterpart in `src/` - the docs generator, the layer linter and the
+convention tests - sit at the root of `tests/phpunit/src/`.
 
 ```bash
 ahoy test-unit      # Run the unit suite

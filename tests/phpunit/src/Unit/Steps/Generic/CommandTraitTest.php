@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
-use DrevOps\BehatSteps\Steps\Generic\CommandTrait;
 use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Generic\CommandTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -18,7 +19,7 @@ class CommandTraitTest extends UnitTestCase {
   /**
    * A test implementation of CommandTrait.
    *
-   * @var \DrevOps\BehatSteps\Tests\CommandTraitTestImplementation
+   * @var \DrevOps\BehatSteps\Tests\Unit\Steps\Generic\CommandTraitTestImplementation
    */
   protected $testObject;
 

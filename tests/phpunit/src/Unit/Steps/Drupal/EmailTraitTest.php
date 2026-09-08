@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;

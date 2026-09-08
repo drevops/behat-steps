@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Drupal;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\HelperTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;

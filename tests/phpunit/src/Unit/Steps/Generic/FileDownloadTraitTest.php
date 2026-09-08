@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
 use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\FileDownloadTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -18,7 +19,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   /**
    * A test implementation of FileDownloadTrait.
    *
-   * @var \DrevOps\BehatSteps\Tests\FileDownloadTraitTestImplementation
+   * @var \DrevOps\BehatSteps\Tests\Unit\Steps\Generic\FileDownloadTraitTestImplementation
    */
   protected $testObject;
 

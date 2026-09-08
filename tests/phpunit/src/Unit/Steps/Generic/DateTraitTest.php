@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
 use DrevOps\BehatSteps\Steps\Generic\DateTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -17,7 +18,7 @@ class DateTraitTest extends UnitTestCase {
   /**
    * A test implementation of DateTrait.
    *
-   * @var \DrevOps\BehatSteps\Tests\DateTraitTestImplementation
+   * @var \DrevOps\BehatSteps\Tests\Unit\Steps\Generic\DateTraitTestImplementation
    */
   protected $testObject;
 

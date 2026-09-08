@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests;
+namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
+use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Session;
-use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Generic\DiagnosticsTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
