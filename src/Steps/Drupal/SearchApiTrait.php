@@ -15,7 +15,7 @@ use Drupal\node\Entity\Node;
  */
 trait SearchApiTrait {
 
-  use ContentTrait;
+  use HelperTrait;
 
   /**
    * Index a node of a specific content type with a specific title.
@@ -28,7 +28,7 @@ trait SearchApiTrait {
   public function searchApiIndexContent(string $content_type, string $title): void {
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
-    $nids = $this->contentLoadMultiple($content_type, [
+    $nids = $this->helperLoadNodeIds($content_type, [
       'title' => $title,
     ]);
 

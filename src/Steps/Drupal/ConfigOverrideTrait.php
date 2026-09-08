@@ -45,9 +45,8 @@ use Behat\Mink\Driver\Selenium2Driver;
  *   }
  *   @endcode
  *
- * Soft dependency: if the consuming context also uses `RestTrait`, the
- * `$restHeaders` array is updated so standalone REST requests receive the
- * same signal.
+ * The signal is also written to the shared request-header bag, so a trait
+ * that issues its own HTTP requests - `RestTrait` - carries it too.
  *
  * Example:
  * @code
@@ -61,6 +60,8 @@ use Behat\Mink\Driver\Selenium2Driver;
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  */
 trait ConfigOverrideTrait {
+
+  use HelperTrait;
 
   /**
    * Config names parsed from `@disable-config-override:*` tags.
@@ -134,12 +135,7 @@ trait ConfigOverrideTrait {
       $driver->setRequestHeader('X-Config-No-Override', $value);
     }
 
-    // Soft dependency on RestTrait: propagate to the standalone REST client
-    // when RestTrait is also used by the consuming context.
-    // @phpstan-ignore-next-line function.alreadyNarrowedType
-    if (property_exists($this, 'restHeaders')) {
-      $this->restHeaders['X-Config-No-Override'] = $value;
-    }
+    $this->helperSetRequestHeader('X-Config-No-Override', $value);
 
     // For SUTs accessed via direct code invocation within the same process.
     $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
@@ -159,10 +155,7 @@ trait ConfigOverrideTrait {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
     putenv('HTTP_X_CONFIG_NO_OVERRIDE');
 
-    // @phpstan-ignore-next-line function.alreadyNarrowedType
-    if (property_exists($this, 'restHeaders')) {
-      unset($this->restHeaders['X-Config-No-Override']);
-    }
+    $this->helperUnsetRequestHeader('X-Config-No-Override');
   }
 
   /**

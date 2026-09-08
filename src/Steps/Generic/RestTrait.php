@@ -24,12 +24,7 @@ use Behat\Step\When;
  */
 trait RestTrait {
 
-  /**
-   * Accumulated REST headers for the current scenario.
-   *
-   * @var array<string, string>
-   */
-  protected array $restHeaders = [];
+  use HelperTrait;
 
   /**
    * Reset REST headers before each scenario.
@@ -40,7 +35,7 @@ trait RestTrait {
       return;
     }
 
-    $this->restHeaders = [];
+    $this->helperResetRequestHeaders();
   }
 
   /**
@@ -53,7 +48,7 @@ trait RestTrait {
    */
   #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
-    $this->restHeaders[$name] = $value;
+    $this->helperSetRequestHeader($name, $value);
   }
 
   /**
@@ -166,7 +161,7 @@ trait RestTrait {
   protected function restCreateServerArray(): array {
     $server = [];
 
-    foreach ($this->restHeaders as $name => $value) {
+    foreach ($this->helperGetRequestHeaders() as $name => $value) {
       $key = strtoupper(str_replace('-', '_', $name));
 
       if ($key !== 'CONTENT_TYPE' && $key !== 'CONTENT_LENGTH') {

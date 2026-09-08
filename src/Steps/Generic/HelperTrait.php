@@ -27,6 +27,44 @@ trait HelperTrait {
   protected int $helperLastStepLine = 0;
 
   /**
+   * Request headers shared by the traits that issue their own HTTP requests.
+   *
+   * @var array<string, string>
+   */
+  protected array $helperRequestHeaders = [];
+
+  /**
+   * Set a request header for subsequent requests.
+   */
+  protected function helperSetRequestHeader(string $name, string $value): void {
+    $this->helperRequestHeaders[$name] = $value;
+  }
+
+  /**
+   * Drop a request header from subsequent requests.
+   */
+  protected function helperUnsetRequestHeader(string $name): void {
+    unset($this->helperRequestHeaders[$name]);
+  }
+
+  /**
+   * Read the accumulated request headers.
+   *
+   * @return array<string, string>
+   *   Header values keyed by header name.
+   */
+  protected function helperGetRequestHeaders(): array {
+    return $this->helperRequestHeaders;
+  }
+
+  /**
+   * Drop every accumulated request header.
+   */
+  protected function helperResetRequestHeaders(): void {
+    $this->helperRequestHeaders = [];
+  }
+
+  /**
    * Record the line of the scenario's last step.
    *
    * A hook that runs once per scenario, yet raises its verdict at step

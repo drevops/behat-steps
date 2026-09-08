@@ -378,6 +378,31 @@ trait HelperTrait {
   }
 
   /**
+   * Load the ids of the nodes of a content type matching the conditions.
+   *
+   * @param string $content_type
+   *   The content type machine name.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array<int, string>
+   *   Array of node ids.
+   */
+  protected function helperLoadNodeIds(string $content_type, array $conditions = []): array {
+    $query = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', $content_type);
+
+    foreach ($conditions as $field => $value) {
+      $and = $query->andConditionGroup();
+      $and->condition($field, $value);
+      $query->condition($and);
+    }
+
+    return $query->execute();
+  }
+
+  /**
    * Assert that a module backing a set of steps is enabled.
    *
    * Without this check a step reaches a contrib module's API regardless, and

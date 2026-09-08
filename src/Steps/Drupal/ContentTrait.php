@@ -83,7 +83,7 @@ trait ContentTrait {
   #[Given('the following :content_type content does not exist:')]
   public function contentDelete(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->contentLoadMultiple($content_type, $node_hash);
+      $nids = $this->helperLoadNodeIds($content_type, $node_hash);
 
       $storage = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $storage->loadMultiple($nids);
@@ -298,7 +298,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
-    $nids = $this->contentLoadMultiple($content_type, ['title' => $title]);
+    $nids = $this->helperLoadNodeIds($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
@@ -375,7 +375,7 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
     }
 
-    $nids = $this->contentLoadMultiple($content_type, [
+    $nids = $this->helperLoadNodeIds($content_type, [
       'title' => $title,
     ]);
 
@@ -420,31 +420,6 @@ trait ContentTrait {
       throw new \RuntimeException('The "path" module is not enabled. Enable it to manage content path aliases.');
     }
     // @codeCoverageIgnoreEnd
-  }
-
-  /**
-   * Load multiple nodes with specified type and conditions.
-   *
-   * @param string $type
-   *   The node type.
-   * @param array<string, mixed> $conditions
-   *   Conditions keyed by field names.
-   *
-   * @return array<int, string>
-   *   Array of node ids.
-   */
-  protected function contentLoadMultiple(string $type, array $conditions = []): array {
-    $query = \Drupal::entityQuery('node')
-      ->accessCheck(FALSE)
-      ->condition('type', $type);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
   }
 
 }
