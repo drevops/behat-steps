@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
 use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
+use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
 
 /**
  * Hook attribute the reader has no call class for.
@@ -15,14 +16,6 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class UnmappedHook implements DrupalHookInterface {
 
-  public function __construct(public ?string $filterString = NULL) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFilterString(): ?string {
-    return $this->filterString;
-  }
+  use FilterStringTrait;
 
 }

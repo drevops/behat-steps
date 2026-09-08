@@ -10,14 +10,6 @@ namespace DrevOps\BehatSteps\Behat\Hook\Attribute;
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class BeforeNodeCreate implements DrupalHookInterface {
 
-  public function __construct(public ?string $filterString = NULL) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFilterString(): ?string {
-    return $this->filterString;
-  }
+  use FilterStringTrait;
 
 }

@@ -13,7 +13,9 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
+use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -28,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BeforeNodeCreate::class)]
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
+#[CoversTrait(FilterStringTrait::class)]
 class AttributeTest extends TestCase {
 
   /**
