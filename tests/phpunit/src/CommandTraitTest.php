@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\CommandTrait;
+use DrevOps\BehatSteps\Steps\Generic\CommandTrait;
 use DrevOps\BehatSteps\Exception\AssertionException;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;

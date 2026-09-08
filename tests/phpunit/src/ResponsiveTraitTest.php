@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\ResponsiveTrait;
+use DrevOps\BehatSteps\Steps\Generic\ResponsiveTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

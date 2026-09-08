@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Drupal\OverrideTrait;
-use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\Steps\Drupal\OverrideTrait;
+use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 

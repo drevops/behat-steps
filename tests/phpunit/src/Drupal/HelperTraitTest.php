@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Drupal;
 
-use DrevOps\BehatSteps\Drupal\HelperTrait;
+use DrevOps\BehatSteps\Steps\Drupal\HelperTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Driver\Core\CoreInterface;
 use Drupal\Driver\DrupalDriverInterface;

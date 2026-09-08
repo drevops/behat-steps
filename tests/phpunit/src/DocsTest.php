@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Tests\Fixtures\MultiMethodTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\NoMatchTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\SampleTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\MultiMethodTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\NoMatchTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\SampleTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -40,10 +40,9 @@ class DocsTest extends UnitTestCase {
     require_once __DIR__ . '/../../../docs.php';
 
     // Pre-load all fixture traits so they're available for eval().
-    // Note: We don't pre-load Drupal subdirectory traits because they need to
+    // Note: We don't pre-load Drupal context traits because they need to
     // be loaded from the test's temporary directory to get the correct context.
-    $fixtures_dir = __DIR__ . '/../fixtures/docs';
-    $fixture_files = glob($fixtures_dir . '/*.php');
+    $fixture_files = glob($this->getFixturesDir() . '/Generic/*.php');
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
         require_once $fixture_file;
@@ -393,34 +392,30 @@ EOD,
     $base_path = static::$tmp;
 
     // Create temporary files for testing.
-    $trait_dir = $base_path . DIRECTORY_SEPARATOR . 'src';
+    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
     // Ensure directories exist.
-    mkdir($trait_dir, 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // Create sample files that the function will check for existence.
     foreach ($info as $trait => $data) {
+      $context = $data['context'] ?? 'Generic';
+
       // Update test data to include name_contextual if it doesn't exist.
       if (!isset($data['name_contextual'])) {
-        $context = $data['context'] ?? 'Generic';
         $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
       }
-      // For non-missing traits, create both src and Drupal directories.
-      if ($trait !== 'MissingTrait') {
-        // Create directories.
-        mkdir($base_path . DIRECTORY_SEPARATOR . 'src/Drupal', 0777, TRUE);
 
-        // Create the file in the root src directory by default.
-        $src_file = sprintf('src/%s.php', $trait);
-        $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
-        file_put_contents($src_file_path, '<?php');
+      if ($trait !== 'MissingTrait') {
+        file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
       }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       // Add "drupal_" prefix for Drupal-specific traits.
-      $prefix = isset($data['context']) && $data['context'] === 'Drupal' ? 'drupal_' : '';
+      $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
       $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
@@ -428,15 +423,7 @@ EOD,
 
     // For the missing file test.
     if (isset($info['MissingTrait'])) {
-      $src_file_path = $base_path . DIRECTORY_SEPARATOR . 'src/MissingTrait.php';
-      @unlink($src_file_path);
-
-      // Also ensure it doesn't exist in the Drupal directory.
-      $drupal_src_file_path = $base_path . DIRECTORY_SEPARATOR . 'src/Drupal/MissingTrait.php';
-      @unlink($drupal_src_file_path);
-
-      // Create the Drupal directory to make sure the test can look for the file there.
-      mkdir($base_path . DIRECTORY_SEPARATOR . 'src/Drupal', 0777, TRUE);
+      @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Generic' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
     }
 
     $actual = render_info($info, $base_path);
@@ -456,9 +443,7 @@ EOD,
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
-        // We only check that the trait name is mentioned, not the exact path
-        // as it could be in the root src or src/Drupal directory.
-        $this->assertStringContainsString("[Source](src", $actual);
+        $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Generic', $trait), $actual);
 
         // Verify step details for each method.
         if (isset($data['methods']) && is_array($data['methods'])) {
@@ -530,7 +515,7 @@ EOD,
 | [TestTrait](#testtrait) | Generic | Test trait description |
 ## TestTrait
 
-[Source](src/TestTrait.php), [Example](tests/behat/features/test.feature)
+[Source](src/Steps/Generic/TestTrait.php), [Example](tests/behat/features/test.feature)
 
 Test trait description
 
@@ -586,7 +571,7 @@ EOD,
 | [SecondTrait](#secondtrait) | Drupal | Second trait description |
 ## FirstTrait
 
-[Source](src/FirstTrait.php), [Example](tests/behat/features/first.feature)
+[Source](src/Steps/Generic/FirstTrait.php), [Example](tests/behat/features/first.feature)
 
 First trait description
 
@@ -601,7 +586,7 @@ Given I am on the homepage
 
 ## SecondTrait
 
-[Source](src/SecondTrait.php), [Example](tests/behat/features/second.feature)
+[Source](src/Steps/Drupal/SecondTrait.php), [Example](tests/behat/features/second.feature)
 
 Second trait description
 
@@ -648,7 +633,7 @@ EOD,
 | [MultiMethodTrait](#multimethodtrait) | Generic | Multi-method trait description |
 ## MultiMethodTrait
 
-[Source](src/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
+[Source](src/Steps/Generic/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
 
 Multi-method trait description
 
@@ -697,7 +682,7 @@ EOD,
 | [StepsTrait](#stepstrait) | Drupal | Steps trait description |
 ## StepsTrait
 
-[Source](src/StepsTrait.php), [Example](tests/behat/features/steps.feature)
+[Source](src/Steps/Drupal/StepsTrait.php), [Example](tests/behat/features/steps.feature)
 
 Steps trait description
 
@@ -766,7 +751,7 @@ EOD,
 | [MultiParaTrait](#multiparatrait) | Generic | Multi-paragraph trait description |
 ## MultiParaTrait
 
-[Source](src/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
+[Source](src/Steps/Generic/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
 
 Multi-paragraph trait description
 
@@ -810,7 +795,7 @@ EOD,
 | [ListTrait](#listtrait) | Drupal | List trait description |
 ## ListTrait
 
-[Source](src/ListTrait.php), [Example](tests/behat/features/list.feature)
+[Source](src/Steps/Drupal/ListTrait.php), [Example](tests/behat/features/list.feature)
 
 List trait description
 
@@ -854,7 +839,7 @@ EOD,
 | [NonArrayTrait](#nonarraytrait) | Drupal | Non-array trait description |
 ## NonArrayTrait
 
-[Source](src/NonArrayTrait.php), [Example](tests/behat/features/non_array.feature)
+[Source](src/Steps/Drupal/NonArrayTrait.php), [Example](tests/behat/features/non_array.feature)
 
 Non-array trait description
 
@@ -894,7 +879,7 @@ EOD,
 | [CodeBlockTrait](#codeblocktrait) | Generic | Code block trait description |
 ## CodeBlockTrait
 
-[Source](src/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
+[Source](src/Steps/Generic/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
 
 >  Code block trait description
 >
@@ -924,29 +909,29 @@ EOD,
     $base_path = static::$tmp;
 
     // Create temporary files for testing.
-    $trait_dir = $base_path . DIRECTORY_SEPARATOR . 'src';
+    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
     // Ensure directories exist.
-    mkdir($trait_dir, 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // Create sample files that the function will check for existence.
     foreach ($info as $trait => $data) {
+      $context = $data['context'] ?? 'Generic';
+
       // Update test data to include name_contextual if it doesn't exist.
       if (!isset($data['name_contextual'])) {
-        $context = $data['context'] ?? 'Generic';
         $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
       }
 
-      // Create the src file.
-      $src_file = sprintf('src/%s.php', $trait);
-      $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
-      file_put_contents($src_file_path, '<?php');
+      // Create the source file.
+      file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
 
       // Create the feature file.
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-      $prefix = isset($data['context']) && $data['context'] === 'Drupal' ? 'drupal_' : '';
+      $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
       $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
@@ -1642,48 +1627,41 @@ EOD,
   /**
    * Setup test environment and return paths.
    *
-   * @return array{base_path: string, src_dir: string}
+   * @return array{base_path: string, steps_dir: string}
    */
   private function setupTestEnvironment(): array {
     $base_path = static::$tmp;
-    $src_dir = $base_path . DIRECTORY_SEPARATOR . 'src';
-    mkdir($src_dir, 0777, TRUE);
+    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
+    mkdir($steps_dir, 0777, TRUE);
 
     return [
       'base_path' => $base_path,
-      'src_dir' => $src_dir,
+      'steps_dir' => $steps_dir,
     ];
   }
 
   /**
-   * Copy a fixture trait file to the test src directory.
+   * Copy a fixture trait file into a context directory of the test tree.
    *
    * @param string $trait_name
    *   The trait name (e.g., 'SampleTrait').
-   * @param string $src_dir
-   *   The target src directory.
-   * @param string|null $subdirectory
-   *   Optional subdirectory within src (e.g., 'Drupal').
+   * @param string $steps_dir
+   *   The target vocabulary directory.
+   * @param string $context
+   *   The context directory the trait belongs to.
    *
    * @return string
    *   The path to the copied file.
    */
-  private function copyFixtureTrait(string $trait_name, string $src_dir, ?string $subdirectory = NULL): string {
-    $fixtures_dir = $this->getFixturesDir();
+  private function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Generic'): string {
+    $fixture_file = $this->getFixturesDir() . DIRECTORY_SEPARATOR . $context . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    $target_dir = $steps_dir . DIRECTORY_SEPARATOR . $context;
 
-    // Determine source and target paths.
-    if ($subdirectory) {
-      $fixture_file = $fixtures_dir . DIRECTORY_SEPARATOR . $subdirectory . DIRECTORY_SEPARATOR . $trait_name . '.php';
-      $target_dir = $src_dir . DIRECTORY_SEPARATOR . $subdirectory;
-      if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, TRUE);
-      }
-      $target_file = $target_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    if (!is_dir($target_dir)) {
+      mkdir($target_dir, 0777, TRUE);
     }
-    else {
-      $fixture_file = $fixtures_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
-      $target_file = $src_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
-    }
+
+    $target_file = $target_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
 
     if (file_exists($fixture_file)) {
       copy($fixture_file, $target_file);
@@ -1693,16 +1671,16 @@ EOD,
   }
 
   /**
-   * Copy multiple fixture traits to the test src directory.
+   * Copy multiple fixture traits into the generic context directory.
    *
    * @param array<string> $trait_names
    *   Array of trait names.
-   * @param string $src_dir
-   *   The target src directory.
+   * @param string $steps_dir
+   *   The target vocabulary directory.
    */
-  private function copyFixtureTraits(array $trait_names, string $src_dir): void {
+  private function copyFixtureTraits(array $trait_names, string $steps_dir): void {
     foreach ($trait_names as $trait_name) {
-      $this->copyFixtureTrait($trait_name, $src_dir);
+      $this->copyFixtureTrait($trait_name, $steps_dir);
     }
   }
 
@@ -1713,22 +1691,22 @@ EOD,
    *
    * @param array<string> $trait_names
    *   Array of trait names to use.
-   * @param string|null $subdirectory
-   *   Optional subdirectory for traits (e.g., 'Drupal').
+   * @param string|null $context
+   *   Context directory to copy a single trait into (e.g., 'Drupal').
    *
-   * @return array{base_path: string, src_dir: string, class_name: string}
+   * @return array{base_path: string, steps_dir: string, class_name: string}
    */
-  private function setupExtractInfoTest(array $trait_names, ?string $subdirectory = NULL): array {
+  private function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
     $paths = $this->setupTestEnvironment();
 
     // Copy fixture files.
-    if ($subdirectory && count($trait_names) === 1) {
-      $target_file = $this->copyFixtureTrait($trait_names[0], $paths['src_dir'], $subdirectory);
+    if ($context && count($trait_names) === 1) {
+      $target_file = $this->copyFixtureTrait($trait_names[0], $paths['steps_dir'], $context);
       // Load the trait from test directory for correct path reflection.
       require_once $target_file;
     }
     else {
-      $this->copyFixtureTraits($trait_names, $paths['src_dir']);
+      $this->copyFixtureTraits($trait_names, $paths['steps_dir']);
     }
 
     // Create test context with unique name.
@@ -1736,7 +1714,7 @@ EOD,
 
     return [
       'base_path' => $paths['base_path'],
-      'src_dir' => $paths['src_dir'],
+      'steps_dir' => $paths['steps_dir'],
       'class_name' => $class_name,
     ];
   }
@@ -1748,11 +1726,9 @@ EOD,
     if (!class_exists($class_name, FALSE)) {
       // Add namespace prefix to trait names.
       $namespaced_traits = array_map(function ($trait_name): string {
-        // Check if trait is in Drupal subdirectory namespace.
-        if ($trait_name === 'DrupalTrait') {
-          return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\Drupal\\' . $trait_name;
-        }
-        return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\' . $trait_name;
+        $context = $trait_name === 'DrupalTrait' ? 'Drupal' : 'Generic';
+
+        return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\' . $context . '\\' . $trait_name;
       }, $trait_names);
       $use_traits = implode(', ', $namespaced_traits);
       $class_code = sprintf('class %s { use %s; }', $class_name, $use_traits);
@@ -1833,7 +1809,7 @@ EOD,
     $paths = $this->setupTestEnvironment();
 
     // Copy fixture file that won't be used by the class.
-    $this->copyFixtureTrait('UnusedTrait', $paths['src_dir']);
+    $this->copyFixtureTrait('UnusedTrait', $paths['steps_dir']);
 
     // Create an empty test context with unique name (doesn't use the trait).
     $class_name = 'TestContextEmpty' . uniqid();

@@ -32,6 +32,14 @@ use Behat\Step\When;
  */
 const FIRST_PERSON = '/\b(I|[Mm]y|[Mm]e|[Mm]yself|[Ww]e|[Uu]s|[Oo]ur)\b/';
 
+/**
+ * Directory holding the step vocabulary, relative to the repository root.
+ *
+ * Each directory directly below it is a context and gives its traits their
+ * context name.
+ */
+const STEPS_DIRECTORY = 'src/Steps';
+
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
@@ -138,24 +146,23 @@ function file_declares_trait(string $file_path): bool {
 function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
   $info = [];
 
-  // Collect all traits in the src directory to validate that they all present
-  // in the $class_name class.
-  $traits_path = $base_path . DIRECTORY_SEPARATOR . 'src';
+  // Collect all traits in the vocabulary directory to validate that they all
+  // present in the $class_name class.
+  $traits_path = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
   $traits_files = [];
   if (is_dir($traits_path)) {
-    $files = scandir($traits_path) ?: [];
-    foreach ($files as $file) {
-      $file_path = $traits_path . DIRECTORY_SEPARATOR . $file;
-      if (is_file($file_path) && file_declares_trait($file_path)) {
-        $traits_files[] = basename($file, '.php');
+    $contexts = scandir($traits_path) ?: [];
+    foreach ($contexts as $context) {
+      $context_path = $traits_path . DIRECTORY_SEPARATOR . $context;
+      if (!is_dir($context_path) || $context === '.' || $context === '..') {
+        continue;
       }
-      elseif (is_dir($file_path) && $file !== '.' && $file !== '..') {
-        $subdir_files = scandir($file_path) ?: [];
-        foreach ($subdir_files as $subdir_file) {
-          $subdir_file_path = $file_path . DIRECTORY_SEPARATOR . $subdir_file;
-          if (is_file($subdir_file_path) && file_declares_trait($subdir_file_path)) {
-            $traits_files[] = basename($subdir_file, '.php');
-          }
+
+      $context_files = scandir($context_path) ?: [];
+      foreach ($context_files as $context_file) {
+        $context_file_path = $context_path . DIRECTORY_SEPARATOR . $context_file;
+        if (is_file($context_file_path) && file_declares_trait($context_file_path)) {
+          $traits_files[] = basename($context_file, '.php');
         }
       }
     }
@@ -194,10 +201,9 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
       throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
     }
     // @codeCoverageIgnoreEnd
-    $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR, '', $trait_file_path);
-    $path_parts = explode(DIRECTORY_SEPARATOR, $relative_path);
-    // If the file is in a subdirectory, use that as the context, otherwise use 'Generic'.
-    $context = count($path_parts) > 1 ? $path_parts[0] : 'Generic';
+    $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
+    // The directory a trait sits in under the vocabulary root is its context.
+    $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
 
     $class_info = [
       'name' => $trait_name,
@@ -485,18 +491,10 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
   $index_rows = [];
 
   foreach ($info as $trait => $trait_info) {
-    // Check if the file exists in the root src directory.
-    $src_file = sprintf('src/%s.php', $trait);
-    $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
     $context = $trait_info['context'];
-
-    // Fallback to the context-specific sub-directory, whatever it is.
-    if (!file_exists($src_file_path)) {
-      $context_dir = $context;
-      // @phpstan-ignore-next-line
-      $src_file = sprintf('src/%s/%s.php', $context_dir, $trait);
-      $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
-    }
+    // @phpstan-ignore-next-line
+    $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
+    $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
 
     if (!file_exists($src_file_path)) {
       throw new \Exception(sprintf('Source file %s does not exist', $src_file_path));
