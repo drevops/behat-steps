@@ -28,7 +28,7 @@ trait SearchApiTrait {
    */
   #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $content_type, string $title): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
@@ -59,7 +59,7 @@ trait SearchApiTrait {
    */
   #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $count): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $count = (int) $count;
 
@@ -90,7 +90,7 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API cron')]
   public function searchApiRunCron(): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
@@ -110,7 +110,7 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API Solr cron')]
   public function searchApiRunSolrCron(): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 

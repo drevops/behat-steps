@@ -62,7 +62,7 @@ trait EmailTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     if ($scope->getScenario()->hasTag('debug')) {
       $this->emailDebug = TRUE;
@@ -99,7 +99,7 @@ trait EmailTrait {
 
     // A scenario that skipped 'emailBeforeScenario' never reached Drupal, and
     // teardown runs before any other hook that would have bootstrapped it.
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->emailDisableTestEmailSystem();
   }
@@ -113,7 +113,7 @@ trait EmailTrait {
    */
   #[When('I clear the test email system queue')]
   public function emailClearTestQueue(bool $force = FALSE): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
@@ -733,7 +733,7 @@ trait EmailTrait {
    *   Array of collected emails.
    */
   protected function emailGetCollectedMessages(): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.

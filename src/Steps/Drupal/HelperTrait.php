@@ -225,7 +225,7 @@ trait HelperTrait {
    *   private://basename.
    */
   protected function helperManagedFileExists(string $basename): bool {
-    $this->drupal();
+    $this->assertDrupal();
 
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;
@@ -254,7 +254,7 @@ trait HelperTrait {
    *   Array of node ids.
    */
   protected function helperLoadNodeIds(string $content_type, array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
@@ -286,7 +286,7 @@ trait HelperTrait {
    *   When the module is not enabled.
    */
   protected function helperAssertModuleEnabled(string $module, string $package = ''): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     // @codeCoverageIgnoreStart
     if (\Drupal::moduleHandler()->moduleExists($module)) {

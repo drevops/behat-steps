@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
@@ -95,6 +97,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   protected array $roles = [];
 
   /**
+   * Whether the scenario is tagged '@api', NULL outside a scenario.
+   *
+   * NULL means no scenario scope was ever seen, as when a context is driven
+   * directly from a unit test, and the tag is then not asserted.
+   */
+  protected ?bool $isApiScenario = NULL;
+
+  /**
    * Converts textual node timestamps into the numeric form storage expects.
    *
    * @throws \RuntimeException
@@ -132,6 +142,18 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
       $stub->setValue($field, $timestamp);
     }
+  }
+
+  /**
+   * Records whether the scenario asked for Drupal's API.
+   *
+   * A step scope carries no tags, so the answer is resolved once here and read
+   * by 'assertDrupal()' on every call.
+   */
+  #[BeforeScenario]
+  public function resolveApiScenario(BeforeScenarioScope $scope): void {
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $this->isApiScenario = in_array('api', $tags, TRUE);
   }
 
   /**
@@ -318,22 +340,26 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns the bootstrapped in-process Drupal driver.
+   * Asserts the scenario can reach Drupal's API, and returns the driver.
    *
-   * The sanctioned gateway to Drupal's API: a trait calls it before touching
-   * '\Drupal::' statics, because the container exists only once the driver has
-   * bootstrapped. Bootstrapping happens on the first call of a scenario and is
-   * a no-op afterwards.
+   * A trait calls this before touching '\Drupal::' statics: the container
+   * exists only once the in-process driver has bootstrapped, and only an
+   * '@api' scenario runs on that driver. Bootstrapping happens on the first
+   * call of a scenario and is a no-op afterwards.
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
-   *   When the scenario runs on a driver that does not bootstrap Drupal
-   *   in-process, such as the Blackbox or Drush driver.
+   *   When the scenario is not tagged '@api', or when the driver it selected
+   *   does not bootstrap Drupal in-process.
    */
-  public function drupal(): DrupalDriverInterface {
+  public function assertDrupal(): DrupalDriverInterface {
+    if ($this->isApiScenario === FALSE) {
+      throw new BootstrapException('The step requires Drupal\'s API. Tag the scenario "@api" so it runs on the in-process Drupal driver.');
+    }
+
     $driver = $this->getDriver();
 
     if (!$driver instanceof DrupalDriverInterface) {
-      throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the active driver "%s" does not provide. Tag the scenario "@api" so it runs on the in-process Drupal driver.', $driver::class));
+      throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the configured "api_driver" ("%s") does not provide.', $driver::class));
     }
 
     if (!$driver->isBootstrapped()) {
@@ -511,7 +537,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   When the scenario does not run on the in-process Drupal driver.
    */
   public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->drupal()->getCore()->getFieldClassifier();
+    $classifier = $this->assertDrupal()->getCore()->getFieldClassifier();
 
     $parser = $this->getFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
     $parser->ignoring($ignored_properties);

@@ -50,7 +50,7 @@ trait FileTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     $fs = new Filesystem();
 
@@ -131,7 +131,7 @@ trait FileTrait {
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedFiles(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -161,7 +161,7 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $directory = \Drupal::service('file_system')->dirname($uri);
 
@@ -299,7 +299,7 @@ trait FileTrait {
    *   Created file entity.
    */
   protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     $path = ltrim($path, '/');
 
@@ -354,7 +354,7 @@ trait FileTrait {
    *   Array of file ids.
    */
   protected function fileLoadMultiple(array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
 

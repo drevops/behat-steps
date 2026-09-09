@@ -135,7 +135,7 @@ trait FeatureContextTrait {
   #[Given('set watchdog error level :level')]
   #[Given('set watchdog error level :level of type :type')]
   public function testSetWatchdogError(string $level, string $type = 'php'): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::logger($type)->log($level, 'test');
   }
@@ -169,7 +169,7 @@ trait FeatureContextTrait {
    */
   #[Given('I install a :name module')]
   public function testInstallModule(string $name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -197,7 +197,7 @@ trait FeatureContextTrait {
    */
   #[Given('I uninstall a :name module')]
   public function testUninstallModule(string $name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -221,7 +221,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :email with')]
   #[When('I send test email to :email with:')]
   public function testSendEmail(string $email, PyStringNode $string): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -239,7 +239,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc with')]
   #[When('I send test email to :to with cc :cc with:')]
   public function testSendEmailWithCc(string $to, string $cc, PyStringNode $string): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -263,7 +263,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with bcc :bcc with')]
   #[When('I send test email to :to with bcc :bcc with:')]
   public function testSendEmailWithBcc(string $to, string $bcc, PyStringNode $string): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -287,7 +287,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc and bcc :bcc with')]
   #[When('I send test email to :to with cc :cc and bcc :bcc with:')]
   public function testSendEmailWithCcAndBcc(string $to, string $cc, string $bcc, PyStringNode $string): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -311,7 +311,7 @@ trait FeatureContextTrait {
    */
   #[When('I send test email to :email with subject :subject and attachment :attachment and body:')]
   public function testSendEmailWithAttachment(string $email, string $subject, string $attachment, PyStringNode $body): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -365,7 +365,7 @@ trait FeatureContextTrait {
    */
   #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
@@ -458,7 +458,7 @@ trait FeatureContextTrait {
    */
   #[Then('the mailsystem formatter should be :expected')]
   public function testAssertMailsystemFormatter(string $expected): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
     if ($formatter !== $expected) {
@@ -506,7 +506,7 @@ trait FeatureContextTrait {
    */
   #[Given('I add :count item(s) to the :queue queue')]
   public function testAddItemsToQueue(int $count, string $queue): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $queue_instance = \Drupal::service('queue')->get($queue);
     for ($i = 0; $i < $count; $i++) {

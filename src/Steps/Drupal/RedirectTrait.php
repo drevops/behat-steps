@@ -63,7 +63,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreate(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
@@ -104,7 +104,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDelete(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
@@ -154,7 +154,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
@@ -207,7 +207,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 

@@ -6,6 +6,9 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -64,12 +67,26 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame('behat_steps', (new BehatStepsExtension())->getConfigKey());
   }
 
-  public function testInitializeTouchesNoOtherExtension(): void {
+  public function testInitializeSkipsRegistrationWithoutMink(): void {
     $manager = new ExtensionManager([]);
 
     (new BehatStepsExtension())->initialize($manager);
 
     $this->assertSame([], $manager->getExtensions());
+  }
+
+  public function testInitializeRegistersTheBrowserKitDriverWithMink(): void {
+    $mink = new MinkExtension();
+    $manager = new ExtensionManager([$mink]);
+
+    // Mink registers its own factory under the same name, so the assertion
+    // is that ours displaced it rather than that the name exists.
+    $factories = new \ReflectionProperty(MinkExtension::class, 'driverFactories');
+    $this->assertInstanceOf(UpstreamBrowserKitFactory::class, $factories->getValue($mink)['browserkit_http']);
+
+    (new BehatStepsExtension())->initialize($manager);
+
+    $this->assertInstanceOf(BrowserKitFactory::class, $factories->getValue($mink)['browserkit_http']);
   }
 
   public function testBlackboxDriverIsAlwaysRegistered(): void {

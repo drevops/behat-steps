@@ -36,7 +36,7 @@ Feature: Behat CLI context
               - FeatureContext
               - Behat\MinkExtension\Context\MinkContext
         extensions:
-          Drupal\MinkExtension:
+          Behat\MinkExtension:
             browserkit_http: ~
             selenium2: ~
             base_url: http://nginx:8080
@@ -141,3 +141,25 @@ Feature: Behat CLI context
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  Scenario: A Drupal step outside an "@api" scenario names the tag it needs
+    Given a file named "features/bootstrap/FeatureContext.php" with:
+      """
+      <?php
+      use DrevOps\BehatSteps\Behat\Context\RawContext;
+      use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
+      class FeatureContext extends RawContext {
+        use ContentTrait;
+      }
+      """
+    And a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        Scenario: An untagged scenario reaches for Drupal
+          Given the content type "article" does not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The step requires Drupal's API. Tag the scenario "@api" so it runs on the in-process Drupal driver.
+      """

@@ -36,7 +36,7 @@ trait BlockTrait {
    */
   #[Given('the instance of :admin_label block exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $block = NULL;
 
@@ -349,7 +349,7 @@ trait BlockTrait {
    *   The loaded block entity, or NULL when no block carries that label.
    */
   protected function blockLoadByLabel(string $label): ?Block {
-    $this->drupal();
+    $this->assertDrupal();
 
     $default_theme = \Drupal::config('system.theme')->get('default');
 

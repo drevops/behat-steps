@@ -6,10 +6,12 @@ namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Element\DocumentElement as MinkDocumentElement;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
+use DrevOps\BehatSteps\Behat\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -39,6 +41,13 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function initialize(ExtensionManager $extensionManager): void {
+    $mink = $extensionManager->getExtension('mink');
+
+    // The suite may register Mink itself or not at all, and a driver factory
+    // has nowhere to go in the second case.
+    if ($mink instanceof MinkExtension) {
+      $mink->registerDriverFactory(new BrowserKitFactory());
+    }
   }
 
   /**

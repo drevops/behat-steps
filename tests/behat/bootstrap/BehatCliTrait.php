@@ -136,7 +136,7 @@ class FeatureContext extends RawContext {
    * @AfterScenario @test-watchdog-teardown
    */
   public function testSetWatchdogErrorInTeardown() {
-    $this->drupal();
+    $this->assertDrupal();
 
     \Drupal::logger('php')->log('warning', 'test');
   }
@@ -215,7 +215,7 @@ default:
             port: 8888
             debug: true
   extensions:
-    Drupal\MinkExtension:
+    Behat\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'

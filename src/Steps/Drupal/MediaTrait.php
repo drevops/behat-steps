@@ -38,7 +38,7 @@ trait MediaTrait {
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaRemoveType(string $media_type): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
@@ -108,7 +108,7 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($table->getHash() as $media_hash) {
       $ids = $this->mediaLoadMultiple($media_type, $media_hash);
@@ -175,7 +175,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -193,7 +193,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -291,7 +291,7 @@ trait MediaTrait {
    *   The created media entity.
    */
   protected function mediaCreateEntity(EntityStub $stub): MediaInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     $bundle = $stub->getBundle();
 
@@ -363,7 +363,7 @@ trait MediaTrait {
    *   Array of media ids.
    */
   protected function mediaLoadMultiple(string $type, array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)

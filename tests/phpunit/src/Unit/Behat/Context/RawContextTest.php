@@ -28,7 +28,9 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -573,6 +575,59 @@ class RawContextTest extends UnitTestCase {
     $context->cleanEntities($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
 
     $this->assertSame(['term'], $deleted);
+  }
+
+  public function testAssertDrupalRejectsScenarioWithoutTheApiTag(): void {
+    $context = $this->createContext($this->createMock(DriverInterface::class));
+    $context->resolveApiScenario($this->createBeforeScenarioScope());
+
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage('Tag the scenario "@api"');
+
+    $context->assertDrupal();
+  }
+
+  /**
+   * Tests that the tag is honoured from either level.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   */
+  #[DataProvider('dataProviderAssertDrupalRejectsNonBootstrappingDriver')]
+  public function testAssertDrupalRejectsNonBootstrappingDriver(array $scenario_tags, array $feature_tags): void {
+    $context = $this->createContext($this->createMock(DriverInterface::class));
+    $context->resolveApiScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage('does not provide');
+
+    $context->assertDrupal();
+  }
+
+  public static function dataProviderAssertDrupalRejectsNonBootstrappingDriver(): \Iterator {
+    yield 'tagged on the scenario' => [['api'], []];
+    yield 'tagged on the feature' => [[], ['api']];
+  }
+
+  public function testAssertDrupalBootstrapsOnceAndReturnsTheDriver(): void {
+    $driver = $this->createMock(DrupalDriverInterface::class);
+    $driver->method('isBootstrapped')->willReturnOnConsecutiveCalls(FALSE, TRUE);
+    $driver->expects($this->once())->method('bootstrap');
+
+    $context = $this->createContext($driver);
+    $context->resolveApiScenario($this->createBeforeScenarioScope(['api']));
+
+    $this->assertSame($driver, $context->assertDrupal());
+    $this->assertSame($driver, $context->assertDrupal());
+  }
+
+  public function testAssertDrupalSkipsTheTagCheckOutsideScenario(): void {
+    $driver = $this->createMock(DrupalDriverInterface::class);
+    $driver->method('isBootstrapped')->willReturn(TRUE);
+
+    $this->assertSame($driver, $this->createContext($driver)->assertDrupal());
   }
 
   public function testStringTimestampIsConvertedForInProcessDriver(): void {

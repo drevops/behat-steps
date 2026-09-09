@@ -32,7 +32,7 @@ trait TestmodeTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     self::testmodeEnableTestMode();
   }
@@ -46,7 +46,7 @@ trait TestmodeTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     self::testmodeDisableTestMode();
   }

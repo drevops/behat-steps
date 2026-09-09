@@ -64,7 +64,7 @@ trait StateTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     $state = \Drupal::state();
     foreach ($this->stateOriginalValues as $name => $snapshot) {
@@ -88,7 +88,7 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->set($name, $this->stateNormalizeValue($value));
@@ -103,7 +103,7 @@ trait StateTrait {
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->delete($name);
@@ -121,7 +121,7 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $state = \Drupal::state();
     foreach ($table->getHash() as $row) {
@@ -186,7 +186,7 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   protected function stateReadValue(string $name): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $key_value = \Drupal::keyValue('state');
 

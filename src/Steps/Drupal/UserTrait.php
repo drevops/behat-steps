@@ -223,7 +223,7 @@ trait UserTrait {
    */
   #[Given('the role :role_name has the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $permissions = $this->helperSplitCommaSeparated($permissions);
 
@@ -639,7 +639,7 @@ trait UserTrait {
    *   The user object.
    */
   protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $timestamp = \Drupal::time()->getRequestTime();
 
@@ -664,7 +664,7 @@ trait UserTrait {
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
   protected function userExistsByMail(string $mail): bool {
-    $this->drupal();
+    $this->assertDrupal();
 
     $ids = \Drupal::entityTypeManager()
       ->getStorage('user')
@@ -687,7 +687,7 @@ trait UserTrait {
    *   Array of loaded user objects.
    */
   protected function userLoadMultiple(array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
 

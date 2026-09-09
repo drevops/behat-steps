@@ -35,7 +35,7 @@ trait LanguageTrait {
    */
   #[Given('the following languages exist:')]
   public function languageCreateMultiple(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($table->getHash() as $row) {
       $langcode = $row['langcode'] ?? reset($row);

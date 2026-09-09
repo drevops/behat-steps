@@ -81,7 +81,7 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms do not exist:')]
   public function taxonomyDeleteTerms(string $vocabulary, TableNode $terms_table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -147,7 +147,7 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -170,7 +170,7 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -188,7 +188,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should exist')]
   public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -217,7 +217,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -248,7 +248,7 @@ trait TaxonomyTrait {
    *   The operation to perform, e.g., '/delete', '/edit', etc.
    */
   protected function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -284,7 +284,7 @@ trait TaxonomyTrait {
    *   Array of term ids.
    */
   protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)

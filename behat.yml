@@ -24,7 +24,7 @@ default:
             debug: false
 
   extensions:
-    Drupal\MinkExtension:
+    Behat\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
@@ -110,7 +110,7 @@ default:
 chrome_headless:
   extensions:
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
-    Drupal\MinkExtension:
+    Behat\MinkExtension:
       javascript_session: chrome
       chrome:
         api_url: 'http://chrome_headless:9222'

@@ -52,7 +52,7 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($table->getHash() as $entity_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
@@ -74,7 +74,7 @@ trait EckTrait {
    */
   #[When('I visit eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -101,7 +101,7 @@ trait EckTrait {
    */
   #[When('I edit eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -133,7 +133,7 @@ trait EckTrait {
    *   Array of entity ids.
    */
   protected function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)

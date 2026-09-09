@@ -102,7 +102,7 @@ trait WebformTrait {
    *   An array of matching webform entities.
    */
   protected function webformLoadAll(string $title): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     // Clear config factory cache to pick up webform changes made via the
     // admin UI in a separate process.
@@ -140,7 +140,7 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
-    $this->drupal();
+    $this->assertDrupal();
 
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);

@@ -32,7 +32,7 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:')]
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
@@ -83,7 +83,7 @@ trait DraggableviewsTrait {
    *   The found node or NULL.
    */
   protected function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)

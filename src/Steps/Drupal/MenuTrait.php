@@ -59,7 +59,7 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
@@ -113,7 +113,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->helperAssertModuleEnabled('menu_link_content');
 
@@ -161,7 +161,7 @@ trait MenuTrait {
    *   The menu or NULL if not found.
    */
   protected function menuLoadByLabel(string $label): ?MenuInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
@@ -191,7 +191,7 @@ trait MenuTrait {
    *   The menu link or NULL if not found.
    */
   protected function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
-    $this->drupal();
+    $this->assertDrupal();
 
     $menu = $this->menuLoadByLabel($menu_name);
 

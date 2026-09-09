@@ -86,7 +86,7 @@ trait ConfigTrait {
       return;
     }
 
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($this->configOriginalData as $name => $snapshot) {
       $config = \Drupal::configFactory()->getEditable($name);
@@ -110,7 +110,7 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $this->configSnapshot($name);
     \Drupal::configFactory()->getEditable($name)->set($key, $this->configCastValue($value))->save();
@@ -129,7 +129,7 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
@@ -260,7 +260,7 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   protected function configReadStored(string $name, string $key): mixed {
-    $this->drupal();
+    $this->assertDrupal();
 
     return \Drupal::configFactory()->getEditable($name)->get($key);
   }
@@ -277,7 +277,7 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   protected function configReadEffective(string $name, string $key): mixed {
-    $this->drupal();
+    $this->assertDrupal();
 
     return \Drupal::config($name)->get($key);
   }
@@ -289,7 +289,7 @@ trait ConfigTrait {
    *   The configuration object name.
    */
   protected function configSnapshot(string $name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     if (array_key_exists($name, $this->configOriginalData)) {
       return;

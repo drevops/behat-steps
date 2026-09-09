@@ -74,7 +74,7 @@ trait ParagraphsTrait {
    *   Created paragraphs item.
    */
   protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     $values = $stub->getValues();
     $values['type'] = $paragraph_bundle;
@@ -114,7 +114,7 @@ trait ParagraphsTrait {
    *   Found entity or NULL if not found.
    */
   protected function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
@@ -169,7 +169,7 @@ trait ParagraphsTrait {
    *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);

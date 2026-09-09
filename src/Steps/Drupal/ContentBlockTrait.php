@@ -43,7 +43,7 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDelete(string $content_block_type, TableNode $content_block_table): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     foreach ($content_block_table->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
@@ -156,7 +156,7 @@ trait ContentBlockTrait {
    */
   #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
-    $this->drupal();
+    $this->assertDrupal();
 
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
@@ -187,7 +187,7 @@ trait ContentBlockTrait {
    *   When the entity cannot be saved.
    */
   protected function contentBlockCreateSingle(string $type, array $values): BlockContent {
-    $this->drupal();
+    $this->assertDrupal();
 
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
@@ -214,7 +214,7 @@ trait ContentBlockTrait {
    *   Array of block content ids.
    */
   protected function contentBlockLoadMultiple(string $type, array $conditions = []): array {
-    $this->drupal();
+    $this->assertDrupal();
 
     $query = \Drupal::entityQuery('block_content')
       ->accessCheck(FALSE)
