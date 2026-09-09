@@ -194,7 +194,7 @@ Feature: Check that TaxonomyTrait works
     When I log in as a user with the "administrator" role
     When I visit the "tags" term edit page with the name "Tag1"
     Then the response should contain "200"
-    And I should see "Tag1"
+    And the "name[0][value]" field should contain "Tag1"
 
   @api @trait:Drupal\TaxonomyTrait
   Scenario: Assert negative assertion for "When I visit the :vocabulary term edit page with the name :term_name" fails with non-existing vocabulary

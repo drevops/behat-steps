@@ -257,7 +257,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Table row containing text "NonExistent" not found.
+      No table row containing the text "NonExistent" was found.
       """
 
   @trait:TableTrait
