@@ -528,8 +528,11 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createDriver([UserCapabilityInterface::class]);
     $driver->expects($this->never())->method('userDelete');
 
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->never())->method('logOut');
+    // The normal path calls 'fastLogout()' even for a scenario that created
+    // no users, so expecting it never is what proves the early return ran.
+    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
+    $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
+    $authentication_manager->expects($this->never())->method('fastLogout');
 
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
