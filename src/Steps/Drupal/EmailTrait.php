@@ -178,7 +178,13 @@ trait EmailTrait {
   #[When('I follow the link containing :url_fragment in the email')]
   public function emailFollowLinkContaining(string $url_fragment): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $body = $message['params']['body'] ?? $message['body'] ?? '';
+      $body = $message['params']['body'] ?? NULL;
+
+      // A handler that puts a structure in 'params.body' leaves the rendered
+      // text in 'body', so fall through rather than skipping the message.
+      if (!is_string($body)) {
+        $body = $message['body'] ?? '';
+      }
 
       if (!is_string($body)) {
         continue;

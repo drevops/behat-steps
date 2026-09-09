@@ -326,8 +326,8 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Then I should not get a :code HTTP response` | `Then the response status code should not be :code` (Mink) |
 | `Then I should see the text :text` | `Then I should see :text` (Mink) |
 | `Then I should not see the text :text` | `Then I should not see :text` (Mink) |
-| `Then I should see the link :link` | `Then the link :link with the href :href should exist` |
-| `Then I should not see the link :link` | `Then the link :link with the href :href should not exist` |
+| `Then I should see the link :link` | `Then the link :link with the href :href should exist` - the replacement matches on the target too, so supply the URL the link points at |
+| `Then I should not see the link :link` | `Then the link :link with the href :href should not exist` - as above |
 | `Then I should not visibly see the link :link` | `Then the element :selector should not be displayed` |
 | `Then I should see the button :button` | `Then the button :button should exist` |
 | `Then I should see the :button button` | `Then the button :button should exist` |
@@ -456,9 +456,9 @@ Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchan
 
 ## Unified entity cleanup
 
-Every entity a scenario creates - through a creation step, through the driver, or through Drupal's API in a project's own step - is registered on `RawContext` and deleted in reverse creation order by one `cleanEntities` hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the driver creates is registered on `RawContext` and deleted in reverse creation order by one `cleanEntities` hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
-A project's own step registers an entity it saved with `$this->entityRegister($entity)`.
+An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityRegister($entity)`. Without that call the entity survives the scenario.
 
 The per-trait cleanup skip tags have been removed. Replace them as follows:
 

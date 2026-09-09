@@ -28,7 +28,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create, manage, and verify content block entities
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Content Block 1 |
@@ -46,7 +46,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Verify "Given the following content blocks do not exist" does not fail for non-existent content blocks
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Non-existent Block |
@@ -54,7 +54,7 @@ Feature: Check that ContentBlockTrait works
 
   @api @skipped
   Scenario: Edit a content block
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Editable Block |
@@ -71,7 +71,7 @@ Feature: Check that ContentBlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I edit the "basic" content block with the description "Non-existent Content Block"
       """
     When I run "behat --no-colors"
@@ -135,7 +135,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Remove content block
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following "basic" content blocks exist:
       | info                   | body                       | status |
       | [TEST] Removable Block | Block that will be removed | 1      |
@@ -149,7 +149,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create basic content block, then delete it, and verify it no longer exists
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks exist:
       | info                   | status | body                       |
@@ -163,7 +163,7 @@ Feature: Check that ContentBlockTrait works
 
   @api @trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Content Block That Doesn't Exist |
@@ -184,7 +184,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create single content block with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block        |
       | body   | Created with vertical format |
@@ -196,7 +196,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create multiple content blocks with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block 1 | [TEST] Vertical Block 2 | [TEST] Vertical Block 3 |
       | body   | First vertical block    | Second vertical block   | Third vertical block    |

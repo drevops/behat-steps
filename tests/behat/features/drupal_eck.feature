@@ -16,7 +16,7 @@ Feature: Check that EckTrait works
 
   @api
   Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
@@ -26,7 +26,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
@@ -37,7 +37,7 @@ Feature: Check that EckTrait works
 
   @api
   Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
@@ -46,7 +46,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"

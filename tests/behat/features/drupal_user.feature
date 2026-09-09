@@ -13,7 +13,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "Given the following users do not exist:" by name
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -25,7 +25,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "Given the following users do not exist:" by email
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -168,7 +168,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit :name user profile page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "authenticated_user" user profile page
     Then the response status code should be 200
 
@@ -177,7 +177,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "non_existing" user profile page
       """
     When I run "behat --no-colors"
@@ -188,7 +188,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit my own user profile page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit my own user profile page
     Then the response status code should be 200
 
@@ -207,7 +207,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit :name user profile edit page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "authenticated_user" user profile edit page
     Then the response status code should be 200
 
@@ -216,7 +216,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "non_existing" user profile edit page
       """
     When I run "behat --no-colors"
@@ -227,7 +227,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit my own user profile edit page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit my own user profile edit page
     Then the response status code should be 200
 
@@ -246,7 +246,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit :name user profile delete page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "authenticated_user" user profile delete page
     Then the response status code should be 200
 
@@ -255,7 +255,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "non_existing" user profile delete page
       """
     When I run "behat --no-colors"
@@ -266,7 +266,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit my own user profile delete page" for existing user
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit my own user profile delete page
     Then the response status code should be 200
 
@@ -285,7 +285,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit the password reset link for :name" works
-    Given I log in as the user "authenticated_user"
+    When I log in as the user "authenticated_user"
     When I visit the password reset link for "authenticated_user"
     Then the response status code should be 200
 
@@ -294,7 +294,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the password reset link for "non_existing"
       """
     When I run "behat --no-colors"
@@ -305,7 +305,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Assert "When I visit my own password reset link" works
-    Given I log in as the user "authenticated_user"
+    When I log in as the user "authenticated_user"
     When I visit my own password reset link
     Then the response status code should be 200
 
@@ -545,7 +545,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Create single user with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following users with fields exist:
       | name   | [TEST] vertical_user |
       | mail   | vertical@example.com |
@@ -555,7 +555,7 @@ Feature: Check that UserTrait works
 
   @api
   Scenario: Create multiple users with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following users with fields exist:
       | name   | [TEST] vuser1      | [TEST] vuser2      | [TEST] vuser3      |
       | mail   | vuser1@example.com | vuser2@example.com | vuser3@example.com |

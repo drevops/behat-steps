@@ -25,7 +25,7 @@ class MultipleParseException extends ParseException {
    */
   public function __construct(public readonly array $errors, string $cell, ?\Throwable $previous = NULL) {
     if ($errors === []) {
-      throw new \InvalidArgumentException('MultipleParseException requires at least one error.');
+      throw new \RuntimeException('MultipleParseException requires at least one error.');
     }
 
     // Read the first by iteration order: a caller that filtered its errors

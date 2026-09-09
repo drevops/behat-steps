@@ -237,7 +237,7 @@ trait RandomTrait {
    */
   protected function randomNormalizeLengthArgs(string $type, array $args): array {
     if (count($args) > 1) {
-      throw new \InvalidArgumentException(sprintf('Type "%s" accepts at most one argument (length); got %d.', $type, count($args)));
+      throw new \RuntimeException(sprintf('Type "%s" accepts at most one argument (length); got %d.', $type, count($args)));
     }
 
     if (!isset($args[0])) {
@@ -245,7 +245,7 @@ trait RandomTrait {
     }
 
     if (!ctype_digit($args[0])) {
-      throw new \InvalidArgumentException(sprintf('Type "%s" length must be a non-negative integer; got "%s".', $type, $args[0]));
+      throw new \RuntimeException(sprintf('Type "%s" length must be a non-negative integer; got "%s".', $type, $args[0]));
     }
 
     return [$args[0]];
@@ -266,12 +266,12 @@ trait RandomTrait {
     }
 
     if (count($args) !== 2) {
-      throw new \InvalidArgumentException(sprintf('Type "int" accepts no args (full range) or two args (min, max); got %d.', count($args)));
+      throw new \RuntimeException(sprintf('Type "int" accepts no args (full range) or two args (min, max); got %d.', count($args)));
     }
 
     foreach ($args as $arg) {
       if (preg_match('/^-?\d+$/', $arg) !== 1) {
-        throw new \InvalidArgumentException(sprintf('Type "int" args must be integers; got "%s".', $arg));
+        throw new \RuntimeException(sprintf('Type "int" args must be integers; got "%s".', $arg));
       }
     }
 
@@ -291,7 +291,7 @@ trait RandomTrait {
    */
   protected function randomNormalizeArglessArgs(string $type, array $args): array {
     if ($args !== []) {
-      throw new \InvalidArgumentException(sprintf('Type "%s" does not accept arguments; got %d.', $type, count($args)));
+      throw new \RuntimeException(sprintf('Type "%s" does not accept arguments; got %d.', $type, count($args)));
     }
 
     return [];
@@ -319,7 +319,7 @@ trait RandomTrait {
       'int' => $this->randomGenerateInt((int) $args[0], (int) $args[1]),
       'email' => $this->randomGenerateEmail(),
       'uuid' => $this->randomGenerateUuid(),
-      default => throw new \InvalidArgumentException(sprintf('Unknown randomGenerator token type "%s".', $type)),
+      default => throw new \RuntimeException(sprintf('Unknown randomGenerator token type "%s".', $type)),
     };
   }
 

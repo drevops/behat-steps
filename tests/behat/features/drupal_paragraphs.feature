@@ -4,7 +4,7 @@ Feature: Check that ParagraphsTrait works
   So that users can test paragraph field functionality
 
   Background:
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following "landing_page" content does not exist:
       | title                 |
       | [TEST] Landing page 1 |

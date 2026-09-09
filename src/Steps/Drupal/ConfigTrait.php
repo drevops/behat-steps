@@ -80,6 +80,12 @@ trait ConfigTrait {
       return;
     }
 
+    // A scenario that recorded no snapshot has nothing to revert, and asking
+    // for the driver would fail one running on a driver that never had it.
+    if ($this->configOriginalData === []) {
+      return;
+    }
+
     $this->drupal();
 
     foreach ($this->configOriginalData as $name => $snapshot) {

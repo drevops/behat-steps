@@ -56,7 +56,7 @@ Feature: Check that MediaTrait works
 
   @api @javascript
   Scenario: Assert remove media type
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/structure/media/add"
     And I fill in "Name" with "test_media_type"
     And I select "image" from "edit-source"
@@ -74,7 +74,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I edit the "document" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -110,7 +110,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Create single media with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following managed files exist:
       | path      |
       | image.png |
@@ -122,7 +122,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Create multiple media with vertical field format
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following managed files exist:
       | path      |
       | image.png |
@@ -169,7 +169,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -196,7 +196,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media delete page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -222,7 +222,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media revisions page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -233,7 +233,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the media type :media_type should exist" works
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the media type "image" should exist
 
   @api @trait:Drupal\MediaTrait
@@ -241,7 +241,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the media type "nonexistent_type" should exist
       """
     When I run "behat --no-colors"
@@ -252,7 +252,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the media type :media_type should not exist" works
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the media type "nonexistent_type" should not exist
 
   @api @trait:Drupal\MediaTrait
@@ -260,7 +260,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the media type "image" should not exist
       """
     When I run "behat --no-colors"
@@ -285,7 +285,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the "image" media with the name "Non-existent media" should exist
       """
     When I run "behat --no-colors"
@@ -296,7 +296,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the :media_type media with the name :name should not exist" works
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the "image" media with the name "Non-existent media" should not exist
 
   @api @trait:Drupal\MediaTrait,Drupal\FileTrait

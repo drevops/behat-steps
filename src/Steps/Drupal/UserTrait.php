@@ -116,10 +116,10 @@ trait UserTrait {
     }
 
     foreach ($table->getHash() as $values) {
-      $roles = [];
+      $roles = '';
 
       if (isset($values['roles'])) {
-        $roles = array_filter(array_map(trim(...), explode(',', (string) $values['roles'])));
+        $roles = (string) $values['roles'];
         unset($values['roles']);
       }
 
@@ -132,9 +132,7 @@ trait UserTrait {
       $stub = new EntityStub('user', NULL, $values);
       $this->userCreate($stub);
 
-      foreach ($roles as $role) {
-        $driver->userAddRole($stub, $role);
-      }
+      $this->userAssignRoles($driver, $stub, $roles);
     }
   }
 
@@ -581,18 +579,35 @@ trait UserTrait {
       throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user role assignment.', $driver::class));
     }
 
-    // The driver reads 'role' during creation, so the account carries its
-    // roles from the first save rather than only from the calls below.
-    $stub = $this->userBuildStub($extra_fields + ['role' => $roles]);
+    $stub = $this->userBuildStub($extra_fields);
     $this->userCreate($stub);
 
-    foreach (array_map(trim(...), explode(',', $roles)) as $role) {
-      if (!in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
-        $driver->userAddRole($stub, $role);
-      }
-    }
+    $this->userAssignRoles($driver, $stub, $roles);
 
     $this->login($stub);
+  }
+
+  /**
+   * Assign the roles named in a comma-separated list to a saved account.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface $driver
+   *   The driver that performs the assignment.
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The saved user stub.
+   * @param string $roles
+   *   One role, or several as a comma-separated list. An empty string assigns
+   *   nothing.
+   */
+  protected function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void {
+    foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
+      // Having an account already carries 'authenticated', and the role is not
+      // assignable in its own right.
+      if (in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
+        continue;
+      }
+
+      $driver->userAddRole($stub, $role);
+    }
   }
 
   /**
@@ -731,7 +746,7 @@ trait UserTrait {
       // created carries the id as a value instead.
       $uid = $user->getId() ?? $user->getValue('uid');
 
-      if ($uid === NULL || $uid === '') {
+      if ($uid === NULL || $uid === '' || (int) $uid === 0) {
         throw new \RuntimeException(sprintf('The current user "%s" carries no id, so the profile path cannot be built.', (string) $user->getValue('name')));
       }
     }

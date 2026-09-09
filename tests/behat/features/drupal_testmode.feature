@@ -16,7 +16,7 @@ Feature: Ensure TestmodeTrait works.
 
   @api
   Scenario: Assert visiting test content page without test mode will put the required content on the second page
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I go to "/content_test"
     Then I should see "Article 1"
     And I should see "Article 2"
@@ -28,7 +28,7 @@ Feature: Ensure TestmodeTrait works.
 
   @api @testmode
   Scenario: Assert visiting test content page with test mode will put the required content on the second page
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I go to "/content_test"
     Then I should not see "Article 1"
     And I should not see "Article 2"

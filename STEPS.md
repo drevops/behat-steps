@@ -6098,7 +6098,10 @@ Then an unmanaged file at the URI "public://config.txt" should not contain "debu
 >  - Add languages by their ISO code, skipping ones already installed.
 >  
 >  Languages created here are removed after the scenario along with every other
->  entity the scenario created.
+>  entity the scenario created. A scenario that also installs the 'language'
+>  module leaves that removal to the module uninstall, with
+>  '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
+>  run in no guaranteed order.
 
 
 <details>

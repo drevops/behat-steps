@@ -36,7 +36,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriver;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
@@ -113,7 +113,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    if (!$context->getDriverManager()->getDriver() instanceof DrupalDriver) {
+    if (!$context->getDriverManager()->getDriver() instanceof DrupalDriverInterface) {
       return;
     }
 
@@ -329,10 +329,10 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   When the scenario runs on a driver that does not bootstrap Drupal
    *   in-process, such as the Blackbox or Drush driver.
    */
-  public function drupal(): DrupalDriver {
+  public function drupal(): DrupalDriverInterface {
     $driver = $this->getDriver();
 
-    if (!$driver instanceof DrupalDriver) {
+    if (!$driver instanceof DrupalDriverInterface) {
       throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the active driver "%s" does not provide. Tag the scenario "@api" so it runs on the in-process Drupal driver.', $driver::class));
     }
 
@@ -756,7 +756,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   Value names to leave untouched.
    */
   protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    if (!$this->getDriver() instanceof DrupalDriver) {
+    if (!$this->getDriver() instanceof DrupalDriverInterface) {
       return;
     }
 

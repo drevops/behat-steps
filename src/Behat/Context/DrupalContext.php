@@ -29,11 +29,15 @@ use DrevOps\BehatSteps\Steps\Generic\WaitTrait;
  * writing any PHP. It defines no steps of its own: it is 'RawContext' plus the
  * traits that add vocabulary and nothing else.
  *
- * Traits whose hooks change a scenario's outcome rather than add vocabulary
- * are deliberately absent - Watchdog fails a scenario on a logged PHP error,
- * Javascript on a console error, Accessibility runs axe scans, BigPipe inserts
- * per-step waits, Diagnostics rewrites failure messages. A project opts into
- * those by composing its own context from 'RawContext'.
+ * Traits that can fail a scenario for a reason it did not ask about are
+ * deliberately absent - Watchdog fails on a logged PHP error, Javascript on a
+ * console error, Accessibility runs axe scans, Diagnostics rewrites failure
+ * messages, BigPipe inserts per-step waits. A project opts into those by
+ * composing its own context from 'RawContext'.
+ *
+ * 'WaitTrait' is included even though it carries step hooks: those hooks only
+ * wait for AJAX on a '@javascript' scenario, which removes a race rather than
+ * introducing a verdict of its own.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\RawContext
  */

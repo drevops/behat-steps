@@ -248,13 +248,7 @@ trait TableTrait {
    */
   #[Then('the :row_text row should contain the following:')]
   public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
-    $row = $this->tableFindRowByText($row_text);
-
-    if (!$row) {
-      throw new ExpectationException(sprintf('Table row containing text "%s" not found.', $row_text), $this->getSession()->getDriver());
-    }
-
-    $actual_text = $row->getText();
+    $actual_text = $this->tableGetRowByText($row_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
         throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $row_text, $expected_text), $this->getSession()->getDriver());

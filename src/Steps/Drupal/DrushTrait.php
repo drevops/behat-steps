@@ -38,7 +38,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    $this->drushOutput = (string) $this->drushDriver()->{$command}();
+    $this->drushOutput = $this->drushDriver()->drush($command);
   }
 
   /**
@@ -54,7 +54,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    $this->drushOutput = (string) $this->drushDriver()->{$command}($this->drushFixArgument($arguments));
+    $this->drushOutput = $this->drushDriver()->drush($command, [$this->drushFixArgument($arguments)]);
   }
 
   /**
@@ -133,7 +133,16 @@ trait DrushTrait {
    */
   #[Then('the drush output should match the pattern :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {
-    if (preg_match($pattern, $this->drushReadOutput()) !== 1) {
+    $output = $this->drushReadOutput();
+    $result = @preg_match($pattern, $output);
+
+    // A malformed pattern also returns FALSE, which would otherwise read as a
+    // command whose output simply did not match.
+    if ($result === FALSE) {
+      throw new \RuntimeException(sprintf('"%s" is not a valid regular expression: %s.', $pattern, preg_last_error_msg()));
+    }
+
+    if ($result !== 1) {
       throw new ExpectationException(sprintf("The last drush command output does not match \"%s\". It was:\n\n%s", $pattern, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
@@ -185,7 +194,7 @@ trait DrushTrait {
 
     // Prefer stdout and fall back to stderr, matching the success path, which
     // returns whatever the command wrote.
-    $output = ($result->output === '' || $result->output === '0') ? $result->errorOutput : $result->output;
+    $output = $result->output === '' ? $result->errorOutput : $result->output;
     $this->drushOutput = $output;
 
     if ($result->exitCode === 0) {

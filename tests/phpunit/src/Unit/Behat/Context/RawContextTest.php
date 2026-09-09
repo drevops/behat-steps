@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Gherkin\Node\FeatureNode;
-use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Call\Callee;
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Call\Handler\RuntimeCallHandler;
@@ -15,7 +12,6 @@ use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use Behat\Testwork\Tester\Result\TestResult;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
@@ -502,6 +498,80 @@ class RawContextTest extends UnitTestCase {
     $this->assertSame(['editor'], $context->getRoles());
   }
 
+  /**
+   * Tests that the skip tag disables entity cleanup from either level.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   */
+  #[DataProvider('dataProviderTheSkipTagDisablesEntityCleanup')]
+  public function testTheSkipTagDisablesEntityCleanup(array $scenario_tags, array $feature_tags): void {
+    $driver = $this->createContentDriver();
+    $driver->expects($this->never())->method('nodeDelete');
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+
+    $context->cleanEntities($this->createAfterScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertCount(1, $context->getCreatedStubs());
+  }
+
+  public static function dataProviderTheSkipTagDisablesEntityCleanup(): \Iterator {
+    yield 'on the scenario' => [['behat-steps-skip:cleanEntities'], []];
+    yield 'on the feature' => [[], ['behat-steps-skip:cleanEntities']];
+  }
+
+  public function testTheSkipTagDisablesUserCleanup(): void {
+    $driver = $this->createDriver([UserCapabilityInterface::class]);
+    $driver->expects($this->never())->method('userDelete');
+
+    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
+    $authentication_manager->expects($this->never())->method('logOut');
+
+    $user_manager = new UserManager();
+    $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $this->createContext($driver, $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope(['behat-steps-skip:cleanUsers']));
+
+    $this->assertTrue($user_manager->hasUsers());
+  }
+
+  public function testTheSkipTagDisablesRoleCleanup(): void {
+    $driver = $this->createDriver([RoleCapabilityInterface::class]);
+    $driver->expects($this->never())->method('roleDelete');
+
+    $context = $this->createContext($driver);
+    $context->setRoles(['editor']);
+
+    $context->cleanRoles($this->createAfterScenarioScope(['behat-steps-skip:cleanRoles']));
+
+    $this->assertSame(['editor'], $context->getRoles());
+  }
+
+  public function testTheEntityCleanupSkipTagSparesOnlyTheNamedType(): void {
+    $deleted = [];
+
+    $driver = $this->createContentDriver();
+    $driver->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+      $deleted[] = 'node';
+    });
+    $driver->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): bool {
+      $deleted[] = 'term';
+
+      return TRUE;
+    });
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
+
+    $context->cleanEntities($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
+
+    $this->assertSame(['term'], $deleted);
+  }
+
   public function testStringTimestampIsConvertedForInProcessDriver(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext(new DrupalDriver(self::DRUPAL_ROOT, 'default'));
@@ -630,21 +700,6 @@ class RawContextTest extends UnitTestCase {
     $context->setAuthenticationManager($authentication_manager ?? $this->createMock(AuthenticationManagerInterface::class));
 
     return $context;
-  }
-
-  /**
-   * Builds an after-scenario scope carrying the given tags.
-   *
-   * @param list<string> $scenario_tags
-   *   Tags on the scenario.
-   * @param list<string> $feature_tags
-   *   Tags on the feature.
-   */
-  protected function createAfterScenarioScope(array $scenario_tags = [], array $feature_tags = []): AfterScenarioScope {
-    $scenario = new ScenarioNode('Scenario', $scenario_tags, [], 'Scenario', 1);
-    $feature = new FeatureNode('Feature', NULL, $feature_tags, NULL, [$scenario], 'Feature', 'en', __DIR__ . '/feature.feature', 1);
-
-    return new AfterScenarioScope($this->createMock(Environment::class), $feature, $scenario, $this->createMock(TestResult::class));
   }
 
   /**

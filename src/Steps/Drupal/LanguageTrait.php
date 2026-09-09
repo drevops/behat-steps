@@ -14,7 +14,10 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * - Add languages by their ISO code, skipping ones already installed.
  *
  * Languages created here are removed after the scenario along with every other
- * entity the scenario created.
+ * entity the scenario created. A scenario that also installs the 'language'
+ * module leaves that removal to the module uninstall, with
+ * '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
+ * run in no guaranteed order.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
@@ -32,6 +35,8 @@ trait LanguageTrait {
    */
   #[Given('the following languages exist:')]
   public function languageCreateMultiple(TableNode $table): void {
+    $this->drupal();
+
     foreach ($table->getHash() as $row) {
       $langcode = $row['langcode'] ?? reset($row);
 

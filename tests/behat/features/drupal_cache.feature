@@ -5,21 +5,21 @@ Feature: Check that CacheTrait works
 
   @api
   Scenario: Assert "Given the page cache for the path :path is empty" clears a single path
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the page cache for the path "/user" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   @api
   Scenario: Assert "Given the page cache for the paths matching :path_pattern is empty" clears matching paths
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the page cache for the paths matching "/user*" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   @api
   Scenario: Assert "Given the render cache is empty" clears the render cache
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the render cache is empty
     When I go to "/user"
     Then I should see "Member for"

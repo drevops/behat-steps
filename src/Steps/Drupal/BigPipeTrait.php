@@ -67,6 +67,11 @@ trait BigPipeTrait {
   protected bool $bigPipeServerRenderEnabled = FALSE;
 
   /**
+   * Whether the driver runs JavaScript, NULL until first probed.
+   */
+  protected ?bool $bigPipeJavascriptProbe = NULL;
+
+  /**
    * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
    */
   protected int $bigPipeWaitTimeout = self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
@@ -82,6 +87,7 @@ trait BigPipeTrait {
     $is_skipped = $this->skipTag('BigPipeTrait', $scope);
 
     $this->bigPipeAutoWaitEnabled = $is_javascript && !$is_skipped;
+    $this->bigPipeJavascriptProbe = NULL;
 
     $this->bigPipeServerRenderEnabled = !$is_skipped
       && ($scope->getFeature()->hasTag('bigpipe') || $scope->getScenario()->hasTag('bigpipe'));
@@ -136,20 +142,12 @@ trait BigPipeTrait {
       return;
     }
 
-    try {
-      $driver = $this->getSession()->getDriver();
+    // The probe runs once a scenario: a driver does not gain or lose script
+    // support between steps.
+    $this->bigPipeJavascriptProbe ??= $this->bigPipeJavascriptIsSupported();
 
-      // An unstarted driver counts as non-JavaScript, and the next step
-      // re-applies the cookie once it has started.
-      if ($driver->isStarted()) {
-        $driver->evaluateScript('true');
-
-        return;
-      }
-    }
-    catch (DriverException) {
-      // The driver cannot run scripts, which is exactly the case the cookie
-      // is for.
+    if ($this->bigPipeJavascriptProbe === TRUE) {
+      return;
     }
 
     try {
@@ -160,6 +158,29 @@ trait BigPipeTrait {
       // The session is not ready yet; the next step retries.
     }
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Whether the active driver can run JavaScript.
+   *
+   * An unstarted driver counts as unable, and the probe is retried on the next
+   * step once the session has started.
+   */
+  protected function bigPipeJavascriptIsSupported(): ?bool {
+    try {
+      $driver = $this->getSession()->getDriver();
+
+      if (!$driver->isStarted()) {
+        return NULL;
+      }
+
+      $driver->evaluateScript('true');
+
+      return TRUE;
+    }
+    catch (DriverException) {
+      return FALSE;
+    }
   }
 
   /**

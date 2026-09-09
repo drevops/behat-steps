@@ -123,7 +123,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert that URL has query parameter with a specific value
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
     Then the current URL should have the "status" parameter
     And the current URL should have the "status" parameter with the value "1"
@@ -132,7 +132,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert that URL does not have query parameter with specific value
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
     Then the current URL should not have the "status" parameter with the value "0"
     And the current URL should not have the "other" parameter
@@ -143,7 +143,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should have the "filter" parameter with the value "recent"
       """
@@ -158,7 +158,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should have the "status" parameter with the value "2"
       """
@@ -173,7 +173,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should not have the "status" parameter with the value "1"
       """
@@ -188,7 +188,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I log in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should not have the "status" parameter
       """
@@ -200,7 +200,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1"
     Then the current URL should not have the "nonexistent" parameter with the value "value"
 

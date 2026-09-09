@@ -18,3 +18,13 @@ Feature: Check that MappingTrait works
     Given the user is anonymous
     When I visit "{{User Registration}}"
     Then the path should be "/user/register"
+
+  @phpserver
+  Scenario: Assert that a mapping token and a random token resolve in one table
+    Given the user is anonymous
+    When I visit "http://cli:8888/form1.html"
+    And I fill in the following:
+      | username | [?person]        |
+      | message  | {{ User Login }} |
+    Then the "username" field should contain "[?person]"
+    And the "message" field should contain "/user/login"
