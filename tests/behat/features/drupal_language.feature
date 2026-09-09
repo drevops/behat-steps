@@ -3,7 +3,10 @@ Feature: Check that LanguageTrait works
   I want to provide a step that installs languages
   So that users can write scenarios covering multilingual behaviour
 
-  @api @module:language
+  # The module teardown uninstalls "language" again, which removes the language
+  # it defines. Both run as AfterScenario hooks in no guaranteed order, so the
+  # entity cleanup is told to leave languages to the module uninstall.
+  @api @module:language @behat-steps-entity-cleanup-skip:language
   Scenario: Assert "Given the following languages exist:" works as expected
     Given the "language" module is enabled
     And the following languages exist:
