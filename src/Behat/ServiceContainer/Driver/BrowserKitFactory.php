@@ -42,10 +42,12 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
   protected const TEST_BROWSER_CLASS = DrupalTestBrowser::class;
 
   /**
-   * Default Guzzle request options.
+   * Guzzle request options a configured value merges over.
    *
    * Redirects stay off so a step can assert on the redirecting response
-   * itself, and cookies stay on so a login survives across requests.
+   * itself, and cookies stay on so a login survives across requests. Both are
+   * load-bearing for the step vocabulary, so configuring one option does not
+   * drop the others.
    */
   protected const DEFAULT_REQUEST_OPTIONS = [
     'allow_redirects' => FALSE,
@@ -64,7 +66,7 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
   public function buildDriver(array $config): Definition {
     $this->requireTestBrowser($this->locateDrupalRoot());
 
-    $request_options = $config['guzzle_request_options'] ?? self::DEFAULT_REQUEST_OPTIONS;
+    $request_options = array_replace(self::DEFAULT_REQUEST_OPTIONS, $config['guzzle_request_options'] ?? []);
 
     $client = (new Definition(self::TEST_BROWSER_CLASS))
       ->addMethodCall('setClient', [new Definition(Client::class, [$request_options])]);

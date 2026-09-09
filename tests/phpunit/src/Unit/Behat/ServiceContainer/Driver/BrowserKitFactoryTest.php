@@ -58,10 +58,16 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->assertSame(['allow_redirects' => FALSE, 'cookies' => TRUE], $guzzle->getArgument(0));
   }
 
-  public function testSuppliedRequestOptionsReplaceTheDefaults(): void {
+  public function testSuppliedRequestOptionsMergeOverTheDefaults(): void {
     $guzzle = $this->getGuzzleDefinition($this->createFactory()->buildDriver(['guzzle_request_options' => ['timeout' => 5]]));
 
-    $this->assertSame(['timeout' => 5], $guzzle->getArgument(0));
+    $this->assertSame(['allow_redirects' => FALSE, 'cookies' => TRUE, 'timeout' => 5], $guzzle->getArgument(0));
+  }
+
+  public function testSuppliedOptionOverridesItsDefault(): void {
+    $guzzle = $this->getGuzzleDefinition($this->createFactory()->buildDriver(['guzzle_request_options' => ['allow_redirects' => TRUE]]));
+
+    $this->assertSame(['allow_redirects' => TRUE, 'cookies' => TRUE], $guzzle->getArgument(0));
   }
 
   public function testMissingDrupalRootIsReported(): void {
