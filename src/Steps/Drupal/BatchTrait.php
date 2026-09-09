@@ -34,7 +34,9 @@ trait BatchTrait {
    */
   #[When('I wait for the batch job to finish')]
   public function batchWaitForCompletion(): void {
-    $this->getSession()->wait(self::BATCH_WAIT_TIMEOUT, 'document.getElementById("updateprogress") === null');
+    if (!$this->getSession()->wait(self::BATCH_WAIT_TIMEOUT, 'document.getElementById("updateprogress") === null')) {
+      throw new \RuntimeException(sprintf('The batch job did not finish within %d seconds.', self::BATCH_WAIT_TIMEOUT / 1000));
+    }
   }
 
 }

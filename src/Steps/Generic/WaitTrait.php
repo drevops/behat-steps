@@ -149,7 +149,12 @@ JS;
       return;
     }
 
-    if (preg_match(self::WAIT_STEP_PATTERN, $scope->getStep()->getText()) !== 1) {
+    // Match against the step's own words: the same verbs appear inside
+    // arguments, as in 'I fill in "Search" with "Click here"', which names no
+    // navigation at all.
+    $text = preg_replace('/"[^"]*"/', '', $scope->getStep()->getText());
+
+    if (preg_match(self::WAIT_STEP_PATTERN, (string) $text) !== 1) {
       return;
     }
 

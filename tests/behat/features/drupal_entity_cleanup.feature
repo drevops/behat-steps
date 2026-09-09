@@ -63,10 +63,10 @@ Feature: Check that automatic entity cleanup works
 
   @api
   Scenario: Entities of several types created in one scenario are all registered
-    Given the following tags terms exist:
+    Given the following "tags" terms exist:
       | name                 |
       | [TEST] Cleanup term  |
-    And the following page content exist:
+    And the following "page" content exist:
       | title                   | status |
       | [TEST] Cleanup page     | 1      |
     Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should exist

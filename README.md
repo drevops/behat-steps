@@ -229,7 +229,7 @@ The cookie with name "session" was not set.
 Several traits carry hooks that run around every scenario or step. One tag form
 turns any of them off:
 
-```
+```gherkin
 @behat-steps-skip:NAME
 ```
 

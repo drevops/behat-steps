@@ -117,7 +117,7 @@ A trait names the context class it needs with `@phpstan-require-extends`, and ne
 
 ## What a trait needs from the driver
 
-A step is only as portable as the driver behind it, so each trait falls into one of three bands. Which band a trait is in decides whether a scenario has to be tagged `@api`.
+A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides whether a scenario has to be tagged `@api`.
 
 - **Nothing.** Every trait under `src/Steps/Generic` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
 - **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.

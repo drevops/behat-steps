@@ -619,7 +619,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($driver instanceof LanguageCapabilityInterface) {
-        $driver->languageDelete($stub);
+        try {
+          $driver->languageDelete($stub);
+        }
+        catch (\InvalidArgumentException) {
+          // The scenario removed the language itself. Deleting a node, a term
+          // or a generic entity twice is tolerated, so a language is too.
+        }
       }
 
       return;

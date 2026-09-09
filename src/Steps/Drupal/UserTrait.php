@@ -123,7 +123,11 @@ trait UserTrait {
         unset($values['roles']);
       }
 
-      $values['pass'] ??= $this->getRandom()->name();
+      // A blank cell reads as "no password given", not as an empty password,
+      // which the account could not be created with.
+      if (empty($values['pass'])) {
+        $values['pass'] = $this->getRandom()->name();
+      }
 
       $stub = new EntityStub('user', NULL, $values);
       $this->userCreate($stub);
@@ -723,7 +727,13 @@ trait UserTrait {
         throw new \RuntimeException('Current user is not logged in.');
       }
 
-      $uid = $user->getId();
+      // A stub the driver saved carries the entity; one the Drush driver
+      // created carries the id as a value instead.
+      $uid = $user->getId() ?? $user->getValue('uid');
+
+      if ($uid === NULL || $uid === '') {
+        throw new \RuntimeException(sprintf('The current user "%s" carries no id, so the profile path cannot be built.', (string) $user->getValue('name')));
+      }
     }
     else {
       $user = $this->userLoadByName($name);

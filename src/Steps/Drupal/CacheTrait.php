@@ -134,7 +134,9 @@ trait CacheTrait {
       throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support running cron.', $driver::class));
     }
 
-    $driver->cronRun();
+    if (!$driver->cronRun()) {
+      throw new \RuntimeException('Cron did not run. Another cron run may still hold the lock.');
+    }
   }
 
   /**

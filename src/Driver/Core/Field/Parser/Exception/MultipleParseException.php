@@ -28,7 +28,9 @@ class MultipleParseException extends ParseException {
       throw new \InvalidArgumentException('MultipleParseException requires at least one error.');
     }
 
-    $first = $errors[0];
+    // Read the first by iteration order: a caller that filtered its errors
+    // hands over a list with gaps in its keys.
+    $first = reset($errors);
 
     parent::__construct($first->errorCode, $first->offset, $cell, $this->buildDescription($errors), NULL, $previous);
   }
