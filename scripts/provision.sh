@@ -39,12 +39,15 @@ $package_filtered["require-dev"] = $package["require"];
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_intersect_key($package["require-dev"], $package["suggest"]));
 
 // Deps required to run the Behat and PHPUnit suites, which both execute from
-// the build so that Drupal classes resolve.
+// the build so that Drupal classes resolve. "drupal/drupal-extension" is here
+// for "Drupal\MinkExtension" alone, which behat.yml registers for its
+// BrowserKit driver factory; no step trait reaches into the package.
 $package_filtered["require-dev"] = array_merge($package_filtered["require-dev"], array_filter($package["require-dev"], function ($ver, $name) {
   return in_array($name, [
     "alexskrypnyk/phpunit-helpers",
     "drevops/behat-phpserver",
     "drevops/behat-screenshot",
+    "drupal/drupal-extension",
     "dvdoug/behat-code-coverage",
   ]);
 }, ARRAY_FILTER_USE_BOTH));
