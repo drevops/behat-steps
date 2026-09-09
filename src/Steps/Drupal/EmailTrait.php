@@ -93,9 +93,15 @@ trait EmailTrait {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('email')) {
-      $this->emailDisableTestEmailSystem();
+    if (!$scope->getScenario()->hasTag('email')) {
+      return;
     }
+
+    // A scenario that skipped 'emailBeforeScenario' never reached Drupal, and
+    // teardown runs before any other hook that would have bootstrapped it.
+    $this->drupal();
+
+    $this->emailDisableTestEmailSystem();
   }
 
   /**
