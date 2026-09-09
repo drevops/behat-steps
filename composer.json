@@ -33,7 +33,7 @@
         "drupal/coder": "^8.3.31",
         "drupal/drupal-extension": "^6.1.0",
         "dvdoug/behat-code-coverage": "^5.3.2.1",
-        "ergebnis/composer-normalize": "^2.52.0",
+        "ergebnis/composer-normalize": "^2.53.0",
         "justinrainbow/json-schema": "^6.12.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "mglaman/phpstan-drupal": "^2.2.0",
