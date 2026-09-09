@@ -45,13 +45,7 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function load(ContainerBuilder $container, array $config): void {
-    // Installed before Mink autoloads its own class, so the replacement takes
-    // effect for every element the session builds. The guard reads declared
-    // classes only, so it neither triggers the autoload it is replacing nor
-    // re-declares the name when a suite loads the extension more than once.
-    if (!class_exists(MinkDocumentElement::class, FALSE)) {
-      class_alias(DocumentElement::class, MinkDocumentElement::class, TRUE);
-    }
+    $this->aliasDocumentElement();
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));
     $loader->load('services.yml');
@@ -205,6 +199,23 @@ class BehatStepsExtension implements ExtensionInterface {
     ->end();
     // phpcs:enable
     // @formatter:on
+  }
+
+  /**
+   * Puts this package's document element in place of Mink's own.
+   *
+   * The alias has to be installed before Mink autoloads the class it replaces,
+   * so the check reads declared classes only, and the name being taken already
+   * is left alone. A Behat run loads this extension while the container is
+   * built, long before anything asks Mink for an element, so the replacement
+   * is in force for the session. A process that loaded Mink's class first -
+   * this package's own PHPUnit suite, for one - keeps Mink's behaviour, which
+   * only governs how page text reads.
+   */
+  protected function aliasDocumentElement(): void {
+    if (!class_exists(MinkDocumentElement::class, FALSE)) {
+      class_alias(DocumentElement::class, MinkDocumentElement::class, TRUE);
+    }
   }
 
   /**

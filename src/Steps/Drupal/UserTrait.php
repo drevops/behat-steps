@@ -324,7 +324,7 @@ trait UserTrait {
       throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support role and user management.', $driver::class));
     }
 
-    $role = $driver->roleCreate(array_map(trim(...), explode(',', $permissions)));
+    $role = $driver->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
 
     $stub = $this->userBuildStub();

@@ -77,7 +77,7 @@ trait QueueTrait {
       throw new \RuntimeException(sprintf('The "data" value is not valid JSON: %s.', json_last_error_msg()));
     }
 
-    $this->queueNames[] = $queue;
+    $this->queueTrackName($queue);
 
     \Drupal::service('queue')->get($queue)->createItem($decoded);
   }

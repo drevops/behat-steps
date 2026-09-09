@@ -276,8 +276,6 @@ trait RedirectTrait {
    * returned as-is to avoid double-prefixing.
    */
   protected function redirectNormalizeDestination(string $uri): string {
-    $this->drupal();
-
     if (str_starts_with($uri, 'internal:')) {
       return $uri;
     }
