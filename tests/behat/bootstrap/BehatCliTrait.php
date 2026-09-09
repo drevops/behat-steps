@@ -30,6 +30,7 @@ trait BehatCliTrait {
    */
   protected const BEHAT_CLI_BASELINE_TRAITS = [
     'Generic\PathTrait',
+    'Drupal\ContentTrait',
     'Drupal\UserTrait',
   ];
 
