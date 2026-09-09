@@ -26,3 +26,14 @@ Feature: Behat feature context smoke tests
     When I log in as a user with the "administer site configuration" permissions
     Then cookie "testcookiename" exists
     And cookie "testcookiename_nonexisting" does not exist
+
+  @phpserver
+  Scenario: Assert that page text excludes what the reader cannot see
+    When I go to "http://cli:8888/hidden_text.html"
+    Then I should see "Visible heading"
+    And I should see "Visible paragraph."
+    And I should not see "BodyScriptValue"
+    And I should not see "TypedScriptValue"
+    And I should not see "DrupalSettingsValue"
+    And I should not see "BodyStyleValue"
+    And I should not see "HeadStyleValue"

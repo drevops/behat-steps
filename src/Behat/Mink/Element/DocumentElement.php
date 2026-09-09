@@ -64,11 +64,13 @@ class DocumentElement extends TraversableElement {
       return parent::getText();
     }
 
-    // Strip what the reader does not see: the head, and the settings JSON
-    // Drupal renders as a script body.
+    // Strip what the reader does not see. 'strip_tags()' below drops the
+    // tags but keeps their bodies, so a script or style body would otherwise
+    // count as page text.
     $raw_content = preg_replace([
       '@<head>(.+?)</head>@si',
-      '@<script type="application/json" data-drupal-selector="drupal-settings-json">([^<]*)</script>@',
+      '@<script\b[^>]*>.*?</script>@si',
+      '@<style\b[^>]*>.*?</style>@si',
     ], '', $this->getContent());
 
     $text = strip_tags((string) $raw_content);
