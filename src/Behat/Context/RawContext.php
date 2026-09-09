@@ -362,6 +362,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['author']);
 
     $driver = $this->getContentDriver();
 
@@ -394,6 +395,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['role']);
 
     $driver = $this->getDriver();
 
@@ -443,6 +445,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     $this->dispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['vocabulary_machine_name']);
 
     $driver = $this->getContentDriver();
 
@@ -474,6 +477,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getContentDriver();
 
@@ -730,6 +734,27 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
         throw $exception;
       }
     }
+  }
+
+  /**
+   * Expands a stub's values during creation, when the driver can classify them.
+   *
+   * Classification reads the site's field definitions, which only the
+   * in-process driver exposes. On the Drush driver the values reach the
+   * command line as the scenario wrote them, so the pipeline leaves them
+   * alone rather than failing a creation the driver can carry out.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The stub, mutated in place.
+   * @param array<int, string> $ignored_properties
+   *   Value names to leave untouched.
+   */
+  protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    if (!$this->getDriver() instanceof DrupalDriver) {
+      return;
+    }
+
+    $this->parseEntityFields($stub, $ignored_properties);
   }
 
   /**

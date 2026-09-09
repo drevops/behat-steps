@@ -57,6 +57,9 @@ default:
       drush:
         # Behat would run from within "build" dir.
         root: web
+        # Drush resolves a request URI for every command, and without one it
+        # refuses to bootstrap.
+        global_options: '--uri=http://nginx:8080'
       selectors:
         messages:
           default: '.messages'

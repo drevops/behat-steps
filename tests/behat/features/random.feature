@@ -7,19 +7,19 @@ Feature: Check that RandomTrait works
   Scenario: Assert that a token resolves to the same value throughout a scenario
     Given the user is anonymous
     When I visit "http://cli:8888/form1.html"
-    And I fill in "input1" with "[?title]"
-    Then the "input1" field should contain "[?title]"
+    And I fill in "username" with "[?title]"
+    Then the "username" field should contain "[?title]"
 
   @phpserver
   Scenario: Assert that tokens of different names resolve to different values
     Given the user is anonymous
     When I visit "http://cli:8888/form1.html"
-    And I fill in "input1" with "[?first]"
-    Then the "input1" field should not contain "[?second]"
+    And I fill in "username" with "[?first]"
+    Then the "username" field should not contain "[?second]"
 
   @phpserver
-  Scenario: Assert that typed tokens resolve
+  Scenario: Assert that a typed token resolves
     Given the user is anonymous
     When I visit "http://cli:8888/form1.html"
-    And I fill in "input1" with "[?mail:email]"
-    Then the "input1" field should contain "[?mail:email]"
+    And I fill in "username" with "[?mail:email]"
+    Then the "username" field should contain "[?mail:email]"

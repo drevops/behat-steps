@@ -577,7 +577,9 @@ trait UserTrait {
       throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user role assignment.', $driver::class));
     }
 
-    $stub = $this->userBuildStub($extra_fields);
+    // The driver reads 'role' during creation, so the account carries its
+    // roles from the first save rather than only from the calls below.
+    $stub = $this->userBuildStub($extra_fields + ['role' => $roles]);
     $this->userCreate($stub);
 
     foreach (array_map(trim(...), explode(',', $roles)) as $role) {

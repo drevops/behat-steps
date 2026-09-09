@@ -135,6 +135,8 @@ trait FeatureContextTrait {
   #[Given('set watchdog error level :level')]
   #[Given('set watchdog error level :level of type :type')]
   public function testSetWatchdogError(string $level, string $type = 'php'): void {
+    $this->drupal();
+
     \Drupal::logger($type)->log($level, 'test');
   }
 
@@ -167,6 +169,8 @@ trait FeatureContextTrait {
    */
   #[Given('I install a :name module')]
   public function testInstallModule(string $name): void {
+    $this->drupal();
+
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
     if ($module_handler->moduleExists($name)) {
@@ -193,6 +197,8 @@ trait FeatureContextTrait {
    */
   #[Given('I uninstall a :name module')]
   public function testUninstallModule(string $name): void {
+    $this->drupal();
+
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
     if (!$module_handler->moduleExists($name)) {
@@ -215,6 +221,8 @@ trait FeatureContextTrait {
   #[When('I send test email to :email with')]
   #[When('I send test email to :email with:')]
   public function testSendEmail(string $email, PyStringNode $string): void {
+    $this->drupal();
+
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email',
@@ -231,6 +239,8 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc with')]
   #[When('I send test email to :to with cc :cc with:')]
   public function testSendEmailWithCc(string $to, string $cc, PyStringNode $string): void {
+    $this->drupal();
+
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email_with_cc',
@@ -253,6 +263,8 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with bcc :bcc with')]
   #[When('I send test email to :to with bcc :bcc with:')]
   public function testSendEmailWithBcc(string $to, string $bcc, PyStringNode $string): void {
+    $this->drupal();
+
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email_with_bcc',
@@ -275,6 +287,8 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc and bcc :bcc with')]
   #[When('I send test email to :to with cc :cc and bcc :bcc with:')]
   public function testSendEmailWithCcAndBcc(string $to, string $cc, string $bcc, PyStringNode $string): void {
+    $this->drupal();
+
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email_with_cc_bcc',
@@ -297,6 +311,8 @@ trait FeatureContextTrait {
    */
   #[When('I send test email to :email with subject :subject and attachment :attachment and body:')]
   public function testSendEmailWithAttachment(string $email, string $subject, string $attachment, PyStringNode $body): void {
+    $this->drupal();
+
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
       'test_email_with_attachment',
@@ -349,6 +365,8 @@ trait FeatureContextTrait {
    */
   #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
+    $this->drupal();
+
     $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
     if (!$entity) {
@@ -440,6 +458,8 @@ trait FeatureContextTrait {
    */
   #[Then('the mailsystem formatter should be :expected')]
   public function testAssertMailsystemFormatter(string $expected): void {
+    $this->drupal();
+
     $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
     if ($formatter !== $expected) {
       throw new \Exception(sprintf('Expected mailsystem formatter to be "%s", but got "%s".', $expected, $formatter));
@@ -486,6 +506,8 @@ trait FeatureContextTrait {
    */
   #[Given('I add :count item(s) to the :queue queue')]
   public function testAddItemsToQueue(int $count, string $queue): void {
+    $this->drupal();
+
     $queue_instance = \Drupal::service('queue')->get($queue);
     for ($i = 0; $i < $count; $i++) {
       $queue_instance->createItem(['data' => 'test_item_' . $i]);

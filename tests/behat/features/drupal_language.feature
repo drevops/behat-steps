@@ -3,9 +3,10 @@ Feature: Check that LanguageTrait works
   I want to provide a step that installs languages
   So that users can write scenarios covering multilingual behaviour
 
-  @api
+  @api @module:language
   Scenario: Assert "Given the following languages exist:" works as expected
-    Given the following languages exist:
+    Given the "language" module is enabled
+    And the following languages exist:
       | langcode |
       | fr       |
     When I log in as a user with the "administrator" role
@@ -22,7 +23,7 @@ Feature: Check that LanguageTrait works
         |             |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       Each row must carry a non-empty "langcode" value.
       """

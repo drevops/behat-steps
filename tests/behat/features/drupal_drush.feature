@@ -14,8 +14,8 @@ Feature: Check that DrushTrait works
   @api
   Scenario: Assert "When I run the drush command :command with the arguments :arguments" works as expected
     Given the user is anonymous
-    When I run the drush command "config:get" with the arguments "system.site name"
-    Then the drush output should contain the value "system.site"
+    When I run the drush command "config:get" with the arguments "system.site"
+    Then the drush output should contain the value "Drush Site-Install"
 
   @api
   Scenario: Assert "When I run the failing drush command :command" works as expected
@@ -31,7 +31,7 @@ Feature: Check that DrushTrait works
       Then the drush output should contain the value "anything"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       No drush command has run in this scenario, so there is no output to read.
       """

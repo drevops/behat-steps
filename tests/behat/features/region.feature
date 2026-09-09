@@ -70,7 +70,7 @@ Feature: Check that RegionTrait works
       Then the region "nonexistent" should contain the text "Anything"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "InvalidArgumentException" exception:
       """
-      region
+      The "nonexistent" region isn't configured!
       """

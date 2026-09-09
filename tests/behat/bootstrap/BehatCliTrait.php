@@ -130,27 +130,13 @@ class FeatureContext extends RawContext {
   }
 
   /**
-   * @Given set Drupal7 watchdog error level :level
-   * @Given set Drupal7 watchdog error level :level of type :type
-   */
-  public function setWatchdogErrorDrupal7($level, $type = 'php') {
-    watchdog($type, 'test', [], $level);
-  }
-
-  /**
-   * @Given set watchdog error level :level
-   * @Given set watchdog error level :level of type :type
-   */
-  public function testSetWatchdogError($level, $type = 'php') {
-    \Drupal::logger($type)->log($level, 'test');
-  }
-
-  /**
    * Log an error after the last step result has been composed.
    *
    * @AfterScenario @test-watchdog-teardown
    */
   public function testSetWatchdogErrorInTeardown() {
+    $this->drupal();
+
     \Drupal::logger('php')->log('warning', 'test');
   }
 

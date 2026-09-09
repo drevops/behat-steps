@@ -4454,11 +4454,19 @@ When I wait for the batch job to finish
 >  <br/><br/>
 >  The wait is best-effort: on timeout the step still runs, so a genuinely stuck
 >  placeholder surfaces as the real assertion failure rather than being masked
->  here. Non-JavaScript scenarios are left untouched, where BigPipe renders
->  server-side.
+>  here.
+>  <br/><br/>
+>  A driver that runs no JavaScript never replaces those placeholders and does
+>  not follow the `http-equiv=refresh` fallback either, so an authenticated-user
+>  assertion silently misses whatever BigPipe deferred. Tag such a scenario
+>  `@bigpipe` and the `big_pipe_nojs` cookie is set for it, which makes Drupal
+>  render the page in full server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
+>  Special tags:
+>  - `@bigpipe` - render server-side on a driver without JavaScript.
+>  
 >  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
 >  `FeatureContext` to change the maximum wait.
 

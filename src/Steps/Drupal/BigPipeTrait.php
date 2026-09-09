@@ -23,10 +23,18 @@ use Behat\Mink\Exception\DriverException;
  *
  * The wait is best-effort: on timeout the step still runs, so a genuinely stuck
  * placeholder surfaces as the real assertion failure rather than being masked
- * here. Non-JavaScript scenarios are left untouched, where BigPipe renders
- * server-side.
+ * here.
+ *
+ * A driver that runs no JavaScript never replaces those placeholders and does
+ * not follow the `http-equiv=refresh` fallback either, so an authenticated-user
+ * assertion silently misses whatever BigPipe deferred. Tag such a scenario
+ * `@bigpipe` and the `big_pipe_nojs` cookie is set for it, which makes Drupal
+ * render the page in full server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
+ *
+ * Special tags:
+ * - `@bigpipe` - render server-side on a driver without JavaScript.
  *
  * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
  * `FeatureContext` to change the maximum wait.
@@ -41,9 +49,22 @@ trait BigPipeTrait {
   protected const BIG_PIPE_DEFAULT_WAIT_TIMEOUT = 10000;
 
   /**
+   * Cookie name BigPipe reads to bypass streaming and render server-side.
+   *
+   * The literal avoids a hard dependency on the big_pipe module; it is the
+   * value of 'BigPipeStrategy::NOJS_COOKIE'.
+   */
+  protected const BIG_PIPE_SERVER_RENDER_COOKIE = 'big_pipe_nojs';
+
+  /**
    * Whether the automatic BigPipe wait is active for the current scenario.
    */
   protected bool $bigPipeAutoWaitEnabled = FALSE;
+
+  /**
+   * Whether the scenario asked for server-side rendering.
+   */
+  protected bool $bigPipeServerRenderEnabled = FALSE;
 
   /**
    * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
@@ -58,15 +79,26 @@ trait BigPipeTrait {
     // Resolved here, not in the BeforeStep hook, because a BeforeStep scope
     // cannot read scenario-level tags.
     $is_javascript = $scope->getFeature()->hasTag('javascript') || $scope->getScenario()->hasTag('javascript');
+    $is_skipped = $this->skipTag('BigPipeTrait', $scope);
 
-    $this->bigPipeAutoWaitEnabled = $is_javascript && !$this->skipTag('BigPipeTrait', $scope);
+    $this->bigPipeAutoWaitEnabled = $is_javascript && !$is_skipped;
+
+    $this->bigPipeServerRenderEnabled = !$is_skipped
+      && ($scope->getFeature()->hasTag('bigpipe') || $scope->getScenario()->hasTag('bigpipe'));
+
+    $this->bigPipeApplyServerRenderCookie();
   }
 
   /**
-   * Wait for BigPipe placeholders to settle before each step runs.
+   * Keep the state BigPipe needs applied before each step runs.
+   *
+   * Logging in or out drops session cookies, so the no-JS cookie is re-applied
+   * rather than set once for the scenario.
    */
   #[BeforeStep]
   public function bigPipeWaitBeforeStep(BeforeStepScope $scope): void {
+    $this->bigPipeApplyServerRenderCookie();
+
     if (!$this->bigPipeAutoWaitEnabled) {
       return;
     }
@@ -88,6 +120,44 @@ trait BigPipeTrait {
     catch (DriverException) {
       // The driver session is not ready (e.g. no page has been visited yet),
       // so there is nothing to synchronise.
+    }
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Set the no-JS cookie when the scenario asked for server-side rendering.
+   *
+   * A driver that runs JavaScript replaces the placeholders itself, so the
+   * cookie is only for the drivers that do not. 'setCookie()' is idempotent,
+   * so re-applying it on every step costs nothing.
+   */
+  protected function bigPipeApplyServerRenderCookie(): void {
+    if (!$this->bigPipeServerRenderEnabled) {
+      return;
+    }
+
+    try {
+      $driver = $this->getSession()->getDriver();
+
+      // An unstarted driver counts as non-JavaScript, and the next step
+      // re-applies the cookie once it has started.
+      if ($driver->isStarted()) {
+        $driver->evaluateScript('true');
+
+        return;
+      }
+    }
+    catch (DriverException) {
+      // The driver cannot run scripts, which is exactly the case the cookie
+      // is for.
+    }
+
+    try {
+      $this->getSession()->setCookie(self::BIG_PIPE_SERVER_RENDER_COOKIE, 'true');
+    }
+    // @codeCoverageIgnoreStart
+    catch (DriverException) {
+      // The session is not ready yet; the next step retries.
     }
     // @codeCoverageIgnoreEnd
   }
