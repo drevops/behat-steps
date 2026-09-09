@@ -36,7 +36,7 @@
         "ergebnis/composer-normalize": "^2.52.0",
         "justinrainbow/json-schema": "^6.12.0",
         "lullabot/mink-selenium2-driver": "^1.7.4",
-        "mglaman/phpstan-drupal": "^2.1.2",
+        "mglaman/phpstan-drupal": "^2.2.0",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^9.3.5",
         "phpspec/prophecy-phpunit": "^2.5.0",
