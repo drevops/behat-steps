@@ -59,7 +59,7 @@ class MinkSessionListenerTest extends TestCase {
    *
    * @param list<string> $scenario_tags
    *   Tags declared on the scenario.
-   * @param string $expected
+   * @param non-empty-string $expected
    *   The Mink method expected to be called.
    */
   #[DataProvider('dataProviderSessionReset')]
