@@ -139,6 +139,29 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
 
+## Gherkin parsing modes
+
+`behat/gherkin` parses in `legacy` mode by default and in `gherkin-32` mode when a suite opts in, and the 2 modes disagree on what a tag looks like: `legacy` strips the `@`, `gherkin-32` keeps it. `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison silently stops matching the moment a consumer switches modes.
+
+Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly:
+
+```php
+// Every tag on the scenario and on the feature that holds it, without the '@'.
+$tags = Tag::all($scope);
+
+// Every tag on one node.
+$tags = Tag::on($scope->getScenario());
+
+// One tag on one node.
+if (Tag::has($scope->getScenario(), 'email')) {
+  // ...
+}
+```
+
+`Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
+
+The Behat extensions this repository installs have the same problem, and only some of it can be fixed from here. [`MinkSessionListener`](src/Behat/Listener/MinkSessionListener.php) replaces Mink's own session listener so `@javascript` selects the browser session in both modes. `drevops/behat-phpserver` still compares `@phpserver` against a bare name, which is what keeps the `gherkin32` CI leg red.
+
 ## Dependency policy
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
@@ -253,6 +276,40 @@ If a reachable branch has no test, the fix is the test, not the marker.
 - Set breakpoint
 - Run tests with `ahoy test-bdd` - your IDE will pickup an incoming debug
   connection
+
+## Continuous integration
+
+[.github/workflows/test.yml](.github/workflows/test.yml) runs 2 jobs, and between them they cover all 3 test surfaces in this repository.
+
+### Lint
+
+1 job, on PHP 8.4. `ahoy lint` runs `composer validate`, `composer normalize --dry-run`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php); `ahoy lint-docs` then checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
+
+### Test matrix
+
+| Legs | What they prove |
+|---|---|
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.32 floor. |
+| 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
+| 1 x `behat4` | `src/Behat` still works on the next Behat major. |
+| 1 x `gherkin32` | The suite still works when Gherkin keeps the `@` on every tag. |
+
+The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
+
+Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
+
+### Legs allowed to fail
+
+The `behat4` and `gherkin32` legs carry `allow_failure: true`, so they report without blocking. Both are blocked on third-party packages rather than on anything in this repository, and both go green on their own once those packages move:
+
+- **`behat4`** installs `behat/behat: ^4.0@alpha` into the fixture through the `BEHAT_VERSION` environment variable. It cannot resolve while `friends-of-behat/mink-extension`, `dmore/behat-chrome-extension`, `drevops/behat-phpserver` and `drevops/behat-screenshot` cap `behat/behat` at `^3`.
+- **`gherkin32`** runs the suite through the `gherkin_32` Behat profile. This library reads every tag through [`Tag`](src/Behat/Tag.php), but `drevops/behat-phpserver` does not, so `@phpserver` scenarios fail. See [Gherkin parsing modes](#gherkin-parsing-modes).
+
+Neither leg should be removed to make the board look tidier. A red probe is the signal.
+
+### Drupal versions
+
+The matrix pins Drupal 11 on every leg, and Renovate leaves Composer major updates alone, so a new core major is a deliberate change rather than an automatic one. Drupal 12 legs land the day a testable core exists.
 
 ## Updating fixture site
 

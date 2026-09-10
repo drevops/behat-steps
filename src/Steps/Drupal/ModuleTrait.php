@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -42,7 +43,7 @@ trait ModuleTrait {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
-    $tags = $scope->getScenario()->getTags();
+    $tags = Tag::on($scope->getScenario());
     foreach ($tags as $tag) {
       if (str_starts_with($tag, 'module:')) {
         $module_spec = substr($tag, 7);

@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
@@ -83,14 +84,13 @@ trait BigPipeTrait {
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
     // Resolved here, not in the BeforeStep hook, because a BeforeStep scope
     // cannot read scenario-level tags.
-    $is_javascript = $scope->getFeature()->hasTag('javascript') || $scope->getScenario()->hasTag('javascript');
+    $tags = Tag::all($scope);
     $is_skipped = $this->skipTag('BigPipeTrait', $scope);
 
-    $this->bigPipeAutoWaitEnabled = $is_javascript && !$is_skipped;
+    $this->bigPipeAutoWaitEnabled = in_array('javascript', $tags, TRUE) && !$is_skipped;
     $this->bigPipeJavascriptProbe = NULL;
 
-    $this->bigPipeServerRenderEnabled = !$is_skipped
-      && ($scope->getFeature()->hasTag('bigpipe') || $scope->getScenario()->hasTag('bigpipe'));
+    $this->bigPipeServerRenderEnabled = !$is_skipped && in_array('bigpipe', $tags, TRUE);
 
     $this->bigPipeApplyServerRenderCookie();
   }

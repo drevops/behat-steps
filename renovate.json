@@ -13,10 +13,32 @@
         "**/__tests__/**",
         "**/__fixtures__/**"
     ],
+    "customManagers": [
+        {
+            "customType": "regex",
+            "description": "The PHP version sits inside the image name, which the docker-compose manager cannot resolve, so the tag is matched on its own.",
+            "managerFilePatterns": ["/^docker-compose\\.yml$/"],
+            "matchStrings": ["uselagoon/php-\\$\\{PHP_VERSION:-[^}]+\\}-fpm:(?<currentValue>[^\\s@\"']+)"],
+            "depNameTemplate": "uselagoon/php-8.3-fpm",
+            "datasourceTemplate": "docker"
+        },
+        {
+            "customType": "regex",
+            "description": "The Ahoy CLI is fetched from a release asset rather than declared as a dependency.",
+            "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.yml$/"],
+            "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+version=(?<currentValue>\\S+)"],
+            "extractVersionTemplate": "^v(?<version>.*)$"
+        }
+    ],
     "packageRules": [
         {
             "description": "The image name in this file is assembled from a build argument, so a pinned digest would only ever resolve for one of the PHP versions in the test matrix.",
             "matchFileNames": [".docker/cli.dockerfile"],
+            "pinDigests": false
+        },
+        {
+            "description": "The image name in 'docker-compose.yml' is assembled from an environment variable, so a pinned digest would only ever resolve for one of the PHP versions in the test matrix.",
+            "matchPackageNames": ["uselagoon/php-8.3-fpm"],
             "pinDigests": false
         },
         {

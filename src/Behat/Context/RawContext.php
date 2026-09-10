@@ -28,6 +28,7 @@ use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
@@ -152,7 +153,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   #[BeforeScenario]
   public function resolveApiScenario(BeforeScenarioScope $scope): void {
-    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $tags = Tag::all($scope);
     $this->isApiScenario = in_array('api', $tags, TRUE);
   }
 
@@ -703,7 +704,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   TRUE when the scenario or its feature carries the skip tag.
    */
   protected function skipTag(string $name, ScenarioScope $scope): bool {
-    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $tags = Tag::all($scope);
 
     return in_array('behat-steps-skip:' . $name, $tags, TRUE);
   }
@@ -720,7 +721,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   protected function entityCleanupSkippedTypes(ScenarioScope $scope): array {
     $prefix = 'behat-steps-entity-cleanup-skip:';
-    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $tags = Tag::all($scope);
     $types = [];
 
     foreach ($tags as $tag) {

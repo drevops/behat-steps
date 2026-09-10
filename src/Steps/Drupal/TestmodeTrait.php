@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use DrevOps\BehatSteps\Behat\Tag;
 use Drupal\testmode\Testmode;
 
 /**
@@ -28,7 +29,7 @@ trait TestmodeTrait {
    */
   #[BeforeScenario('@api')]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !$scope->getScenario()->hasTag('testmode')) {
+    if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 
@@ -42,7 +43,7 @@ trait TestmodeTrait {
    */
   #[AfterScenario('@api')]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !$scope->getScenario()->hasTag('testmode')) {
+    if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 

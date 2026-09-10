@@ -12,6 +12,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Wait for a period of time or for AJAX to finish.
@@ -51,7 +52,7 @@ trait WaitTrait {
   #[BeforeScenario]
   public function waitBeforeScenario(BeforeScenarioScope $scope): void {
     $this->waitAroundSteps = !$this->skipTag('WaitTrait', $scope)
-      && ($scope->getFeature()->hasTag('javascript') || $scope->getScenario()->hasTag('javascript'));
+      && in_array('javascript', Tag::all($scope), TRUE);
   }
 
   /**
