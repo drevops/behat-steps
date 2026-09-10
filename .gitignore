@@ -12,5 +12,12 @@
 # Temporary AI agent and developer artifacts (plans, scratch output, reports).
 /.artifacts/
 
+# A global gitignore commonly excludes .claude entirely. The project commits
+# its own agent skills, so re-include that directory while leaving the rest of
+# .claude - editor state and per-developer settings - untracked.
+!/.claude/
+/.claude/*
+!/.claude/skills/
+
 # Claude Code fetches the project update skill on demand; do not commit it.
 /.claude/skills/update-consumer-scaffold/

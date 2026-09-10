@@ -1,0 +1,58 @@
+@startuml
+' drevops/behat-steps - data flow for the project's own test run.
+' Traced from .ahoy.yml, scripts/provision.sh, behat.yml,
+' tests/behat/bootstrap/BehatCliTrait.php,
+' tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Data flow: the fixture site and the nested Behat harness
+
+participant "ahoy test-bdd-coverage" as Dev
+participant "scripts/provision.sh" as Prov
+participant "Fixture Drupal site\nbuild/" as Site
+participant "Outer Behat run" as Behat
+participant "BehatCliContext" as Cli
+participant "Nested Behat subprocess" as Sub
+participant "scripts/merge-coverage.php" as Merge
+
+Dev -> Prov: bash scripts/provision.sh
+activate Prov
+Prov -> Prov: copy tests/behat/fixtures_drupal/d11/ into build/
+Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
+Prov -> Site: drush si standard, then copy tests/behat/fixtures/
+activate Site
+Site --> Prov: bootstrap successful
+deactivate Site
+Prov --> Dev: fixture site ready
+deactivate Prov
+
+Dev -> Behat: behat -c /app/behat.yml, run from build/
+activate Behat
+
+Behat -> Site: @api scenarios drive Drupal and Mink directly
+activate Site
+Site --> Behat: page and entity state
+deactivate Site
+
+Behat -> Cli: scenario tagged @trait:SomeTrait
+activate Cli
+Cli -> Cli: behatCliBeforeScenario reads the tag and writes\na FeatureContext composing only those traits
+Cli -> Sub: spawn behat in a temp directory
+activate Sub
+Sub --> Cli: exit code, output, phpcov file
+deactivate Sub
+Cli --> Behat: assert on the subprocess output
+deactivate Cli
+
+Behat -> Behat: .logs/coverage/behat/phpcov.php
+deactivate Behat
+
+Dev -> Merge: php scripts/merge-coverage.php
+activate Merge
+Merge -> Merge: fold every .logs/coverage/behat_cli/phpcov/*.php\ninto the main coverage
+Merge --> Dev: .logs/coverage/behat_cli/cobertura.xml\nthe true total coverage
+deactivate Merge
+@enduml

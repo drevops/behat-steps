@@ -1,0 +1,159 @@
+@startuml
+' drevops/behat-steps - the context lifecycle, its managers, the helpers and
+' 3 representative step traits, plus the exceptions a failing step throws.
+' Traced from src/Behat/Context/RawContext.php, DrupalContext.php,
+' DriverAwareInterface.php, src/Behat/Manager/, src/Steps/Generic/HelperTrait.php,
+' src/Steps/Drupal/HelperTrait.php, src/Steps/Generic/PathTrait.php,
+' src/Steps/Generic/CommandTrait.php, src/Exception/AssertionException.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+title Class detail: context, managers, helpers and step traits
+
+package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+  class RawContext {
+    +resolveApiScenario(scope) : void
+    +cleanEntities(scope) : void
+    +cleanUsers(scope) : void
+    +cleanRoles(scope) : void
+    --
+    +getDriver(name) : DriverInterface
+    +assertDrupal() : DrupalDriverInterface
+    --
+    +nodeCreate(stub) : EntityStubInterface
+    +userCreate(stub) : EntityStubInterface
+    +termCreate(stub) : EntityStubInterface
+    +entityCreate(stub) : EntityStubInterface
+    +languageCreate(stub) : EntityStubInterface|false
+    +entityRegister(entity) : void
+    --
+    +login(user) : void
+    +logout(fast) : void
+    +loggedIn() : bool
+    --
+    #dispatchHooks(scopeClass, stub) : void
+    #shouldCleanup() : bool
+  }
+  class DrupalContext
+  RawContext <|-- DrupalContext
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+  interface DriverManagerInterface
+  interface AuthenticationManagerInterface {
+    +logIn(user) : void
+    +logOut() : void
+    +loggedIn() : bool
+  }
+  interface UserManagerInterface {
+    +getCurrentUser() : EntityStubInterface|false
+    +addUser(user) : void
+    +currentUserHasRole(role) : bool
+  }
+  interface MailManagerInterface {
+    +startCollectingMail() : void
+    +getMail() : array
+    +clearMail() : void
+  }
+}
+
+RawContext o--> DriverManagerInterface
+RawContext o--> AuthenticationManagerInterface
+RawContext o--> UserManagerInterface
+
+package "Steps\\Generic" #E8F5E9 {
+  class PathTrait <<trait>> {
+    +pathSetBasicAuth(username, password) : void
+    +pathVisit(path) : void
+    +pathGoBack() : void
+    +pathAssertCurrent(path) : void
+    +pathAssertNotCurrent(path) : bool
+    +pathAssertUrlHasParameter(param) : void
+    +pathAssertUrlNotHasParameter(param) : void
+  }
+
+  class CommandTrait <<trait>> {
+    +commandBeforeScenario(scope) : void
+    +commandRun(command) : void
+    +commandAssertSuccess() : void
+    +commandAssertFailure() : void
+    +commandAssertExitCode(code) : void
+    +commandAssertOutputContains(text) : void
+  }
+
+  class HelperTrait <<trait>> #F3E5F5 {
+    #helperSetRequestHeader(name, value) : void
+    #helperGetRequestHeaders() : array
+    #helperIsLastStep(scope) : bool
+    #helperTransposeVerticalTable(table) : array
+    #helperBuildHorizontalTable(entities) : TableNode
+    #helperNormalizeWhitespace(text) : string
+    #helperSplitCommaSeparated(text) : array
+    #helperSlug(value) : string
+    #helperIsJavascriptSupported() : bool
+  }
+}
+
+package "Steps\\Drupal" #E3F2FD {
+  class ContentTrait <<trait>>
+
+  class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5 {
+    #helperExpandEntityFieldsFixtures(entity_type, stub) : void
+    #helperExpandCompoundCellFixtures(value, fixture_path) : string
+    #helperResolveFixtureFile(value, fixture_path) : ?string
+    #helperManagedFileExists(basename) : bool
+    #helperLoadNodeIds(content_type, conditions) : array
+    #helperAssertModuleEnabled(module, package) : void
+  }
+}
+
+package "Thrown on failure" #FFEBEE {
+  class ExpectationException {
+    from Behat\\Mink
+    --
+    +__construct(message, driver)
+  }
+  class ElementNotFoundException
+  class AssertionException {
+    DrevOps\\BehatSteps\\Exception
+    --
+    no driver required
+  }
+  class UnsupportedDriverActionException {
+    the active driver lacks
+    the capability
+  }
+  class RuntimeException {
+    invalid argument or
+    unmet prerequisite
+  }
+  ExpectationException <|-- ElementNotFoundException
+}
+
+PathTrait ..> RawContext : requires
+ContentTrait ..> RawContext : requires
+PathTrait ..> HelperTrait
+ContentTrait ..> DrupalHelperTrait
+
+PathTrait ..> ExpectationException : throws
+ContentTrait ..> ExpectationException : throws
+CommandTrait ..> AssertionException : throws
+CommandTrait ..> RuntimeException : throws
+
+note right of CommandTrait
+  Never calls getSession(), so it cannot
+  pass a driver to ExpectationException.
+  It throws AssertionException instead,
+  and declares only RawMinkContext.
+end note
+
+note bottom of RawContext
+  Entity, user and role cleanup live here,
+  not in a trait: the context owns the whole
+  scenario lifecycle and dispatches the
+  before/after entity-create hooks.
+end note
+@enduml

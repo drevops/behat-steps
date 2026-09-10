@@ -1,0 +1,68 @@
+@startuml
+' drevops/behat-steps - data flow for a step running in a consuming project.
+' Traced from src/Steps/Generic/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
+' src/Behat/Context/RawContext.php, src/Behat/Manager/DriverManager.php,
+' src/Driver/DrupalDriver.php, behat.yml.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Data flow: a step runs
+
+participant "Feature file" as Feature
+participant "Behat" as Behat
+participant "FeatureContext\nextends RawContext" as Ctx
+participant "Step trait method" as Trait
+participant "DriverManager" as DM
+participant "Driver\nDrupal, Drush or Blackbox" as Driver
+participant "Mink session" as Mink
+
+Behat -> Ctx: instantiate, inject managers via DriverAwareInitializer
+activate Ctx
+Behat -> Ctx: scan the Given, When and Then step attributes
+note right of Behat: attributes inherited\nthrough "use" are\nfound too
+Ctx --> Behat: step definitions
+deactivate Ctx
+
+Feature -> Behat: Then the path should be "/about-us"
+activate Behat
+Behat -> Trait: pathAssertCurrent(path)
+activate Trait
+
+alt the step only needs the browser
+  Trait -> Mink: getSession()->getCurrentUrl()
+  activate Mink
+  Mink --> Trait: current URL
+  deactivate Mink
+else the step needs Drupal
+  Trait -> DM: getDriver()
+  activate DM
+  DM --> Trait: the driver for this suite
+  deactivate DM
+  Trait -> Driver: a capability call, e.g. createNode(stub)
+  activate Driver
+  alt the driver implements the capability
+    Driver --> Trait: result
+  else it does not
+    Driver -> Trait: throw UnsupportedDriverActionException
+  end
+  deactivate Driver
+end
+
+alt assertion holds
+  Trait --> Behat: void
+else it does not
+  Trait -> Behat: throw ExpectationException or AssertionException
+end
+deactivate Trait
+
+Behat --> Feature: step passes or fails
+deactivate Behat
+
+Behat -> Ctx: AfterScenario
+activate Ctx
+Ctx -> Ctx: cleanEntities, cleanUsers, cleanRoles
+Ctx -> Driver: delete what the scenario created
+deactivate Ctx
+@enduml

@@ -2,6 +2,8 @@
 
 Below are some guidelines for developing and maintaining the Behat steps.
 
+New here? [docs/architecture/](docs/architecture/README.md) walks through how the pieces fit together - the trait library, the generated step documentation, and the fixture site the tests run against - with UML component, class and sequence diagrams.
+
 ## Steps format
 
 A consistent steps format is essential for the readability and maintainability

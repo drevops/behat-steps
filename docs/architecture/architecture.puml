@@ -1,0 +1,86 @@
+@startuml
+' drevops/behat-steps - layered component architecture.
+' Traced from composer.json, src/Steps/, src/Behat/, src/Driver/, behat.yml,
+' scripts/lint-layers.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam componentStyle rectangle
+title Component architecture
+
+package "Consuming project" #FFF3E0 {
+  component "Feature files\n*.feature" as Features
+  component "behat.yml\nbehat_steps settings" as Config
+  component "FeatureContext\nextends RawContext,\ncomposes the chosen traits" as Consumer
+}
+
+package "drevops/behat-steps" {
+
+  package "Vocabulary - src/Steps" #E3F2FD {
+    component "Steps\\Generic\n29 traits, Mink only" as Generic
+    component "Steps\\Drupal\n30 traits, need the driver" as DrupalSteps
+    component "HelperTrait pair\nshared logic, no steps" as Helpers #F3E5F5
+  }
+
+  package "Integration - src/Behat" #F3E5F5 {
+    component "BehatStepsExtension\nservice wiring" as Ext
+    component "RawContext\nscenario lifecycle,\nentity creation, cleanup, hooks" as RawCtx
+    component "Managers\nDriver, Authentication,\nUser, Mail" as Managers
+    component "MinkExtension\nfirst-party fork" as MinkExt
+  }
+
+  package "Driver - src/Driver" #E8F5E9 {
+    component "DriverInterface\n+ 14 capability interfaces" as DriverIface
+    component "DrupalDriver\nbootstraps Drupal in-process" as DrupalDrv
+    component "DrushDriver\nshells out to drush" as DrushDrv
+    component "BlackboxDriver\nno Drupal at all" as BlackboxDrv
+    component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
+  }
+}
+
+package "Runtime and targets" #ECEFF1 {
+  component "Behat\nstep matching and hooks" as Behat
+  component "Mink session" as Mink
+  component "Browser\nBrowserKit, Selenium2,\nChrome DevTools" as Browser
+  component "Drupal site\nentity API, config, drush" as Site
+}
+
+Features --> Behat : steps
+Config --> Ext : configures
+Behat --> Consumer : matches and invokes
+
+Generic --> Consumer : mixed into
+DrupalSteps --> Consumer : mixed into
+Generic ..> Helpers : uses
+DrupalSteps ..> Helpers : uses
+
+Consumer --|> RawCtx
+Ext --> Managers : registers
+Ext --> DriverIface : registers drivers
+Ext --> MinkExt : aliases DocumentElement
+RawCtx --> Managers
+
+Managers --> DriverIface : resolves by name
+DrupalDrv ..|> DriverIface
+DrushDrv ..|> DriverIface
+BlackboxDrv ..|> DriverIface
+DrupalDrv --> Core
+
+Consumer --> Mink
+Mink --> Browser
+DrupalDrv --> Site
+DrushDrv --> Site
+
+note bottom of DriverIface
+  The driver layer references nothing from Behat or Mink,
+  so it is usable without Behat loaded.
+  scripts/lint-layers.php fails the build on any such reference.
+end note
+
+Features -[hidden]down- Config
+Generic -[hidden]right- DrupalSteps
+DrupalDrv -[hidden]right- DrushDrv
+DrushDrv -[hidden]right- BlackboxDrv
+@enduml
