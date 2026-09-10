@@ -1,6 +1,8 @@
 @startuml
-' drevops/behat-steps - the full trait inventory and the type it mixes into.
-' Traced from src/*.php, src/Drupal/*.php,
+' drevops/behat-steps - the step vocabulary and the context it mixes into.
+' Traced from src/Steps/Generic/, src/Steps/Drupal/,
+' src/Behat/Context/RawContext.php, src/Behat/Context/DrupalContext.php,
+' src/Behat/Context/DriverAwareInterface.php,
 ' tests/behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -19,8 +21,11 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
   }
 }
 
-package "Drupal\\DrupalExtension\\Context" #ECEFF1 {
-  abstract class RawDrupalContext
+package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+  interface DriverAwareInterface
+  class RawContext {
+    scenario lifecycle
+  }
   class DrupalContext
 }
 
@@ -30,85 +35,101 @@ class FeatureContext #FFF3E0 {
   use <any of the traits below>
 }
 
-RawMinkContext <|-- RawDrupalContext
-RawDrupalContext <|-- DrupalContext
-DrupalContext <|-- FeatureContext
+RawMinkContext <|-- RawContext
+DriverAwareInterface <|.. RawContext
+RawContext <|-- DrupalContext
+RawContext <|-- FeatureContext
 
-package "DrevOps\\BehatSteps - generic, Mink only" #E8F5E9 {
+package "DrevOps\\BehatSteps\\Steps\\Generic" #E8F5E9 {
   class HelperTrait <<trait>> #F3E5F5
 
   class AccessibilityTrait <<trait>>
+  class BasicAuthTrait <<trait>>
   class CommandTrait <<trait>>
   class CookieTrait <<trait>>
   class DateTrait <<trait>>
   class DiagnosticsTrait <<trait>>
-  class DropzoneTrait <<trait>>
 
+  class DropzoneTrait <<trait>>
   class ElementTrait <<trait>>
   class FieldTrait <<trait>>
   class FileDownloadTrait <<trait>>
   class IframeTrait <<trait>>
   class JavascriptTrait <<trait>>
-  class JsonTrait <<trait>>
 
+  class JsonTrait <<trait>>
   class KeyboardTrait <<trait>>
   class LinkTrait <<trait>>
+  class MappingTrait <<trait>>
+  class MessageTrait <<trait>>
   class MetatagTrait <<trait>>
+
   class ModalTrait <<trait>>
   class PathTrait <<trait>>
+  class RandomTrait <<trait>>
+  class RegionTrait <<trait>>
   class ResponseTrait <<trait>>
-
   class ResponsiveTrait <<trait>>
+
   class RestTrait <<trait>>
   class TableTrait <<trait>>
   class WaitTrait <<trait>>
   class XmlTrait <<trait>>
 
-  AccessibilityTrait -[hidden]down- CommandTrait
+  AccessibilityTrait -[hidden]down- BasicAuthTrait
+  BasicAuthTrait -[hidden]down- CommandTrait
   CommandTrait -[hidden]down- CookieTrait
   CookieTrait -[hidden]down- DateTrait
   DateTrait -[hidden]down- DiagnosticsTrait
-  DiagnosticsTrait -[hidden]down- DropzoneTrait
 
+  DropzoneTrait -[hidden]down- ElementTrait
   ElementTrait -[hidden]down- FieldTrait
   FieldTrait -[hidden]down- FileDownloadTrait
   FileDownloadTrait -[hidden]down- IframeTrait
   IframeTrait -[hidden]down- JavascriptTrait
-  JavascriptTrait -[hidden]down- JsonTrait
 
+  JsonTrait -[hidden]down- KeyboardTrait
   KeyboardTrait -[hidden]down- LinkTrait
-  LinkTrait -[hidden]down- MetatagTrait
-  MetatagTrait -[hidden]down- ModalTrait
-  ModalTrait -[hidden]down- PathTrait
-  PathTrait -[hidden]down- ResponseTrait
+  LinkTrait -[hidden]down- MappingTrait
+  MappingTrait -[hidden]down- MessageTrait
+  MessageTrait -[hidden]down- MetatagTrait
 
-  ResponsiveTrait -[hidden]down- RestTrait
+  ModalTrait -[hidden]down- PathTrait
+  PathTrait -[hidden]down- RandomTrait
+  RandomTrait -[hidden]down- RegionTrait
+  RegionTrait -[hidden]down- ResponseTrait
+  ResponseTrait -[hidden]down- ResponsiveTrait
+
   RestTrait -[hidden]down- TableTrait
   TableTrait -[hidden]down- WaitTrait
   WaitTrait -[hidden]down- XmlTrait
   XmlTrait -[hidden]down- HelperTrait
 }
 
-package "DrevOps\\BehatSteps\\Drupal" #E3F2FD {
+package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
   class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5
 
+  class BatchTrait <<trait>>
   class BigPipeTrait <<trait>>
   class BlockTrait <<trait>>
   class CacheTrait <<trait>>
   class ConfigOverrideTrait <<trait>>
   class ConfigTrait <<trait>>
+
   class ContentBlockTrait <<trait>>
   class ContentTrait <<trait>>
-
   class DraggableviewsTrait <<trait>>
+  class DrushTrait <<trait>>
   class EckTrait <<trait>>
   class EmailTrait <<trait>>
+
+  class EntityTrait <<trait>>
   class FileTrait <<trait>>
+  class LanguageTrait <<trait>>
   class MediaTrait <<trait>>
   class MenuTrait <<trait>>
   class ModuleTrait <<trait>>
 
-  class OverrideTrait <<trait>>
   class ParagraphsTrait <<trait>>
   class QueueTrait <<trait>>
   class RedirectTrait <<trait>>
@@ -122,21 +143,24 @@ package "DrevOps\\BehatSteps\\Drupal" #E3F2FD {
   class WatchdogTrait <<trait>>
   class WebformTrait <<trait>>
 
+  BatchTrait -[hidden]down- BigPipeTrait
   BigPipeTrait -[hidden]down- BlockTrait
   BlockTrait -[hidden]down- CacheTrait
   CacheTrait -[hidden]down- ConfigOverrideTrait
   ConfigOverrideTrait -[hidden]down- ConfigTrait
-  ConfigTrait -[hidden]down- ContentBlockTrait
-  ContentBlockTrait -[hidden]down- ContentTrait
 
-  DraggableviewsTrait -[hidden]down- EckTrait
+  ContentBlockTrait -[hidden]down- ContentTrait
+  ContentTrait -[hidden]down- DraggableviewsTrait
+  DraggableviewsTrait -[hidden]down- DrushTrait
+  DrushTrait -[hidden]down- EckTrait
   EckTrait -[hidden]down- EmailTrait
-  EmailTrait -[hidden]down- FileTrait
-  FileTrait -[hidden]down- MediaTrait
+
+  EntityTrait -[hidden]down- FileTrait
+  FileTrait -[hidden]down- LanguageTrait
+  LanguageTrait -[hidden]down- MediaTrait
   MediaTrait -[hidden]down- MenuTrait
   MenuTrait -[hidden]down- ModuleTrait
 
-  OverrideTrait -[hidden]down- ParagraphsTrait
   ParagraphsTrait -[hidden]down- QueueTrait
   QueueTrait -[hidden]down- RedirectTrait
   RedirectTrait -[hidden]down- SearchApiTrait
@@ -152,12 +176,11 @@ package "DrevOps\\BehatSteps\\Drupal" #E3F2FD {
 
 note bottom of FeatureContext
   A consuming project mixes in only the traits it needs.
-  The project's own test FeatureContext composes every
-  one of them, and that is the class docs.php reflects
-  over to build STEPS.md.
+  Each trait declares what it needs from its host with
+  @phpstan-require-extends: RawContext for the driver,
+  RawMinkContext for a Mink session only.
 
-  Each namespace has its own HelperTrait, carrying
-  shared logic and no steps. Which step traits use
-  which helper is drawn in the class-detail diagram.
+  Step traits never use other step traits. Each namespace
+  has its own step-free HelperTrait for shared logic.
 end note
 @enduml

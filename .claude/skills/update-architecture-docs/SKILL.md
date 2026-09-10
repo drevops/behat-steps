@@ -42,18 +42,21 @@ If it reports that the command is missing, stop before rendering, say explicitly
 4. Update the surrounding prose so the visuals and the prose agree.
 5. Add any new diagram to the index table in `docs/architecture/README.md`.
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how `FeatureContext` composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new driver or capability interface, a change to how `RawContext` composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## Sources to trace from
 
-The primary sources for this project, in the order they are usually read:
+The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
-- `src/*.php` and `src/Drupal/*.php` - the step traits themselves, plus the two `HelperTrait` files that hold shared logic.
-- `composer.json` - the published package surface, the PSR-4 map, and the `suggest` entries that mark per-trait optional dependencies.
-- `docs.php` - the documentation generator that produces `STEPS.md` and the `README.md` step index.
-- `behat.yml` - the suites, contexts, and extensions the test harness runs under.
+- `src/Driver/` - the driver layer. `DriverInterface` plus the capability interfaces in `Driver/Capability/`, the 3 drivers, and the `Driver/Core/` field-handling bridge. It references nothing from Behat or Mink.
+- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/RawContext.php` for the scenario lifecycle, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
+- `src/Steps/Generic/` and `src/Steps/Drupal/` - the vocabulary, plus the step-free `HelperTrait` in each namespace. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
+- `src/Exception/AssertionException.php` - what a session-less trait throws.
+- `composer.json` - the published package surface and the PSR-4 map.
+- `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
+- `behat.yml` - the suites, contexts, and the `behat_steps` configuration block.
 - `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
-- `scripts/provision.sh`, `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
+- `scripts/lint-layers.php` - the enforced layer boundary. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.
 
 ## Diagram conventions
@@ -73,7 +76,7 @@ title <Component architecture | Class structure: ... | Data flow: ...>
 @enduml
 ```
 
-- Package colours are keyed by role: library green (`#E8F5E9`), Drupal blue (`#E3F2FD`), shared helpers purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness red (`#FFEBEE`).
+- Package colours are keyed by role: driver layer green (`#E8F5E9`), step vocabulary blue (`#E3F2FD`), integration layer and shared helpers purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness and thrown exceptions red (`#FFEBEE`).
 - Sequence diagrams use solid arrows (`->`) for the forward path and dashed (`-->`) for returns.
 - Class diagrams set `skinparam classAttributeIconSize 0` and stereotype every PHP trait `<<trait>>`.
 - A class diagram with many sibling types lays out unreadably wide by default. Chain them into columns with `-[hidden]down-` links and check the rendered aspect ratio before committing.

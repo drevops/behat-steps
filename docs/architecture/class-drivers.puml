@@ -1,0 +1,132 @@
+@startuml
+' drevops/behat-steps - the Behat-free driver layer and its capability model.
+' Traced from src/Driver/DriverInterface.php, DrupalDriverInterface.php,
+' DrushDriverInterface.php, BlackboxDriverInterface.php, DrupalDriver.php,
+' DrushDriver.php, BlackboxDriver.php, src/Driver/Capability/,
+' src/Driver/Core/, src/Driver/Entity/, src/Behat/Manager/DriverManager.php,
+' scripts/lint-layers.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+title Class structure: the driver layer
+
+package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+  class DriverManager {
+    +registerDriver(name, driver) : void
+    +getDriver(name) : DriverInterface
+    +getDrivers() : array
+    +setDefaultDriverName(name) : void
+  }
+}
+
+package "DrevOps\\BehatSteps\\Driver" #E8F5E9 {
+
+  interface DriverInterface {
+    +getRandom() : Random
+    +bootstrap() : void
+    +isBootstrapped() : bool
+  }
+
+  interface BlackboxDriverInterface
+  interface DrupalDriverInterface {
+    +getCore() : CoreInterface
+  }
+  interface DrushDriverInterface
+
+  class BlackboxDriver
+  class DrupalDriver {
+    bootstraps Drupal in-process
+  }
+  class DrushDriver {
+    shells out to drush
+  }
+
+  DriverInterface <|-- BlackboxDriverInterface
+  DriverInterface <|-- DrupalDriverInterface
+  DriverInterface <|-- DrushDriverInterface
+
+  BlackboxDriverInterface <|.. BlackboxDriver
+  DrupalDriverInterface <|.. DrupalDriver
+  DrushDriverInterface <|.. DrushDriver
+}
+
+package "DrevOps\\BehatSteps\\Driver\\Capability" #E8F5E9 {
+  interface AuthenticationCapabilityInterface
+  interface BatchCapabilityInterface
+  interface BlockCapabilityInterface
+  interface CacheCapabilityInterface
+  interface ConfigCapabilityInterface
+  interface ContentCapabilityInterface
+  interface CreationAliasCapabilityInterface
+  interface CronCapabilityInterface
+  interface LanguageCapabilityInterface
+  interface MailCapabilityInterface
+  interface ModuleCapabilityInterface
+  interface RoleCapabilityInterface
+  interface UserCapabilityInterface
+  interface WatchdogCapabilityInterface
+
+  AuthenticationCapabilityInterface -[hidden]down- BatchCapabilityInterface
+  BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
+  BlockCapabilityInterface -[hidden]down- CacheCapabilityInterface
+  CacheCapabilityInterface -[hidden]down- ConfigCapabilityInterface
+
+  ContentCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
+  CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
+  CronCapabilityInterface -[hidden]down- LanguageCapabilityInterface
+  LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
+
+  ModuleCapabilityInterface -[hidden]down- RoleCapabilityInterface
+  RoleCapabilityInterface -[hidden]down- UserCapabilityInterface
+  UserCapabilityInterface -[hidden]down- WatchdogCapabilityInterface
+}
+
+package "DrevOps\\BehatSteps\\Driver\\Core" #E8F5E9 {
+  interface CoreInterface
+  class Core
+  interface FieldHandlerInterface {
+    one per field type
+  }
+  class FieldClassifier
+  class EntityFieldParser
+
+  CoreInterface <|.. Core
+  Core --> FieldClassifier
+  FieldClassifier --> FieldHandlerInterface
+  EntityFieldParser --> FieldHandlerInterface
+}
+
+package "DrevOps\\BehatSteps\\Driver\\Entity" #E8F5E9 {
+  interface EntityStubInterface
+  class EntityStub
+  EntityStubInterface <|.. EntityStub
+}
+
+DriverManager o--> DriverInterface : registered by name
+
+DrupalDriverInterface ..|> AuthenticationCapabilityInterface
+DrupalDriverInterface ..|> ContentCapabilityInterface
+DrupalDriverInterface ..|> ModuleCapabilityInterface
+DrushDriverInterface ..|> BatchCapabilityInterface
+DrushDriverInterface ..|> ModuleCapabilityInterface
+
+DrupalDriver --> CoreInterface : getCore
+Core --> EntityStubInterface : creates and loads
+
+note right of BlackboxDriver
+  Implements the base contract only.
+  A step needing a capability the
+  active driver lacks throws
+  UnsupportedDriverActionException.
+end note
+
+note bottom of DrupalDriverInterface
+  DrupalDriverInterface extends all 14
+  capability interfaces; DrushDriverInterface
+  extends the 8 that Drush can service.
+  Only a few edges are drawn here.
+end note
+@enduml

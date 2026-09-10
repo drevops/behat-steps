@@ -1,8 +1,9 @@
 @startuml
 ' drevops/behat-steps - data flow for generating the step documentation.
-' Traced from docs.php functions main, extract_info, parse_class_comment,
-' parse_method_comment, extract_method_steps, validate, validate_tags,
-' tag_registry, render_info, replace_content.
+' Traced from docs.php constant STEPS_DIRECTORY and functions main,
+' extract_info, file_declares_trait, parse_class_comment, parse_method_comment,
+' extract_method_steps, validate, validate_tags, tag_registry, render_info,
+' replace_content.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -27,10 +28,10 @@ Extract -> Ctx: ReflectionClass::getTraits()
 activate Ctx
 Ctx --> Extract: every composed trait
 deactivate Ctx
-Extract -> Extract: scan src/ for trait files\nand match them off
+Extract -> Extract: scan src/Steps/<context>/ for files\nthat declare a trait, and match them off
 Extract -> Extract: keep public methods prefixed with\nthe trait name that carry a step attribute
 Extract -> Extract: parse the docblock for the\ndescription and the @code example
-Extract -> Extract: derive Generic or Drupal\nfrom the file's directory
+Extract -> Extract: derive Generic or Drupal\nfrom the src/Steps subdirectory
 
 alt a trait file was never composed in
   Extract -> Main: throw Exception(not found in the class)

@@ -1,49 +1,95 @@
 @startuml
-' drevops/behat-steps - members of the context, the helpers and 3 representative
-' step traits, plus the exceptions a failing step throws.
-' Traced from tests/behat/bootstrap/FeatureContext.php, src/HelperTrait.php,
-' src/Drupal/HelperTrait.php, src/PathTrait.php, src/CommandTrait.php,
-' src/Drupal/ContentTrait.php.
+' drevops/behat-steps - the context lifecycle, its managers, the helpers and
+' 3 representative step traits, plus the exceptions a failing step throws.
+' Traced from src/Behat/Context/RawContext.php, DrupalContext.php,
+' DriverAwareInterface.php, src/Behat/Manager/, src/Steps/Generic/HelperTrait.php,
+' src/Steps/Drupal/HelperTrait.php, src/Steps/Generic/PathTrait.php,
+' src/Steps/Generic/CommandTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam classAttributeIconSize 0
-title Class detail: context, helpers and step traits
+title Class detail: context, managers, helpers and step traits
 
-class DrupalContext #ECEFF1 {
-  from Drupal\\DrupalExtension
-  --
-  +getSession() : Session
-  +getDriver() : DriverInterface
+package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+  class RawContext {
+    +resolveApiScenario(scope) : void
+    +cleanEntities(scope) : void
+    +cleanUsers(scope) : void
+    +cleanRoles(scope) : void
+    --
+    +getDriver(name) : DriverInterface
+    +assertDrupal() : DrupalDriverInterface
+    --
+    +nodeCreate(stub) : EntityStubInterface
+    +userCreate(stub) : EntityStubInterface
+    +termCreate(stub) : EntityStubInterface
+    +entityCreate(stub) : EntityStubInterface
+    +languageCreate(stub) : EntityStubInterface|false
+    +entityRegister(entity) : void
+    --
+    +login(user) : void
+    +logout(fast) : void
+    +loggedIn() : bool
+    --
+    #dispatchHooks(scopeClass, stub) : void
+    #shouldCleanup() : bool
+  }
+  class DrupalContext
+  RawContext <|-- DrupalContext
 }
 
-class FeatureContext #FFF3E0 {
-  written by the consuming project
-  --
-  use <chosen step traits>
+package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+  interface DriverManagerInterface
+  interface AuthenticationManagerInterface {
+    +logIn(user) : void
+    +logOut() : void
+    +loggedIn() : bool
+  }
+  interface UserManagerInterface {
+    +getCurrentUser() : EntityStubInterface|false
+    +addUser(user) : void
+    +currentUserHasRole(role) : bool
+  }
+  interface MailManagerInterface {
+    +startCollectingMail() : void
+    +getMail() : array
+    +clearMail() : void
+  }
 }
 
-DrupalContext <|-- FeatureContext
+RawContext o--> DriverManagerInterface
+RawContext o--> AuthenticationManagerInterface
+RawContext o--> UserManagerInterface
 
-package "Generic - Mink only" #E8F5E9 {
+package "Steps\\Generic" #E8F5E9 {
   class PathTrait <<trait>> {
+    +pathSetBasicAuth(username, password) : void
+    +pathVisit(path) : void
+    +pathGoBack() : void
     +pathAssertCurrent(path) : void
     +pathAssertNotCurrent(path) : bool
     +pathAssertUrlHasParameter(param) : void
-    +pathAssertUrlHasParameterWithValue(param, value) : void
-    +pathAssertUrlHasNoParameter(param) : void
-    +pathSetBasicAuth(username, password) : void
-    +pathGoBack() : void
+    +pathAssertUrlNotHasParameter(param) : void
+  }
+
+  class CommandTrait <<trait>> {
+    +commandBeforeScenario(scope) : void
+    +commandRun(command) : void
+    +commandAssertSuccess() : void
+    +commandAssertFailure() : void
+    +commandAssertExitCode(code) : void
+    +commandAssertOutputContains(text) : void
   }
 
   class HelperTrait <<trait>> #F3E5F5 {
-    #helperSetLastStepLine(scope) : void
+    #helperSetRequestHeader(name, value) : void
+    #helperGetRequestHeaders() : array
     #helperIsLastStep(scope) : bool
     #helperTransposeVerticalTable(table) : array
     #helperBuildHorizontalTable(entities) : TableNode
-    #helperFixStepArgument(argument) : string
     #helperNormalizeWhitespace(text) : string
     #helperSplitCommaSeparated(text) : array
     #helperSlug(value) : string
@@ -51,44 +97,15 @@ package "Generic - Mink only" #E8F5E9 {
   }
 }
 
-package "Generic - no Mink session" #E8F5E9 {
-  class CommandTrait <<trait>> {
-    +commandBeforeScenario() : void
-    +commandAfterScenario() : void
-    +commandRun(command) : void
-    +commandAssertSuccess() : void
-    +commandAssertFailure() : void
-    +commandAssertExitCode(code) : void
-    +commandAssertOutputContains(text) : void
-    +commandAssertDurationLessThan(seconds) : void
-    --
-    #commandResetState() : void
-    #commandTimeout() : int
-  }
-}
-
-package "Drupal" #E3F2FD {
-  class ContentTrait <<trait>> {
-    +contentRemoveContentType(content_type) : void
-    +contentDelete(content_type, table) : void
-    +contentCreateWithFields(type, table) : void
-    +contentVisitViewWithTitle(content_type, title) : void
-    +contentChangeModerationStateWithTitle(content_type, title, new_state) : void
-    +contentSetPathAliasWithTitle(content_type, title, alias) : void
-    +contentAssertPublishedWithTitle(content_type, title) : void
-    +contentBeforeNodeCreate(scope) : void
-  }
+package "Steps\\Drupal" #E3F2FD {
+  class ContentTrait <<trait>>
 
   class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5 {
-    #entityRegistry : array
-    --
-    #entityRegister(entity) : void
-    #entityRegisterId(entity_type_id, entity_id) : void
-    +entityCleanupAfterScenario(scope) : void
-    #entityCleanupRun(skip_types) : void
-    #entityCleanupDelete(entity_type_id, entity_id) : void
-    #entityCleanupSkippedTypes(tags) : array
+    #helperExpandEntityFieldsFixtures(entity_type, stub) : void
+    #helperExpandCompoundCellFixtures(value, fixture_path) : string
     #helperResolveFixtureFile(value, fixture_path) : ?string
+    #helperManagedFileExists(basename) : bool
+    #helperLoadNodeIds(content_type, conditions) : array
     #helperAssertModuleEnabled(module, package) : void
   }
 }
@@ -100,7 +117,15 @@ package "Thrown on failure" #FFEBEE {
     +__construct(message, driver)
   }
   class ElementNotFoundException
-  class UnsupportedDriverActionException
+  class AssertionException {
+    DrevOps\\BehatSteps\\Exception
+    --
+    no driver required
+  }
+  class UnsupportedDriverActionException {
+    the active driver lacks
+    the capability
+  }
   class RuntimeException {
     invalid argument or
     unmet prerequisite
@@ -108,28 +133,27 @@ package "Thrown on failure" #FFEBEE {
   ExpectationException <|-- ElementNotFoundException
 }
 
-FeatureContext ..> PathTrait : use
-FeatureContext ..> CommandTrait : use
-FeatureContext ..> ContentTrait : use
-
+PathTrait ..> RawContext : requires
+ContentTrait ..> RawContext : requires
 PathTrait ..> HelperTrait
 ContentTrait ..> DrupalHelperTrait
 
 PathTrait ..> ExpectationException : throws
 ContentTrait ..> ExpectationException : throws
-ContentTrait ..> RuntimeException : throws
+CommandTrait ..> AssertionException : throws
 CommandTrait ..> RuntimeException : throws
 
 note right of CommandTrait
-  Never calls getSession(), so it
-  cannot pass a driver to
-  ExpectationException.
+  Never calls getSession(), so it cannot
+  pass a driver to ExpectationException.
+  It throws AssertionException instead,
+  and declares only RawMinkContext.
 end note
 
-note bottom of DrupalHelperTrait
-  entityCleanupAfterScenario carries the
-  AfterScenario('@api') hook attribute and
-  deletes the registry in reverse creation
-  order.
+note bottom of RawContext
+  Entity, user and role cleanup live here,
+  not in a trait: the context owns the whole
+  scenario lifecycle and dispatches the
+  before/after entity-create hooks.
 end note
 @enduml

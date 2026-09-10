@@ -20,7 +20,7 @@ participant "scripts/merge-coverage.php" as Merge
 
 Dev -> Prov: bash scripts/provision.sh
 activate Prov
-Prov -> Prov: copy tests/behat/fixtures_drupal/d{10,11}/ into build/
+Prov -> Prov: copy tests/behat/fixtures_drupal/d11/ into build/
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site
