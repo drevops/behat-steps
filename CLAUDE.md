@@ -147,6 +147,9 @@ Some traits provide `beforeScenario` hook implementations that can be disabled b
 
 Example: To skip `beforeScenario` hook from `ElementTrait`, add `@behat-steps-skip:ElementTrait` tag to the feature.
 
+## Reading Tags
+Never call `hasTag()` or `getTags()` directly. Gherkin's `legacy` parsing mode strips the `@` from a tag and its `gherkin-32` mode keeps it, and `hasTag()` compares strictly, so a bare-name comparison stops matching when a consumer switches modes. Read tags through `DrevOps\BehatSteps\Behat\Tag` instead: `Tag::all($scope)` for the scenario plus its feature, `Tag::has($node, 'email')` for one node, `Tag::normalize($tags)` for a raw list. See the "Gherkin parsing modes" section of [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Code Style Conventions
 - Code is written using Drupal coding standards
 - Local variables and method arguments: `snake_case`

@@ -110,8 +110,8 @@ jobs:
           # Chrome over the DevTools Protocol to prove the steps are driver
           # portable. The browser driver is Drupal-version independent, so the
           # 2 legs take their breadth from the PHP and dependency axes instead.
-          # The first also carries coverage, so the branches only chrome-mink
-          # reaches are measured and merged with the Selenium2 coverage.
+          # The first also carries coverage, so the branches only the Chrome
+          # driver reaches are measured and merged with the Selenium2 coverage.
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
