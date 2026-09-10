@@ -255,6 +255,29 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 ```
 
+## Behat extensions registered in `behat.yml`
+
+`drupal/drupal-extension` is no longer a dependency, so the two extensions it supplied are replaced by two this package supplies:
+
+| Old | New |
+| --- | --- |
+| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
+| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
+
+Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
+
+`MinkExtension` extends `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
+
+`ajax_timeout` belongs on `BehatStepsExtension`:
+
+```yaml
+extensions:
+  DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+    ajax_timeout: 10
+```
+
+Setting it on `MinkExtension` still works and still applies, and reports itself as deprecated.
+
 ## DrupalExtension step text mapped to the v4 vocabulary
 
 The Drupal Extension's contexts are gone. Their behaviour lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.

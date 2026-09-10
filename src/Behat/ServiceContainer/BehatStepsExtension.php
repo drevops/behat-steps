@@ -6,12 +6,11 @@ namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Element\DocumentElement as MinkDocumentElement;
-use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
-use DrevOps\BehatSteps\Behat\ServiceContainer\Driver\BrowserKitFactory;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -41,13 +40,6 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function initialize(ExtensionManager $extensionManager): void {
-    $mink = $extensionManager->getExtension('mink');
-
-    // The suite may register Mink itself or not at all, and a driver factory
-    // has nowhere to go in the second case.
-    if ($mink instanceof MinkExtension) {
-      $mink->registerDriverFactory(new BrowserKitFactory());
-    }
   }
 
   /**
@@ -73,6 +65,7 @@ class BehatStepsExtension implements ExtensionInterface {
   public function process(ContainerBuilder $container): void {
     $this->processDriverPass($container);
     $this->processClassGenerator($container);
+    $this->processMinkAjaxTimeout($container);
   }
 
   /**
@@ -403,6 +396,27 @@ class BehatStepsExtension implements ExtensionInterface {
   protected function processDriverPass(ContainerBuilder $container): void {
     $driver_pass = new DriverPass();
     $driver_pass->process($container);
+  }
+
+  /**
+   * Applies an 'ajax_timeout' the Mink configuration tree supplied.
+   *
+   * Runs as a process pass rather than during 'load()' because the two
+   * extensions load in whichever order the suite lists them.
+   */
+  protected function processMinkAjaxTimeout(ContainerBuilder $container): void {
+    if (!$container->hasParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER)) {
+      return;
+    }
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+
+    if (!is_array($parameters)) {
+      return;
+    }
+
+    $parameters['ajax_timeout'] = $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
+    $container->setParameter('behat_steps.parameters', $parameters);
   }
 
   /**

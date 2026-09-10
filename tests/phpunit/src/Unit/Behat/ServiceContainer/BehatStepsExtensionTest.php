@@ -6,10 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
-use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -67,7 +65,7 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame('behat_steps', (new BehatStepsExtension())->getConfigKey());
   }
 
-  public function testInitializeSkipsRegistrationWithoutMink(): void {
+  public function testInitializeTouchesNoOtherExtension(): void {
     $manager = new ExtensionManager([]);
 
     (new BehatStepsExtension())->initialize($manager);
@@ -75,18 +73,25 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame([], $manager->getExtensions());
   }
 
-  public function testInitializeRegistersTheBrowserKitDriverWithMink(): void {
-    $mink = new MinkExtension();
-    $manager = new ExtensionManager([$mink]);
+  public function testAnAjaxTimeoutFromTheMinkTreeOverridesTheDefault(): void {
+    $container = $this->load([]);
+    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
 
-    // Mink registers its own factory under the same name, so the assertion
-    // is that ours displaced it rather than that the name exists.
-    $factories = new \ReflectionProperty(MinkExtension::class, 'driverFactories');
-    $this->assertInstanceOf(UpstreamBrowserKitFactory::class, $factories->getValue($mink)['browserkit_http']);
+    (new BehatStepsExtension())->process($container);
 
-    (new BehatStepsExtension())->initialize($manager);
+    $parameters = $container->getParameter('behat_steps.parameters');
+    $this->assertIsArray($parameters);
+    $this->assertSame(12, $parameters['ajax_timeout']);
+  }
 
-    $this->assertInstanceOf(BrowserKitFactory::class, $factories->getValue($mink)['browserkit_http']);
+  public function testTheDefaultAjaxTimeoutSurvivesWithoutTheMinkTree(): void {
+    $container = $this->load([]);
+
+    (new BehatStepsExtension())->process($container);
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+    $this->assertIsArray($parameters);
+    $this->assertSame(5, $parameters['ajax_timeout']);
   }
 
   public function testBlackboxDriverIsAlwaysRegistered(): void {

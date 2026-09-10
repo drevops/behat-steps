@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\ServiceContainer\Driver;
+namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver;
 
 use Drupal\Tests\DrupalTestBrowser;
 use Behat\Mink\Driver\BrowserKitDriver;

@@ -215,7 +215,7 @@ default:
             port: 8888
             debug: true
   extensions:
-    Behat\MinkExtension:
+    DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'

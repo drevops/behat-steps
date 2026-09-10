@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\ServiceContainer\Driver\BrowserKitFactory;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 
 /**
  * Exposes the factory's environment lookups so a test can supply them.

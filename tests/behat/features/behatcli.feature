@@ -36,7 +36,7 @@ Feature: Behat CLI context
               - FeatureContext
               - Behat\MinkExtension\Context\MinkContext
         extensions:
-          Behat\MinkExtension:
+          DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
             browserkit_http: ~
             selenium2: ~
             base_url: http://nginx:8080
