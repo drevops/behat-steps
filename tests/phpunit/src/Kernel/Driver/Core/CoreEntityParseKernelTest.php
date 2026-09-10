@@ -194,6 +194,33 @@ class CoreEntityParseKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that a term's vocabulary is resolved before its fields are parsed.
+   */
+  public function testTermVocabularyIsResolvedBeforeParsing(): void {
+    $this->enableModules(['taxonomy']);
+    $this->installEntitySchema('taxonomy_term');
+
+    \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary')->create(['vid' => 'tags', 'name' => 'Tags'])->save();
+
+    FieldStorageConfig::create(['field_name' => 'field_note', 'entity_type' => 'taxonomy_term', 'type' => 'string', 'cardinality' => 2])->save();
+    FieldConfig::create(['field_name' => 'field_note', 'entity_type' => 'taxonomy_term', 'bundle' => 'tags'])->save();
+
+    // The vocabulary reaches the driver only through the creation alias, so
+    // the bundle is unknown until the alias has run.
+    $stub = new EntityStub('taxonomy_term', NULL, [
+      'name' => 'A term',
+      'vocabulary_machine_name' => 'tags',
+      'field_note' => 'alpha, beta',
+    ]);
+
+    $this->core->termCreate($stub);
+
+    $term = Term::load($stub->getValue('tid'));
+    $this->assertInstanceOf(Term::class, $term);
+    $this->assertSame([['value' => 'alpha'], ['value' => 'beta']], $term->get('field_note')->getValue());
+  }
+
+  /**
    * Tests that a user stub is parsed on its own create path.
    */
   public function testUserStubIsParsedByTheDriver(): void {

@@ -900,7 +900,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function termCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->parseEntityFields($stub);
     $this->applyPreCreateAliases($stub, 'taxonomy_term');
 
     $vocabulary = $stub->getBundle() ?? $stub->getValue('vid');
@@ -915,6 +914,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $stub->setValue('vid', $vocabulary);
 
+    // Parse once 'vid' carries the vocabulary: the bundle the parser resolves
+    // from it is what makes bundle-scoped fields recognisable.
+    $this->parseEntityFields($stub);
     $this->expandEntityFields($stub);
     $entity = Term::create($stub->getValues());
     $entity->save();
