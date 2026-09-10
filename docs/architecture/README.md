@@ -2,9 +2,30 @@
 
 This is a walkthrough of how Behat Steps works: what the pieces are, and how a Gherkin step travels from a feature file to a browser or a Drupal API. Each section is traced from the sources it names, and the diagrams sit next to the prose that explains them.
 
-This document is generated and maintained by an AI agent via the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md). The content is derived from the source code. If this documentation and the code disagree, the code wins.
+This document and its diagrams are generated and maintained by an AI agent via the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](../../.claude/skills/update-architecture-docs/SKILL.md). The content is derived from the source code. If this documentation and the code disagree, the code wins.
 
-Looking for the list of steps instead? That's [STEPS.md](STEPS.md), and it's generated too.
+Looking for the list of steps instead? That's [STEPS.md](../../STEPS.md), and it's generated too.
+
+## Diagram sources
+
+Every diagram is a PlantUML source in this directory, rendered to a committed light `.svg`. Both are tracked, so a reviewer sees the source diff and the rendered result.
+
+| Source | Renders | Shows |
+| --- | --- | --- |
+| `architecture.puml` | `architecture.svg` | The component architecture: the package, the consuming project, the Behat runtime, the targets, and the doc and test harnesses |
+| `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the inheritance chain the context sits on |
+| `class-context.puml` | `class-context.svg` | Members of the context, both helpers, 3 representative step traits, and the exceptions a failing step throws |
+| `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
+| `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering `STEPS.md` |
+| `dataflow-tests.puml` | `dataflow-tests.svg` | The fixture Drupal site, the nested Behat harness, and the coverage merge |
+
+Regenerate every SVG after editing any source:
+
+```bash
+plantuml -tsvg docs/architecture/*.puml
+```
+
+PlantUML must be on the `PATH`. Install it with `brew install plantuml` on macOS or `apt-get install plantuml` on Debian and Ubuntu; it needs Java, which macOS already has.
 
 ## What actually ships
 
@@ -21,34 +42,21 @@ Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]
 
 The dependency story is deliberately thin. `composer.json` requires only PHP 8.2+, `behat/behat` and `behat/mink`. Everything else - the Drupal Extension, the JSON Schema validator, the JSONPath library, both JavaScript drivers - sits in `require-dev` and is advertised through `suggest`. A project that only wants the generic traits doesn't drag Drupal in.
 
-```mermaid
-%% Traced from: composer.json, src/, src/Drupal/, tests/behat/bootstrap/FeatureContext.php, docs.php.
-flowchart TB
-    subgraph pkg["drevops/behat-steps"]
-        generic["Generic traits in src<br/>DrevOps BehatSteps"]
-        drupal["Drupal traits in src Drupal<br/>DrevOps BehatSteps Drupal"]
-        helper["HelperTrait pair<br/>shared logic, no steps"]
-        generic -.uses.-> helper
-        drupal -.uses.-> helper
-    end
+![Component architecture](architecture.svg)
 
-    ctx["FeatureContext<br/>written by the consuming project"]
-    generic --> ctx
-    drupal --> ctx
+## The type structure
 
-    ctx --> mink["Mink session"]
-    ctx --> ddriver["Drupal Extension driver"]
+A step trait is a mixin, not a class in a hierarchy, so the inheritance chain belongs to the context rather than to the library. `FeatureContext` extends the Drupal Extension's `DrupalContext`, which descends from `RawDrupalContext` and ultimately from Mink's `RawMinkContext` - and that is where `getSession()` comes from. Mix a trait into a class without that ancestry and its Mink calls have nothing to talk to.
 
-    mink --> browser["BrowserKit or Selenium2 or Chrome DevTools"]
-    ddriver --> site["Drupal site APIs and drush"]
+![Class structure: step traits](class-traits.svg)
 
-    testctx["Test FeatureContext<br/>composes every trait in this repo"]
-    generic --> testctx
-    drupal --> testctx
+2 traits carry no steps at all: `src/HelperTrait.php` and `src/Drupal/HelperTrait.php`. They hold the logic that would otherwise be copy-pasted - table transposition, whitespace normalisation, comma-splitting, fixture-file resolution - and roughly 20 step traits `use` one of them.
 
-    docs["docs.php"] -. reflects over .-> testctx
-    docs --> steps["STEPS.md and the README step index"]
-```
+The Drupal `HelperTrait` also owns entity cleanup, which is the one piece of cross-trait state in the library. Traits that create entities call `entityRegister()`, and an `#[AfterScenario('@api')]` hook deletes the registry in reverse creation order at teardown. Ids are stored as scalars rather than objects, so each entity is reloaded fresh and an already-deleted row is simply skipped.
+
+Not every trait needs a session. `CommandTrait` never calls `getSession()`, which is why it cannot throw `ExpectationException` - that constructor wants a driver. It throws `\RuntimeException` instead, and the same is true of `Drupal\ConfigTrait`, `ModuleTrait`, `StateTrait` and `RedirectTrait`.
+
+![Class detail: context, helpers and step traits](class-context.svg)
 
 ## Flow 1: a step runs
 
@@ -56,32 +64,9 @@ Nothing in this library is invoked directly. Behat owns the loop, and the traits
 
 When Behat starts, it instantiates the consuming project's `FeatureContext` and scans it for step attributes - including every attribute inherited through a `use` statement. From then on, matching a Gherkin line to a method is ordinary Behat behaviour. The trait method runs with `$this` bound to the context, which is how `$this->getSession()` reaches Mink and how the Drupal traits reach the driver they were composed alongside.
 
-```mermaid
-%% Traced from: src/PathTrait.php, src/Drupal/ContentTrait.php, tests/behat/bootstrap/FeatureContext.php, behat.yml.
-sequenceDiagram
-    participant Feature as Feature file
-    participant Behat
-    participant Ctx as FeatureContext
-    participant Trait as Step trait method
-    participant Target as Mink session or Drupal API
-
-    Behat->>Ctx: instantiate, scan Given When Then attributes
-    Feature->>Behat: Then the path should be "/about-us"
-    Behat->>Ctx: match step text to the attribute
-    Ctx->>Trait: pathAssertCurrent with path
-    Trait->>Target: read current URL or call Drupal
-    Target-->>Trait: value
-    Trait-->>Behat: return, or throw ExpectationException
-    Behat-->>Feature: step passes or fails
-```
+![Data flow: a step runs](dataflow-step.svg)
 
 Assertions fail by throwing. Traits with a Mink session throw `Behat\Mink\Exception\ExpectationException` and pass the driver as the second argument so the failure message carries page context; a missing element throws `ElementNotFoundException`. Bad step arguments and unmet prerequisites are a different thing entirely and throw `\RuntimeException` - which is what lets a consuming project tell "the assertion didn't hold" apart from "you called this wrong".
-
-### Shared logic and lifecycle hooks
-
-2 traits carry no steps at all: `src/HelperTrait.php` and `src/Drupal/HelperTrait.php`. They hold the logic that would otherwise be copy-pasted - table transposition, whitespace normalisation, comma-splitting, fixture-file resolution - and roughly 20 step traits `use` one of them.
-
-The Drupal `HelperTrait` also owns entity cleanup, which is the one piece of cross-trait state in the library. Traits that create entities call `entityRegister()`, and an `#[AfterScenario('@api')]` hook deletes the registry in reverse creation order at teardown. Ids are stored as scalars rather than objects, so each entity is reloaded fresh and an already-deleted row is simply skipped.
 
 Every lifecycle hook in the library can be switched off from a feature file. Tag a scenario `@behat-steps-skip:JavascriptTrait` to opt a whole trait out, or `@behat-steps-skip:fileDownloadBeforeScenario` to disable a single hook - the hooks check `$scope->getScenario()->hasTag()` themselves. Entity cleanup honours the same convention, plus `@behat-steps-entity-cleanup-skip:<entity_type>` for leaving one type in place.
 
@@ -89,32 +74,13 @@ Every lifecycle hook in the library can be switched off from a feature file. Tag
 
 `STEPS.md` is entirely generated, and `docs.php` is what generates it. It's a plain procedural script - top-level functions, no classes - and it runs against the fixture site's autoloader because it needs to reflect over real Drupal-dependent traits.
 
-The trick is that it doesn't scan the filesystem for step definitions. It reflects over the test suite's own `FeatureContext`, which composes every trait in the library. That makes composition the source of truth: a trait file that exists but was never added to `FeatureContext` shows up as an error rather than being quietly skipped.
+The trick is that it doesn't scan the filesystem for step definitions. It reflects over the test suite's own `FeatureContext`, which composes every trait in the library. That makes composition the source of truth: a trait file that exists but was never added to `FeatureContext` throws rather than being quietly skipped.
 
-```mermaid
-%% Traced from: docs.php functions main, extract_info, validate, validate_tags, tag_registry, render_info, replace_content.
-flowchart TB
-    start(["php docs.php"]) --> load["require build vendor autoload<br/>and the FeatureContext bootstrap"]
-    load --> extract["extract_info reflects over FeatureContext traits"]
-    extract --> scan["scan src for trait files<br/>to catch any trait not composed in"]
-    extract --> pick["keep public methods prefixed with the trait name<br/>that carry a step attribute"]
-    pick --> parse["parse the docblock for description and the code example"]
-    parse --> ctxdir["derive Generic or Drupal from the file's directory"]
-
-    ctxdir --> validate["validate step wording<br/>When needs I, Then needs should and Assert, examples are mandatory"]
-    ctxdir --> tags["validate_tags against tag_registry<br/>parametrized tags take a colon value, flag tags stand alone"]
-
-    validate --> gate{"any errors"}
-    tags --> gate
-    gate -- yes --> fail["print errors and exit 1"]
-    gate -- no --> render["render_info builds the Markdown"]
-    render --> replace["replace_content swaps the block<br/>between the heading and the END marker"]
-    replace --> out["STEPS.md and the README step index"]
-```
+![Data flow: STEPS.md generation](dataflow-docs.svg)
 
 The validation half matters more than the rendering half. It's where the project's step-writing conventions stop being a style guide and start being enforced: a `@When` step without `I `, a `@Then` step whose method name lacks `Assert`, a method with 2 step attributes, a step with no `@code` example - each is a hard error. `tag_registry()` does the same job for tags, guarding against separator drift so that `@module:views` never quietly becomes `@module-views`.
 
-Run with `--fail-on-change` (that's `ahoy lint-docs`), the script becomes a CI gate: it regenerates the blocks in memory and fails if they don't match what's committed. So the documentation can't drift, because a drifted build is a red build.
+Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates the blocks in memory and exits non-zero if they don't match what's committed, writing nothing. So the documentation can't drift, because a drifted build is a red build.
 
 ## Flow 3: how the library tests itself
 
@@ -138,28 +104,7 @@ Asserting that a step *fails correctly* is awkward from inside the same run: the
 
 `BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `FeatureContext` composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The outer scenario then asserts on the subprocess's exit code and output. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
-```mermaid
-%% Traced from: scripts/provision.sh, behat.yml, tests/behat/bootstrap/BehatCliTrait.php, tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php, .ahoy.yml.
-sequenceDiagram
-    participant Dev as ahoy test-bdd-coverage
-    participant Prov as scripts provision.sh
-    participant Behat as Outer Behat run
-    participant Cli as BehatCliContext
-    participant Sub as Nested Behat subprocess
-    participant Merge as scripts merge-coverage.php
-
-    Dev->>Prov: build the fixture Drupal site into build
-    Prov-->>Dev: site installed and bootstrapped
-    Dev->>Behat: run the feature suite against it
-    Behat->>Behat: api scenarios drive Drupal and Mink directly
-    Behat->>Cli: scenario tagged trait SomeTrait
-    Cli->>Cli: write a FeatureContext with only those traits
-    Cli->>Sub: spawn behat in a temp directory
-    Sub-->>Cli: exit code, output, and a coverage file
-    Cli-->>Behat: assert on the output
-    Behat->>Merge: main coverage plus every subprocess coverage file
-    Merge-->>Dev: merged cobertura and HTML reports
-```
+![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)
 
 ### Coverage, and the file everyone reads wrong
 
@@ -183,4 +128,4 @@ Unit and BDD tests run on every leg. Coverage is collected on the PHP 8.3 / Drup
 
 ## Regenerating this document
 
-After a structural change - a new trait directory, a change to how `FeatureContext` composes traits, a change to how `docs.php` discovers steps, a change to the fixture harness or the CI matrix - ask the AI agent to "update architecture docs". It re-traces the affected diagrams and prose from the current code via the `update-architecture-docs` skill.
+After a structural change - a new trait directory, a change to how `FeatureContext` composes traits, a change to how `docs.php` discovers steps, a change to the fixture harness or the CI matrix - ask the AI agent to "update architecture docs". It re-traces the affected diagrams and prose from the current code via the `update-architecture-docs` skill, and re-renders the SVGs in the same pass.

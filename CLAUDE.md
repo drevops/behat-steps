@@ -177,9 +177,15 @@ This ensures that the documentation remains in sync with the actual code impleme
 
 ### Architecture Documentation
 
-[ARCHITECTURE.md](ARCHITECTURE.md) is the narrative walkthrough of how the project works - components, primary flows, and the diagrams that go with them. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it. Do not hand-edit it against those rules; invoke the skill.
+[docs/architecture/README.md](docs/architecture/README.md) is the narrative walkthrough of how the project works - components, primary flows, and the diagrams that go with them. The diagrams are PlantUML sources (`docs/architecture/*.puml`) rendered to committed light SVGs; both are tracked. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it. Do not hand-edit it against those rules; invoke the skill.
 
 **Regenerate it before opening any pull request.** Run the skill (say "update architecture docs") as part of the pre-PR checks, alongside `ahoy update-docs` and `ahoy lint`. When the branch changed nothing structural, the skill is a no-op and the document stays as it is - that is the expected outcome for most PRs, and it is still worth the check.
+
+After editing any `.puml`, re-render every SVG so the sources and the renders cannot drift:
+
+```bash
+plantuml -tsvg docs/architecture/*.puml
+```
 
 A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how `FeatureContext` composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 

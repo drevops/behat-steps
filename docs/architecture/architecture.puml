@@ -1,0 +1,69 @@
+@startuml
+' drevops/behat-steps - layered component architecture.
+' Traced from composer.json, src/, src/Drupal/, docs.php, behat.yml,
+' tests/behat/bootstrap/, scripts/provision.sh, scripts/merge-coverage.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Component architecture
+
+package "drevops/behat-steps" #E8F5E9 {
+  component "Generic step traits\nsrc/*.php\nDrevOps\\BehatSteps" as Generic
+  component "Drupal step traits\nsrc/Drupal/*.php\nDrevOps\\BehatSteps\\Drupal" as DrupalSteps #E3F2FD
+  component "HelperTrait pair\nshared logic, no steps" as Helpers #F3E5F5
+}
+
+package "Consuming project" #FFF3E0 {
+  component "FeatureContext\ncomposes the chosen traits" as Consumer
+  component "Feature files\n*.feature" as Features
+}
+
+package "Behat runtime" #ECEFF1 {
+  component "Behat\nstep matching and hooks" as Behat
+  component "Mink session" as Mink
+  component "Drupal Extension\nRawDrupalContext + driver" as DrupalExt
+}
+
+package "Targets" #ECEFF1 {
+  component "Browser\nBrowserKit, Selenium2, Chrome DevTools" as Browser
+  component "Drupal site\nentity API, config, drush" as Site
+}
+
+package "Documentation" #FFF3E0 {
+  component "docs.php\nreflect, validate, render" as Docs
+  component "STEPS.md\nREADME.md step index" as StepsMd
+}
+
+package "Test harness" #FFEBEE {
+  component "Test FeatureContext\ncomposes every trait" as TestCtx
+  component "scripts/provision.sh\nfixture Drupal site" as Provision
+  component "BehatCliContext\nnested Behat runner" as Cli
+  component "scripts/merge-coverage.php" as Merge
+}
+
+Generic ..> Helpers : uses
+DrupalSteps ..> Helpers : uses
+
+Generic --> Consumer : mixed into
+DrupalSteps --> Consumer : mixed into
+Generic --> TestCtx : mixed into
+DrupalSteps --> TestCtx : mixed into
+
+Features --> Behat : steps
+Behat --> Consumer : matches and invokes
+Consumer --> Mink
+Consumer --> DrupalExt
+Mink --> Browser
+DrupalExt --> Site
+
+Docs ..> TestCtx : reflects over
+Docs --> StepsMd : writes
+
+Provision --> Site : builds the fixture
+Behat --> TestCtx : matches and invokes
+TestCtx --> Cli : @trait: scenarios
+Cli --> Behat : spawns a nested run
+Cli --> Merge : subprocess coverage
+@enduml

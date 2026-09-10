@@ -1,5 +1,6 @@
 # Ignore files for distribution archives.
 /.ahoy.yml           export-ignore
+/.claude             export-ignore
 /.docker             export-ignore
 /.dockerignore       export-ignore
 /.editorconfig       export-ignore
@@ -11,6 +12,7 @@
 /CONTRIBUTING.md     export-ignore
 /behat.yml           export-ignore
 /docker-compose.yml  export-ignore
+/docs                export-ignore
 /docs.php            export-ignore
 /gherkinlint.json    export-ignore
 /logo.png            export-ignore

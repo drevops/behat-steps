@@ -1,0 +1,43 @@
+@startuml
+' drevops/behat-steps - data flow for a step running in a consuming project.
+' Traced from src/PathTrait.php, src/Drupal/ContentTrait.php,
+' tests/behat/bootstrap/FeatureContext.php, behat.yml.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Data flow: a step runs
+
+participant "Feature file" as Feature
+participant "Behat" as Behat
+participant "FeatureContext" as Ctx
+participant "Step trait method" as Trait
+participant "Mink session\nor Drupal API" as Target
+
+Behat -> Ctx: instantiate
+activate Ctx
+Behat -> Ctx: scan #[Given] #[When] #[Then] attributes
+note right of Behat: attributes inherited\nthrough "use" are\nfound too
+Ctx --> Behat: step definitions
+deactivate Ctx
+
+Feature -> Behat: Then the path should be "/about-us"
+activate Behat
+Behat -> Trait: pathAssertCurrent(path)
+activate Trait
+Trait -> Target: getSession()->getCurrentUrl()
+activate Target
+Target --> Trait: current URL
+deactivate Target
+
+alt path matches
+  Trait --> Behat: void
+else path differs
+  Trait -> Behat: throw ExpectationException(message, driver)
+end
+deactivate Trait
+
+Behat --> Feature: step passes or fails
+deactivate Behat
+@enduml

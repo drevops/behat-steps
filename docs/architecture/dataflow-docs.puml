@@ -1,0 +1,69 @@
+@startuml
+' drevops/behat-steps - data flow for generating the step documentation.
+' Traced from docs.php functions main, extract_info, parse_class_comment,
+' parse_method_comment, extract_method_steps, validate, validate_tags,
+' tag_registry, render_info, replace_content.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Data flow: STEPS.md generation
+
+participant "ahoy update-docs\nahoy lint-docs" as Dev
+participant "docs.php main()" as Main
+participant "extract_info()" as Extract
+participant "Test FeatureContext" as Ctx
+participant "validate()\nvalidate_tags()" as Validate
+participant "render_info()\nreplace_content()" as Render
+
+Dev -> Main: php docs.php [~--fail-on-change]
+activate Main
+Main -> Main: require build/vendor/autoload.php\nand the FeatureContext bootstrap
+
+Main -> Extract: extract_info(FeatureContext::class)
+activate Extract
+Extract -> Ctx: ReflectionClass::getTraits()
+activate Ctx
+Ctx --> Extract: every composed trait
+deactivate Ctx
+Extract -> Extract: scan src/ for trait files\nand match them off
+Extract -> Extract: keep public methods prefixed with\nthe trait name that carry a step attribute
+Extract -> Extract: parse the docblock for the\ndescription and the @code example
+Extract -> Extract: derive Generic or Drupal\nfrom the file's directory
+
+alt a trait file was never composed in
+  Extract -> Main: throw Exception(not found in the class)
+end
+Extract --> Main: step info
+deactivate Extract
+
+Main -> Validate: validate(info), validate_tags(info)
+activate Validate
+note right of Validate
+  When needs "I ", Then needs "should"
+  and an Assert method name, one step
+  attribute per method, an example is
+  mandatory, tags must match tag_registry()
+end note
+alt errors found
+  Validate --> Main: error list
+  Main --> Dev: print errors, exit 1
+else clean
+  Validate --> Main: no errors
+end
+deactivate Validate
+
+Main -> Render: render_info(info)
+activate Render
+Render -> Render: swap the block between the heading\nand the [//]: # (END) marker
+Render --> Main: STEPS.md and README.md contents
+deactivate Render
+
+alt ~--fail-on-change and the contents differ
+  Main --> Dev: exit non-zero, documentation is stale
+else
+  Main --> Dev: write STEPS.md and README.md
+end
+deactivate Main
+@enduml
