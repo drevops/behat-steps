@@ -93,7 +93,7 @@ trait ResponsiveTrait {
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
-    $tags = Tag::normalize($scope->getScenario()->getTags());
+    $tags = Tag::on($scope->getScenario());
 
     $breakpoint_tags = [];
     foreach ($tags as $tag) {

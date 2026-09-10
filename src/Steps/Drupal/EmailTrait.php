@@ -69,7 +69,7 @@ trait EmailTrait {
       $this->emailDebug = TRUE;
     }
 
-    foreach (Tag::normalize($scope->getScenario()->getTags()) as $tag) {
+    foreach (Tag::on($scope->getScenario()) as $tag) {
       if (str_starts_with($tag, 'email:')) {
         $parts = explode(':', $tag);
         $this->emailHandlerTypes[] = count($parts) > 1 ? implode(':', array_slice($parts, 1)) : 'default';

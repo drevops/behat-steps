@@ -109,7 +109,9 @@ jobs:
           # Selenium-less driver legs: run the Behat suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
           # portable. The browser driver is Drupal-version independent, so the
-          # 2 legs take their breadth from the PHP and dependency axes instead.
+          # 2 legs take their breadth from the PHP axis. They stay on 'normal'
+          # deps because the Chrome extension hands the driver options that its
+          # own lowest-resolvable driver does not define.
           # The first also carries coverage, so the branches only the Chrome
           # driver reaches are measured and merged with the Selenium2 coverage.
           - php_version: '8.3'
@@ -120,7 +122,7 @@ jobs:
             coverage: true
           - php_version: '8.5'
             drupal_version: '11'
-            deps: 'lowest'
+            deps: 'normal'
             variant: 'chrome_headless'
             profile: 'chrome_headless'
           # 'src/Behat' targets Behat 3.32 and Behat 4 at once, and this leg

@@ -79,7 +79,7 @@ trait WatchdogTrait {
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
 
-    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::normalize($scenario->getTags()));
+    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
 
     $this->helperSetLastStepLine($scope);
   }

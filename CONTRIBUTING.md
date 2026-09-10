@@ -149,13 +149,16 @@ Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTa
 // Every tag on the scenario and on the feature that holds it, without the '@'.
 $tags = Tag::all($scope);
 
+// Every tag on one node.
+$tags = Tag::on($scope->getScenario());
+
 // One tag on one node.
 if (Tag::has($scope->getScenario(), 'email')) {
   // ...
 }
 ```
 
-`Tag::normalize()` takes a raw list when neither of those fits.
+`Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 The Behat extensions this repository installs have the same problem, and only some of it can be fixed from here. [`MinkSessionListener`](src/Behat/Listener/MinkSessionListener.php) replaces Mink's own session listener so `@javascript` selects the browser session in both modes. `drevops/behat-phpserver` still compares `@phpserver` against a bare name, which is what keeps the `gherkin32` CI leg red.
 
@@ -280,14 +283,14 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ### Lint
 
-1 job, on PHP 8.4. `ahoy lint` runs `composer validate`, `composer normalize --dry-run`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php); `ahoy lint-docs` then checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, so a green `ahoy lint` means a green lint job.
+1 job, on PHP 8.4. `ahoy lint` runs `composer validate`, `composer normalize --dry-run`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php); `ahoy lint-docs` then checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
 
 ### Test matrix
 
 | Legs | What they prove |
 |---|---|
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.32 floor. |
-| 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP and dependency axes. |
+| 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
 | 1 x `behat4` | `src/Behat` still works on the next Behat major. |
 | 1 x `gherkin32` | The suite still works when Gherkin keeps the `@` on every tag. |
 

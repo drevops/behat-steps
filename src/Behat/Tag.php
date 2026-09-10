@@ -36,6 +36,19 @@ final class Tag {
   }
 
   /**
+   * Collects the tags of a single node.
+   *
+   * @param \Behat\Gherkin\Node\TaggedNodeInterface $node
+   *   The feature or scenario to read.
+   *
+   * @return array<int, string>
+   *   The node's tags, each without a leading '@'.
+   */
+  public static function on(TaggedNodeInterface $node): array {
+    return self::normalize($node->getTags());
+  }
+
+  /**
    * Checks whether a node carries a tag.
    *
    * @param \Behat\Gherkin\Node\TaggedNodeInterface $node
@@ -47,7 +60,7 @@ final class Tag {
    *   TRUE when the node carries the tag.
    */
   public static function has(TaggedNodeInterface $node, string $tag): bool {
-    return in_array($tag, self::normalize($node->getTags()), TRUE);
+    return in_array($tag, self::on($node), TRUE);
   }
 
   /**

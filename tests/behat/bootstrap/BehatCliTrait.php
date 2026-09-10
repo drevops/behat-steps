@@ -43,7 +43,7 @@ trait BehatCliTrait {
 
     // Scan scenario tags and extract trait names from tags starting with
     // 'trait:'. For example, @trait:PathTrait or @trait:Drupal\\UserTrait.
-    foreach (Tag::normalize($scope->getScenario()->getTags()) as $tag) {
+    foreach (Tag::on($scope->getScenario()) as $tag) {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);

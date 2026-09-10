@@ -43,7 +43,7 @@ trait ModuleTrait {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
-    $tags = Tag::normalize($scope->getScenario()->getTags());
+    $tags = Tag::on($scope->getScenario());
     foreach ($tags as $tag) {
       if (str_starts_with($tag, 'module:')) {
         $module_spec = substr($tag, 7);

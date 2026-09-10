@@ -46,6 +46,25 @@ class TagTest extends TestCase {
   }
 
   /**
+   * Tests the form a single node's tags are read in.
+   *
+   * @param list<string> $tags
+   *   Tags declared on the node.
+   * @param list<string> $expected
+   *   The tags expected after normalization.
+   */
+  #[DataProvider('dataProviderOn')]
+  public function testOn(array $tags, array $expected): void {
+    $this->assertSame($expected, Tag::on(new ScenarioNode('Scenario', $tags, [], 'Scenario', 2)));
+  }
+
+  public static function dataProviderOn(): \Iterator {
+    yield 'an untagged node' => [[], []];
+    yield 'legacy tags are unchanged' => [['api', 'email'], ['api', 'email']];
+    yield 'gherkin-32 tags lose the prefix' => [['@api', '@email'], ['api', 'email']];
+  }
+
+  /**
    * Tests whether a node is found to carry a tag.
    *
    * @param list<string> $tags
