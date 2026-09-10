@@ -9,8 +9,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Drupal\DrupalExtension\Hook\Attribute\BeforeNodeCreate;
-use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
+use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -32,7 +33,7 @@ use Drupal\workflows\Entity\Workflow;
  * contrib `pathauto` module is enabled, automatic alias generation is switched
  * off for the content so that the provided alias is preserved.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\DrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ContentTrait {
 
@@ -65,6 +66,8 @@ trait ContentTrait {
    */
   #[Given('the content type :content_type does not exist')]
   public function contentRemoveContentType(string $content_type): void {
+    $this->assertDrupal();
+
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
     if ($content_type_entity) {
@@ -84,6 +87,8 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content does not exist:')]
   public function contentDelete(string $content_type, TableNode $table): void {
+    $this->assertDrupal();
+
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->helperLoadNodeIds($content_type, $node_hash);
 
@@ -115,7 +120,26 @@ trait ContentTrait {
   public function contentCreateWithFields(string $content_type, TableNode $table): void {
     $entities = $this->helperTransposeVerticalTable($table);
     $horizontal_table = $this->helperBuildHorizontalTable($entities);
-    $this->createNodes($content_type, $horizontal_table);
+    $this->contentCreate($content_type, $horizontal_table);
+  }
+
+  /**
+   * Create content of a type from a table of field values.
+   *
+   * Each row becomes one node; each column is a base property or a field.
+   *
+   * @code
+   *   Given the following page content exist:
+   *     | title         | status |
+   *     | [TEST] Page 1 | 1      |
+   *     | [TEST] Page 2 | 0      |
+   * @endcode
+   */
+  #[Given('the following :content_type content exist:')]
+  public function contentCreate(string $content_type, TableNode $table): void {
+    foreach ($table->getHash() as $values) {
+      $this->nodeCreate(new EntityStub('node', $content_type, $values));
+    }
   }
 
   /**
@@ -187,6 +211,8 @@ trait ContentTrait {
    */
   #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
+    $this->assertDrupal();
+
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
     $state_is_valid = FALSE;
@@ -221,6 +247,8 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
   public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
+    $this->assertDrupal();
+
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
@@ -248,6 +276,8 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for all content')]
   public function contentRebuildAccessGrantsAll(): void {
+    $this->assertDrupal();
+
     \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
   }
 
@@ -264,6 +294,8 @@ trait ContentTrait {
    */
   #[When('I set the path alias of the :content_type content with the title :title to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
+    $this->assertDrupal();
+
     $this->contentAssertPathModuleEnabled();
 
     $alias = trim($alias);
@@ -371,6 +403,8 @@ trait ContentTrait {
    *   The node ID.
    */
   protected function contentResolveNidByTitle(string $content_type, string $title): int {
+    $this->assertDrupal();
+
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
     if (!$content_type_entity) {
@@ -402,6 +436,8 @@ trait ContentTrait {
    *   The node.
    */
   protected function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
+    $this->assertDrupal();
+
     $node = Node::load($this->contentResolveNidByTitle($content_type, $title));
 
     // @codeCoverageIgnoreStart
@@ -417,6 +453,8 @@ trait ContentTrait {
    * Throw when the `path` module is not enabled.
    */
   protected function contentAssertPathModuleEnabled(): void {
+    $this->assertDrupal();
+
     // @codeCoverageIgnoreStart
     if (!\Drupal::moduleHandler()->moduleExists('path')) {
       throw new \RuntimeException('The "path" module is not enabled. Enable it to manage content path aliases.');

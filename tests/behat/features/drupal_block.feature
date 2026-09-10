@@ -20,12 +20,12 @@ Feature: Check that BlockTrait works
     Then I should see "[TEST] User Account Menu"
 
     Given the block "[TEST] User Account Menu" is disabled
-    And the cache has been cleared
+    And the cache is empty
     When I visit "/"
     Then I should not see "[TEST] User Account Menu"
 
     Given the block "[TEST] User Account Menu" is enabled
-    And the cache has been cleared
+    And the cache is empty
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
@@ -200,7 +200,7 @@ Feature: Check that BlockTrait works
     Then I should see "[TEST] User Account Menu"
 
     Given the block "[TEST] User Account Menu" has the "request_path" condition removed
-    And the cache has been cleared
+    And the cache is empty
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 

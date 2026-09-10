@@ -43,7 +43,7 @@ use Behat\Mink\Exception\ExpectationException;
  *   Given I visit "/legacy-page"
  * @endcode
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait JavascriptTrait {
 
@@ -84,7 +84,7 @@ trait JavascriptTrait {
     $this->javascriptClearRegistry();
     $this->javascriptAsserted = FALSE;
 
-    if ($scope->getScenario()->hasTag('behat-steps-skip:JavascriptTrait')) {
+    if ($this->skipTag('JavascriptTrait', $scope)) {
       $this->javascriptEnabled = FALSE;
       return;
     }
@@ -138,10 +138,6 @@ trait JavascriptTrait {
    */
   #[BeforeStep]
   public function javascriptBeforeStep(BeforeStepScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:JavascriptTrait')) {
-      return;
-    }
-
     if (!$this->javascriptEnabled) {
       return;
     }
@@ -179,10 +175,6 @@ trait JavascriptTrait {
    */
   #[AfterStep]
   public function javascriptAfterStep(AfterStepScope $scope): void {
-    if ($scope->getFeature()->hasTag('behat-steps-skip:JavascriptTrait')) {
-      return;
-    }
-
     if (!$this->javascriptEnabled) {
       return;
     }

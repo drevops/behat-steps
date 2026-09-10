@@ -3,44 +3,37 @@ Feature: Check that BigPipeTrait works
   I want BigPipe handled for both non-JavaScript and JavaScript drivers
   So that non-JS drivers bypass streaming via the nojs cookie and JS drivers wait for placeholders to be replaced before assertions
 
-  @api @skipped
+  @api @bigpipe
   Scenario: Assert that Big Pipe cookie is set
     Given I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api @behat-steps-skip:bigPipeBeforeScenario
+  @api @bigpipe @behat-steps-skip:BigPipeTrait
   Scenario: Assert that Big Pipe cookie is not set when skip tag is used
     Given I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" does not exist
 
-  @api @skipped
+  @api @bigpipe
   Scenario: Assert that Big Pipe cookie is preserved across multiple users in a scenario
-    Given the following users:
+    Given the following users exist:
       | name               | mail                             | roles         | status |
       | administrator_user | administrator_user@myexample.com | administrator | 1      |
     And I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
-    When I am logged in as "administrator_user"
+    When I log in as the user "administrator_user"
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api @behat-steps-skip:bigPipeBeforeStep @skipped
-  Scenario: Assert that Big Pipe cookie is not preserved across multiple users when skip tag is used
-    Given the following users:
-      | name               | mail                             | roles         | status |
-      | administrator_user | administrator_user@myexample.com | administrator | 1      |
-    And I install a "big_pipe" module
+  @api
+  Scenario: Assert that Big Pipe cookie is absent without the bigpipe tag
+    Given I install a "big_pipe" module
     When I visit "/"
-    Then cookie "big_pipe_nojs" exists
-    # Logging in as a new user removes cookies.
-    When I am logged in as "administrator_user"
-    And I visit "/"
     Then cookie "big_pipe_nojs" does not exist
 
-  @api @javascript
+  @api @javascript @bigpipe
   Scenario: Assert that Big Pipe cookie is not set when JavaScript is supported
     Given I install a "big_pipe" module
     When I visit "/"

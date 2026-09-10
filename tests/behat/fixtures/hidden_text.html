@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hidden Text Test Page</title>
+  <style>
+    .marker { color: HeadStyleValue; }
+  </style>
+</head>
+<body>
+  <h1>Visible heading</h1>
+  <p>Visible paragraph.</p>
+  <style>
+    .marker { content: "BodyStyleValue"; }
+  </style>
+  <script type="application/json" data-drupal-selector="drupal-settings-json">{"marker":"DrupalSettingsValue"}</script>
+  <script>
+    var marker = 'BodyScriptValue';
+  </script>
+  <script type="text/javascript">
+    var typedMarker = 'TypedScriptValue';
+  </script>
+</body>
+</html>

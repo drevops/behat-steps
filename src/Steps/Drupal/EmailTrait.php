@@ -31,7 +31,7 @@ use Drupal\Core\Database\StatementInterface;
  * - `@email:{type}` - enable email tracking using a `{type}` handler
  * - `@debug` (enable detailed logs)
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait EmailTrait {
 
@@ -54,16 +54,15 @@ trait EmailTrait {
    */
   #[BeforeScenario('@api')]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
+
     if (!$scope->getScenario()->hasTag('email')) {
       return;
     }
 
-    // Force the lazy 6.x driver to boot Drupal so '\Drupal::config()' below is
-    // safe regardless of hook ordering between traits.
-    $this->getDriver();
+    $this->assertDrupal();
 
     if ($scope->getScenario()->hasTag('debug')) {
       $this->emailDebug = TRUE;
@@ -90,13 +89,19 @@ trait EmailTrait {
    */
   #[AfterScenario('@api')]
   public function emailAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('email')) {
-      $this->emailDisableTestEmailSystem();
+    if (!$scope->getScenario()->hasTag('email')) {
+      return;
     }
+
+    // A scenario that skipped 'emailBeforeScenario' never reached Drupal, and
+    // teardown runs before any other hook that would have bootstrapped it.
+    $this->assertDrupal();
+
+    $this->emailDisableTestEmailSystem();
   }
 
   /**
@@ -108,6 +113,8 @@ trait EmailTrait {
    */
   #[When('I clear the test email system queue')]
   public function emailClearTestQueue(bool $force = FALSE): void {
+    $this->assertDrupal();
+
     if (!$force && !self::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
@@ -155,6 +162,44 @@ trait EmailTrait {
 
     $link = $links[$link_number - 1];
     $this->getSession()->visit($link);
+  }
+
+  /**
+   * Follow the first link containing a fragment in an email.
+   *
+   * Searches every collected message for a link whose URL contains the
+   * fragment, so a scenario can follow a one-time login or confirmation link
+   * without knowing its position in the body.
+   *
+   * @code
+   * When I follow the link containing "user/reset" in the email
+   * @endcode
+   */
+  #[When('I follow the link containing :url_fragment in the email')]
+  public function emailFollowLinkContaining(string $url_fragment): void {
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      $body = $message['params']['body'] ?? NULL;
+
+      // A handler that puts a structure in 'params.body' leaves the rendered
+      // text in 'body', so fall through rather than skipping the message.
+      if (!is_string($body)) {
+        $body = $message['body'] ?? '';
+      }
+
+      if (!is_string($body)) {
+        continue;
+      }
+
+      foreach (self::emailExtractLinks($body) as $link) {
+        if (str_contains($link, $url_fragment)) {
+          $this->getSession()->visit($link);
+
+          return;
+        }
+      }
+    }
+
+    throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $url_fragment), $this->getSession()->getDriver());
   }
 
   /**
@@ -264,6 +309,69 @@ trait EmailTrait {
     }
 
     throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert the number of emails sent.
+   *
+   * Counts every collected message, so clear the queue first to count only
+   * the messages a later action produced.
+   *
+   * @code
+   * Then the number of sent emails should be 2
+   * @endcode
+   */
+  #[Then('the number of sent emails should be :count')]
+  public function emailAssertMessageCount(int $count): void {
+    $actual = count($this->emailGetCollectedMessages());
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent, but %d were found.', $count, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the number of emails sent to an address.
+   *
+   * @code
+   * Then the number of emails sent to the address "user@example.com" should be 2
+   * @endcode
+   */
+  #[Then('the number of emails sent to the address :address should be :count')]
+  public function emailAssertMessageCountToAddress(int $count, string $address): void {
+    $actual = 0;
+
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      if (in_array($address, $this->helperSplitCommaSeparated((string) $message['to']), TRUE)) {
+        $actual++;
+      }
+    }
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent to "%s", but %d were found.', $count, $address, $actual), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert the number of emails sent with a subject.
+   *
+   * @code
+   * Then the number of emails sent with the subject "Welcome" should be 1
+   * @endcode
+   */
+  #[Then('the number of emails sent with the subject :subject should be :count')]
+  public function emailAssertMessageCountWithSubject(int $count, string $subject): void {
+    $actual = 0;
+
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      if ((string) $message['subject'] === $subject) {
+        $actual++;
+      }
+    }
+
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('Expected %d email(s) to have been sent with the subject "%s", but %d were found.', $count, $subject, $actual), $this->getSession()->getDriver());
+    }
   }
 
   /**
@@ -625,6 +733,8 @@ trait EmailTrait {
    *   Array of collected emails.
    */
   protected function emailGetCollectedMessages(): array {
+    $this->assertDrupal();
+
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.
     $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");

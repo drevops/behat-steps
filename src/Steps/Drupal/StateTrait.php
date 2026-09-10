@@ -51,12 +51,20 @@ trait StateTrait {
   #[AfterScenario('@api')]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
     if (
-      $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
-      || $scope->getScenario()->hasTag('behat-steps-skip:StateTrait')
+      $this->skipTag(__FUNCTION__, $scope)
+      || $this->skipTag('StateTrait', $scope)
     ) {
       $this->stateOriginalValues = [];
       return;
     }
+
+    // A scenario that recorded no snapshot has nothing to revert, and asking
+    // for the driver would fail one running on a driver that never had it.
+    if ($this->stateOriginalValues === []) {
+      return;
+    }
+
+    $this->assertDrupal();
 
     $state = \Drupal::state();
     foreach ($this->stateOriginalValues as $name => $snapshot) {
@@ -80,6 +88,8 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
+    $this->assertDrupal();
+
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->set($name, $this->stateNormalizeValue($value));
   }
@@ -93,6 +103,8 @@ trait StateTrait {
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
+    $this->assertDrupal();
+
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->delete($name);
   }
@@ -109,6 +121,8 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
+    $this->assertDrupal();
+
     $state = \Drupal::state();
     foreach ($table->getHash() as $row) {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
@@ -172,6 +186,8 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   protected function stateReadValue(string $name): array {
+    $this->assertDrupal();
+
     $key_value = \Drupal::keyValue('state');
 
     if (!$key_value->has($name)) {

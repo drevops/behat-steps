@@ -9,7 +9,7 @@ Feature: Check that ContentBlockTrait works
       | info                        | body                                      | status |
       | [TEST] Verify Block Content | Testing ContentBlockTrait's functionality | 1      |
     Then the content block type "basic" should exist
-    When I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I visit "/admin/content/block"
     Then I should see "[TEST] Verify Block Content"
 
@@ -28,7 +28,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create, manage, and verify content block entities
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Content Block 1 |
@@ -46,15 +46,15 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Verify "Given the following content blocks do not exist" does not fail for non-existent content blocks
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Non-existent Block |
-    Then I should not see the text "[TEST] Non-existent Block"
+    Then I should not see "[TEST] Non-existent Block"
 
   @api @skipped
   Scenario: Edit a content block
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks do not exist:
       | [TEST] Editable Block |
@@ -64,14 +64,14 @@ Feature: Check that ContentBlockTrait works
     And I edit the "basic" content block with the description "[TEST] Editable Block"
     And I fill in "Body" with "Updated block body content"
     And I press "Save"
-    Then I should see the success message "Basic block [TEST] Editable Block has been updated."
+    Then the success message "Basic block [TEST] Editable Block has been updated." should exist
 
   @api @trait:Drupal\ContentBlockTrait
   Scenario: Assert editing a non-existent content block fails
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I edit the "basic" content block with the description "Non-existent Content Block"
       """
     When I run "behat --no-colors"
@@ -118,7 +118,7 @@ Feature: Check that ContentBlockTrait works
     Given the following "basic" content blocks exist:
       | info                  | body                  | status |
       | [TEST] Editable Block | Initial block content | 1      |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I edit the "basic" content block with the description "[TEST] Editable Block"
     And I fill in "Block description" with "[TEST] Updated Block"
     And I fill in "Body" with "This content has been updated through Behat test"
@@ -135,7 +135,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Remove content block
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following "basic" content blocks exist:
       | info                   | body                       | status |
       | [TEST] Removable Block | Block that will be removed | 1      |
@@ -149,32 +149,32 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create basic content block, then delete it, and verify it no longer exists
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     And the following "basic" content blocks exist:
       | info                   | status | body                       |
       | [TEST] Temporary Block | 1      | This block will be deleted |
     When I go to "admin/content/block"
-    Then I should see the text "[TEST] Temporary Block"
+    Then I should see "[TEST] Temporary Block"
     When the following "basic" content blocks do not exist:
       | [TEST] Temporary Block |
     And I go to "admin/content/block"
-    Then I should not see the text "[TEST] Temporary Block"
+    Then I should not see "[TEST] Temporary Block"
 
   @api @trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
     When the following "basic" content blocks do not exist:
       | [TEST] Content Block That Doesn't Exist |
-    Then I should not see the text "[TEST] Content Block That Doesn't Exist"
+    Then I should not see "[TEST] Content Block That Doesn't Exist"
 
   @api @behat-steps-entity-cleanup-skip:block_content
   Scenario: Content blocks are not automatically cleaned up when skip tag is used
     Given the following "basic" content blocks exist:
       | info                      | body              | status |
       | [TEST] Skip Cleanup Block | Skip cleanup test | 1      |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit "/admin/content/block"
     Then I should see "[TEST] Skip Cleanup Block"
     # Content block will not be auto-deleted due to skip tag
@@ -184,7 +184,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create single content block with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block        |
       | body   | Created with vertical format |
@@ -196,7 +196,7 @@ Feature: Check that ContentBlockTrait works
 
   @api
   Scenario: Create multiple content blocks with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:
       | info   | [TEST] Vertical Block 1 | [TEST] Vertical Block 2 | [TEST] Vertical Block 3 |
       | body   | First vertical block    | Second vertical block   | Third vertical block    |

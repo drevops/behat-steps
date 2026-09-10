@@ -4,11 +4,11 @@ Feature: Check that ParagraphsTrait works
   So that users can test paragraph field functionality
 
   Background:
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following "landing_page" content does not exist:
       | title                 |
       | [TEST] Landing page 1 |
-    And the following landing_page content:
+    And the following landing_page content exist:
       | title                 |
       | [TEST] Landing page 1 |
 
@@ -19,8 +19,8 @@ Feature: Check that ParagraphsTrait works
       | field_paragraph_body:value  | My paragraph message |
       | field_paragraph_body:format | full_html            |
     And I visit the "landing_page" content page with the title "[TEST] Landing page 1"
-    Then I should see the text "My paragraph title"
-    And I should see the text "My paragraph message"
+    Then I should see "My paragraph title"
+    And I should see "My paragraph message"
 
   @api @trait:Drupal\ParagraphsTrait
   Scenario: Assert that negative assertion for "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent field

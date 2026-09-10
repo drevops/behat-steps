@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
@@ -30,10 +34,16 @@ use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriver;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use Drupal\Component\Utility\Random;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -87,6 +97,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   protected array $roles = [];
 
   /**
+   * Whether the scenario is tagged '@api', NULL outside a scenario.
+   *
+   * NULL means no scenario scope was ever seen, as when a context is driven
+   * directly from a unit test, and the tag is then not asserted.
+   */
+  protected ?bool $isApiScenario = NULL;
+
+  /**
    * Converts textual node timestamps into the numeric form storage expects.
    *
    * @throws \RuntimeException
@@ -105,7 +123,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    if (!$context->getDriverManager()->getDriver() instanceof DrupalDriver) {
+    if (!$context->getDriverManager()->getDriver() instanceof DrupalDriverInterface) {
       return;
     }
 
@@ -127,14 +145,29 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
+   * Records whether the scenario asked for Drupal's API.
+   *
+   * A step scope carries no tags, so the answer is resolved once here and read
+   * by 'assertDrupal()' on every call.
+   */
+  #[BeforeScenario]
+  public function resolveApiScenario(BeforeScenarioScope $scope): void {
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $this->isApiScenario = in_array('api', $tags, TRUE);
+  }
+
+  /**
    * Removes every entity created during the scenario.
    *
    * Walks 'createdStubs' in reverse order so dependent entities (a node
    * referencing a term, say) come down before the entities they reference.
+   *
+   * Skip the whole pass with '@behat-steps-skip:cleanEntities', or one entity
+   * type with '@behat-steps-entity-cleanup-skip:<entity_type_id>'.
    */
   #[AfterScenario]
-  public function cleanEntities(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanEntities(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanEntities', $scope)) {
       return;
     }
 
@@ -142,9 +175,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
+    $skip_types = $this->entityCleanupSkippedTypes($scope);
     $driver = $this->getDriver();
 
     foreach (array_reverse($this->createdStubs) as $stub) {
+      if (in_array($stub->getEntityType(), $skip_types, TRUE)) {
+        continue;
+      }
+
       $this->deleteStub($stub, $driver);
     }
 
@@ -161,8 +199,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Later scenarios in the same run inherit that login.
    */
   #[AfterScenario]
-  public function cleanUsers(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanUsers(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanUsers', $scope)) {
       return;
     }
 
@@ -196,8 +234,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Removes any created roles.
    */
   #[AfterScenario]
-  public function cleanRoles(): void {
-    if (!$this->shouldCleanup()) {
+  public function cleanRoles(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('cleanRoles', $scope)) {
       return;
     }
 
@@ -302,6 +340,36 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
+   * Asserts the scenario can reach Drupal's API, and returns the driver.
+   *
+   * A trait calls this before touching '\Drupal::' statics: the container
+   * exists only once the in-process driver has bootstrapped, and only an
+   * '@api' scenario runs on that driver. Bootstrapping happens on the first
+   * call of a scenario and is a no-op afterwards.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
+   *   When the scenario is not tagged '@api', or when the driver it selected
+   *   does not bootstrap Drupal in-process.
+   */
+  public function assertDrupal(): DrupalDriverInterface {
+    if ($this->isApiScenario === FALSE) {
+      throw new BootstrapException('The step requires Drupal\'s API. Tag the scenario "@api" so it runs on the in-process Drupal driver.');
+    }
+
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof DrupalDriverInterface) {
+      throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the configured "api_driver" ("%s") does not provide.', $driver::class));
+    }
+
+    if (!$driver->isBootstrapped()) {
+      $driver->bootstrap();
+    }
+
+    return $driver;
+  }
+
+  /**
    * Returns the driver's random generator.
    */
   public function getRandom(): Random {
@@ -320,6 +388,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['author']);
 
     $driver = $this->getContentDriver();
 
@@ -352,6 +421,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['role']);
 
     $driver = $this->getDriver();
 
@@ -401,6 +471,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     $this->dispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub, ['vocabulary_machine_name']);
 
     $driver = $this->getContentDriver();
 
@@ -432,6 +503,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getContentDriver();
 
@@ -446,6 +518,53 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
+  }
+
+  /**
+   * Expands a stub's raw Gherkin values into the storage field shape.
+   *
+   * Table cells arrive as written - a bare scalar, a comma-separated list, or
+   * a compound 'key:"value"' cell - and the parser resolves each against the
+   * field's own definition before the driver saves the entity.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The stub, mutated in place.
+   * @param array<int, string> $ignored_properties
+   *   Value names to leave untouched, such as base properties the caller
+   *   handles itself.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
+   *   When the scenario does not run on the in-process Drupal driver.
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    $classifier = $this->assertDrupal()->getCore()->getFieldClassifier();
+
+    $parser = $this->getFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
+    $parser->ignoring($ignored_properties);
+
+    $stub->setValues($parser->parse($stub->getValues()));
+  }
+
+  /**
+   * Registers an entity saved outside the create pipeline for cleanup.
+   *
+   * A step that saves an entity through Drupal's API rather than the driver
+   * calls this so the entity joins the same reverse-order teardown. Only the
+   * type and id are kept, so cleanup reloads the entity and tolerates a row
+   * the scenario already deleted.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The saved entity.
+   */
+  public function entityRegister(EntityInterface $entity): void {
+    $id = $entity->id();
+    $id_key = $entity->getEntityType()->getKey('id');
+
+    if ($id === NULL || !is_string($id_key) || $id_key === '') {
+      return;
+    }
+
+    $this->createdStubs[] = new EntityStub($entity->getEntityTypeId(), $entity->bundle(), [$id_key => $id]);
   }
 
   /**
@@ -526,7 +645,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($driver instanceof LanguageCapabilityInterface) {
-        $driver->languageDelete($stub);
+        try {
+          $driver->languageDelete($stub);
+        }
+        catch (\InvalidArgumentException) {
+          // The scenario removed the language itself. Deleting a node, a term
+          // or a generic entity twice is tolerated, so a language is too.
+        }
       }
 
       return;
@@ -559,6 +684,52 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     return !in_array(strtolower(trim($env)), ['1', 'true', 'yes', 'on'], TRUE);
+  }
+
+  /**
+   * Determines whether a scenario opts out of a hook.
+   *
+   * One tag form covers every hook in the library:
+   * '@behat-steps-skip:<Name>', where '<Name>' is either a hook method name or
+   * a trait name. Feature tags and scenario tags are read together, so the tag
+   * works on either line.
+   *
+   * @param string $name
+   *   The hook method name or trait name the tag would carry.
+   * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
+   *   The scenario scope the hook received.
+   *
+   * @return bool
+   *   TRUE when the scenario or its feature carries the skip tag.
+   */
+  protected function skipTag(string $name, ScenarioScope $scope): bool {
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+
+    return in_array('behat-steps-skip:' . $name, $tags, TRUE);
+  }
+
+  /**
+   * Collects the entity types named in per-type cleanup bypass tags.
+   *
+   * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
+   *   The scenario scope the hook received.
+   *
+   * @return array<int, string>
+   *   Entity type ids parsed from
+   *   '@behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
+   */
+  protected function entityCleanupSkippedTypes(ScenarioScope $scope): array {
+    $prefix = 'behat-steps-entity-cleanup-skip:';
+    $tags = array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags());
+    $types = [];
+
+    foreach ($tags as $tag) {
+      if (str_starts_with($tag, $prefix)) {
+        $types[] = substr($tag, strlen($prefix));
+      }
+    }
+
+    return $types;
   }
 
   /**
@@ -595,6 +766,43 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
         throw $exception;
       }
     }
+  }
+
+  /**
+   * Expands a stub's values during creation, when the driver can classify them.
+   *
+   * Classification reads the site's field definitions, which only the
+   * in-process driver exposes. On the Drush driver the values reach the
+   * command line as the scenario wrote them, so the pipeline leaves them
+   * alone rather than failing a creation the driver can carry out.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The stub, mutated in place.
+   * @param array<int, string> $ignored_properties
+   *   Value names to leave untouched.
+   */
+  protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    if (!$this->getDriver() instanceof DrupalDriverInterface) {
+      return;
+    }
+
+    $this->parseEntityFields($stub, $ignored_properties);
+  }
+
+  /**
+   * Builds the entity-field parser for one parsing call.
+   *
+   * Override in the consuming context to swap in a custom implementation.
+   *
+   * @param string $entity_type
+   *   The entity type the values belong to.
+   * @param \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface $classifier
+   *   The classifier resolving each value's field definition.
+   * @param string|null $bundle
+   *   The bundle, or NULL for an entity type without bundles.
+   */
+  protected function getFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
+    return new EntityFieldParser($entity_type, $classifier, $bundle);
   }
 
   /**

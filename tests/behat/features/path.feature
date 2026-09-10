@@ -5,7 +5,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario Outline: Assert that the path is the same as the given path
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to "<src>"
     Then the path should be "<dst>"
     Examples:
@@ -19,7 +19,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario Outline: Assert that the path is not the same as the given path
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to "<src>"
     Then the path should not be "<dst>"
     Examples:
@@ -36,7 +36,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/user/login"
       Then the path should be "/nonexisting"
       """
@@ -51,7 +51,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/user/login"
       Then the path should be "<front>"
       """
@@ -66,7 +66,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/user/login"
       Then the path should be "/"
       """
@@ -81,7 +81,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/user/login"
       Then the path should not be "/user/login"
       """
@@ -96,7 +96,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/"
       Then the path should not be "/"
       """
@@ -111,7 +111,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I go to "/"
       Then the path should not be "<front>"
       """
@@ -123,7 +123,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert that URL has query parameter with a specific value
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
     Then the current URL should have the "status" parameter
     And the current URL should have the "status" parameter with the value "1"
@@ -132,7 +132,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert that URL does not have query parameter with specific value
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
     Then the current URL should not have the "status" parameter with the value "0"
     And the current URL should not have the "other" parameter
@@ -143,7 +143,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should have the "filter" parameter with the value "recent"
       """
@@ -158,7 +158,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should have the "status" parameter with the value "2"
       """
@@ -173,7 +173,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should not have the "status" parameter with the value "1"
       """
@@ -188,7 +188,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit "/admin/content?status=1&type=article"
       Then the current URL should not have the "status" parameter
       """
@@ -200,13 +200,13 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1"
     Then the current URL should not have the "nonexistent" parameter with the value "value"
 
   @api
   Scenario: Assert that a URL parameter with a zero or empty value counts as present
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "/user/login?filter=0&empty=&keyword=recent"
     Then the current URL should have the "filter" parameter
     And the current URL should have the "filter" parameter with the value "0"
@@ -222,7 +222,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "/user/login?filter=0"
       Then the current URL should not have the "filter" parameter
       """
@@ -237,7 +237,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "/user/login?empty="
       Then the current URL should not have the "empty" parameter
       """
@@ -252,7 +252,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "/user/login?filter=0"
       Then the current URL should not have the "filter" parameter with the value "0"
       """
@@ -267,7 +267,7 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "/user/login?empty="
       Then the current URL should not have the "empty" parameter with the value ""
       """
@@ -279,7 +279,7 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert "When I go back" navigates to the previous page
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to "/user/login"
     And I go to "/user/password"
     And I go back
@@ -287,18 +287,18 @@ Feature: Check that PathTrait works
 
   @api
   Scenario: Assert "Given the basic authentication has the username :username and the password :password"
-    Given the following users:
+    Given the following users exist:
       | name       | mail               | pass       |
       | admin-test | admin-test@bar.com | admin-test |
-    And I am an anonymous user
+    And the user is anonymous
 
     When I go to "/mysite_core/test-basic-auth"
-    Then I should get a "401" HTTP response
+    Then the response status code should be 401
 
-    When I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "/mysite_core/test-basic-auth"
-    Then I should get a "403" HTTP response
+    Then the response status code should be 403
 
     When the basic authentication has the username "admin-test" and the password "admin-test"
     And I go to "/mysite_core/test-basic-auth"
-    Then I should get a "200" HTTP response
+    Then the response status code should be 200

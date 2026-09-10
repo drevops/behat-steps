@@ -49,6 +49,7 @@ from the community.
 | Class | Description |
 | --- | --- |
 | [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [BasicAuthTrait](STEPS.md#basicauthtrait) | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](STEPS.md#commandtrait) | Run local shell commands and assert on their result. |
 | [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
 | [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
@@ -62,9 +63,13 @@ from the community.
 | [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
 | [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
+| [MappingTrait](STEPS.md#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MessageTrait](STEPS.md#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
+| [RandomTrait](STEPS.md#randomtrait) | Replace random-value tokens in step arguments and table cells. |
+| [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](STEPS.md#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
@@ -76,21 +81,24 @@ from the community.
 
 | Class | Description |
 | --- | --- |
+| [Drupal\BatchTrait](STEPS.md#drupalbatchtrait) | Wait for Drupal's Batch API to finish. |
 | [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
-| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate specific Drupal caches from within a scenario. |
+| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigOverrideTrait](STEPS.md#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
 | [Drupal\ConfigTrait](STEPS.md#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\DrushTrait](STEPS.md#drupaldrushtrait) | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](STEPS.md#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\LanguageTrait](STEPS.md#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\ModuleTrait](STEPS.md#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\OverrideTrait](STEPS.md#drupaloverridetrait) | Override Drupal Extension behaviors. |
 | [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](STEPS.md#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](STEPS.md#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
@@ -122,7 +130,6 @@ composer require --dev drevops/behat-steps:^3
 
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
-- **Drupal traits** (`DrevOps\BehatSteps\Steps\Drupal\*`) need `drupal/drupal-extension`.
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
 
@@ -134,20 +141,35 @@ Add required traits to your
 ```php
 <?php
 
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends DrupalContext {
+class FeatureContext extends RawContext {
 
   use CookieTrait;
 
 }
 ```
 
-Ensure that your [`behat.yml`](behat.yml) has all the required extensions
-enabled.
+`RawContext` registers no steps of its own: it owns the scenario lifecycle -
+driver access, authentication, entity creation and cleanup - and you compose the
+vocabulary you want on top. For a suite that needs no PHP at all, register
+`DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
+plus a curated set of the broadly-safe traits.
+
+Ensure that your [`behat.yml`](behat.yml) enables the extension:
+
+```yaml
+default:
+  extensions:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      api_driver: drupal
+      drupal:
+        drupal_root: web
+```
 
 ### JavaScript drivers
 
@@ -202,26 +224,36 @@ Select with id|name|label "My Select" not found.
 The cookie with name "session" was not set.
 ```
 
-### Skipping before scenario hooks
+### Skipping hooks
 
-Some traits provide `beforeScenario` hook implementations. These can be disabled
-by adding `@behat-steps-skip:METHOD_NAME` tag to your test.
+Several traits carry hooks that run around every scenario or step. One tag form
+turns any of them off:
 
-For example, to skip `beforeScenario` hook from `ElementTrait`, add
-`@behat-steps-skip:ElementTrait` tag to the feature.
+```gherkin
+@behat-steps-skip:NAME
+```
+
+`NAME` is either the hook method (`@behat-steps-skip:emailBeforeScenario`) or
+the trait it belongs to (`@behat-steps-skip:ElementTrait`), and the tag works on
+the `Feature:` line as well as the `Scenario:` line.
 
 ### Automatic entity cleanup
 
-Traits that create Drupal entities (content blocks, media, managed files,
-paragraphs, ECK entities, menus and menu links, redirects, blocks and webforms)
-register each created entity in a shared registry and delete them in reverse
-creation order at the end of the scenario, keeping the test database clean
-across long suites. Nodes, users, taxonomy terms, roles and language entities
-are cleaned up by the base Drupal Extension and are never registered here, so
-there is no double-deletion.
+Every entity a scenario creates - through a creation step, through the driver,
+or through Drupal's API in one of your own steps - is registered on the context
+and deleted in reverse creation order at the end of the scenario, keeping the
+test database clean across long suites. Reverse order means a node comes down
+before the term it references.
 
-To keep **all** registered entities after a scenario, add
-`@behat-steps-skip:helperEntityCleanupAfterScenario` to the scenario or feature.
+A step of your own registers what it saved:
+
+```php
+$this->entityRegister($entity);
+```
+
+To keep **all** entities after a scenario, add `@behat-steps-skip:cleanEntities`
+to the scenario or feature. `@behat-steps-skip:cleanUsers` and
+`@behat-steps-skip:cleanRoles` do the same for users and roles.
 
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example

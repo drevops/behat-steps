@@ -49,7 +49,7 @@ use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait AccessibilityTrait {
 
@@ -195,8 +195,7 @@ trait AccessibilityTrait {
     $this->accessibilityScenarioFailOnIncomplete = NULL;
     $this->accessibilityGated = FALSE;
 
-    $this->accessibilitySkip = $scope->getFeature()->hasTag('behat-steps-skip:AccessibilityTrait')
-      || $scope->getScenario()->hasTag('behat-steps-skip:AccessibilityTrait');
+    $this->accessibilitySkip = $this->skipTag('AccessibilityTrait', $scope);
 
     if ($this->accessibilitySkip) {
       return;

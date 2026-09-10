@@ -7,17 +7,17 @@ Feature: Ensure Search API functionality works
   @api
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected
     When I run search indexing for 10 items
-    And the following article content:
+    And the following article content exist:
       | title                                        | moderation_state |
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
       | [MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT     | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     # Initial search without indexed nodes.
     And I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
-    Then I should not see the text "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
+    Then I should not see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
+    And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
     # Index nodes and preform another search.
     When I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT" to the search index
@@ -29,41 +29,41 @@ Feature: Ensure Search API functionality works
     And I press "edit-submit-search"
     And I press "edit-submit-search"
     And I press "edit-submit-search"
-    Then I should see the text "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
+    Then I should see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
+    And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
   @api @testmode
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected with test mode
-    Given the following article content:
+    Given the following article content exist:
       | title                           | moderation_state |
       | TESTPUBLISHEDARTICLE 1          | published        |
       | [MYTEST] TESTPUBLISHEDARTICLE 2 | published        |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I add the "article" content with the title "TESTPUBLISHEDARTICLE 1" to the search index
     And I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE 2" to the search index
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTPUBLISHEDARTICLE"
     And I press "edit-submit-search"
-    Then I should not see the text "TESTPUBLISHEDARTICLE 1"
-    And I should see the text "[MYTEST] TESTPUBLISHEDARTICLE 2"
+    Then I should not see "TESTPUBLISHEDARTICLE 1"
+    And I should see "[MYTEST] TESTPUBLISHEDARTICLE 2"
 
   @api
   Scenario: Assert "When I run search indexing for :count item(s)" works as expected
-    Given the following article content:
+    Given the following article content exist:
       | title                                     | moderation_state |
       | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
 
     # Initial search without indexed nodes.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
-    Then I should not see the text "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
+    Then I should not see "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
+    And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
+    And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
     # Run indexing for a limited number of items (e.g., 1 item).
     When I run search indexing for 1 item
@@ -72,9 +72,9 @@ Feature: Ensure Search API functionality works
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
-    Then I should see the text "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
+    Then I should see "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
+    And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
+    And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
     # Run indexing for more items (e.g., 2 more items, total 3).
     When I run search indexing for 2 items
@@ -83,9 +83,9 @@ Feature: Ensure Search API functionality works
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
-    Then I should see the text "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
-    And I should see the text "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
-    And I should not see the text "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
+    Then I should see "[MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT"
+    And I should see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
+    And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
   @api @trait:Drupal\SearchApiTrait
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" fails when content not found
@@ -102,18 +102,18 @@ Feature: Ensure Search API functionality works
 
   @api
   Scenario: Assert "When I run the Search API cron" works as expected
-    Given the following article content:
+    Given the following article content exist:
       | title                                    | moderation_state |
       | [MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT | published        |
       | [MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT | published        |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
 
     # Initial search without indexed nodes.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
     And I press "edit-submit-search"
-    Then I should not see the text "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
-    And I should not see the text "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
+    Then I should not see "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
+    And I should not see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
     # Trigger Search API cron to run the tracker and indexer.
     When I run the Search API cron
@@ -122,8 +122,8 @@ Feature: Ensure Search API functionality works
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
     And I press "edit-submit-search"
-    Then I should see the text "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
-    And I should see the text "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
+    Then I should see "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
+    And I should see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
   @api @module:!search_api_solr
   Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled

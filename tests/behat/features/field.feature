@@ -245,10 +245,10 @@ Feature: Check that FieldTrait works
 
   @api
   Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
-    Given the following page content:
+    Given the following page content exist:
       | title             |
       | [TEST] Page title |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST] Page title"
     When I fill in the WYSIWYG field "Body" with the value "[TEST] body"
     And I fill in the WYSIWYG field "Description" with the value "[TEST] description"
@@ -258,10 +258,10 @@ Feature: Check that FieldTrait works
 
   @api @javascript
   Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected with JS driver
-    Given the following page content:
+    Given the following page content exist:
       | title                       |
       | [TEST-JS-Driver] Page title |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
     When I fill in the WYSIWYG field "Body" with the value "[TEST-JS-Driver] body"
     And I fill in the WYSIWYG field "Description" with the value "[TEST-JS-Driver] description"
@@ -271,21 +271,21 @@ Feature: Check that FieldTrait works
 
   @api
   Scenario: Assert that a select has/has not an option
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "AU" should exist within the select element "site_default_country"
     And the option "DUMMY-COUNTRY" should not exist within the select element "site_default_country"
 
   @api
   Scenario: Assert that a select option is selected
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "UTC" should exist within the select element "date_default_timezone"
     And the option "UTC" should be selected within the select element "date_default_timezone"
 
   @api
   Scenario: Assert that a select option is not selected
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "Australia/Sydney" should exist within the select element "date_default_timezone"
     And the option "Australia/Sydney" should not be selected within the select element "date_default_timezone"
@@ -295,7 +295,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should exist within the select element "non_existent_select"
       """
@@ -310,7 +310,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" should exist within the select element "date_default_timezone"
       """
@@ -325,7 +325,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should not exist within the select element "date_default_timezone"
       """
@@ -340,7 +340,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should be selected within the select element "non_existent_select"
       """
@@ -355,7 +355,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" should not be selected within the select element "date_default_timezone"
       """
@@ -370,7 +370,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should not be selected within the select element "date_default_timezone"
       """
@@ -385,7 +385,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should not exist within the select element "non_existent_select"
       """
@@ -400,7 +400,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" should be selected within the select element "date_default_timezone"
       """
@@ -415,7 +415,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "Australia/Sydney" should be selected within the select element "date_default_timezone"
       """
@@ -430,7 +430,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" should not be selected within the select element "non_existent_select"
       """
@@ -666,79 +666,79 @@ Feature: Check that FieldTrait works
 
   @api @datetime @skipped
   Scenario: Fill datetime field with date and time
-    Given the following page content:
+    Given the following page content exist:
       | title                     |
       | [TEST] Datetime test page |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Datetime test page"
     And I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
     And I press "Save"
-    Then I should see the text "Page [TEST] Datetime test page has been updated."
+    Then I should see "Page [TEST] Datetime test page has been updated."
 
   @api @datetime @skipped
   Scenario: Fill datetime field using separate date and time steps
-    Given the following page content:
+    Given the following page content exist:
       | title                          |
       | [TEST] Datetime separate steps |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
     And I fill in the date part of the datetime field "Event date" with "2024-02-20"
     And I fill in the time part of the datetime field "Event date" with "15:45:00"
     And I press "Save"
-    Then I should see the text "Page [TEST] Datetime separate steps has been updated."
+    Then I should see "Page [TEST] Datetime separate steps has been updated."
 
   @api @datetime @skipped
   Scenario: Fill date-only field
-    Given the following page content:
+    Given the following page content exist:
       | title                      |
       | [TEST] Date only test page |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Date only test page"
     And I fill in the datetime field "Event date only" with date "2024-03-10" and time ""
     And I press "Save"
-    Then I should see the text "Page [TEST] Date only test page has been updated."
+    Then I should see "Page [TEST] Date only test page has been updated."
 
   @api @datetime @skipped
   Scenario: Fill date-only field using date part step
-    Given the following page content:
+    Given the following page content exist:
       | title                      |
       | [TEST] Date part test page |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Date part test page"
     And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
     And I press "Save"
-    Then I should see the text "Page [TEST] Date part test page has been updated."
+    Then I should see "Page [TEST] Date part test page has been updated."
 
   @api @datetime @skipped
   Scenario: Fill daterange field with start and end dates
-    Given the following page content:
+    Given the following page content exist:
       | title                      |
       | [TEST] Daterange test page |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Daterange test page"
     And I fill in the start datetime field "Event period" with date "2024-06-01" and time "09:00:00"
     And I fill in the end datetime field "Event period" with date "2024-06-05" and time "17:00:00"
     And I press "Save"
-    Then I should see the text "Page [TEST] Daterange test page has been updated."
+    Then I should see "Page [TEST] Daterange test page has been updated."
 
   @api @datetime @skipped
   Scenario: Fill daterange date-only field
-    Given the following page content:
+    Given the following page content exist:
       | title                                |
       | [TEST] Daterange date only test page |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "page" content edit page with the title "[TEST] Daterange date only test page"
     And I fill in the start datetime field "Event period date only" with date "2024-07-10" and time ""
     And I fill in the end datetime field "Event period date only" with date "2024-07-15" and time ""
     And I press "Save"
-    Then I should see the text "Page [TEST] Daterange date only test page has been updated."
+    Then I should see "Page [TEST] Daterange date only test page has been updated."
 
   @trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the datetime field "Non-existent field" with date "2024-01-01" and time "12:00:00"
       """
@@ -753,7 +753,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the date part of the datetime field "Non-existent field" with "2024-01-01"
       """
@@ -768,7 +768,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the time part of the datetime field "Non-existent field" with "12:00:00"
       """
@@ -783,7 +783,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the start datetime field "Non-existent range" with date "2024-01-01" and time ""
       """
@@ -798,7 +798,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the end datetime field "Non-existent range" with date "2024-01-05" and time ""
       """
@@ -810,7 +810,7 @@ Feature: Check that FieldTrait works
 
   @api @javascript
   Scenario: Fill in multi-value field with more values than existing rows
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I go to "node/add/page"
     And I fill in "Title" with "[TEST] Multi-value tags"
     And I fill in the multi-value field "Test tags" with the following values:
@@ -826,7 +826,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @javascript":
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       And I go to "node/add/page"
       And I fill in the multi-value field "Non-existent multi field" with the following values:
         | value |

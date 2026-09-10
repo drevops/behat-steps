@@ -23,7 +23,7 @@ use Drupal\redirect\Entity\Redirect;
  * consumer project: add `drupal/redirect` to `composer.json` and enable the
  * module as part of the site's standard setup (e.g. in `core.extension.yml`).
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait RedirectTrait {
 
@@ -63,6 +63,8 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreate(TableNode $table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     foreach ($table->getHash() as $row) {
@@ -84,7 +86,7 @@ trait RedirectTrait {
       $redirect->setRedirect($to);
       $redirect->save();
 
-      $this->helperEntityRegister($redirect);
+      $this->entityRegister($redirect);
     }
   }
 
@@ -102,6 +104,8 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDelete(TableNode $table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
@@ -150,6 +154,8 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
@@ -201,6 +207,8 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');

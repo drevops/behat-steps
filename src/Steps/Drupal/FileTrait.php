@@ -14,7 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -28,7 +28,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
  * `@behat-steps-skip:fileAfterScenario`
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait FileTrait {
 
@@ -46,17 +46,12 @@ trait FileTrait {
    */
   #[BeforeScenario('@api')]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
-    // The 6.x Drupal driver bootstraps lazily on the first step that needs
-    // Drupal, so the container may not exist yet when this hook fires. The
-    // file operations that need the directories create them on demand.
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::hasContainer()) {
-      return;
-    }
-    // @codeCoverageIgnoreEnd
+
+    $this->assertDrupal();
+
     $fs = new Filesystem();
 
     // @codeCoverageIgnoreStart
@@ -79,7 +74,7 @@ trait FileTrait {
    */
   #[AfterScenario('@api')]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
     foreach ($this->filesUnmanagedUris as $uri) {
@@ -136,6 +131,8 @@ trait FileTrait {
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedFiles(TableNode $table): void {
+    $this->assertDrupal();
+
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
     $field_values = $table->getColumn(0);
@@ -164,6 +161,8 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
+    $this->assertDrupal();
+
     $directory = \Drupal::service('file_system')->dirname($uri);
 
     // @codeCoverageIgnoreStart
@@ -268,7 +267,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -281,7 +280,7 @@ trait FileTrait {
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->helperEntityRegister($entity);
+    $this->entityRegister($entity);
 
     return $entity;
   }
@@ -291,7 +290,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   Entity fields stub.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -300,6 +299,8 @@ trait FileTrait {
    *   Created file entity.
    */
   protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+    $this->assertDrupal();
+
     $path = ltrim($path, '/');
 
     if (!empty($this->getMinkParameter('files_path'))) {
@@ -353,6 +354,8 @@ trait FileTrait {
    *   Array of file ids.
    */
   protected function fileLoadMultiple(array $conditions = []): array {
+    $this->assertDrupal();
+
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
 
     foreach ($conditions as $k => $v) {

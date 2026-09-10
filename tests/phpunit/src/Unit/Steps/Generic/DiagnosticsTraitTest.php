@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
-use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Session;
@@ -220,7 +220,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
 /**
  * Test implementation of DiagnosticsTrait.
  */
-class DiagnosticsTraitTestImplementation extends RawMinkContext {
+class DiagnosticsTraitTestImplementation extends RawContext {
 
   use DiagnosticsTrait;
 

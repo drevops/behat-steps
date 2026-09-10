@@ -9,8 +9,8 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Drupal\Driver\DrupalDriverInterface;
-use Drupal\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -23,7 +23,7 @@ use Drupal\media\MediaInterface;
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait MediaTrait {
 
@@ -38,6 +38,8 @@ trait MediaTrait {
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaRemoveType(string $media_type): void {
+    $this->assertDrupal();
+
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
       $type_entity->delete();
@@ -106,6 +108,8 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
+    $this->assertDrupal();
+
     foreach ($table->getHash() as $media_hash) {
       $ids = $this->mediaLoadMultiple($media_type, $media_hash);
       $storage = \Drupal::entityTypeManager()->getStorage('media');
@@ -171,6 +175,8 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
+    $this->assertDrupal();
+
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
     if (!$type_entity) {
@@ -187,6 +193,8 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
+    $this->assertDrupal();
+
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
     if ($type_entity) {
@@ -259,7 +267,7 @@ trait MediaTrait {
   /**
    * Create a single media item.
    *
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The media item properties.
    *
    * @return \Drupal\media\MediaInterface
@@ -268,7 +276,7 @@ trait MediaTrait {
   protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
     $this->parseEntityFields($stub);
     $entity = $this->mediaCreateEntity($stub);
-    $this->helperEntityRegister($entity);
+    $this->entityRegister($entity);
 
     return $entity;
   }
@@ -276,13 +284,15 @@ trait MediaTrait {
   /**
    * Create media entity.
    *
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The media entity properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media entity.
    */
   protected function mediaCreateEntity(EntityStub $stub): MediaInterface {
+    $this->assertDrupal();
+
     $bundle = $stub->getBundle();
 
     // @codeCoverageIgnoreStart
@@ -311,7 +321,7 @@ trait MediaTrait {
    *
    * Reuses the protected expansion provided by the Drupal driver core.
    *
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFields(EntityStub $stub): void {
@@ -334,7 +344,7 @@ trait MediaTrait {
    *
    * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
    *
-   * @param \Drupal\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
@@ -353,6 +363,8 @@ trait MediaTrait {
    *   Array of media ids.
    */
   protected function mediaLoadMultiple(string $type, array $conditions = []): array {
+    $this->assertDrupal();
+
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)
       ->condition('bundle', $type);

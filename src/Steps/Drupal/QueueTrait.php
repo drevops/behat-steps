@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
@@ -14,11 +15,11 @@ use Behat\Step\When;
 /**
  * Manage and assert Drupal queue state.
  *
- * - Clear queues before scenarios.
+ * - Add items to a queue and clear queues before scenarios.
  * - Process queue items during tests.
  * - Assert queue item counts.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait QueueTrait {
 
@@ -34,9 +35,11 @@ trait QueueTrait {
    */
   #[AfterScenario('@queue')]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->queueNames === [] || $this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
+
+    $this->assertDrupal();
 
     foreach ($this->queueNames as $queue_name) {
       $queue_instance = \Drupal::service('queue')->get($queue_name);
@@ -44,6 +47,39 @@ trait QueueTrait {
     }
 
     $this->queueNames = [];
+  }
+
+  /**
+   * Add an item to a queue.
+   *
+   * The `data` value is JSON, decoded before it is queued so a worker
+   * receives the same shape it would receive in production.
+   *
+   * @code
+   * Given the following item is in the "myqueue" queue:
+   *   | data | {"nid":1} |
+   * @endcode
+   */
+  #[Given('the following item is in the :queue queue:')]
+  public function queueAddItem(string $queue, TableNode $fields): void {
+    $this->assertDrupal();
+
+    $values = $fields->getRowsHash();
+    $data = $values['data'] ?? '{}';
+
+    if (!is_string($data)) {
+      throw new \RuntimeException('The "data" value must be a single JSON string.');
+    }
+
+    $decoded = json_decode($data, TRUE);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      throw new \RuntimeException(sprintf('The "data" value is not valid JSON: %s.', json_last_error_msg()));
+    }
+
+    $this->queueTrackName($queue);
+
+    \Drupal::service('queue')->get($queue)->createItem($decoded);
   }
 
   /**
@@ -55,6 +91,8 @@ trait QueueTrait {
    */
   #[Given('the :queue queue is empty')]
   public function queueEmpty(string $queue): void {
+    $this->assertDrupal();
+
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
     $queue_instance->deleteQueue();
@@ -74,6 +112,8 @@ trait QueueTrait {
    */
   #[When('I process :count item(s) from the :queue queue')]
   public function queueProcessItems(int $count, string $queue): void {
+    $this->assertDrupal();
+
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
     $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
@@ -101,6 +141,8 @@ trait QueueTrait {
    */
   #[When('I process all items from the :queue queue')]
   public function queueProcessAll(string $queue): void {
+    $this->assertDrupal();
+
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
     $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
@@ -137,6 +179,8 @@ trait QueueTrait {
    */
   #[Then('the :queue queue should have :count item(s)')]
   public function queueAssertItemCount(string $queue, int $count): void {
+    $this->assertDrupal();
+
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();
@@ -154,6 +198,8 @@ trait QueueTrait {
    */
   #[Then('the :queue queue should be empty')]
   public function queueAssertEmpty(string $queue): void {
+    $this->assertDrupal();
+
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();

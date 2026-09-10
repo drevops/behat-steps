@@ -45,7 +45,7 @@ use Behat\Testwork\Tester\Result\ExceptionResult;
  *   # Re-run: vendor/bin/behat features/example.feature:3
  * @endcode
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait DiagnosticsTrait {
 
@@ -72,8 +72,7 @@ trait DiagnosticsTrait {
    */
   #[BeforeScenario]
   public function diagnosticsBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->diagnosticsSkip = $scope->getFeature()->hasTag('behat-steps-skip:DiagnosticsTrait')
-      || $scope->getScenario()->hasTag('behat-steps-skip:DiagnosticsTrait');
+    $this->diagnosticsSkip = $this->skipTag('DiagnosticsTrait', $scope);
 
     $this->diagnosticsFeatureFile = $scope->getFeature()->getFile();
     $this->diagnosticsScenarioLine = $scope->getScenario()->getLine();

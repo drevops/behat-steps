@@ -14,9 +14,7 @@ default:
       contexts:
         - FeatureContext
         - BehatCliContext
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MarkupContext
-        - Drupal\DrupalExtension\Context\MessageContext
+        - Behat\MinkExtension\Context\MinkContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
         - DrevOps\BehatPhpServer\PhpServerContext:
             webroot: '%paths.base%/tests/behat/fixtures'
@@ -26,7 +24,7 @@ default:
             debug: false
 
   extensions:
-    Drupal\MinkExtension:
+    DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
@@ -49,7 +47,7 @@ default:
                 - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
 
     # Provides integration with Drupal APIs.
-    Drupal\DrupalExtension:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
       blackbox: ~
       api_driver: drupal
       drush_driver: drush
@@ -59,12 +57,23 @@ default:
       drush:
         # Behat would run from within "build" dir.
         root: web
+        # Drush resolves a request URI for every command, and without one it
+        # refuses to bootstrap.
+        global_options: '--uri=http://nginx:8080'
       selectors:
         messages:
           default: '.messages'
           error: '.messages.messages--error'
           success: '.messages.messages--status'
           warning: '.messages.messages--warning'
+      regions:
+        content: '#content'
+        sidebar: '#sidebar'
+        footer: '#footer'
+      mappings:
+        paths:
+          User Login: '/user/login'
+          User Registration: '/user/register'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
@@ -101,7 +110,7 @@ default:
 chrome_headless:
   extensions:
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
-    Drupal\MinkExtension:
+    DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
       javascript_session: chrome
       chrome:
         api_url: 'http://chrome_headless:9222'

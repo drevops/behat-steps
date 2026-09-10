@@ -23,6 +23,17 @@ use Behat\Hook\BeforeStep;
  */
 trait BehatCliTrait {
 
+  /**
+   * Traits every generated context composes, on top of the ones under test.
+   *
+   * @var array<int, string>
+   */
+  protected const BEHAT_CLI_BASELINE_TRAITS = [
+    'Generic\PathTrait',
+    'Drupal\ContentTrait',
+    'Drupal\UserTrait',
+  ];
+
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $this->behatCliCopyFixtures();
@@ -49,14 +60,7 @@ trait BehatCliTrait {
       return;
     }
 
-    // The generated 'FeatureContext.php' normally includes a 'bootstrapDrupal'
-    // workaround that primes the lazy 6.x driver before any trait hook runs.
-    // Scenarios tagged '@behat-cli-no-bootstrap' opt out of that workaround so
-    // a trait under test can be exercised in true isolation - useful for
-    // proving a trait bootstraps Drupal itself when its hooks call '\Drupal::'.
-    $bootstrap_workaround = !$scope->getScenario()->hasTag('behat-cli-no-bootstrap');
-
-    $this->behatCliWriteFeatureContextFile($traits, $bootstrap_workaround);
+    $this->behatCliWriteFeatureContextFile($traits);
   }
 
   #[BeforeStep]
@@ -78,26 +82,28 @@ trait BehatCliTrait {
    *
    * @param array $traits
    *   Optional array of trait classes.
-   * @param bool $bootstrap_workaround
-   *   When TRUE (default), the generated context includes a 'bootstrapDrupal'
-   *   '@BeforeScenario @api' hook that primes the lazy 6.x driver. Pass FALSE
-   *   to omit that hook so a trait under test can be exercised in true
-   *   isolation - useful for proving a trait bootstraps Drupal itself when
-   *   its hooks call '\Drupal::' before any step runs.
    *
    * @return string
    *   Path to written file.
    */
-  public function behatCliWriteFeatureContextFile(array $traits = [], bool $bootstrap_workaround = TRUE): string {
+  public function behatCliWriteFeatureContextFile(array $traits = []): string {
     $tokens = [
       '{{USE_DECLARATION}}' => '',
       '{{USE_IN_CLASS}}' => '',
-      '{{BOOTSTRAP_METHOD}}' => '',
     ];
-    foreach ($traits as $trait) {
+
+    // Navigation and session steps appear in nearly every generated scenario
+    // as setup for the trait under test, so the baseline carries them. A
+    // baseline trait that is itself under test is composed once.
+    $qualified_traits = [];
+
+    foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
       // A tag names the trait's context and short name, as in
       // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
-      $qualified = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+    }
+
+    foreach (array_unique($qualified_traits) as $qualified) {
       // Two contexts can hold the same short name, so each import carries a
       // context-qualified alias and one tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
@@ -106,37 +112,17 @@ trait BehatCliTrait {
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 
-    if ($bootstrap_workaround) {
-      $tokens['{{BOOTSTRAP_METHOD}}'] = <<<'EOL'
-
-  /**
-   * Force Drupal bootstrap before any @api scenario step runs.
-   *
-   * The 6.x driver bootstraps Drupal lazily on the first 'getDriver()'
-   * call, and many trait step methods touch '\Drupal::' directly without
-   * going through 'getDriver()'. Calling 'getDriver()' once here primes
-   * the container for the rest of the scenario.
-   *
-   * @BeforeScenario @api
-   */
-  public function bootstrapDrupal(): void {
-    $this->getDriver();
-  }
-
-EOL;
-    }
-
     $content = <<<'EOL'
 <?php
 
-use Drupal\DrupalExtension\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 {{USE_DECLARATION}}
 
-class FeatureContext extends DrupalContext {
+class FeatureContext extends RawContext {
   {{USE_IN_CLASS}}
 
   use FeatureContextTrait;
-{{BOOTSTRAP_METHOD}}
+
   /**
    * @Given I throw test exception with message :message
    */
@@ -145,27 +131,13 @@ class FeatureContext extends DrupalContext {
   }
 
   /**
-   * @Given set Drupal7 watchdog error level :level
-   * @Given set Drupal7 watchdog error level :level of type :type
-   */
-  public function setWatchdogErrorDrupal7($level, $type = 'php') {
-    watchdog($type, 'test', [], $level);
-  }
-
-  /**
-   * @Given set watchdog error level :level
-   * @Given set watchdog error level :level of type :type
-   */
-  public function testSetWatchdogError($level, $type = 'php') {
-    \Drupal::logger($type)->log($level, 'test');
-  }
-
-  /**
    * Log an error after the last step result has been composed.
    *
    * @AfterScenario @test-watchdog-teardown
    */
   public function testSetWatchdogErrorInTeardown() {
+    $this->assertDrupal();
+
     \Drupal::logger('php')->log('warning', 'test');
   }
 
@@ -234,7 +206,7 @@ default:
     default:
       contexts:
         - FeatureContext
-        - Drupal\DrupalExtension\Context\MinkContext
+        - Behat\MinkExtension\Context\MinkContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
         - DrevOps\BehatPhpServer\PhpServerContext:
             webroot: '%paths.base%/tests/behat/fixtures'
@@ -243,7 +215,7 @@ default:
             port: 8888
             debug: true
   extensions:
-    Drupal\MinkExtension:
+    DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
@@ -265,10 +237,16 @@ default:
                 - '--no-first-run'           # Skips the initial setup screen that Chrome typically shows when running for the first time.
                 - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
 
-    Drupal\DrupalExtension:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
       api_driver: drupal
       drupal:
         drupal_root: /app/build/web
+      selectors:
+        messages:
+          default: '.messages'
+          error: '.messages.messages--error'
+          success: '.messages.messages--status'
+          warning: '.messages.messages--warning'
 
     # Capture HTML and JPG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:

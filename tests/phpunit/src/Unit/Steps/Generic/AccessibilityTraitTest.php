@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
-use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\AccessibilityTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -580,7 +580,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 /**
  * Test implementation of AccessibilityTrait.
  */
-class AccessibilityTraitTestImplementation extends RawMinkContext {
+class AccessibilityTraitTestImplementation extends RawContext {
 
   use AccessibilityTrait;
 

@@ -22,13 +22,26 @@ use Behat\Step\When;
 trait TimeTrait {
 
   /**
+   * Whether a step in this scenario overrode the system time.
+   */
+  protected bool $timeWasSet = FALSE;
+
+  /**
    * Cleans up testing.time state after each scenario.
    */
   #[AfterScenario('@api')]
   public function timeCleanup(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    // A scenario that never set the time has nothing to clean up, and asking
+    // for the driver would fail one running on a driver that never had it.
+    if (!$this->timeWasSet || $this->skipTag(__FUNCTION__, $scope)) {
+      $this->timeWasSet = FALSE;
+
       return;
     }
+
+    $this->timeWasSet = FALSE;
+
+    $this->assertDrupal();
 
     \Drupal::state()->delete('testing.time');
   }
@@ -45,6 +58,10 @@ trait TimeTrait {
    */
   #[When('I set system time to :value')]
   public function timeSet(string $value): void {
+    $this->assertDrupal();
+
+    $this->timeWasSet = TRUE;
+
     \Drupal::state()->set('testing.time', (int) $value);
   }
 
@@ -57,6 +74,8 @@ trait TimeTrait {
    */
   #[When('I reset system time')]
   public function timeReset(): void {
+    $this->assertDrupal();
+
     \Drupal::state()->delete('testing.time');
   }
 

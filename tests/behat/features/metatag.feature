@@ -51,13 +51,13 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean meta tag
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags.html"
     Then the "description" meta tag should not contain any HTML tags
 
   @phpserver
   Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean OG meta tag
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags.html"
     Then the "og:title" meta tag should not contain any HTML tags
 
@@ -91,20 +91,20 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert canonical URL presence and value
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the canonical URL should exist
     And the canonical URL should be "http://cli:8888/metatags_seo.html"
 
   @phpserver
   Scenario: Assert canonical URL absence
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags.html"
     Then the canonical URL should not exist
 
   @phpserver
   Scenario: Assert indexability and robots directives via the robots meta tag
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the page should be indexable
     And the meta robots should include "index"
@@ -112,7 +112,7 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert a non-indexable page via the robots meta tag
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_noindex.html"
     Then the page should not be indexable
     And the meta robots should include "noindex"
@@ -129,20 +129,20 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert hreflang alternates are valid
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the hreflang alternates should be valid
 
   @phpserver
   Scenario: Assert hreflang alternates have reciprocal return links
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_hreflang_en.html"
     Then the hreflang alternates should be valid
     And the hreflang alternates should have reciprocal return links
 
   @phpserver
   Scenario: Assert Open Graph tags are valid and present
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the Open Graph tags should be valid
     And the following Open Graph tags should exist:
@@ -151,7 +151,7 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert Twitter Card tags are valid and present
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the Twitter Card tags should be valid
     And the following Twitter Card tags should exist:
@@ -215,7 +215,7 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert canonical URL absence for an empty canonical link
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/metatags_canonical_empty.html"
     Then the canonical URL should not exist
 

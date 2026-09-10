@@ -7,7 +7,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal full lifecycle
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_jquery_ui.html"
     Then the modal should not be displayed
     When I click on the element "#open-settings"
@@ -20,7 +20,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with CSS selector
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
@@ -29,7 +29,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with button text
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
@@ -37,7 +37,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with link text
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
@@ -45,7 +45,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert jQuery UI second modal has different content
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-confirm"
     And I wait for the modal to appear
@@ -57,7 +57,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert native dialog full lifecycle
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_native.html"
     Then the modal should not be displayed
     When I click on the element "#open-info"
@@ -70,7 +70,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert native dialog click with button text
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
@@ -78,7 +78,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert native dialog click with link text
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
@@ -86,7 +86,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert native dialog second modal has different content
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-delete"
     And I wait for the modal to appear
@@ -97,7 +97,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert custom modal full lifecycle
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_custom.html"
     Then the modal should not be displayed
     When I click on the element "#open-profile"
@@ -110,7 +110,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert custom modal click with CSS selector
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
@@ -118,7 +118,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert custom modal click with link text
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
@@ -126,7 +126,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert custom modal second modal has different content
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-export"
     And I wait for the modal to appear
@@ -135,7 +135,7 @@ Feature: Check that ModalTrait works
 
   @javascript @phpserver
   Scenario: Assert a visible modal is found when an earlier selector matches a hidden one
-    Given I am an anonymous user
+    Given the user is anonymous
     When I visit "http://cli:8888/modal_mixed.html"
     Then the modal should not be displayed
     When I click on the element "#open-native"
@@ -151,7 +151,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       Then the modal should be displayed
       """
@@ -166,7 +166,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       When I close the modal
       """
@@ -181,7 +181,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       When I click on "Save" in the modal
       """
@@ -196,7 +196,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       Then the modal should contain "some text"
       """
@@ -211,7 +211,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       When I press "Open Settings"
       When I click on ".nonexistent-element" in the modal
@@ -227,7 +227,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_delayed.html"
       When I press "Open Delayed Modal"
       When I wait for the modal to appear
@@ -243,7 +243,7 @@ Feature: Check that ModalTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given I am an anonymous user
+      Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       Then the modal should not be displayed
       """

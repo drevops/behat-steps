@@ -28,7 +28,9 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -302,7 +304,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([$term, $node, $block]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame(['entity', 'node', 'term'], $deleted);
     $this->assertSame([], $context->getCreatedStubs());
@@ -323,7 +325,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
   }
 
   public static function dataProviderLanguageIsRemovedThroughLanguageCapability(): \Iterator {
@@ -338,7 +340,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -347,7 +349,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -356,7 +358,7 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createContentDriver();
     $driver->expects($this->never())->method('entityDelete');
 
-    $this->createContext($driver)->cleanEntities();
+    $this->createContext($driver)->cleanEntities($this->createAfterScenarioScope());
   }
 
   public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
@@ -367,7 +369,7 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager)->cleanUsers();
+    $this->createContext($driver, $user_manager)->cleanUsers($this->createAfterScenarioScope());
 
     $this->assertFalse($user_manager->hasUsers());
   }
@@ -376,7 +378,7 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->cleanUsers($this->createAfterScenarioScope());
 
     $this->assertTrue($user_manager->hasUsers());
   }
@@ -386,7 +388,7 @@ class RawContextTest extends UnitTestCase {
     $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
     $authentication_manager->expects($this->once())->method('fastLogout');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
@@ -396,14 +398,14 @@ class RawContextTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testCreatedRolesAreDeleted(): void {
@@ -413,7 +415,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor', 'reviewer']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getRoles());
   }
@@ -422,7 +424,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -431,7 +433,7 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createDriver([RoleCapabilityInterface::class]);
     $driver->expects($this->never())->method('roleDelete');
 
-    $this->createContext($driver)->cleanRoles();
+    $this->createContext($driver)->cleanRoles($this->createAfterScenarioScope());
   }
 
   public function testStaticCachesAreClearedOnCacheCapableDriver(): void {
@@ -465,7 +467,7 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities();
+    $context->cleanEntities($this->createAfterScenarioScope());
   }
 
   public static function dataProviderCleanupOptOut(): \Iterator {
@@ -484,7 +486,7 @@ class RawContextTest extends UnitTestCase {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
   }
 
   public function testTheOptOutAlsoSkipsRoleCleanup(): void {
@@ -493,9 +495,139 @@ class RawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles();
+    $context->cleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
+  }
+
+  /**
+   * Tests that the skip tag disables entity cleanup from either level.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   */
+  #[DataProvider('dataProviderTheSkipTagDisablesEntityCleanup')]
+  public function testTheSkipTagDisablesEntityCleanup(array $scenario_tags, array $feature_tags): void {
+    $driver = $this->createContentDriver();
+    $driver->expects($this->never())->method('nodeDelete');
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+
+    $context->cleanEntities($this->createAfterScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertCount(1, $context->getCreatedStubs());
+  }
+
+  public static function dataProviderTheSkipTagDisablesEntityCleanup(): \Iterator {
+    yield 'on the scenario' => [['behat-steps-skip:cleanEntities'], []];
+    yield 'on the feature' => [[], ['behat-steps-skip:cleanEntities']];
+  }
+
+  public function testTheSkipTagDisablesUserCleanup(): void {
+    $driver = $this->createDriver([UserCapabilityInterface::class]);
+    $driver->expects($this->never())->method('userDelete');
+
+    // The normal path calls 'fastLogout()' even for a scenario that created
+    // no users, so expecting it never is what proves the early return ran.
+    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
+    $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
+    $authentication_manager->expects($this->never())->method('fastLogout');
+
+    $user_manager = new UserManager();
+    $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $this->createContext($driver, $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope(['behat-steps-skip:cleanUsers']));
+
+    $this->assertTrue($user_manager->hasUsers());
+  }
+
+  public function testTheSkipTagDisablesRoleCleanup(): void {
+    $driver = $this->createDriver([RoleCapabilityInterface::class]);
+    $driver->expects($this->never())->method('roleDelete');
+
+    $context = $this->createContext($driver);
+    $context->setRoles(['editor']);
+
+    $context->cleanRoles($this->createAfterScenarioScope(['behat-steps-skip:cleanRoles']));
+
+    $this->assertSame(['editor'], $context->getRoles());
+  }
+
+  public function testTheEntityCleanupSkipTagSparesOnlyTheNamedType(): void {
+    $deleted = [];
+
+    $driver = $this->createContentDriver();
+    $driver->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+      $deleted[] = 'node';
+    });
+    $driver->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): bool {
+      $deleted[] = 'term';
+
+      return TRUE;
+    });
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
+
+    $context->cleanEntities($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
+
+    $this->assertSame(['term'], $deleted);
+  }
+
+  public function testAssertDrupalRejectsScenarioWithoutTheApiTag(): void {
+    $context = $this->createContext($this->createMock(DriverInterface::class));
+    $context->resolveApiScenario($this->createBeforeScenarioScope());
+
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage('Tag the scenario "@api"');
+
+    $context->assertDrupal();
+  }
+
+  /**
+   * Tests that the tag is honoured from either level.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   */
+  #[DataProvider('dataProviderAssertDrupalRejectsNonBootstrappingDriver')]
+  public function testAssertDrupalRejectsNonBootstrappingDriver(array $scenario_tags, array $feature_tags): void {
+    $context = $this->createContext($this->createMock(DriverInterface::class));
+    $context->resolveApiScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage('does not provide');
+
+    $context->assertDrupal();
+  }
+
+  public static function dataProviderAssertDrupalRejectsNonBootstrappingDriver(): \Iterator {
+    yield 'tagged on the scenario' => [['api'], []];
+    yield 'tagged on the feature' => [[], ['api']];
+  }
+
+  public function testAssertDrupalBootstrapsOnceAndReturnsTheDriver(): void {
+    $driver = $this->createMock(DrupalDriverInterface::class);
+    $driver->method('isBootstrapped')->willReturnOnConsecutiveCalls(FALSE, TRUE);
+    $driver->expects($this->once())->method('bootstrap');
+
+    $context = $this->createContext($driver);
+    $context->resolveApiScenario($this->createBeforeScenarioScope(['api']));
+
+    $this->assertSame($driver, $context->assertDrupal());
+    $this->assertSame($driver, $context->assertDrupal());
+  }
+
+  public function testAssertDrupalSkipsTheTagCheckOutsideScenario(): void {
+    $driver = $this->createMock(DrupalDriverInterface::class);
+    $driver->method('isBootstrapped')->willReturn(TRUE);
+
+    $this->assertSame($driver, $this->createContext($driver)->assertDrupal());
   }
 
   public function testStringTimestampIsConvertedForInProcessDriver(): void {

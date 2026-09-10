@@ -33,6 +33,22 @@ trait PathTrait {
   }
 
   /**
+   * Navigate to a path.
+   *
+   * The path is resolved against the configured base URL, so both a relative
+   * path and an absolute URL work.
+   *
+   * @code
+   * When I visit "/about-us"
+   * When I visit "https://example.com/about-us"
+   * @endcode
+   */
+  #[When('I visit :path')]
+  public function pathVisit(string $path): void {
+    $this->getSession()->visit($this->locatePath($path));
+  }
+
+  /**
    * Navigate back in browser history.
    *
    * @code

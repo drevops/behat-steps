@@ -26,11 +26,11 @@ Feature: Check that MediaTrait works
       | name                | field_media_document |
       | Test media document | document.pdf         |
 
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "Test media image"
-    And I should not see the text "Test media image2"
-    And I should see the text "Test media document"
+    Then I should see "Test media image"
+    And I should not see "Test media image2"
+    And I should see "Test media document"
 
   @api
   Scenario: Assert navigate to edit media with specified type and name
@@ -40,7 +40,7 @@ Feature: Check that MediaTrait works
     And the following "document" media exist:
       | name                | field_media_document |
       | Test media document | document.pdf         |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I edit the "document" media with the name "Test media document"
     Then I should see "Edit Document Test media document"
 
@@ -49,14 +49,14 @@ Feature: Check that MediaTrait works
     Given the following "document" media exist:
       | name                      | field_media_document |
       | Test subdirectory media   | subdir/document.pdf  |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I edit the "document" media with the name "Test subdirectory media"
     Then I should see "Edit Document Test subdirectory media"
     And the response should contain ".pdf"
 
   @api @javascript
   Scenario: Assert remove media type
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When I visit "/admin/structure/media/add"
     And I fill in "Name" with "test_media_type"
     And I select "image" from "edit-source"
@@ -74,7 +74,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I edit the "document" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -94,9 +94,9 @@ Feature: Check that MediaTrait works
       | name                | field_media_image |
       | Duplicate test item | image.png         |
 
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "Duplicate test item"
+    Then I should see "Duplicate test item"
 
     # Create media again with the same name - should replace the first one
     When the following "image" media exist:
@@ -104,13 +104,13 @@ Feature: Check that MediaTrait works
       | Duplicate test item | image.png         |
 
     And I visit "/admin/content/media"
-    Then I should see the text "Duplicate test item"
+    Then I should see "Duplicate test item"
     # Verify only one media item exists by checking there's exactly one row in the table
     And I should see 1 ".view-media td:contains('Duplicate test item')" elements
 
   @api
   Scenario: Create single media with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following managed files exist:
       | path      |
       | image.png |
@@ -122,7 +122,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Create multiple media with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And the following managed files exist:
       | path      |
       | image.png |
@@ -142,14 +142,14 @@ Feature: Check that MediaTrait works
     And the following image media with fields exist:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/content/media"
-    Then I should see the text "[TEST] Duplicate vertical"
+    Then I should see "[TEST] Duplicate vertical"
     When the following image media with fields exist:
       | name              | [TEST] Duplicate vertical |
       | field_media_image | image.png                 |
     And I visit "/admin/content/media"
-    Then I should see the text "[TEST] Duplicate vertical"
+    Then I should see "[TEST] Duplicate vertical"
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements
 
   @api
@@ -160,7 +160,7 @@ Feature: Check that MediaTrait works
     And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "image" media with the name "Test media image"
     Then the response should contain "200"
 
@@ -169,7 +169,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -186,7 +186,7 @@ Feature: Check that MediaTrait works
     And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "image" media delete page with the name "Test media image"
     Then the response should contain "200"
     And I should see "Test media image"
@@ -196,7 +196,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media delete page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -213,7 +213,7 @@ Feature: Check that MediaTrait works
     And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     When I visit the "image" media revisions page with the name "Test media image"
     Then the response should contain "200"
 
@@ -222,7 +222,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       When I visit the "image" media revisions page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
@@ -233,7 +233,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the media type :media_type should exist" works
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the media type "image" should exist
 
   @api @trait:Drupal\MediaTrait
@@ -241,7 +241,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the media type "nonexistent_type" should exist
       """
     When I run "behat --no-colors"
@@ -252,7 +252,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the media type :media_type should not exist" works
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the media type "nonexistent_type" should not exist
 
   @api @trait:Drupal\MediaTrait
@@ -260,7 +260,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the media type "image" should not exist
       """
     When I run "behat --no-colors"
@@ -277,7 +277,7 @@ Feature: Check that MediaTrait works
     And the following "image" media exist:
       | name              | field_media_image |
       | Test media image  | image.png         |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     Then the "image" media with the name "Test media image" should exist
 
   @api @trait:Drupal\MediaTrait
@@ -285,7 +285,7 @@ Feature: Check that MediaTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then the "image" media with the name "Non-existent media" should exist
       """
     When I run "behat --no-colors"
@@ -296,7 +296,7 @@ Feature: Check that MediaTrait works
 
   @api
   Scenario: Assert "Then the :media_type media with the name :name should not exist" works
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     Then the "image" media with the name "Non-existent media" should not exist
 
   @api @trait:Drupal\MediaTrait,Drupal\FileTrait

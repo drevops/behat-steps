@@ -11,7 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
-use Drupal\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal content blocks.
@@ -20,7 +20,7 @@ use Drupal\Driver\Entity\EntityStub;
  * - Create, edit, and verify block_content entities by type and description.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ContentBlockTrait {
 
@@ -43,6 +43,8 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDelete(string $content_block_type, TableNode $content_block_table): void {
+    $this->assertDrupal();
+
     foreach ($content_block_table->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
         'info' => $description,
@@ -154,6 +156,8 @@ trait ContentBlockTrait {
    */
   #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
+    $this->assertDrupal();
+
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
@@ -183,6 +187,8 @@ trait ContentBlockTrait {
    *   When the entity cannot be saved.
    */
   protected function contentBlockCreateSingle(string $type, array $values): BlockContent {
+    $this->assertDrupal();
+
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
     $this->parseEntityFields($stub);
@@ -191,7 +197,7 @@ trait ContentBlockTrait {
     $entity = BlockContent::create($stub->getValues());
     $entity->save();
 
-    $this->helperEntityRegister($entity);
+    $this->entityRegister($entity);
 
     return $entity;
   }
@@ -208,6 +214,8 @@ trait ContentBlockTrait {
    *   Array of block content ids.
    */
   protected function contentBlockLoadMultiple(string $type, array $conditions = []): array {
+    $this->assertDrupal();
+
     $query = \Drupal::entityQuery('block_content')
       ->accessCheck(FALSE)
       ->condition('type', $type);

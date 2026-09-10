@@ -73,12 +73,20 @@ trait ConfigTrait {
   #[AfterScenario('@api')]
   public function configAfterScenario(AfterScenarioScope $scope): void {
     if (
-      $scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)
-      || $scope->getScenario()->hasTag('behat-steps-skip:ConfigTrait')
+      $this->skipTag(__FUNCTION__, $scope)
+      || $this->skipTag('ConfigTrait', $scope)
     ) {
       $this->configOriginalData = [];
       return;
     }
+
+    // A scenario that recorded no snapshot has nothing to revert, and asking
+    // for the driver would fail one running on a driver that never had it.
+    if ($this->configOriginalData === []) {
+      return;
+    }
+
+    $this->assertDrupal();
 
     foreach ($this->configOriginalData as $name => $snapshot) {
       $config = \Drupal::configFactory()->getEditable($name);
@@ -102,6 +110,8 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
+    $this->assertDrupal();
+
     $this->configSnapshot($name);
     \Drupal::configFactory()->getEditable($name)->set($key, $this->configCastValue($value))->save();
   }
@@ -119,6 +129,8 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
+    $this->assertDrupal();
+
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The config values table must contain "name", "key" and "value" columns.');
@@ -248,6 +260,8 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   protected function configReadStored(string $name, string $key): mixed {
+    $this->assertDrupal();
+
     return \Drupal::configFactory()->getEditable($name)->get($key);
   }
 
@@ -263,6 +277,8 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   protected function configReadEffective(string $name, string $key): mixed {
+    $this->assertDrupal();
+
     return \Drupal::config($name)->get($key);
   }
 
@@ -273,6 +289,8 @@ trait ConfigTrait {
    *   The configuration object name.
    */
   protected function configSnapshot(string $name): void {
+    $this->assertDrupal();
+
     if (array_key_exists($name, $this->configOriginalData)) {
       return;
     }

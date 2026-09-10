@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Steps\Drupal\OverrideTrait;
-use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -22,18 +20,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class TraitMethodNamingTest extends UnitTestCase {
 
   /**
-   * Methods that override a Drupal Extension context method.
-   *
-   * An override binds by name, so these cannot carry the trait prefix.
-   *
-   * @var array<class-string, array<int, string>>
-   */
-  const PARENT_OVERRIDES = [
-    OverrideTrait::class => ['createNodes', 'createUsers', 'iAmLoggedInAsUserWithRole'],
-    TaxonomyTrait::class => ['createTerms'],
-  ];
-
-  /**
    * Assert that every method a trait declares carries the trait's prefix.
    *
    * @param class-string $trait
@@ -45,11 +31,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   public function testMethodsArePrefixed(string $trait, string $file): void {
     $reflection = new \ReflectionClass($trait);
     $prefix = self::traitPrefix($reflection->getShortName());
-    $allowed = self::PARENT_OVERRIDES[$trait] ?? [];
 
     $violations = [];
     foreach (self::traitOwnMethodNames($trait, $file) as $name) {
-      if (in_array($name, $allowed, TRUE) || self::hasPrefix($name, $prefix)) {
+      if (self::hasPrefix($name, $prefix)) {
         continue;
       }
 
@@ -126,20 +111,6 @@ class TraitMethodNamingTest extends UnitTestCase {
 
   public static function dataProviderSpellingIsAmerican(): array {
     return static::discoverTraitFiles();
-  }
-
-  /**
-   * The allowlist is not a place to retire a method that no longer exists.
-   */
-  public function testParentOverrideAllowlistIsCurrent(): void {
-    foreach (self::PARENT_OVERRIDES as $trait => $methods) {
-      $reflection = new \ReflectionClass($trait);
-
-      foreach ($methods as $method) {
-        $this->assertTrue($reflection->hasMethod($method), sprintf('%s::%s() is allowlisted but does not exist.', $reflection->getShortName(), $method));
-        $this->assertFalse(self::hasPrefix($method, self::traitPrefix($reflection->getShortName())), sprintf('%s::%s() is allowlisted but already conforms; remove the entry.', $reflection->getShortName(), $method));
-      }
-    }
   }
 
   /**

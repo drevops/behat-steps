@@ -8,7 +8,7 @@ use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\FeatureNode;
-use Behat\Gherkin\Node\ScenarioInterface;
+use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
@@ -67,16 +67,48 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   /**
    * Build a scope for a BeforeScenario hook.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
    */
-  protected function createBeforeScenarioScope(): BeforeScenarioScope {
-    return new BeforeScenarioScope($this->createStub(Environment::class), $this->createStub(FeatureNode::class), $this->createStub(ScenarioInterface::class));
+  protected function createBeforeScenarioScope(array $scenario_tags = [], array $feature_tags = []): BeforeScenarioScope {
+    [$feature, $scenario] = $this->createScenarioNodes($scenario_tags, $feature_tags);
+
+    return new BeforeScenarioScope($this->createStub(Environment::class), $feature, $scenario);
   }
 
   /**
    * Build a scope for an AfterScenario hook.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
    */
-  protected function createAfterScenarioScope(): AfterScenarioScope {
-    return new AfterScenarioScope($this->createStub(Environment::class), $this->createStub(FeatureNode::class), $this->createStub(ScenarioInterface::class), $this->createStub(TestResult::class));
+  protected function createAfterScenarioScope(array $scenario_tags = [], array $feature_tags = []): AfterScenarioScope {
+    [$feature, $scenario] = $this->createScenarioNodes($scenario_tags, $feature_tags);
+
+    return new AfterScenarioScope($this->createStub(Environment::class), $feature, $scenario, $this->createStub(TestResult::class));
+  }
+
+  /**
+   * Build the feature and scenario nodes a scenario scope wraps.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   *
+   * @return array{\Behat\Gherkin\Node\FeatureNode, \Behat\Gherkin\Node\ScenarioNode}
+   *   The feature node and the scenario node it contains.
+   */
+  protected function createScenarioNodes(array $scenario_tags, array $feature_tags): array {
+    $scenario = new ScenarioNode('Scenario', $scenario_tags, [], 'Scenario', 1);
+    $feature = new FeatureNode('Feature', NULL, $feature_tags, NULL, [$scenario], 'Feature', 'en', __DIR__ . '/feature.feature', 1);
+
+    return [$feature, $scenario];
   }
 
 }

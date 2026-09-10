@@ -5,7 +5,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files exist:"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -22,7 +22,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files exist: With subdirectory path"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path                  |
       | subdir/document.pdf   |
@@ -30,7 +30,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files exist: With uri"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And no "document.pdf" file object exists
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
@@ -45,7 +45,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files do not exist: With filename"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -65,7 +65,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files do not exist: With uri"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -85,7 +85,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files do not exist: With status"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -103,7 +103,7 @@ Feature: Check that FileTrait works
 
   @api
   Scenario: Assert "When the following managed files do not exist: With filemime"
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     When the following managed files exist:
       | path         |
       | document.pdf |

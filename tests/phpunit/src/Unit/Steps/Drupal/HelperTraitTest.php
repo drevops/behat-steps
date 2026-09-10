@@ -6,11 +6,12 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\HelperTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Driver\Core\CoreInterface;
-use Drupal\Driver\DrupalDriverInterface;
-use Drupal\Driver\Entity\EntityStub;
-use Drupal\Driver\Entity\EntityStubInterface;
-use Drupal\DrupalExtension\Context\RawDrupalContext;
+use DrevOps\BehatSteps\Driver\Core\CoreInterface;
+use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -58,72 +59,6 @@ class HelperTraitTest extends UnitTestCase {
 
       file_put_contents($full_path, 'fixture content');
     }
-  }
-
-  public function testEntityRegisterId(): void {
-    $this->testObject->callHelperEntityRegisterId('media', 7);
-    $this->testObject->callHelperEntityRegisterId('block_content', 'custom_id');
-
-    $this->assertSame([['media', 7], ['block_content', 'custom_id']], $this->testObject->getHelperEntityRegistry());
-  }
-
-  public function testEntityCleanupRunDeletesInReverseOrderAndResets(): void {
-    $this->testObject->callHelperEntityRegisterId('redirect', 1);
-    $this->testObject->callHelperEntityRegisterId('media', 2);
-    $this->testObject->callHelperEntityRegisterId('block', 3);
-
-    $this->testObject->callHelperEntityCleanupRun([]);
-
-    $this->assertSame([['block', 3], ['media', 2], ['redirect', 1]], $this->testObject->deleted);
-    $this->assertSame([], $this->testObject->getHelperEntityRegistry());
-  }
-
-  public function testEntityCleanupRunExcludesBaseOwnedTypes(): void {
-    $this->testObject->callHelperEntityRegisterId('node', 1);
-    $this->testObject->callHelperEntityRegisterId('redirect', 2);
-    $this->testObject->callHelperEntityRegisterId('user', 3);
-    $this->testObject->callHelperEntityRegisterId('configurable_language', 'en');
-
-    $this->testObject->callHelperEntityCleanupRun([]);
-
-    $this->assertSame([['redirect', 2]], $this->testObject->deleted);
-    $this->assertSame([], $this->testObject->getHelperEntityRegistry());
-  }
-
-  public function testEntityCleanupRunSkipsNamedTypes(): void {
-    $this->testObject->callHelperEntityRegisterId('media', 1);
-    $this->testObject->callHelperEntityRegisterId('redirect', 2);
-
-    $this->testObject->callHelperEntityCleanupRun(['media']);
-
-    $this->assertSame([['redirect', 2]], $this->testObject->deleted);
-    $this->assertSame([], $this->testObject->getHelperEntityRegistry());
-  }
-
-  /**
-   * Tests that per-type cleanup bypass tags are parsed into entity type ids.
-   *
-   * @param array<int, string> $tags
-   *   Scenario tag names.
-   * @param array<int, string> $expected
-   *   Expected skipped entity type ids.
-   */
-  #[DataProvider('dataProviderEntityCleanupSkippedTypes')]
-  public function testEntityCleanupSkippedTypes(array $tags, array $expected): void {
-    $this->assertSame($expected, $this->testObject->callHelperEntityCleanupSkippedTypes($tags));
-  }
-
-  public static function dataProviderEntityCleanupSkippedTypes(): array {
-    return [
-      'no tags' => [[], []],
-      'unrelated tags ignored' => [['api', 'behat-steps-skip:helperEntityCleanupAfterScenario'], []],
-      'single type' => [['behat-steps-entity-cleanup-skip:media'], ['media']],
-      'multiple types' => [
-        ['api', 'behat-steps-entity-cleanup-skip:media', 'behat-steps-entity-cleanup-skip:block_content'],
-        ['media', 'block_content'],
-      ],
-      'empty value' => [['behat-steps-entity-cleanup-skip:'], ['']],
-    ];
   }
 
   #[DataProvider('dataProviderLooksLikeCompoundCell')]
@@ -381,7 +316,7 @@ class HelperTraitTest extends UnitTestCase {
  * Drupal-dependent 'helperManagedFileExists()' so unit tests can simulate
  * pre-existing managed files without bootstrapping Drupal.
  */
-class HelperTraitTestImplementation extends RawDrupalContext {
+class HelperTraitTestImplementation extends RawContext {
 
   use HelperTrait;
 
@@ -402,13 +337,6 @@ class HelperTraitTestImplementation extends RawDrupalContext {
    */
   public ?DrupalDriverInterface $driver = NULL;
 
-  /**
-   * Records [type, id] pairs passed to the overridden helperEntityCleanupDelete().
-   *
-   * @var array<int, array{0: string, 1: int|string}>
-   */
-  public array $deleted = [];
-
   public function callHelperLooksLikeCompoundCell(string $value): bool {
     return $this->helperLooksLikeCompoundCell($value);
   }
@@ -421,57 +349,15 @@ class HelperTraitTestImplementation extends RawDrupalContext {
     $this->helperExpandEntityFieldsFixtures($entity_type, $stub);
   }
 
-  public function callHelperEntityRegisterId(string $entity_type_id, int|string $entity_id): void {
-    $this->helperEntityRegisterId($entity_type_id, $entity_id);
-  }
-
-  /**
-   * Expose helperEntityCleanupSkippedTypes() for testing.
-   *
-   * @param array<int, string> $tags
-   *   Scenario tag names.
-   *
-   * @return array<int, string>
-   *   Entity type ids to skip.
-   */
-  public function callHelperEntityCleanupSkippedTypes(array $tags): array {
-    return $this->helperEntityCleanupSkippedTypes($tags);
-  }
-
-  /**
-   * Expose the entity registry for testing.
-   *
-   * @return array<int, array{0: string, 1: int|string}>
-   *   The registered entities.
-   */
-  public function getHelperEntityRegistry(): array {
-    return $this->helperEntityRegistry;
-  }
-
-  /**
-   * Run the entity cleanup with the given skipped types.
-   *
-   * @param array<int, string> $skip_types
-   *   Entity type ids to leave in place.
-   */
-  public function callHelperEntityCleanupRun(array $skip_types): void {
-    $this->helperEntityCleanupRun($skip_types);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * Overridden to record deletions instead of touching Drupal.
-   */
-  protected function helperEntityCleanupDelete(string $entity_type_id, int|string $entity_id): void {
-    $this->deleted[] = [$entity_type_id, $entity_id];
-  }
-
   public function getMinkParameter(mixed $name): mixed {
     return $name === 'files_path' ? $this->minkFilesPath : NULL;
   }
 
-  public function getDriver(?string $name = NULL): ?DrupalDriverInterface {
+  public function getDriver(?string $name = NULL): DriverInterface {
+    if (!$this->driver instanceof DrupalDriverInterface) {
+      throw new \RuntimeException('Set the driver double before the helper reaches it.');
+    }
+
     return $this->driver;
   }
 

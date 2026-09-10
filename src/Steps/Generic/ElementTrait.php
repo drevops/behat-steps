@@ -189,6 +189,66 @@ trait ElementTrait {
   }
 
   /**
+   * Assert that a heading with the text exists.
+   *
+   * Matches the text of any `h1` to `h6` element exactly.
+   *
+   * @code
+   * Then the heading "Latest news" should exist
+   * @endcode
+   */
+  #[Then('the heading :heading should exist')]
+  public function elementAssertHeadingExists(string $heading): void {
+    if (!$this->elementFindHeading($heading) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The heading "%s" was not found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that no heading with the text exists.
+   *
+   * @code
+   * Then the heading "Admin" should not exist
+   * @endcode
+   */
+  #[Then('the heading :heading should not exist')]
+  public function elementAssertHeadingNotExists(string $heading): void {
+    if ($this->elementFindHeading($heading) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The heading "%s" was found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a button exists.
+   *
+   * Matches by id, name, title, alt or value.
+   *
+   * @code
+   * Then the button "Save" should exist
+   * @endcode
+   */
+  #[Then('the button :button should exist')]
+  public function elementAssertButtonExists(string $button): void {
+    if (!$this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'button', 'id|name|title|alt|value', $button);
+    }
+  }
+
+  /**
+   * Assert that a button does not exist.
+   *
+   * @code
+   * Then the button "Delete" should not exist
+   * @endcode
+   */
+  #[Then('the button :button should not exist')]
+  public function elementAssertButtonNotExists(string $button): void {
+    if ($this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The button "%s" was found on the page %s.', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert that one element appears after another on the page.
    *
    * @code
@@ -713,6 +773,25 @@ trait ElementTrait {
    */
   protected function elementGetScrollIntoViewCenter(): bool {
     return TRUE;
+  }
+
+  /**
+   * Find a heading whose text matches exactly.
+   *
+   * @param string $heading
+   *   The heading text.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The matching heading, or NULL when the page has none.
+   */
+  protected function elementFindHeading(string $heading): ?NodeElement {
+    foreach ($this->getSession()->getPage()->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
+      if (trim($element->getText()) === $heading) {
+        return $element;
+      }
+    }
+
+    return NULL;
   }
 
   /**

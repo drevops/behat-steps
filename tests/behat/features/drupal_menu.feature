@@ -9,12 +9,12 @@ Feature: Check that MenuTrait works
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
       | [TEST] menu 2 title | Test menu 2 description |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/structure/menu"
-    Then I should see the text "[TEST] menu 1 title"
-    And I should see the text "[TEST] menu 2 title"
-    And I should see the text "Test menu 1 description"
-    And I should see the text "Test menu 2 description"
+    Then I should see "[TEST] menu 1 title"
+    And I should see "[TEST] menu 2 title"
+    And I should see "Test menu 1 description"
+    And I should see "Test menu 2 description"
 
   @api
   Scenario: Assert "When the menu :menu_name does not exist"
@@ -25,12 +25,12 @@ Feature: Check that MenuTrait works
     When the menu "[TEST] menu 1 title" does not exist
     And the menu "[TEST] menu 2 title" does not exist
     And the menu "[TEST] non-existent menu" does not exist
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/structure/menu"
-    Then I should not see the text "[TEST] menu 1 title"
-    And I should not see the text "[TEST] menu 2 title"
-    And I should not see the text "Test menu 1 description"
-    And I should not see the text "Test menu 2 description"
+    Then I should not see "[TEST] menu 1 title"
+    And I should not see "[TEST] menu 2 title"
+    And I should not see "Test menu 1 description"
+    And I should not see "Test menu 2 description"
 
   @api
   Scenario: Assert "When the following menu links exist/do not exist in the menu :menu_name"
@@ -41,7 +41,7 @@ Feature: Check that MenuTrait works
       | title             | enabled | uri                     | parent            |
       | Parent Link Title | 1       | https://www.example.com |                   |
       | Child Link Title  | 1       | https://www.example.com | Parent Link Title |
-    And I am logged in as a user with the "administrator" role
+    And I log in as a user with the "administrator" role
     And I visit "/admin/structure/menu/manage/_test_menu_1_title"
     Then I should see "Parent Link Title"
     And I should see "Child Link Title"
@@ -49,7 +49,7 @@ Feature: Check that MenuTrait works
     When the following menu links do not exist in the menu "[TEST] menu 1 title":
       | Child Link Title |
     And I visit "/admin/config/development/performance"
-    And I press the "Clear all cache" button
+    And I press "Clear all cache"
     And I visit "/admin/structure/menu/manage/_test_menu_1_title"
     Then I should not see "Child Link Title"
     And I should see "Parent Link Title"

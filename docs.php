@@ -817,6 +817,7 @@ function tag_registry(): array {
     'disable-config-override' => 'parametrized',
     'accessibility' => 'parametrized',
     // Flag tags - stand alone, no value.
+    'bigpipe' => 'flag',
     'disable-form-validation' => 'flag',
     'js-errors' => 'flag',
     'download' => 'flag',

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Mink\Element\DocumentElement as MinkDocumentElement;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -43,6 +46,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function load(ContainerBuilder $container, array $config): void {
+    $this->aliasDocumentElement();
+
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));
     $loader->load('services.yml');
     $container->setParameter('behat_steps.default_driver', $config['default_driver']);
@@ -60,6 +65,7 @@ class BehatStepsExtension implements ExtensionInterface {
   public function process(ContainerBuilder $container): void {
     $this->processDriverPass($container);
     $this->processClassGenerator($container);
+    $this->processMinkAjaxTimeout($container);
   }
 
   /**
@@ -195,6 +201,23 @@ class BehatStepsExtension implements ExtensionInterface {
     ->end();
     // phpcs:enable
     // @formatter:on
+  }
+
+  /**
+   * Puts this package's document element in place of Mink's own.
+   *
+   * The alias has to be installed before Mink autoloads the class it replaces,
+   * so the check reads declared classes only, and the name being taken already
+   * is left alone. A Behat run loads this extension while the container is
+   * built, long before anything asks Mink for an element, so the replacement
+   * is in force for the session. A process that loaded Mink's class first -
+   * this package's own PHPUnit suite, for one - keeps Mink's behaviour, which
+   * only governs how page text reads.
+   */
+  protected function aliasDocumentElement(): void {
+    if (!class_exists(MinkDocumentElement::class, FALSE)) {
+      class_alias(DocumentElement::class, MinkDocumentElement::class, TRUE);
+    }
   }
 
   /**
@@ -373,6 +396,27 @@ class BehatStepsExtension implements ExtensionInterface {
   protected function processDriverPass(ContainerBuilder $container): void {
     $driver_pass = new DriverPass();
     $driver_pass->process($container);
+  }
+
+  /**
+   * Applies an 'ajax_timeout' the Mink configuration tree supplied.
+   *
+   * Runs as a process pass rather than during 'load()' because the two
+   * extensions load in whichever order the suite lists them.
+   */
+  protected function processMinkAjaxTimeout(ContainerBuilder $container): void {
+    if (!$container->hasParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER)) {
+      return;
+    }
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+
+    if (!is_array($parameters)) {
+      return;
+    }
+
+    $parameters['ajax_timeout'] = $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
+    $container->setParameter('behat_steps.parameters', $parameters);
   }
 
   /**

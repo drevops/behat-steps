@@ -5,17 +5,40 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 
 /**
- * Invalidate specific Drupal caches from within a scenario.
+ * Invalidate Drupal caches and run cron from within a scenario.
  *
- * Provides targeted cache-clearing steps for single paths, path patterns, and
- * the render cache. A full cache clear is intentionally out of scope because
- * `DrupalContext::@Given the cache has been cleared` already covers it.
+ * - Clear every cache bin, or target a single path, a path pattern, or the
+ *   render cache.
+ * - Run cron, which also flushes the caches cron itself invalidates.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait CacheTrait {
+
+  /**
+   * Clear every cache bin.
+   *
+   * @code
+   * Given the cache is empty
+   * @endcode
+   */
+  #[Given('the cache is empty')]
+  public function cacheClearAll(): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof CacheCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support cache clearing.', $driver::class));
+    }
+
+    $driver->cacheClear();
+  }
 
   /**
    * Clear the page cache for a single path.
@@ -29,6 +52,8 @@ trait CacheTrait {
    */
   #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
+    $this->assertDrupal();
+
     if ($path === '') {
       throw new \RuntimeException('The path must not be empty.');
     }
@@ -52,6 +77,8 @@ trait CacheTrait {
    */
   #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
+    $this->assertDrupal();
+
     if ($path_pattern === '') {
       throw new \RuntimeException('The path pattern must not be empty.');
     }
@@ -87,7 +114,29 @@ trait CacheTrait {
    */
   #[Given('the render cache is empty')]
   public function cacheClearRender(): void {
+    $this->assertDrupal();
+
     \Drupal::cache('render')->deleteAll();
+  }
+
+  /**
+   * Run cron.
+   *
+   * @code
+   * When I run cron
+   * @endcode
+   */
+  #[When('I run cron')]
+  public function cacheRunCron(): void {
+    $driver = $this->getDriver();
+
+    if (!$driver instanceof CronCapabilityInterface) {
+      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support running cron.', $driver::class));
+    }
+
+    if (!$driver->cronRun()) {
+      throw new \RuntimeException('Cron did not run. Another cron run may still hold the lock.');
+    }
   }
 
   /**

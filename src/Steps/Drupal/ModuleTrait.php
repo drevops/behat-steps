@@ -39,7 +39,7 @@ trait ModuleTrait {
    */
   #[BeforeScenario('@api')]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
     $tags = $scope->getScenario()->getTags();
@@ -68,7 +68,7 @@ trait ModuleTrait {
    */
   #[AfterScenario('@api')]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 
@@ -230,6 +230,8 @@ trait ModuleTrait {
    *   TRUE if the module is enabled, FALSE otherwise.
    */
   protected function moduleIsEnabled(string $module): bool {
+    $this->assertDrupal();
+
     return \Drupal::moduleHandler()->moduleExists($module);
   }
 
@@ -240,6 +242,8 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleEnable(string $module): void {
+    $this->assertDrupal();
+
     // @codeCoverageIgnoreStart
     if ($this->moduleIsEnabled($module)) {
       return;
@@ -267,6 +271,8 @@ trait ModuleTrait {
    *   The module machine name.
    */
   protected function moduleDisable(string $module): void {
+    $this->assertDrupal();
+
     // @codeCoverageIgnoreStart
     if (!$this->moduleIsEnabled($module)) {
       return;
@@ -293,6 +299,8 @@ trait ModuleTrait {
    *   TRUE if the module's code is present, FALSE otherwise.
    */
   protected function moduleIsPresent(string $module): bool {
+    $this->assertDrupal();
+
     $module_list = \Drupal::service('extension.list.module')->getList();
     return isset($module_list[$module]);
   }

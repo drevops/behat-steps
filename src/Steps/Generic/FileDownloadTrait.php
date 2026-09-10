@@ -31,7 +31,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * Special tags:
  * - `@download` - enable download handling
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait FileDownloadTrait {
 
@@ -47,7 +47,7 @@ trait FileDownloadTrait {
    */
   #[BeforeScenario]
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 
@@ -62,7 +62,7 @@ trait FileDownloadTrait {
    */
   #[AfterScenario]
   public function fileDownloadAfterScenario(AfterScenarioScope $scope): void {
-    if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
+    if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 

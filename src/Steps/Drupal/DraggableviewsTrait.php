@@ -14,7 +14,7 @@ use Drupal\node\NodeInterface;
 /**
  * Order items in the Drupal Draggable Views.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait DraggableviewsTrait {
 
@@ -32,6 +32,8 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:')]
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
@@ -81,6 +83,8 @@ trait DraggableviewsTrait {
    *   The found node or NULL.
    */
   protected function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
+    $this->assertDrupal();
+
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
       ->condition('type', $type);

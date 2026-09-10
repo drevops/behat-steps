@@ -23,7 +23,7 @@ Feature: Check that automatic entity cleanup works
     Then the following redirects should not exist:
       | /entity-cleanup-auto |
 
-  @api @behat-steps-skip:helperEntityCleanupAfterScenario
+  @api @behat-steps-skip:cleanEntities
   Scenario: The cleanup skip tag keeps all registered entities
     Given the following redirects exist:
       | from                     | to          |
@@ -56,3 +56,22 @@ Feature: Check that automatic entity cleanup works
       | /entity-cleanup-kept-type |
     Given the following redirects do not exist:
       | /entity-cleanup-kept-type |
+
+  # One registry covers entities created by any route, so a node created
+  # through a creation step and a term created alongside it come down in the
+  # reverse of the order they were created in.
+
+  @api
+  Scenario: Entities of several types created in one scenario are all registered
+    Given the following "tags" terms exist:
+      | name                 |
+      | [TEST] Cleanup term  |
+    And the following "page" content exist:
+      | title                   | status |
+      | [TEST] Cleanup page     | 1      |
+    Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should exist
+
+  @api
+  Scenario: Entities of several types are all deleted at teardown
+    Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should not exist
+    And "page" content with the title "[TEST] Cleanup page" should not exist

@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
+use Behat\Step\When;
 
 /**
  * Interact with HTML table elements and assert their content.
@@ -18,10 +19,47 @@ use Behat\Step\Then;
  * - Assert table sort order by column.
  * - Assert text values present in a specific table row.
  * - Assert bulk row content against expected values.
+ * - Click links and press buttons within a row identified by its text.
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait TableTrait {
+
+  /**
+   * Click a link within a row.
+   *
+   * @code
+   * When I click the link "Edit" in the row "Article title"
+   * @endcode
+   */
+  #[When('I click the link :link in the row :row_text')]
+  public function tableClickLinkInRow(string $link, string $row_text): void {
+    $element = $this->tableGetRowByText($row_text)->findLink($link);
+
+    if (!$element instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+    }
+
+    $element->click();
+  }
+
+  /**
+   * Press a button within a row.
+   *
+   * @code
+   * When I press the button "Remove" in the row "Article title"
+   * @endcode
+   */
+  #[When('I press the button :button in the row :row_text')]
+  public function tablePressButtonInRow(string $button, string $row_text): void {
+    $element = $this->tableGetRowByText($row_text)->findButton($button);
+
+    if (!$element instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" button.', $row_text, $button), $this->getSession()->getDriver());
+    }
+
+    $element->press();
+  }
 
   /**
    * Assert that a table has the expected number of rows in its tbody.
@@ -210,18 +248,94 @@ trait TableTrait {
    */
   #[Then('the :row_text row should contain the following:')]
   public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
-    $row = $this->tableFindRowByText($row_text);
-
-    if (!$row) {
-      throw new ExpectationException(sprintf('Table row containing text "%s" not found.', $row_text), $this->getSession()->getDriver());
-    }
-
-    $actual_text = $row->getText();
+    $actual_text = $this->tableGetRowByText($row_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
         throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $row_text, $expected_text), $this->getSession()->getDriver());
       }
     }
+  }
+
+  /**
+   * Assert that a row contains the text.
+   *
+   * @code
+   * Then the row "Article title" should contain the text "Published"
+   * @endcode
+   */
+  #[Then('the row :row_text should contain the text :text')]
+  public function tableAssertTextInRow(string $row_text, string $text): void {
+    $row = $this->tableGetRowByText($row_text);
+
+    if (!str_contains($row->getText(), $text)) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $row_text, $text), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a row does not contain the text.
+   *
+   * @code
+   * Then the row "Article title" should not contain the text "Unpublished"
+   * @endcode
+   */
+  #[Then('the row :row_text should not contain the text :text')]
+  public function tableAssertTextNotInRow(string $row_text, string $text): void {
+    $row = $this->tableGetRowByText($row_text);
+
+    if (str_contains($row->getText(), $text)) {
+      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $row_text, $text), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a row contains the link.
+   *
+   * @code
+   * Then the link "Edit" should exist in the row "Article title"
+   * @endcode
+   */
+  #[Then('the link :link should exist in the row :row_text')]
+  public function tableAssertLinkInRow(string $link, string $row_text): void {
+    if (!$this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a row does not contain the link.
+   *
+   * @code
+   * Then the link "Delete" should not exist in the row "Article title"
+   * @endcode
+   */
+  #[Then('the link :link should not exist in the row :row_text')]
+  public function tableAssertLinkNotInRow(string $link, string $row_text): void {
+    if ($this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The row containing "%s" has a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Return the first row on the page containing the text.
+   *
+   * @param string $row_text
+   *   Text identifying the row.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The row element.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no row contains the text.
+   */
+  protected function tableGetRowByText(string $row_text): NodeElement {
+    $row = $this->tableFindRowByText($row_text);
+
+    if (!$row instanceof NodeElement) {
+      throw new ExpectationException(sprintf('No table row containing the text "%s" was found.', $row_text), $this->getSession()->getDriver());
+    }
+
+    return $row;
   }
 
   /**

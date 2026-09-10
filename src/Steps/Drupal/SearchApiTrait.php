@@ -13,7 +13,7 @@ use Drupal\node\Entity\Node;
  * - Add content to an index
  * - Run indexing for a specific number of items.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait SearchApiTrait {
 
@@ -28,6 +28,8 @@ trait SearchApiTrait {
    */
   #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $content_type, string $title): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $nids = $this->helperLoadNodeIds($content_type, [
@@ -57,6 +59,8 @@ trait SearchApiTrait {
    */
   #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $count): void {
+    $this->assertDrupal();
+
     $count = (int) $count;
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
@@ -86,6 +90,8 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API cron')]
   public function searchApiRunCron(): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     \Drupal::moduleHandler()->invoke('search_api', 'cron');
@@ -104,6 +110,8 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API Solr cron')]
   public function searchApiRunSolrCron(): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $module_handler = \Drupal::moduleHandler();

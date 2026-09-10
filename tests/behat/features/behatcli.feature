@@ -6,17 +6,17 @@ Feature: Behat CLI context
 
   - Assert that BehatCliContext context itself can be bootstrapped by Behat,
   including failed runs assertions.
-  - Assert that DrupalContext can be autoloaded by Behat and that DrupalContext
-  can bootstrap Drupal site.
+  - Assert that RawContext can be autoloaded by Behat and that it can bootstrap
+  a Drupal site.
   - Assert that DrupalSteps trait can be autoloaded by Behat
 
   Background:
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
-      use Drupal\DrupalExtension\Context\DrupalContext;
+      use DrevOps\BehatSteps\Behat\Context\RawContext;
       use DrevOps\BehatSteps\Steps\Generic\PathTrait;
-      class FeatureContext extends DrupalContext {
+      class FeatureContext extends RawContext {
         use PathTrait;
 
         /**
@@ -34,13 +34,13 @@ Feature: Behat CLI context
           default:
             contexts:
               - FeatureContext
-              - Drupal\DrupalExtension\Context\MinkContext
+              - Behat\MinkExtension\Context\MinkContext
         extensions:
-          Drupal\MinkExtension:
+          DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
             browserkit_http: ~
             selenium2: ~
             base_url: http://nginx:8080
-          Drupal\DrupalExtension:
+          DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
             api_driver: drupal
             drupal:
               drupal_root: /app/build/web
@@ -63,7 +63,7 @@ Feature: Behat CLI context
 
         @api
         Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
-          Given I go to the homepage             # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
+          Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/"             # FeatureContext::pathAssertCurrent()
 
       1 scenario (1 passed)
@@ -86,7 +86,7 @@ Feature: Behat CLI context
 
         @api
         Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
-          Given I go to the homepage             # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
+          Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/nonexisting"  # FeatureContext::pathAssertCurrent()
             Current path is "/", but expected is "/nonexisting". (Behat\Mink\Exception\ExpectationException)
 
@@ -115,7 +115,7 @@ Feature: Behat CLI context
 
         @api
         Scenario: Anonymous user visits homepage                       # features/drupal_bootstrap.feature:3
-          Given I go to the homepage                                   # Drupal\DrupalExtension\Context\MinkContext::iAmOnHomepage()
+          Given I go to the homepage                                   # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           Then I throw test exception with message "Intentional error" # FeatureContext::throwTestException()
             Intentional error (RuntimeException)
           And the path should be "/nonexisting"                        # FeatureContext::pathAssertCurrent()
@@ -141,3 +141,25 @@ Feature: Behat CLI context
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  Scenario: A Drupal step outside an "@api" scenario names the tag it needs
+    Given a file named "features/bootstrap/FeatureContext.php" with:
+      """
+      <?php
+      use DrevOps\BehatSteps\Behat\Context\RawContext;
+      use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
+      class FeatureContext extends RawContext {
+        use ContentTrait;
+      }
+      """
+    And a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        Scenario: An untagged scenario reaches for Drupal
+          Given the content type "article" does not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The step requires Drupal's API. Tag the scenario "@api" so it runs on the in-process Drupal driver.
+      """

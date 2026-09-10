@@ -17,7 +17,7 @@ use Drupal\system\MenuInterface;
  * - Create and remove menu links, including parent-child hierarchies.
  * - Created menus and menu links are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \Drupal\DrupalExtension\Context\RawDrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait MenuTrait {
 
@@ -59,6 +59,8 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
+    $this->assertDrupal();
+
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
         $menu_id = strtolower((string) $menu_hash['label']);
@@ -70,7 +72,7 @@ trait MenuTrait {
       $menu = Menu::create($menu_hash);
       $menu->save();
 
-      $this->helperEntityRegister($menu);
+      $this->entityRegister($menu);
     }
   }
 
@@ -111,6 +113,8 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
+    $this->assertDrupal();
+
     $this->helperAssertModuleEnabled('menu_link_content');
 
     $menu = $this->menuLoadByLabel($menu_name);
@@ -143,7 +147,7 @@ trait MenuTrait {
       }
       $menu_link = MenuLinkContent::create($menu_link_hash);
       $menu_link->save();
-      $this->helperEntityRegister($menu_link);
+      $this->entityRegister($menu_link);
     }
   }
 
@@ -157,6 +161,8 @@ trait MenuTrait {
    *   The menu or NULL if not found.
    */
   protected function menuLoadByLabel(string $label): ?MenuInterface {
+    $this->assertDrupal();
+
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
     $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
@@ -185,6 +191,8 @@ trait MenuTrait {
    *   The menu link or NULL if not found.
    */
   protected function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
+    $this->assertDrupal();
+
     $menu = $this->menuLoadByLabel($menu_name);
 
     // @codeCoverageIgnoreStart

@@ -354,7 +354,7 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@api @email":
       """
-      Given I am logged in as a user with the "administrator" role
+      When I log in as a user with the "administrator" role
       Then an email should be sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
@@ -728,7 +728,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\EmailTrait @behat-cli-no-bootstrap
+  @trait:Drupal\EmailTrait
   Scenario: Assert that EmailTrait boots the Drupal kernel itself when used in isolation
     Given some behat configuration
     And scenario steps tagged with "@api @email":

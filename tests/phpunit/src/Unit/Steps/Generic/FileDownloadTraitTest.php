@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
-use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\FileDownloadTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -72,7 +72,7 @@ class FileDownloadTraitTest extends UnitTestCase {
 /**
  * Test implementation of FileDownloadTrait.
  */
-class FileDownloadTraitTestImplementation extends RawMinkContext {
+class FileDownloadTraitTestImplementation extends RawContext {
 
   use FileDownloadTrait {
     fileDownloadIsRegex as public;
