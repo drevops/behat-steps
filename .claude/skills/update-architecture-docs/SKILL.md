@@ -21,7 +21,7 @@ PlantUML must be on the `PATH`. Do not probe for it - run the render command and
 plantuml -tsvg docs/architecture/*.puml
 ```
 
-If it reports that the command is missing, stop before rendering, say explicitly that the SVGs were not regenerated, and give the install instructions (`brew install plantuml` on macOS, `apt-get install plantuml` on Debian and Ubuntu; it needs Java, which macOS already has). Prose and `.puml` edits may still proceed.
+If it reports that the command is missing, stop before rendering, say explicitly that the SVGs were not regenerated, and give the install instructions: `brew install plantuml` on macOS, `apt-get install plantuml` on Debian and Ubuntu. PlantUML is a Java application and needs a JRE or JDK 11 or later, which macOS does not ship; the Homebrew formula pulls OpenJDK in as a dependency, and `java -version` confirms what is present. Graphviz is required for class, component and activity diagrams, and Homebrew pulls that in too. Prose and `.puml` edits may still proceed.
 
 ## Task A: first generation
 
@@ -82,4 +82,12 @@ title <Component architecture | Class structure: ... | Data flow: ...>
 
 ## Verification
 
-Before finishing, confirm that every path named in a traced-from comment exists, that the prose around each diagram states only what those files show, and that every `.puml` has a matching `.svg` listed in the index table. Render a PNG to `.artifacts/tmp/` and look at it - a diagram that renders without error can still be unreadably wide.
+Before finishing, confirm that every path named in a traced-from comment exists, that the prose around each diagram states only what those files show, and that every `.puml` has a matching `.svg` listed in the index table.
+
+Then look at every diagram - one that renders without error can still be unreadably wide, and a Creole slip only shows up in the render:
+
+```bash
+plantuml -tpng -o ../../.artifacts/tmp docs/architecture/*.puml
+```
+
+PlantUML resolves a relative `-o` path against each **input** file, not the working directory, so `../../` climbs out of `docs/architecture/` to the repository root. It creates the directory if it is missing. Open each generated PNG in an image viewer before committing.

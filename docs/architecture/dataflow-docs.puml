@@ -60,9 +60,11 @@ Render -> Render: swap the block between the heading\nand the [//]: # (END) mark
 Render --> Main: STEPS.md and README.md contents
 deactivate Render
 
-alt ~--fail-on-change and the contents differ
-  Main --> Dev: exit non-zero, documentation is stale
-else
+alt contents are unchanged
+  Main --> Dev: exit 0, documentation is up to date
+else contents differ, with ~--fail-on-change
+  Main --> Dev: exit 1, documentation is outdated, nothing written
+else contents differ, update mode
   Main --> Dev: write STEPS.md and README.md
 end
 deactivate Main

@@ -90,7 +90,7 @@ package "DrevOps\\BehatSteps - generic, Mink only" #E8F5E9 {
 }
 
 package "DrevOps\\BehatSteps\\Drupal" #E3F2FD {
-  class DrupalHelperTrait <<trait>> #F3E5F5
+  class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5
 
   class BigPipeTrait <<trait>>
   class BlockTrait <<trait>>
@@ -156,8 +156,8 @@ note bottom of FeatureContext
   one of them, and that is the class docs.php reflects
   over to build STEPS.md.
 
-  Both HelperTrait classes carry shared logic and no
-  steps. Which step traits use which helper is drawn in
-  the class-detail diagram.
+  Each namespace has its own HelperTrait, carrying
+  shared logic and no steps. Which step traits use
+  which helper is drawn in the class-detail diagram.
 end note
 @enduml

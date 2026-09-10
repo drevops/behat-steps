@@ -79,7 +79,7 @@ package "Drupal" #E3F2FD {
     +contentBeforeNodeCreate(scope) : void
   }
 
-  class DrupalHelperTrait <<trait>> #F3E5F5 {
+  class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5 {
     #entityRegistry : array
     --
     #entityRegister(entity) : void
