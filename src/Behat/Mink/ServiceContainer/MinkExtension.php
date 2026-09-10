@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer;
 
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
+use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -66,6 +67,10 @@ class MinkExtension extends UpstreamMinkExtension {
    */
   public function load(ContainerBuilder $container, array $config): void {
     parent::load($container, $config);
+
+    // Swapping the class behind the id keeps Mink's own constructor arguments
+    // and subscriber tag, so only the tag reading changes.
+    $container->getDefinition('mink.listener.sessions')->setClass(MinkSessionListener::class);
 
     if (!isset($config['ajax_timeout'])) {
       return;

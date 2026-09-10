@@ -68,7 +68,7 @@ class TagTest extends TestCase {
     yield 'a tag carrying a value is matched whole' => [['@email:default'], 'email:default', TRUE];
   }
 
-  public function testAllMergesFeatureAndScenarioTagsFromAScope(): void {
+  public function testAllMergesFeatureAndScenarioTagsFromScope(): void {
     $scenario = new ScenarioNode('Scenario', ['@email'], [], 'Scenario', 2);
     $feature = new FeatureNode('Feature', NULL, ['@api'], NULL, [$scenario], 'Feature', 'en', NULL, 1);
 
@@ -79,7 +79,7 @@ class TagTest extends TestCase {
     $this->assertSame(['api', 'email'], Tag::all($scope));
   }
 
-  public function testAllMergesFeatureAndScenarioTagsFromAnEvent(): void {
+  public function testAllMergesFeatureAndScenarioTagsFromEvent(): void {
     $scenario = new ScenarioNode('Scenario', ['@email'], [], 'Scenario', 2);
     $feature = new FeatureNode('Feature', NULL, ['@api'], NULL, [$scenario], 'Feature', 'en', NULL, 1);
     $event = new BeforeScenarioTested($this->createMock(Environment::class), $feature, $scenario);
