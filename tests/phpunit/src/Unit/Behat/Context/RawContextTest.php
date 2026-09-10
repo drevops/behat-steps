@@ -26,6 +26,7 @@ use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Core\CoreInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
@@ -628,6 +629,27 @@ class RawContextTest extends UnitTestCase {
     $driver->method('isBootstrapped')->willReturn(TRUE);
 
     $this->assertSame($driver, $this->createContext($driver)->assertDrupal());
+  }
+
+  public function testFieldParsingIsHandedToTheDriver(): void {
+    $stub = new EntityStub('node', 'page', ['title' => 'A title']);
+
+    $core = $this->createMock(CoreInterface::class);
+    $core->expects($this->once())->method('parseEntityFields')->with($stub, ['author']);
+
+    $driver = $this->createMock(DrupalDriverInterface::class);
+    $driver->method('isBootstrapped')->willReturn(TRUE);
+    $driver->method('getCore')->willReturn($core);
+
+    $this->createContext($driver)->parseEntityFields($stub, ['author']);
+  }
+
+  public function testFieldParsingIsSkippedOnDriverThatCannotClassify(): void {
+    $stub = new EntityStub('node', 'page', ['field_a' => 'a, b']);
+
+    $this->createContext($this->createContentDriver())->nodeCreate($stub);
+
+    $this->assertSame('a, b', $stub->getValue('field_a'));
   }
 
   public function testStringTimestampIsConvertedForInProcessDriver(): void {

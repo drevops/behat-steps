@@ -19,6 +19,7 @@ use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use Drupal\Component\Utility\Random;
 
@@ -161,5 +162,43 @@ interface CoreInterface extends
    *   The field shape classifier instance.
    */
   public function getFieldShapeClassifier(): FieldShapeClassifierInterface;
+
+  /**
+   * Returns a field parser bound to one entity type and bundle.
+   *
+   * Override in a 'Core' subclass to swap in a parser that reads a different
+   * cell grammar.
+   *
+   * @param string $entity_type
+   *   The entity type the values belong to.
+   * @param string|null $bundle
+   *   The bundle, or NULL for an entity type without bundles. Bundle-scoped
+   *   fields are only recognised when it is supplied.
+   *
+   * @return \DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface
+   *   A parser instance.
+   */
+  public function getFieldParser(string $entity_type, ?string $bundle = NULL): EntityFieldParserInterface;
+
+  /**
+   * Expands a stub's raw cell values into the storage field shape.
+   *
+   * Values arrive as authored - a bare scalar, a comma-separated list, or a
+   * compound 'key:"value"' cell - and each is resolved against its own field
+   * definition. Creation-alias names are accepted without validation, so an
+   * alias key such as 'author' reaches its alias untouched. The stub is
+   * marked parsed, and a stub that is already marked is left alone.
+   *
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The stub, mutated in place.
+   * @param array<int, string> $ignored_properties
+   *   Further value names to accept without field-type validation.
+   *
+   * @throws \RuntimeException
+   *   When a value names no field on the entity type.
+   * @throws \DrevOps\BehatSteps\Driver\Core\Field\Parser\Exception\ParseException
+   *   When a cell does not match the grammar.
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void;
 
 }

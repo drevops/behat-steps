@@ -17,6 +17,8 @@ use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifier;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
+use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
@@ -260,6 +262,31 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function getFieldParser(string $entity_type, ?string $bundle = NULL): EntityFieldParserInterface {
+    return new EntityFieldParser($entity_type, $this->getFieldClassifier(), $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    if ($stub->isParsed()) {
+      return;
+    }
+
+    $entity_type = $stub->getEntityType();
+    $aliases = array_keys($this->getCreationAliases($entity_type));
+
+    $parser = $this->getFieldParser($entity_type, $this->resolveBundle($stub));
+    $parser->ignoring(array_values(array_unique(array_merge($aliases, $ignored_properties))));
+
+    $stub->setValues($parser->parse($stub->getValues()));
+    $stub->markParsed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFieldHandler(EntityStubInterface $stub, string $entity_type, string $field_name): FieldHandlerInterface {
     $bundle = $this->resolveBundle($stub);
     $field_types = $this->getEntityFieldTypes($entity_type, $bundle);
@@ -485,6 +512,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $stub->setValue('type', $type);
     }
 
+    $this->parseEntityFields($stub);
     $this->applyPreCreateAliases($stub, 'node');
 
     $this->expandEntityFields($stub);
@@ -616,6 +644,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $stub->setValue('status', 1);
     }
 
+    $this->parseEntityFields($stub);
     $this->applyPreCreateAliases($stub, 'user');
 
     $this->expandEntityFields($stub);
@@ -871,6 +900,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function termCreate(EntityStubInterface $stub): EntityStubInterface {
+    $this->parseEntityFields($stub);
     $this->applyPreCreateAliases($stub, 'taxonomy_term');
 
     $vocabulary = $stub->getBundle() ?? $stub->getValue('vid');
@@ -1158,6 +1188,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       }
     }
 
+    $this->parseEntityFields($stub);
     $this->expandEntityFields($stub);
     $created_entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create($stub->getValues());
     $created_entity->save();

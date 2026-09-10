@@ -106,6 +106,19 @@ class EntityFieldParser implements EntityFieldParserInterface {
       $field_name = $multicolumn_field !== '' ? $multicolumn_field : $field;
 
       if ($this->fieldClassifier->fieldIsConfigurable($this->entityType, $field_name)) {
+        // Only text carries the cell grammar. A caller that assembled the
+        // records itself hands them to the field handlers as they are.
+        if (!$is_multicolumn && !is_string($field_value)) {
+          if ($field_value === NULL) {
+            unset($parsed[$field_name]);
+          }
+          else {
+            $parsed[$field_name] = $field_value;
+          }
+
+          continue;
+        }
+
         try {
           $records = $this->parseCell((string) $field_value, $is_multicolumn);
         }

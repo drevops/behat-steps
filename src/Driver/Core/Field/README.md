@@ -181,18 +181,25 @@ which likewise allows subclasses to extend registration per version.
 For reference, here is the complete flow when `entityCreate()` is called with
 a stub:
 
-1. `entityCreate($entity_type, $entity)` calls `expandEntityFields($entity_type, $entity)`.
-2. `expandEntityFields()` resolves the bundle from the stub and calls
+1. `entityCreate($stub)` calls `parseEntityFields($stub)`, which reads each
+   authored cell (`'a, b'`, `'uri: "https://example.com", title: "Example"'`)
+   against the field's own definition and replaces it with the records the
+   handlers expect. Creation-alias names are accepted without validation; a
+   value naming no field is rejected here. A value that is not text was
+   assembled by the caller and is left alone, as is a stub already marked
+   parsed.
+2. `entityCreate($stub)` calls `expandEntityFields($stub)`.
+3. `expandEntityFields()` resolves the bundle from the stub and calls
    `getEntityFieldTypes($entity_type, $bundle)`.
-3. `getEntityFieldTypes()` iterates `getFieldStorageDefinitions()`,
+4. `getEntityFieldTypes()` iterates `getFieldStorageDefinitions()`,
    `getBaseFieldDefinitions()`, and per-bundle definitions (when a bundle is
    known). Each field is kept iff `fieldIsBaseStandard()`,
    `fieldIsConfigurable()`, or `fieldIsBundleStorageBacked()` is TRUE.
-4. `expandEntityFields()` iterates the returned map and, for each field whose
+5. `expandEntityFields()` iterates the returned map and, for each field whose
    name is also set as a property on the stub, calls `getFieldHandler()` to
    resolve a typed handler by field-type string (falling back to
    `DefaultHandler`). The handler's `expand()` transforms the stub value
    into Drupal's storage shape.
-5. Fields not in the returned map (F2/F3/F4/F6/F7/F8) keep their original
+6. Fields not in the returned map (F2/F3/F4/F6/F7/F8) keep their original
    stub values. The entity constructor receives the full stub as an array;
    Drupal's field classes and storage layer take over from there.

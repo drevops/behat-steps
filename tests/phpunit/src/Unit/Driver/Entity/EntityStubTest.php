@@ -114,6 +114,19 @@ class EntityStubTest extends TestCase {
   }
 
   /**
+   * Tests that 'isParsed()' flips after 'markParsed()'.
+   */
+  public function testIsParsedFlipsAfterMarkParsed(): void {
+    $stub = new EntityStub('node', 'article');
+
+    $this->assertFalse($stub->isParsed());
+
+    $this->assertSame($stub, $stub->markParsed());
+
+    $this->assertTrue($stub->isParsed());
+  }
+
+  /**
    * Tests that 'isSaved()' flips after 'markSaved()'.
    */
   public function testIsSavedFlipsAfterMarkSaved(): void {

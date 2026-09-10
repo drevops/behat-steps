@@ -85,7 +85,7 @@ trait HelperTrait {
         continue;
       }
 
-      // Parsed shapes produced by 'EntityFieldParser' or the legacy parser:
+      // Parsed shapes produced by 'EntityFieldParser':
       // - scalar: 'foo.jpg' (treated as single-value)
       // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
       // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A'] (single compound)

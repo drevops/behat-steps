@@ -26,6 +26,11 @@ final class EntityStub implements EntityStubInterface {
   protected string $bundleKey = self::DEFAULT_BUNDLE_KEY;
 
   /**
+   * Whether the values bag has been through the field parser.
+   */
+  protected bool $parsed = FALSE;
+
+  /**
    * Set up the stub.
    *
    * @param string $entityType
@@ -116,6 +121,22 @@ final class EntityStub implements EntityStubInterface {
    */
   public function setValues(array $values): self {
     $this->values = $values;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isParsed(): bool {
+    return $this->parsed;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function markParsed(): self {
+    $this->parsed = TRUE;
 
     return $this;
   }

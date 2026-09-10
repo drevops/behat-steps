@@ -97,6 +97,21 @@ interface EntityStubInterface {
   public function setValues(array $values): self;
 
   /**
+   * Returns TRUE once 'markParsed()' has been called.
+   */
+  public function isParsed(): bool;
+
+  /**
+   * Records that the values bag has been through the field parser.
+   *
+   * Parsing is not idempotent - a parsed cell is a structured value the
+   * grammar cannot read a second time - so a caller that parses ahead of
+   * the driver marks the stub and the driver's create path skips its own
+   * parse.
+   */
+  public function markParsed(): self;
+
+  /**
    * Returns TRUE once the driver has called 'markSaved()'.
    */
   public function isSaved(): bool;

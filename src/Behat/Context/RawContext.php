@@ -34,9 +34,6 @@ use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
-use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
@@ -388,7 +385,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['author']);
+    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getContentDriver();
 
@@ -421,7 +418,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['role']);
+    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getDriver();
 
@@ -471,7 +468,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     $this->dispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['vocabulary_machine_name']);
+    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getContentDriver();
 
@@ -524,8 +521,10 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
    * Table cells arrive as written - a bare scalar, a comma-separated list, or
-   * a compound 'key:"value"' cell - and the parser resolves each against the
-   * field's own definition before the driver saves the entity.
+   * a compound 'key:"value"' cell - and the driver resolves each against the
+   * field's own definition before the entity is saved. A step that saves an
+   * entity through Drupal's API rather than the driver calls this first, so
+   * both routes see the same values.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -537,12 +536,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   When the scenario does not run on the in-process Drupal driver.
    */
   public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->assertDrupal()->getCore()->getFieldClassifier();
-
-    $parser = $this->getFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
-    $parser->ignoring($ignored_properties);
-
-    $stub->setValues($parser->parse($stub->getValues()));
+    $this->assertDrupal()->getCore()->parseEntityFields($stub, $ignored_properties);
   }
 
   /**
@@ -769,40 +763,23 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Expands a stub's values during creation, when the driver can classify them.
+   * Expands a stub's values before the create hooks reach the driver.
    *
-   * Classification reads the site's field definitions, which only the
-   * in-process driver exposes. On the Drush driver the values reach the
-   * command line as the scenario wrote them, so the pipeline leaves them
-   * alone rather than failing a creation the driver can carry out.
+   * The driver parses the values bag itself during creation, so this only
+   * brings that forward to the point where the scalar snapshot is taken. On
+   * the Drush driver the values reach the command line as the scenario wrote
+   * them, so the pipeline leaves them alone rather than failing a creation
+   * the driver can carry out.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
-   * @param array<int, string> $ignored_properties
-   *   Value names to leave untouched.
    */
-  protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+  protected function parseCreatedEntityFields(EntityStubInterface $stub): void {
     if (!$this->getDriver() instanceof DrupalDriverInterface) {
       return;
     }
 
-    $this->parseEntityFields($stub, $ignored_properties);
-  }
-
-  /**
-   * Builds the entity-field parser for one parsing call.
-   *
-   * Override in the consuming context to swap in a custom implementation.
-   *
-   * @param string $entity_type
-   *   The entity type the values belong to.
-   * @param \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface $classifier
-   *   The classifier resolving each value's field definition.
-   * @param string|null $bundle
-   *   The bundle, or NULL for an entity type without bundles.
-   */
-  protected function getFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
-    return new EntityFieldParser($entity_type, $classifier, $bundle);
+    $this->parseEntityFields($stub);
   }
 
   /**

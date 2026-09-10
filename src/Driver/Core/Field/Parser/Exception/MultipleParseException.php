@@ -45,7 +45,9 @@ class MultipleParseException extends ParseException {
     $count = count($errors);
 
     if ($count === 1) {
-      return $errors[0]->description;
+      // Read by iteration order for the same reason the constructor does: the
+      // list may arrive with gaps in its keys.
+      return reset($errors)->description;
     }
 
     $codes = array_map(fn(ParseException $error): string => $error->errorCode, $errors);
