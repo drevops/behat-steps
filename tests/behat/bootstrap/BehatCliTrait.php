@@ -15,6 +15,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Trait BehatCliTrait.
@@ -42,7 +43,7 @@ trait BehatCliTrait {
 
     // Scan scenario tags and extract trait names from tags starting with
     // 'trait:'. For example, @trait:PathTrait or @trait:Drupal\\UserTrait.
-    foreach ($scope->getScenario()->getTags() as $tag) {
+    foreach (Tag::normalize($scope->getScenario()->getTags()) as $tag) {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);

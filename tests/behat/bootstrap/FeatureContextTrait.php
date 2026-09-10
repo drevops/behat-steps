@@ -24,6 +24,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\file\Entity\File;
 use Symfony\Component\BrowserKit\Cookie;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.
@@ -41,7 +42,7 @@ trait FeatureContextTrait {
    */
   #[BeforeScenario]
   public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
-    $has_trait_tag = (bool) array_filter($scope->getScenario()->getTags(), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
+    $has_trait_tag = (bool) array_filter(Tag::normalize($scope->getScenario()->getTags()), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
 
     // Stop all Mink sessions before sub-process scenarios to prevent
     // connection interference between parent and child processes.

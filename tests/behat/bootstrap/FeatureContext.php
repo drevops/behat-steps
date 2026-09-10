@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -181,7 +182,7 @@ class FeatureContext extends RawContext {
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
+    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
   }
 
 }

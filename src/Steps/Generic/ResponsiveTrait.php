@@ -11,6 +11,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Test responsive layouts with viewport control.
@@ -92,7 +93,7 @@ trait ResponsiveTrait {
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
-    $tags = $scope->getScenario()->getTags();
+    $tags = Tag::normalize($scope->getScenario()->getTags());
 
     $breakpoint_tags = [];
     foreach ($tags as $tag) {

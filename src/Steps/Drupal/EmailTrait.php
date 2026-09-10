@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
@@ -58,17 +59,17 @@ trait EmailTrait {
       return;
     }
 
-    if (!$scope->getScenario()->hasTag('email')) {
+    if (!Tag::has($scope->getScenario(), 'email')) {
       return;
     }
 
     $this->assertDrupal();
 
-    if ($scope->getScenario()->hasTag('debug')) {
+    if (Tag::has($scope->getScenario(), 'debug')) {
       $this->emailDebug = TRUE;
     }
 
-    foreach ($scope->getScenario()->getTags() as $tag) {
+    foreach (Tag::normalize($scope->getScenario()->getTags()) as $tag) {
       if (str_starts_with($tag, 'email:')) {
         $parts = explode(':', $tag);
         $this->emailHandlerTypes[] = count($parts) > 1 ? implode(':', array_slice($parts, 1)) : 'default';
@@ -93,7 +94,7 @@ trait EmailTrait {
       return;
     }
 
-    if (!$scope->getScenario()->hasTag('email')) {
+    if (!Tag::has($scope->getScenario(), 'email')) {
       return;
     }
 
