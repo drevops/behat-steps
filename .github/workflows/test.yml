@@ -32,7 +32,7 @@ jobs:
 
       env:
         TERM: xterm-256color
-        PHP_VERSION: '8.3'
+        PHP_VERSION: '8.4'
         DRUPAL_VERSION: '11'
         DEPS: 'normal'
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
@@ -61,12 +61,9 @@ jobs:
       - name: Provision application
         run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
 
-      - name: Validate Composer configuration is normalized
-        run: docker compose exec -T cli composer normalize --dry-run
-        continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
-
       - name: Install Ahoy CLI
         run: |
+          # renovate: datasource=github-releases depName=ahoy-cli/ahoy
           version=2.4.0 && \
           set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
           chmod +x /usr/local/bin/ahoy && \
@@ -81,8 +78,10 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
   test:
-    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.driver && format(', Driver {0}', matrix.driver) || '' }}
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.variant && format(', Variant {0}', matrix.variant) || '' }}
     runs-on: ubuntu-latest
+
+    continue-on-error: ${{ matrix.allow_failure || false }}
 
     strategy:
       fail-fast: false
@@ -91,6 +90,7 @@ jobs:
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
+            coverage: true
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'lowest'
@@ -106,14 +106,43 @@ jobs:
           - php_version: '8.5'
             drupal_version: '11'
             deps: 'lowest'
-          # Selenium-less driver leg: run the same suite through headless
+          # Selenium-less driver legs: run the Behat suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
-          # portable. The browser driver is Drupal-version independent, so a
-          # single normal-deps leg is enough.
+          # portable. The browser driver is Drupal-version independent, so the
+          # 2 legs take their breadth from the PHP and dependency axes instead.
+          # The first also carries coverage, so the branches only chrome-mink
+          # reaches are measured and merged with the Selenium2 coverage.
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
-            driver: 'chrome_headless'
+            variant: 'chrome_headless'
+            profile: 'chrome_headless'
+            coverage: true
+          - php_version: '8.5'
+            drupal_version: '11'
+            deps: 'lowest'
+            variant: 'chrome_headless'
+            profile: 'chrome_headless'
+          # 'src/Behat' targets Behat 3.32 and Behat 4 at once, and this leg
+          # proves the second half. It is allowed to fail because the Behat
+          # extensions the fixture installs still cap 'behat/behat' at '^3',
+          # which no change in this repository can lift.
+          - php_version: '8.4'
+            drupal_version: '11'
+            deps: 'normal'
+            variant: 'behat4'
+            behat_version: '^4.0@alpha'
+            allow_failure: true
+          # The parsing mode Behat adopts in a future major. It keeps the '@'
+          # on every tag, and the Behat extensions the fixture installs still
+          # compare tags against bare names, so this leg is allowed to fail
+          # until they normalize too.
+          - php_version: '8.4'
+            drupal_version: '11'
+            deps: 'normal'
+            variant: 'gherkin32'
+            profile: 'gherkin_32'
+            allow_failure: true
 
     container:
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
@@ -123,6 +152,7 @@ jobs:
         PHP_VERSION: ${{ matrix.php_version }}
         DRUPAL_VERSION: ${{ matrix.drupal_version }}
         DEPS: ${{ matrix.deps }}
+        BEHAT_VERSION: ${{ matrix.behat_version }}
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
     steps:
@@ -148,48 +178,41 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - name: Provision application
-        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -e BEHAT_VERSION=${BEHAT_VERSION} -T cli bash scripts/provision.sh
 
       - name: Install Ahoy CLI
         run: |
+          # renovate: datasource=github-releases depName=ahoy-cli/ahoy
           version=2.4.0 && \
           set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
           chmod +x /usr/local/bin/ahoy && \
           ahoy --version
 
+      # A Behat profile changes how the suite is driven or parsed, not what the
+      # PHPUnit suites cover, so those legs skip them rather than repeat them.
       - name: Run Unit and Kernel tests with coverage
-        if: "matrix.driver != 'chrome_headless' && matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'"
+        if: matrix.coverage && !matrix.profile
         run: ahoy test-coverage
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run Unit tests
-        if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        if: "!matrix.coverage && !matrix.profile"
         run: ahoy test-unit
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run Kernel tests
-        if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
+        if: "!matrix.coverage && !matrix.profile"
         run: ahoy test-kernel
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests with coverage
-        if: "matrix.driver != 'chrome_headless' && matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal'"
-        run: ahoy test-bdd-coverage
+        if: matrix.coverage
+        run: ahoy test-bdd-coverage ${{ matrix.profile && format('-- -p {0}', matrix.profile) || '' }}
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Run BDD tests
-        if: "matrix.driver != 'chrome_headless' && !(matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal')"
-        run: ahoy test-bdd
-        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
-
-      # Selenium-less leg: the same BDD suite driven through headless Chrome
-      # over the DevTools Protocol, proving the steps work without Selenium.
-      # It runs with coverage so the driver-specific branches (reachable only
-      # through chrome-mink) are measured and merged into the Codecov report
-      # alongside the Selenium2 coverage.
-      - name: Run BDD tests with coverage with the chrome_headless driver
-        if: "matrix.driver == 'chrome_headless'"
-        run: ahoy test-bdd-coverage -- -p chrome_headless
+        if: "!matrix.coverage"
+        run: ahoy test-bdd ${{ matrix.profile && format('-- -p {0}', matrix.profile) || '' }}
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
 
       - name: Process test logs and artifacts
@@ -205,17 +228,17 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.driver && format('-{0}', matrix.driver) || '' }}
+          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.variant && format('-{0}', matrix.variant) || '' }}
           path: .logs
           include-hidden-files: true
           retention-days: 30
 
       - name: Upload code coverage reports to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        if: matrix.php_version == '8.3' && matrix.drupal_version == '11' && matrix.deps == 'normal' && env.CODECOV_TOKEN != ''
+        if: matrix.coverage && env.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: .logs/coverage
-          fail_ci_if_error: false
+          fail_ci_if_error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

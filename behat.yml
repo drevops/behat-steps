@@ -114,3 +114,11 @@ chrome_headless:
       javascript_session: chrome
       chrome:
         api_url: 'http://chrome_headless:9222'
+
+# Gherkin 3.2 parsing mode: the parser behaviour the official cucumber tools
+# share, which Behat adopts as the default in a future major. Run with
+# "behat -p gherkin_32". Inherits the "default" profile and only changes how
+# feature files are parsed.
+gherkin_32:
+  gherkin:
+    compatibility: gherkin-32

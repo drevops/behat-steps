@@ -9,6 +9,7 @@ set -e
 
 DRUPAL_VERSION="${DRUPAL_VERSION:-11}"
 DEPS="${DEPS:-normal}"
+export BEHAT_VERSION="${BEHAT_VERSION:-}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site."
 
@@ -69,7 +70,18 @@ foreach (["BuildTests", "FunctionalJavascriptTests", "FunctionalTests", "KernelT
   $package_filtered["autoload-dev"]["psr-4"]["Drupal\\" . $test_namespace . "\\"] = "web/core/tests/Drupal/" . $test_namespace . "/";
 }
 
-echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+$merged = array_replace_recursive($package_filtered, $fixture);
+
+// "BEHAT_VERSION" pins the fixture to a Behat release the package constraint
+// does not reach, which is a pre-release for as long as the version is
+// unreleased, so the stability floor drops with it.
+$behat_version = getenv("BEHAT_VERSION");
+if (is_string($behat_version) && $behat_version !== "") {
+  $merged["require-dev"]["behat/behat"] = $behat_version;
+  $merged["minimum-stability"] = "alpha";
+}
+
+echo json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."

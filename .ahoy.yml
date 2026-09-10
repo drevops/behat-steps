@@ -113,6 +113,9 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
+      ahoy cli "composer validate --ansi" && \
+      ahoy cli "composer normalize --ansi --dry-run" && \
+      ahoy cli "vendor/bin/parallel-lint --colors --exclude vendor --exclude build --exclude .git --exclude .logs --exclude .artifacts ." && \
       ahoy cli "vendor/bin/phpcs" && \
       ahoy cli "DRUPAL_ROOT=build/web DRUPAL_VENDOR_ROOT=build/vendor vendor/bin/phpstan" && \
       ahoy cli "vendor/bin/rector --dry-run" && \
