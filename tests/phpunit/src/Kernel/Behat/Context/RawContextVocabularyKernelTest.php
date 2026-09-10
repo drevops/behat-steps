@@ -74,6 +74,52 @@ class RawContextVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that a bundle-less term stub carries the vocabulary on 'vid'.
+   */
+  public function testTermCreationSeedsTheVocabularyForFieldParsing(): void {
+    $stub = new EntityStub('taxonomy_term', NULL, ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
+
+    $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, ContentCapabilityInterface::class]);
+    $driver->method('termCreate')->willReturn($stub);
+
+    $environment = $this->createMock(Environment::class);
+
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($driver);
+    $driver_manager->method('getEnvironment')->willReturn($environment);
+
+    $this->context->setDriverManager($driver_manager);
+    $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
+
+    $this->context->termCreate($stub);
+
+    $this->assertSame('tags', $stub->getValue('vid'));
+  }
+
+  /**
+   * Tests that a stub carrying its own 'vid' keeps it.
+   */
+  public function testTermCreationKeepsAnExplicitVocabulary(): void {
+    $stub = new EntityStub('taxonomy_term', NULL, ['name' => 'A term', 'vid' => 'tags', 'vocabulary_machine_name' => 'Tags']);
+
+    $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, ContentCapabilityInterface::class]);
+    $driver->method('termCreate')->willReturn($stub);
+
+    $environment = $this->createMock(Environment::class);
+
+    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('getDriver')->willReturn($driver);
+    $driver_manager->method('getEnvironment')->willReturn($environment);
+
+    $this->context->setDriverManager($driver_manager);
+    $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
+
+    $this->context->termCreate($stub);
+
+    $this->assertSame('tags', $stub->getValue('vid'));
+  }
+
+  /**
    * Tests that term creation resolves the label before calling the driver.
    */
   public function testTermCreationResolvesTheVocabularyLabel(): void {

@@ -456,7 +456,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
     if (!empty($vocabulary)) {
-      $stub->setValue('vocabulary_machine_name', $this->resolveVocabularyMachineName((string) $vocabulary));
+      $vocabulary = $this->resolveVocabularyMachineName((string) $vocabulary);
+      $stub->setValue('vocabulary_machine_name', $vocabulary);
+
+      // Parsing below resolves the bundle from 'vid', so a stub that names its
+      // vocabulary only through the alias needs it seeded first.
+      if ($stub->getBundle() === NULL && !$stub->hasValue('vid')) {
+        $stub->setValue('vid', $vocabulary);
+      }
     }
 
     // The driver resolves 'parent' as a term name in the same vocabulary, so
