@@ -78,7 +78,7 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
   test:
-    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.variant && format(', Variant {0}', matrix.variant) || '' }}
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.driver && format(', Driver {0}', matrix.driver) || '' }}${{ matrix.variant && format(', Variant {0}', matrix.variant) || '' }}
     runs-on: ubuntu-latest
 
     continue-on-error: ${{ matrix.allow_failure || false }}
@@ -114,16 +114,18 @@ jobs:
           # own lowest-resolvable driver does not define.
           # The first also carries coverage, so the branches only the Chrome
           # driver reaches are measured and merged with the Selenium2 coverage.
+          # These name the leg through 'driver' rather than 'variant' because
+          # the branch ruleset requires the first one by its job name.
           - php_version: '8.3'
             drupal_version: '11'
             deps: 'normal'
-            variant: 'chrome_headless'
+            driver: 'chrome_headless'
             profile: 'chrome_headless'
             coverage: true
           - php_version: '8.5'
             drupal_version: '11'
             deps: 'normal'
-            variant: 'chrome_headless'
+            driver: 'chrome_headless'
             profile: 'chrome_headless'
           # 'src/Behat' targets Behat 3.32 and Behat 4 at once, and this leg
           # proves the second half. It is allowed to fail because the Behat
@@ -230,7 +232,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.variant && format('-{0}', matrix.variant) || '' }}
+          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.driver && format('-{0}', matrix.driver) || '' }}${{ matrix.variant && format('-{0}', matrix.variant) || '' }}
           path: .logs
           include-hidden-files: true
           retention-days: 30
