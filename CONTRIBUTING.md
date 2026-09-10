@@ -151,6 +151,8 @@ $tags = Tag::all($scope);
 
 // One tag on one node.
 if (Tag::has($scope->getScenario(), 'email')) {
+  // ...
+}
 ```
 
 `Tag::normalize()` takes a raw list when neither of those fits.
