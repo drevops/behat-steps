@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer;
 
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
+use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
+use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -20,26 +22,49 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * that available, and it happens here so the swap is in place before Mink's
  * configuration tree is built.
  *
+ * Mink's extension is wrapped rather than extended: it is declared 'final' from
+ * Mink 3, the release that carries Behat 4 support, so a subclass cannot load
+ * at all there.
+ *
  * @see \DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory
  */
-class MinkExtension extends UpstreamMinkExtension {
+class MinkExtension implements ExtensionInterface {
 
   /**
    * Container parameter carrying an 'ajax_timeout' read from this tree.
    */
   public const DEPRECATED_AJAX_TIMEOUT_PARAMETER = 'behat_steps.mink_ajax_timeout';
 
-  public function __construct() {
-    parent::__construct();
+  /**
+   * The wrapped Mink extension every call is delegated to.
+   */
+  protected UpstreamMinkExtension $inner;
 
-    $this->registerDriverFactory(new BrowserKitFactory());
+  public function __construct() {
+    $this->inner = new UpstreamMinkExtension();
+
+    $this->inner->registerDriverFactory(new BrowserKitFactory());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigKey(): string {
+    return $this->inner->getConfigKey();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function initialize(ExtensionManager $extensionManager): void {
+    $this->inner->initialize($extensionManager);
   }
 
   /**
    * {@inheritdoc}
    */
   public function configure(ArrayNodeDefinition $builder): void {
-    parent::configure($builder);
+    $this->inner->configure($builder);
 
     // No default, so an absent key stays absent from the processed config and
     // the value can be told apart from one this tree supplied.
@@ -66,7 +91,7 @@ class MinkExtension extends UpstreamMinkExtension {
    *   The processed configuration.
    */
   public function load(ContainerBuilder $container, array $config): void {
-    parent::load($container, $config);
+    $this->inner->load($container, $config);
 
     // Swapping the class behind the id keeps Mink's own constructor arguments
     // and subscriber tag, so only the tag reading changes.
@@ -77,6 +102,13 @@ class MinkExtension extends UpstreamMinkExtension {
     }
 
     $container->setParameter(self::DEPRECATED_AJAX_TIMEOUT_PARAMETER, $config['ajax_timeout']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function process(ContainerBuilder $container): void {
+    $this->inner->process($container);
   }
 
 }

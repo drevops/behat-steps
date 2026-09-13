@@ -132,9 +132,12 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 
 ## Behat 4 readiness
 
-`src/Behat` plugs into 4 Behat extension points, and each one is written to satisfy Behat 3.32 and Behat 4 at the same time. Keep it that way when touching them.
+`composer.json` declares `behat/behat: ^3.33 || ^4.0@alpha` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so a consumer can install this library on either Behat major. `prefer-stable` keeps a default install on the stable pair; Behat 4 arrives only when a project asks for it.
 
-- **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.32 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.32 interface is not narrowed.
+`src/Behat` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
+
+- **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
+- **`MinkExtension` wraps Mink's extension instead of extending it.** Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so a subclass cannot even load there. The first-party extension implements `Extension` itself and delegates all 5 interface methods to a wrapped instance, which also keeps the `browserkit_http` factory swap working on both.
 - **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
@@ -289,23 +292,23 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 | Legs | What they prove |
 |---|---|
-| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.32 floor. |
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
-| 1 x `behat4` | `src/Behat` still works on the next Behat major. |
 | 1 x `gherkin32` | The suite still works when Gherkin keeps the `@` on every tag. |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
 Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
 
-### Legs allowed to fail
+### The leg allowed to fail
 
-The `behat4` and `gherkin32` legs carry `allow_failure: true`, so they report without blocking. Both are blocked on third-party packages rather than on anything in this repository, and both go green on their own once those packages move:
+The `gherkin32` leg carries `allow_failure: true`, so it reports without blocking. It runs the suite through the `gherkin_32` Behat profile. This library reads every tag through [`Tag`](src/Behat/Tag.php), but `drevops/behat-phpserver` still compares `@phpserver` against a bare name, so those scenarios fail. See [Gherkin parsing modes](#gherkin-parsing-modes). The leg goes green on its own once that package normalizes, and it should not be removed to make the board look tidier - a red probe is the signal.
 
-- **`behat4`** installs `behat/behat: ^4.0@alpha` into the fixture through the `BEHAT_VERSION` environment variable. It cannot resolve while `friends-of-behat/mink-extension`, `dmore/behat-chrome-extension`, `drevops/behat-phpserver` and `drevops/behat-screenshot` cap `behat/behat` at `^3`.
-- **`gherkin32`** runs the suite through the `gherkin_32` Behat profile. This library reads every tag through [`Tag`](src/Behat/Tag.php), but `drevops/behat-phpserver` does not, so `@phpserver` scenarios fail. See [Gherkin parsing modes](#gherkin-parsing-modes).
+### Why there is no Behat 4 leg
 
-Neither leg should be removed to make the board look tidier. A red probe is the signal.
+The library itself runs on Behat 4 (see [Behat 4 readiness](#behat-4-readiness)), but the fixture site cannot be built on it: `dmore/behat-chrome-extension`, `drevops/behat-phpserver` and `drevops/behat-screenshot` all cap `behat/behat` at `^3`, and `scripts/provision.sh` installs all 3 so the Behat suite can run. A leg would fail in Composer before reaching a single test, which says nothing about this repository.
+
+Add the leg once those 3 packages accept `^4.0`. Until then, `src/Behat` is covered on Behat 4 by the unit suite, which the fixture does not gate.
 
 ### Drupal versions
 

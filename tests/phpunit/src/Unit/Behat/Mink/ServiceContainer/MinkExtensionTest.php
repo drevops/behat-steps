@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer;
 
 use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
+use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
@@ -30,7 +31,37 @@ class MinkExtensionTest extends UnitTestCase {
     $factories = new \ReflectionProperty(UpstreamMinkExtension::class, 'driverFactories');
 
     $this->assertInstanceOf(UpstreamBrowserKitFactory::class, $factories->getValue(new UpstreamMinkExtension())['browserkit_http']);
-    $this->assertInstanceOf(BrowserKitFactory::class, $factories->getValue(new MinkExtension())['browserkit_http']);
+    $this->assertInstanceOf(BrowserKitFactory::class, $factories->getValue($this->innerExtension())['browserkit_http']);
+  }
+
+  public function testTheExtensionWrapsMinkInsteadOfExtendingIt(): void {
+    $this->assertNotInstanceOf(UpstreamMinkExtension::class, new MinkExtension());
+    $this->assertInstanceOf(UpstreamMinkExtension::class, $this->innerExtension());
+  }
+
+  public function testInitializeReachesTheWrappedExtension(): void {
+    $manager = new ExtensionManager([]);
+
+    (new MinkExtension())->initialize($manager);
+
+    $this->assertSame([], $manager->getExtensions());
+  }
+
+  public function testProcessRegistersTaggedSelectorsThroughTheWrappedExtension(): void {
+    $container = new ContainerBuilder();
+    $this->load($container, []);
+    $container->register('behat_steps.test_selector')->addTag('mink.selector', ['alias' => 'region']);
+
+    (new MinkExtension())->process($container);
+
+    $aliases = [];
+    foreach ($container->getDefinition('mink.selectors_handler')->getMethodCalls() as $call) {
+      if ($call[0] === 'registerSelector') {
+        $aliases[] = $call[1][0];
+      }
+    }
+
+    $this->assertContains('region', $aliases);
   }
 
   public function testTheConfigTreeStillCarriesMinkOptions(): void {
@@ -71,6 +102,17 @@ class MinkExtensionTest extends UnitTestCase {
 
     $this->assertTrue($node->isDeprecated());
     $this->assertStringContainsString('BehatStepsExtension', $node->getDeprecation('ajax_timeout', 'mink')['message']);
+  }
+
+  /**
+   * Reads the Mink extension the first-party one delegates to.
+   */
+  protected function innerExtension(): UpstreamMinkExtension {
+    $inner = new \ReflectionProperty(MinkExtension::class, 'inner');
+    $value = $inner->getValue(new MinkExtension());
+    $this->assertInstanceOf(UpstreamMinkExtension::class, $value);
+
+    return $value;
   }
 
   /**
