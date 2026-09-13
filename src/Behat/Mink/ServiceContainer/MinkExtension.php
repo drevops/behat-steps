@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer;
 
+use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
@@ -44,6 +45,19 @@ class MinkExtension implements ExtensionInterface {
     $this->inner = new UpstreamMinkExtension();
 
     $this->inner->registerDriverFactory(new BrowserKitFactory());
+  }
+
+  /**
+   * Registers a driver factory with the wrapped extension.
+   *
+   * Other extensions add their driver this way after resolving the extension
+   * registered under the 'mink' key, so the method has to stay reachable here.
+   *
+   * @param \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory $driverFactory
+   *   The factory to register.
+   */
+  public function registerDriverFactory(DriverFactory $driverFactory): void {
+    $this->inner->registerDriverFactory($driverFactory);
   }
 
   /**

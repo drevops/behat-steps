@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer;
 
 use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
+use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
@@ -34,9 +35,15 @@ class MinkExtensionTest extends UnitTestCase {
     $this->assertInstanceOf(BrowserKitFactory::class, $factories->getValue($this->innerExtension())['browserkit_http']);
   }
 
-  public function testTheExtensionWrapsMinkInsteadOfExtendingIt(): void {
-    $this->assertNotInstanceOf(UpstreamMinkExtension::class, new MinkExtension());
-    $this->assertInstanceOf(UpstreamMinkExtension::class, $this->innerExtension());
+  public function testAnotherExtensionCanRegisterItsDriverFactory(): void {
+    $extension = new MinkExtension();
+    $factory = $this->createMock(DriverFactory::class);
+    $factory->method('getDriverName')->willReturn('behat_steps_test');
+
+    $extension->registerDriverFactory($factory);
+
+    $factories = new \ReflectionProperty(UpstreamMinkExtension::class, 'driverFactories');
+    $this->assertArrayHasKey('behat_steps_test', $factories->getValue($this->innerExtension($extension)));
   }
 
   public function testInitializeReachesTheWrappedExtension(): void {
@@ -106,10 +113,13 @@ class MinkExtensionTest extends UnitTestCase {
 
   /**
    * Reads the Mink extension the first-party one delegates to.
+   *
+   * @param \DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension|null $extension
+   *   The extension to read, or NULL to read a freshly built one.
    */
-  protected function innerExtension(): UpstreamMinkExtension {
+  protected function innerExtension(?MinkExtension $extension = NULL): UpstreamMinkExtension {
     $inner = new \ReflectionProperty(MinkExtension::class, 'inner');
-    $value = $inner->getValue(new MinkExtension());
+    $value = $inner->getValue($extension ?? new MinkExtension());
     $this->assertInstanceOf(UpstreamMinkExtension::class, $value);
 
     return $value;
