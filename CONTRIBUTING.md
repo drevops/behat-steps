@@ -308,7 +308,7 @@ The `gherkin32` leg carries `allow_failure: true`, so it reports without blockin
 
 The library itself runs on Behat 4 (see [Behat 4 readiness](#behat-4-readiness)), but the fixture site cannot be built on it: `dmore/behat-chrome-extension`, `drevops/behat-phpserver` and `drevops/behat-screenshot` all cap `behat/behat` at `^3`, and `scripts/provision.sh` installs all 3 so the Behat suite can run. A leg would fail in Composer before reaching a single test, which says nothing about this repository.
 
-Add the leg once those 3 packages accept `^4.0`. Until then, `src/Behat` is covered on Behat 4 by the unit suite, which the fixture does not gate.
+Widening the first 2 is tracked in [behat-phpserver#131](https://github.com/drevops/behat-phpserver/issues/131) and [behat-screenshot#285](https://github.com/drevops/behat-screenshot/issues/285); `dmore/behat-chrome-extension` is needed only by the `chrome_headless` profile. Add the leg once they accept `^4.0`.
 
 ### Drupal versions
 
