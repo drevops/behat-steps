@@ -294,7 +294,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 |---|---|
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
-| 1 x `gherkin32` | The suite still works when Gherkin keeps the `@` on every tag. |
+| 1 x `gherkin32` | How much of the suite already works when Gherkin keeps the `@` on every tag. A non-blocking probe, red today for a known reason - see below. |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
