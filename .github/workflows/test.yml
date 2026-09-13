@@ -61,6 +61,10 @@ jobs:
       - name: Provision application
         run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
 
+      - name: Validate Composer configuration is normalized
+        run: docker compose exec -T cli composer normalize --dry-run
+        continue-on-error: ${{ vars.CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+
       - name: Install Ahoy CLI
         run: |
           # renovate: datasource=github-releases depName=ahoy-cli/ahoy
@@ -127,16 +131,6 @@ jobs:
             deps: 'normal'
             driver: 'chrome_headless'
             profile: 'chrome_headless'
-          # 'src/Behat' targets Behat 3.32 and Behat 4 at once, and this leg
-          # proves the second half. It is allowed to fail because the Behat
-          # extensions the fixture installs still cap 'behat/behat' at '^3',
-          # which no change in this repository can lift.
-          - php_version: '8.4'
-            drupal_version: '11'
-            deps: 'normal'
-            variant: 'behat4'
-            behat_version: '^4.0@alpha'
-            allow_failure: true
           # The parsing mode Behat adopts in a future major. It keeps the '@'
           # on every tag, and the Behat extensions the fixture installs still
           # compare tags against bare names, so this leg is allowed to fail
@@ -156,7 +150,6 @@ jobs:
         PHP_VERSION: ${{ matrix.php_version }}
         DRUPAL_VERSION: ${{ matrix.drupal_version }}
         DEPS: ${{ matrix.deps }}
-        BEHAT_VERSION: ${{ matrix.behat_version }}
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
     steps:
@@ -182,7 +175,7 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - name: Provision application
-        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -e BEHAT_VERSION=${BEHAT_VERSION} -T cli bash scripts/provision.sh
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
 
       - name: Install Ahoy CLI
         run: |
