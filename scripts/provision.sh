@@ -87,8 +87,8 @@ echo "  > Creating GitHub authentication token if provided."
 
 if [ "${BEHAT}" = "4" ]; then
   # 'dmore/behat-chrome-extension' has no release that accepts Behat 4, and
-  # 'dvdoug/behat-code-coverage' accepts it only from 5.5, which needs a newer
-  # 'phpunit/php-code-coverage' than the fixture allows.
+  # every 'dvdoug/behat-code-coverage' release that does needs
+  # 'phpunit/php-code-coverage' 12, which the fixture's PHPUnit 11 rules out.
   echo "  > Removing packages that cannot be installed alongside Behat 4."
   composer remove --dev --no-update dmore/behat-chrome-extension dvdoug/behat-code-coverage
 fi
