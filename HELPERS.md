@@ -59,6 +59,12 @@
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
 
+### Index of Context helpers
+
+| Class | Helpers | Description |
+| --- | --- | --- |
+| [RawContext](#rawcontext) | 31 | Base context carrying the scenario lifecycle. |
+
 ---
 
 ## AccessibilityTrait
@@ -2845,6 +2851,291 @@ Generate a sanitized machine name from a title
 
 <br/>
 Load all webform templates whose title contains the given string
+<br/><br/>
+
+</details>
+
+## RawContext
+
+[Source](src/Behat/Context/RawContext.php)
+
+> Base context carrying the scenario lifecycle.
+
+<details>
+  <summary><code>public function assertDrupal(): DrupalDriverInterface</code></summary>
+
+<br/>
+Asserts the scenario can reach Drupal's API, and returns the driver
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function captureScalarBaseFields(EntityStubInterface $stub): array</code></summary>
+
+<br/>
+Captures the scalar values on an entity stub
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function deleteStub(EntityStubInterface $stub, DriverInterface $driver): void</code></summary>
+
+<br/>
+Routes a stub to the right per-type driver delete method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function dispatchHooks(string $scopeClass, EntityStubInterface $stub): void</code></summary>
+
+<br/>
+Dispatches the hooks registered for a scope
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function entityCleanupSkippedTypes(ScenarioScope $scope): array</code></summary>
+
+<br/>
+Collects the entity types named in per-type cleanup bypass tags
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates an entity of a type that has no dedicated method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+
+<br/>
+Registers an entity saved outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
+
+<br/>
+Returns the authentication manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function getContentDriver(): ContentCapabilityInterface</code></summary>
+
+<br/>
+Resolves the active driver as a content-capable instance
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDriver(?string $name = NULL): DriverInterface</code></summary>
+
+<br/>
+Returns the active driver
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDriverManager(): DriverManagerInterface</code></summary>
+
+<br/>
+Returns the driver manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDrupalSelector(string $name): string</code></summary>
+
+<br/>
+Returns a specific CSS selector
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDrupalText(string $name): string</code></summary>
+
+<br/>
+Returns a specific Drupal text value
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function getFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
+
+<br/>
+Builds the entity-field parser for one parsing call
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getMapping(string $name): string</code></summary>
+
+<br/>
+Returns a mapped value by its key
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getParameter(string $name): mixed</code></summary>
+
+<br/>
+Returns a specific extension parameter
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getRandom(): Random</code></summary>
+
+<br/>
+Returns the driver's random generator
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
+
+<br/>
+Returns the user manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function loggedIn(): bool</code></summary>
+
+<br/>
+Determines whether a user is logged in for this session
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function login(EntityStubInterface $user): void</code></summary>
+
+<br/>
+Logs the given user in
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function logout(bool $fast = FALSE): void</code></summary>
+
+<br/>
+Logs the current user out
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function nodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's values during creation, when the driver can classify them
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function resolveVocabularyMachineName(string $identifier): string</code></summary>
+
+<br/>
+Resolves a vocabulary identifier to its machine name
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function restoreScalarBaseFields(EntityStubInterface $stub, array $scalars): void</code></summary>
+
+<br/>
+Restores scalar values previously captured
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function shouldCleanup(): bool</code></summary>
+
+<br/>
+Determines whether scenario cleanup should run
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>protected function skipTag(string $name, ScenarioScope $scope): bool</code></summary>
+
+<br/>
+Determines whether a scenario opts out of a hook
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function termCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function userCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a user
 <br/><br/>
 
 </details>

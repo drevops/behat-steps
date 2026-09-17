@@ -64,6 +64,14 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
 ];
 
 /**
+ * Classes published in the toolbox reference alongside the step traits.
+ *
+ * A context base class contributes the scenario lifecycle a domain step is
+ * written against, which is as much a part of the toolbox as a trait helper.
+ */
+const TOOLBOX_CLASSES = [\DrevOps\BehatSteps\Behat\Context\RawContext::class];
+
+/**
  * File holding the toolbox reference, relative to the repository root.
  */
 const HELPERS_FILE = 'HELPERS.md';
@@ -736,48 +744,163 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
     $trait = $collected['reflection'];
     $context = $collected['context'];
 
-    $class_info = [
-      'name' => $trait_name,
-      'name_contextual' => ($context !== 'Generic' ? $context . '\\' : '') . $trait_name,
-      'context' => $context,
-      'helpers' => [],
-    ];
-    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
-
-    $trait_prefix = str_replace('Trait', '', $trait_name);
-    foreach ($trait->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED) as $method) {
-      if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
-        continue;
-      }
-
-      if (method_is_registered($method)) {
-        continue;
-      }
-
-      $comment = (string) $method->getDocComment();
-      if (comment_is_internal($comment)) {
-        continue;
-      }
-
-      $parsed_comment = parse_method_comment($comment);
-      $class_info['helpers'][] = [
-        'name' => $method->getName(),
-        'signature' => render_method_signature($method),
-        'description' => $parsed_comment['description'] ?? '',
-        'example' => $parsed_comment['example'] ?? '',
-      ];
-    }
-
-    if ($class_info['helpers'] === []) {
+    $helpers = collect_helper_methods($trait, str_replace('Trait', '', $trait_name));
+    if ($helpers === []) {
       continue;
     }
 
-    usort($class_info['helpers'], static fn(array $a, array $b): int => strcmp((string) $a['name'], (string) $b['name']));
+    $name_contextual = ($context !== 'Generic' ? $context . '\\' : '') . $trait_name;
+
+    $class_info = [
+      'name' => $trait_name,
+      'name_contextual' => $name_contextual,
+      'context' => $context,
+      'source' => sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait_name),
+      'steps_anchor' => heading_anchor($name_contextual),
+      'helpers' => $helpers,
+    ];
+    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
     $info[$trait_name] = $class_info;
   }
 
+  foreach (TOOLBOX_CLASSES as $toolbox_class) {
+    $reflection = new ReflectionClass($toolbox_class);
+    $short_name = $reflection->getShortName();
+
+    $helpers = collect_helper_methods($reflection);
+    // @codeCoverageIgnoreStart
+    if ($helpers === []) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+
+    $class_info = [
+      'name' => $short_name,
+      'name_contextual' => $short_name,
+      'context' => 'Context',
+      'source' => relative_source_path((string) $reflection->getFileName(), $base_path),
+      'steps_anchor' => NULL,
+      'helpers' => $helpers,
+    ];
+    $class_info += parse_class_comment($short_name, (string) $reflection->getDocComment());
+
+    $info[$short_name] = $class_info;
+  }
+
   return $info;
+}
+
+/**
+ * Collect the toolbox methods a class or trait contributes.
+ *
+ * @param \ReflectionClass<object> $reflection
+ *   The class or trait reflection.
+ * @param string|null $prefix
+ *   Method name prefix to require, or NULL to take every method the class
+ *   declares itself.
+ *
+ * @return array<int, array<string, string>>
+ *   Helper entries with 'name', 'signature', 'description' and 'example',
+ *   sorted by name.
+ */
+function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
+  $helpers = [];
+
+  foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED) as $method) {
+    if ($prefix === NULL) {
+      if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
+        continue;
+      }
+    }
+    elseif (!str_starts_with(strtolower($method->getName()), strtolower($prefix))) {
+      continue;
+    }
+
+    if (method_is_registered($method)) {
+      continue;
+    }
+
+    $comment = resolve_inherited_comment($method);
+    if (comment_is_internal($comment)) {
+      continue;
+    }
+
+    $parsed_comment = parse_method_comment($comment);
+    $helpers[] = [
+      'name' => $method->getName(),
+      'signature' => render_method_signature($method),
+      'description' => $parsed_comment['description'] ?? '',
+      'example' => $parsed_comment['example'] ?? '',
+    ];
+  }
+
+  usort($helpers, static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
+
+  return $helpers;
+}
+
+/**
+ * Read a method's docblock, following '{@inheritdoc}' to its declaration.
+ *
+ * @param \ReflectionMethod $method
+ *   The reflection method.
+ *
+ * @return string
+ *   The docblock that carries the description, or the method's own when the
+ *   declaration it inherits from has none.
+ */
+function resolve_inherited_comment(\ReflectionMethod $method): string {
+  $comment = (string) $method->getDocComment();
+
+  if (stripos($comment, '{@inheritdoc}') === FALSE) {
+    return $comment;
+  }
+
+  $declaring = $method->getDeclaringClass();
+  $candidates = array_values($declaring->getInterfaces());
+
+  $parent = $declaring->getParentClass();
+  if ($parent instanceof ReflectionClass) {
+    array_unshift($candidates, $parent);
+  }
+
+  foreach ($candidates as $candidate) {
+    if (!$candidate->hasMethod($method->getName())) {
+      continue;
+    }
+
+    $inherited = (string) $candidate->getMethod($method->getName())->getDocComment();
+    if ($inherited !== '' && stripos($inherited, '{@inheritdoc}') === FALSE) {
+      return $inherited;
+    }
+  }
+
+  return $comment;
+}
+
+/**
+ * Express a source file path relative to the repository it belongs to.
+ *
+ * @param string $file_path
+ *   Absolute path to the file.
+ * @param string $base_path
+ *   Base path for the repository being documented.
+ *
+ * @return string
+ *   The path relative to the repository root, or unchanged when it sits
+ *   outside both the documented repository and this one.
+ */
+function relative_source_path(string $file_path, string $base_path = __DIR__): string {
+  foreach ([$base_path, __DIR__] as $root) {
+    if (str_starts_with($file_path, $root . DIRECTORY_SEPARATOR)) {
+      return substr($file_path, strlen($root) + 1);
+    }
+  }
+
+  // @codeCoverageIgnoreStart
+  return $file_path;
+  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -989,20 +1112,26 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
   $content_output = [];
   $index_rows = [];
 
-  foreach ($info as $trait => $trait_info) {
+  foreach ($info as $trait_info) {
     $context = (string) $trait_info['context'];
     $name_contextual = (string) $trait_info['name_contextual'];
     $anchor = heading_anchor($name_contextual);
     $helpers = is_array($trait_info['helpers']) ? $trait_info['helpers'] : [];
 
-    $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
+    $src_file = (string) $trait_info['source'];
     if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
       throw new \Exception(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
     }
 
+    $steps_anchor = $trait_info['steps_anchor'] ?? NULL;
+    $links = sprintf('[Source](%s)', $src_file);
+    if (is_string($steps_anchor)) {
+      $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
+    }
+
     $content_output[$context] ??= '';
     $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= sprintf('[Source](%s), [Steps](STEPS.md#%s)', $src_file, $anchor) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= $links . PHP_EOL . PHP_EOL;
     $content_output[$context] .= '> ' . (string) $trait_info['description'] . PHP_EOL . PHP_EOL;
 
     foreach ($helpers as $helper) {

@@ -82,6 +82,36 @@ A documented override point that supplies a value is `<trait>Get<Noun>()`, boole
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
+## The helper API
+
+The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/scenario-styles.md](docs/scenario-styles.md) argues why.
+
+A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
+
+- It is declared by a trait under `src/Steps` or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
+- It is `public` or `protected`. A `private` member cannot be reached from a composing context and has no place in a trait.
+- It begins with its trait's name, which is the collision rule every trait member follows anyway.
+- It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
+- Its docblock carries no `@internal`.
+
+Two obligations follow from publishing a member:
+
+- **It needs a summary.** `ahoy lint-docs` fails on a published helper with no docblock description, because the reference would carry a blank entry. A `{@inheritdoc}` docblock is resolved to the interface or parent that declares the method, so implementing an interface is enough.
+- **It is named as carefully as a step.** The naming conventions above apply to a helper exactly as they do to a step method.
+
+Withdraw a member that exists only to serve the machinery with `@internal`, naming who calls it:
+
+```php
+/**
+ * Sets the driver manager.
+ *
+ * @internal
+ *   Injection point called by the context initializer.
+ */
+```
+
+A step body should be a thin wrapper over a named helper, so that every behavior a scenario can reach is also reachable from a project's own step definitions. Write new steps that way, and extract a helper when you touch a step that keeps its logic inline.
+
 ## Member ordering within a trait
 
 Traits lay their members out in this order:
@@ -328,13 +358,28 @@ The matrix pins Drupal 11 on every leg, and Renovate leaves Composer major updat
 
 ### Validating and updating documentation
 
-The [available steps](STEPS.md) documentation is generated automatically from
-the source code.
+[docs.php](docs.php) is the only generator of reference documentation. One run
+writes every generated region:
 
-The [steps format](#steps-format) is validated as well.
+| Target | Holds |
+| --- | --- |
+| [STEPS.md](STEPS.md) and the index in [README.md](README.md) | The step vocabulary |
+| [HELPERS.md](HELPERS.md) | The toolbox |
+| [docs/configuration.md](docs/configuration.md) | The extension options and the tag reference |
+
+The same run validates the [steps format](#steps-format), that every published
+helper carries a summary, that tags resolve against `tag_registry()`, and that
+every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation
 
 ahoy lint-docs    # Check documentation for errors
 ```
+
+An extension option and a tag are both generated from their definition in the
+source, so neither can be added without appearing in the reference. Write the
+option's `->info()` in
+[BehatStepsExtension](src/Behat/ServiceContainer/BehatStepsExtension.php) and
+the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never
+hand-edit inside a generated region.

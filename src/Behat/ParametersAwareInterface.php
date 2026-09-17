@@ -14,6 +14,9 @@ interface ParametersAwareInterface {
    *
    * @param array<string, mixed> $parameters
    *   The extension parameters.
+   *
+   * @internal
+   *   Injection point called by the context initializer.
    */
   public function setParameters(array $parameters): void;
 
