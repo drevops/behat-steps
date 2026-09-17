@@ -261,12 +261,12 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 | Old | New |
 | --- | --- |
-| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink` |
-| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat` |
+| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
+| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` |
 
 Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
 
-Both entries are namespaces rather than class names. Behat appends `\ServiceContainer\<Last>Extension` to a locator that is not a class, so `DrevOps\BehatSteps\Behat` reaches `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` and `DrevOps\BehatSteps\Behat\Mink` reaches `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension`. Writing either class name in full works too.
+In a `behat.yml`, both can be named by namespace alone. Behat 3 appends `\ServiceContainer\<Last>Extension` to a locator that is not a class, so `DrevOps\BehatSteps\Behat` reaches `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` and `DrevOps\BehatSteps\Behat\Mink` reaches `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension`:
 
 ```yaml
 extensions:
@@ -275,6 +275,8 @@ extensions:
   DrevOps\BehatSteps\Behat:
     api_driver: drupal
 ```
+
+Behat 4 resolves a locator as a class name only, and reads PHP configuration rather than `behat.yml`, so a suite on Behat 4 names the class.
 
 `MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
 

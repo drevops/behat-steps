@@ -178,7 +178,7 @@ $profile = (new Profile('default'))
 return (new Config())->withProfile($profile);
 ```
 
-Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`, where the extension is named by its namespace:
+Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`, where the extension can be named by its namespace alone:
 
 ```yaml
 extensions:
@@ -187,6 +187,8 @@ extensions:
     drupal:
       drupal_root: web
 ```
+
+Behat 4 resolves a locator as a class name only, so a Behat 4 suite names `BehatExtension` in full.
 
 [behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference.
 

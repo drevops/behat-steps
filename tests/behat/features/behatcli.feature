@@ -162,31 +162,3 @@ Feature: Behat CLI context
       """
       The step requires Drupal's API. Tag the scenario "@api" so it runs on the in-process Drupal driver.
       """
-
-  Scenario: Both extensions are registered by their namespace
-    Given a file named "behat.php" with:
-      """
-      <?php
-      use Behat\Config\Config;
-      use Behat\Config\Extension;
-      use Behat\Config\Profile;
-      use Behat\Config\Suite;
-      use Behat\MinkExtension\Context\MinkContext;
-
-      $profile = (new Profile('default'))
-        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
-        ->withExtension(new Extension('DrevOps\BehatSteps\Behat\Mink', ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension('DrevOps\BehatSteps\Behat', ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => '/app/build/web']]));
-
-      return (new Config())->withProfile($profile);
-      """
-    And a file named "features/drupal_bootstrap.feature" with:
-      """
-      Feature: Homepage
-        @api
-        Scenario: Anonymous user visits homepage
-          Given I go to the homepage
-          And the path should be "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
