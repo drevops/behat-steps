@@ -8,7 +8,6 @@ use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -106,10 +105,6 @@ class MinkExtension implements ExtensionInterface {
    */
   public function load(ContainerBuilder $container, array $config): void {
     $this->inner->load($container, $config);
-
-    // Swapping the class behind the id keeps Mink's own constructor arguments
-    // and subscriber tag, so only the tag reading changes.
-    $container->getDefinition('mink.listener.sessions')->setClass(MinkSessionListener::class);
 
     if (!isset($config['ajax_timeout'])) {
       return;

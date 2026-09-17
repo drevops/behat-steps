@@ -9,13 +9,11 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Gherkin\Node\TaggedNodeInterface;
 
 /**
- * Reads scenario and feature tags in a form that does not vary by parser mode.
+ * Reads scenario and feature tags in a form that does not vary by Behat major.
  *
- * Gherkin's 'legacy' mode strips the '@' from a tag and its 'gherkin-32' mode
- * keeps it, while 'TaggedNodeInterface::hasTag()' compares strictly. Every tag
- * this library reads goes through here, so a suite can pick either mode.
- *
- * @see \Behat\Gherkin\GherkinCompatibilityMode
+ * Behat 3 strips the '@' from a tag by default and Behat 4 keeps it, while
+ * 'TaggedNodeInterface::hasTag()' compares strictly. Every tag this library
+ * reads goes through here, so a tag matches on both majors.
  */
 final class Tag {
 

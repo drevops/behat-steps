@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests reading tags produced by either Gherkin parsing mode.
+ * Tests reading tags as Behat 3 and Behat 4 report them.
  */
 #[CoversClass(Tag::class)]
 class TagTest extends TestCase {
@@ -36,8 +36,8 @@ class TagTest extends TestCase {
 
   public static function dataProviderNormalize(): \Iterator {
     yield 'no tags' => [[], []];
-    yield 'legacy tags are unchanged' => [['api', 'javascript'], ['api', 'javascript']];
-    yield 'gherkin-32 tags lose the prefix' => [['@api', '@javascript'], ['api', 'javascript']];
+    yield 'Behat 3 tags are unchanged' => [['api', 'javascript'], ['api', 'javascript']];
+    yield 'Behat 4 tags lose the prefix' => [['@api', '@javascript'], ['api', 'javascript']];
     yield 'both forms in one list' => [['@api', 'javascript'], ['api', 'javascript']];
     yield 'only the first prefix is removed' => [['@@api'], ['@api']];
     yield 'a bare prefix leaves an empty tag' => [['@'], ['']];
@@ -60,8 +60,8 @@ class TagTest extends TestCase {
 
   public static function dataProviderOn(): \Iterator {
     yield 'an untagged node' => [[], []];
-    yield 'legacy tags are unchanged' => [['api', 'email'], ['api', 'email']];
-    yield 'gherkin-32 tags lose the prefix' => [['@api', '@email'], ['api', 'email']];
+    yield 'Behat 3 tags are unchanged' => [['api', 'email'], ['api', 'email']];
+    yield 'Behat 4 tags lose the prefix' => [['@api', '@email'], ['api', 'email']];
   }
 
   /**
@@ -80,8 +80,8 @@ class TagTest extends TestCase {
   }
 
   public static function dataProviderHas(): \Iterator {
-    yield 'a legacy tag is found' => [['email'], 'email', TRUE];
-    yield 'a gherkin-32 tag is found' => [['@email'], 'email', TRUE];
+    yield 'a Behat 3 tag is found' => [['email'], 'email', TRUE];
+    yield 'a Behat 4 tag is found' => [['@email'], 'email', TRUE];
     yield 'an absent tag is not found' => [['@email'], 'download', FALSE];
     yield 'a prefixed lookup is not found' => [['@email'], '@email', FALSE];
     yield 'a tag carrying a value is matched whole' => [['@email:default'], 'email:default', TRUE];

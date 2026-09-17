@@ -8,7 +8,6 @@ use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBro
 use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
 use Behat\MinkExtension\ServiceContainer\MinkExtension as UpstreamMinkExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
-use DrevOps\BehatSteps\Behat\Listener\MinkSessionListener;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -77,14 +76,6 @@ class MinkExtensionTest extends UnitTestCase {
 
   public function testTheConfigTreeAcceptsTheDeprecatedAjaxTimeout(): void {
     $this->assertArrayHasKey('ajax_timeout', $this->buildConfigTree()->getChildren());
-  }
-
-  public function testTheSessionsListenerIsBuiltByTheFirstPartyClass(): void {
-    $container = new ContainerBuilder();
-
-    $this->load($container, []);
-
-    $this->assertSame(MinkSessionListener::class, $container->getDefinition('mink.listener.sessions')->getClass());
   }
 
   public function testAnAbsentAjaxTimeoutSetsNoParameter(): void {
