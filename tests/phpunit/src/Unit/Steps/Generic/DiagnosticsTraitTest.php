@@ -251,7 +251,7 @@ class DiagnosticsTraitTestImplementation extends RawContext {
     $this->session = new DiagnosticsFakeSession();
   }
 
-  public function getSession(mixed $name = NULL): DiagnosticsFakeSession {
+  public function getSession(mixed $name = NULL): Session {
     if (!$this->sessionAvailable) {
       throw new \RuntimeException('Session is not available.');
     }

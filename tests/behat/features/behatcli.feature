@@ -14,36 +14,35 @@ Feature: Behat CLI context
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
+      use Behat\Step\Given;
       use DrevOps\BehatSteps\Behat\Context\RawContext;
       use DrevOps\BehatSteps\Steps\Generic\PathTrait;
       class FeatureContext extends RawContext {
         use PathTrait;
 
-        /**
-         * @Given I throw test exception with message :message
-         */
+        #[Given('I throw test exception with message :message')]
         public function throwTestException($message) {
           throw new \RuntimeException($message);
         }
       }
       """
-    And a file named "behat.yml" with:
+    And a file named "behat.php" with:
       """
-      default:
-        suites:
-          default:
-            contexts:
-              - FeatureContext
-              - Behat\MinkExtension\Context\MinkContext
-        extensions:
-          DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
-            browserkit_http: ~
-            selenium2: ~
-            base_url: http://nginx:8080
-          DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-            api_driver: drupal
-            drupal:
-              drupal_root: /app/build/web
+      <?php
+      use Behat\Config\Config;
+      use Behat\Config\Extension;
+      use Behat\Config\Profile;
+      use Behat\Config\Suite;
+      use Behat\MinkExtension\Context\MinkContext;
+      use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
+      $profile = (new Profile('default'))
+        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
+        ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
+        ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => '/app/build/web']]));
+
+      return (new Config())->withProfile($profile);
       """
 
   Scenario: Test passes

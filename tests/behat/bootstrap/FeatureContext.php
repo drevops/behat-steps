@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -161,7 +162,7 @@ class FeatureContext extends RawContext {
    * Override accessibilityGetReportDir() to anchor reports to the base path.
    *
    * Behat is launched from the build directory but configured with the
-   * project-root behat.yml, so the captured working directory is not the
+   * project-root behat.php, so the captured working directory is not the
    * base path. Deriving the base from the Mink files_path keeps accessibility
    * reports in the same .logs tree as the other Behat artifacts.
    *
@@ -181,7 +182,7 @@ class FeatureContext extends RawContext {
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = $scope->getScenario()->hasTag('test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
+    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
   }
 
 }

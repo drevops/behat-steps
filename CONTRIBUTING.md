@@ -132,12 +132,40 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 
 ## Behat 4 readiness
 
-`src/Behat` plugs into 4 Behat extension points, and each one is written to satisfy Behat 3.32 and Behat 4 at the same time. Keep it that way when touching them.
+`composer.json` declares `behat/behat: ^3.33.0 || ^4.0@alpha` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so a consumer can install this library on either Behat major. `prefer-stable` keeps a default install on the stable pair; Behat 4 arrives only when a project asks for it.
 
-- **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.32 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.32 interface is not narrowed.
+`src/Behat` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
+
+- **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
+- **`MinkExtension` wraps Mink's extension instead of extending it.** Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so a subclass cannot even load there. The first-party extension implements `Extension` itself and delegates the 5 interface methods and `registerDriverFactory()` to a wrapped instance, so the `browserkit_http` factory swap and the driver factories other extensions register work on both.
 - **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
+
+The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the driver-name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
+
+[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. Behat never loads it here, because `behat.php` takes precedence.
+
+## Reading tags
+
+Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
+
+Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly:
+
+```php
+// Every tag on the scenario and on the feature that holds it, without the '@'.
+$tags = Tag::all($scope);
+
+// Every tag on one node.
+$tags = Tag::on($scope->getScenario());
+
+// One tag on one node.
+if (Tag::has($scope->getScenario(), 'email')) {
+  // ...
+}
+```
+
+`Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 ## Dependency policy
 
@@ -253,6 +281,43 @@ If a reachable branch has no test, the fix is the test, not the marker.
 - Set breakpoint
 - Run tests with `ahoy test-bdd` - your IDE will pickup an incoming debug
   connection
+
+## Continuous integration
+
+[.github/workflows/test.yml](.github/workflows/test.yml) runs 2 jobs, and between them they cover all 3 test surfaces in this repository.
+
+### Lint
+
+1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php), and `ahoy lint-docs` checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
+
+### Test matrix
+
+| Legs | What they prove |
+|---|---|
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
+| 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
+
+The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
+
+Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
+
+### Behat 4 legs
+
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes 2 packages that cannot be installed alongside Behat 4 on this fixture: `dmore/behat-chrome-extension`, which has no release that accepts it, and `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the fixture is held back, and coverage on Behat 4 waits for a Drupal test stack on PHPUnit 12. So Behat 4 has no `chrome_headless` leg and no coverage, and [behat.php](behat.php) registers the coverage extension only when it is installed.
+
+Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
+
+To run the suites on Behat 4 locally, provision the fixture for it first, and run `ahoy provision` to switch back to Behat 3:
+
+```bash
+ahoy cli "BEHAT=4 ./scripts/provision.sh"
+ahoy test-bdd
+```
+
+### Drupal versions
+
+The matrix pins Drupal 11 on every leg, and Renovate leaves Composer major updates alone, so a new core major is a deliberate change rather than an automatic one. Drupal 12 legs land the day a testable core exists.
 
 ## Updating fixture site
 

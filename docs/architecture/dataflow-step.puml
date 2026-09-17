@@ -2,7 +2,7 @@
 ' drevops/behat-steps - data flow for a step running in a consuming project.
 ' Traced from src/Steps/Generic/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
 ' src/Behat/Context/RawContext.php, src/Behat/Manager/DriverManager.php,
-' src/Driver/DrupalDriver.php, behat.yml.
+' src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white

@@ -113,6 +113,8 @@ commands:
   lint:
     usage: Lint code.
     cmd: |
+      ahoy cli "composer validate --ansi" && \
+      ahoy cli "vendor/bin/parallel-lint --colors --exclude vendor --exclude build --exclude .git --exclude .logs --exclude .artifacts ." && \
       ahoy cli "vendor/bin/phpcs" && \
       ahoy cli "DRUPAL_ROOT=build/web DRUPAL_VENDOR_ROOT=build/vendor vendor/bin/phpstan" && \
       ahoy cli "vendor/bin/rector --dry-run" && \
@@ -148,13 +150,13 @@ commands:
 
   test-bdd:
     usage: Run BDD tests.
-    cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.yml --strict --colors $@"
+    cmd: ahoy cli "cd /app/build && vendor/bin/behat -c /app/behat.php --strict --colors $@"
 
   test-bdd-coverage:
     usage: Run BDD tests with coverage.
     cmd: |
       ahoy cli "rm -rf /app/.logs/coverage/behat_cli/phpcov/*.php 2>/dev/null || true"
-      ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/behat -c /app/behat.yml --strict --colors $@"
+      ahoy cli "cd /app/build && php -d pcov.enabled=1 -d pcov.directory=/app/src vendor/bin/behat -c /app/behat.php --strict --colors $@"
       ahoy cli "php /app/scripts/merge-coverage.php"
 
   debug:

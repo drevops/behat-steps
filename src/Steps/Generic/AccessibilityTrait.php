@@ -16,6 +16,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Assess accessibility of rendered pages.
@@ -206,11 +207,7 @@ trait AccessibilityTrait {
     $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
     $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
 
-    $tags = array_merge(
-      $scope->getFeature()->getTags() ?? [],
-      $scope->getScenario()->getTags() ?? []
-    );
-    $this->accessibilityResolveTags($tags);
+    $this->accessibilityResolveTags(Tag::all($scope));
   }
 
   /**

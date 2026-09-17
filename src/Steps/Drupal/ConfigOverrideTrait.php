@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Disable Drupal config overrides from settings.php during a scenario.
@@ -101,7 +102,7 @@ trait ConfigOverrideTrait {
       $this->configOverrideSkipBeforeStep = TRUE;
     }
 
-    $tags = array_unique(array_merge($scope->getFeature()->getTags(), $scope->getScenario()->getTags()));
+    $tags = array_unique(Tag::all($scope));
     $prefix = 'disable-config-override:';
     foreach ($tags as $tag) {
       if (str_starts_with($tag, $prefix)) {

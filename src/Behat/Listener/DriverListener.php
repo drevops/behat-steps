@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Behat\Listener;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
-use Behat\Gherkin\Node\TaggedNodeInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -56,14 +56,7 @@ class DriverListener implements EventSubscriberInterface {
   public function prepareDefaultDriver(BeforeScenarioTested $event): void {
     $driver = $this->parameters['default_driver'] ?? NULL;
 
-    $tags = $event->getFeature()->getTags();
-    $scenario = $event->getScenario();
-
-    if ($scenario instanceof TaggedNodeInterface) {
-      $tags = array_merge($tags, $scenario->getTags());
-    }
-
-    foreach ($tags as $tag) {
+    foreach (Tag::all($event) as $tag) {
       if (!empty($this->parameters[$tag . '_driver'])) {
         $driver = $this->parameters[$tag . '_driver'];
       }

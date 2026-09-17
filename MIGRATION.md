@@ -255,7 +255,7 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 ```
 
-## Behat extensions registered in `behat.yml`
+## Behat extensions registered in the Behat configuration
 
 `drupal/drupal-extension` is no longer a dependency, so the two extensions it supplied are replaced by two this package supplies:
 
@@ -266,7 +266,7 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
 
-`MinkExtension` extends `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
+`MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
 
 `ajax_timeout` belongs on `BehatStepsExtension`:
 

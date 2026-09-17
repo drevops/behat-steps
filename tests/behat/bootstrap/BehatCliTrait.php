@@ -15,6 +15,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Trait BehatCliTrait.
@@ -42,7 +43,7 @@ trait BehatCliTrait {
 
     // Scan scenario tags and extract trait names from tags starting with
     // 'trait:'. For example, @trait:PathTrait or @trait:Drupal\\UserTrait.
-    foreach ($scope->getScenario()->getTags() as $tag) {
+    foreach (Tag::on($scope->getScenario()) as $tag) {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
         $tags = explode(',', $tags);
@@ -115,6 +116,8 @@ trait BehatCliTrait {
     $content = <<<'EOL'
 <?php
 
+use Behat\Hook\AfterScenario;
+use Behat\Step\Given;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
 {{USE_DECLARATION}}
 
@@ -123,18 +126,15 @@ class FeatureContext extends RawContext {
 
   use FeatureContextTrait;
 
-  /**
-   * @Given I throw test exception with message :message
-   */
+  #[Given('I throw test exception with message :message')]
   public function throwTestException($message) {
     throw new \RuntimeException($message);
   }
 
   /**
    * Log an error after the last step result has been composed.
-   *
-   * @AfterScenario @test-watchdog-teardown
    */
+  #[AfterScenario('@test-watchdog-teardown')]
   public function testSetWatchdogErrorInTeardown() {
     $this->assertDrupal();
 
@@ -199,89 +199,76 @@ EOL;
   }
 
   #[Given('some behat configuration')]
-  public function behatCliWriteBehatYml(): void {
+  public function behatCliWriteBehatConfig(): void {
     $content = <<<'EOL'
-default:
-  suites:
-    default:
-      contexts:
-        - FeatureContext
-        - Behat\MinkExtension\Context\MinkContext
-        - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
-        - DrevOps\BehatPhpServer\PhpServerContext:
-            webroot: '%paths.base%/tests/behat/fixtures'
-            protocol: http
-            host: 0.0.0.0
-            port: 8888
-            debug: true
-  extensions:
-    DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension:
-      browserkit_http: ~
-      base_url: http://nginx:8080
-      files_path: '%paths.base%/tests/behat/fixtures'
-      browser_name: chrome
-      javascript_session: selenium2
-      selenium2:
-        wd_host: "http://chrome:4444/wd/hub"
-        capabilities:
-          browser: chrome
-          extra_capabilities:
-            "goog:chromeOptions":
-              args:
-                - '--disable-gpu'            # Disables hardware acceleration required in containers and cloud-based instances (like CI runners) where GPU is not available.
-                # Options to increase stability and speed.
-                - '--disable-extensions'     # Disables all installed Chrome extensions. Useful in testing environments to avoid interference from extensions.
-                - '--disable-infobars'       # Hides the infobar that Chrome displays for various notifications, like warnings when opening multiple tabs.
-                - '--disable-popup-blocking' # Disables the popup blocker, allowing all popups to appear. Useful in testing scenarios where popups are expected.
-                - '--disable-translate'      # Disables the built-in translation feature, preventing Chrome from offering to translate pages.
-                - '--no-first-run'           # Skips the initial setup screen that Chrome typically shows when running for the first time.
-                - '--test-type'              # Disables certain security features and UI components that are unnecessary for automated testing, making Chrome more suitable for test environments.
+<?php
 
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-      api_driver: drupal
-      drupal:
-        drupal_root: /app/build/web
-      selectors:
-        messages:
-          default: '.messages'
-          error: '.messages.messages--error'
-          success: '.messages.messages--status'
-          warning: '.messages.messages--warning'
+declare(strict_types=1);
 
-    # Capture HTML and JPG screenshots on demand and on failure.
-    DrevOps\BehatScreenshotExtension:
-      dir: '%paths.base%/.logs/screenshots'
-      purge: false # Change to 'true' (no quotes) to purge screenshots on each run.
-      on_failed: true
-      always_fullscreen: true
-      info_types:
-        - url
-        - feature
-        - step
-        - datetime
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+use Behat\Config\Suite;
+use Behat\MinkExtension\Context\MinkContext;
+use DrevOps\BehatPhpServer\PhpServerContext;
+use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
+use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
+
+$suite = (new Suite('default'))
+  ->addContext('FeatureContext')
+  ->addContext(MinkContext::class)
+  ->addContext(ScreenshotContext::class)
+  ->addContext(PhpServerContext::class, ['webroot' => '%paths.base%/tests/behat/fixtures', 'protocol' => 'http', 'host' => '0.0.0.0', 'port' => 8888, 'debug' => TRUE]);
+
+$profile = (new Profile('default'))
+  ->withSuite($suite)
+  ->withExtension(new Extension(MinkExtension::class, [
+    'base_url' => 'http://nginx:8080',
+    'files_path' => '%paths.base%/tests/behat/fixtures',
+    'browser_name' => 'chrome',
+    'javascript_session' => 'selenium2',
+    'sessions' => [
+      'browserkit_http' => ['browserkit_http' => NULL],
+      'selenium2' => [
+        'selenium2' => [
+          'wd_host' => 'http://chrome:4444/wd/hub',
+          'capabilities' => [
+            'browser' => 'chrome',
+            'extra_capabilities' => [
+              'goog:chromeOptions' => ['args' => ['--disable-gpu', '--disable-extensions', '--disable-infobars', '--disable-popup-blocking', '--disable-translate', '--no-first-run', '--test-type']],
+            ],
+          ],
+        ],
+      ],
+    ],
+  ]))
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'api_driver' => 'drupal',
+    'drupal' => ['drupal_root' => '/app/build/web'],
+    'selectors' => [
+      'messages' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning'],
+    ],
+  ]))
+  ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
+
+return (new Config())->withProfile($profile);
+
 EOL;
+
+    $coverage_extension = '';
 
     if (static::behatCliIsCoverageEnabled()) {
       // Generate unique coverage filename for this subprocess to avoid conflicts.
       $coverage_id = md5($this->workingDir);
-      $coverage_content = <<<EOL
-
-    DVDoug\Behat\CodeCoverage\Extension:
-      filter:
-        include:
-          directories:
-            /app/src: ~
-      reports:
-        text:
-          showColors: true
-          showOnlySummary: true
-        php:
-          target: /app/.logs/coverage/behat_cli/phpcov/{$coverage_id}.php
-EOL;
-      $content .= $coverage_content;
+      $coverage_extension = PHP_EOL . sprintf("  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
     }
 
-    $filename = 'behat.yml';
+    $content = strtr($content, ['{{COVERAGE_EXTENSION}}' => $coverage_extension]);
+
+    $filename = 'behat.php';
     $this->createFileInWorkingDir($filename, $content);
 
     if (static::behatCliIsDebug()) {

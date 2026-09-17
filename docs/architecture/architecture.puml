@@ -1,6 +1,6 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
-' Traced from composer.json, src/Steps/, src/Behat/, src/Driver/, behat.yml,
+' Traced from composer.json, src/Steps/, src/Behat/, src/Driver/, behat.php,
 ' scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -12,7 +12,7 @@ title Component architecture
 
 package "Consuming project" #FFF3E0 {
   component "Feature files\n*.feature" as Features
-  component "behat.yml\nbehat_steps settings" as Config
+  component "behat.php\nextension settings" as Config
   component "FeatureContext\nextends RawContext,\ncomposes the chosen traits" as Consumer
 }
 
@@ -28,7 +28,7 @@ package "drevops/behat-steps" {
     component "BehatStepsExtension\nservice wiring" as Ext
     component "RawContext\nscenario lifecycle,\nentity creation, cleanup, hooks" as RawCtx
     component "Managers\nDriver, Authentication,\nUser, Mail" as Managers
-    component "MinkExtension\nfirst-party fork" as MinkExt
+    component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
   }
 
   package "Driver - src/Driver" #E8F5E9 {
@@ -49,6 +49,7 @@ package "Runtime and targets" #ECEFF1 {
 
 Features --> Behat : steps
 Config --> Ext : configures
+Config --> MinkExt : configures
 Behat --> Consumer : matches and invokes
 
 Generic --> Consumer : mixed into
@@ -59,7 +60,8 @@ DrupalSteps ..> Helpers : uses
 Consumer --|> RawCtx
 Ext --> Managers : registers
 Ext --> DriverIface : registers drivers
-Ext --> MinkExt : aliases DocumentElement
+Ext ..> MinkExt : reads ajax_timeout
+Ext ..> Mink : aliases DocumentElement
 RawCtx --> Managers
 
 Managers --> DriverIface : resolves by name
@@ -68,6 +70,7 @@ DrushDrv ..|> DriverIface
 BlackboxDrv ..|> DriverIface
 DrupalDrv --> Core
 
+MinkExt --> Mink : builds sessions,\npicks one per scenario
 Consumer --> Mink
 Mink --> Browser
 DrupalDrv --> Site

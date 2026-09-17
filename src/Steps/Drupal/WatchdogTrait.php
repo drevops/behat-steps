@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Database\Database;
 
@@ -70,7 +71,7 @@ trait WatchdogTrait {
     // Step scopes carry neither scenario tags nor scenario identity, so both
     // are resolved here for the step hook to read. An unset start time
     // disables the check.
-    if ($scenario->hasTag('behat-steps-skip:watchdogAfterStep') || $scenario->hasTag('error')) {
+    if (Tag::has($scenario, 'behat-steps-skip:watchdogAfterStep') || Tag::has($scenario, 'error')) {
       return;
     }
 
@@ -78,7 +79,7 @@ trait WatchdogTrait {
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
 
-    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes($scenario->getTags());
+    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
 
     $this->helperSetLastStepLine($scope);
   }

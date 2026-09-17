@@ -16,6 +16,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -51,7 +52,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('download')) {
+    if (Tag::has($scope->getScenario(), 'download')) {
       $this->fileDownloadRemoveTempDir();
       $this->fileDownloadPrepareTempDir();
     }
@@ -66,7 +67,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if ($scope->getScenario()->hasTag('download')) {
+    if (Tag::has($scope->getScenario(), 'download')) {
       $this->fileDownloadRemoveTempDir();
     }
   }

@@ -17,6 +17,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Manipulate form fields and verify widget functionality.
@@ -67,7 +68,7 @@ trait FieldTrait {
     $this->fieldFormValidationEnabled = TRUE;
     $this->fieldFormValidationRegistry = [];
 
-    $this->fieldDisableAllFormValidation = $scope->getScenario()->hasTag('disable-form-validation');
+    $this->fieldDisableAllFormValidation = Tag::has($scope->getScenario(), 'disable-form-validation');
   }
 
   /**
