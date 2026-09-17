@@ -44,7 +44,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 The layering rule is enforced, not just documented. `scripts/lint-layers.php` reads every file under `src/Driver` and fails on any reference to the `Behat` or `Mink` root namespaces, and `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector and gherkinlint. So the driver layer stays usable without Behat loaded, and the check catches the first import that would break that rather than the tenth.
 
-The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
+The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
 
 ## The driver layer
 
@@ -60,7 +60,9 @@ This is what makes a step's requirements explicit rather than implicit. A step t
 
 ## The integration layer
 
-`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in `behat.yml`, picks the default driver, and wires the managers. The library also ships its own `MinkExtension` fork so it can alias its `DocumentElement` in and set the AJAX timeout.
+`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in `behat.yml`, picks the default driver, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
+
+The library also ships its own `MinkExtension`, registered separately in `behat.yml`. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 3 things on top: a `browserkit_http` driver that runs through Drupal's test browser, a deprecated `ajax_timeout` setting, and `MinkSessionListener` in place of Mink's own session listener, so `@javascript` picks the browser session however Gherkin parsed the tag.
 
 `RawContext` is the base class a consuming `FeatureContext` extends. It registers no step definitions of its own - it owns the scenario lifecycle:
 
@@ -107,6 +109,8 @@ Assertions fail by throwing, and which exception is part of the public contract:
 
 Every lifecycle hook can be switched off from a feature file. Tag a scenario `@behat-steps-skip:JavascriptTrait` to opt a whole trait out, or `@behat-steps-skip:fileDownloadBeforeScenario` to disable a single hook. Entity cleanup honours the same convention, plus `@behat-steps-entity-cleanup-skip:<entity_type>` for leaving one type in place.
 
+Every one of those tags is read through `Tag`, which strips the leading `@` first. Gherkin's default `legacy` parsing mode removes it and its `gherkin-32` mode keeps it, so going through `Tag` is what lets the same tag match in both.
+
 ## Flow 2: the step documentation generates itself
 
 `STEPS.md` is entirely generated, and `docs.php` is what generates it. It's a plain procedural script - top-level functions, no classes - and it runs against the fixture site's autoloader because it needs to reflect over real Drupal-dependent traits.
@@ -133,7 +137,7 @@ Behat then runs from inside `build/` but with the project-root `behat.yml`, whic
 
 `behat.yml` wires up `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `behat_steps` block configures `api_driver: drupal`, the Drush root and global options, the message selectors, the named regions, and the path mappings.
 
-Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
+Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable. A second profile, `gherkin_32`, changes only the parser: it runs the suite in Gherkin's `gherkin-32` mode, where every tag keeps its `@`.
 
 ### Behat inside Behat
 
@@ -157,9 +161,9 @@ Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts tha
 
 `.github/workflows/test.yml` has 2 jobs, both running inside the project's own Docker Compose stack so CI and local development execute the same commands.
 
-`lint` provisions the fixture site and runs `ahoy lint` - PHP_CodeSniffer, PHPStan, Rector in dry-run mode, gherkinlint over the feature files, and `scripts/lint-layers.php` for the driver-layer boundary - followed by `ahoy lint-docs`, which is the `docs.php --fail-on-change` gate.
+`lint` runs on PHP 8.4. It provisions the fixture site, checks that `composer.json` is normalized, and runs `ahoy lint` - `composer validate`, `parallel-lint`, PHP_CodeSniffer, PHPStan, Rector in dry-run mode, gherkinlint over the feature files, and `scripts/lint-layers.php` for the driver-layer boundary - followed by `ahoy lint-docs`, which is the `docs.php --fail-on-change` gate.
 
-`test` is a matrix of PHP 8.3, 8.4 and 8.5 against Drupal 11, each run twice - once with `normal` dependency resolution and once with `lowest` - plus 1 extra leg that runs the whole suite through the Selenium-less `chrome_headless` driver. Unit and BDD tests run on every leg. Coverage is collected on the PHP 8.3 / normal leg and uploaded to Codecov. Test artifacts - logs, screenshots, coverage - come back from every leg, passing or failing.
+`test` is a matrix of PHP 8.3, 8.4 and 8.5 against Drupal 11, each run twice - once with `normal` dependency resolution and once with `lowest` - plus 3 legs that run the Behat suite through a profile: `chrome_headless` on PHP 8.3 and 8.5, and `gherkin_32` on PHP 8.4. The unit and kernel suites run on every leg without a profile, since a profile changes how the Behat suite runs and not what PHPUnit covers. Coverage is collected on the 2 legs flagged `coverage` - PHP 8.3 / normal through Selenium2 and through headless Chrome - and Codecov merges the uploads into one report. Test artifacts - logs, screenshots, coverage - come back from every leg, passing or failing.
 
 ## Regenerating this document
 
