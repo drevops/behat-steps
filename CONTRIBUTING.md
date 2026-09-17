@@ -304,7 +304,7 @@ Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Beha
 
 Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes 2 packages that cannot be installed alongside Behat 4 on this fixture: `dmore/behat-chrome-extension`, which has no release that accepts it, and `dvdoug/behat-code-coverage`, which accepts it only from 5.5, a release that needs a newer `phpunit/php-code-coverage` than the fixture allows. So Behat 4 has no `chrome_headless` leg and no coverage, and [behat.php](behat.php) registers the coverage extension only when it is installed.
 
-Behat 4 legs are named with a `, Behat 4` suffix. The Behat 3 legs keep names without one, because the branch ruleset requires those checks by name.
+Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
 
 To run the suites on Behat 4 locally, provision the fixture for it first, and run `ahoy provision` to switch back to Behat 3:
 
