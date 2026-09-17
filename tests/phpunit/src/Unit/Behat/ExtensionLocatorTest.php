@@ -15,9 +15,8 @@ use PHPUnit\Framework\TestCase;
  * Tests the extension locators a consuming behat.yml registers.
  *
  * Behat resolves a locator as a class name first and, failing that, as a
- * namespace it appends 'ServiceContainer\<Last>Extension' to. Both forms are
- * documented, so both are asserted here: moving or renaming either extension
- * breaks the shorthand silently otherwise.
+ * namespace: 'A\B\C' reaches 'A\B\C\ServiceContainer\CExtension'. Both forms
+ * are documented, so both are asserted.
  */
 #[CoversNothing]
 class ExtensionLocatorTest extends TestCase {
