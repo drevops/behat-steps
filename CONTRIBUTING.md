@@ -132,19 +132,21 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 
 ## Behat 4 readiness
 
-`composer.json` declares `behat/behat: ^3.33 || ^4.0@alpha` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so a consumer can install this library on either Behat major. `prefer-stable` keeps a default install on the stable pair; Behat 4 arrives only when a project asks for it.
+`composer.json` declares `behat/behat: ^3.33.0 || ^4.0@alpha` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so a consumer can install this library on either Behat major. `prefer-stable` keeps a default install on the stable pair; Behat 4 arrives only when a project asks for it.
 
 `src/Behat` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
-- **`MinkExtension` wraps Mink's extension instead of extending it.** Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so a subclass cannot even load there. The first-party extension implements `Extension` itself and delegates all 5 interface methods to a wrapped instance, which also keeps the `browserkit_http` factory swap working on both.
+- **`MinkExtension` wraps Mink's extension instead of extending it.** Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so a subclass cannot even load there. The first-party extension implements `Extension` itself and delegates the 5 interface methods and `registerDriverFactory()` to a wrapped instance, so the `browserkit_http` factory swap and the driver factories other extensions register work on both.
 - **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
 
-## Gherkin parsing modes
+The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the driver-name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
 
-`behat/gherkin` parses in `legacy` mode by default and in `gherkin-32` mode when a suite opts in, and the 2 modes disagree on what a tag looks like: `legacy` strips the `@`, `gherkin-32` keeps it. `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison silently stops matching the moment a consumer switches modes.
+## Reading tags
+
+Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
 
 Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly:
 
@@ -162,8 +164,6 @@ if (Tag::has($scope->getScenario(), 'email')) {
 ```
 
 `Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
-
-Mink 2's own session listener compares tags against bare names, so [`MinkSessionListener`](src/Behat/Listener/MinkSessionListener.php) replaces it and `@javascript` selects the browser session in both modes. The `gherkin32` CI leg runs the whole suite in `gherkin-32` mode, so a bare-name comparison anywhere in the stack fails it.
 
 ## Dependency policy
 
@@ -286,25 +286,32 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ### Lint
 
-1 job, on PHP 8.4. `ahoy lint` runs `composer validate`, `composer normalize --dry-run`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php); `ahoy lint-docs` then checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
+1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint` and [scripts/lint-layers.php](scripts/lint-layers.php), and `ahoy lint-docs` checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
 
 ### Test matrix
 
 | Legs | What they prove |
 |---|---|
-| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
-| 1 x `gherkin32` | The suite works when Gherkin keeps the `@` on every tag, so no tag read in the library or the extensions it installs compares against a bare name. See [Gherkin parsing modes](#gherkin-parsing-modes). |
+| PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
-Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
+Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
 
-### Why there is no Behat 4 leg
+### Behat 4 legs
 
-The library itself runs on Behat 4 (see [Behat 4 readiness](#behat-4-readiness)), but the fixture site cannot be built on it: the latest release of `dmore/behat-chrome-extension` caps `behat/behat` at `^3`, and `scripts/provision.sh` installs it so the `chrome_headless` profile can run. A leg would fail in Composer before reaching a single test, which says nothing about this repository.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes 2 packages that cannot be installed alongside Behat 4 on this fixture: `dmore/behat-chrome-extension`, which has no release that accepts it, and `dvdoug/behat-code-coverage`, which accepts it only from 5.5, a release that needs a newer `phpunit/php-code-coverage` than the fixture allows. So Behat 4 has no `chrome_headless` leg and no coverage, and [behat.php](behat.php) registers the coverage extension only when it is installed.
 
-Add the leg once `dmore/behat-chrome-extension` publishes a release that accepts `^4.0`.
+Behat 4 legs are named with a `, Behat 4` suffix. The Behat 3 legs keep names without one, because the branch ruleset requires those checks by name.
+
+To run the suites on Behat 4 locally, provision the fixture for it first, and run `ahoy provision` to switch back to Behat 3:
+
+```bash
+ahoy cli "BEHAT=4 ./scripts/provision.sh"
+ahoy test-bdd
+```
 
 ### Drupal versions
 

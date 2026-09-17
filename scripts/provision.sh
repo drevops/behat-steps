@@ -9,8 +9,9 @@ set -e
 
 DRUPAL_VERSION="${DRUPAL_VERSION:-11}"
 DEPS="${DEPS:-normal}"
+BEHAT="${BEHAT:-3}"
 
-echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site."
+echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site on Behat ${BEHAT}."
 
 echo "  > Removing existing build assets."
 chmod -Rf 777 /app/build || true; rm -Rf /app/build/.* || true; rm -Rf /app/build/* || true;
@@ -84,11 +85,21 @@ composer validate --ansi --no-check-all
 echo "  > Creating GitHub authentication token if provided."
 [ -n "$GITHUB_TOKEN" ] && echo "{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}" > /app/build/auth.json
 
+if [ "${BEHAT}" = "4" ]; then
+  # 'dmore/behat-chrome-extension' has no release that accepts Behat 4, and
+  # 'dvdoug/behat-code-coverage' accepts it only from 5.5, which needs a newer
+  # 'phpunit/php-code-coverage' than the fixture allows.
+  echo "  > Removing packages that cannot be installed alongside Behat 4."
+  composer remove --dev --no-update dmore/behat-chrome-extension dvdoug/behat-code-coverage
+fi
+
+# The constraint in composer.json allows both Behat majors, and '--with'
+# narrows it to the one this build runs on.
 echo "  > Installing Composer dependencies inside the build dir."
 if [ "${DEPS}" = "lowest" ]; then
-  COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-lowest --prefer-stable
+  COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-lowest --prefer-stable --with="behat/behat:^${BEHAT}"
 else
-  COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist
+  COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --with="behat/behat:^${BEHAT}"
 fi
 
 echo "  > Running post-install-cmd."

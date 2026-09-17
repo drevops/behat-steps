@@ -82,7 +82,7 @@ jobs:
         continue-on-error: ${{ vars.CI_LINT_DOCS_IGNORE_FAILURE == '1' }}
 
   test:
-    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.driver && format(', Driver {0}', matrix.driver) || '' }}${{ matrix.variant && format(', Variant {0}', matrix.variant) || '' }}
+    name: Test PHP ${{ matrix.php_version }}, Drupal ${{ matrix.drupal_version }}, Deps ${{ matrix.deps }}${{ matrix.behat && format(', Behat {0}', matrix.behat) || '' }}${{ matrix.driver && format(', Driver {0}', matrix.driver) || '' }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -127,13 +127,32 @@ jobs:
             deps: 'normal'
             driver: 'chrome_headless'
             profile: 'chrome_headless'
-          # Gherkin's 'gherkin-32' parsing mode keeps the '@' on every tag, so
-          # this leg fails on any tag read that compares against a bare name.
+          # The Behat 4 legs have no Chrome leg of their own, because the
+          # Chrome extension has no release that accepts Behat 4.
+          - php_version: '8.3'
+            drupal_version: '11'
+            deps: 'normal'
+            behat: '4'
+          - php_version: '8.3'
+            drupal_version: '11'
+            deps: 'lowest'
+            behat: '4'
           - php_version: '8.4'
             drupal_version: '11'
             deps: 'normal'
-            variant: 'gherkin32'
-            profile: 'gherkin_32'
+            behat: '4'
+          - php_version: '8.4'
+            drupal_version: '11'
+            deps: 'lowest'
+            behat: '4'
+          - php_version: '8.5'
+            drupal_version: '11'
+            deps: 'normal'
+            behat: '4'
+          - php_version: '8.5'
+            drupal_version: '11'
+            deps: 'lowest'
+            behat: '4'
 
     container:
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
@@ -143,6 +162,7 @@ jobs:
         PHP_VERSION: ${{ matrix.php_version }}
         DRUPAL_VERSION: ${{ matrix.drupal_version }}
         DEPS: ${{ matrix.deps }}
+        BEHAT: ${{ matrix.behat || '3' }}
         PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
     steps:
@@ -168,7 +188,7 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 
       - name: Provision application
-        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -T cli bash scripts/provision.sh
+        run: docker compose exec -e DRUPAL_VERSION=${DRUPAL_VERSION} -e DEPS=${DEPS} -e BEHAT=${BEHAT} -T cli bash scripts/provision.sh
 
       - name: Install Ahoy CLI
         run: |
@@ -178,8 +198,8 @@ jobs:
           chmod +x /usr/local/bin/ahoy && \
           ahoy --version
 
-      # A Behat profile changes how the suite is driven or parsed, not what the
-      # PHPUnit suites cover, so those legs skip them rather than repeat them.
+      # A Behat profile changes how the suite is driven, not what the PHPUnit
+      # suites cover, so those legs skip them rather than repeat them.
       - name: Run Unit and Kernel tests with coverage
         if: matrix.coverage && !matrix.profile
         run: ahoy test-coverage
@@ -218,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.driver && format('-{0}', matrix.driver) || '' }}${{ matrix.variant && format('-{0}', matrix.variant) || '' }}
+          name: test-artifacts-php${{ matrix.php_version }}-drupal${{ matrix.drupal_version }}-${{ matrix.deps }}${{ matrix.behat && format('-behat{0}', matrix.behat) || '' }}${{ matrix.driver && format('-{0}', matrix.driver) || '' }}
           path: .logs
           include-hidden-files: true
           retention-days: 30
