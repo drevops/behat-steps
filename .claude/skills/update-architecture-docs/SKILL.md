@@ -54,7 +54,7 @@ The project is 3 layers, and the boundary between them is the architecture. Read
 - `src/Exception/AssertionException.php` - what a session-less trait throws.
 - `composer.json` - the published package surface and the PSR-4 map.
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
-- `behat.yml` - the suites, contexts, and the `behat_steps` configuration block.
+- `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
 - `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
 - `scripts/lint-layers.php` - the enforced layer boundary. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.

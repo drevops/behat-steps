@@ -1,6 +1,6 @@
 @startuml
 ' drevops/behat-steps - data flow for the project's own test run.
-' Traced from .ahoy.yml, scripts/provision.sh, behat.yml,
+' Traced from .ahoy.yml, scripts/provision.sh, behat.php,
 ' tests/behat/bootstrap/BehatCliTrait.php,
 ' tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -22,6 +22,7 @@ Dev -> Prov: bash scripts/provision.sh
 activate Prov
 Prov -> Prov: copy tests/behat/fixtures_drupal/d11/ into build/
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
+Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site
 Site --> Prov: bootstrap successful
@@ -29,7 +30,7 @@ deactivate Site
 Prov --> Dev: fixture site ready
 deactivate Prov
 
-Dev -> Behat: behat -c /app/behat.yml, run from build/
+Dev -> Behat: behat -c /app/behat.php, run from build/
 activate Behat
 
 Behat -> Site: @api scenarios drive Drupal and Mink directly
