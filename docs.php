@@ -2,16 +2,19 @@
 
 /**
  * @file
- * Documentation generator.
+ * Reference documentation generator.
  *
- * This script generates the documentation for the steps in the Behat
- * features.
+ * This script is the single generator behind every reference document the
+ * package publishes. It parses the PHP attributes and docblock comments of the
+ * traits under the vocabulary directory and writes:
  *
- * It parses the PHP attributes and docblock comments of the classes and
- * methods in the src directory and generates STEPS.md file.
+ * - STEPS.md, the step vocabulary, and the step index in README.md.
+ * - HELPERS.md, the toolbox a project calls from its own domain steps.
+ * - The generated tables in docs/configuration.md.
  *
- * It also validates the steps and checks if they are in the correct
- * format.
+ * It also validates that the steps read in the documented format, that every
+ * published helper carries a summary, that tags resolve against the registry,
+ * and that every environment variable the source reads is documented.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
  * Run with --path=path/to/dir to specify a custom path for the output file.
@@ -22,6 +25,13 @@ declare(strict_types=1);
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use Symfony\Component\Config\Definition\ArrayNode;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\BooleanNode;
+use Symfony\Component\Config\Definition\IntegerNode;
+use Symfony\Component\Config\Definition\NodeInterface;
+use Symfony\Component\Config\Definition\PrototypedArrayNode;
 
 /**
  * Matches a first-person pronoun anywhere in a step.
@@ -39,6 +49,29 @@ const FIRST_PERSON = '/\b(I|[Mm]y|[Mm]e|[Mm]yself|[Ww]e|[Uu]s|[Oo]ur)\b/';
  * context name.
  */
 const STEPS_DIRECTORY = 'src/Steps';
+
+/**
+ * Attribute namespaces that mark a method as registered with Behat.
+ *
+ * A method carrying one of these is a step, a hook or a transformation, so it
+ * is not part of the toolbox.
+ */
+const REGISTERED_ATTRIBUTE_PREFIXES = [
+  'Behat\\Step\\',
+  'Behat\\Hook\\',
+  'Behat\\Transformation\\',
+  'DrevOps\\BehatSteps\\Behat\\Hook\\Attribute\\',
+];
+
+/**
+ * File holding the toolbox reference, relative to the repository root.
+ */
+const HELPERS_FILE = 'HELPERS.md';
+
+/**
+ * File holding the configuration reference, relative to the repository root.
+ */
+const CONFIGURATION_FILE = 'docs/configuration.md';
 
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart
@@ -63,10 +96,14 @@ function main(array $options = []): void {
   require_once $base_path . '/tests/behat/bootstrap/FeatureContextTrait.php';
   require_once $base_path . '/tests/behat/bootstrap/FeatureContext.php';
 
-  $info = extract_info(FeatureContext::class, [FeatureContextTrait::class, 'HelperTrait'], $base_path);
+  $exclude = [FeatureContextTrait::class, 'HelperTrait'];
+  $info = extract_info(FeatureContext::class, $exclude, $base_path);
+  $helpers = extract_helpers(FeatureContext::class, $exclude, $base_path);
 
   $errors = validate($info);
+  $errors = array_merge($errors, validate_helpers($helpers));
   $errors = array_merge($errors, validate_tags($info, $base_path));
+  $errors = array_merge($errors, validate_env_vars($base_path));
 
   if (!empty($errors)) {
     echo 'Errors found:' . PHP_EOL;
@@ -76,39 +113,60 @@ function main(array $options = []): void {
     exit(1);
   }
 
-  $steps_markdown = PHP_EOL . render_info($info, $base_path) . PHP_EOL;
-  $readme_markdown = PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL;
+  $targets = [
+    'STEPS.md' => [
+      ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
+    ],
+    'README.md' => [
+      ['## Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
+    ],
+    HELPERS_FILE => [
+      ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
+    ],
+    CONFIGURATION_FILE => [
+      ['[//]: # (START_EXTENSION_OPTIONS)', '[//]: # (END_EXTENSION_OPTIONS)', PHP_EOL . render_extension_options() . PHP_EOL],
+      ['[//]: # (START_TAGS)', '[//]: # (END_TAGS)', PHP_EOL . render_tag_reference() . PHP_EOL],
+    ],
+  ];
 
-  $steps_file = 'STEPS.md';
-  $steps_contents = file_get_contents($base_path . DIRECTORY_SEPARATOR . $steps_file);
-  if ($steps_contents === FALSE) {
-    printf('Failed to read %s.' . PHP_EOL, $steps_file);
-    exit(1);
+  $outdated = [];
+  $updated = [];
+
+  foreach ($targets as $file => $regions) {
+    $path = $base_path . DIRECTORY_SEPARATOR . $file;
+
+    $contents = file_get_contents($path);
+    if ($contents === FALSE) {
+      printf('Failed to read %s.' . PHP_EOL, $file);
+      exit(1);
+    }
+
+    $replaced = $contents;
+    foreach ($regions as $region) {
+      $replaced = replace_content($replaced, $region[0], $region[1], $region[2]);
+    }
+
+    if ($replaced !== $contents) {
+      $outdated[] = $file;
+      $updated[$path] = $replaced;
+    }
   }
-  $steps_replaced = replace_content($steps_contents, '# Available steps', '[//]: # (END)', $steps_markdown);
 
-  $readme_file = 'README.md';
-  $readme_contents = file_get_contents($base_path . DIRECTORY_SEPARATOR . $readme_file);
-  if ($readme_contents === FALSE) {
-    printf('Failed to read %s.' . PHP_EOL, $readme_file);
-    exit(1);
-  }
-  $readme_replaced = replace_content($readme_contents, '## Available steps', '[//]: # (END)', $readme_markdown);
-
-  if ($steps_replaced === $steps_contents && $readme_replaced === $readme_contents) {
+  if ($outdated === []) {
     echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
     exit(0);
   }
 
-  $fail_on_change = isset($options['fail-on-change']);
-  if ($fail_on_change && ($steps_replaced !== $steps_contents || $readme_replaced !== $readme_contents)) {
-    echo 'Documentation is outdated. No changes were made.' . PHP_EOL;
+  if (isset($options['fail-on-change'])) {
+    printf('Documentation is outdated: %s. No changes were made.' . PHP_EOL, implode(', ', $outdated));
     exit(1);
   }
 
-  file_put_contents($base_path . DIRECTORY_SEPARATOR . $steps_file, $steps_replaced);
-  file_put_contents($base_path . DIRECTORY_SEPARATOR . $readme_file, $readme_replaced);
-  echo 'Documentation updated.' . PHP_EOL;
+  foreach ($updated as $path => $contents) {
+    file_put_contents($path, $contents);
+  }
+
+  printf('Documentation updated: %s.' . PHP_EOL, implode(', ', $outdated));
 }
 
 // @codeCoverageIgnoreEnd
@@ -129,7 +187,11 @@ function file_declares_trait(string $file_path): bool {
 }
 
 /**
- * Parse info from the class.
+ * Collect the vocabulary traits composed into a class.
+ *
+ * Every trait declared under the vocabulary directory has to be composed into
+ * the class, so that a reference document covers the whole vocabulary rather
+ * than the part one context happens to use.
  *
  * @param class-string $class_name
  *   The class name.
@@ -138,18 +200,16 @@ function file_declares_trait(string $file_path): bool {
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string,array<string, array<int, array<string, array<int,string>|string>>|string>>
- *   Array of info with 'name', 'steps', 'description', and 'example' keys.
+ * @return array<string, array{reflection: \ReflectionClass<object>, context: string}>
+ *   The trait reflection and its context, keyed by trait short name and sorted
+ *   by that name.
  *
  * @throws \ReflectionException
  */
-function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
-  $info = [];
-
-  // Collect all traits in the vocabulary directory to validate that they all
-  // present in the $class_name class.
+function collect_step_traits(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
   $traits_path = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
   $traits_files = [];
+
   if (is_dir($traits_path)) {
     $contexts = scandir($traits_path) ?: [];
     foreach ($contexts as $context) {
@@ -169,7 +229,6 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     sort($traits_files);
   }
 
-  // Collect all traits in the $class_name class.
   $reflection = new ReflectionClass($class_name);
   $traits = $reflection->getTraits();
   usort(
@@ -177,7 +236,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     static fn(\ReflectionClass $a, \ReflectionClass $b): int => strcasecmp($a->getShortName(), $b->getShortName())
   );
 
-  // Extract info from the traits.
+  $collected = [];
   foreach ($traits as $trait) {
     $trait_name = $trait->getShortName();
 
@@ -190,11 +249,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
       continue;
     }
 
-    // Determine the context based on the directory structure.
-    // Get the trait source file path and determine its directory.
-    $trait_class = $trait->getName();
-    $trait_reflection = new ReflectionClass($trait_class);
-    $trait_file_path = $trait_reflection->getFileName();
+    $trait_file_path = $trait->getFileName();
 
     // @codeCoverageIgnoreStart
     if (!$trait_file_path) {
@@ -204,6 +259,38 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
     // The directory a trait sits in under the vocabulary root is its context.
     $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
+
+    $collected[$trait_name] = ['reflection' => $trait, 'context' => $context];
+  }
+
+  if (!empty($traits_files)) {
+    throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+  }
+
+  return $collected;
+}
+
+/**
+ * Parse info from the class.
+ *
+ * @param class-string $class_name
+ *   The class name.
+ * @param array<int, string> $exclude
+ *   Array of trait names to exclude.
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string,array<string, array<int, array<string, array<int,string>|string>>|string>>
+ *   Array of info with 'name', 'steps', 'description', and 'example' keys.
+ *
+ * @throws \ReflectionException
+ */
+function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
+  $info = [];
+
+  foreach (collect_step_traits($class_name, $exclude, $base_path) as $trait_name => $collected) {
+    $trait = $collected['reflection'];
+    $context = $collected['context'];
 
     $class_info = [
       'name' => $trait_name,
@@ -261,11 +348,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
       });
     }
 
-    $info[$trait->getShortName()] = $class_info;
-  }
-
-  if (!empty($traits_files)) {
-    throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+    $info[$trait_name] = $class_info;
   }
 
   return $info;
@@ -483,6 +566,221 @@ function extract_method_steps(\ReflectionMethod $method): array {
 }
 
 /**
+ * Check whether a method is registered with Behat.
+ *
+ * @param \ReflectionMethod $method
+ *   The reflection method.
+ *
+ * @return bool
+ *   TRUE when the method carries a step, hook or transformation attribute.
+ */
+function method_is_registered(\ReflectionMethod $method): bool {
+  foreach ($method->getAttributes() as $attribute) {
+    foreach (REGISTERED_ATTRIBUTE_PREFIXES as $prefix) {
+      if (str_starts_with($attribute->getName(), $prefix)) {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Check whether a docblock withdraws the member from the published API.
+ *
+ * @param string $comment
+ *   The docblock comment.
+ *
+ * @return bool
+ *   TRUE when the comment carries an '@internal' tag.
+ */
+function comment_is_internal(string $comment): bool {
+  return preg_match('/^\s*\*\s*@internal\b/m', $comment) === 1;
+}
+
+/**
+ * Render a type declaration as it reads in a signature.
+ *
+ * @param \ReflectionType|null $type
+ *   The reflection type, or NULL when the declaration has none.
+ *
+ * @return string
+ *   The type with class names shortened, or an empty string when untyped.
+ */
+function render_type(?\ReflectionType $type): string {
+  $short = static function (string $name): string {
+    $position = strrpos($name, '\\');
+
+    return $position === FALSE ? $name : substr($name, $position + 1);
+  };
+
+  if ($type instanceof \ReflectionNamedType) {
+    $name = $short($type->getName());
+    $nullable = $type->allowsNull() && !in_array($name, ['mixed', 'null'], TRUE);
+
+    return ($nullable ? '?' : '') . $name;
+  }
+
+  if ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
+    $glue = $type instanceof \ReflectionUnionType ? '|' : '&';
+    $parts = array_map(static fn(\ReflectionType $part): string => $short((string) $part), $type->getTypes());
+
+    return implode($glue, $parts);
+  }
+
+  return '';
+}
+
+/**
+ * Render a value as it reads in PHP source.
+ *
+ * @param mixed $value
+ *   The value.
+ *
+ * @return string
+ *   The rendered value.
+ */
+function render_value(mixed $value): string {
+  if ($value === NULL) {
+    return 'NULL';
+  }
+
+  if (is_bool($value)) {
+    return $value ? 'TRUE' : 'FALSE';
+  }
+
+  if (is_array($value)) {
+    return $value === [] ? '[]' : '[...]';
+  }
+
+  if (is_string($value)) {
+    return "'" . $value . "'";
+  }
+
+  return is_scalar($value) ? (string) $value : 'object';
+}
+
+/**
+ * Render a method signature.
+ *
+ * @param \ReflectionMethod $method
+ *   The reflection method.
+ *
+ * @return string
+ *   The signature, with class names shortened to their class part.
+ */
+function render_method_signature(\ReflectionMethod $method): string {
+  $parameters = [];
+
+  foreach ($method->getParameters() as $parameter) {
+    $type = render_type($parameter->getType());
+    $rendered = $type === '' ? '' : $type . ' ';
+    $rendered .= ($parameter->isVariadic() ? '...' : '') . '$' . $parameter->getName();
+
+    if ($parameter->isDefaultValueAvailable()) {
+      $rendered .= ' = ' . render_value($parameter->getDefaultValue());
+    }
+
+    $parameters[] = $rendered;
+  }
+
+  $return = render_type($method->getReturnType());
+
+  return sprintf(
+    '%s%s function %s(%s)%s',
+    $method->isPublic() ? 'public' : 'protected',
+    $method->isStatic() ? ' static' : '',
+    $method->getName(),
+    implode(', ', $parameters),
+    $return === '' ? '' : ': ' . $return
+  );
+}
+
+/**
+ * Render the anchor a trait heading resolves to.
+ *
+ * @param string $name
+ *   The contextual trait name, such as 'Drupal\ContentTrait'.
+ *
+ * @return string
+ *   The anchor, without the leading hash.
+ */
+function heading_anchor(string $name): string {
+  return (string) preg_replace('/[^A-Za-z0-9_\-]/', '', strtolower($name));
+}
+
+/**
+ * Parse the toolbox helpers from the class.
+ *
+ * A helper is a method a project calls from its own domain steps: one carrying
+ * no Behat attribute and no '@internal' tag.
+ *
+ * @param class-string $class_name
+ *   The class name.
+ * @param array<int, string> $exclude
+ *   Array of trait names to exclude.
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string, array<string, mixed>>
+ *   Array of info with 'name', 'context' and 'helpers' keys, keyed by trait
+ *   short name. Traits contributing no helper are left out.
+ *
+ * @throws \ReflectionException
+ */
+function extract_helpers(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
+  $info = [];
+
+  foreach (collect_step_traits($class_name, $exclude, $base_path) as $trait_name => $collected) {
+    $trait = $collected['reflection'];
+    $context = $collected['context'];
+
+    $class_info = [
+      'name' => $trait_name,
+      'name_contextual' => ($context !== 'Generic' ? $context . '\\' : '') . $trait_name,
+      'context' => $context,
+      'helpers' => [],
+    ];
+    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
+
+    $trait_prefix = str_replace('Trait', '', $trait_name);
+    foreach ($trait->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED) as $method) {
+      if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
+        continue;
+      }
+
+      if (method_is_registered($method)) {
+        continue;
+      }
+
+      $comment = (string) $method->getDocComment();
+      if (comment_is_internal($comment)) {
+        continue;
+      }
+
+      $parsed_comment = parse_method_comment($comment);
+      $class_info['helpers'][] = [
+        'name' => $method->getName(),
+        'signature' => render_method_signature($method),
+        'description' => $parsed_comment['description'] ?? '',
+        'example' => $parsed_comment['example'] ?? '',
+      ];
+    }
+
+    if ($class_info['helpers'] === []) {
+      continue;
+    }
+
+    usort($class_info['helpers'], static fn(array $a, array $b): int => strcmp((string) $a['name'], (string) $b['name']));
+
+    $info[$trait_name] = $class_info;
+  }
+
+  return $info;
+}
+
+/**
  * Convert info to content.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
@@ -588,7 +886,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // Add to index.
     // @phpstan-ignore-next-line
-    $index_rows_path = '#' . preg_replace('/[^A-Za-z0-9_\-]/', '', strtolower((string) $trait_info['name_contextual']));
+    $index_rows_path = '#' . heading_anchor((string) $trait_info['name_contextual']);
     if ($path_for_links) {
       $index_rows_path = $path_for_links . $index_rows_path;
     }
@@ -674,6 +972,107 @@ EOT;
   }
 
   return $output;
+}
+
+/**
+ * Convert helper info to content.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   Array of helper info items from extract_helpers().
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return string
+ *   Markdown content.
+ */
+function render_helpers(array $info, string $base_path = __DIR__): string {
+  $content_output = [];
+  $index_rows = [];
+
+  foreach ($info as $trait => $trait_info) {
+    $context = (string) $trait_info['context'];
+    $name_contextual = (string) $trait_info['name_contextual'];
+    $anchor = heading_anchor($name_contextual);
+    $helpers = is_array($trait_info['helpers']) ? $trait_info['helpers'] : [];
+
+    $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
+    if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
+      throw new \Exception(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
+    }
+
+    $content_output[$context] ??= '';
+    $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= sprintf('[Source](%s), [Steps](STEPS.md#%s)', $src_file, $anchor) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= '> ' . (string) $trait_info['description'] . PHP_EOL . PHP_EOL;
+
+    foreach ($helpers as $helper) {
+      $example = (string) $helper['example'];
+
+      $content_output[$context] .= '<details>' . PHP_EOL;
+      $content_output[$context] .= sprintf('  <summary><code>%s</code></summary>', (string) $helper['signature']) . PHP_EOL . PHP_EOL;
+      $content_output[$context] .= '<br/>' . PHP_EOL;
+      $content_output[$context] .= rtrim((string) $helper['description'], '.') . PHP_EOL;
+      $content_output[$context] .= '<br/><br/>' . PHP_EOL . PHP_EOL;
+
+      if ($example !== '') {
+        $content_output[$context] .= '```' . PHP_EOL . rtrim($example) . PHP_EOL . '```' . PHP_EOL . PHP_EOL;
+      }
+
+      $content_output[$context] .= '</details>' . PHP_EOL . PHP_EOL;
+    }
+
+    $index_rows[$context][] = [
+      sprintf('[%s](#%s)', $name_contextual, $anchor),
+      (string) count($helpers),
+      (string) $trait_info['description'],
+    ];
+  }
+
+  // Make sure 'Generic' key exists and comes first.
+  $index_rows['Generic'] ??= [];
+  $index_rows = array_merge(['Generic' => $index_rows['Generic']], array_diff_key($index_rows, ['Generic' => []]));
+
+  $output = '';
+  foreach ($index_rows as $index_context => $rows) {
+    $output .= sprintf('### Index of %s helpers', $index_context) . PHP_EOL . PHP_EOL;
+    $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+  }
+
+  $content_output['Generic'] ??= '';
+  $content_output = array_merge(['Generic' => $content_output['Generic']], array_diff_key($content_output, ['Generic' => []]));
+
+  $output .= '---' . PHP_EOL . PHP_EOL;
+  $output .= implode('', $content_output);
+
+  return rtrim($output) . PHP_EOL;
+}
+
+/**
+ * Validate the published helpers.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   Array of helper info items from extract_helpers().
+ *
+ * @return array<string>
+ *   Array of errors.
+ */
+function validate_helpers(array $info): array {
+  $errors = [];
+
+  foreach ($info as $trait_info) {
+    $class_name = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : '';
+
+    foreach ((is_array($trait_info['helpers'] ?? NULL) ? $trait_info['helpers'] : []) as $helper) {
+      $name = is_string($helper['name'] ?? NULL) ? $helper['name'] : '';
+      $description = is_string($helper['description'] ?? NULL) ? $helper['description'] : '';
+
+      if (trim($description) === '') {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $name, 'Published helper has no summary. Write one, or mark the helper @internal');
+      }
+    }
+  }
+
+  return $errors;
 }
 
 /**
@@ -802,29 +1201,261 @@ function non_descriptive_placeholders(): array {
  * stands alone and takes no value. Add every new special tag here so that
  * validate_tags() can guard its format and prevent separator drift.
  *
- * @return array<string, string>
- *   Map of tag prefix to type, one of 'parametrized' or 'flag'.
+ * @return array<string, array{form: string, description: string}>
+ *   Map of tag prefix to its form, one of 'parametrized' or 'flag', and the
+ *   one-line description rendered into the configuration reference.
  */
 function tag_registry(): array {
   return [
     // Parametrized tags - expect a `:value` suffix.
-    'behat-steps-skip' => 'parametrized',
-    'behat-steps-entity-cleanup-skip' => 'parametrized',
-    'module' => 'parametrized',
-    'breakpoint' => 'parametrized',
-    'email' => 'parametrized',
-    'watchdog' => 'parametrized',
-    'disable-config-override' => 'parametrized',
-    'accessibility' => 'parametrized',
+    'behat-steps-skip' => [
+      'form' => 'parametrized',
+      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`).',
+    ],
+    'behat-steps-entity-cleanup-skip' => [
+      'form' => 'parametrized',
+      'description' => 'Keep entities of the named entity type after the scenario. Repeat the tag to keep several types.',
+    ],
+    'module' => [
+      'form' => 'parametrized',
+      'description' => 'Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards.',
+    ],
+    'breakpoint' => [
+      'form' => 'parametrized',
+      'description' => 'Resize the viewport to the named breakpoint before the first step. One tag per scenario, and the scenario has to be `@javascript`.',
+    ],
+    'email' => [
+      'form' => 'parametrized',
+      'description' => 'Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler.',
+    ],
+    'watchdog' => [
+      'form' => 'parametrized',
+      'description' => 'Track the named Watchdog message type in addition to `php`, which is always tracked.',
+    ],
+    'disable-config-override' => [
+      'form' => 'parametrized',
+      'description' => 'Disable `settings.php` overrides for the named configuration object for the duration of the scenario.',
+    ],
+    'accessibility' => [
+      'form' => 'parametrized',
+      'description' => 'Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`.',
+    ],
     // Flag tags - stand alone, no value.
-    'bigpipe' => 'flag',
-    'disable-form-validation' => 'flag',
-    'js-errors' => 'flag',
-    'download' => 'flag',
-    'testmode' => 'flag',
-    'debug' => 'flag',
-    'error' => 'flag',
+    'bigpipe' => [
+      'form' => 'flag',
+      'description' => 'Render BigPipe placeholders server-side, for a driver without JavaScript.',
+    ],
+    'disable-form-validation' => [
+      'form' => 'flag',
+      'description' => 'Strip HTML5 validation from every form on the page so a scenario can submit values the browser would block.',
+    ],
+    'js-errors' => [
+      'form' => 'flag',
+      'description' => 'Allow JavaScript errors, which otherwise fail the scenario.',
+    ],
+    'download' => [
+      'form' => 'flag',
+      'description' => 'Prepare the download directory for the scenario and clean it up afterwards.',
+    ],
+    'testmode' => [
+      'form' => 'flag',
+      'description' => 'Enable the Testmode module for the scenario.',
+    ],
+    'debug' => [
+      'form' => 'flag',
+      'description' => 'Print detailed diagnostics while the scenario runs.',
+    ],
+    'error' => [
+      'form' => 'flag',
+      'description' => 'Expect the scenario to log an error, which turns the Watchdog check off.',
+    ],
   ];
+}
+
+/**
+ * Render the tag reference table.
+ *
+ * @return string
+ *   Markdown table of every tag in the registry.
+ */
+function render_tag_reference(): string {
+  $rows = [];
+
+  foreach (tag_registry() as $tag => $definition) {
+    $rows[] = [
+      $definition['form'] === 'parametrized' ? sprintf('`@%s:VALUE`', $tag) : sprintf('`@%s`', $tag),
+      $definition['description'],
+    ];
+  }
+
+  return array_to_markdown_table(['Tag', 'Description'], $rows);
+}
+
+/**
+ * Render the extension options table.
+ *
+ * The table is built from the extension's own configuration tree, so an option
+ * cannot be added to the code without appearing in the reference.
+ *
+ * @return string
+ *   Markdown table of every option the extension accepts.
+ */
+function render_extension_options(): string {
+  $builder = new TreeBuilder(BehatStepsExtension::CONFIG_KEY);
+  (new BehatStepsExtension())->configure($builder->getRootNode());
+
+  $root = $builder->buildTree();
+  $rows = [];
+
+  if ($root instanceof ArrayNode) {
+    $rows = extension_option_rows($root->getChildren());
+  }
+
+  return array_to_markdown_table(['Option', 'Type', 'Default', 'Description'], $rows);
+}
+
+/**
+ * Flatten configuration nodes into table rows.
+ *
+ * @param array<string, \Symfony\Component\Config\Definition\NodeInterface> $nodes
+ *   The child nodes to render.
+ * @param string $prefix
+ *   Dotted path of the parent node, empty at the root.
+ *
+ * @return array<int, array<int, string>>
+ *   Rows of option path, type, default and description.
+ */
+function extension_option_rows(array $nodes, string $prefix = ''): array {
+  $rows = [];
+
+  foreach ($nodes as $name => $node) {
+    $path = $prefix === '' ? (string) $name : $prefix . '.' . $name;
+    $children = $node instanceof ArrayNode && !$node instanceof PrototypedArrayNode ? $node->getChildren() : [];
+
+    $default = '-';
+    if ($node->isRequired()) {
+      $default = 'required';
+    }
+    elseif ($node->hasDefaultValue()) {
+      $default = '`' . render_value($node->getDefaultValue()) . '`';
+    }
+
+    $rows[] = [
+      '`' . $path . '`',
+      extension_option_type($node),
+      $children === [] ? $default : '-',
+      extension_option_description($node),
+    ];
+
+    $rows = array_merge($rows, extension_option_rows($children, $path));
+  }
+
+  return $rows;
+}
+
+/**
+ * Name the type of a configuration node.
+ *
+ * @param \Symfony\Component\Config\Definition\NodeInterface $node
+ *   The configuration node.
+ *
+ * @return string
+ *   The type as it reads in the reference.
+ */
+function extension_option_type(NodeInterface $node): string {
+  if ($node instanceof PrototypedArrayNode) {
+    return 'map';
+  }
+
+  if ($node instanceof ArrayNode) {
+    return 'section';
+  }
+
+  if ($node instanceof IntegerNode) {
+    return 'integer';
+  }
+
+  if ($node instanceof BooleanNode) {
+    return 'boolean';
+  }
+
+  return 'string';
+}
+
+/**
+ * Render the description of a configuration node as one table cell.
+ *
+ * @param \Symfony\Component\Config\Definition\NodeInterface $node
+ *   The configuration node.
+ *
+ * @return string
+ *   The description with line breaks and pipes made table-safe.
+ */
+function extension_option_description(NodeInterface $node): string {
+  $info = method_exists($node, 'getInfo') ? (string) $node->getInfo() : '';
+
+  $lines = array_filter(array_map('trim', explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
+
+  return str_replace('|', '\\|', implode('<br>', $lines));
+}
+
+/**
+ * Validate that every environment variable the source reads is documented.
+ *
+ * The variables have no registry to generate from, so the reference is written
+ * by hand and this check keeps it honest.
+ *
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string>
+ *   Array of errors.
+ */
+function validate_env_vars(string $base_path = __DIR__): array {
+  $source = $base_path . DIRECTORY_SEPARATOR . 'src';
+  $reference = $base_path . DIRECTORY_SEPARATOR . CONFIGURATION_FILE;
+
+  if (!is_dir($source) || !is_file($reference)) {
+    return [];
+  }
+
+  $documented = (string) file_get_contents($reference);
+  $errors = [];
+
+  $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \FilesystemIterator::SKIP_DOTS));
+  $files = [];
+  foreach ($iterator as $file) {
+    if ($file instanceof \SplFileInfo && $file->getExtension() === 'php') {
+      $files[] = $file->getPathname();
+    }
+  }
+  sort($files);
+
+  foreach ($files as $file) {
+    // Comments carry examples of what a consuming project reads, which is a
+    // different contract from what this source reads.
+    $code = '';
+    foreach (token_get_all((string) file_get_contents($file)) as $token) {
+      if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], TRUE)) {
+        continue;
+      }
+
+      $code .= is_array($token) ? $token[1] : $token;
+    }
+
+    preg_match_all('/getenv\(\s*[\'"]([A-Z][A-Z0-9_]*)[\'"]\s*\)/', $code, $matches);
+
+    foreach (array_unique($matches[1]) as $variable) {
+      if (str_contains($documented, $variable)) {
+        continue;
+      }
+
+      $relative = substr($file, strlen($base_path) + 1);
+      $errors[$variable] = sprintf('  %s - Environment variable %s is read but not documented in %s' . PHP_EOL, $relative, $variable, CONFIGURATION_FILE);
+    }
+  }
+
+  return array_values($errors);
 }
 
 /**
@@ -859,7 +1490,7 @@ function extract_tags(string $text): array {
  *
  * @param string $tag
  *   The tag name without the leading `@`.
- * @param array<string, string> $registry
+ * @param array<string, array{form: string, description: string}> $registry
  *   The tag registry from tag_registry().
  *
  * @return string|null
@@ -878,7 +1509,7 @@ function validate_tag(string $tag, array $registry): ?string {
     }
 
     if (str_starts_with($tag, $prefix . '-')) {
-      if ($registry[$prefix] !== 'parametrized') {
+      if ($registry[$prefix]['form'] !== 'parametrized') {
         return NULL;
       }
 
