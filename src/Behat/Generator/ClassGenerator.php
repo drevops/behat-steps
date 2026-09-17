@@ -39,7 +39,7 @@ class {className} extends RawContext {
    *
    * Every scenario gets its own context instance.
    * You can also pass arbitrary arguments to the
-   * context constructor through behat.yml.
+   * context constructor through the Behat configuration.
    */
   public function __construct() {
   }

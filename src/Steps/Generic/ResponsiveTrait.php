@@ -46,7 +46,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * class FeatureContext extends DrupalContext {
  *   use ResponsiveTrait;
  *
- *   // @BeforeScenario
+ *   #[BeforeScenario]
  *   public function setupCustomBreakpoints(): void {
  *     $this->responsiveSetBreakpoints([
  *       'iphone_12' => '390x844',

@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Behat;
 /**
  * Provides access to the extension parameters.
  *
- * These parameters are placed in behat.yml under the extension's config key
- * and define commonly customized aspects of the Drupal installation such as
- * CSS selectors, interface text or region maps.
+ * These parameters are placed in the Behat configuration under the
+ * extension's config key and define commonly customized aspects of the Drupal
+ * installation such as CSS selectors, interface text or region maps.
  *
  * This is the consumption point for parameter, text, and selector access from
  * any context, regardless of whether it inherits from 'RawContext'. A context

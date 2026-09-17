@@ -162,7 +162,7 @@ class FeatureContext extends RawContext {
    * Override accessibilityGetReportDir() to anchor reports to the base path.
    *
    * Behat is launched from the build directory but configured with the
-   * project-root behat.yml, so the captured working directory is not the
+   * project-root behat.php, so the captured working directory is not the
    * base path. Deriving the base from the Mink files_path keeps accessibility
    * reports in the same .logs tree as the other Behat artifacts.
    *

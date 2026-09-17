@@ -160,16 +160,25 @@ vocabulary you want on top. For a suite that needs no PHP at all, register
 `DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
 plus a curated set of the broadly-safe traits.
 
-Ensure that your [`behat.yml`](behat.yml) enables the extension:
+Ensure that your [`behat.php`](behat.php) enables the extension:
 
-```yaml
-default:
-  extensions:
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-      api_driver: drupal
-      drupal:
-        drupal_root: web
+```php
+<?php
+
+declare(strict_types=1);
+
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
+$profile = (new Profile('default'))
+  ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
+
+return (new Config())->withProfile($profile);
 ```
+
+Behat 4 reads only PHP configuration. Behat 3 also accepts the same settings in `behat.yml`.
 
 ### JavaScript drivers
 
@@ -180,17 +189,17 @@ Protocol. Both are exercised by this library's own CI.
 
 To run `@javascript` scenarios without a Selenium server, add
 [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension)
-(which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome:
+(which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome.
+Its current release requires Behat 3.
 
-```yaml
-default:
-  extensions:
-    DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
-    Behat\MinkExtension:
-      browser_name: chrome
-      javascript_session: chrome
-      chrome:
-        api_url: 'http://chrome:9222'
+```php
+use Behat\Config\Extension;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
+use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
+
+$profile
+  ->withExtension(new Extension(ChromeExtension::class))
+  ->withExtension(new Extension(MinkExtension::class, ['browser_name' => 'chrome', 'javascript_session' => 'chrome', 'chrome' => ['api_url' => 'http://chrome:9222']]));
 ```
 
 Any image that exposes a DevTools endpoint works (for example

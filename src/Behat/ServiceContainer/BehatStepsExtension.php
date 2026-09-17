@@ -101,7 +101,7 @@ class BehatStepsExtension implements ExtensionInterface {
         ->end()
         ->arrayNode('text')
           ->info(
-            'Text strings, such as Log out or the Username field can be altered via behat.yml if they vary from the default values.' . PHP_EOL
+            'Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.' . PHP_EOL
             . '  login_url: "/user"' . PHP_EOL
             . '  logout_url: "/user/logout"' . PHP_EOL
             . '  logout_confirm_url: "/user/logout/confirm"' . PHP_EOL
@@ -236,7 +236,7 @@ class BehatStepsExtension implements ExtensionInterface {
 
     // Mirror the map into the config so the 'behat_steps.parameters' and
     // 'behat_steps.regions' container parameters always expose the same value,
-    // even when the optional 'regions' key was omitted from behat.yml.
+    // even when the optional 'regions' key was omitted from the configuration.
     $config['regions'] = $regions;
 
     // Flatten the grouped mappings to a single key => value map that

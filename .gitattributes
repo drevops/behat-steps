@@ -10,7 +10,7 @@
 /.gitignore          export-ignore
 /CLAUDE.md            export-ignore
 /CONTRIBUTING.md     export-ignore
-/behat.yml           export-ignore
+/behat.php           export-ignore
 /docker-compose.yml  export-ignore
 /docs                export-ignore
 /docs.php            export-ignore
