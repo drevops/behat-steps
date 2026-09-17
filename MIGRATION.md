@@ -266,7 +266,7 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
 
-Both entries are namespaces, which is the form `drupal/drupal-extension` used too: Behat appends `\ServiceContainer\<Last>Extension` to a locator that is not a class, so `DrevOps\BehatSteps\Behat` reaches `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` and `DrevOps\BehatSteps\Behat\Mink` reaches `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension`. Writing either class name in full still works.
+Both entries are namespaces rather than class names. Behat appends `\ServiceContainer\<Last>Extension` to a locator that is not a class, so `DrevOps\BehatSteps\Behat` reaches `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` and `DrevOps\BehatSteps\Behat\Mink` reaches `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension`. Writing either class name in full works too.
 
 ```yaml
 extensions:
