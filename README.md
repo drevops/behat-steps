@@ -178,7 +178,9 @@ $profile = (new Profile('default'))
 return (new Config())->withProfile($profile);
 ```
 
-Behat 4 reads only PHP configuration. Behat 3 also accepts the same settings in `behat.yml`.
+Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
+
+[behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference.
 
 ### JavaScript drivers
 
