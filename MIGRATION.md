@@ -261,18 +261,28 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 | Old | New |
 | --- | --- |
-| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
-| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
+| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink` |
+| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat` |
 
 Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
 
-`MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
-
-`ajax_timeout` belongs on `BehatStepsExtension`:
+Both entries are namespaces, which is the form `drupal/drupal-extension` used too: Behat appends `\ServiceContainer\<Last>Extension` to a locator that is not a class, so `DrevOps\BehatSteps\Behat` reaches `DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension` and `DrevOps\BehatSteps\Behat\Mink` reaches `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension`. Writing either class name in full still works.
 
 ```yaml
 extensions:
-  DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+  DrevOps\BehatSteps\Behat\Mink:
+    browserkit_http: ~
+  DrevOps\BehatSteps\Behat:
+    api_driver: drupal
+```
+
+`MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
+
+`ajax_timeout` belongs on `BehatExtension`:
+
+```yaml
+extensions:
+  DrevOps\BehatSteps\Behat:
     ajax_timeout: 10
 ```
 

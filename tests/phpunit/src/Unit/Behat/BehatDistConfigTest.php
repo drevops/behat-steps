@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat;
 
 use Behat\Config\Config;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\ArrayNode;
@@ -67,7 +67,7 @@ class BehatDistConfigTest extends TestCase {
   protected static function extensionSettings(): array {
     $settings = static::loadConfig()->toArray();
 
-    foreach (['default', 'extensions', BehatStepsExtension::class] as $key) {
+    foreach (['default', 'extensions', BehatExtension::class] as $key) {
       if (!is_array($settings) || !isset($settings[$key])) {
         self::fail(sprintf('behat.dist.php has no "%s" key on the path to the extension settings.', $key));
       }
@@ -76,7 +76,7 @@ class BehatDistConfigTest extends TestCase {
     }
 
     if (!is_array($settings)) {
-      self::fail('behat.dist.php does not configure ' . BehatStepsExtension::class . '.');
+      self::fail('behat.dist.php does not configure ' . BehatExtension::class . '.');
     }
 
     return $settings;
@@ -99,9 +99,9 @@ class BehatDistConfigTest extends TestCase {
    * Builds the extension's configuration tree.
    */
   protected static function buildConfigTree(): ArrayNode {
-    $builder = new ArrayNodeDefinition(BehatStepsExtension::CONFIG_KEY);
+    $builder = new ArrayNodeDefinition(BehatExtension::CONFIG_KEY);
 
-    (new BehatStepsExtension())->configure($builder);
+    (new BehatExtension())->configure($builder);
 
     $node = $builder->getNode(TRUE);
 

@@ -17,7 +17,7 @@ namespace DrevOps\BehatSteps\Behat;
  * 'DriverAwareInitializer' injects the parameter array via 'setParameters()'
  * before any scenario runs. No driver bootstrap is required.
  *
- * @see \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension
+ * @see \DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension
  */
 trait ParametersTrait {
 

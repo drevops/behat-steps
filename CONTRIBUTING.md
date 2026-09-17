@@ -112,7 +112,7 @@ Calling an instance method through `self::` or `static::` is not in this list - 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/RawContext` is the base context a consuming `FeatureContext` extends, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator. `RawContext` registers no step definitions - it owns the scenario lifecycle only.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/RawContext` is the base context a consuming `FeatureContext` extends, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator. `RawContext` registers no step definitions - it owns the scenario lifecycle only.
 - **`src/Steps`** is the step vocabulary - traits a consuming `FeatureContext` mixes in. `Generic/` holds the framework-agnostic ones, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
 A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in the step-free `HelperTrait` of its context.
@@ -122,7 +122,7 @@ A trait names the context class it needs with `@phpstan-require-extends`, and ne
 A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides whether a scenario has to be tagged `@api`.
 
 - **Nothing.** Every trait under `src/Steps/Generic` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
-- **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
+- **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
 - **A capability interface.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps ask the active driver for a named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver that implements it, which for most is the Drush driver as well as the in-process one, and they throw naming the missing capability when it does not.
 - **The in-process driver.** Every other trait under `src/Steps/Drupal` reaches Drupal's API directly. Each such method calls `RawContext::assertDrupal()` first, which asserts the scenario carries `@api` and that the driver it selected bootstraps Drupal in-process, bootstraps it, and returns it. A scenario missing `@api` gets a `BootstrapException` naming the tag; an `@api` scenario whose configured `api_driver` cannot bootstrap in-process gets one naming the driver.
 
@@ -144,7 +144,7 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 
 The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the driver-name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
 
-[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. Behat never loads it here, because `behat.php` takes precedence.
+[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. Behat never loads it here, because `behat.php` takes precedence.
 
 ## Reading tags
 

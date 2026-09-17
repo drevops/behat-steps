@@ -214,7 +214,7 @@ use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
@@ -245,7 +245,7 @@ $profile = (new Profile('default'))
       ],
     ],
   ]))
-  ->withExtension(new Extension(BehatStepsExtension::class, [
+  ->withExtension(new Extension(BehatExtension::class, [
     'api_driver' => 'drupal',
     'drupal' => ['drupal_root' => '/app/build/web'],
     'selectors' => [

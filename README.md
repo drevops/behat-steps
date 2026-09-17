@@ -170,15 +170,23 @@ declare(strict_types=1);
 use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 
 $profile = (new Profile('default'))
-  ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
+  ->withExtension(new Extension(BehatExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
 
 return (new Config())->withProfile($profile);
 ```
 
-Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
+Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`, where the extension is named by its namespace:
+
+```yaml
+extensions:
+  DrevOps\BehatSteps\Behat:
+    api_driver: drupal
+    drupal:
+      drupal_root: web
+```
 
 [behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference.
 

@@ -99,7 +99,7 @@ class MinkExtensionTest extends UnitTestCase {
     $this->assertInstanceOf(BaseNode::class, $node);
 
     $this->assertTrue($node->isDeprecated());
-    $this->assertStringContainsString('BehatStepsExtension', $node->getDeprecation('ajax_timeout', 'mink')['message']);
+    $this->assertStringContainsString('behat_steps', $node->getDeprecation('ajax_timeout', 'mink')['message']);
   }
 
   /**

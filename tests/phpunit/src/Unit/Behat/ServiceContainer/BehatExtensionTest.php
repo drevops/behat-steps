@@ -8,7 +8,7 @@ use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Tests the config schema and the services the extension puts in the container.
  */
-#[CoversClass(BehatStepsExtension::class)]
-class BehatStepsExtensionTest extends TestCase {
+#[CoversClass(BehatExtension::class)]
+class BehatExtensionTest extends TestCase {
 
   /**
    * Directory holding the binaries the resolver probes for.
@@ -62,13 +62,13 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public function testConfigKeyNamesTheExtension(): void {
-    $this->assertSame('behat_steps', (new BehatStepsExtension())->getConfigKey());
+    $this->assertSame('behat_steps', (new BehatExtension())->getConfigKey());
   }
 
   public function testInitializeTouchesNoOtherExtension(): void {
     $manager = new ExtensionManager([]);
 
-    (new BehatStepsExtension())->initialize($manager);
+    (new BehatExtension())->initialize($manager);
 
     $this->assertSame([], $manager->getExtensions());
   }
@@ -77,7 +77,7 @@ class BehatStepsExtensionTest extends TestCase {
     $container = $this->load([]);
     $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
 
-    (new BehatStepsExtension())->process($container);
+    (new BehatExtension())->process($container);
 
     $parameters = $container->getParameter('behat_steps.parameters');
     $this->assertIsArray($parameters);
@@ -87,7 +87,7 @@ class BehatStepsExtensionTest extends TestCase {
   public function testTheDefaultAjaxTimeoutSurvivesWithoutTheMinkTree(): void {
     $container = $this->load([]);
 
-    (new BehatStepsExtension())->process($container);
+    (new BehatExtension())->process($container);
 
     $parameters = $container->getParameter('behat_steps.parameters');
     $this->assertIsArray($parameters);
@@ -289,7 +289,7 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public function testProcessSwapsInTheContextClassGenerator(): void {
-    $extension = new BehatStepsExtension();
+    $extension = new BehatExtension();
     $container = $this->load([], $extension);
 
     $extension->process($container);
@@ -298,7 +298,7 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public function testProcessRegistersTheTaggedDrivers(): void {
-    $extension = new BehatStepsExtension();
+    $extension = new BehatExtension();
     $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
 
     $extension->process($container);
@@ -311,29 +311,29 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
-    $this->assertSame('/usr/local/bin/drush', BehatStepsExtension::resolveBinaryPath('/usr/local/bin/drush'));
+    $this->assertSame('/usr/local/bin/drush', BehatExtension::resolveBinaryPath('/usr/local/bin/drush'));
   }
 
   public function testBareBinaryCommandIsReturnedAsIs(): void {
-    $this->assertSame('drush', BehatStepsExtension::resolveBinaryPath('drush'));
+    $this->assertSame('drush', BehatExtension::resolveBinaryPath('drush'));
   }
 
   public function testBinaryPathResolvesFromWorkingDirectory(): void {
     chdir(self::$fixtureDir . '/project');
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testBinaryPathResolvesFromParentDirectory(): void {
     chdir(self::$fixtureDir . '/project/web');
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testUnresolvableBinaryPathIsReturnedAsIs(): void {
     chdir(self::$fixtureDir);
 
-    $this->assertSame('some/nonexistent/binary', BehatStepsExtension::resolveBinaryPath('some/nonexistent/binary'));
+    $this->assertSame('some/nonexistent/binary', BehatExtension::resolveBinaryPath('some/nonexistent/binary'));
   }
 
   /**
@@ -341,13 +341,13 @@ class BehatStepsExtensionTest extends TestCase {
    *
    * @param array<string, mixed> $config
    *   The extension configuration, before schema normalisation.
-   * @param \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension|null $extension
+   * @param \DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension|null $extension
    *   The extension to load with, when the test needs it afterwards.
    */
-  protected function load(array $config, ?BehatStepsExtension $extension = NULL): ContainerBuilder {
-    $extension ??= new BehatStepsExtension();
+  protected function load(array $config, ?BehatExtension $extension = NULL): ContainerBuilder {
+    $extension ??= new BehatExtension();
 
-    $builder = new ArrayNodeDefinition(BehatStepsExtension::CONFIG_KEY);
+    $builder = new ArrayNodeDefinition(BehatExtension::CONFIG_KEY);
     $extension->configure($builder);
     $tree = $builder->getNode(TRUE);
 

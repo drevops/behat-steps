@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 /**
  * Behat extension wiring the driver layer, managers and hooks into a suite.
  */
-class BehatStepsExtension implements ExtensionInterface {
+class BehatExtension implements ExtensionInterface {
 
   /**
    * Key this extension's settings live under in the Behat configuration.

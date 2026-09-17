@@ -16,7 +16,7 @@ use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
@@ -35,7 +35,7 @@ $profile = (new Profile('default'))
       'selenium2' => ['selenium2' => ['wd_host' => 'http://localhost:4444/wd/hub']],
     ],
   ]))
-  ->withExtension(new Extension(BehatStepsExtension::class, [
+  ->withExtension(new Extension(BehatExtension::class, [
     'default_driver' => 'blackbox',
     'api_driver' => 'drupal',
     'drush_driver' => 'drush',

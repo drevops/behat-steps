@@ -88,7 +88,7 @@ class MinkExtension implements ExtensionInterface {
         ->integerNode('ajax_timeout')
           ->min(0)
           ->info('Maximum time (in seconds) to wait for AJAX calls to complete.')
-          ->setDeprecated('drevops/behat-steps', '4.0.0', 'Setting "%node%" at path "%path%" is deprecated. Set "ajax_timeout" on the "BehatStepsExtension" configuration instead.')
+          ->setDeprecated('drevops/behat-steps', '4.0.0', 'Setting "%node%" at path "%path%" is deprecated. Set "ajax_timeout" under the "behat_steps" configuration instead.')
         ->end()
       ->end();
     // phpcs:enable

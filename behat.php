@@ -14,7 +14,7 @@ use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
@@ -57,7 +57,7 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
       ],
     ],
   ]))
-  ->withExtension(new Extension(BehatStepsExtension::class, [
+  ->withExtension(new Extension(BehatExtension::class, [
     'blackbox' => NULL,
     'api_driver' => 'drupal',
     'drush_driver' => 'drush',

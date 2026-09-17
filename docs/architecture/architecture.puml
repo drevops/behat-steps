@@ -25,7 +25,7 @@ package "drevops/behat-steps" {
   }
 
   package "Integration - src/Behat" #F3E5F5 {
-    component "BehatStepsExtension\nservice wiring" as Ext
+    component "BehatExtension\nservice wiring" as Ext
     component "RawContext\nscenario lifecycle,\nentity creation, cleanup, hooks" as RawCtx
     component "Managers\nDriver, Authentication,\nUser, Mail" as Managers
     component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
