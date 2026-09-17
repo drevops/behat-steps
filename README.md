@@ -199,7 +199,11 @@ use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
 
 $profile
   ->withExtension(new Extension(ChromeExtension::class))
-  ->withExtension(new Extension(MinkExtension::class, ['browser_name' => 'chrome', 'javascript_session' => 'chrome', 'chrome' => ['api_url' => 'http://chrome:9222']]));
+  ->withExtension(new Extension(MinkExtension::class, [
+    'browser_name' => 'chrome',
+    'javascript_session' => 'chrome',
+    'sessions' => ['chrome' => ['chrome' => ['api_url' => 'http://chrome:9222']]],
+  ]));
 ```
 
 Any image that exposes a DevTools endpoint works (for example
