@@ -25,6 +25,7 @@ declare(strict_types=1);
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -69,7 +70,7 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
  * A context base class contributes the scenario lifecycle a domain step is
  * written against, which is as much a part of the toolbox as a trait helper.
  */
-const TOOLBOX_CLASSES = [\DrevOps\BehatSteps\Behat\Context\RawContext::class];
+const TOOLBOX_CLASSES = [RawContext::class];
 
 /**
  * File holding the toolbox reference, relative to the repository root.
@@ -132,7 +133,11 @@ function main(array $options = []): void {
       ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
     ],
     CONFIGURATION_FILE => [
-      ['[//]: # (START_EXTENSION_OPTIONS)', '[//]: # (END_EXTENSION_OPTIONS)', PHP_EOL . render_extension_options() . PHP_EOL],
+      [
+        '[//]: # (START_EXTENSION_OPTIONS)',
+        '[//]: # (END_EXTENSION_OPTIONS)',
+        PHP_EOL . render_extension_options() . PHP_EOL,
+      ],
       ['[//]: # (START_TAGS)', '[//]: # (END_TAGS)', PHP_EOL . render_tag_reference() . PHP_EOL],
     ],
   ];
@@ -632,7 +637,7 @@ function render_type(?\ReflectionType $type): string {
 
   if ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
     $glue = $type instanceof \ReflectionUnionType ? '|' : '&';
-    $parts = array_map(static fn(\ReflectionType $part): string => $short((string) $part), $type->getTypes());
+    $parts = array_map(render_type(...), $type->getTypes());
 
     return implode($glue, $parts);
   }
@@ -774,7 +779,6 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
       continue;
     }
     // @codeCoverageIgnoreEnd
-
     $class_info = [
       'name' => $short_name,
       'name_contextual' => $short_name,
@@ -1132,7 +1136,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $content_output[$context] ??= '';
     $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
     $content_output[$context] .= $links . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= '> ' . (string) $trait_info['description'] . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= '> ' . $trait_info['description'] . PHP_EOL . PHP_EOL;
 
     foreach ($helpers as $helper) {
       $example = (string) $helper['example'];
@@ -1523,7 +1527,7 @@ function extension_option_type(NodeInterface $node): string {
 function extension_option_description(NodeInterface $node): string {
   $info = method_exists($node, 'getInfo') ? (string) $node->getInfo() : '';
 
-  $lines = array_filter(array_map('trim', explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
+  $lines = array_filter(array_map(trim(...), explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
 
   return str_replace('|', '\\|', implode('<br>', $lines));
 }
@@ -1785,8 +1789,9 @@ function replace_content(string $haystack, string $start, string $end, string $r
  *
  * @param array<int, string> $headers
  *   The headers for the table.
- * @param array<string, array<int, string>> $rows
- *   The rows for the table.
+ * @param array<array-key, array<int, string>> $rows
+ *   The rows for the table. Keys are ignored; the rows render in their
+ *   current order.
  *
  * @return string
  *   The markdown table.
