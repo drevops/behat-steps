@@ -163,7 +163,7 @@ if (Tag::has($scope->getScenario(), 'email')) {
 
 `Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
-The Behat extensions this repository installs have the same problem, and only some of it can be fixed from here. [`MinkSessionListener`](src/Behat/Listener/MinkSessionListener.php) replaces Mink's own session listener so `@javascript` selects the browser session in both modes. `drevops/behat-phpserver` still compares `@phpserver` against a bare name, which is what keeps the `gherkin32` CI leg red.
+Mink 2's own session listener compares tags against bare names, so [`MinkSessionListener`](src/Behat/Listener/MinkSessionListener.php) replaces it and `@javascript` selects the browser session in both modes. The `gherkin32` CI leg runs the whole suite in `gherkin-32` mode, so a bare-name comparison anywhere in the stack fails it.
 
 ## Dependency policy
 
@@ -294,21 +294,17 @@ If a reachable branch has no test, the fix is the test, not the marker.
 |---|---|
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
-| 1 x `gherkin32` | How much of the suite already works when Gherkin keeps the `@` on every tag. A non-blocking probe, red today for a known reason - see below. |
+| 1 x `gherkin32` | The suite works when Gherkin keeps the `@` on every tag, so no tag read in the library or the extensions it installs compares against a bare name. See [Gherkin parsing modes](#gherkin-parsing-modes). |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
 Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
 
-### The leg allowed to fail
-
-The `gherkin32` leg carries `allow_failure: true`, so it reports without blocking. It runs the suite through the `gherkin_32` Behat profile. This library reads every tag through [`Tag`](src/Behat/Tag.php), but `drevops/behat-phpserver` still compares `@phpserver` against a bare name, so those scenarios fail. See [Gherkin parsing modes](#gherkin-parsing-modes). The leg goes green on its own once that package normalizes, and it should not be removed to make the board look tidier - a red probe is the signal.
-
 ### Why there is no Behat 4 leg
 
-The library itself runs on Behat 4 (see [Behat 4 readiness](#behat-4-readiness)), but the fixture site cannot be built on it: `dmore/behat-chrome-extension`, `drevops/behat-phpserver` and `drevops/behat-screenshot` all cap `behat/behat` at `^3`, and `scripts/provision.sh` installs all 3 so the Behat suite can run. A leg would fail in Composer before reaching a single test, which says nothing about this repository.
+The library itself runs on Behat 4 (see [Behat 4 readiness](#behat-4-readiness)), but the fixture site cannot be built on it: the latest release of `dmore/behat-chrome-extension` caps `behat/behat` at `^3`, and `scripts/provision.sh` installs it so the `chrome_headless` profile can run. A leg would fail in Composer before reaching a single test, which says nothing about this repository.
 
-Widening the first 2 is tracked in [behat-phpserver#131](https://github.com/drevops/behat-phpserver/issues/131) and [behat-screenshot#285](https://github.com/drevops/behat-screenshot/issues/285); `dmore/behat-chrome-extension` is needed only by the `chrome_headless` profile. Add the leg once they accept `^4.0`.
+Add the leg once `dmore/behat-chrome-extension` publishes a release that accepts `^4.0`.
 
 ### Drupal versions
 
