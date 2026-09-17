@@ -74,9 +74,6 @@ final class Tag {
     $scenario = $subject->getScenario();
     $tags = $subject->getFeature()->getTags();
 
-    // An example's scenario is the outline row, which carries tags of its own
-    // only on the outline. Behat 4 types the getter as returning a node that
-    // need not be tagged.
     if ($scenario instanceof TaggedNodeInterface) {
       $tags = array_merge($tags, $scenario->getTags());
     }
