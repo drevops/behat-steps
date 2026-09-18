@@ -15,7 +15,13 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../do
 
 ### Suite per surface
 
-A suite is the unit that binds a set of feature files to a set of contexts. The default layout is one suite per surface under test, because each surface needs a different vocabulary and a different driver.
+A suite is the unit that binds a set of scenarios to a set of contexts. The recommended layout is one suite per surface under test, because each surface is driven differently and runs at a different speed.
+
+A suite selects its scenarios either by path or by tag. Both forms are shown below; which one fits depends on whether a feature file belongs to a single surface.
+
+#### Selecting by tag
+
+This is the layout [behat.php](../behat.php) in this repository uses, and it is the one to reach for when a feature file mixes surfaces. A trait's coverage usually does: `ElementTrait` is exercised against static fixtures, against a Drupal page and in a real browser, and splitting that into 3 files would repeat the `Feature:` header and the `Background` in each.
 
 ```php
 <?php
@@ -29,6 +35,37 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
+$surfaces = [
+  // No Drupal: static pages, HTTP responses and payloads.
+  'blackbox' => '~@api&&~@javascript',
+  // The Drupal site, reached through the API driver.
+  'api' => '@api&&~@javascript',
+  // A real browser session, over either of the other 2 surfaces.
+  'javascript' => '@javascript',
+];
+
+$profile = (new Profile('default'))
+  ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
+
+foreach ($surfaces as $name => $tags) {
+  $profile->withSuite((new Suite($name))
+    ->withPaths('%paths.base%/tests/behat/features')
+    ->withFilter(new TagFilter($tags))
+    ->addContext(FeatureContext::class));
+}
+
+return (new Config())->withProfile($profile);
+```
+
+Write the tag expressions so they partition the scenarios: a scenario that matches 2 suites runs twice, and one that matches none is skipped without a warning. The 3 above are mutually exclusive and cover every scenario, whatever its tags.
+
+A suite filter stacks on top of the profile's own Gherkin filters rather than replacing them, so a profile-wide `~@skipped` still applies inside each suite.
+
+#### Selecting by path
+
+Where a feature file does belong to one surface, give each suite its own directory and its own context. The suite then carries only the vocabulary that works on it.
+
+```php
 // The browser surface: what an editor or a visitor can do in a page.
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
@@ -43,23 +80,15 @@ $api = (new Suite('api'))
 $spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
   ->addContext(SpecContext::class);
-
-$profile = (new Profile('default'))
-  ->withSuite($ui)
-  ->withSuite($api)
-  ->withSuite($spec)
-  ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
-
-return (new Config())->withProfile($profile);
 ```
 
 Run one surface with `vendor/bin/behat --suite=api`, or all of them with a bare `vendor/bin/behat`.
 
 Three properties follow from the layout:
 
-- **Each suite composes only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
+- **A slow surface can be excluded without touching the others.** Accessibility, visual and `@javascript` scenarios sit in their own suite, so the fast suites stay fast. This holds under either form of selection.
+- **A path split lets each suite carry only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run. A tag split cannot offer this, because the suites share a features directory and therefore a context.
 - **The spec suite and the regression suites do different jobs.** The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
-- **A slow surface can be excluded without touching the others.** Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
 
 ### Context constructor arguments
 
@@ -86,11 +115,15 @@ Behat matches the arguments to the constructor by name, so the array keys are th
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
 
-While a project is still on Behat 3, the YAML form of the suite above is:
+While a project is still on Behat 3, the YAML form of the suites above is:
 
 ```yaml
 default:
   suites:
+    blackbox:
+      paths: ['%paths.base%/tests/behat/features']
+      filters: { tags: '~@api&&~@javascript' }
+      contexts: [FeatureContext]
     ui:
       paths: ['%paths.base%/tests/behat/features/ui']
       contexts:

@@ -5,7 +5,7 @@ This directory contains Drupal fixture sites used for testing the Behat Steps li
 ## Directory Structure
 
 ```
-fixtures_drupal/
+drupal/
 └── d11/          # Drupal 11 fixture
     ├── composer.json
     ├── config/
@@ -16,7 +16,8 @@ fixtures_drupal/
     └── web/
         └── modules/
             └── custom/
-                └── mysite_core/
+                ├── mysite_core/        # Site behaviour: hooks, routes, services
+                └── mysite_field_test/  # Field types with no driver handler
 ```
 
 `scripts/provision.sh` and `.ahoy.yml` address the fixture as `d${DRUPAL_VERSION}`, so a fixture for a new Drupal major is added as a sibling directory with no changes to either.
@@ -48,11 +49,15 @@ Each fixture's `composer.json` includes these contrib modules required for compr
 ### Development Modules
 - **drupal/testmode**: Test mode functionality for safe testing environment
 
-## Custom Module: mysite_core
+## Custom Modules
+
+The fixture ships one module set, under the `mysite_` prefix, in `web/modules/custom/`.
+
+### mysite_core
 
 Located at `web/modules/custom/mysite_core/`, this module provides test-specific hooks:
 
-### Features
+#### Features
 
 **Cookie Testing** (`mysite_core_form_alter`):
 ```php
@@ -66,7 +71,7 @@ setcookie('testcookiename', 'testcookievalue');
 // Supports custom subjects, bodies, and headers
 ```
 
-### Module Structure
+#### Module Structure
 ```
 mysite_core/
 ├── mysite_core.info.yml     # Module metadata
@@ -75,6 +80,12 @@ mysite_core/
 ├── mysite_core.routing.yml   # Route definitions
 └── src/                      # PSR-4 autoloaded classes
 ```
+
+### mysite_field_test
+
+Located at `web/modules/custom/mysite_field_test/`, this module declares 2 field types the driver ships no handler for: `mysite_test_scalar` with plain-scalar columns, and `mysite_test_reference` with an entity-reference target column. Together they stand in for any contrib module that introduces its own field type.
+
+It stays out of `config/sync/core.extension.yml` and is enabled per test, by `CustomModuleFieldKernelTest`, so the kernel it runs in keeps its minimal module list.
 
 ## Composer Configuration
 

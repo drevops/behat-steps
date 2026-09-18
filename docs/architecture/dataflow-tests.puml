@@ -33,12 +33,14 @@ deactivate Prov
 Dev -> Behat: behat -c /app/behat.php, run from build/
 activate Behat
 
-Behat -> Site: @api scenarios drive Drupal and Mink directly
+Behat -> Behat: 3 suites select by tag:\nblackbox, api, javascript
+
+Behat -> Site: the api suite drives Drupal and Mink directly
 activate Site
 Site --> Behat: page and entity state
 deactivate Site
 
-Behat -> Cli: scenario tagged @trait:SomeTrait
+Behat -> Cli: blackbox scenario tagged @trait:SomeTrait
 activate Cli
 Cli -> Cli: behatCliBeforeScenario reads the tag and writes\na FeatureContext composing only those traits
 Cli -> Sub: spawn behat in a temp directory

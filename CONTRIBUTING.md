@@ -270,6 +270,16 @@ ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
 ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
+[behat.php](behat.php) declares one suite per surface, each selecting its scenarios by tag out of the single features directory:
+
+| Suite | Scenarios | Surface |
+| --- | --- | --- |
+| `blackbox` | `~@api&&~@javascript` | Static fixtures over the PHP built-in server, and the nested runs that prove each trait in isolation |
+| `api` | `@api&&~@javascript` | The fixture Drupal site, reached through the API driver |
+| `javascript` | `@javascript` | A real browser session, over either of the other 2 surfaces |
+
+Run one surface with `ahoy test-bdd -- --suite=blackbox`. The 3 tag expressions are mutually exclusive and cover every scenario, so a bare `ahoy test-bdd` runs each scenario exactly once. A new scenario that matches none of them would be skipped silently, so keep the expressions exhaustive when adding a surface. [Configuration](docs/configuration.md#1-suites-and-context-arguments) explains the layout as a consumer would apply it.
+
 ### Static fixtures
 
 Static fixture files - HTML pages, XML, JSON, images, archives - live in [tests/fixtures/files](tests/fixtures/files).

@@ -141,9 +141,13 @@ The `BEHAT` variable picks the Behat major, `3` unless set. `composer.json` allo
 
 Behat then runs from inside `build/` but with the project-root `behat.php`, which is why several paths in the config look one level off.
 
-### The suite
+### The suites
 
-`behat.php` wires up `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/fixtures/files/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
+`behat.php` declares 3 suites, one per surface: `blackbox` (`~@api&&~@javascript`), `api` (`@api&&~@javascript`) and `javascript` (`@javascript`). All 3 read the same `tests/Behat/features` directory and select their scenarios by tag, because a trait's coverage spans surfaces - `ElementTrait` is exercised on all 3 - and a path split would repeat each `Feature:` header across 3 files. The expressions partition the scenarios, so a bare run covers exactly what the single suite covered before.
+
+Every suite wires up the same contexts: `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/fixtures/files/` on port 8888 for the traits that need a static file and no Drupal at all. They share one context list rather than each carrying its own vocabulary, because scenarios on one surface set up through steps that belong to another - `the user is anonymous` lives in `Drupal\UserTrait` and resets the session for static-fixture scenarios.
+
+The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
 
 Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
 

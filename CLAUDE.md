@@ -217,6 +217,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Negative tests using `@trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
 - Test-only tags - ones consumed by the test harness (`FeatureContext` or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
+- `behat.php` declares 3 suites - `blackbox` (`~@api&&~@javascript`), `api` (`@api&&~@javascript`) and `javascript` (`@javascript`) - over the single `tests/Behat/features` directory. The expressions are mutually exclusive and exhaustive, so every scenario runs exactly once. A scenario matching none of them is skipped with no warning, so adding a surface means widening an existing expression rather than only adding a suite. Run one surface with `ahoy test-bdd -- --suite=blackbox`.
 
 ### Step Definition Constraints
 - Documentation tool (`docs.php`) does not support multiple `@When` annotations per method
