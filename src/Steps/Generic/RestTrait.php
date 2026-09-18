@@ -125,7 +125,7 @@ trait RestTrait {
    * @return string
    *   The resolved absolute URL.
    */
-  protected function restResolveUrl(string $url): string {
+  public function restResolveUrl(string $url): string {
     if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
       return $url;
     }
@@ -139,7 +139,7 @@ trait RestTrait {
    * @return mixed
    *   The BrowserKit client.
    */
-  protected function restGetClient(): mixed {
+  public function restGetClient(): mixed {
     $driver = $this->getSession()->getDriver();
 
     if (!method_exists($driver, 'getClient')) {

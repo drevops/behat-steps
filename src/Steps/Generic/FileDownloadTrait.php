@@ -321,7 +321,7 @@ trait FileDownloadTrait {
   /**
    * Assert that an HTML link is present on the page.
    */
-  protected function fileDownloadAssertLinkPresent(string $link): NodeElement {
+  public function fileDownloadAssertLinkPresent(string $link): NodeElement {
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
 
@@ -335,7 +335,7 @@ trait FileDownloadTrait {
   /**
    * Open downloaded ZIP archive and validate contents.
    */
-  protected function fileDownloadOpenZip(): \ZipArchive {
+  public function fileDownloadOpenZip(): \ZipArchive {
     // @codeCoverageIgnoreStart
     if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP.');
@@ -387,7 +387,7 @@ trait FileDownloadTrait {
    * @return array<string, string>
    *   Array of downloaded file information.
    */
-  protected function fileDownloadProcess(string $url, array $options = []): array {
+  public function fileDownloadProcess(string $url, array $options = []): array {
     $response_headers = [];
 
     $options += [
@@ -502,7 +502,7 @@ trait FileDownloadTrait {
   /**
    * Get temp download dir.
    */
-  protected function fileDownloadGetTempDir(): string {
+  public function fileDownloadGetTempDir(): string {
     return '/tmp/behat_downloads';
   }
 

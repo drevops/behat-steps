@@ -12,7 +12,7 @@ trait HelperDrupalTrait {
   /**
    * Read the Drupal value.
    */
-  protected function helperDrupalValue(): string {
+  public function helperDrupalValue(): string {
     return 'value';
   }
 

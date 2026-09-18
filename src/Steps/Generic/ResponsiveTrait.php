@@ -260,7 +260,7 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If breakpoint doesn't exist.
    */
-  protected function responsiveResizeToBreakpoint(string $breakpoint): void {
+  public function responsiveResizeToBreakpoint(string $breakpoint): void {
     $dimensions = $this->responsiveGetBreakpoint($breakpoint);
     $parsed = $this->responsiveExtractDimensions($dimensions);
     $this->responsiveResize($parsed['width'], $parsed['height']);
@@ -278,7 +278,7 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If breakpoint doesn't exist.
    */
-  protected function responsiveGetBreakpoint(string $name): string {
+  public function responsiveGetBreakpoint(string $name): string {
     $all_breakpoints = $this->responsiveGetAllBreakpoints();
 
     if (!isset($all_breakpoints[$name])) {
@@ -297,7 +297,7 @@ trait ResponsiveTrait {
    * @return array<string, string>
    *   All breakpoints.
    */
-  protected function responsiveGetAllBreakpoints(): array {
+  public function responsiveGetAllBreakpoints(): array {
     return array_merge($this->responsiveDefaultBreakpoints, $this->responsiveCustomBreakpoints);
   }
 
@@ -336,7 +336,7 @@ trait ResponsiveTrait {
    * @return array<string, int>
    *   Array with 'width' and 'height' keys.
    */
-  protected function responsiveGetCurrentDimensions(): array {
+  public function responsiveGetCurrentDimensions(): array {
     $default_width = 1280;
     $default_height = 800;
 
@@ -364,7 +364,7 @@ trait ResponsiveTrait {
    * @param int $height
    *   The height in pixels.
    */
-  protected function responsiveResize(int $width, int $height): void {
+  public function responsiveResize(int $width, int $height): void {
     try {
       if (!$this->getSession()->isStarted()) {
         // @codeCoverageIgnoreStart

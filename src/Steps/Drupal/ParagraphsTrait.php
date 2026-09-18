@@ -73,7 +73,7 @@ trait ParagraphsTrait {
    * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.
    */
-  protected function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
+  public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->assertDrupal();
 
     $values = $stub->getValues();
@@ -113,7 +113,7 @@ trait ParagraphsTrait {
    * @return \Drupal\Core\Entity\ContentEntityInterface|null
    *   Found entity or NULL if not found.
    */
-  protected function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
+  public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery($entity_type)

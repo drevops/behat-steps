@@ -798,6 +798,10 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
 /**
  * Collect the toolbox methods a class or trait contributes.
  *
+ * Visibility is the marker: a public method that Behat does not register is
+ * the toolbox, and a protected one is an implementation detail carrying no
+ * promise to a consuming project.
+ *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait reflection.
  * @param string|null $prefix
@@ -811,7 +815,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
 function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
   $helpers = [];
 
-  foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED) as $method) {
+  foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
     if ($prefix === NULL) {
       if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
         continue;

@@ -118,7 +118,7 @@ trait BigPipeTrait {
    * @param int $timeout_ms
    *   Maximum time to wait, in milliseconds.
    */
-  protected function bigPipeWaitForPlaceholders(int $timeout_ms): void {
+  public function bigPipeWaitForPlaceholders(int $timeout_ms): void {
     try {
       $this->getSession()->wait($timeout_ms, "document.querySelectorAll('[data-big-pipe-placeholder-id]').length === 0");
     }
@@ -189,7 +189,7 @@ trait BigPipeTrait {
    * @return int
    *   The timeout in milliseconds.
    */
-  protected function bigPipeGetWaitTimeout(): int {
+  public function bigPipeGetWaitTimeout(): int {
     return $this->bigPipeWaitTimeout;
   }
 

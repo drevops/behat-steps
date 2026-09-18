@@ -701,7 +701,7 @@ trait XmlTrait {
    *   Whether the content parsed into a document, and the errors libxml raised
    *   while parsing it. A document can parse and still raise errors.
    */
-  protected function xmlParse(string $content): array {
+  public function xmlParse(string $content): array {
     $document = new \DOMDocument();
 
     libxml_clear_errors();
@@ -853,7 +853,7 @@ trait XmlTrait {
    * @param string $schema
    *   The XSD schema source.
    */
-  protected function xmlValidateXsd(string $schema): void {
+  public function xmlValidateXsd(string $schema): void {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
@@ -872,7 +872,7 @@ trait XmlTrait {
    * @param string $schema
    *   The RelaxNG schema source.
    */
-  protected function xmlValidateRelaxNg(string $schema): void {
+  public function xmlValidateRelaxNg(string $schema): void {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
@@ -903,7 +903,7 @@ trait XmlTrait {
    * @param string $dtd
    *   The DTD source (element, attribute and entity declarations).
    */
-  protected function xmlValidateDtd(string $dtd): void {
+  public function xmlValidateDtd(string $dtd): void {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
@@ -949,7 +949,7 @@ trait XmlTrait {
   /**
    * Validate the response as an RSS 2.0 feed.
    */
-  protected function xmlValidateRssFeed(): void {
+  public function xmlValidateRssFeed(): void {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
@@ -987,7 +987,7 @@ trait XmlTrait {
   /**
    * Validate the response as an Atom feed.
    */
-  protected function xmlValidateAtomFeed(): void {
+  public function xmlValidateAtomFeed(): void {
     $this->xmlEnsureDocument();
 
     $namespace = 'http://www.w3.org/2005/Atom';

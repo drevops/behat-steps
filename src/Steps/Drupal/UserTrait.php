@@ -572,7 +572,7 @@ trait UserTrait {
    * @throws \RuntimeException
    *   When the active driver cannot assign roles.
    */
-  protected function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
+  public function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
     $driver = $this->getDriver();
 
     if (!$driver instanceof UserCapabilityInterface) {
@@ -598,7 +598,7 @@ trait UserTrait {
    *   One role, or several as a comma-separated list. An empty string assigns
    *   nothing.
    */
-  protected function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void {
+  public function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void {
     foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
       // Having an account already carries 'authenticated', and the role is not
       // assignable in its own right.
@@ -616,7 +616,7 @@ trait UserTrait {
    * @param array<string, mixed> $extra_fields
    *   Additional values to set on the account.
    */
-  protected function userBuildStub(array $extra_fields = []): EntityStubInterface {
+  public function userBuildStub(array $extra_fields = []): EntityStubInterface {
     $name = (string) $this->getRandom()->name(8);
 
     $stub = new EntityStub('user', NULL, [
@@ -638,7 +638,7 @@ trait UserTrait {
    * @param \Drupal\user\UserInterface $user
    *   The user object.
    */
-  protected function userVisitPasswordResetLinkForUser(UserInterface $user): void {
+  public function userVisitPasswordResetLinkForUser(UserInterface $user): void {
     $this->assertDrupal();
 
     $timestamp = \Drupal::time()->getRequestTime();
@@ -663,7 +663,7 @@ trait UserTrait {
    * @return bool
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
-  protected function userExistsByMail(string $mail): bool {
+  public function userExistsByMail(string $mail): bool {
     $this->assertDrupal();
 
     $ids = \Drupal::entityTypeManager()
@@ -686,7 +686,7 @@ trait UserTrait {
    * @return array<int, \Drupal\user\UserInterface>
    *   Array of loaded user objects.
    */
-  protected function userLoadMultiple(array $conditions = []): array {
+  public function userLoadMultiple(array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
@@ -716,7 +716,7 @@ trait UserTrait {
    * @throws \RuntimeException
    *   When no user with the specified name exists.
    */
-  protected function userLoadByName(string $name): ?UserInterface {
+  public function userLoadByName(string $name): ?UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {
@@ -734,7 +734,7 @@ trait UserTrait {
    * @param string $action_subpath
    *   The action subpath.
    */
-  protected function userVisitActionPage(string $name, string $action_subpath = ''): void {
+  public function userVisitActionPage(string $name, string $action_subpath = ''): void {
     if ($name === 'current') {
       $user = $this->getUserManager()->getCurrentUser();
 

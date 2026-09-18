@@ -212,7 +212,7 @@ trait PathTrait {
    * @return array<int|string, mixed>
    *   Query parameters keyed by name, empty when the URL carries no query.
    */
-  protected function pathGetCurrentUrlQuery(): array {
+  public function pathGetCurrentUrlQuery(): array {
     $url = $this->getSession()->getCurrentUrl();
 
     $url_query = parse_url((string) $url, PHP_URL_QUERY);

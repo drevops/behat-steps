@@ -82,7 +82,7 @@ trait DraggableviewsTrait {
    * @return \Drupal\node\NodeInterface|null
    *   The found node or NULL.
    */
-  protected function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
+  public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('node')

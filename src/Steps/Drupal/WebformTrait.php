@@ -86,7 +86,7 @@ trait WebformTrait {
    * @return \Drupal\webform\WebformInterface[]
    *   An array of matching webform template entities.
    */
-  protected function webformTemplates(string $title): array {
+  public function webformTemplates(string $title): array {
     $webforms = $this->webformLoadAll($title);
 
     return array_filter($webforms, static fn($webform): bool => $webform->isTemplate());
@@ -101,7 +101,7 @@ trait WebformTrait {
    * @return \Drupal\webform\WebformInterface[]
    *   An array of matching webform entities.
    */
-  protected function webformLoadAll(string $title): array {
+  public function webformLoadAll(string $title): array {
     $this->assertDrupal();
 
     // Clear config factory cache to pick up webform changes made via the

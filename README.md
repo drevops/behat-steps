@@ -325,7 +325,7 @@ To keep only entities of a **named type**, add
 This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
-- **Helpers** - every public and protected method the step traits and `RawContext` contribute, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text.
+- **Helpers** - every public method the step traits and `RawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
 - **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
 - **Context base classes** - `RawContext` and `DrupalContext`, which a project extends.

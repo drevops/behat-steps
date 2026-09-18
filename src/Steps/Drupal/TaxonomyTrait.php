@@ -247,7 +247,7 @@ trait TaxonomyTrait {
    * @param string $action_subpath
    *   The operation to perform, e.g., '/delete', '/edit', etc.
    */
-  protected function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void {
+  public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void {
     $this->assertDrupal();
 
     $vocab = Vocabulary::load($vocabulary);
@@ -283,7 +283,7 @@ trait TaxonomyTrait {
    * @return array<int, string>
    *   Array of term ids.
    */
-  protected function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
+  public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('taxonomy_term')

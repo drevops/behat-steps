@@ -2615,8 +2615,9 @@ EOD,
 
     $this->assertSame('Sample trait carrying helpers for testing.', $trait['description']);
 
-    // Steps, hooks, transformations, internal members and members belonging to
-    // another trait by name are all left out, and the rest is sorted by name.
+    // Steps, hooks, transformations, protected members, internal members and
+    // members belonging to another trait by name are all left out, and the
+    // rest is sorted by name.
     $this->assertSame(['helperSampleBuild', 'helperSampleDefaults'], array_column($trait['helpers'], 'name'));
 
     $this->assertSame('public function helperSampleBuild(string $name, ?int $count = NULL, bool $strict = TRUE): string', $trait['helpers'][0]['signature']);

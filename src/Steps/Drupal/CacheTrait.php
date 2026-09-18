@@ -145,7 +145,7 @@ trait CacheTrait {
    * Override in the consuming `FeatureContext` if the site uses a custom
    * internal page cache bin name.
    */
-  protected function cacheGetPageCacheBin(): string {
+  public function cacheGetPageCacheBin(): string {
     return 'page';
   }
 

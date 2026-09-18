@@ -160,7 +160,7 @@ trait MenuTrait {
    * @return \Drupal\system\MenuInterface|null
    *   The menu or NULL if not found.
    */
-  protected function menuLoadByLabel(string $label): ?MenuInterface {
+  public function menuLoadByLabel(string $label): ?MenuInterface {
     $this->assertDrupal();
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
@@ -190,7 +190,7 @@ trait MenuTrait {
    * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
    *   The menu link or NULL if not found.
    */
-  protected function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
+  public function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
     $this->assertDrupal();
 
     $menu = $this->menuLoadByLabel($menu_name);

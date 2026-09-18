@@ -55,14 +55,14 @@ trait TestmodeTrait {
   /**
    * Enable test mode.
    */
-  protected static function testmodeEnableTestMode(): void {
+  public static function testmodeEnableTestMode(): void {
     Testmode::getInstance()->enableTestMode();
   }
 
   /**
    * Disable test mode.
    */
-  protected static function testmodeDisableTestMode(): void {
+  public static function testmodeDisableTestMode(): void {
     Testmode::getInstance()->disableTestMode();
   }
 

@@ -390,7 +390,7 @@ trait MetatagTrait {
    * @return \Behat\Mink\Element\NodeElement|null
    *   The meta element, or NULL when not found.
    */
-  protected function metatagFindMeta(string $name): ?NodeElement {
+  public function metatagFindMeta(string $name): ?NodeElement {
     $escaped_name = (new Escaper())->escapeLiteral($name);
 
     return $this->getSession()->getPage()->find('xpath', sprintf('//meta[@name=%s or @property=%s]', $escaped_name, $escaped_name));
@@ -405,7 +405,7 @@ trait MetatagTrait {
    * @return string|null
    *   The content attribute value, or NULL when the meta tag is not found.
    */
-  protected function metatagGetMetaContent(string $name): ?string {
+  public function metatagGetMetaContent(string $name): ?string {
     $meta = $this->metatagFindMeta($name);
 
     return $meta === NULL ? NULL : (string) $meta->getAttribute('content');
@@ -417,7 +417,7 @@ trait MetatagTrait {
    * @return string|null
    *   The canonical href, or NULL when no canonical link is present.
    */
-  protected function metatagGetCanonicalHref(): ?string {
+  public function metatagGetCanonicalHref(): ?string {
     $link = $this->getSession()->getPage()->find('xpath', '//link[@rel="canonical"]');
 
     return $link === NULL ? NULL : (string) $link->getAttribute('href');
@@ -429,7 +429,7 @@ trait MetatagTrait {
    * @return array<int, string>
    *   The directive tokens, or an empty array when no robots meta tag exists.
    */
-  protected function metatagGetRobotsDirectives(): array {
+  public function metatagGetRobotsDirectives(): array {
     $content = $this->metatagGetMetaContent('robots');
 
     if ($content === NULL || trim($content) === '') {
@@ -446,7 +446,7 @@ trait MetatagTrait {
    *   TRUE when neither the robots meta tag nor the X-Robots-Tag header carries
    *   a "noindex" directive.
    */
-  protected function metatagIsIndexable(): bool {
+  public function metatagIsIndexable(): bool {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (in_array('noindex', $directives, TRUE) || in_array('none', $directives, TRUE)) {
@@ -462,7 +462,7 @@ trait MetatagTrait {
    * @return bool
    *   TRUE when any X-Robots-Tag header value includes a "noindex" directive.
    */
-  protected function metatagResponseHasNoindexHeader(): bool {
+  public function metatagResponseHasNoindexHeader(): bool {
     $headers = $this->getSession()->getResponseHeaders();
 
     foreach ($headers as $name => $values) {
@@ -486,7 +486,7 @@ trait MetatagTrait {
    * @return array<int, array{hreflang: string, href: string}>
    *   The hreflang alternates, each with its raw hreflang value and href.
    */
-  protected function metatagGetHreflangAlternates(): array {
+  public function metatagGetHreflangAlternates(): array {
     $alternates = [];
 
     foreach ($this->getSession()->getPage()->findAll('xpath', '//link[@rel="alternate"][@hreflang]') as $link) {
@@ -512,7 +512,7 @@ trait MetatagTrait {
    * @return bool
    *   TRUE when the value is a well-formed language code.
    */
-  protected function metatagIsValidHreflang(string $value): bool {
+  public function metatagIsValidHreflang(string $value): bool {
     if (strtolower($value) === 'x-default') {
       return TRUE;
     }
@@ -640,7 +640,7 @@ trait MetatagTrait {
    * @param string $label
    *   A human-readable label for the set, used in the failure message.
    */
-  protected function metatagAssertMetaSetPresent(array $names, string $label): void {
+  public function metatagAssertMetaSetPresent(array $names, string $label): void {
     $missing = [];
 
     foreach ($names as $name) {
@@ -685,7 +685,7 @@ trait MetatagTrait {
    * @return array<int, string>
    *   The required Open Graph property names.
    */
-  protected function metatagOpenGraphRequired(): array {
+  public function metatagOpenGraphRequired(): array {
     return ['og:title', 'og:type', 'og:image', 'og:url'];
   }
 
@@ -695,7 +695,7 @@ trait MetatagTrait {
    * @return array<int, string>
    *   The required Twitter Card property names.
    */
-  protected function metatagTwitterCardRequired(): array {
+  public function metatagTwitterCardRequired(): array {
     return ['twitter:card', 'twitter:title', 'twitter:description'];
   }
 

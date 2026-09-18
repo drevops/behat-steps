@@ -186,7 +186,7 @@ trait ContentBlockTrait {
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be saved.
    */
-  protected function contentBlockCreateSingle(string $type, array $values): BlockContent {
+  public function contentBlockCreateSingle(string $type, array $values): BlockContent {
     $this->assertDrupal();
 
     $values['type'] = $type;
@@ -213,7 +213,7 @@ trait ContentBlockTrait {
    * @return array<int, string>
    *   Array of block content ids.
    */
-  protected function contentBlockLoadMultiple(string $type, array $conditions = []): array {
+  public function contentBlockLoadMultiple(string $type, array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('block_content')

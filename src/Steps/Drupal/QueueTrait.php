@@ -211,14 +211,14 @@ trait QueueTrait {
   /**
    * Get the maximum number of items to process.
    */
-  protected function queueGetProcessLimit(): int {
+  public function queueGetProcessLimit(): int {
     return 1000;
   }
 
   /**
    * Get the lease time for claiming queue items.
    */
-  protected function queueGetLeaseTime(): int {
+  public function queueGetLeaseTime(): int {
     return 30;
   }
 

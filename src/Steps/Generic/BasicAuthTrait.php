@@ -60,7 +60,7 @@ trait BasicAuthTrait {
   /**
    * Apply the resolved credentials to the session.
    */
-  protected function basicAuthApply(): void {
+  public function basicAuthApply(): void {
     $manager = $this->getAuthenticationManager();
 
     if ($manager instanceof BasicAuthInterface) {

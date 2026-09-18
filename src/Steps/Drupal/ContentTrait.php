@@ -381,7 +381,7 @@ trait ContentTrait {
    * @param string $action_subpath
    *   The operation to perform.
    */
-  protected function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
+  public function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
     $nid = $this->contentResolveNidByTitle($content_type, $title);
     $path = $this->locatePath('/node/' . $nid . $action_subpath);
 
@@ -402,7 +402,7 @@ trait ContentTrait {
    * @return int
    *   The node ID.
    */
-  protected function contentResolveNidByTitle(string $content_type, string $title): int {
+  public function contentResolveNidByTitle(string $content_type, string $title): int {
     $this->assertDrupal();
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
@@ -435,7 +435,7 @@ trait ContentTrait {
    * @return \Drupal\node\NodeInterface
    *   The node.
    */
-  protected function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
+  public function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
     $this->assertDrupal();
 
     $node = Node::load($this->contentResolveNidByTitle($content_type, $title));

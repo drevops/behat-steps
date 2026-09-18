@@ -86,18 +86,21 @@ A documented override point that supplies a value is `<trait>Get<Noun>()`, boole
 
 The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/scenario-styles.md](docs/scenario-styles.md) argues why.
 
+**Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the two, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
+
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
 - It is declared by a trait under `src/Steps` or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
-- It is `public` or `protected`. A `private` member cannot be reached from a composing context and has no place in a trait.
+- It is `public`. A `private` member cannot be reached from a composing context and has no place in a trait.
 - It begins with its trait's name, which is the collision rule every trait member follows anyway.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
 - Its docblock carries no `@internal`.
 
-Two obligations follow from publishing a member:
+Three obligations follow from publishing a member:
 
-- **It needs a summary.** `ahoy lint-docs` fails on a published helper with no docblock description, because the reference would carry a blank entry. A `{@inheritdoc}` docblock is resolved to the interface or parent that declares the method, so implementing an interface is enough.
+- **It needs a summary.** `ahoy lint-docs` fails on a published helper with no docblock description, because the reference would carry a blank entry, and `PublicSurfaceTest` fails on the same thing from the other side. A `{@inheritdoc}` docblock is resolved to the interface or parent that declares the method, so implementing an interface is enough.
 - **It is named as carefully as a step.** The naming conventions above apply to a helper exactly as they do to a step method.
+- **It shows up in review.** [HELPERS.md](HELPERS.md) is committed and gated by `--fail-on-change`, so promoting a method to `public` lands in the diff with its signature and summary. That diff is what keeps the surface deliberate: a method cannot be narrowed again before the next major.
 
 Withdraw a member that exists only to serve the machinery with `@internal`, naming who calls it:
 
@@ -119,8 +122,7 @@ Traits lay their members out in this order:
 1. Trait composition (`use`), then constants, then properties.
 2. Hooks (`#[BeforeScenario]`, `#[AfterStep]` and the like).
 3. `Given` steps, then `When` steps, then `Then` steps.
-4. Other public methods.
-5. Protected helpers.
+4. Helpers, public and protected together. Visibility marks what is published, not where a member sits, so a helper stays next to the ones it reads with.
 
 Within each of those groups, keep the members in whatever order reads best - the rule settles the groups, not what happens inside one. `tests/phpunit/src/MemberOrderTest.php` enforces it.
 

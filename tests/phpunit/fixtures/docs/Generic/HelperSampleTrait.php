@@ -57,7 +57,7 @@ trait HelperSampleTrait {
    * @return array<int, string>
    *   The values.
    */
-  protected static function helperSampleDefaults(array $values = []): array {
+  public static function helperSampleDefaults(array $values = []): array {
     return $values;
   }
 
@@ -67,11 +67,16 @@ trait HelperSampleTrait {
    * @internal
    *   Called by the initializer.
    */
-  protected function helperSampleInternal(): void {}
+  public function helperSampleInternal(): void {}
+
+  /**
+   * Hold an implementation detail that promises nothing.
+   */
+  protected function helperSampleDetail(): void {}
 
   /**
    * Belong to another trait by name.
    */
-  protected function otherPrefixedMethod(): void {}
+  public function otherPrefixedMethod(): void {}
 
 }

@@ -918,7 +918,7 @@ JS;
    * @return array<int, string>
    *   CSS selectors to probe for the add-another-item button.
    */
-  protected function fieldGetAddMoreButtonSelectors(): array {
+  public function fieldGetAddMoreButtonSelectors(): array {
     return [
       'input[value="Add another item"]',
       'button.field-add-more-submit',
@@ -935,7 +935,7 @@ JS;
    * @return array<int, string>
    *   CSS selectors to probe for a required marker.
    */
-  protected function fieldGetRequiredMarkerSelectors(): array {
+  public function fieldGetRequiredMarkerSelectors(): array {
     return ['.form-required', '[required]'];
   }
 
@@ -946,7 +946,7 @@ JS;
    * the field or any associated label, and the presence of a `*` character
    * inside any associated label.
    */
-  protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
+  public function fieldIsMarkedRequired(NodeElement $field_element): bool {
     if ($field_element->hasAttribute('required')) {
       return TRUE;
     }
@@ -1018,7 +1018,7 @@ JS;
    * @param string|null $selector
    *   The CSS selector for form(s). If NULL, disables all forms on page.
    */
-  protected function fieldDisableFormValidation(?string $selector = NULL): void {
+  public function fieldDisableFormValidation(?string $selector = NULL): void {
     $selector ??= 'form';
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 

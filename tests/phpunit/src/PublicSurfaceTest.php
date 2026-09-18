@@ -26,18 +26,17 @@ use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
-use DrevOps\BehatSteps\Steps\Generic\DateTrait;
-use DrevOps\BehatSteps\Steps\Generic\ResponsiveTrait;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for the shape of the library's public surface.
  *
- * Every trait member reachable from a consuming context is API, so a member
- * that exposes more than the surrounding code intends cannot be narrowed
- * before the next major. These tests hold the four conventions that keep the
- * surface deliberate.
+ * Visibility marks the API: a public method that Behat does not register is
+ * the toolbox, published in HELPERS.md and covered by semantic versioning,
+ * while a protected one promises nothing. A method cannot be narrowed again
+ * before the next major, so these tests hold the four conventions that keep
+ * the surface deliberate.
  *
  * Each loop reads its subject into a variable first: a foreach directly over a
  * method call is rewritten by Rector to a camel case value variable, which the
@@ -72,39 +71,31 @@ class PublicSurfaceTest extends UnitTestCase {
   ];
 
   /**
-   * Public methods that carry no step or hook attribute, and why.
-   */
-  protected const ALLOWED_PUBLIC_METHODS = [
-    DateTrait::class . '::dateRelativeProcessValue' => 'Documented utility that resolves a relative date token outside a step.',
-    ResponsiveTrait::class . '::responsiveSetBreakpoints' => 'Documented utility that registers breakpoints outside a step.',
-  ];
-
-  /**
    * Constants whose name does not start with the trait prefix, and why.
    */
   protected const ALLOWED_CONSTANTS = [];
 
-  #[DataProvider('dataProviderPublicMethodsAreStepsOrHooks')]
-  public function testPublicMethodsAreStepsOrHooks(string $trait): void {
+  #[DataProvider('dataProviderPublicMethodsAreDocumented')]
+  public function testPublicMethodsAreDocumented(string $trait): void {
     $methods = static::traitOwnMethods($trait);
     $violations = [];
 
     foreach ($methods as $method) {
-      $identifier = $trait . '::' . $method->getName();
-
-      if (!$method->isPublic() || array_key_exists($identifier, static::ALLOWED_PUBLIC_METHODS)) {
+      if (!$method->isPublic() || static::methodBehatAttributes($method) !== []) {
         continue;
       }
 
-      if (static::methodBehatAttributes($method) === []) {
-        $violations[] = $identifier;
+      $comment = (string) $method->getDocComment();
+
+      if ($comment === '' || preg_match('/^\s*\*\s+[A-Z]/m', $comment) !== 1) {
+        $violations[] = $trait . '::' . $method->getName();
       }
     }
 
-    $this->assertSame([], $violations, 'A public method that is neither a step nor a hook is API by accident. Make it protected, or add it to ALLOWED_PUBLIC_METHODS with the reason it is API.');
+    $this->assertSame([], $violations, 'A public method that is neither a step nor a hook is published in HELPERS.md as part of the toolbox, so it needs a docblock summary. Write one, or make the method protected.');
   }
 
-  public static function dataProviderPublicMethodsAreStepsOrHooks(): array {
+  public static function dataProviderPublicMethodsAreDocumented(): array {
     return static::discoverTraits();
   }
 

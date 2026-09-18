@@ -222,7 +222,7 @@ trait MessageTrait {
    *   When the page renders no message of that type, or none containing the
    *   expected text.
    */
-  protected function messageAssert(string $message, string $type): void {
+  public function messageAssert(string $message, string $type): void {
     $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
 
     if ($elements === []) {
@@ -249,7 +249,7 @@ trait MessageTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When a message of that type contains the text.
    */
-  protected function messageAssertNot(string $message, string $type): void {
+  public function messageAssertNot(string $message, string $type): void {
     $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
 
     foreach ($elements as $element) {
@@ -271,7 +271,7 @@ trait MessageTrait {
    * @throws \RuntimeException
    *   When the message type has no configured selector.
    */
-  protected function messageSelector(string $type): string {
+  public function messageSelector(string $type): string {
     $selectors = $this->getParameter('selectors');
 
     if (!is_array($selectors) || !isset($selectors['messages'][$type]) || !is_string($selectors['messages'][$type])) {

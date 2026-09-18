@@ -259,7 +259,7 @@ trait ConfigTrait {
    * @return mixed
    *   The stored value, or NULL when the object or key does not exist.
    */
-  protected function configReadStored(string $name, string $key): mixed {
+  public function configReadStored(string $name, string $key): mixed {
     $this->assertDrupal();
 
     return \Drupal::configFactory()->getEditable($name)->get($key);
@@ -276,7 +276,7 @@ trait ConfigTrait {
    * @return mixed
    *   The effective value, or NULL when the object or key does not exist.
    */
-  protected function configReadEffective(string $name, string $key): mixed {
+  public function configReadEffective(string $name, string $key): mixed {
     $this->assertDrupal();
 
     return \Drupal::config($name)->get($key);

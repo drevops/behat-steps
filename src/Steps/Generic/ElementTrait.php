@@ -765,7 +765,7 @@ trait ElementTrait {
    * @code
    * class FeatureContext extends DrupalContext {
    *   use ElementTrait;
-   *   protected function elementGetScrollIntoViewCenter(): bool {
+   *   public function elementGetScrollIntoViewCenter(): bool {
    *     return FALSE;
    *   }
    * }
@@ -784,7 +784,7 @@ trait ElementTrait {
    * @return \Behat\Mink\Element\NodeElement|null
    *   The matching heading, or NULL when the page has none.
    */
-  protected function elementFindHeading(string $heading): ?NodeElement {
+  public function elementFindHeading(string $heading): ?NodeElement {
     foreach ($this->getSession()->getPage()->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
       if (trim($element->getText()) === $heading) {
         return $element;
@@ -1254,7 +1254,7 @@ JS;
    *   The raw result of the browser evaluation, truthy when the element is
    *   displayed within the viewport.
    */
-  protected function elementIsVisuallyVisible(string $selector, int $offset) {
+  public function elementIsVisuallyVisible(string $selector, int $offset) {
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
     // The contents of this JS function should be copied as-is from the <script>
     // section at the bottom of tests/behat/fixtures/elements_relative.html.
@@ -1325,7 +1325,7 @@ JS;
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When the index is below 1 or beyond the number of matches.
    */
-  protected function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
+  public function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
     if ($index < 1) {
       throw new ExpectationException(sprintf('The index must be 1 or greater, but "%d" was given.', $index), $this->getSession()->getDriver());
     }
@@ -1353,7 +1353,7 @@ JS;
    * @return mixed
    *   The result of script evaluation. Script has to explicitly return a value.
    */
-  protected function elementExecuteJs(string $selector, string $script) {
+  public function elementExecuteJs(string $selector, string $script) {
     // @codeCoverageIgnoreStart
     if (!str_contains($script, '{{ELEMENT}}')) {
       throw new \RuntimeException('The script must contain the {{ELEMENT}} token to reference the element.');

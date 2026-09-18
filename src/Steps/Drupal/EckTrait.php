@@ -132,7 +132,7 @@ trait EckTrait {
    * @return array<int, string>
    *   Array of entity ids.
    */
-  protected function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
+  public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery($entity_type)
@@ -168,7 +168,7 @@ trait EckTrait {
   /**
    * Create a single content entity.
    */
-  protected function eckCreateEntity(EntityStub $stub): void {
+  public function eckCreateEntity(EntityStub $stub): void {
     $this->parseEntityFields($stub);
 
     $driver = $this->getDriver();
