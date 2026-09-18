@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\driver_field_test\Plugin\Field\FieldType;
+namespace Drupal\mysite_field_test\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\Attribute\FieldType;
 use Drupal\Core\Field\FieldItemBase;
@@ -17,10 +17,10 @@ use Drupal\Core\TypedData\DataDefinition;
  * fallback: 'Core' relays its records to storage verbatim.
  */
 #[FieldType(
-  id: 'driver_test_scalar',
-  label: new TranslatableMarkup('Driver test scalar'),
+  id: 'mysite_test_scalar',
+  label: new TranslatableMarkup('Mysite test scalar'),
 )]
-class DriverTestScalarItem extends FieldItemBase {
+class MysiteTestScalarItem extends FieldItemBase {
 
   /**
    * {@inheritdoc}

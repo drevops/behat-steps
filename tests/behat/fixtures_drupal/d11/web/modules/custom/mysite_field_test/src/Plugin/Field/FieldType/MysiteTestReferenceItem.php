@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\driver_field_test\Plugin\Field\FieldType;
+namespace Drupal\mysite_field_test\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\Attribute\FieldType;
 use Drupal\Core\Field\FieldItemBase;
@@ -19,10 +19,10 @@ use Drupal\Core\TypedData\DataReferenceTargetDefinition;
  * bogus value.
  */
 #[FieldType(
-  id: 'driver_test_reference',
-  label: new TranslatableMarkup('Driver test reference'),
+  id: 'mysite_test_reference',
+  label: new TranslatableMarkup('Mysite test reference'),
 )]
-class DriverTestReferenceItem extends FieldItemBase {
+class MysiteTestReferenceItem extends FieldItemBase {
 
   /**
    * {@inheritdoc}
