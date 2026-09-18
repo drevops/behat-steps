@@ -192,7 +192,7 @@ class BehatStepsExtension implements ExtensionInterface {
         ->end()
         // Drupal drivers.
         ->arrayNode('blackbox')
-          ->info('Settings of the driver that drives the site through the browser only. It takes none, and the empty section registers it.')
+          ->info('Settings of the driver that drives the site through the browser only. It has no options, and it is the fallback for a scenario that selects no other driver.')
         ->end()
         ->arrayNode('drupal')
           ->info('Settings of the driver that bootstraps Drupal in-process.')

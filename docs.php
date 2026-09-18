@@ -1579,7 +1579,9 @@ function validate_env_vars(string $base_path = __DIR__): array {
     preg_match_all('/getenv\(\s*[\'"]([A-Z][A-Z0-9_]*)[\'"]\s*\)/', $code, $matches);
 
     foreach (array_unique($matches[1]) as $variable) {
-      if (str_contains($documented, $variable)) {
+      // A boundary of name characters rather than '\b', which does not
+      // separate a name from a following underscore.
+      if (preg_match('/(?<![A-Z0-9_])' . preg_quote($variable, '/') . '(?![A-Z0-9_])/', $documented) === 1) {
         continue;
       }
 

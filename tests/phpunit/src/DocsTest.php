@@ -2851,9 +2851,12 @@ EOD,
     mkdir($base_path . '/src/Nested', 0777, TRUE);
     mkdir($base_path . '/docs', 0777, TRUE);
 
-    file_put_contents($base_path . '/docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` variable is documented.');
+    file_put_contents($base_path . '/docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
     file_put_contents($base_path . '/src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
     file_put_contents($base_path . '/src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
+    // A documented name that merely starts with the source name does not
+    // document it.
+    file_put_contents($base_path . '/src/Prefix.php', "<?php \$value = getenv('BEHAT_STEPS_DISABLE');");
     // A variable named only in a comment belongs to a consuming project, not
     // to this source.
     file_put_contents($base_path . '/src/Commented.php', "<?php\n/**\n * Reads getenv('BEHAT_STEPS_COMMENTED').\n */\n");
@@ -2861,10 +2864,12 @@ EOD,
 
     $actual = validate_env_vars($base_path);
 
-    $this->assertCount(1, $actual);
+    $this->assertCount(2, $actual);
     $this->assertStringContainsString('BEHAT_STEPS_UNDOCUMENTED', $actual[0]);
     $this->assertStringContainsString('src/Nested/Undocumented.php', $actual[0]);
     $this->assertStringContainsString('docs/configuration.md', $actual[0]);
+    $this->assertStringContainsString('BEHAT_STEPS_DISABLE', $actual[1]);
+    $this->assertStringContainsString('src/Prefix.php', $actual[1]);
   }
 
   public function testValidateEnvVarsWithoutSourceOrReference(): void {

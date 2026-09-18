@@ -150,7 +150,7 @@ A nested option is written as a section in the configuration and reads as a dott
 | `selectors.login_form_selector` | string | `'form#user-login,form#user-login-form'` | Selector of the login form, used to tell a login page from a page that merely holds a login block. |
 | `selectors.logged_in_selector` | string | `'body.logged-in,body.user-logged-in'` | Selector present only while a user is authenticated, used to confirm a login took effect. |
 | `mappings` | map | `[]` | Named value mappings grouped for organisation. A "{{ Key }}" token in any step argument or table cell is replaced with the mapped value before the step runs; whitespace inside the braces is ignored, so "{{ Key }}" and "{{Key}}" are equivalent. Group names are organisational only - a key must be unique across all groups.<br>paths:<br>User Registration: "/user/register"<br>User Login: "/user/login" |
-| `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It takes none, and the empty section registers it. |
+| `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It has no options, and it is the fallback for a scenario that selects no other driver. |
 | `drupal` | section | - | Settings of the driver that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process driver bootstraps. |
 | `drush` | section | - | Settings of the driver that reaches the site by running Drush. |
@@ -192,7 +192,7 @@ Scenario: Editor publishes a page
 
 [//]: # (END_TAGS)
 
-`@api` and `@javascript` are Behat and Mink tags rather than tags of this package: `@api` selects the driver that bootstraps Drupal in-process, and `@javascript` selects the browser session. Both are documented in [CONTRIBUTING.md](../CONTRIBUTING.md#what-a-trait-needs-from-the-driver).
+`@api` and `@javascript` are Behat and Mink tags rather than tags of this package: `@api` selects the driver named by `api_driver`, and `@javascript` selects the browser session. A step that reaches Drupal's API directly needs `api_driver` set to `drupal`, the driver that bootstraps Drupal in-process; on the default `drush` it throws. Both tags are documented in [CONTRIBUTING.md](../CONTRIBUTING.md#what-a-trait-needs-from-the-driver).
 
 ## 4. Environment variables
 
