@@ -49,7 +49,7 @@ $profile = (new Profile('default'))
 
 foreach ($surfaces as $name => $tags) {
   $profile->withSuite((new Suite($name))
-    ->withPaths('%paths.base%/tests/behat/features')
+    ->withPaths('%paths.base%/tests/Behat/features')
     ->withFilter(new TagFilter($tags))
     ->addContext(FeatureContext::class));
 }
@@ -68,17 +68,17 @@ Where a feature file does belong to one surface, give each suite its own directo
 ```php
 // The browser surface: what an editor or a visitor can do in a page.
 $ui = (new Suite('ui'))
-  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->withPaths('%paths.base%/tests/Behat/features/ui')
   ->addContext(UiContext::class);
 
 // The API surface: responses, headers and payloads, with no browser.
 $api = (new Suite('api'))
-  ->withPaths('%paths.base%/tests/behat/features/api')
+  ->withPaths('%paths.base%/tests/Behat/features/api')
   ->addContext(ApiContext::class);
 
 // The specification surface: the few domain-language scenarios a stakeholder reads.
 $spec = (new Suite('spec'))
-  ->withPaths('%paths.base%/tests/behat/features/spec')
+  ->withPaths('%paths.base%/tests/Behat/features/spec')
   ->addContext(SpecContext::class);
 ```
 
@@ -96,8 +96,8 @@ The extension key in section 2 is read once per profile. A value that has to dif
 
 ```php
 $ui = (new Suite('ui'))
-  ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, ['fixtures_path' => '%paths.base%/tests/behat/fixtures']);
+  ->withPaths('%paths.base%/tests/Behat/features/ui')
+  ->addContext(UiContext::class, ['fixtures_path' => '%paths.base%/tests/fixtures/files']);
 ```
 
 ```php
@@ -121,16 +121,16 @@ While a project is still on Behat 3, the YAML form of the suites above is:
 default:
   suites:
     blackbox:
-      paths: ['%paths.base%/tests/behat/features']
+      paths: ['%paths.base%/tests/Behat/features']
       filters: { tags: '~@api&&~@javascript' }
       contexts: [FeatureContext]
     ui:
-      paths: ['%paths.base%/tests/behat/features/ui']
+      paths: ['%paths.base%/tests/Behat/features/ui']
       contexts:
         - UiContext:
-            fixtures_path: '%paths.base%/tests/behat/fixtures'
+            fixtures_path: '%paths.base%/tests/fixtures/files'
     api:
-      paths: ['%paths.base%/tests/behat/features/api']
+      paths: ['%paths.base%/tests/Behat/features/api']
       contexts: [ApiContext]
   extensions:
     DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
