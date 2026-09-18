@@ -30,7 +30,7 @@ class LintLayersTest extends UnitTestCase {
   public function testShippedDriverLayerIsClean(): void {
     $violations = [];
 
-    foreach (layer_files(dirname(__DIR__, 3) . '/' . LAYER_DIRECTORY) as $file) {
+    foreach (layer_files(dirname(__DIR__, 2) . '/' . LAYER_DIRECTORY) as $file) {
       $violations = array_merge($violations, layer_file_violations($file, LAYER_FORBIDDEN_ROOTS));
     }
 

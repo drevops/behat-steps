@@ -2599,7 +2599,7 @@ EOD,
   public static function dataProviderRelativeSourcePath(): array {
     return [
       'under the documented repository' => ['/repo/src/Behat/Context/RawContext.php', '/repo', 'src/Behat/Context/RawContext.php'],
-      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/RawContext.php', '/elsewhere', 'src/Behat/Context/RawContext.php'],
+      'under this repository' => [dirname(__DIR__, 2) . '/src/Behat/Context/RawContext.php', '/elsewhere', 'src/Behat/Context/RawContext.php'],
     ];
   }
 

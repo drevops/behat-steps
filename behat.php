@@ -17,8 +17,28 @@ use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
-$suite = (new Suite('default'))
+// One suite per surface under test. The feature files stay in one directory
+// because a trait's coverage spans several surfaces - ElementTrait alone is
+// exercised on all 3 - so each suite selects its scenarios by tag rather than
+// by path. The tag expressions partition the scenarios: every scenario matches
+// exactly one suite, so a bare run covers the same set as before the split.
+$surfaces = [
+  // No Drupal in the runner: static fixtures over the PHP built-in server,
+  // plus the nested runs that prove each trait in isolation.
+  'blackbox' => '~@api&&~@javascript',
+  // The Drupal fixture site, reached through the API driver.
+  'api' => '@api&&~@javascript',
+  // A real browser session, over either of the other 2 surfaces.
+  'javascript' => '@javascript',
+];
+
+// A scenario on one surface can set up through a step that belongs to another -
+// 'the user is anonymous' resets the session for static-fixture scenarios - so
+// every suite composes the same vocabulary and the surfaces differ in what they
+// select, not in what they can call.
+$surface_suite = fn(string $name, string $tags): Suite => (new Suite($name))
   ->withPaths('%paths.base%/tests/Behat/features')
+  ->withFilter(new TagFilter($tags))
   ->addContext('FeatureContext')
   ->addContext('BehatCliContext')
   ->addContext(MinkContext::class)
@@ -34,7 +54,6 @@ $suite = (new Suite('default'))
 $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/Behat/bootstrap']]))
   // Disable the Gherkin cache during development.
   ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@skipped')))
-  ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://nginx:8080',
     'files_path' => '%paths.base%/tests/fixtures/files',
@@ -82,6 +101,10 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/Behat/boo
     'always_fullscreen' => TRUE,
     'info_types' => ['url', 'feature', 'step', 'datetime'],
   ]));
+
+foreach ($surfaces as $surface_name => $surface_tags) {
+  $default->withSuite($surface_suite($surface_name, $surface_tags));
+}
 
 // A build that cannot install the coverage extension runs without it.
 if (class_exists(CodeCoverageExtension::class)) {

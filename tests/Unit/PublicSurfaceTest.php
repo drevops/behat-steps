@@ -194,7 +194,7 @@ class PublicSurfaceTest extends UnitTestCase {
    *   Fully qualified trait names, as data provider rows.
    */
   protected static function discoverTraits(): array {
-    $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
+    $root = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'src';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $traits = [];

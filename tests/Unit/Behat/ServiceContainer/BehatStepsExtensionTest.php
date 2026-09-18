@@ -33,7 +33,7 @@ class BehatStepsExtensionTest extends TestCase {
   protected string $originalCwd;
 
   public static function setUpBeforeClass(): void {
-    self::$fixtureDir = dirname(__DIR__, 6) . '/.artifacts/tmp/extension-binary-' . getmypid();
+    self::$fixtureDir = dirname(__DIR__, 4) . '/.artifacts/tmp/extension-binary-' . getmypid();
 
     mkdir(self::$fixtureDir . '/project/vendor/bin', 0777, TRUE);
     touch(self::$fixtureDir . '/project/vendor/bin/drush');

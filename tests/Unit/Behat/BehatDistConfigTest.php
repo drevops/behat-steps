@@ -86,7 +86,7 @@ class BehatDistConfigTest extends TestCase {
    * Loads the configuration the reference file returns.
    */
   protected static function loadConfig(): Config {
-    $config = require dirname(__DIR__, 5) . '/behat.dist.php';
+    $config = require dirname(__DIR__, 3) . '/behat.dist.php';
 
     if (!$config instanceof Config) {
       self::fail('behat.dist.php does not return a Behat configuration.');
