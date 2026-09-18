@@ -40,11 +40,11 @@ composer require --dev drevops/behat-steps:^3
 
 ### Fixture Files Management
 
-Static fixture files live in `tests/behat/fixtures/`.
+Static fixture files live in `tests/fixtures/files/`.
 
 Traits without a Drupal dependency read them from a PHP built-in server: tag the
 scenario `@phpserver` and address the file as `http://cli:8888/<file>`. The
-server serves `tests/behat/fixtures/` at its root, so an edited fixture applies
+server serves `tests/fixtures/files/` at its root, so an edited fixture applies
 on the next run.
 
 Drupal traits read them through the fixture site, which receives a copy of the
@@ -202,7 +202,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Date range fields use `[value]` for start and `[end_value]` for end components
 
 ### Field Configuration Management
-- New field configurations must be added to **every** fixture under `tests/behat/fixtures_drupal/`
+- New field configurations must be added to **every** fixture under `tests/fixtures/drupal/`
 - Field configs include: field storage, field instance, and form display updates
 - When adding fields, update `core.entity_form_display.node.page.default.yml` with:
   - Field references in dependencies config section
@@ -249,7 +249,7 @@ Scenario: Test error condition
 
 **How it works**: `BehatCliTrait.php:203` converts `'''` → `"""` after extracting the PyString but before writing the generated feature file, ensuring proper Gherkin syntax.
 
-**Example test**: See `tests/behat/features/behatcli.feature:131` for a demonstration of nested PyStrings.
+**Example test**: See `tests/Behat/features/behatcli.feature:131` for a demonstration of nested PyStrings.
 
 ### Coverage Reports: Two Files to Always Check
 
@@ -278,7 +278,7 @@ Scenario: Test error condition
 **RECOMMENDED**: Use the `scripts/check-coverage.php` script for easy coverage assessment:
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage tests/Behat/features/some_feature.feature
 
 # Check coverage using the script (uses MERGED coverage by default)
 php scripts/check-coverage.php SomeTrait
@@ -294,7 +294,7 @@ php scripts/check-coverage.php SomeTrait
 **Manual method** (if script is not available):
 ```bash
 # Run tests with coverage
-ahoy test-bdd-coverage tests/behat/features/some_feature.feature
+ahoy test-bdd-coverage tests/Behat/features/some_feature.feature
 
 # Check API-only coverage
 grep 'class name="DrevOps\\BehatSteps\\Steps\\Generic\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'

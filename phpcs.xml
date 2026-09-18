@@ -24,9 +24,10 @@
     <file>docs.php</file>
     <file>scripts</file>
     <file>src</file>
-    <file>tests/behat/bootstrap</file>
-    <file>tests/behat/fixtures_drupal/d11/web/modules/custom</file>
-    <file>tests/phpunit/src</file>
+    <file>tests/Behat/bootstrap</file>
+    <file>tests/fixtures/drupal/d11/web/modules/custom</file>
+    <file>tests/Kernel</file>
+    <file>tests/Unit</file>
 
     <!-- Exclude circleci config files. -->
     <exclude-pattern>circle\.yml</exclude-pattern>

@@ -55,7 +55,7 @@ The project is 3 layers, and the boundary between them is the architecture. Read
 - `composer.json` - the published package surface and the PSR-4 map.
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
-- `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
+- `tests/Behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
 - `scripts/lint-layers.php` - the enforced layer boundary. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.
 

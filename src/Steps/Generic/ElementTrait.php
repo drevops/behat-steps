@@ -1257,7 +1257,7 @@ JS;
   public function elementIsVisuallyVisible(string $selector, int $offset) {
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
     // The contents of this JS function should be copied as-is from the <script>
-    // section at the bottom of tests/behat/fixtures/elements_relative.html.
+    // section at the bottom of tests/fixtures/files/elements_relative.html.
     $script_function = <<<JS
       function isElemVisible(selector, offset = 0) {
         var failures = [];

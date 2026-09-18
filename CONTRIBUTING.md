@@ -22,7 +22,7 @@ of tests. Follow these guidelines:
     agrees with a count or a list keeps it, as in `:count row(s)` and
     `the role(s) :roles`, so both forms read naturally.
   - Omit unnecessary suffixes like `on the page` since it is implied.
-  - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuLoadByLabel()`, not `loadMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
+  - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuLoadByLabel()`, not `loadMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/Unit/TraitMethodNamingTest.php` enforces it.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
@@ -48,7 +48,7 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Method naming conventions
 
-Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this and the three conventions below.
+Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/Unit/TraitMethodNamingTest.php` enforces this and the three conventions below.
 
 ### Assertions
 
@@ -124,7 +124,7 @@ Traits lay their members out in this order:
 3. `Given` steps, then `When` steps, then `Then` steps.
 4. Helpers, public and protected together. Visibility marks what is published, not where a member sits, so a helper stays next to the ones it reads with.
 
-Within each of those groups, keep the members in whatever order reads best - the rule settles the groups, not what happens inside one. `tests/phpunit/src/MemberOrderTest.php` enforces it.
+Within each of those groups, keep the members in whatever order reads best - the rule settles the groups, not what happens inside one. `tests/Unit/MemberOrderTest.php` enforces it.
 
 Reordering an existing trait into this layout leaves [STEPS.md](STEPS.md) untouched. `docs.php` already groups steps by `Given`, `When` and `Then` and keeps source order inside each group, so this layout only applies a sort the generated documentation applies anyway.
 
@@ -174,7 +174,7 @@ A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first 
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
 
-The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the driver-name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
+The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/Behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the driver-name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
 
 [behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. Behat never loads it here, because `behat.php` takes precedence.
 
@@ -231,13 +231,12 @@ Both suites are declared in [phpunit.xml](phpunit.xml) and run against the
 fixture site, because the driver layer and the tests around it resolve Drupal
 classes from there. Run `ahoy build` first.
 
-Tests live under `tests/phpunit/src/` in a directory named after their suite:
-`Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
-Inside a suite directory the path mirrors `src/`, so
+Each suite lives in a directory named after itself: `tests/Unit/` and
+`tests/Kernel/`. Inside a suite directory the path mirrors `src/`, so
 `src/Steps/Drupal/HelperTrait.php` is tested by
-`tests/phpunit/src/Unit/Steps/Drupal/HelperTraitTest.php`. Tests with no
-counterpart in `src/` - the docs generator, the layer linter and the
-convention tests - sit at the root of `tests/phpunit/src/`.
+`tests/Unit/Steps/Drupal/HelperTraitTest.php`. Tests with no counterpart in
+`src/` - the docs generator, the layer linter and the convention tests - sit at
+the root of `tests/Unit/`.
 
 ```bash
 ahoy test-unit      # Run the unit suite
@@ -256,10 +255,10 @@ everything the tests reach. Its output paths are declared in
 Behat tests are used as functional/integration tests to validate the
 functionality of the traits. These Behat tests run in the same way they
 would be run in your project: traits are included
-into [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php)
+into [FeatureContext.php](tests/Behat/bootstrap/FeatureContext.php)
 and then ran on the
-pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11)
-using [test features](tests/behat/features).
+pre-configured [fixture Drupal site](tests/fixtures/drupal/d11)
+using [test features](tests/Behat/features).
 
 Run `ahoy build` to setup a fixture Drupal site in the `build` directory.
 
@@ -273,7 +272,7 @@ ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 
 ### Static fixtures
 
-Static fixture files - HTML pages, XML, JSON, images, archives - live in [tests/behat/fixtures](tests/behat/fixtures).
+Static fixture files - HTML pages, XML, JSON, images, archives - live in [tests/fixtures/files](tests/fixtures/files).
 
 Traits with no Drupal dependency are tested against those files served by a PHP built-in server instead of the fixture Drupal site. Tag the scenario `@phpserver` and address the file directly:
 
@@ -284,7 +283,7 @@ Scenario: Assert that an element exists
   Then the element "#top" should exist
 ```
 
-The server runs for the duration of a tagged scenario and serves `tests/behat/fixtures` at its root, so an edited fixture applies on the next run.
+The server runs for the duration of a tagged scenario and serves `tests/fixtures/files` at its root, so an edited fixture applies on the next run.
 
 Drupal traits are tested through the fixture site, which receives a copy of the same directory in `build/web/sites/default/files` during provisioning. Run `ahoy copy-files` after editing a fixture that such a scenario reaches through a Drupal path.
 

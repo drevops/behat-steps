@@ -1,8 +1,8 @@
 @startuml
 ' drevops/behat-steps - data flow for the project's own test run.
 ' Traced from .ahoy.yml, scripts/provision.sh, behat.php,
-' tests/behat/bootstrap/BehatCliTrait.php,
-' tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
+' tests/Behat/bootstrap/BehatCliTrait.php,
+' tests/Behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -20,10 +20,10 @@ participant "scripts/merge-coverage.php" as Merge
 
 Dev -> Prov: bash scripts/provision.sh
 activate Prov
-Prov -> Prov: copy tests/behat/fixtures_drupal/d11/ into build/
+Prov -> Prov: copy tests/fixtures/drupal/d11/ into build/
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
 Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects
-Prov -> Site: drush si standard, then copy tests/behat/fixtures/
+Prov -> Site: drush si standard, then copy tests/fixtures/files/
 activate Site
 Site --> Prov: bootstrap successful
 deactivate Site

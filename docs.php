@@ -102,8 +102,8 @@ function main(array $options = []): void {
   $base_path = is_string($options['path'] ?? NULL) ? $options['path'] : __DIR__;
 
   require_once $base_path . '/build/vendor/autoload.php';
-  require_once $base_path . '/tests/behat/bootstrap/FeatureContextTrait.php';
-  require_once $base_path . '/tests/behat/bootstrap/FeatureContext.php';
+  require_once $base_path . '/tests/Behat/bootstrap/FeatureContextTrait.php';
+  require_once $base_path . '/tests/Behat/bootstrap/FeatureContext.php';
 
   $exclude = [FeatureContextTrait::class, 'HelperTrait'];
   $info = extract_info(FeatureContext::class, $exclude, $base_path);
@@ -943,7 +943,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       // @phpstan-ignore-next-line
       ? strtolower($context) . '_'
       : '';
-    $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
+    $example_file = sprintf('tests/Behat/features/%s%s.feature', $prefix, $example_name);
     $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
 
     // @codeCoverageIgnoreStart
@@ -1717,7 +1717,7 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
         continue;
       }
       // @codeCoverageIgnoreEnd
-      $relative = 'tests/behat/features/' . basename($file);
+      $relative = 'tests/Behat/features/' . basename($file);
       foreach (extract_tags($contents) as $tag) {
         $message = validate_tag($tag, $registry);
         if ($message !== NULL) {

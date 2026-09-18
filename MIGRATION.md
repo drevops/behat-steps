@@ -698,7 +698,7 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 
 Method names carried six shapes for "assert the negative", two spellings of "normalize", and two shapes for a consumer override point. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
 
-`CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
+`CONTRIBUTING.md` states the settled conventions and `tests/Unit/TraitMethodNamingTest.php` enforces them.
 
 ### Negation is spelled `Not`, in one slot
 

@@ -29,11 +29,10 @@
     </php>
     <testsuites>
         <testsuite name="unit">
-            <directory>tests/phpunit/src/</directory>
-            <exclude>tests/phpunit/src/Kernel</exclude>
+            <directory>tests/Unit</directory>
         </testsuite>
         <testsuite name="kernel">
-            <directory>tests/phpunit/src/Kernel</directory>
+            <directory>tests/Kernel</directory>
         </testsuite>
     </testsuites>
     <source restrictNotices="true"
@@ -45,7 +44,7 @@
             <file>scripts/lint-layers.php</file>
         </include>
         <exclude>
-            <directory>tests/phpunit/src</directory>
+            <directory>tests</directory>
         </exclude>
     </source>
     <coverage pathCoverage="false"

@@ -18,26 +18,26 @@ use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
-  ->withPaths('%paths.base%/tests/behat/features')
+  ->withPaths('%paths.base%/tests/Behat/features')
   ->addContext('FeatureContext')
   ->addContext('BehatCliContext')
   ->addContext(MinkContext::class)
   ->addContext(ScreenshotContext::class)
   ->addContext(PhpServerContext::class, [
-    'webroot' => '%paths.base%/tests/behat/fixtures',
+    'webroot' => '%paths.base%/tests/fixtures/files',
     'protocol' => 'http',
     'host' => '0.0.0.0',
     'port' => 8888,
     'debug' => FALSE,
   ]);
 
-$default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
+$default = (new Profile('default', ['autoload' => ['%paths.base%/tests/Behat/bootstrap']]))
   // Disable the Gherkin cache during development.
   ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@skipped')))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://nginx:8080',
-    'files_path' => '%paths.base%/tests/behat/fixtures',
+    'files_path' => '%paths.base%/tests/fixtures/files',
     'browser_name' => 'chrome',
     'javascript_session' => 'selenium2',
     'sessions' => [

@@ -118,7 +118,7 @@ commands:
       ahoy cli "vendor/bin/phpcs" && \
       ahoy cli "DRUPAL_ROOT=build/web DRUPAL_VENDOR_ROOT=build/vendor vendor/bin/phpstan" && \
       ahoy cli "vendor/bin/rector --dry-run" && \
-      ahoy cli "vendor/bin/gherkinlint lint tests/behat/features" && \
+      ahoy cli "vendor/bin/gherkinlint lint tests/Behat/features" && \
       ahoy cli "php scripts/lint-layers.php"
 
   lint-fix:
@@ -165,11 +165,11 @@ commands:
 
   update-fixtures:
     usage: Update fixture files for Drupal from the current build.
-    cmd: rsync -av --delete --no-progress --exclude-from=tests/behat/fixtures_drupal/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/behat/fixtures_drupal/d${DRUPAL_VERSION:-11}/
+    cmd: rsync -av --delete --no-progress --exclude-from=tests/fixtures/drupal/d${DRUPAL_VERSION:-11}/.rsync-exclude build/ tests/fixtures/drupal/d${DRUPAL_VERSION:-11}/
 
   copy-files:
     usage: Update fixture files to the current build.
-    cmd: rsync -a --delete tests/behat/fixtures/ build/web/sites/default/files/
+    cmd: rsync -a --delete tests/fixtures/files/ build/web/sites/default/files/
 
 entrypoint:
   - bash

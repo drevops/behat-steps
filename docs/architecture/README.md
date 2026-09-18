@@ -135,7 +135,7 @@ This is the interesting part, and it's genuinely a bit unusual. A library of Dru
 
 ### Building the fixture site
 
-`scripts/provision.sh` creates a throwaway Drupal site under `build/`. It copies the fixture from `tests/behat/fixtures_drupal/d11/`, then merges the library's own Composer requirements into that fixture's `composer.json` - including every package named in `suggest`, because the fixture site has to exercise all the traits at once. It installs Drupal with `drush si standard`, appends a couple of `$config` overrides to `settings.php` so `ConfigOverrideTrait` has something real to read, copies `tests/behat/fixtures/` into the site's files directory, and confirms the site bootstraps before handing back.
+`scripts/provision.sh` creates a throwaway Drupal site under `build/`. It copies the fixture from `tests/fixtures/drupal/d11/`, then merges the library's own Composer requirements into that fixture's `composer.json` - including every package named in `suggest`, because the fixture site has to exercise all the traits at once. It installs Drupal with `drush si standard`, appends a couple of `$config` overrides to `settings.php` so `ConfigOverrideTrait` has something real to read, copies `tests/fixtures/files/` into the site's files directory, and confirms the site bootstraps before handing back.
 
 The `BEHAT` variable picks the Behat major, `3` unless set. `composer.json` allows both Behat 3.33 and Behat 4, and `composer update --with="behat/behat:^${BEHAT}"` narrows the fixture to one. A Behat 4 build first removes `dmore/behat-chrome-extension` and `dvdoug/behat-code-coverage`, since neither installs alongside Behat 4 in the fixture.
 
@@ -143,7 +143,7 @@ Behat then runs from inside `build/` but with the project-root `behat.php`, whic
 
 ### The suite
 
-`behat.php` wires up `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
+`behat.php` wires up `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/fixtures/files/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
 
 Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
 
@@ -163,7 +163,7 @@ The outer run writes `.logs/coverage/behat/`. Each nested subprocess drops its o
 
 That merged file is the real number. The `behat/` one only ever shows the direct scenarios, so it reads lower - which is exactly the kind of thing that sends someone off chasing coverage that already exists. `scripts/check-coverage.php` defaults to the merged file for that reason.
 
-Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, and the pure helper logic in the traits.
+Alongside all this, `tests/Unit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, and the pure helper logic in the traits.
 
 ## Continuous integration
 

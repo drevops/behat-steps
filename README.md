@@ -35,7 +35,7 @@ properly namespaced, so they won’t conflict with your existing custom step
 definitions.
 
 Our goal is to make this a go-to library for Behat steps. We maintain solid
-[test coverage](tests/behat/features) to avoid false positives and negatives,
+[test coverage](tests/Behat/features) to avoid false positives and negatives,
 and follow [clear
 guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 
@@ -142,7 +142,7 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 ### 1. Compose the vocabulary you need
 
 Add required traits to your
-`FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
+`FeatureContext.php` ([example](tests/Behat/bootstrap/FeatureContext.php)):
 
 ```php
 <?php

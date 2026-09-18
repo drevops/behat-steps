@@ -3,7 +3,7 @@
 ' Traced from src/Steps/Generic/, src/Steps/Drupal/,
 ' src/Behat/Context/RawContext.php, src/Behat/Context/DrupalContext.php,
 ' src/Behat/Context/DriverAwareInterface.php,
-' tests/behat/bootstrap/FeatureContext.php.
+' tests/Behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white

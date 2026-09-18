@@ -19,7 +19,7 @@ use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
-  ->withPaths('%paths.base%/tests/behat/features')
+  ->withPaths('%paths.base%/tests/Behat/features')
   ->addContext(DrupalContext::class)
   ->addContext(MinkContext::class);
 
@@ -27,7 +27,7 @@ $profile = (new Profile('default'))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://your-site.local',
-    'files_path' => '%paths.base%/tests/behat/fixtures',
+    'files_path' => '%paths.base%/tests/fixtures/files',
     'browser_name' => 'chrome',
     'javascript_session' => 'selenium2',
     'sessions' => [

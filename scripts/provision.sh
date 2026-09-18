@@ -21,7 +21,7 @@ mkdir -p /app/build
 pushd /app/build/ >/dev/null || exit 1
 
 echo "  > Copying fixture files to the build dir."
-cp -Rf "/app/tests/behat/fixtures_drupal/d${DRUPAL_VERSION}/." ./
+cp -Rf "/app/tests/fixtures/drupal/d${DRUPAL_VERSION}/." ./
 
 echo "  > Validating fixture Composer configuration."
 composer validate --ansi --no-check-all
@@ -125,7 +125,7 @@ echo "  > Running post-install commands defined in the composer.json for each sp
 composer run-script drupal-post-install
 
 echo "  > Copying test fixtures."
-cp -Rf /app/tests/behat/fixtures/. /app/build/web/sites/default/files/
+cp -Rf /app/tests/fixtures/files/. /app/build/web/sites/default/files/
 
 echo "  > Bootstrapping site."
 /app/build/vendor/bin/drush -r /app/build/web --uri=http://nginx status --fields=bootstrap | grep -q "Successful" && echo "    Success" || ( echo "ERROR: Unable to bootstrap a site" && exit 1 )

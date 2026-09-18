@@ -38,9 +38,10 @@ return RectorConfig::configure()
     '/app/docs.php',
     '/app/scripts',
     '/app/src',
-    '/app/tests/behat/bootstrap',
-    '/app/tests/behat/fixtures_drupal/d11/web/modules/custom',
-    '/app/tests/phpunit/src',
+    '/app/tests/Behat/bootstrap',
+    '/app/tests/fixtures/drupal/d11/web/modules/custom',
+    '/app/tests/Kernel',
+    '/app/tests/Unit',
   ])
   ->withSkip([
     // Specific rules to skip based on project coding standards.
@@ -67,7 +68,7 @@ return RectorConfig::configure()
     // Directories to skip.
     '*/vendor/*',
     '*/node_modules/*',
-    __DIR__ . '/tests/behat/bootstrap/BehatCliContext.php',
+    __DIR__ . '/tests/Behat/bootstrap/BehatCliContext.php',
   ])
   // PHP version upgrade sets - modernizes syntax to PHP 8.3.
   // Includes all rules from PHP 5.3 through 8.3.
