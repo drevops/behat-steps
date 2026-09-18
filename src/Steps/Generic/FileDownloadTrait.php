@@ -321,7 +321,7 @@ trait FileDownloadTrait {
   /**
    * Assert that an HTML link is present on the page.
    */
-  public function fileDownloadAssertLinkPresent(string $link): NodeElement {
+  protected function fileDownloadAssertLinkPresent(string $link): NodeElement {
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
 

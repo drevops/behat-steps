@@ -792,11 +792,11 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $this->helperNormalizeWhitespace($string);
+    $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $field_string = $message[$field] ?? '';
-      $field_string = $this->helperNormalizeWhitespace((string) $field_string);
+      $value = $message[$field] ?? '';
+      $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
         return $message;

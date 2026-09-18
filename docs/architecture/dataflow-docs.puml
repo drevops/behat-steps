@@ -45,7 +45,7 @@ Main -> Extract: read the members off each trait
 activate Extract
 Extract -> Extract: vocabulary: public methods prefixed with\nthe trait name that carry a step attribute
 Extract -> Extract: toolbox: the other public methods, minus\nhooks, transformations and anything @internal
-Extract -> Extract: add the classes listed in TOOLBOX_CLASSES
+Extract -> Extract: add TOOLBOX_CLASSES, whose own public\nmethods carry no trait-name prefix
 Extract -> Extract: parse each docblock for the description\nand the @code example, following\n{@inheritdoc} to its declaration
 Extract --> Main: step info and helper info
 deactivate Extract

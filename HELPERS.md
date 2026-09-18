@@ -13,7 +13,7 @@
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
-| [FileDownloadTrait](#filedownloadtrait) | 4 | Test file download functionality with content verification. |
+| [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
 | [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 1 | Replace `{{ Key }}` tokens in step arguments and table cells. |
@@ -507,15 +507,6 @@ Check if a given field element is marked as required
 [Source](src/Steps/Generic/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
 
 > Test file download functionality with content verification.
-
-<details>
-  <summary><code>public function fileDownloadAssertLinkPresent(string $link): NodeElement</code></summary>
-
-<br/>
-Assert that an HTML link is present on the page
-<br/><br/>
-
-</details>
 
 <details>
   <summary><code>public function fileDownloadGetTempDir(): string</code></summary>

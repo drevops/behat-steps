@@ -615,6 +615,18 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 A handful of trait members exposed more than the surrounding code intended. Each one is reachable from a consuming context, so they're grouped here as breaking changes rather than fixed quietly. A `PublicSurfaceTest` now holds each of these conventions, so the surface stays deliberate from here on.
 
+### The toolbox is now `public`
+
+Visibility marks the API: a `public` method that Behat does not register is the toolbox, listed in [HELPERS.md](HELPERS.md) and covered by semantic versioning, and a `protected` one is an implementation detail. 162 helpers a project calls from its own step definitions were promoted to `public` for this, and the rest stayed `protected`.
+
+PHP refuses to narrow an inherited method, so a context that overrides one of the promoted helpers as `protected` no longer loads:
+
+```
+Fatal error: Access level to FeatureContext::bigPipeGetWaitTimeout() must be public (as in class ...)
+```
+
+Change the `protected` keyword to `public` on any override of a method [HELPERS.md](HELPERS.md) lists. The body and signature are unchanged, and overriding still works exactly as before.
+
 ### Internal helpers are now `protected`
 
 Neither method is a step or a hook, and both were only ever called from step methods in their own trait. Calling them from outside the context object no longer works; calling them from inside it is unchanged.
