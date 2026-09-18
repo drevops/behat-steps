@@ -15,9 +15,9 @@ use Behat\Step\When;
  * service that checks Drupal state for time overrides.
  *
  * Example implementation:
- * - Time service: https://github.com/drevops/behat-steps/blob/main/tests/fixtures/drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
- * - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/fixtures/drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
- * - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/fixtures/drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
+ * - Time service: [Time.php](tests/fixtures/drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php)
+ * - Time interface: [TimeInterface.php](tests/fixtures/drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php)
+ * - Service registration: [mysite_core.services.yml](tests/fixtures/drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml)
  */
 trait TimeTrait {
 
