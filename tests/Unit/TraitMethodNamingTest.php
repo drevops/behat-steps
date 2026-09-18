@@ -120,7 +120,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    *   Trait name and absolute file path, keyed by the path relative to `src/`.
    */
   protected static function discoverTraitFiles(): array {
-    $root = realpath(__DIR__ . '/../../../src');
+    $root = realpath(__DIR__ . '/../../src');
     $files = [];
 
     $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator((string) $root));

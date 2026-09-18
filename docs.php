@@ -1708,7 +1708,7 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
     }
   }
 
-  $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR . 'features';
+  $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Behat' . DIRECTORY_SEPARATOR . 'features';
   if (is_dir($features_dir)) {
     foreach (glob($features_dir . DIRECTORY_SEPARATOR . '*.feature') ?: [] as $file) {
       $contents = file_get_contents($file);

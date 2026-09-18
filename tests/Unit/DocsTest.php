@@ -62,7 +62,7 @@ class DocsTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    require_once __DIR__ . '/../../../docs.php';
+    require_once __DIR__ . '/../../docs.php';
 
     // Pre-load all fixture traits so they're available for eval().
     // Note: We don't pre-load Drupal context traits because they need to

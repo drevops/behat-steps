@@ -21,7 +21,7 @@ class LintLayersTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    require_once __DIR__ . '/../../../scripts/lint-layers.php';
+    require_once __DIR__ . '/../../scripts/lint-layers.php';
   }
 
   /**

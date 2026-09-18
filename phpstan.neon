@@ -27,11 +27,14 @@ parameters:
 
   scanFiles:
     - vendor/behat/behat/bin/behat
+    # Declares an interface, a parent and a child in one file, so none of the 3
+    # is reachable under the PSR-4 root the rest of the directory resolves by.
+    - tests/fixtures/docs/Generic/InheritedDocFixture.php
 
   scanDirectories:
     - vendor/phpunit/phpunit
     - vendor/alexskrypnyk/phpunit-helpers
-    - tests/fixtures/docs
+    - tests/fixtures/docs/Drupal
 
   # Prefer type checking over docblocks, which can easily become outdated.
   treatPhpDocTypesAsCertain: false
@@ -62,7 +65,8 @@ parameters:
         # Since tests and data providers do not have to have parameter docblocks,
         # it is not possible to specify the type of the parameter, so we ignore
         # this error.
-        - tests/*
+        - tests/Kernel/*
+        - tests/Unit/*
       reportUnmatched: false
 
     # @see https://github.com/mglaman/phpstan-drupal/issues/825

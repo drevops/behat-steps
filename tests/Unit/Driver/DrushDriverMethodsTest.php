@@ -32,7 +32,7 @@ class DrushDriverMethodsTest extends TestCase {
   /**
    * Directory the throwaway Drush binary layouts are built under.
    */
-  protected const TEMP_ROOT = __DIR__ . '/../../../../../.artifacts/tmp';
+  protected const TEMP_ROOT = __DIR__ . '/../../../.artifacts/tmp';
 
   /**
    * {@inheritdoc}
