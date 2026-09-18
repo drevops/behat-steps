@@ -348,7 +348,7 @@ trait BlockTrait {
    * @return \Drupal\block\Entity\Block|null
    *   The loaded block entity, or NULL when no block carries that label.
    */
-  protected function blockLoadByLabel(string $label): ?Block {
+  public function blockLoadByLabel(string $label): ?Block {
     $this->assertDrupal();
 
     $default_theme = \Drupal::config('system.theme')->get('default');

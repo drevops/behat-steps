@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\HelperSampleTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\HelperSignatureTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Generic\InheritedChild;
 use DrevOps\BehatSteps\Tests\Fixtures\Generic\MultiMethodTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Generic\NoMatchTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Generic\SampleTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Config\Definition\ArrayNode;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
  * Tests for docs generation.
@@ -29,6 +35,25 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
+#[CoversFunction('collect_step_traits')]
+#[CoversFunction('method_is_registered')]
+#[CoversFunction('comment_is_internal')]
+#[CoversFunction('render_type')]
+#[CoversFunction('render_value')]
+#[CoversFunction('render_method_signature')]
+#[CoversFunction('heading_anchor')]
+#[CoversFunction('extract_helpers')]
+#[CoversFunction('collect_helper_methods')]
+#[CoversFunction('resolve_inherited_comment')]
+#[CoversFunction('relative_source_path')]
+#[CoversFunction('render_helpers')]
+#[CoversFunction('validate_helpers')]
+#[CoversFunction('render_tag_reference')]
+#[CoversFunction('render_extension_options')]
+#[CoversFunction('extension_option_rows')]
+#[CoversFunction('extension_option_type')]
+#[CoversFunction('extension_option_description')]
+#[CoversFunction('validate_env_vars')]
 class DocsTest extends UnitTestCase {
 
   /**
@@ -1726,7 +1751,7 @@ EOD,
     if (!class_exists($class_name, FALSE)) {
       // Add namespace prefix to trait names.
       $namespaced_traits = array_map(function ($trait_name): string {
-        $context = $trait_name === 'DrupalTrait' ? 'Drupal' : 'Generic';
+        $context = file_exists($this->getFixturesDir() . '/Drupal/' . $trait_name . '.php') ? 'Drupal' : 'Generic';
 
         return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\' . $context . '\\' . $trait_name;
       }, $trait_names);
@@ -2282,13 +2307,15 @@ EOD,
     $registry = tag_registry();
 
     $this->assertArrayHasKey('accessibility', $registry);
-    $this->assertSame('parametrized', $registry['accessibility']);
-    $this->assertSame('flag', $registry['disable-form-validation']);
+    $this->assertSame('parametrized', $registry['accessibility']['form']);
+    $this->assertSame('flag', $registry['disable-form-validation']['form']);
 
-    // Every entry is classified as exactly one of the two known types.
-    foreach ($registry as $prefix => $type) {
+    // Every entry is classified as exactly one of the two known forms and
+    // carries the description the reference renders.
+    foreach ($registry as $prefix => $definition) {
       $this->assertIsString($prefix);
-      $this->assertContains($type, ['parametrized', 'flag']);
+      $this->assertContains($definition['form'], ['parametrized', 'flag']);
+      $this->assertNotSame('', trim($definition['description']));
     }
   }
 
@@ -2466,6 +2493,388 @@ EOD,
     ];
 
     $this->assertSame([], validate_tags($info, static::$tmp));
+  }
+
+  #[DataProvider('dataProviderMethodIsRegistered')]
+  public function testMethodIsRegistered(string $method, bool $expected): void {
+    $this->assertSame($expected, method_is_registered(new \ReflectionMethod(HelperSampleTrait::class, $method)));
+  }
+
+  public static function dataProviderMethodIsRegistered(): array {
+    return [
+      'step' => ['helperSampleAssertTest', TRUE],
+      'hook' => ['helperSampleBeforeScenario', TRUE],
+      'transformation' => ['helperSampleTransformValue', TRUE],
+      'helper' => ['helperSampleBuild', FALSE],
+    ];
+  }
+
+  #[DataProvider('dataProviderCommentIsInternal')]
+  public function testCommentIsInternal(string $comment, bool $expected): void {
+    $this->assertSame($expected, comment_is_internal($comment));
+  }
+
+  public static function dataProviderCommentIsInternal(): array {
+    return [
+      'empty' => ['', FALSE],
+      'tagged' => ["/**\n * Summary.\n *\n * @internal\n */", TRUE],
+      'tagged with reason' => ["/**\n * Summary.\n *\n * @internal\n *   Because.\n */", TRUE],
+      'mentioned in prose' => ["/**\n * Summary of the internal state.\n */", FALSE],
+      'similar tag' => ["/**\n * Summary.\n *\n * @internalised\n */", FALSE],
+    ];
+  }
+
+  #[DataProvider('dataProviderRenderMethodSignature')]
+  public function testRenderMethodSignature(string $method, string $expected): void {
+    $this->assertSame($expected, render_method_signature(new \ReflectionMethod(HelperSignatureTrait::class, $method)));
+  }
+
+  public static function dataProviderRenderMethodSignature(): array {
+    return [
+      'union' => ['helperSignatureUnion', 'public function helperSignatureUnion(string|int $value): string|int'],
+      'intersection' => ['helperSignatureIntersection', 'public function helperSignatureIntersection(Countable&Stringable $value): Countable&Stringable'],
+      'nullable class' => ['helperSignatureNullable', 'protected function helperSignatureNullable(?NodeElement $element = NULL): ?NodeElement'],
+      'untyped' => ['helperSignatureUntyped', 'protected function helperSignatureUntyped($value)'],
+      'variadic' => ['helperSignatureVariadic', 'protected function helperSignatureVariadic(string ...$parts): void'],
+      'defaults' => ['helperSignatureDefaults', "protected static function helperSignatureDefaults(string \$text = 'one', array \$empty = [], array \$filled = [...], bool \$flag = FALSE, int \$count = 3, ?string \$missing = NULL): void"],
+      'mixed' => ['helperSignatureMixed', 'protected function helperSignatureMixed(mixed $value): mixed'],
+    ];
+  }
+
+  public function testRenderTypeWithoutDeclaration(): void {
+    $this->assertSame('', render_type(NULL));
+  }
+
+  #[DataProvider('dataProviderRenderValue')]
+  public function testRenderValue(mixed $value, string $expected): void {
+    $this->assertSame($expected, render_value($value));
+  }
+
+  public static function dataProviderRenderValue(): array {
+    return [
+      'null' => [NULL, 'NULL'],
+      'true' => [TRUE, 'TRUE'],
+      'false' => [FALSE, 'FALSE'],
+      'empty array' => [[], '[]'],
+      'filled array' => [['one'], '[...]'],
+      'string' => ['one', "'one'"],
+      'integer' => [3, '3'],
+      'float' => [1.5, '1.5'],
+      'object' => [new \stdClass(), 'object'],
+    ];
+  }
+
+  #[DataProvider('dataProviderHeadingAnchor')]
+  public function testHeadingAnchor(string $name, string $expected): void {
+    $this->assertSame($expected, heading_anchor($name));
+  }
+
+  public static function dataProviderHeadingAnchor(): array {
+    return [
+      'plain' => ['ElementTrait', 'elementtrait'],
+      'contextual' => ['Drupal\\ContentTrait', 'drupalcontenttrait'],
+      'hyphenated' => ['Some-Trait_Name', 'some-trait_name'],
+    ];
+  }
+
+  #[DataProvider('dataProviderResolveInheritedComment')]
+  public function testResolveInheritedComment(string $method, string $expected_contains): void {
+    $this->assertStringContainsString($expected_contains, resolve_inherited_comment(new \ReflectionMethod(InheritedChild::class, $method)));
+  }
+
+  public static function dataProviderResolveInheritedComment(): array {
+    return [
+      'from the interface' => ['inheritedValue', 'Read the contract value.'],
+      'from the parent' => ['inheritedParentValue', 'Read the parent value.'],
+      'internal tag travels' => ['inheritedInternal', '@internal'],
+      'nothing to inherit' => ['inheritedUnresolved', '{@inheritdoc}'],
+    ];
+  }
+
+  #[DataProvider('dataProviderRelativeSourcePath')]
+  public function testRelativeSourcePath(string $file_path, string $base_path, string $expected): void {
+    $this->assertSame($expected, relative_source_path($file_path, $base_path));
+  }
+
+  public static function dataProviderRelativeSourcePath(): array {
+    return [
+      'under the documented repository' => ['/repo/src/Behat/Context/RawContext.php', '/repo', 'src/Behat/Context/RawContext.php'],
+      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/RawContext.php', '/elsewhere', 'src/Behat/Context/RawContext.php'],
+    ];
+  }
+
+  public function testExtractHelpers(): void {
+    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $actual = extract_helpers($class_name, [], $setup['base_path']);
+
+    $this->assertArrayHasKey('HelperSampleTrait', $actual);
+    $trait = $actual['HelperSampleTrait'];
+
+    $this->assertSame('Sample trait carrying helpers for testing.', $trait['description']);
+
+    // Steps, hooks, transformations, protected members, internal members and
+    // members belonging to another trait by name are all left out, and the
+    // rest is sorted by name.
+    $this->assertSame(['helperSampleBuild', 'helperSampleDefaults'], array_column($trait['helpers'], 'name'));
+
+    $this->assertSame('public function helperSampleBuild(string $name, ?int $count = NULL, bool $strict = TRUE): string', $trait['helpers'][0]['signature']);
+    $this->assertSame('Build a sample value.', $trait['helpers'][0]['description']);
+    $this->assertStringContainsString("\$this->helperSampleBuild('one');", $trait['helpers'][0]['example']);
+    $this->assertSame('', $trait['helpers'][1]['example']);
+  }
+
+  public function testExtractHelpersResolvesContext(): void {
+    $setup = $this->setupExtractInfoTest(['HelperDrupalTrait'], 'Drupal');
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $actual = extract_helpers($class_name, [], $setup['base_path']);
+
+    $this->assertArrayHasKey('HelperDrupalTrait', $actual);
+    $trait = $actual['HelperDrupalTrait'];
+
+    $this->assertSame('Drupal', $trait['context']);
+    $this->assertSame('Drupal\\HelperDrupalTrait', $trait['name_contextual']);
+    $this->assertSame('src/Steps/Drupal/HelperDrupalTrait.php', $trait['source']);
+    $this->assertSame('drupalhelperdrupaltrait', $trait['steps_anchor']);
+    $this->assertSame(['helperDrupalValue'], array_column($trait['helpers'], 'name'));
+  }
+
+  public function testExtractHelpersSkipsTraitsWithoutHelpers(): void {
+    $setup = $this->setupExtractInfoTest(['SampleTrait']);
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $actual = extract_helpers($class_name, [], $setup['base_path']);
+
+    $this->assertArrayNotHasKey('SampleTrait', $actual);
+  }
+
+  public function testExtractHelpersPublishesToolboxClasses(): void {
+    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $actual = extract_helpers($class_name, [], $setup['base_path']);
+
+    $this->assertArrayHasKey('RawContext', $actual);
+    $this->assertSame('Context', $actual['RawContext']['context']);
+    $this->assertNull($actual['RawContext']['steps_anchor']);
+    $this->assertSame('src/Behat/Context/RawContext.php', $actual['RawContext']['source']);
+    $this->assertNotEmpty($actual['RawContext']['helpers']);
+
+    // The injection points the initializer calls are withdrawn from the
+    // published surface.
+    $names = array_column($actual['RawContext']['helpers'], 'name');
+    $this->assertContains('nodeCreate', $names);
+    $this->assertNotContains('setDriverManager', $names);
+    $this->assertNotContains('setParameters', $names);
+  }
+
+  public function testCollectHelperMethodsTakesOnlyDeclaredMembers(): void {
+    $actual = collect_helper_methods(new \ReflectionClass(InheritedChild::class));
+
+    // The internal member is withdrawn through the contract it inherits from,
+    // and the parent's own declaration is not repeated on the child.
+    $this->assertSame(['inheritedParentValue', 'inheritedUnresolved', 'inheritedValue'], array_column($actual, 'name'));
+  }
+
+  #[DataProvider('dataProviderValidateHelpers')]
+  public function testValidateHelpers(array $info, array $expected): void {
+    $this->assertSame($expected, validate_helpers($info));
+  }
+
+  public static function dataProviderValidateHelpers(): array {
+    return [
+      'no helpers' => [[], []],
+      'summary present' => [
+        [
+          'SomeTrait' => [
+            'name' => 'SomeTrait',
+            'helpers' => [['name' => 'someValue', 'description' => 'Read the value.']],
+          ],
+        ],
+        [],
+      ],
+      'summary missing' => [
+        [
+          'SomeTrait' => [
+            'name' => 'SomeTrait',
+            'helpers' => [
+              ['name' => 'someValue', 'description' => ''],
+              ['name' => 'someOther', 'description' => '   '],
+            ],
+          ],
+        ],
+        [
+          "  SomeTrait::someValue - Published helper has no summary. Write one, or mark the helper @internal\n",
+          "  SomeTrait::someOther - Published helper has no summary. Write one, or mark the helper @internal\n",
+        ],
+      ],
+    ];
+  }
+
+  public function testValidateHelpersFromSource(): void {
+    $setup = $this->setupExtractInfoTest(['HelperNoSummaryTrait']);
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    $actual = validate_helpers(extract_helpers($class_name, [], $setup['base_path']));
+
+    $this->assertNotEmpty($actual);
+    $this->assertStringContainsString('HelperNoSummaryTrait::helperNoSummaryValue', $actual[0]);
+  }
+
+  public function testRenderHelpers(): void {
+    $base_path = static::$tmp;
+    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    file_put_contents($steps_dir . '/Generic/SomeTrait.php', '<?php');
+    file_put_contents($steps_dir . '/Drupal/OtherTrait.php', '<?php');
+
+    $info = [
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Generic',
+        'source' => 'src/Steps/Generic/SomeTrait.php',
+        'steps_anchor' => 'sometrait',
+        'description' => 'Do the generic thing.',
+        'helpers' => [
+          ['name' => 'someValue', 'signature' => 'protected function someValue(): string', 'description' => 'Read the value.', 'example' => "\$this->someValue();"],
+        ],
+      ],
+      'OtherTrait' => [
+        'name' => 'OtherTrait',
+        'name_contextual' => 'Drupal\\OtherTrait',
+        'context' => 'Drupal',
+        'source' => 'src/Steps/Drupal/OtherTrait.php',
+        'steps_anchor' => NULL,
+        'description' => 'Do the Drupal thing.',
+        'helpers' => [
+          ['name' => 'otherValue', 'signature' => 'public function otherValue(): void', 'description' => 'Write the value.', 'example' => ''],
+        ],
+      ],
+    ];
+
+    $actual = render_helpers($info, $base_path);
+
+    $this->assertStringContainsString('### Index of Generic helpers', $actual);
+    $this->assertStringContainsString('### Index of Drupal helpers', $actual);
+    $this->assertStringContainsString('| [SomeTrait](#sometrait) | 1 | Do the generic thing. |', $actual);
+    $this->assertStringContainsString('| [Drupal\\OtherTrait](#drupalothertrait) | 1 | Do the Drupal thing. |', $actual);
+
+    // A trait that contributes steps links to them; one that does not links
+    // only to its source.
+    $this->assertStringContainsString('[Source](src/Steps/Generic/SomeTrait.php), [Steps](STEPS.md#sometrait)', $actual);
+    $this->assertStringContainsString('[Source](src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
+
+    $this->assertStringContainsString('<summary><code>protected function someValue(): string</code></summary>', $actual);
+    $this->assertStringContainsString('Read the value' . PHP_EOL, $actual);
+    $this->assertStringContainsString('```' . PHP_EOL . '$this->someValue();' . PHP_EOL . '```', $actual);
+
+    // The generic context is rendered before every other one.
+    $this->assertLessThan(strpos($actual, '## Drupal\\OtherTrait'), (int) strpos($actual, '## SomeTrait'));
+  }
+
+  public function testRenderHelpersThrowsOnMissingSource(): void {
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('Source file');
+
+    render_helpers([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Generic',
+        'source' => 'src/Steps/Generic/MissingTrait.php',
+        'steps_anchor' => 'sometrait',
+        'description' => 'Do the thing.',
+        'helpers' => [],
+      ],
+    ], static::$tmp);
+  }
+
+  public function testRenderTagReference(): void {
+    $actual = render_tag_reference();
+
+    $this->assertStringContainsString('| Tag | Description |', $actual);
+    $this->assertStringContainsString('| `@accessibility:VALUE` |', $actual);
+    $this->assertStringContainsString('| `@bigpipe` |', $actual);
+
+    foreach (array_keys(tag_registry()) as $tag) {
+      $this->assertStringContainsString('`@' . $tag, $actual);
+    }
+  }
+
+  public function testRenderExtensionOptions(): void {
+    $actual = render_extension_options();
+
+    $this->assertStringContainsString('| Option | Type | Default | Description |', $actual);
+    $this->assertStringContainsString("| `default_driver` | string | `'blackbox'` |", $actual);
+    $this->assertStringContainsString('| `ajax_timeout` | integer | `5` |', $actual);
+    $this->assertStringContainsString('| `regions` | map | `[]` |', $actual);
+    $this->assertStringContainsString('| `text` | section | - |', $actual);
+
+    // A nested option reads as a dotted path, and a required one says so.
+    $this->assertStringContainsString("| `text.login_url` | string | `'/user'` |", $actual);
+    $this->assertStringContainsString('| `drupal.drupal_root` | string | required |', $actual);
+
+    // Line breaks inside an option description are made table-safe.
+    $this->assertStringContainsString('<br>', $actual);
+  }
+
+  #[DataProvider('dataProviderExtensionOptionType')]
+  public function testExtensionOptionType(string $option, string $expected): void {
+    $builder = new TreeBuilder(BehatStepsExtension::CONFIG_KEY);
+    (new BehatStepsExtension())->configure($builder->getRootNode());
+
+    $root = $builder->buildTree();
+    $this->assertInstanceOf(ArrayNode::class, $root);
+
+    $this->assertSame($expected, extension_option_type($root->getChildren()[$option]));
+  }
+
+  public static function dataProviderExtensionOptionType(): array {
+    return [
+      'scalar' => ['api_driver', 'string'],
+      'integer' => ['ajax_timeout', 'integer'],
+      'prototyped array' => ['regions', 'map'],
+      'array' => ['text', 'section'],
+    ];
+  }
+
+  public function testValidateEnvVars(): void {
+    $base_path = static::$tmp;
+    mkdir($base_path . '/src/Nested', 0777, TRUE);
+    mkdir($base_path . '/docs', 0777, TRUE);
+
+    file_put_contents($base_path . '/docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
+    file_put_contents($base_path . '/src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
+    file_put_contents($base_path . '/src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
+    // A documented name that merely starts with the source name does not
+    // document it.
+    file_put_contents($base_path . '/src/Prefix.php', "<?php \$value = getenv('BEHAT_STEPS_DISABLE');");
+    // A variable named only in a comment belongs to a consuming project, not
+    // to this source.
+    file_put_contents($base_path . '/src/Commented.php', "<?php\n/**\n * Reads getenv('BEHAT_STEPS_COMMENTED').\n */\n");
+    file_put_contents($base_path . '/src/NotPhp.txt', "getenv('BEHAT_STEPS_TEXT')");
+
+    $actual = validate_env_vars($base_path);
+
+    $this->assertCount(2, $actual);
+    $this->assertStringContainsString('BEHAT_STEPS_UNDOCUMENTED', $actual[0]);
+    $this->assertStringContainsString('src/Nested/Undocumented.php', $actual[0]);
+    $this->assertStringContainsString('docs/configuration.md', $actual[0]);
+    $this->assertStringContainsString('BEHAT_STEPS_DISABLE', $actual[1]);
+    $this->assertStringContainsString('src/Prefix.php', $actual[1]);
+  }
+
+  public function testValidateEnvVarsWithoutSourceOrReference(): void {
+    $this->assertSame([], validate_env_vars(static::$tmp . '/missing'));
   }
 
 }

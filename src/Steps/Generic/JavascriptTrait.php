@@ -318,7 +318,7 @@ JS;
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
    */
-  protected function javascriptAssertNotHasErrors(): void {
+  public function javascriptAssertNotHasErrors(): void {
     if (empty($this->javascriptErrorRegistry)) {
       return;
     }

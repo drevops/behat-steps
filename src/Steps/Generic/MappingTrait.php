@@ -75,7 +75,7 @@ trait MappingTrait {
    * @return string
    *   The string with every token replaced by its mapped value.
    */
-  protected function mappingSubstitute(string $value): string {
+  public function mappingSubstitute(string $value): string {
     $result = preg_replace_callback(self::MAPPING_TOKEN_REGEX, fn(array $match): string => $this->getMapping(trim($match[1])), $value);
 
     return $result ?? $value;

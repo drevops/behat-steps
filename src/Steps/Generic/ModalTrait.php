@@ -198,7 +198,7 @@ trait ModalTrait {
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
-  protected function modalGetSelectors(): array {
+  public function modalGetSelectors(): array {
     return ['.ui-dialog', 'dialog[open]', '.modal'];
   }
 
@@ -208,7 +208,7 @@ trait ModalTrait {
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
-  protected function modalGetContentSelectors(): array {
+  public function modalGetContentSelectors(): array {
     return ['.ui-dialog-content', '.modal-content', '.modal-body'];
   }
 
@@ -218,14 +218,14 @@ trait ModalTrait {
    * @return array<string>
    *   An array of CSS selectors to try, in order.
    */
-  protected function modalGetCloseSelectors(): array {
+  public function modalGetCloseSelectors(): array {
     return ['.ui-dialog-titlebar-close', '[data-dismiss="modal"]', '.btn-close'];
   }
 
   /**
    * Get the timeout in seconds for waiting for the modal to appear.
    */
-  protected function modalGetWaitTimeout(): int {
+  public function modalGetWaitTimeout(): int {
     return 3;
   }
 
@@ -235,7 +235,7 @@ trait ModalTrait {
    * @return \Behat\Mink\Element\NodeElement|null
    *   The modal element, or NULL if not found.
    */
-  protected function modalFind(): ?NodeElement {
+  public function modalFind(): ?NodeElement {
     $page = $this->getSession()->getPage();
     $first_match = NULL;
 
@@ -264,7 +264,7 @@ trait ModalTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no visible modal is found.
    */
-  protected function modalFindVisible(): NodeElement {
+  public function modalFindVisible(): NodeElement {
     $modal = $this->modalFind();
 
     if ($modal === NULL || !$modal->isVisible()) {

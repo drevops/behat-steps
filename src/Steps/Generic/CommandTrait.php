@@ -381,7 +381,7 @@ trait CommandTrait {
   /**
    * The maximum time, in seconds, a command may run before it is terminated.
    */
-  protected function commandGetTimeout(): int {
+  public function commandGetTimeout(): int {
     return 300;
   }
 

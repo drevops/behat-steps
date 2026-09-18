@@ -165,7 +165,7 @@ trait CookieTrait {
   /**
    * Assert that a cookie exists.
    */
-  protected function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
+  public function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
@@ -199,7 +199,7 @@ trait CookieTrait {
   /**
    * Assert that a cookie does not exist.
    */
-  protected function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
+  public function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieGetByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
@@ -244,7 +244,7 @@ trait CookieTrait {
    * @return array<string, mixed>|null
    *   The cookie or NULL if not found.
    */
-  protected function cookieGetByName(string $name, bool $is_partial = FALSE): ?array {
+  public function cookieGetByName(string $name, bool $is_partial = FALSE): ?array {
     $cookies = $this->cookieGetAll();
 
     foreach ($cookies as $cookie) {
@@ -267,7 +267,7 @@ trait CookieTrait {
    * @return array<int, array<string, mixed>>
    *   An array of cookies.
    */
-  protected function cookieGetAll(): array {
+  public function cookieGetAll(): array {
     $driver = $this->getSession()->getDriver();
 
     // WebDriver-based drivers like Selenium2Driver.

@@ -4,7 +4,7 @@ This is a walkthrough of how Behat Steps works: what the pieces are, and how a G
 
 This document and its diagrams are generated and maintained by an AI agent via the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](../../.claude/skills/update-architecture-docs/SKILL.md). The content is derived from the source code. If this documentation and the code disagree, the code wins.
 
-Looking for the list of steps instead? That's [STEPS.md](../../STEPS.md), and it's generated too.
+Looking for a reference instead? [STEPS.md](../../STEPS.md) lists the steps, [HELPERS.md](../../HELPERS.md) lists the toolbox behind them, and [docs/configuration.md](../configuration.md) lists the options and tags. All three are generated.
 
 ## Diagram sources
 
@@ -17,7 +17,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | `class-context.puml` | `class-context.svg` | The context lifecycle, the managers, both helpers, representative step traits, and the exceptions a failing step throws |
 | `class-drivers.puml` | `class-drivers.svg` | The Behat-free driver layer: the base contract, the capability interfaces, the 3 drivers, and the Core bridge |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
-| `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering `STEPS.md` |
+| `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
 | `dataflow-tests.puml` | `dataflow-tests.svg` | The fixture Drupal site, the nested Behat harness, and the coverage merge |
 
 Regenerate every SVG after editing any source:
@@ -111,17 +111,23 @@ Every lifecycle hook can be switched off from a feature file. Tag a scenario `@b
 
 Every one of those tags is read through `Tag`, which strips the leading `@` first. Behat 3 removes it by default and Behat 4 keeps it, so going through `Tag` is what lets the same tag match on both.
 
-## Flow 2: the step documentation generates itself
+## Flow 2: the reference documentation generates itself
 
-`STEPS.md` is entirely generated, and `docs.php` is what generates it. It's a plain procedural script - top-level functions, no classes - and it runs against the fixture site's autoloader because it needs to reflect over real Drupal-dependent traits.
+Every reference document is generated, and `docs.php` is the only thing that generates them. It's a plain procedural script - top-level functions, no classes - and it runs against the fixture site's autoloader because it needs to reflect over real Drupal-dependent traits.
+
+One run writes 4 targets: `STEPS.md` and the step index in `README.md`, `HELPERS.md`, and the option and tag tables in `docs/configuration.md`. Each lands in a marked block of its file, and only the targets whose block actually changed are written.
 
 The trick is that it doesn't scan the filesystem for step definitions. It reflects over the test suite's own `FeatureContext`, which composes every trait in the library. That makes composition the source of truth: a trait file that exists but was never added to `FeatureContext` throws rather than being quietly skipped.
 
-![Data flow: STEPS.md generation](dataflow-docs.svg)
+The same reflection pass yields both halves of the package, and visibility is what separates them. A public method carrying a `Behat\Step\*` attribute is vocabulary and goes to `STEPS.md`; a public method carrying no Behat attribute at all is toolbox and goes to `HELPERS.md`, unless its docblock withdraws it with `@internal`. A protected method is an implementation detail and appears in neither. On a trait both halves are filtered by the trait-name prefix every member already carries, so a method borrowed from elsewhere is not published under a trait that merely composes it. `TOOLBOX_CLASSES` adds `RawContext` to the toolbox half, because a project's own step definitions are written against its lifecycle methods as much as against a trait's helpers; a class is read without that prefix filter, since its methods carry no trait name.
 
-The validation half matters more than the rendering half. It's where the project's step-writing conventions stop being a style guide and start being enforced: a `@When` step without `I `, a `@Then` step whose method name lacks `Assert`, a method with 2 step attributes, a step with no `@code` example - each is a hard error. `tag_registry()` does the same job for tags, guarding against separator drift so that `@module:views` never quietly becomes `@module-views`.
+![Data flow: reference documentation generation](dataflow-docs.svg)
 
-Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates the blocks in memory and exits non-zero if they don't match what's committed, writing nothing. So the documentation can't drift, because a drifted build is a red build.
+The option and tag tables come from the code rather than from the reflection pass: the options are read off the config tree `BehatStepsExtension::configure()` builds, and the tags off `tag_registry()`. Neither can be added without appearing in the reference.
+
+The validation half matters more than the rendering half. It's where the project's conventions stop being a style guide and start being enforced: a `@When` step without `I `, a `@Then` step whose method name lacks `Assert`, a method with 2 step attributes, a step with no `@code` example, a published helper with no summary, a `getenv()` name that `docs/configuration.md` never mentions - each is a hard error. `tag_registry()` does the same job for tags, guarding against separator drift so that `@module:views` never quietly becomes `@module-views`.
+
+Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates the blocks in memory and exits non-zero if they don't match what's committed, naming the targets that drifted and writing nothing. So the documentation can't drift, because a drifted build is a red build.
 
 ## Flow 3: how the library tests itself
 

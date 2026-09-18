@@ -383,7 +383,7 @@ trait AccessibilityTrait {
    * Default: fetched once per process from accessibilityGetCdnUrl(). Override
    * to ship the engine script from a vendored package or asset path.
    */
-  protected function accessibilityGetJs(): string {
+  public function accessibilityGetJs(): string {
     if (self::$accessibilityCachedJs !== NULL) {
       return self::$accessibilityCachedJs;
     }
@@ -404,7 +404,7 @@ trait AccessibilityTrait {
    * Default: a pinned engine script from a public CDN. Override to point at
    * a different version, a private mirror, or a local asset.
    */
-  protected function accessibilityGetCdnUrl(): string {
+  public function accessibilityGetCdnUrl(): string {
     return 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js';
   }
 
@@ -417,7 +417,7 @@ trait AccessibilityTrait {
    * the suite hook has not run, the live working directory is used.
    * Override to return an already-absolute path.
    */
-  protected function accessibilityGetReportDir(): string {
+  public function accessibilityGetReportDir(): string {
     $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
 
     return $base . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
@@ -431,7 +431,7 @@ trait AccessibilityTrait {
    * `<tag>:warning`, `<tag>:strict`, `<tag>:any`) for per-scenario gate
    * configuration. Default: `accessibility`. Override to shorten.
    */
-  protected function accessibilityGetAutoTag(): string {
+  public function accessibilityGetAutoTag(): string {
     return 'accessibility';
   }
 
@@ -441,7 +441,7 @@ trait AccessibilityTrait {
    * Default: WCAG 2.0/2.1 A and AA tag set. Override to use a different
    * rule identifier expected by the engine in use.
    */
-  protected function accessibilityGetDefaultRules(): string {
+  public function accessibilityGetDefaultRules(): string {
     return 'wcag2a,wcag2aa';
   }
 
@@ -451,7 +451,7 @@ trait AccessibilityTrait {
    * One of `any` (fail on any violation), `never` (advisory only), or an
    * impact level from accessibilityGetImpacts(). Default: `any`.
    */
-  protected function accessibilityGetFailureThreshold(): string {
+  public function accessibilityGetFailureThreshold(): string {
     return 'any';
   }
 
@@ -460,7 +460,7 @@ trait AccessibilityTrait {
    *
    * Default: FALSE (incomplete findings are reported but do not fail).
    */
-  protected function accessibilityGetFailOnIncomplete(): bool {
+  public function accessibilityGetFailOnIncomplete(): bool {
     return FALSE;
   }
 
@@ -471,7 +471,7 @@ trait AccessibilityTrait {
    * variable is set to a non-empty value other than `0`. Override to
    * hardcode either behaviour.
    */
-  protected function accessibilityGetPrintCli(): bool {
+  public function accessibilityGetPrintCli(): bool {
     $value = getenv('BEHAT_ACCESSIBILITY_PRINT');
 
     return !in_array($value, [FALSE, '', '0'], TRUE);
@@ -487,7 +487,7 @@ trait AccessibilityTrait {
    * @return array<int, string>
    *   Impact identifiers ordered from most severe to least.
    */
-  protected function accessibilityGetImpacts(): array {
+  public function accessibilityGetImpacts(): array {
     return static::accessibilityGetDefaultImpacts();
   }
 
@@ -524,7 +524,7 @@ trait AccessibilityTrait {
    * @return array<string, mixed>
    *   Raw, engine-specific result array.
    */
-  protected function accessibilityRunEngine(string $rules): array {
+  public function accessibilityRunEngine(string $rules): array {
     $session = $this->getSession();
     $driver = $session->getDriver();
     $driver->executeScript($this->accessibilityGetJs());
@@ -572,7 +572,7 @@ trait AccessibilityTrait {
    * @return array<string, mixed>
    *   Normalized result.
    */
-  protected function accessibilityNormalizeResults(array $raw): array {
+  public function accessibilityNormalizeResults(array $raw): array {
     $normalized = ['violations' => [], 'incomplete' => [], 'passes' => []];
 
     foreach (['violations', 'incomplete'] as $bucket) {
@@ -719,7 +719,7 @@ trait AccessibilityTrait {
    * @return array<string, mixed>
    *   Normalized result.
    */
-  protected function accessibilityAssess(string $rules): array {
+  public function accessibilityAssess(string $rules): array {
     $raw = $this->accessibilityRunEngine($rules);
     $normalized = $this->accessibilityNormalizeResults($raw);
 

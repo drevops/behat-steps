@@ -31,7 +31,7 @@ The declarative version has no shipped step behind it. The project writes each d
 ```php
 #[When('I publish a page titled :title')]
 public function publishPage(string $title): void {
-  $this->contentCreate('page', ['title' => $title, 'moderation_state' => 'published']);
+  $this->nodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
 }
 ```
 
@@ -61,6 +61,6 @@ The library serves both jobs at once through 1 design rule: every step body is a
 
 3 consequences follow:
 
-1. **Helpers are public API** - documented, semver-covered, named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in the consumer's `FeatureContext`, so a domain step costs 3 lines; under a context model every domain step would start with service lookups.
-2. **Suites split by job**: a spec suite holding the few domain-language scenarios, a regression suite holding the broad generic-vocabulary ones - which is also how Behat's own documentation says suites should be used.
-3. **The docs teach a lifecycle, not a catalogue**: start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The quick start shows both scenario styles side by side.
+1. **Helpers are public API** - documented in [HELPERS.md](../HELPERS.md), semver-covered, named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in the consumer's `FeatureContext`, so a domain step costs 3 lines; under a context model every domain step would start with service lookups.
+2. **Suites split by job**: a spec suite holding the few domain-language scenarios, a regression suite holding the broad generic-vocabulary ones - which is also how Behat's own documentation says suites should be used. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
+3. **The docs teach a lifecycle, not a catalogue**: start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../README.md#-quick-start) shows both scenario styles side by side.

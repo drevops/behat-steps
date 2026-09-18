@@ -248,7 +248,7 @@ trait MediaTrait {
    * @param string $action_subpath
    *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc.
    */
-  protected function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void {
+  public function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void {
     $mids = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
@@ -273,7 +273,7 @@ trait MediaTrait {
    * @return \Drupal\media\MediaInterface
    *   The created media item.
    */
-  protected function mediaCreateSingle(EntityStub $stub): MediaInterface {
+  public function mediaCreateSingle(EntityStub $stub): MediaInterface {
     $this->parseEntityFields($stub);
     $entity = $this->mediaCreateEntity($stub);
     $this->entityRegister($entity);
@@ -290,7 +290,7 @@ trait MediaTrait {
    * @return \Drupal\media\MediaInterface
    *   The created media entity.
    */
-  protected function mediaCreateEntity(EntityStub $stub): MediaInterface {
+  public function mediaCreateEntity(EntityStub $stub): MediaInterface {
     $this->assertDrupal();
 
     $bundle = $stub->getBundle();
@@ -362,7 +362,7 @@ trait MediaTrait {
    * @return array<int, string>
    *   Array of media ids.
    */
-  protected function mediaLoadMultiple(string $type, array $conditions = []): array {
+  public function mediaLoadMultiple(string $type, array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('media')

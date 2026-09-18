@@ -230,7 +230,7 @@ trait ModuleTrait {
    * @return bool
    *   TRUE if the module is enabled, FALSE otherwise.
    */
-  protected function moduleIsEnabled(string $module): bool {
+  public function moduleIsEnabled(string $module): bool {
     $this->assertDrupal();
 
     return \Drupal::moduleHandler()->moduleExists($module);
@@ -242,7 +242,7 @@ trait ModuleTrait {
    * @param string $module
    *   The module machine name.
    */
-  protected function moduleEnable(string $module): void {
+  public function moduleEnable(string $module): void {
     $this->assertDrupal();
 
     // @codeCoverageIgnoreStart
@@ -271,7 +271,7 @@ trait ModuleTrait {
    * @param string $module
    *   The module machine name.
    */
-  protected function moduleDisable(string $module): void {
+  public function moduleDisable(string $module): void {
     $this->assertDrupal();
 
     // @codeCoverageIgnoreStart
@@ -299,7 +299,7 @@ trait ModuleTrait {
    * @return bool
    *   TRUE if the module's code is present, FALSE otherwise.
    */
-  protected function moduleIsPresent(string $module): bool {
+  public function moduleIsPresent(string $module): bool {
     $this->assertDrupal();
 
     $module_list = \Drupal::service('extension.list.module')->getList();

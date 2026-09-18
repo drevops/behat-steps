@@ -275,7 +275,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  protected function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $this->parseEntityFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -298,7 +298,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  protected function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
     $this->assertDrupal();
 
     $path = ltrim($path, '/');
@@ -353,7 +353,7 @@ trait FileTrait {
    * @return array<int, string>
    *   Array of file ids.
    */
-  protected function fileLoadMultiple(array $conditions = []): array {
+  public function fileLoadMultiple(array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);

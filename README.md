@@ -118,7 +118,11 @@ from the community.
 
 ## 📚 Documentation
 
-- [Scenario styles - the vocabulary and the toolbox](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
+- [STEPS.md](STEPS.md) - the vocabulary: every step, with an example for each.
+- [HELPERS.md](HELPERS.md) - the toolbox: every helper the steps are built on, which your own step definitions call the same way.
+- [Configuration](docs/configuration.md) - the 4 channels a project configures this package through, and the suite layout to start from.
+- [Scenario styles](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
+- [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, layers and the local development setup.
 
 ## 📦 Installation
 
@@ -133,7 +137,9 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
 
-## 🚀 Usage
+## 🚀 Quick start
+
+### 1. Compose the vocabulary you need
 
 Add required traits to your
 `FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
@@ -160,6 +166,8 @@ vocabulary you want on top. For a suite that needs no PHP at all, register
 `DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
 plus a curated set of the broadly-safe traits.
 
+### 2. Enable the extension
+
 Ensure that your [`behat.php`](behat.php) enables the extension:
 
 ```php
@@ -180,7 +188,45 @@ return (new Config())->withProfile($profile);
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
-[behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference.
+[behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference, and [docs/configuration.md](docs/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
+
+### 3. Write a scenario in the shipped vocabulary
+
+The imperative style spells the interaction out and needs no PHP of your own, so the suite covers a flow the moment it is written:
+
+```gherkin
+Scenario: Editor publishes a page
+  Given I am logged in as a user with the "editor" role
+  When I visit "/node/add/page"
+  And I fill in "Title" with "About us"
+  And I press "Save"
+  Then the path should be "/about-us"
+  And the element ".messages--status" should contain "has been created"
+```
+
+### 4. Graduate the flows that matter to domain steps
+
+The declarative style names the behavior instead of the mechanics:
+
+```gherkin
+Scenario: Editor publishes a page
+  Given I am an editor
+  When I publish a page titled "About us"
+  Then the page "About us" should be publicly visible at "/about-us"
+```
+
+No shipped step matches those lines. You write them yourself, over the same helpers the shipped steps are built on:
+
+```php
+#[When('I publish a page titled :title')]
+public function publishPage(string $title): void {
+  $this->nodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
+}
+```
+
+That is the lifecycle this package is built for: start in the vocabulary for coverage on day one, then graduate the flows that matter into domain steps on the toolbox. The scenarios change language; the code underneath them does not.
+
+[Scenario styles](docs/scenario-styles.md) explains when each style earns its keep, and [HELPERS.md](HELPERS.md) lists every helper a domain step can build on.
 
 ### JavaScript drivers
 
@@ -273,6 +319,18 @@ to the scenario or feature. `@behat-steps-skip:cleanUsers` and
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example
 `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
+
+## 🧭 Public API and versioning
+
+This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
+
+- **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
+- **Helpers** - every public method the step traits and `RawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
+- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
+- **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
+- **Context base classes** - `RawContext` and `DrupalContext`, which a project extends.
+
+Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Driver` and `src/Behat` that none of the surfaces above exposes.
 
 ## 🤖 Writing tests with AI assistants
 

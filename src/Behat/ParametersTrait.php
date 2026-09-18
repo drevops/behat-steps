@@ -33,6 +33,9 @@ trait ParametersTrait {
    *
    * @param array<string, mixed> $parameters
    *   The parameters to set.
+   *
+   * @internal
+   *   Injection point called by the context initializer.
    */
   public function setParameters(array $parameters): void {
     $this->parameters = $parameters;

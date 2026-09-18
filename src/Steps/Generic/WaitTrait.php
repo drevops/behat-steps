@@ -170,7 +170,7 @@ JS;
   /**
    * Return the configured AJAX timeout, in seconds.
    */
-  protected function waitGetAjaxTimeout(): int {
+  public function waitGetAjaxTimeout(): int {
     $timeout = $this->getParameter('ajax_timeout');
 
     return is_numeric($timeout) ? (int) $timeout : 5;

@@ -127,14 +127,14 @@ trait DateTrait {
   /**
    * Assert that string has a token.
    */
-  protected static function dateRelativeStringHasToken(string $string): bool {
+  public static function dateRelativeStringHasToken(string $string): bool {
     return str_contains($string, '[relative:');
   }
 
   /**
    * Get the current timestamp.
    */
-  protected static function dateNow(): int {
+  public static function dateNow(): int {
     // @codeCoverageIgnoreStart
     return time();
     // @codeCoverageIgnoreEnd

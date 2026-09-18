@@ -122,7 +122,7 @@ trait RandomTrait {
   /**
    * Substitutes every token match in '$message' via 'randomResolveLiteral()'.
    */
-  protected function randomSubstitute(string $message): string {
+  public function randomSubstitute(string $message): string {
     preg_match_all(self::RANDOM_BRACKET_REGEX, $message, $matches);
 
     if ($matches[0] === []) {
@@ -144,7 +144,7 @@ trait RandomTrait {
   /**
    * Applies 'randomSubstitute()' across every cell in '$table'.
    */
-  protected function randomSubstituteTable(TableNode $table): TableNode {
+  public function randomSubstituteTable(TableNode $table): TableNode {
     $rows = [];
     foreach ($table->getRows() as $row) {
       $rows[] = array_map($this->randomSubstitute(...), $row);
@@ -161,7 +161,7 @@ trait RandomTrait {
    * the canonical key, and the literal is recorded in the parsing memo
    * so future lookups are O(1).
    */
-  protected function randomResolveLiteral(string $literal): string|int {
+  public function randomResolveLiteral(string $literal): string|int {
     if (isset($this->randomLiterals[$literal])) {
       return $this->randomValues[$this->randomLiterals[$literal]];
     }
@@ -311,7 +311,7 @@ trait RandomTrait {
    * @return string|int
    *   The generated value.
    */
-  protected function randomGenerate(string $type, array $args): string|int {
+  public function randomGenerate(string $type, array $args): string|int {
     return match ($type) {
       'string' => $this->randomGenerateString((int) $args[0]),
       'name' => $this->randomGenerateName((int) $args[0]),
@@ -326,28 +326,28 @@ trait RandomTrait {
   /**
    * Generates a lowercase string - the default for unknown shape requests.
    */
-  protected function randomGenerateString(int $length): string {
+  public function randomGenerateString(int $length): string {
     return strtolower((string) $this->randomGetGenerator()->name(max(1, $length)));
   }
 
   /**
    * Generates a 'Random::name()' string with original case preserved.
    */
-  protected function randomGenerateName(int $length): string {
+  public function randomGenerateName(int $length): string {
     return (string) $this->randomGetGenerator()->name(max(1, $length));
   }
 
   /**
    * Generates a Drupal-shaped machine name (lowercase + underscores).
    */
-  protected function randomGenerateMachineName(int $length): string {
+  public function randomGenerateMachineName(int $length): string {
     return $this->randomGetGenerator()->machineName(max(1, $length));
   }
 
   /**
    * Generates an integer in '[min, max]' inclusive.
    */
-  protected function randomGenerateInt(int $min, int $max): int {
+  public function randomGenerateInt(int $min, int $max): int {
     if ($min > $max) {
       [$min, $max] = [$max, $min];
     }
@@ -361,7 +361,7 @@ trait RandomTrait {
    * RFC 6761 reserves '.test' for testing, so generated addresses can
    * never collide with real domains.
    */
-  protected function randomGenerateEmail(): string {
+  public function randomGenerateEmail(): string {
     return strtolower(sprintf(
       '%s@%s.test',
       (string) $this->randomGetGenerator()->name(8),
@@ -372,7 +372,7 @@ trait RandomTrait {
   /**
    * Generates a UUID v4 string.
    */
-  protected function randomGenerateUuid(): string {
+  public function randomGenerateUuid(): string {
     $data = random_bytes(16);
     $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
     $data[8] = chr(ord($data[8]) & 0x3f | 0x80);

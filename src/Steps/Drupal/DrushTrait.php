@@ -153,7 +153,7 @@ trait DrushTrait {
    * @throws \RuntimeException
    *   When no Drush command has run in this scenario.
    */
-  protected function drushReadOutput(): string {
+  public function drushReadOutput(): string {
     if ($this->drushOutput === NULL) {
       throw new \RuntimeException('No drush command has run in this scenario, so there is no output to read.');
     }
@@ -167,7 +167,7 @@ trait DrushTrait {
    * @throws \RuntimeException
    *   When the 'drush' driver is not configured.
    */
-  protected function drushDriver(): DrushDriver {
+  public function drushDriver(): DrushDriver {
     $driver = $this->getDriver('drush');
 
     if (!$driver instanceof DrushDriver) {
@@ -188,7 +188,7 @@ trait DrushTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When the command exits zero.
    */
-  protected function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
+  public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
     $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
     $result = $this->drushDriver()->drushResult($command, $args);
 

@@ -184,7 +184,7 @@ trait WatchdogTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If errors at or above the severity threshold were logged.
    */
-  protected function watchdogAssertNotHasErrors(string $context): void {
+  public function watchdogAssertNotHasErrors(string $context): void {
     $this->assertDrupal();
 
     $database = Database::getConnection();

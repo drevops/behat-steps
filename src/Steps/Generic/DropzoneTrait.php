@@ -143,7 +143,7 @@ trait DropzoneTrait {
    * @throws \RuntimeException
    *   When the resolved fixture does not exist.
    */
-  protected function dropzoneResolvePath(string $path): string {
+  public function dropzoneResolvePath(string $path): string {
     $path = trim($path);
 
     if ($path === '') {

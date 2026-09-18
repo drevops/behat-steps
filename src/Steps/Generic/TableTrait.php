@@ -328,7 +328,7 @@ trait TableTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no row contains the text.
    */
-  protected function tableGetRowByText(string $row_text): NodeElement {
+  public function tableGetRowByText(string $row_text): NodeElement {
     $row = $this->tableFindRowByText($row_text);
 
     if (!$row instanceof NodeElement) {
@@ -341,14 +341,14 @@ trait TableTrait {
   /**
    * Get the CSS selector for table header cells.
    */
-  protected function tableGetHeaderSelector(): string {
+  public function tableGetHeaderSelector(): string {
     return 'thead tr th';
   }
 
   /**
    * Get the CSS selector for table body rows.
    */
-  protected function tableGetBodyRowSelector(): string {
+  public function tableGetBodyRowSelector(): string {
     return 'tbody tr';
   }
 
@@ -364,7 +364,7 @@ trait TableTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When the table is not found.
    */
-  protected function tableFind(string $selector): NodeElement {
+  public function tableFind(string $selector): NodeElement {
     $page = $this->getSession()->getPage();
     $table = $page->find('css', $selector);
 
@@ -384,7 +384,7 @@ trait TableTrait {
    * @return array<string>
    *   An array of trimmed header texts.
    */
-  protected function tableGetHeaders(NodeElement $table): array {
+  public function tableGetHeaders(NodeElement $table): array {
     return array_map(static fn(NodeElement $element): string => trim($element->getText()), $table->findAll('css', $this->tableGetHeaderSelector()));
   }
 
@@ -397,7 +397,7 @@ trait TableTrait {
    * @return array<\Behat\Mink\Element\NodeElement>
    *   An array of row elements.
    */
-  protected function tableGetRows(NodeElement $table): array {
+  public function tableGetRows(NodeElement $table): array {
     return $table->findAll('css', $this->tableGetBodyRowSelector());
   }
 
@@ -417,7 +417,7 @@ trait TableTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When the column is not found.
    */
-  protected function tableGetColumnIndex(NodeElement $table, string $column, string $selector): int {
+  public function tableGetColumnIndex(NodeElement $table, string $column, string $selector): int {
     $headers = $this->tableGetHeaders($table);
     $index = array_search($column, $headers, TRUE);
 
@@ -437,7 +437,7 @@ trait TableTrait {
    * @return \Behat\Mink\Element\NodeElement|null
    *   The row element if found, or NULL.
    */
-  protected function tableFindRowByText(string $text): ?NodeElement {
+  public function tableFindRowByText(string $text): ?NodeElement {
     $rows = $this->getSession()->getPage()->findAll('css', 'table tr');
 
     foreach ($rows as $row) {

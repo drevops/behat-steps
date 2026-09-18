@@ -335,7 +335,7 @@ trait RegionTrait {
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When the name is not mapped or the mapped selector matches nothing.
    */
-  protected function regionGet(string $region): NodeElement {
+  public function regionGet(string $region): NodeElement {
     $element = $this->getSession()->getPage()->find('region', $region);
 
     if (!$element instanceof NodeElement) {
@@ -363,7 +363,7 @@ trait RegionTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no matching element carries the text.
    */
-  protected function regionFindElementByText(string $region, string $selector, string $text): NodeElement {
+  public function regionFindElementByText(string $region, string $selector, string $text): NodeElement {
     $elements = $this->regionGet($region)->findAll('css', $selector);
 
     if ($elements === []) {

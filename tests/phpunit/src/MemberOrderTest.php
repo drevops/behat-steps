@@ -41,9 +41,7 @@ class MemberOrderTest extends UnitTestCase {
 
   protected const GROUP_THEN = 6;
 
-  protected const GROUP_PUBLIC = 7;
-
-  protected const GROUP_PROTECTED = 8;
+  protected const GROUP_HELPER = 7;
 
   /**
    * How each group is named in a failure message.
@@ -56,8 +54,7 @@ class MemberOrderTest extends UnitTestCase {
     self::GROUP_GIVEN => 'Given step',
     self::GROUP_WHEN => 'When step',
     self::GROUP_THEN => 'Then step',
-    self::GROUP_PUBLIC => 'public method',
-    self::GROUP_PROTECTED => 'protected helper',
+    self::GROUP_HELPER => 'helper',
   ];
 
   /**
@@ -100,7 +97,7 @@ class MemberOrderTest extends UnitTestCase {
    * Both conventions must cover the same traits, so discovery is shared.
    */
   public static function dataProviderMembersFollowDocumentedOrder(): array {
-    return PublicSurfaceTest::dataProviderPublicMethodsAreStepsOrHooks();
+    return PublicSurfaceTest::dataProviderPublicMethodsAreDocumented();
   }
 
   /**
@@ -204,7 +201,7 @@ class MemberOrderTest extends UnitTestCase {
       }
     }
 
-    return $method->isPublic() ? static::GROUP_PUBLIC : static::GROUP_PROTECTED;
+    return static::GROUP_HELPER;
   }
 
 }

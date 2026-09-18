@@ -918,7 +918,7 @@ JS;
    * @return array<int, string>
    *   CSS selectors to probe for the add-another-item button.
    */
-  protected function fieldGetAddMoreButtonSelectors(): array {
+  public function fieldGetAddMoreButtonSelectors(): array {
     return [
       'input[value="Add another item"]',
       'button.field-add-more-submit',
@@ -928,14 +928,14 @@ JS;
   /**
    * CSS selectors that indicate a required-field marker.
    *
-   * Nothing consumes this list yet: ::fieldIsMarkedRequired() probes for the
-   * `required` attribute and the `form-required` class directly. It is kept as
-   * the intended override point for that check.
+   * A single-class selector such as `.form-required` and a bare-attribute
+   * selector such as `[required]` are read off the field and its label; any
+   * other selector is matched against the label's subtree.
    *
    * @return array<int, string>
    *   CSS selectors to probe for a required marker.
    */
-  protected function fieldGetRequiredMarkerSelectors(): array {
+  public function fieldGetRequiredMarkerSelectors(): array {
     return ['.form-required', '[required]'];
   }
 
@@ -946,13 +946,10 @@ JS;
    * the field or any associated label, and the presence of a `*` character
    * inside any associated label.
    */
-  protected function fieldIsMarkedRequired(NodeElement $field_element): bool {
-    if ($field_element->hasAttribute('required')) {
-      return TRUE;
-    }
+  public function fieldIsMarkedRequired(NodeElement $field_element): bool {
+    $selectors = $this->fieldGetRequiredMarkerSelectors();
 
-    $classes = (string) $field_element->getAttribute('class');
-    if (str_contains($classes, 'form-required')) {
+    if ($this->fieldMatchesMarker($field_element, $selectors)) {
       return TRUE;
     }
 
@@ -967,8 +964,7 @@ JS;
     $label ??= $field_element->find('xpath', 'ancestor::label[1]');
 
     if ($label instanceof NodeElement) {
-      $label_classes = (string) $label->getAttribute('class');
-      if (str_contains($label_classes, 'form-required')) {
+      if ($this->fieldMatchesMarker($label, $selectors)) {
         return TRUE;
       }
 
@@ -976,7 +972,39 @@ JS;
         return TRUE;
       }
 
-      if ($label->find('css', '.form-required') !== NULL) {
+      foreach ($selectors as $selector) {
+        if ($label->find('css', $selector) !== NULL) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Check whether an element itself carries one of the marker selectors.
+   *
+   * Mink can search within an element but cannot test the element against a
+   * selector, so the two selector shapes the markers use are read off the
+   * element directly. Any other shape is matched against the element's
+   * subtree by the caller.
+   *
+   * @param \Behat\Mink\Element\NodeElement $element
+   *   The element to test.
+   * @param array<int, string> $selectors
+   *   CSS selectors that mark a field as required.
+   *
+   * @return bool
+   *   TRUE when the element carries one of the selectors.
+   */
+  protected function fieldMatchesMarker(NodeElement $element, array $selectors): bool {
+    foreach ($selectors as $selector) {
+      if (preg_match('/^\.([\w-]+)$/', $selector, $matches) === 1 && $element->hasClass($matches[1])) {
+        return TRUE;
+      }
+
+      if (preg_match('/^\[([\w-]+)]$/', $selector, $matches) === 1 && $element->hasAttribute($matches[1])) {
         return TRUE;
       }
     }
@@ -1018,7 +1046,7 @@ JS;
    * @param string|null $selector
    *   The CSS selector for form(s). If NULL, disables all forms on page.
    */
-  protected function fieldDisableFormValidation(?string $selector = NULL): void {
+  public function fieldDisableFormValidation(?string $selector = NULL): void {
     $selector ??= 'form';
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 

@@ -172,7 +172,7 @@ trait DiagnosticsTrait {
   /**
    * Return the current page URL, or NULL when it cannot be determined.
    */
-  protected function diagnosticsGetUrl(): ?string {
+  public function diagnosticsGetUrl(): ?string {
     try {
       $url = $this->getSession()->getCurrentUrl();
     }
@@ -186,7 +186,7 @@ trait DiagnosticsTrait {
   /**
    * Return the last response status code, or NULL when it is unavailable.
    */
-  protected function diagnosticsGetStatusCode(): ?int {
+  public function diagnosticsGetStatusCode(): ?int {
     try {
       return $this->getSession()->getStatusCode();
     }
@@ -198,7 +198,7 @@ trait DiagnosticsTrait {
   /**
    * Return the active Mink driver class, or NULL when it is unavailable.
    */
-  protected function diagnosticsGetDriverName(): ?string {
+  public function diagnosticsGetDriverName(): ?string {
     try {
       return $this->getSession()->getDriver()::class;
     }
@@ -219,7 +219,7 @@ trait DiagnosticsTrait {
    * @return array<int, string>
    *   Distinct error messages, in the order first seen.
    */
-  protected function diagnosticsGetJsErrors(): array {
+  public function diagnosticsGetJsErrors(): array {
     $messages = [];
 
     $registry = get_object_vars($this)['javascriptErrorRegistry'] ?? NULL;
@@ -254,7 +254,7 @@ trait DiagnosticsTrait {
    * @return string|null
    *   The re-run command, or NULL when the scenario coordinates are unknown.
    */
-  protected function diagnosticsGetRerunCommand(): ?string {
+  public function diagnosticsGetRerunCommand(): ?string {
     if ($this->diagnosticsFeatureFile === NULL || $this->diagnosticsScenarioLine === NULL) {
       return NULL;
     }
@@ -285,49 +285,49 @@ trait DiagnosticsTrait {
   /**
    * Return the header line that precedes the diagnostics block.
    */
-  protected function diagnosticsGetHeader(): string {
+  public function diagnosticsGetHeader(): string {
     return '--- Failure diagnostics ---';
   }
 
   /**
    * Return the binary used in the re-run command. Override to customise.
    */
-  protected function diagnosticsGetRerunBinary(): string {
+  public function diagnosticsGetRerunBinary(): string {
     return 'vendor/bin/behat';
   }
 
   /**
    * Return TRUE to include the current URL. Override to suppress.
    */
-  protected function diagnosticsGetShowUrl(): bool {
+  public function diagnosticsGetShowUrl(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the HTTP status code. Override to suppress.
    */
-  protected function diagnosticsGetShowStatusCode(): bool {
+  public function diagnosticsGetShowStatusCode(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the Mink driver class. Override to suppress.
    */
-  protected function diagnosticsGetShowDriver(): bool {
+  public function diagnosticsGetShowDriver(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include JavaScript console errors. Override to suppress.
    */
-  protected function diagnosticsGetShowJsErrors(): bool {
+  public function diagnosticsGetShowJsErrors(): bool {
     return TRUE;
   }
 
   /**
    * Return TRUE to include the re-run command. Override to suppress.
    */
-  protected function diagnosticsGetShowRerun(): bool {
+  public function diagnosticsGetShowRerun(): bool {
     return TRUE;
   }
 

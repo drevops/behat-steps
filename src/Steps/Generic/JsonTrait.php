@@ -468,7 +468,7 @@ trait JsonTrait {
    * @return array<int|string, mixed>
    *   The decoded data.
    */
-  protected function jsonDecode(string $content): array {
+  public function jsonDecode(string $content): array {
     $data = json_decode($content, TRUE);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
@@ -494,7 +494,7 @@ trait JsonTrait {
    * @return mixed
    *   The decoded value.
    */
-  protected function jsonDecodeLoose(string $content): mixed {
+  public function jsonDecodeLoose(string $content): mixed {
     $data = json_decode($content);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
@@ -513,7 +513,7 @@ trait JsonTrait {
    * @return array<int, mixed>
    *   The list of matched values.
    */
-  protected function jsonQuery(string $path): array {
+  public function jsonQuery(string $path): array {
     $this->jsonEnsureData();
 
     try {
@@ -537,7 +537,7 @@ trait JsonTrait {
    * @return mixed
    *   The single matched value.
    */
-  protected function jsonResolveSingle(string $path): mixed {
+  public function jsonResolveSingle(string $path): mixed {
     $matches = $this->jsonQuery($path);
 
     if (count($matches) === 0) {
@@ -560,7 +560,7 @@ trait JsonTrait {
    * @return mixed
    *   The single scalar (or null) value.
    */
-  protected function jsonResolveScalar(string $path): mixed {
+  public function jsonResolveScalar(string $path): mixed {
     $value = $this->jsonResolveSingle($path);
 
     if (is_array($value)) {
@@ -597,7 +597,7 @@ trait JsonTrait {
    * @param string $schema_json
    *   The JSON schema as a string.
    */
-  protected function jsonValidateSchema(string $schema_json): void {
+  public function jsonValidateSchema(string $schema_json): void {
     if (!class_exists(Validator::class)) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('JSON Schema validation requires the "justinrainbow/json-schema" package. Install it with "composer require --dev justinrainbow/json-schema".');

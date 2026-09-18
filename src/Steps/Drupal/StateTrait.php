@@ -185,7 +185,7 @@ trait StateTrait {
    * @return array{exists: bool, value: mixed}
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
-  protected function stateReadValue(string $name): array {
+  public function stateReadValue(string $name): array {
     $this->assertDrupal();
 
     $key_value = \Drupal::keyValue('state');

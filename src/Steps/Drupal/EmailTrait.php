@@ -733,7 +733,7 @@ trait EmailTrait {
    * @return array<string, array<string, mixed>>
    *   Array of collected emails.
    */
-  protected function emailGetCollectedMessages(): array {
+  public function emailGetCollectedMessages(): array {
     $this->assertDrupal();
 
     // Directly read data from the database to avoid cache invalidation that
@@ -787,16 +787,16 @@ trait EmailTrait {
    * @return array<string, string|array<string, mixed>>|null
    *   Email message or NULL if not found.
    */
-  protected function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
+  public function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $this->helperNormalizeWhitespace($string);
+    $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $field_string = $message[$field] ?? '';
-      $field_string = $this->helperNormalizeWhitespace((string) $field_string);
+      $value = $message[$field] ?? '';
+      $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
         return $message;
@@ -815,7 +815,7 @@ trait EmailTrait {
    * @return array<int, string>
    *   Array of extracted links.
    */
-  protected static function emailExtractLinks(string $string): array {
+  public static function emailExtractLinks(string $string): array {
     $pattern = '(?xi)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
     $string = preg_replace_callback(sprintf('#%s#i', $pattern), fn(array $matches): string => preg_match('!^https?://!i', $matches[0]) ? $matches[0] : 'http://' . $matches[0], $string);
 
