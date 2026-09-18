@@ -69,6 +69,13 @@ trait FeatureContextTrait {
    */
   #[AfterFeature('@errorcleanup')]
   public static function testClearWatchdog(AfterFeatureScope $scope): void {
+    // A feature holding scenarios on more than 1 surface is run once per
+    // suite, and the suites that bootstrap no Drupal have no connection to
+    // clean through.
+    if (Database::getConnectionInfo() === NULL) {
+      return;
+    }
+
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
