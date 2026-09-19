@@ -130,6 +130,45 @@ else
   COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --with="behat/behat:^${BEHAT}"
 fi
 
+if [ "${DRUPAL_VERSION}" -ge 12 ]; then
+  # Composer installs the contrib code, but Drupal reads
+  # 'core_version_requirement' from each extension and refuses to enable one
+  # that excludes the running major. No contrib release declares Drupal 12, so
+  # the fixture widens what it received.
+  echo "  > Widening the core version requirement of the installed contrib extensions."
+  php -r '
+$widened = 0;
+$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/app/build/web/modules/contrib", FilesystemIterator::SKIP_DOTS));
+
+foreach ($files as $file) {
+  if (!str_ends_with($file->getFilename(), ".info.yml")) {
+    continue;
+  }
+
+  $text = file_get_contents($file->getPathname());
+
+  $updated = preg_replace_callback("/^core_version_requirement: *(.*)$/m", function (array $matches): string {
+    $constraint = trim($matches[1], " \"\x27");
+
+    if ($constraint === "" || str_contains($constraint, "^12")) {
+      return $matches[0];
+    }
+
+    return "core_version_requirement: \x27" . $constraint . " || ^12\x27";
+  }, $text);
+
+  if ($updated === $text) {
+    continue;
+  }
+
+  file_put_contents($file->getPathname(), $updated);
+  $widened++;
+}
+
+echo "    Widened " . $widened . " extension(s).\n";
+'
+fi
+
 echo "  > Running post-install-cmd."
 composer run-script post-install-cmd
 
