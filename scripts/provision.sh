@@ -147,14 +147,16 @@ foreach ($files as $file) {
 
   $text = file_get_contents($file->getPathname());
 
-  $updated = preg_replace_callback("/^core_version_requirement: *(.*)$/m", function (array $matches): string {
+  $updated = preg_replace_callback("/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m", function (array $matches): string {
     $constraint = trim($matches[1], " \"\x27");
 
     if ($constraint === "" || str_contains($constraint, "^12")) {
       return $matches[0];
     }
 
-    return "core_version_requirement: \x27" . $constraint . " || ^12\x27";
+    $comment = ($matches[2] ?? "") === "" ? "" : " " . $matches[2];
+
+    return "core_version_requirement: \x27" . $constraint . " || ^12\x27" . $comment;
   }, $text);
 
   if ($updated === $text) {
