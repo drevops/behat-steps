@@ -360,6 +360,8 @@ Drupal 12 is pinned to `~12.0.0-alpha1`, and its 2 legs are the whole grid that 
 - Drupal 12 requires Symfony 8, and `behat/behat` 3.33 - the newest Behat 3 - requires `symfony/yaml ^5.4 || ^6.4 || ^7.0`, so it has no Behat 3 leg. `behat/behat` 4.0 accepts Symfony 8.
 - `dmore/behat-chrome-extension` accepts Behat 3 only, so it has no `chrome_headless` leg either.
 
+Drupal 12 also raises the database floor to MariaDB 10.11, which is why [docker-compose.yml](docker-compose.yml) runs `uselagoon/mariadb-10.11-drupal`. Drupal 11 asks for 10.6 or newer, so one image serves both majors.
+
 Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does not:
 
 - `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. Drupal's hosted lenient endpoint is not used - it currently redirects to a page that does not exist.
