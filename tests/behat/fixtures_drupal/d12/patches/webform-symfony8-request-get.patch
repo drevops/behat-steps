@@ -1,0 +1,48 @@
+Read query parameters through the bag Symfony 8 still offers.
+
+Symfony 8 removed Request::get(). Every key read here - the wrapper format
+and the redirect destination - arrives as a query parameter, so the query bag
+is the equivalent accessor.
+
+diff --git a/src/Form/WebformAjaxFormTrait.php b/src/Form/WebformAjaxFormTrait.php
+--- a/src/Form/WebformAjaxFormTrait.php
++++ b/src/Form/WebformAjaxFormTrait.php
+@@ -73,7 +73,7 @@
+    *   TRUE if the current request is for an Ajax modal/dialog.
+    */
+   protected function isDialog() {
+-    $wrapper_format = $this->getRequest()
++    $wrapper_format = $this->getRequest()->query
+       ->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     return (in_array($wrapper_format, [
+       'drupal_ajax',
+@@ -90,7 +90,7 @@
+    *   TRUE if the current request is for an off canvas dialog.
+    */
+   protected function isOffCanvasDialog() {
+-    $wrapper_format = $this->getRequest()
++    $wrapper_format = $this->getRequest()->query
+       ->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     return (in_array($wrapper_format, [
+       'drupal_dialog.off_canvas',
+@@ -361,7 +361,7 @@
+    */
+   protected function getFormStateRedirectUrl(FormStateInterface $form_state) {
+     // Always check the ?destination which is used by the off-canvas/system tray.
+-    if ($this->getRequest()->get('destination')) {
++    if ($this->getRequest()->query->get('destination')) {
+       $destination = $this->getRedirectDestination()->get();
+       return str_starts_with($destination, $destination) ? $destination : base_path() . $destination;
+     }
+diff --git a/src/WebformSubmissionForm.php b/src/WebformSubmissionForm.php
+--- a/src/WebformSubmissionForm.php
++++ b/src/WebformSubmissionForm.php
+@@ -1989,7 +1989,7 @@
+       // On update, rebuild and display message unless ?destination= is set.
+       // @see \Drupal\webform\WebformSubmissionForm::setConfirmation
+       if ($state === WebformSubmissionInterface::STATE_UPDATED) {
+-        if (!$this->getRequest()->get('destination')) {
++        if (!$this->getRequest()->query->get('destination')) {
+           $this->rebuild($form, $form_state);
+         }
+       }
