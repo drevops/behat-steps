@@ -33,27 +33,27 @@ Feature: Check that ModuleTrait works
   Scenario: Assert "Given the following modules are enabled:" enables multiple modules
     When I log in as a user with the "administrator" role
     And the following modules are disabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
     When the following modules are enabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
     Then the following modules should be enabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
 
   @api
   Scenario: Assert "Given the following modules are disabled:" disables multiple modules
     When I log in as a user with the "administrator" role
     And the following modules are enabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
     When the following modules are disabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
     Then the following modules should be disabled:
-      | help |
-      | ban  |
+      | help   |
+      | syslog |
 
   @api @trait:Drupal\ModuleTrait
   Scenario: Assert negative assertion for "Then the :module module should be enabled" works with disabled module
@@ -95,18 +95,18 @@ Feature: Check that ModuleTrait works
     When I log in as a user with the "administrator" role
     Then the "help" module should be disabled
 
-  @api @module:help @module:ban
+  @api @module:help @module:syslog
   Scenario: Assert multiple @module tags enable multiple modules
     When I log in as a user with the "administrator" role
     Then the "help" module should be enabled
-    And the "ban" module should be enabled
+    And the "syslog" module should be enabled
 
-  @api @module:help @module:ban @module:!history
+  @api @module:help @module:syslog @module:!contextual
   Scenario: Assert mixed @module tags with enable and disable work together
     When I log in as a user with the "administrator" role
     Then the "help" module should be enabled
-    And the "ban" module should be enabled
-    And the "history" module should be disabled
+    And the "syslog" module should be enabled
+    And the "contextual" module should be disabled
 
   # Skip automatic state restoration because this scenario intentionally sets up
   # initial state for the next scenarios to test tag-based restoration.
@@ -136,23 +136,23 @@ Feature: Check that ModuleTrait works
   @api
   Scenario: Setup initial state for Given step restoration test
     When I log in as a user with the "administrator" role
-    # Ensure ban is disabled as the initial state
-    And the "ban" module is disabled
-    Then the "ban" module should be disabled
+    # Ensure syslog is disabled as the initial state
+    And the "syslog" module is disabled
+    Then the "syslog" module should be disabled
 
   @api
   Scenario: Assert module state changes via Given step
     When I log in as a user with the "administrator" role
-    # Enable ban module using Given step (not tag)
-    And the "ban" module is enabled
-    Then the "ban" module should be enabled
+    # Enable syslog module using Given step (not tag)
+    And the "syslog" module is enabled
+    Then the "syslog" module should be enabled
 
   @api
   Scenario: Verify module state was restored after Given step modification
     When I log in as a user with the "administrator" role
-    # This verifies that ban module was restored to disabled state
+    # This verifies that syslog module was restored to disabled state
     # after the previous scenario modified it using Given step
-    Then the "ban" module should be disabled
+    Then the "syslog" module should be disabled
 
   @api
   Scenario: Assert enabling already-enabled module is idempotent

@@ -10,7 +10,6 @@ module:
   ckeditor5: 0
   comment: 0
   config: 0
-  contact: 0
   content_moderation: 0
   contextual: 0
   ctools: 0
@@ -29,7 +28,6 @@ module:
   file: 0
   filter: 0
   help: 0
-  history: 0
   image: 0
   link: 0
   mailsystem: 0
@@ -49,7 +47,6 @@ module:
   search: 0
   search_api: 0
   search_api_db: 0
-  shortcut: 0
   system: 0
   taxonomy: 0
   testmode: 0
