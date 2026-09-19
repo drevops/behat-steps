@@ -1,8 +1,8 @@
 Read query parameters through the bag Symfony 8 still offers.
 
-Symfony 8 removed Request::get(). Every key read here - the wrapper format
-and the redirect destination - arrives as a query parameter, so the query bag
-is the equivalent accessor.
+Symfony 8 removed Request::get(). Every key read here - the wrapper format,
+the redirect destination, the template search and the element parent and type
+- arrives as a query parameter, so the query bag is the equivalent accessor.
 
 diff --git a/src/Form/WebformAjaxFormTrait.php b/src/Form/WebformAjaxFormTrait.php
 --- a/src/Form/WebformAjaxFormTrait.php
@@ -46,3 +46,41 @@ diff --git a/src/WebformSubmissionForm.php b/src/WebformSubmissionForm.php
            $this->rebuild($form, $form_state);
          }
        }
+diff --git a/modules/webform_templates/src/Controller/WebformTemplatesController.php b/modules/webform_templates/src/Controller/WebformTemplatesController.php
+--- a/modules/webform_templates/src/Controller/WebformTemplatesController.php
++++ b/modules/webform_templates/src/Controller/WebformTemplatesController.php
+@@ -59,8 +59,8 @@
+    *   response to a selected webform via the filter's autocomplete.
+    */
+   public function index(Request $request, $manage = FALSE) {
+-    $keys = $request->get('search');
+-    $category = $request->get('category');
++    $keys = $request->query->get('search');
++    $category = $request->query->get('category');
+
+     // Handler autocomplete redirect.
+     if ($keys && preg_match('#\(([^)]+)\)$#', $keys, $match)) {
+diff --git a/modules/webform_ui/src/Form/WebformUiElementAddForm.php b/modules/webform_ui/src/Form/WebformUiElementAddForm.php
+--- a/modules/webform_ui/src/Form/WebformUiElementAddForm.php
++++ b/modules/webform_ui/src/Form/WebformUiElementAddForm.php
+@@ -24,7 +24,7 @@
+     $this->element['#type'] = $type;
+     $this->action = $this->t('created');
+
+-    $parent_key = $this->getRequest()->get('parent');
++    $parent_key = $this->getRequest()->query->get('parent');
+     if ($parent_key) {
+       $parent_element = $webform->getElement($parent_key);
+       if (!$parent_element) {
+diff --git a/modules/webform_ui/src/Form/WebformUiElementEditForm.php b/modules/webform_ui/src/Form/WebformUiElementEditForm.php
+--- a/modules/webform_ui/src/Form/WebformUiElementEditForm.php
++++ b/modules/webform_ui/src/Form/WebformUiElementEditForm.php
+@@ -30,7 +30,7 @@
+     }
+
+     // Handler changing element type.
+-    if ($type = $this->getRequest()->get('type')) {
++    if ($type = $this->getRequest()->query->get('type')) {
+       $webform_element = $this->getWebformElementPlugin();
+       $related_types = $webform_element->getRelatedTypes($this->element);
+       if (!isset($related_types[$type])) {
