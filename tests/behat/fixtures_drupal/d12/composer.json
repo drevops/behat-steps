@@ -118,6 +118,14 @@
             }
         },
         "enable-patching": true,
+        "patches": {
+            "drupal/ctools": {
+                "Drupal 12: discover Relationship plugins by attribute": "patches/ctools-drupal12-attribute-discovery.patch"
+            },
+            "drupal/webform": {
+                "Drupal 12: match the getGroupedDefinitions() signature": "patches/webform-drupal12-grouped-definitions.patch"
+            }
+        },
         "installer-paths": {
             "web/core": [
                 "type:drupal-core"

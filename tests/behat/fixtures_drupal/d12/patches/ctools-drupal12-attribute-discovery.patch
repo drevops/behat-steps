@@ -1,0 +1,75 @@
+Make the Relationship plugin manager discoverable on Drupal 12.
+
+Drupal 12 dropped annotation-only plugin discovery, so a manager has to name
+an attribute class. Passing the attribute alongside the existing annotation
+selects AttributeDiscoveryWithAnnotations, which keeps the annotated plugins
+ctools already ships working.
+
+See https://www.drupal.org/node/3395582
+
+diff --git a/src/Attribute/Relationship.php b/src/Attribute/Relationship.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/Relationship.php
+@@ -0,0 +1,49 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\ctools\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++use Drupal\Core\StringTranslation\TranslatableMarkup;
++
++/**
++ * Defines a Relationship attribute.
++ *
++ * Plugin Namespace: Plugin\Relationship
++ *
++ * @see \Drupal\ctools\Plugin\RelationshipManager
++ * @see \Drupal\ctools\Plugin\RelationshipInterface
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class Relationship extends Plugin {
++
++  /**
++   * Constructs a Relationship attribute.
++   *
++   * @param string $id
++   *   The plugin ID.
++   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|null $label
++   *   (optional) The human-readable name of the relationship.
++   * @param string|null $data_type
++   *   (optional) The returned data type of this relationship.
++   * @param string|null $property_name
++   *   (optional) The name of the property this relationship is derived from.
++   * @param array $context_definitions
++   *   (optional) The contexts this plugin requires or accepts.
++   * @param class-string|null $deriver
++   *   (optional) The deriver class.
++   */
++  public function __construct(
++    public readonly string $id,
++    public readonly ?TranslatableMarkup $label = NULL,
++    public readonly ?string $data_type = NULL,
++    public readonly ?string $property_name = NULL,
++    public readonly array $context_definitions = [],
++    public readonly ?string $deriver = NULL,
++  ) {}
++
++}
+diff --git a/src/Plugin/RelationshipManager.php b/src/Plugin/RelationshipManager.php
+--- a/src/Plugin/RelationshipManager.php
++++ b/src/Plugin/RelationshipManager.php
+@@ -26,7 +26,7 @@
+    *   The module handler to invoke the alter hook with.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
+-    parent::__construct('Plugin/Relationship', $namespaces, $module_handler, 'Drupal\ctools\Plugin\RelationshipInterface', 'Drupal\ctools\Annotation\Relationship');
++    parent::__construct('Plugin/Relationship', $namespaces, $module_handler, 'Drupal\ctools\Plugin\RelationshipInterface', 'Drupal\ctools\Attribute\Relationship', 'Drupal\ctools\Annotation\Relationship');
+
+     $this->alterInfo('ctools_relationship_info');
+     $this->setCacheBackend($cache_backend, 'ctools_relationship_plugins');
