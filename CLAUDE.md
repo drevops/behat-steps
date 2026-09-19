@@ -210,6 +210,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
   - Widget configuration with type, weight, region, and settings
 - After creating configs in `build/config/sync`, copy to every fixture directory
 - Use `ahoy drush cim -y` to import configurations into the build environment
+- A contrib module added to `d12/composer.json` is also added to its `extra.drupal-lenient.allowed-list`, together with any contrib module it pulls in transitively - most contrib has no Drupal 12 release, and the fixture installs it through `mglaman/composer-drupal-lenient`
 
 ### Test Organization and Tagging
 - Consolidate related tests into existing feature files rather than creating new ones
