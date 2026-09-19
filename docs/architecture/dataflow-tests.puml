@@ -20,8 +20,9 @@ participant "scripts/merge-coverage.php" as Merge
 
 Dev -> Prov: bash scripts/provision.sh
 activate Prov
-Prov -> Prov: copy tests/behat/fixtures_drupal/d11/ into build/
+Prov -> Prov: copy tests/behat/fixtures_drupal/d11 or d12\ninto build/, as DRUPAL_VERSION selects
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
+Prov -> Prov: drop the packages the selected Behat\nand Drupal majors cannot install
 Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site

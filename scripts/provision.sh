@@ -110,6 +110,15 @@ if [ "${DRUPAL_VERSION}" -ge 12 ]; then
   # 12 requires 8. The PHPUnit suites need it, so they do not run here.
   echo "  > Removing packages that cannot be installed alongside Drupal 12."
   composer remove --dev --no-update alexskrypnyk/phpunit-helpers
+
+  # A plugin only shapes a solve that it is already installed for, and the
+  # fixture has no solution until this one relaxes the contrib core
+  # constraints. Composer loads globally installed plugins for local projects,
+  # so installing it outside the build breaks that circle.
+  echo "  > Installing the Composer plugin that relaxes contrib core constraints."
+  lenient_constraint="$(php -r 'echo json_decode(file_get_contents($argv[1]), TRUE)["require"]["mglaman/composer-drupal-lenient"];' "/app/tests/behat/fixtures_drupal/d${DRUPAL_VERSION}/composer.json")"
+  composer global config --no-interaction allow-plugins.mglaman/composer-drupal-lenient true
+  composer global require --no-interaction "mglaman/composer-drupal-lenient:${lenient_constraint}"
 fi
 
 # The constraint in composer.json allows both Behat majors, and '--with'
