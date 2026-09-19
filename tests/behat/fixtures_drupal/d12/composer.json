@@ -129,6 +129,9 @@
             },
             "drupal/scheduled_transitions": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/scheduled-transitions-drupal12-default-operations.patch"
+            },
+            "drupal/redirect": {
+                "Symfony 8: declare the void return on the validator": "patches/redirect-symfony8-validator-initialize.patch"
             }
         },
         "installer-paths": {

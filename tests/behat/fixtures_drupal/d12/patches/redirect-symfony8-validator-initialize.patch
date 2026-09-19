@@ -1,0 +1,18 @@
+Declare the void return that Symfony 8 requires.
+
+ConstraintValidatorInterface::initialize() declares a void return type, which
+this validator does not, so PHP rejects the override while the module
+installs.
+
+diff --git a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
+--- a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
++++ b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
+@@ -43,7 +43,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function initialize(ExecutionContextInterface $context) {
++  public function initialize(ExecutionContextInterface $context): void {
+     $this->context = $context;
+   }
+
