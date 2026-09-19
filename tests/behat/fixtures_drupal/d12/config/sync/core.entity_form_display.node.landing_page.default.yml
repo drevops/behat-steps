@@ -11,7 +11,7 @@ dependencies:
     - content_moderation
     - paragraphs
     - path
-    - text
+    - text_with_summary
 id: node.landing_page.default
 targetEntityType: node
 bundle: landing_page

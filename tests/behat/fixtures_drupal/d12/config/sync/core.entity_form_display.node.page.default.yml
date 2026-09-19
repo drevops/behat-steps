@@ -17,7 +17,7 @@ dependencies:
     - datetime
     - datetime_range
     - path
-    - text
+    - text_with_summary
 _core:
   default_config_hash: SfpLhPExzvR0MgFp0Wp7CrmgEnhcqQ-fXIWFhbf4ue0
 id: node.page.default

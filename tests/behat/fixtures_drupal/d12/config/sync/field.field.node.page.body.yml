@@ -6,7 +6,7 @@ dependencies:
     - field.storage.node.body
     - node.type.page
   module:
-    - text
+    - text_with_summary
 _core:
   default_config_hash: KgVkxLl_K3E3lvN6CEoWQIDT0V8J4Mv-fVYrAIc7-FE
 id: node.page.body

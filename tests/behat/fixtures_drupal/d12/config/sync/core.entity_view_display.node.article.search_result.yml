@@ -13,7 +13,7 @@ dependencies:
     - node.type.article
   module:
     - image
-    - text
+    - text_with_summary
     - user
 _core:
   default_config_hash: uFyekWl4pl40ClJFmjk9tcyPJ-WFSXYsItJHB_XbQqs

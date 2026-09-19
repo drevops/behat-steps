@@ -6,7 +6,7 @@ dependencies:
     - field.storage.node.body
     - node.type.landing_page
   module:
-    - text
+    - text_with_summary
 id: node.landing_page.body
 field_name: body
 entity_type: node

@@ -51,6 +51,7 @@ module:
   taxonomy: 0
   testmode: 0
   text: 0
+  text_with_summary: 0
   token: 0
   toolbar: 0
   user: 0

@@ -17,7 +17,7 @@ dependencies:
     - file
     - image
     - path
-    - text
+    - text_with_summary
 _core:
   default_config_hash: Pzq9mzrsfoPf775qgEU_SUbHSro9pv1ga-Euh1Ykd_k
 id: node.article.default

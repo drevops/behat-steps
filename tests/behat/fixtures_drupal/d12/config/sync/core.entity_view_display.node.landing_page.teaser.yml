@@ -8,7 +8,7 @@ dependencies:
     - field.field.node.landing_page.field_paragraph
     - node.type.landing_page
   module:
-    - text
+    - text_with_summary
     - user
 id: node.landing_page.teaser
 targetEntityType: node
