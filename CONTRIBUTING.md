@@ -329,8 +329,9 @@ If a reachable branch has no test, the fix is the test, not the marker.
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
+| PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, against both the newest and the oldest resolvable dependencies. Red until contrib catches up, and not required on `4.x`. See [Drupal versions](#drupal-versions). |
 
-The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
+The unit and kernel suites run on every leg that is not driven by a Behat profile and is not on Drupal 12, since a profile changes how the Behat suite runs and not what PHPUnit covers, and Drupal 12 cannot install the PHPUnit helper the suites need.
 
 Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
 
@@ -353,7 +354,7 @@ ahoy test-bdd
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
 
-Drupal 12 is pinned to `~12.0.0-alpha1` and has a fixture under `d12/`, but no CI job. The fixture resolves and the site installs; the configuration import does not complete, because contrib fatals part way through it. See [What blocks Drupal 12](#what-blocks-drupal-12).
+Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Those legs are red today: the fixture resolves and the site installs, but the configuration import does not complete, because contrib fatals part way through it. See [What blocks Drupal 12](#what-blocks-drupal-12).
 
 Drupal 12 constrains its own grid hard:
 
@@ -381,14 +382,14 @@ Getting contrib installed is not the same as getting it to run. 2 modules the fi
 
 The ctools fatal lands while `drush cim` is creating config entities. `drush` exits 0 regardless, so the site comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.sh](scripts/provision.sh) therefore checks a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success and produces an empty site.
 
-So Drupal 12 has no CI job at all. A job allowed to fail proves nothing, and one that stops before the check proves less than it appears to. Adding it means waiting for those releases, not working around them.
+The 2 Drupal 12 legs are in the matrix anyway, so the grid is in place for the day those releases land and so a release that fixes this is noticed the first time CI runs after it. They carry no `continue-on-error`: a leg allowed to fail proves nothing, and the red is the signal that the wait is still on. They are also not required checks on `4.x`, so they report without blocking a merge - the 14 Drupal 11 legs and `Lint` are what gate it.
 
-Once both ship a Drupal 12 release, the legs are 2 entries in the `test` matrix - PHP 8.5, Drupal 12, Behat 4, `normal` and `lowest`. 2 further gaps apply to them when they land:
+2 further gaps apply to the Drupal 12 legs, independent of the fatals above:
 
 - The PHPUnit unit and kernel suites need `alexskrypnyk/phpunit-helpers`, which requires `symfony/process ^6.4 || ^7.2`, so [scripts/provision.sh](scripts/provision.sh) removes it for Drupal 12. Widening that constraint to accept Symfony 8 closes the gap.
 - Coverage is not collected. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
 
-To take the Drupal 12 fixture as far as it goes, set the 3 variables it needs. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
+To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
 
 ```bash
 PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
