@@ -364,9 +364,13 @@ Drupal 12 also raises the database floor to MariaDB 10.11, which is why [docker-
 
 Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does not:
 
-- `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. Drupal's hosted lenient endpoint is not used - it currently redirects to a page that does not exist.
+- `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. Drupal's hosted lenient endpoint is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.sh](scripts/provision.sh) installs it globally before the build update; Composer loads global plugins for local projects.
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
+
+Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.sh](scripts/provision.sh) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources, and it is what lets the Behat suite exercise the Drupal traits on a core major contrib has not shipped for. A module that is genuinely broken on Drupal 12 fails in the suite rather than silently sitting uninstalled.
+
+Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
 
 Two gaps are open on Drupal 12, both waiting on an upstream release rather than on this repository:
 
