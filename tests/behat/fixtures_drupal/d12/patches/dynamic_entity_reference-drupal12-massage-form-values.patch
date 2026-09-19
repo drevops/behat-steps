@@ -1,0 +1,18 @@
+Declare the array return that Drupal 12 requires.
+
+WidgetBase::massageFormValues() declares an array return type, which these
+widgets do not, so PHP rejects the overrides while the field widget plugins
+are discovered.
+
+diff --git a/src/Plugin/Field/FieldWidget/DynamicEntityReferenceOptionsTrait.php b/src/Plugin/Field/FieldWidget/DynamicEntityReferenceOptionsTrait.php
+--- a/src/Plugin/Field/FieldWidget/DynamicEntityReferenceOptionsTrait.php
++++ b/src/Plugin/Field/FieldWidget/DynamicEntityReferenceOptionsTrait.php
+@@ -52,7 +52,7 @@
+    *
+    * @see \Drupal\dynamic_entity_reference\Plugin\Field\FieldType\DynamicEntityReferenceItem::getSettableOptions()
+    */
+-  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
++  public function massageFormValues(array $values, array $form, FormStateInterface $form_state): array {
+     foreach ($values as $index => $value) {
+       [$values[$index]['target_type'], $values[$index]['target_id']] = explode('-', $value['target_id']);
+     }

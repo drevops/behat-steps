@@ -70,7 +70,14 @@ foreach (["BuildTests", "FunctionalJavascriptTests", "FunctionalTests", "KernelT
   $package_filtered["autoload-dev"]["psr-4"]["Drupal\\" . $test_namespace . "\\"] = "web/core/tests/Drupal/" . $test_namespace . "/";
 }
 
-echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+$merged = array_replace_recursive($package_filtered, $fixture);
+
+// A package named in both sections resolves to the lower of the two
+// constraints under "--prefer-lowest", which can fall outside the range the
+// fixture pins, so the fixture constraint is the one that survives.
+$merged["require-dev"] = array_diff_key($merged["require-dev"], $merged["require"]);
+
+echo json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."
@@ -86,11 +93,32 @@ echo "  > Creating GitHub authentication token if provided."
 [ -n "$GITHUB_TOKEN" ] && echo "{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}" > /app/build/auth.json
 
 if [ "${BEHAT}" = "4" ]; then
-  # 'dmore/behat-chrome-extension' has no release that accepts Behat 4, and
-  # every 'dvdoug/behat-code-coverage' release that does needs
-  # 'phpunit/php-code-coverage' 12, which the fixture's PHPUnit 11 rules out.
   echo "  > Removing packages that cannot be installed alongside Behat 4."
-  composer remove --dev --no-update dmore/behat-chrome-extension dvdoug/behat-code-coverage
+  # 'dmore/behat-chrome-extension' has no release that accepts Behat 4.
+  composer remove --dev --no-update dmore/behat-chrome-extension
+
+  if [ "${DRUPAL_VERSION}" -lt 12 ]; then
+    # Every 'dvdoug/behat-code-coverage' release that accepts Behat 4 needs
+    # 'phpunit/php-code-coverage' 12, which PHPUnit 11 rules out. Drupal 12
+    # brings PHPUnit 12 in 'drupal/core-dev'.
+    composer remove --dev --no-update dvdoug/behat-code-coverage
+  fi
+fi
+
+if [ "${DRUPAL_VERSION}" -ge 12 ]; then
+  # 'alexskrypnyk/phpunit-helpers' caps 'symfony/process' at 7, while Drupal
+  # 12 requires 8. The PHPUnit suites need it, so they do not run here.
+  echo "  > Removing packages that cannot be installed alongside Drupal 12."
+  composer remove --dev --no-update alexskrypnyk/phpunit-helpers
+
+  # A plugin only shapes a solve that it is already installed for, and the
+  # fixture has no solution until this one relaxes the contrib core
+  # constraints. Composer loads globally installed plugins for local projects,
+  # so installing it outside the build breaks that circle.
+  echo "  > Installing the Composer plugin that relaxes contrib core constraints."
+  lenient_constraint="$(php -r 'echo json_decode(file_get_contents($argv[1]), TRUE)["require"]["mglaman/composer-drupal-lenient"];' "/app/tests/behat/fixtures_drupal/d${DRUPAL_VERSION}/composer.json")"
+  composer global config --no-interaction allow-plugins.mglaman/composer-drupal-lenient true
+  composer global require --no-interaction "mglaman/composer-drupal-lenient:${lenient_constraint}"
 fi
 
 # The constraint in composer.json allows both Behat majors, and '--with'
@@ -100,6 +128,47 @@ if [ "${DEPS}" = "lowest" ]; then
   COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-lowest --prefer-stable --with="behat/behat:^${BEHAT}"
 else
   COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --with="behat/behat:^${BEHAT}"
+fi
+
+if [ "${DRUPAL_VERSION}" -ge 12 ]; then
+  # Composer installs the contrib code, but Drupal reads
+  # 'core_version_requirement' from each extension and refuses to enable one
+  # that excludes the running major. No contrib release declares Drupal 12, so
+  # the fixture widens what it received.
+  echo "  > Widening the core version requirement of the installed contrib extensions."
+  php -r '
+$widened = 0;
+$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/app/build/web/modules/contrib", FilesystemIterator::SKIP_DOTS));
+
+foreach ($files as $file) {
+  if (!str_ends_with($file->getFilename(), ".info.yml")) {
+    continue;
+  }
+
+  $text = file_get_contents($file->getPathname());
+
+  $updated = preg_replace_callback("/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m", function (array $matches): string {
+    $constraint = trim($matches[1], " \"\x27");
+
+    if ($constraint === "" || str_contains($constraint, "^12")) {
+      return $matches[0];
+    }
+
+    $comment = ($matches[2] ?? "") === "" ? "" : " " . $matches[2];
+
+    return "core_version_requirement: \x27" . $constraint . " || ^12\x27" . $comment;
+  }, $text);
+
+  if ($updated === $text) {
+    continue;
+  }
+
+  file_put_contents($file->getPathname(), $updated);
+  $widened++;
+}
+
+echo "    Widened " . $widened . " extension(s).\n";
+'
 fi
 
 echo "  > Running post-install-cmd."
@@ -123,6 +192,13 @@ chmod 444 /app/build/web/sites/default/settings.php
 
 echo "  > Running post-install commands defined in the composer.json for each specific fixture."
 composer run-script drupal-post-install
+
+# 'drush cim' can enable the modules, abort on a fatal raised while the config
+# entities are being created, and still exit 0. The site then boots with none
+# of the content types, fields or entity types the suite asserts on, so the
+# import is confirmed against a config entity only the fixture defines.
+echo "  > Verifying the fixture configuration was imported."
+/app/build/vendor/bin/drush -r /app/build/web --uri=http://nginx config:get node.type.landing_page type --format=string >/dev/null 2>&1 && echo "    Success" || ( echo "ERROR: Fixture configuration was not imported" && exit 1 )
 
 echo "  > Copying test fixtures."
 cp -Rf /app/tests/behat/fixtures/. /app/build/web/sites/default/files/

@@ -1,0 +1,8 @@
+services:
+  # Time service with state-based override support.
+  mysite_core.time:
+    class: Drupal\mysite_core\Time\Time
+    arguments:
+      - '@datetime.time'
+      - '@state'
+  Drupal\mysite_core\Time\TimeInterface: '@mysite_core.time'

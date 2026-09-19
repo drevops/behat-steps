@@ -1,0 +1,229 @@
+Make the plugin managers discoverable on Drupal 12.
+
+Drupal 12 dropped annotation-only plugin discovery, so a manager has to name
+an attribute class. Passing the attribute alongside the existing annotation
+selects AttributeDiscoveryWithAnnotations, which keeps every annotated plugin
+webform ships working - the element plugins alone number over 100.
+
+See https://www.drupal.org/node/3395582
+
+diff --git a/src/Attribute/WebformElement.php b/src/Attribute/WebformElement.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/WebformElement.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\webform\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++
++/**
++ * Defines a WebformElement attribute.
++ *
++ * Webform ships its element plugins with annotations, and naming this class
++ * alongside the annotation selects AttributeDiscoveryWithAnnotations, which
++ * reads both. It carries no properties of its own for that reason.
++ *
++ * Plugin Namespace: Plugin\WebformElement
++ *
++ * @see \Drupal\webform\Plugin\WebformElementManager
++ * @see \Drupal\webform\Annotation\WebformElement
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class WebformElement extends Plugin {
++
++}
+diff --git a/src/Attribute/WebformExporter.php b/src/Attribute/WebformExporter.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/WebformExporter.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\webform\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++
++/**
++ * Defines a WebformExporter attribute.
++ *
++ * Webform ships its results exporter plugins with annotations, and naming this class
++ * alongside the annotation selects AttributeDiscoveryWithAnnotations, which
++ * reads both. It carries no properties of its own for that reason.
++ *
++ * Plugin Namespace: Plugin\WebformExporter
++ *
++ * @see \Drupal\webform\Plugin\WebformExporterManager
++ * @see \Drupal\webform\Annotation\WebformExporter
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class WebformExporter extends Plugin {
++
++}
+diff --git a/src/Attribute/WebformHandler.php b/src/Attribute/WebformHandler.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/WebformHandler.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\webform\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++
++/**
++ * Defines a WebformHandler attribute.
++ *
++ * Webform ships its handler plugins with annotations, and naming this class
++ * alongside the annotation selects AttributeDiscoveryWithAnnotations, which
++ * reads both. It carries no properties of its own for that reason.
++ *
++ * Plugin Namespace: Plugin\WebformHandler
++ *
++ * @see \Drupal\webform\Plugin\WebformHandlerManager
++ * @see \Drupal\webform\Annotation\WebformHandler
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class WebformHandler extends Plugin {
++
++}
+diff --git a/src/Attribute/WebformSourceEntity.php b/src/Attribute/WebformSourceEntity.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/WebformSourceEntity.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\webform\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++
++/**
++ * Defines a WebformSourceEntity attribute.
++ *
++ * Webform ships its source entity plugins with annotations, and naming this class
++ * alongside the annotation selects AttributeDiscoveryWithAnnotations, which
++ * reads both. It carries no properties of its own for that reason.
++ *
++ * Plugin Namespace: Plugin\WebformSourceEntity
++ *
++ * @see \Drupal\webform\Plugin\WebformSourceEntityManager
++ * @see \Drupal\webform\Annotation\WebformSourceEntity
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class WebformSourceEntity extends Plugin {
++
++}
+diff --git a/src/Attribute/WebformVariant.php b/src/Attribute/WebformVariant.php
+new file mode 100644
+--- /dev/null
++++ b/src/Attribute/WebformVariant.php
+@@ -0,0 +1,27 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Drupal\webform\Attribute;
++
++use Drupal\Component\Plugin\Attribute\Plugin;
++
++/**
++ * Defines a WebformVariant attribute.
++ *
++ * Webform ships its variant plugins with annotations, and naming this class
++ * alongside the annotation selects AttributeDiscoveryWithAnnotations, which
++ * reads both. It carries no properties of its own for that reason.
++ *
++ * Plugin Namespace: Plugin\WebformVariant
++ *
++ * @see \Drupal\webform\Plugin\WebformVariantManager
++ * @see \Drupal\webform\Annotation\WebformVariant
++ * @see plugin_api
++ *
++ * @ingroup plugin_api
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class WebformVariant extends Plugin {
++
++}
+diff --git a/src/Plugin/WebformElementManager.php b/src/Plugin/WebformElementManager.php
+--- a/src/Plugin/WebformElementManager.php
++++ b/src/Plugin/WebformElementManager.php
+@@ -74,7 +74,7 @@
+    *   The element info manager.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, ThemeHandlerInterface $theme_handler, ConfigFactoryInterface $config_factory, ElementInfoManagerInterface $element_info) {
+-    parent::__construct('Plugin/WebformElement', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformElementInterface', 'Drupal\webform\Annotation\WebformElement');
++    parent::__construct('Plugin/WebformElement', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformElementInterface', 'Drupal\webform\Attribute\WebformElement', 'Drupal\webform\Annotation\WebformElement');
+     $this->configFactory = $config_factory;
+     $this->elementInfo = $element_info;
+     $this->themeHandler = $theme_handler;
+diff --git a/src/Plugin/WebformExporterManager.php b/src/Plugin/WebformExporterManager.php
+--- a/src/Plugin/WebformExporterManager.php
++++ b/src/Plugin/WebformExporterManager.php
+@@ -44,7 +44,7 @@
+    *   The configuration object factory.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_exporter, ConfigFactoryInterface $config_factory) {
+-    parent::__construct('Plugin/WebformExporter', $namespaces, $module_exporter, 'Drupal\webform\Plugin\WebformExporterInterface', 'Drupal\webform\Annotation\WebformExporter');
++    parent::__construct('Plugin/WebformExporter', $namespaces, $module_exporter, 'Drupal\webform\Plugin\WebformExporterInterface', 'Drupal\webform\Attribute\WebformExporter', 'Drupal\webform\Annotation\WebformExporter');
+     $this->configFactory = $config_factory;
+
+     $this->alterInfo('webform_exporter_info');
+diff --git a/src/Plugin/WebformHandlerManager.php b/src/Plugin/WebformHandlerManager.php
+--- a/src/Plugin/WebformHandlerManager.php
++++ b/src/Plugin/WebformHandlerManager.php
+@@ -45,7 +45,7 @@
+    *   The configuration object factory.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory) {
+-    parent::__construct('Plugin/WebformHandler', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformHandlerInterface', 'Drupal\webform\Annotation\WebformHandler');
++    parent::__construct('Plugin/WebformHandler', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformHandlerInterface', 'Drupal\webform\Attribute\WebformHandler', 'Drupal\webform\Annotation\WebformHandler');
+     $this->configFactory = $config_factory;
+
+     $this->alterInfo('webform_handler_info');
+diff --git a/src/Plugin/WebformSourceEntityManager.php b/src/Plugin/WebformSourceEntityManager.php
+--- a/src/Plugin/WebformSourceEntityManager.php
++++ b/src/Plugin/WebformSourceEntityManager.php
+@@ -26,7 +26,7 @@
+    *   The module handler to invoke the alter hook with.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
+-    parent::__construct('Plugin/WebformSourceEntity', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformSourceEntityInterface', 'Drupal\webform\Annotation\WebformSourceEntity');
++    parent::__construct('Plugin/WebformSourceEntity', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformSourceEntityInterface', 'Drupal\webform\Attribute\WebformSourceEntity', 'Drupal\webform\Annotation\WebformSourceEntity');
+     $this->alterInfo('webform_source_entity_info');
+     $this->setCacheBackend($cache_backend, 'webform_source_entity_info_plugins');
+   }
+diff --git a/src/Plugin/WebformVariantManager.php b/src/Plugin/WebformVariantManager.php
+--- a/src/Plugin/WebformVariantManager.php
++++ b/src/Plugin/WebformVariantManager.php
+@@ -45,7 +45,7 @@
+    *   The configuration object factory.
+    */
+   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory) {
+-    parent::__construct('Plugin/WebformVariant', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformVariantInterface', 'Drupal\webform\Annotation\WebformVariant');
++    parent::__construct('Plugin/WebformVariant', $namespaces, $module_handler, 'Drupal\webform\Plugin\WebformVariantInterface', 'Drupal\webform\Attribute\WebformVariant', 'Drupal\webform\Annotation\WebformVariant');
+     $this->configFactory = $config_factory;
+
+     $this->alterInfo('webform_variant_info');

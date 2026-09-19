@@ -1,0 +1,29 @@
+Match the Drupal 12 signature of getDefaultOperations().
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument,
+which these list builders do not declare, so PHP rejects the overrides while
+the module installs.
+
+diff --git a/src/PathautoPatternListBuilder.php b/src/PathautoPatternListBuilder.php
+--- a/src/PathautoPatternListBuilder.php
++++ b/src/PathautoPatternListBuilder.php
+@@ -3,6 +3,7 @@
+ namespace Drupal\pathauto;
+
+ use Drupal\Core\Config\Entity\DraggableListBuilder;
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Entity\EntityInterface;
+
+ /**
+@@ -51,9 +52,9 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity) {
++  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
+     /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $entity */
+-    $operations = parent::getDefaultOperations($entity);
++    $operations = parent::getDefaultOperations($entity, $cacheability);
+
+     if (!$entity->hasLinkTemplate('duplicate-form')) {
+       return $operations;

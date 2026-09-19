@@ -1,0 +1,18 @@
+Declare the array return that Drupal 12 requires.
+
+WidgetBase::massageFormValues() declares an array return type, which these
+widgets do not, so PHP rejects the overrides while the field widget plugins
+are discovered.
+
+diff --git a/src/Plugin/Field/FieldWidget/RedirectSourceWidget.php b/src/Plugin/Field/FieldWidget/RedirectSourceWidget.php
+--- a/src/Plugin/Field/FieldWidget/RedirectSourceWidget.php
++++ b/src/Plugin/Field/FieldWidget/RedirectSourceWidget.php
+@@ -94,7 +94,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
++  public function massageFormValues(array $values, array $form, FormStateInterface $form_state): array {
+     $values = parent::massageFormValues($values, $form, $form_state);
+     // It is likely that the url provided for this field is not existing and
+     // so the logic in the parent method did not set any defaults. Just run

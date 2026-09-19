@@ -1,0 +1,28 @@
+Match the Drupal 12 signature of getDefaultOperations().
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument,
+which these list builders do not declare, so PHP rejects the overrides while
+the module installs.
+
+diff --git a/src/Controller/EckEntityBundleListBuilder.php b/src/Controller/EckEntityBundleListBuilder.php
+--- a/src/Controller/EckEntityBundleListBuilder.php
++++ b/src/Controller/EckEntityBundleListBuilder.php
+@@ -4,6 +4,7 @@
+
+ use Drupal\Component\Utility\Xss;
+ use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityStorageInterface;
+ use Drupal\Core\Entity\EntityTypeInterface;
+@@ -83,8 +84,8 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity) {
+-    $operations = parent::getDefaultOperations($entity);
++  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
++    $operations = parent::getDefaultOperations($entity, $cacheability);
+     // Place the edit operation after the operations added by field_ui.module
+     // which have the weights 15, 20, 25.
+     if (isset($operations['edit'])) {

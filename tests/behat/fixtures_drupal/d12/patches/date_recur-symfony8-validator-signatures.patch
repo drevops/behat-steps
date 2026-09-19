@@ -1,0 +1,18 @@
+Match the Symfony 8 signatures on ConstraintValidatorInterface.
+
+Symfony 8 declares 'mixed $value' and a void return on validate(), and a void
+return on initialize(). These validators declare neither, so PHP rejects the
+overrides while the module installs.
+
+diff --git a/src/Plugin/Validation/Constraint/DateRecurTimeZoneConstraintValidator.php b/src/Plugin/Validation/Constraint/DateRecurTimeZoneConstraintValidator.php
+--- a/src/Plugin/Validation/Constraint/DateRecurTimeZoneConstraintValidator.php
++++ b/src/Plugin/Validation/Constraint/DateRecurTimeZoneConstraintValidator.php
+@@ -15,7 +15,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($value, Constraint $constraint) {
++  public function validate(mixed $value, Constraint $constraint): void {
+     \assert($constraint instanceof DateRecurTimeZoneConstraint);
+     $timeZones = \DateTimeZone::listIdentifiers();
+     if (\is_string($value) && !\in_array($value, $timeZones, TRUE)) {

@@ -1,0 +1,9 @@
+uuid: e059b118-78c9-4f2a-a6c4-c96013b6f67a
+langcode: en
+status: true
+dependencies: {  }
+id: content_approver
+label: 'Content approver'
+weight: -7
+is_admin: null
+permissions: {  }

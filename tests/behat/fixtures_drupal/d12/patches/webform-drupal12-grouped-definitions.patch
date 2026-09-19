@@ -1,0 +1,35 @@
+Match the Drupal 12 signature of getGroupedDefinitions().
+
+CategorizingPluginManagerInterface::getGroupedDefinitions() takes a
+$label_key argument, which these 2 managers do not declare, so PHP rejects
+the overrides while the container compiles. WebformElementManager already
+carries it.
+
+diff --git a/src/Plugin/WebformHandlerManager.php b/src/Plugin/WebformHandlerManager.php
+--- a/src/Plugin/WebformHandlerManager.php
++++ b/src/Plugin/WebformHandlerManager.php
+@@ -64,8 +64,8 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getGroupedDefinitions(?array $definitions = NULL) {
+-    $definitions = $this->traitGetGroupedDefinitions($definitions);
++  public function getGroupedDefinitions(?array $definitions = NULL, $label_key = 'label') {
++    $definitions = $this->traitGetGroupedDefinitions($definitions, $label_key);
+     // Do not display the 'broken' plugin in the UI.
+     unset($definitions[$this->t('Broken')]['broken']);
+     return $definitions;
+diff --git a/src/Plugin/WebformVariantManager.php b/src/Plugin/WebformVariantManager.php
+--- a/src/Plugin/WebformVariantManager.php
++++ b/src/Plugin/WebformVariantManager.php
+@@ -64,8 +64,8 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getGroupedDefinitions(?array $definitions = NULL) {
+-    $definitions = $this->traitGetGroupedDefinitions($definitions);
++  public function getGroupedDefinitions(?array $definitions = NULL, $label_key = 'label') {
++    $definitions = $this->traitGetGroupedDefinitions($definitions, $label_key);
+     // Do not display the 'broken' plugin in the UI.
+     unset($definitions[$this->t('Broken')]['broken']);
+     return $definitions;

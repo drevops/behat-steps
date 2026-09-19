@@ -1,0 +1,68 @@
+Drop the archiver manager the exporter never uses.
+
+Drupal 12 removed the Archiver plugin system, so the 'plugin.manager.archiver'
+service no longer exists and the container refuses to build
+'webform_submission.exporter'. WebformSubmissionExporter injects the manager
+and assigns it, but calls nothing on it, so removing the dependency changes
+no behaviour.
+
+diff --git a/webform.services.yml b/webform.services.yml
+--- a/webform.services.yml
++++ b/webform.services.yml
+@@ -86,7 +86,7 @@
+
+   webform_submission.exporter:
+     class: Drupal\webform\WebformSubmissionExporter
+-    arguments: ['@config.factory', '@file_system', '@entity_type.manager', '@stream_wrapper_manager', '@plugin.manager.archiver', '@plugin.manager.webform.element', '@plugin.manager.webform.exporter', '@language_manager']
++    arguments: ['@config.factory', '@file_system', '@entity_type.manager', '@stream_wrapper_manager', '@plugin.manager.webform.element', '@plugin.manager.webform.exporter', '@language_manager']
+
+   webform.third_party_settings_manager:
+     class: Drupal\webform\WebformThirdPartySettingsManager
+diff --git a/src/WebformSubmissionExporter.php b/src/WebformSubmissionExporter.php
+--- a/src/WebformSubmissionExporter.php
++++ b/src/WebformSubmissionExporter.php
+@@ -2,7 +2,6 @@
+
+ namespace Drupal\webform;
+
+-use Drupal\Core\Archiver\ArchiverManager;
+ use Drupal\Core\Config\ConfigFactoryInterface;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityTypeManagerInterface;
+@@ -59,13 +58,6 @@
+   protected $streamWrapperManager;
+
+   /**
+-   * The archiver manager.
+-   *
+-   * @var \Drupal\Core\Archiver\ArchiverManager
+-   */
+-  protected $archiverManager;
+-
+-  /**
+    * The webform element manager.
+    *
+    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
+@@ -132,8 +124,6 @@
+    *   The entity type manager.
+    * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+    *   The stream wrapper manager.
+-   * @param \Drupal\Core\Archiver\ArchiverManager $archiver_manager
+-   *   The archiver manager.
+    * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
+    *   The webform element manager.
+    * @param \Drupal\webform\Plugin\WebformExporterManagerInterface $exporter_manager
+@@ -141,12 +131,11 @@
+    * @param \Drupal\Core\Language\LanguageManagerInterface|null $language_manager
+    *   The language manager.
+    */
+-  public function __construct(ConfigFactoryInterface $config_factory, FileSystemInterface $file_system, EntityTypeManagerInterface $entity_type_manager, StreamWrapperManagerInterface $stream_wrapper_manager, ArchiverManager $archiver_manager, WebformElementManagerInterface $element_manager, WebformExporterManagerInterface $exporter_manager, ?LanguageManagerInterface $language_manager = NULL) {
++  public function __construct(ConfigFactoryInterface $config_factory, FileSystemInterface $file_system, EntityTypeManagerInterface $entity_type_manager, StreamWrapperManagerInterface $stream_wrapper_manager, WebformElementManagerInterface $element_manager, WebformExporterManagerInterface $exporter_manager, ?LanguageManagerInterface $language_manager = NULL) {
+     $this->configFactory = $config_factory;
+     $this->fileSystem = $file_system;
+     $this->entityTypeManager = $entity_type_manager;
+     $this->streamWrapperManager = $stream_wrapper_manager;
+-    $this->archiverManager = $archiver_manager;
+     $this->elementManager = $element_manager;
+     $this->exporterManager = $exporter_manager;
+     // @todo [Webform 7.x] Require the language manager as an injected dependency.
