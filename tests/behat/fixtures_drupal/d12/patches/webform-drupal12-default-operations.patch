@@ -1,0 +1,46 @@
+Match the Drupal 12 signature of getDefaultOperations().
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument,
+which these list builders do not declare, so PHP rejects the overrides while
+the module installs.
+
+diff --git a/modules/webform_node/src/Controller/WebformNodeReferencesListController.php b/modules/webform_node/src/Controller/WebformNodeReferencesListController.php
+--- a/modules/webform_node/src/Controller/WebformNodeReferencesListController.php
++++ b/modules/webform_node/src/Controller/WebformNodeReferencesListController.php
+@@ -3,6 +3,7 @@
+ namespace Drupal\webform_node\Controller;
+
+ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityListBuilder;
+ use Drupal\Core\Entity\Query\QueryInterface;
+@@ -433,7 +434,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity) {
++  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
+     $route_parameters = [
+       'node' => $entity->id(),
+     ];
+diff --git a/src/WebformSubmissionListBuilder.php b/src/WebformSubmissionListBuilder.php
+--- a/src/WebformSubmissionListBuilder.php
++++ b/src/WebformSubmissionListBuilder.php
+@@ -5,6 +5,7 @@
+ use Drupal\Component\Render\FormattableMarkup;
+ use Drupal\Component\Utility\Html;
+ use Drupal\Core\Database\Database;
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityListBuilder;
+ use Drupal\Core\Entity\EntityTypeInterface;
+@@ -1069,7 +1070,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity) {
++  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
+     /** @var \Drupal\webform\WebformInterface $webform */
+     $webform = $entity->getWebform();
+
