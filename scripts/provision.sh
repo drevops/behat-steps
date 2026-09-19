@@ -100,7 +100,7 @@ if [ "${BEHAT}" = "4" ]; then
   if [ "${DRUPAL_VERSION}" -lt 12 ]; then
     # Every 'dvdoug/behat-code-coverage' release that accepts Behat 4 needs
     # 'phpunit/php-code-coverage' 12, which PHPUnit 11 rules out. Drupal 12
-    # ships PHPUnit 12 in 'drupal/core-dev', so only earlier majors drop it.
+    # brings PHPUnit 12 in 'drupal/core-dev'.
     composer remove --dev --no-update dvdoug/behat-code-coverage
   fi
 fi
