@@ -122,16 +122,25 @@
             "drupal/ctools": {
                 "Drupal 12: discover Relationship plugins by attribute": "patches/ctools-drupal12-attribute-discovery.patch"
             },
-            "drupal/webform": {
-                "Drupal 12: match the getGroupedDefinitions() signature": "patches/webform-drupal12-grouped-definitions.patch",
-                "Drupal 12: drop the removed archiver manager dependency": "patches/webform-drupal12-archiver-manager.patch",
-                "Drupal 12: discover plugins by attribute": "patches/webform-drupal12-attribute-discovery.patch"
+            "drupal/date_recur": {
+                "Symfony 8: match the constraint validator signatures": "patches/date_recur-symfony8-validator-signatures.patch"
+            },
+            "drupal/redirect": {
+                "Symfony 8: match the constraint validator signatures": "patches/redirect-symfony8-validator-signatures.patch"
             },
             "drupal/scheduled_transitions": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/scheduled-transitions-drupal12-default-operations.patch"
             },
-            "drupal/redirect": {
-                "Symfony 8: declare the void return on the validator": "patches/redirect-symfony8-validator-initialize.patch"
+            "drupal/state_machine": {
+                "Symfony 8: match the constraint validator signatures": "patches/state_machine-symfony8-validator-signatures.patch"
+            },
+            "drupal/time_field": {
+                "Symfony 8: match the constraint validator signatures": "patches/time_field-symfony8-validator-signatures.patch"
+            },
+            "drupal/webform": {
+                "Drupal 12: match the getGroupedDefinitions() signature": "patches/webform-drupal12-grouped-definitions.patch",
+                "Drupal 12: drop the removed archiver manager dependency": "patches/webform-drupal12-archiver-manager.patch",
+                "Drupal 12: discover plugins by attribute": "patches/webform-drupal12-attribute-discovery.patch"
             }
         },
         "installer-paths": {

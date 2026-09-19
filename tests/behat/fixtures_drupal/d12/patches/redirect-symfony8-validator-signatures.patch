@@ -1,0 +1,30 @@
+Match the Symfony 8 signatures on ConstraintValidatorInterface.
+
+Symfony 8 declares 'mixed $value' and a void return on validate(), and a void
+return on initialize(). These validators declare neither, so PHP rejects the
+overrides while the module installs.
+
+diff --git a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
+--- a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
++++ b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
+@@ -57,7 +57,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($value, Constraint $constraint) {
++  public function validate(mixed $value, Constraint $constraint): void {
+     if (isset($value)) {
+       $url_is_valid = TRUE;
+       /** @var \Drupal\link\LinkItemInterface $link_item */
+diff --git a/src/Plugin/Validation/Constraint/UniqueHashValidator.php b/src/Plugin/Validation/Constraint/UniqueHashValidator.php
+--- a/src/Plugin/Validation/Constraint/UniqueHashValidator.php
++++ b/src/Plugin/Validation/Constraint/UniqueHashValidator.php
+@@ -37,7 +37,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($redirect, Constraint $constraint) {
++  public function validate(mixed $redirect, Constraint $constraint): void {
+     if (!$redirect instanceof Redirect) {
+       throw new \InvalidArgumentException(
+         'The "RedirectUniqueHash" constraint can only be used on redirect entities.',
