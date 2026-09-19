@@ -191,6 +191,13 @@ chmod 444 /app/build/web/sites/default/settings.php
 echo "  > Running post-install commands defined in the composer.json for each specific fixture."
 composer run-script drupal-post-install
 
+# 'drush cim' can enable the modules, abort on a fatal raised while the config
+# entities are being created, and still exit 0. The site then boots with none
+# of the content types, fields or entity types the suite asserts on, so the
+# import is confirmed against a config entity only the fixture defines.
+echo "  > Verifying the fixture configuration was imported."
+/app/build/vendor/bin/drush -r /app/build/web --uri=http://nginx config:get node.type.landing_page type --format=string >/dev/null 2>&1 && echo "    Success" || ( echo "ERROR: Fixture configuration was not imported" && exit 1 )
+
 echo "  > Copying test fixtures."
 cp -Rf /app/tests/behat/fixtures/. /app/build/web/sites/default/files/
 

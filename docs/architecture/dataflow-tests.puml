@@ -26,7 +26,7 @@ Prov -> Prov: drop the packages the selected Behat\nand Drupal majors cannot ins
 Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site
-Site --> Prov: bootstrap successful
+Site --> Prov: configuration imported, bootstrap successful
 deactivate Site
 Prov --> Dev: fixture site ready
 deactivate Prov
