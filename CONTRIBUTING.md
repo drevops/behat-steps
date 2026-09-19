@@ -343,10 +343,10 @@ On Drupal 11 it also removes `dvdoug/behat-code-coverage`, which accepts Behat 4
 
 Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
 
-To run the suites on Behat 4 locally, provision the fixture for it first, and run `ahoy provision` to switch back to Behat 3:
+`BEHAT` reaches the container through `ahoy`, so provisioning the fixture for Behat 4 locally is a matter of setting it. Run `ahoy provision` to switch back to Behat 3:
 
 ```bash
-ahoy cli "BEHAT=4 ./scripts/provision.sh"
+BEHAT=4 ahoy provision
 ahoy test-bdd
 ```
 
@@ -370,6 +370,13 @@ Two gaps are open on Drupal 12, both waiting on an upstream release rather than 
 
 - The PHPUnit unit and kernel suites do not run. `alexskrypnyk/phpunit-helpers` requires `symfony/process ^6.4 || ^7.2`, so [scripts/provision.sh](scripts/provision.sh) removes it for Drupal 12. Widening that constraint to accept Symfony 8 closes the gap.
 - Coverage is not collected. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage is possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
+
+To build the Drupal 12 fixture locally, set the 3 variables the leg sets. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
+
+```bash
+PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
+PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy test-bdd
+```
 
 ## Updating fixture site
 
