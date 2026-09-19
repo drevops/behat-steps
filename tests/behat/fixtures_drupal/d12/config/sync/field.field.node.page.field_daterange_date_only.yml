@@ -1,0 +1,21 @@
+uuid: 12345678-1234-1234-1234-000000000014
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_daterange_date_only
+    - node.type.page
+  module:
+    - datetime_range
+id: node.page.field_daterange_date_only
+field_name: field_daterange_date_only
+entity_type: node
+bundle: page
+label: 'Event period date only'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: daterange

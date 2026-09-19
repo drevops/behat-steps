@@ -1,0 +1,21 @@
+uuid: 12345678-1234-1234-1234-000000000011
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_datetime
+    - node.type.page
+  module:
+    - datetime
+id: node.page.field_datetime
+field_name: field_datetime
+entity_type: node
+bundle: page
+label: 'Event date'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

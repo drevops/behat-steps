@@ -70,7 +70,14 @@ foreach (["BuildTests", "FunctionalJavascriptTests", "FunctionalTests", "KernelT
   $package_filtered["autoload-dev"]["psr-4"]["Drupal\\" . $test_namespace . "\\"] = "web/core/tests/Drupal/" . $test_namespace . "/";
 }
 
-echo json_encode(array_replace_recursive($package_filtered, $fixture), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+$merged = array_replace_recursive($package_filtered, $fixture);
+
+// A package named in both sections resolves to the lower of the two
+// constraints under "--prefer-lowest", which can fall outside the range the
+// fixture pins, so the fixture constraint is the one that survives.
+$merged["require-dev"] = array_diff_key($merged["require-dev"], $merged["require"]);
+
+echo json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 ' > "/app/build/composer2.json" && mv -f "/app/build/composer2.json" "/app/build/composer.json"
 
 echo "  > Updating relative paths in build composer.json."
@@ -86,11 +93,23 @@ echo "  > Creating GitHub authentication token if provided."
 [ -n "$GITHUB_TOKEN" ] && echo "{\"github-oauth\": {\"github.com\": \"$GITHUB_TOKEN\"}}" > /app/build/auth.json
 
 if [ "${BEHAT}" = "4" ]; then
-  # 'dmore/behat-chrome-extension' has no release that accepts Behat 4, and
-  # every 'dvdoug/behat-code-coverage' release that does needs
-  # 'phpunit/php-code-coverage' 12, which the fixture's PHPUnit 11 rules out.
   echo "  > Removing packages that cannot be installed alongside Behat 4."
-  composer remove --dev --no-update dmore/behat-chrome-extension dvdoug/behat-code-coverage
+  # 'dmore/behat-chrome-extension' has no release that accepts Behat 4.
+  composer remove --dev --no-update dmore/behat-chrome-extension
+
+  if [ "${DRUPAL_VERSION}" -lt 12 ]; then
+    # Every 'dvdoug/behat-code-coverage' release that accepts Behat 4 needs
+    # 'phpunit/php-code-coverage' 12, which PHPUnit 11 rules out. Drupal 12
+    # ships PHPUnit 12 in 'drupal/core-dev', so only earlier majors drop it.
+    composer remove --dev --no-update dvdoug/behat-code-coverage
+  fi
+fi
+
+if [ "${DRUPAL_VERSION}" -ge 12 ]; then
+  # 'alexskrypnyk/phpunit-helpers' caps 'symfony/process' at 7, while Drupal
+  # 12 requires 8. The PHPUnit suites need it, so they do not run here.
+  echo "  > Removing packages that cannot be installed alongside Drupal 12."
+  composer remove --dev --no-update alexskrypnyk/phpunit-helpers
 fi
 
 # The constraint in composer.json allows both Behat majors, and '--with'
