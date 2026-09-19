@@ -1,0 +1,30 @@
+Declare the array return that Drupal 12 requires.
+
+WidgetBase::massageFormValues() declares an array return type, which these
+widgets do not, so PHP rejects the overrides while the field widget plugins
+are discovered.
+
+diff --git a/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php b/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
+--- a/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
++++ b/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
+@@ -1320,7 +1320,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
++  public function massageFormValues(array $values, array $form, FormStateInterface $form_state): array {
+     $field_name = $this->fieldDefinition->getName();
+     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+     $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents'] ?? []);
+diff --git a/src/Plugin/Field/FieldWidget/ParagraphsWidget.php b/src/Plugin/Field/FieldWidget/ParagraphsWidget.php
+--- a/src/Plugin/Field/FieldWidget/ParagraphsWidget.php
++++ b/src/Plugin/Field/FieldWidget/ParagraphsWidget.php
+@@ -2601,7 +2601,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
++  public function massageFormValues(array $values, array $form, FormStateInterface $form_state): array {
+     $field_name = $this->fieldDefinition->getName();
+     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+     $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents'] ?? []);

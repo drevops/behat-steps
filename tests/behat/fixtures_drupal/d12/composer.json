@@ -125,8 +125,17 @@
             "drupal/date_recur": {
                 "Symfony 8: match the constraint validator signatures": "patches/date_recur-symfony8-validator-signatures.patch"
             },
+            "drupal/dynamic_entity_reference": {
+                "Drupal 12: declare the array return on massageFormValues()": "patches/dynamic_entity_reference-drupal12-massage-form-values.patch"
+            },
             "drupal/eck": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/eck-drupal12-default-operations.patch"
+            },
+            "drupal/entity_reference_revisions": {
+                "Drupal 12: declare the array return on massageFormValues()": "patches/entity_reference_revisions-drupal12-massage-form-values.patch"
+            },
+            "drupal/paragraphs": {
+                "Drupal 12: declare the array return on massageFormValues()": "patches/paragraphs-drupal12-massage-form-values.patch"
             },
             "drupal/pathauto": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/pathauto-drupal12-default-operations.patch"
@@ -135,7 +144,8 @@
                 "Drupal 12: match the getDefaultOperations() signature": "patches/profile-drupal12-default-operations.patch"
             },
             "drupal/redirect": {
-                "Symfony 8: match the constraint validator signatures": "patches/redirect-symfony8-validator-signatures.patch"
+                "Symfony 8: match the constraint validator signatures": "patches/redirect-symfony8-validator-signatures.patch",
+                "Drupal 12: declare the array return on massageFormValues()": "patches/redirect-drupal12-massage-form-values.patch"
             },
             "drupal/scheduled_transitions": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/scheduled-transitions-drupal12-default-operations.patch"
@@ -150,7 +160,8 @@
                 "Drupal 12: match the getGroupedDefinitions() signature": "patches/webform-drupal12-grouped-definitions.patch",
                 "Drupal 12: drop the removed archiver manager dependency": "patches/webform-drupal12-archiver-manager.patch",
                 "Drupal 12: discover plugins by attribute": "patches/webform-drupal12-attribute-discovery.patch",
-                "Drupal 12: match the getDefaultOperations() signature": "patches/webform-drupal12-default-operations.patch"
+                "Drupal 12: match the getDefaultOperations() signature": "patches/webform-drupal12-default-operations.patch",
+                "Drupal 12: declare the array return on massageFormValues()": "patches/webform-drupal12-massage-form-values.patch"
             }
         },
         "installer-paths": {
