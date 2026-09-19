@@ -126,6 +126,9 @@
                 "Drupal 12: match the getGroupedDefinitions() signature": "patches/webform-drupal12-grouped-definitions.patch",
                 "Drupal 12: drop the removed archiver manager dependency": "patches/webform-drupal12-archiver-manager.patch",
                 "Drupal 12: discover plugins by attribute": "patches/webform-drupal12-attribute-discovery.patch"
+            },
+            "drupal/scheduled_transitions": {
+                "Drupal 12: match the getDefaultOperations() signature": "patches/scheduled-transitions-drupal12-default-operations.patch"
             }
         },
         "installer-paths": {
