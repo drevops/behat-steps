@@ -7,6 +7,15 @@ overrides while the module installs.
 diff --git a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
 --- a/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
 +++ b/src/Plugin/Validation/Constraint/SourceLinkTypeConstraint.php
+@@ -43,7 +43,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function initialize(ExecutionContextInterface $context) {
++  public function initialize(ExecutionContextInterface $context): void {
+     $this->context = $context;
+   }
+
 @@ -57,7 +57,7 @@
    /**
     * {@inheritdoc}
