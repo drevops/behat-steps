@@ -81,10 +81,10 @@ function lint_layers(array $options = []): void {
  */
 function layer_files(string $directory): array {
   $files = [];
-  $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS));
+  $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
 
   foreach ($iterator as $file) {
-    if ($file instanceof SplFileInfo && $file->getExtension() === 'php') {
+    if ($file instanceof \SplFileInfo && $file->getExtension() === 'php') {
       $files[] = $file->getPathname();
     }
   }

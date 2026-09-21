@@ -242,7 +242,7 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
     sort($traits_files);
   }
 
-  $reflection = new ReflectionClass($class_name);
+  $reflection = new \ReflectionClass($class_name);
   $traits = $reflection->getTraits();
   usort(
     $traits,
@@ -313,7 +313,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
-    $methods = $trait->getMethods(ReflectionMethod::IS_PUBLIC);
+    $methods = $trait->getMethods(\ReflectionMethod::IS_PUBLIC);
     $trait_prefix = str_replace('Trait', '', $trait_name);
     foreach ($methods as $method) {
       if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
@@ -386,7 +386,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
   // Remove docblock asterisk and up to one space, but preserve remaining indentation.
-  $lines = array_map(static fn(string $l): string => preg_replace('/^\s*\* ?/', '', $l), $lines);
+  $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
 
   // Remove first and last empty lines.
   if (count($lines) > 1 && empty($lines[0])) {
@@ -398,28 +398,28 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   // Trim lines, but preserve indentation within @code blocks.
   $in_code_block = FALSE;
-  $lines = array_map(static function (string $l) use (&$in_code_block): string {
-    if (str_starts_with(trim($l), '@code')) {
+  $lines = array_map(static function (string $line) use (&$in_code_block): string {
+    if (str_starts_with(trim($line), '@code')) {
       $in_code_block = TRUE;
-      return trim($l);
+      return trim($line);
     }
 
-    if (str_starts_with(trim($l), '@endcode')) {
+    if (str_starts_with(trim($line), '@endcode')) {
       $in_code_block = FALSE;
-      return trim($l);
+      return trim($line);
     }
 
     if ($in_code_block) {
       // Preserve indentation within code blocks.
-      return rtrim($l);
+      return rtrim($line);
     }
 
-    return trim($l);
+    return trim($line);
   }, $lines);
 
   // Static-analysis annotations state the trait's contract for tooling, not
   // for the reader of the generated documentation.
-  $lines = array_values(array_filter($lines, static fn(string $l): bool => !str_starts_with($l, '@phpstan-')));
+  $lines = array_values(array_filter($lines, static fn(string $line): bool => !str_starts_with($line, '@phpstan-')));
 
   while ($lines !== [] && end($lines) === '') {
     array_pop($lines);
@@ -518,9 +518,9 @@ function parse_method_comment(string $comment): ?array {
     // reference.
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
-    foreach ($lines as $l) {
-      if ($l !== '') {
-        $first_line = $l;
+    foreach ($lines as $line) {
+      if ($line !== '') {
+        $first_line = $line;
         break;
       }
     }
@@ -770,7 +770,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
   }
 
   foreach (TOOLBOX_CLASSES as $toolbox_class) {
-    $reflection = new ReflectionClass($toolbox_class);
+    $reflection = new \ReflectionClass($toolbox_class);
     $short_name = $reflection->getShortName();
 
     $helpers = collect_helper_methods($reflection);
@@ -815,7 +815,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
 function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
   $helpers = [];
 
-  foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+  foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
     if ($prefix === NULL) {
       if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
         continue;
@@ -869,7 +869,7 @@ function resolve_inherited_comment(\ReflectionMethod $method): string {
   $candidates = array_values($declaring->getInterfaces());
 
   $parent = $declaring->getParentClass();
-  if ($parent instanceof ReflectionClass) {
+  if ($parent instanceof \ReflectionClass) {
     array_unshift($candidates, $parent);
   }
 
