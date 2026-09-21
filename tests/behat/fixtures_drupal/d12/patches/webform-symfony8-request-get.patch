@@ -1,8 +1,8 @@
 Read query parameters through the bag Symfony 8 still offers.
 
 Symfony 8 removed Request::get(). Every key read here - the wrapper format,
-the redirect destination, the template search and the element parent and type
-- arrives as a query parameter, so the query bag is the equivalent accessor.
+the redirect destination, the template flag and the various tokens - arrives
+as a query parameter, so the query bag is the equivalent accessor.
 
 diff --git a/src/Form/WebformAjaxFormTrait.php b/src/Form/WebformAjaxFormTrait.php
 --- a/src/Form/WebformAjaxFormTrait.php
@@ -46,6 +46,78 @@ diff --git a/src/WebformSubmissionForm.php b/src/WebformSubmissionForm.php
            $this->rebuild($form, $form_state);
          }
        }
+diff --git a/src/WebformRequest.php b/src/WebformRequest.php
+--- a/src/WebformRequest.php
++++ b/src/WebformRequest.php
+@@ -220,7 +220,7 @@
+    * {@inheritdoc}
+    */
+   public function isAjax() {
+-    return $this->request->get(AjaxResponseSubscriber::AJAX_REQUEST_PARAMETER) ? TRUE : FALSE;
++    return $this->request->query->get(AjaxResponseSubscriber::AJAX_REQUEST_PARAMETER) ? TRUE : FALSE;
+   }
+
+   /**
+diff --git a/src/Controller/WebformEntityController.php b/src/Controller/WebformEntityController.php
+--- a/src/Controller/WebformEntityController.php
++++ b/src/Controller/WebformEntityController.php
+@@ -230,7 +230,7 @@
+       $source_entity = $this->requestHandler->getCurrentSourceEntity('webform');
+     }
+
+-    if ($token = $request->get('token')) {
++    if ($token = $request->query->get('token')) {
+       /** @var \Drupal\webform\WebformSubmissionStorageInterface $webform_submission_storage */
+       $webform_submission_storage = $this->entityTypeManager()->getStorage('webform_submission');
+       if ($entities = $webform_submission_storage->loadByProperties(['token' => $token])) {
+diff --git a/src/Entity/Webform.php b/src/Entity/Webform.php
+--- a/src/Entity/Webform.php
++++ b/src/Entity/Webform.php
+@@ -2156,7 +2156,7 @@
+     // If template being used to create a new webform, clear description
+     // and remove the template flag.
+     // @see \Drupal\webform_templates\Controller\WebformTemplatesController::index
+-    $is_template_duplicate = \Drupal::request()->get('template');
++    $is_template_duplicate = \Drupal::request()->query->get('template');
+     if ($duplicate->isTemplate() && !$is_template_duplicate) {
+       $duplicate->set('description', '');
+       $duplicate->set('template', FALSE);
+diff --git a/src/Hook/WebformMaillogHooks.php b/src/Hook/WebformMaillogHooks.php
+--- a/src/Hook/WebformMaillogHooks.php
++++ b/src/Hook/WebformMaillogHooks.php
+@@ -26,7 +26,7 @@
+       return;
+     }
+     // Never display Maillog message via dialogs or Ajax requests.
+-    $wrapper_format = \Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++    $wrapper_format = \Drupal::request()->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     if ($wrapper_format) {
+       return;
+     }
+diff --git a/src/Plugin/WebformElement/WebformManagedFileBase.php b/src/Plugin/WebformElement/WebformManagedFileBase.php
+--- a/src/Plugin/WebformElement/WebformManagedFileBase.php
++++ b/src/Plugin/WebformElement/WebformManagedFileBase.php
+@@ -907,7 +907,7 @@
+     }
+
+     // Only validate file limits for ajax uploads.
+-    $wrapper_format = \Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++    $wrapper_format = \Drupal::request()->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     if (!$wrapper_format || !in_array($wrapper_format, ['drupal_ajax', 'drupal_modal', 'drupal_dialog'])) {
+       return;
+     }
+diff --git a/src/Plugin/WebformHandler/RemotePostWebformHandler.php b/src/Plugin/WebformHandler/RemotePostWebformHandler.php
+--- a/src/Plugin/WebformHandler/RemotePostWebformHandler.php
++++ b/src/Plugin/WebformHandler/RemotePostWebformHandler.php
+@@ -1110,7 +1110,7 @@
+       $request = $this->requestStack->getCurrentRequest();
+
+       // Build Ajax redirect or trusted redirect response.
+-      $wrapper_format = $request->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++      $wrapper_format = $request->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+       $is_ajax_request = ($wrapper_format === 'drupal_ajax');
+       if ($is_ajax_request) {
+         $response = new AjaxResponse();
 diff --git a/modules/webform_templates/src/Controller/WebformTemplatesController.php b/modules/webform_templates/src/Controller/WebformTemplatesController.php
 --- a/modules/webform_templates/src/Controller/WebformTemplatesController.php
 +++ b/modules/webform_templates/src/Controller/WebformTemplatesController.php
