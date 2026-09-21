@@ -28,6 +28,8 @@ use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait FeatureContextTrait {
 
@@ -67,7 +69,7 @@ trait FeatureContextTrait {
   /**
    * Clean watchdog after feature with an error.
    */
-  #[AfterFeature('@errorcleanup')]
+  #[AfterFeature('@test-errorcleanup')]
   public static function testClearWatchdog(AfterFeatureScope $scope): void {
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
@@ -229,7 +231,7 @@ trait FeatureContextTrait {
       'test_email',
       $email,
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
-      ['body' => strval($string)],
+      ['body' => (string) $string],
       NULL
     );
   }
@@ -249,7 +251,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Cc' => $cc,
         ],
@@ -273,7 +275,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Bcc' => $bcc,
         ],
@@ -297,7 +299,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Cc' => $cc,
           'Bcc' => $bcc,
@@ -321,7 +323,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => $subject,
-        'body' => strval($body),
+        'body' => (string) $body,
         'attachments' => [
           ['filename' => $attachment, 'content' => 'Attachment content for ' . $attachment],
         ],
