@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for datetime fields via the Core driver.
@@ -22,6 +23,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(DatetimeHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

@@ -11,6 +11,7 @@ use Drupal\commerce_product\Entity\Product;
 use Drupal\commerce_store\Entity\Store;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test exercising 'entityCreate()' on a 'commerce_product' stub.
@@ -32,6 +33,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
+#[RunTestsInSeparateProcesses]
 class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
 
   /**

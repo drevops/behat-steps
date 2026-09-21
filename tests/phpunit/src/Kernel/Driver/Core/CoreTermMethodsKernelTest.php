@@ -11,6 +11,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for taxonomy term methods on Core via the driver.
@@ -22,6 +23,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
+#[RunTestsInSeparateProcesses]
 class CoreTermMethodsKernelTest extends KernelTestBase {
 
   /**

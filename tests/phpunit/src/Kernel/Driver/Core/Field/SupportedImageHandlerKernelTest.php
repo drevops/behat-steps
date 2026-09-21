@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\SupportedImageHandler;
 use Drupal\filter\Entity\FilterFormat;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for SupportedImageHandler via the Core driver.
@@ -20,6 +21,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(SupportedImageHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class SupportedImageHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

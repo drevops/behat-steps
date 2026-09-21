@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 use DrevOps\BehatSteps\Driver\Core\Field\SmartdateHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for SmartdateHandler via the Core driver.
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(SmartdateHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class SmartdateHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

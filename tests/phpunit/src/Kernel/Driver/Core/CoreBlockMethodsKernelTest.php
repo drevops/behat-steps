@@ -12,6 +12,7 @@ use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel tests for the block capability methods on Core.
@@ -28,6 +29,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('block')]
+#[RunTestsInSeparateProcesses]
 class CoreBlockMethodsKernelTest extends KernelTestBase {
 
   /**

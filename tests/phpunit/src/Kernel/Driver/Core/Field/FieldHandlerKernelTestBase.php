@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -27,6 +29,7 @@ use Drupal\field\Entity\FieldStorageConfig;
  * entity. No assertions are made against expect-specific expand() values;
  * that coverage belongs in per-handler unit tests.
  */
+#[RunTestsInSeparateProcesses]
 abstract class FieldHandlerKernelTestBase extends KernelTestBase {
 
   /**

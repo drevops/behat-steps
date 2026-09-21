@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 use DrevOps\BehatSteps\Driver\Core\Field\AddressHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for AddressHandler via the Core driver.
@@ -20,6 +21,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(AddressHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

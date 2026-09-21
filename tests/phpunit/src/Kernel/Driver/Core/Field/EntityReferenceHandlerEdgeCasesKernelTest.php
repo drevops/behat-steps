@@ -10,6 +10,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel tests for EntityReferenceHandler edge-case branches.
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(EntityReferenceHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class EntityReferenceHandlerEdgeCasesKernelTest extends FieldHandlerKernelTestBase {
 
   /**

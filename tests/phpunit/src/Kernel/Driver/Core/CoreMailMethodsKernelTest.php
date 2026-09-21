@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Core\Core;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for mail-related methods on Core via the driver.
@@ -16,6 +17,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
+#[RunTestsInSeparateProcesses]
 class CoreMailMethodsKernelTest extends KernelTestBase {
 
   /**

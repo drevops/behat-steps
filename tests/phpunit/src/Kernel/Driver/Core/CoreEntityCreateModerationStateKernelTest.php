@@ -14,6 +14,7 @@ use Drupal\node\Entity\NodeType;
 use Drupal\workflows\Entity\Workflow;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Regression test for F3 (moderation_state).
@@ -30,6 +31,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class CoreEntityCreateModerationStateKernelTest extends KernelTestBase {
 
   /**

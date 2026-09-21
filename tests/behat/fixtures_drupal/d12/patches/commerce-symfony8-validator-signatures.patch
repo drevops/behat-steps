@@ -1,0 +1,78 @@
+Match the Symfony 8 signature on ConstraintValidatorInterface.
+
+Symfony 8 declares 'mixed $value' and a void return on validate(), which
+these validators do not, so PHP rejects the overrides while the module is
+enabled.
+
+diff --git a/modules/order/src/Plugin/Validation/Constraint/PurchasedEntityAvailableConstraintValidator.php b/modules/order/src/Plugin/Validation/Constraint/PurchasedEntityAvailableConstraintValidator.php
+--- a/modules/order/src/Plugin/Validation/Constraint/PurchasedEntityAvailableConstraintValidator.php
++++ b/modules/order/src/Plugin/Validation/Constraint/PurchasedEntityAvailableConstraintValidator.php
+@@ -67,7 +67,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($value, Constraint $constraint) {
++  public function validate(mixed $value, Constraint $constraint): void {
+     assert($value instanceof FieldItemListInterface);
+     if ($value->isEmpty()) {
+       return;
+diff --git a/modules/order/src/Plugin/Validation/Constraint/OrderVersionConstraintValidator.php b/modules/order/src/Plugin/Validation/Constraint/OrderVersionConstraintValidator.php
+--- a/modules/order/src/Plugin/Validation/Constraint/OrderVersionConstraintValidator.php
++++ b/modules/order/src/Plugin/Validation/Constraint/OrderVersionConstraintValidator.php
+@@ -31,7 +31,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($entity, Constraint $constraint) {
++  public function validate(mixed $entity, Constraint $constraint): void {
+     if (isset($entity) && !$entity->isNew()) {
+       /** @var \Drupal\commerce_order\Entity\OrderInterface $saved_entity */
+       $saved_entity = $this->entityTypeManager
+diff --git a/modules/price/src/Plugin/Validation/Constraint/CurrencyConstraintValidator.php b/modules/price/src/Plugin/Validation/Constraint/CurrencyConstraintValidator.php
+--- a/modules/price/src/Plugin/Validation/Constraint/CurrencyConstraintValidator.php
++++ b/modules/price/src/Plugin/Validation/Constraint/CurrencyConstraintValidator.php
+@@ -42,7 +42,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($value, Constraint $constraint) {
++  public function validate(mixed $value, Constraint $constraint): void {
+     if (!($value instanceof PriceItem)) {
+       throw new UnexpectedTypeException($value, PriceItem::class);
+     }
+diff --git a/modules/product/src/Plugin/Validation/Constraint/ProductVariationSkuConstraintValidator.php b/modules/product/src/Plugin/Validation/Constraint/ProductVariationSkuConstraintValidator.php
+--- a/modules/product/src/Plugin/Validation/Constraint/ProductVariationSkuConstraintValidator.php
++++ b/modules/product/src/Plugin/Validation/Constraint/ProductVariationSkuConstraintValidator.php
+@@ -31,7 +31,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($items, Constraint $constraint) {
++  public function validate(mixed $items, Constraint $constraint): void {
+     if (!$item = $items->first()) {
+       return;
+     }
+diff --git a/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php b/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
+--- a/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
++++ b/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
+@@ -16,7 +16,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($value, Constraint $constraint) {
++  public function validate(mixed $value, Constraint $constraint): void {
+     assert($value instanceof EntityReferenceFieldItemListInterface);
+     $order = $value->getEntity();
+     assert($order instanceof OrderInterface);
+diff --git a/modules/tax/src/Plugin/Validation/Constraint/TaxNumberConstraintValidator.php b/modules/tax/src/Plugin/Validation/Constraint/TaxNumberConstraintValidator.php
+--- a/modules/tax/src/Plugin/Validation/Constraint/TaxNumberConstraintValidator.php
++++ b/modules/tax/src/Plugin/Validation/Constraint/TaxNumberConstraintValidator.php
+@@ -14,7 +14,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($item, Constraint $constraint) {
++  public function validate(mixed $item, Constraint $constraint): void {
+     /** @var \Drupal\commerce_tax\Plugin\Field\FieldType\TaxNumberItemInterface $item */
+     if ($item->isEmpty() || strlen($item->value) > 64) {
+       // The number is empty or not well formed.

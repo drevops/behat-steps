@@ -19,6 +19,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for resolving a vocabulary label to its machine name.
@@ -27,6 +28,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(RawContext::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class RawContextVocabularyKernelTest extends KernelTestBase {
 
   /**

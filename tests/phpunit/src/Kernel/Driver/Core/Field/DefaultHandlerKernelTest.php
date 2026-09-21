@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 use DrevOps\BehatSteps\Driver\Core\Field\DefaultHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for DefaultHandler via the Core driver.
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(DefaultHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class DefaultHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

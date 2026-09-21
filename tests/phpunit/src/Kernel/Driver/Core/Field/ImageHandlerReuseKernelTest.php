@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemInterface;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for ImageHandler's existing-managed-file reuse path.
@@ -23,6 +24,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
   /**

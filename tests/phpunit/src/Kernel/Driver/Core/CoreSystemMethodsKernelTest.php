@@ -11,6 +11,7 @@ use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel tests for system-level methods on Core via the driver.
@@ -23,6 +24,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
+#[RunTestsInSeparateProcesses]
 class CoreSystemMethodsKernelTest extends KernelTestBase {
 
   /**
@@ -59,18 +61,18 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
   /**
    * Tests that moduleInstall and moduleUninstall flip module state.
    *
-   * 'contact' is chosen because installing it does not create dependent
+   * 'syslog' is chosen because installing it does not create dependent
    * config (unlike 'filter', which creates filter plugins referenced by the
    * default format and blocks later uninstall in kernel tests).
    */
   public function testModuleInstallAndUninstall(): void {
-    $this->assertFalse(\Drupal::moduleHandler()->moduleExists('contact'), 'contact is not installed at setUp.');
+    $this->assertFalse(\Drupal::moduleHandler()->moduleExists('syslog'), 'syslog is not installed at setUp.');
 
-    $this->core->moduleInstall('contact');
-    $this->assertTrue(\Drupal::moduleHandler()->moduleExists('contact'), 'moduleInstall enabled contact.');
+    $this->core->moduleInstall('syslog');
+    $this->assertTrue(\Drupal::moduleHandler()->moduleExists('syslog'), 'moduleInstall enabled syslog.');
 
-    $this->core->moduleUninstall('contact');
-    $this->assertFalse(\Drupal::moduleHandler()->moduleExists('contact'), 'moduleUninstall disabled contact.');
+    $this->core->moduleUninstall('syslog');
+    $this->assertFalse(\Drupal::moduleHandler()->moduleExists('syslog'), 'moduleUninstall disabled syslog.');
   }
 
   /**

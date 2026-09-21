@@ -10,6 +10,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for FileHandler's existing-managed-file reuse path.
@@ -22,6 +23,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
   /**

@@ -131,6 +131,9 @@
         },
         "enable-patching": true,
         "patches": {
+            "drupal/commerce": {
+                "Symfony 8: match the constraint validator signatures": "patches/commerce-symfony8-validator-signatures.patch"
+            },
             "drupal/ctools": {
                 "Drupal 12: discover Relationship plugins by attribute": "patches/ctools-drupal12-attribute-discovery.patch"
             },

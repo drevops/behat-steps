@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\FileHandler;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for FileHandler via the Core driver.
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

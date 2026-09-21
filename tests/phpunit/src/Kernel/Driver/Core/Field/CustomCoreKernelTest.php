@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\Entity\ContentEntityInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for consumer-supplied Core and its bundled field handlers.
@@ -33,6 +34,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
 
   /**
