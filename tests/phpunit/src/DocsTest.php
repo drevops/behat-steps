@@ -1035,102 +1035,6 @@ EOD,
     $this->assertEquals($expected, $actual);
   }
 
-  #[DataProvider('dataProviderReplaceContent')]
-  public function testReplaceContent(
-    string $haystack,
-    string $start,
-    string $end,
-    string $replacement,
-    string $expected,
-    ?string $exception = NULL,
-  ): void {
-    if ($exception) {
-      $this->expectException(\Exception::class);
-      $this->expectExceptionMessage($exception);
-    }
-
-    $actual = replace_content($haystack, $start, $end, $replacement);
-    $this->assertEquals($expected, $actual);
-  }
-
-  public static function dataProviderReplaceContent(): array {
-    return [
-      'basic replacement' => [
-        'This is a test string with START some content END in it.',
-        'START',
-        'END',
-        ' new content ',
-        "This is a test string with START\n new content \nEND in it.",
-      ],
-      'multiline content' => [
-        "Line 1\nSTART\nsome content\nmore content\nEND\nLine 3",
-        "START",
-        "END",
-        "\nnew content\n",
-        "Line 1\nSTART\n\nnew content\n\nEND\nLine 3",
-      ],
-      'replacement with special characters' => [
-        'Content with START $pecial ch@rs END here',
-        'START',
-        'END',
-        ' $p3c!al r3pl@cement ',
-        "Content with START\n \$p3c!al r3pl@cement \nEND here",
-      ],
-      'start and end with regex characters' => [
-        'Content with [START] regex.chars* [END] here',
-        '[START]',
-        '[END]',
-        ' escaped content ',
-        "Content with [START]\n escaped content \n[END] here",
-      ],
-      'error - start not found' => [
-        'Content without markers',
-        'START',
-        'END',
-        'replacement',
-        '',
-        'Start not found in the haystack',
-      ],
-      'error - end not found' => [
-        'Content with START but no end',
-        'START',
-        'END',
-        'replacement',
-        '',
-        'End not found in the haystack',
-      ],
-      'error - start after end' => [
-        'Content with END before START',
-        'START',
-        'END',
-        'replacement',
-        '',
-        'Start is after the end',
-      ],
-      'adjacent markers' => [
-        'Content with STARTEND together',
-        'START',
-        'END',
-        ' replacement ',
-        "Content with START\n replacement \nEND together",
-      ],
-      'nested markers' => [
-        'Content with START nested START inner END markers END',
-        'START',
-        'END',
-        ' replaced all ',
-        "Content with START\n replaced all \nEND markers END",
-      ],
-      'empty replacement' => [
-        'Content with START content to remove END here',
-        'START',
-        'END',
-        '',
-        "Content with START\n\nEND here",
-      ],
-    ];
-  }
-
   public static function dataProviderValidate(): array {
     return [
       'empty info' => [
@@ -1615,6 +1519,102 @@ EOD,
     ];
   }
 
+  #[DataProvider('dataProviderReplaceContent')]
+  public function testReplaceContent(
+    string $haystack,
+    string $start,
+    string $end,
+    string $replacement,
+    string $expected,
+    ?string $exception = NULL,
+  ): void {
+    if ($exception) {
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage($exception);
+    }
+
+    $actual = replace_content($haystack, $start, $end, $replacement);
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderReplaceContent(): array {
+    return [
+      'basic replacement' => [
+        'This is a test string with START some content END in it.',
+        'START',
+        'END',
+        ' new content ',
+        "This is a test string with START\n new content \nEND in it.",
+      ],
+      'multiline content' => [
+        "Line 1\nSTART\nsome content\nmore content\nEND\nLine 3",
+        "START",
+        "END",
+        "\nnew content\n",
+        "Line 1\nSTART\n\nnew content\n\nEND\nLine 3",
+      ],
+      'replacement with special characters' => [
+        'Content with START $pecial ch@rs END here',
+        'START',
+        'END',
+        ' $p3c!al r3pl@cement ',
+        "Content with START\n \$p3c!al r3pl@cement \nEND here",
+      ],
+      'start and end with regex characters' => [
+        'Content with [START] regex.chars* [END] here',
+        '[START]',
+        '[END]',
+        ' escaped content ',
+        "Content with [START]\n escaped content \n[END] here",
+      ],
+      'error - start not found' => [
+        'Content without markers',
+        'START',
+        'END',
+        'replacement',
+        '',
+        'Start not found in the haystack',
+      ],
+      'error - end not found' => [
+        'Content with START but no end',
+        'START',
+        'END',
+        'replacement',
+        '',
+        'End not found in the haystack',
+      ],
+      'error - start after end' => [
+        'Content with END before START',
+        'START',
+        'END',
+        'replacement',
+        '',
+        'Start is after the end',
+      ],
+      'adjacent markers' => [
+        'Content with STARTEND together',
+        'START',
+        'END',
+        ' replacement ',
+        "Content with START\n replacement \nEND together",
+      ],
+      'nested markers' => [
+        'Content with START nested START inner END markers END',
+        'START',
+        'END',
+        ' replaced all ',
+        "Content with START\n replaced all \nEND markers END",
+      ],
+      'empty replacement' => [
+        'Content with START content to remove END here',
+        'START',
+        'END',
+        '',
+        "Content with START\n\nEND here",
+      ],
+    ];
+  }
+
   /**
    * Test the extract_info function with actual reflection.
    */
@@ -1640,6 +1640,26 @@ EOD,
         $this->assertArrayNotHasKey($expected_trait, $result);
       }
     }
+  }
+
+  public static function dataProviderExtractInfo(): array {
+    return [
+      'single trait with step' => [
+        ['SampleTrait'],
+        [],
+        ['SampleTrait'],
+      ],
+      'multiple traits with steps' => [
+        ['FirstTrait', 'SecondTrait'],
+        [],
+        ['FirstTrait', 'SecondTrait'],
+      ],
+      'with excluded trait' => [
+        ['IncludedTrait', 'ExcludedTrait'],
+        ['ExcludedTrait'],
+        ['IncludedTrait'],
+      ],
+    ];
   }
 
   /**
@@ -1761,26 +1781,6 @@ EOD,
       eval($class_code);
     }
     return $class_name;
-  }
-
-  public static function dataProviderExtractInfo(): array {
-    return [
-      'single trait with step' => [
-        ['SampleTrait'],
-        [],
-        ['SampleTrait'],
-      ],
-      'multiple traits with steps' => [
-        ['FirstTrait', 'SecondTrait'],
-        [],
-        ['FirstTrait', 'SecondTrait'],
-      ],
-      'with excluded trait' => [
-        ['IncludedTrait', 'ExcludedTrait'],
-        ['ExcludedTrait'],
-        ['IncludedTrait'],
-      ],
-    ];
   }
 
   /**
