@@ -165,7 +165,8 @@
                 "Drupal 12: discover plugins by attribute": "patches/webform-drupal12-attribute-discovery.patch",
                 "Drupal 12: match the getDefaultOperations() signature": "patches/webform-drupal12-default-operations.patch",
                 "Drupal 12: declare the array return on massageFormValues()": "patches/webform-drupal12-massage-form-values.patch",
-                "Symfony 8: read query parameters through the query bag": "patches/webform-symfony8-request-get.patch"
+                "Symfony 8: read query parameters through the query bag": "patches/webform-symfony8-request-get.patch",
+                "Drupal 12: read the original entity through getOriginal()": "patches/webform-drupal12-get-original.patch"
             }
         },
         "installer-paths": {
