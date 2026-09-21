@@ -79,6 +79,8 @@ trait FeatureContextTrait {
    */
   #[Given('the watchdog is cleared')]
   public function testClearWatchdogTable(): void {
+    $this->assertDrupal();
+
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
@@ -332,6 +334,8 @@ trait FeatureContextTrait {
    */
   #[Then(':file_name file object exists')]
   public function testAssertFileObjectExists(string $file_name): void {
+    $this->assertDrupal();
+
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
     if (empty($fids)) {

@@ -258,6 +258,8 @@ trait EmailTrait {
    */
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
+    $this->assertDrupal();
+
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemDefault($type);
       if (!self::emailGetMailSystemOriginal($type)) {
@@ -280,6 +282,8 @@ trait EmailTrait {
    */
   #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
+    $this->assertDrupal();
+
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
       self::emailSetMailSystemDefault($type, $original_test_system);
@@ -824,12 +828,12 @@ trait EmailTrait {
    * @return int
    *   The link number as a positive integer.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \RuntimeException
    *   When the link number is not a positive integer.
    */
   protected function emailAssertLinkNumber(string $link_number): int {
     if (!ctype_digit(trim($link_number)) || (int) $link_number < 1) {
-      throw new ExpectationException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number));
     }
 
     return (int) $link_number;

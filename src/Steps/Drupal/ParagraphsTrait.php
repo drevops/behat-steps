@@ -39,6 +39,10 @@ trait ParagraphsTrait {
    */
   #[Given('the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
+    $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
+
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
     $parent_entity = $this->paragraphsFindEntity($parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value);
@@ -75,6 +79,8 @@ trait ParagraphsTrait {
    */
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
     $values = $stub->getValues();
     $values['type'] = $paragraph_type;

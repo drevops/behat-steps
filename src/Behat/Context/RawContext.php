@@ -459,7 +459,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     // a clearer failure than this could.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
-    if (!empty($vocabulary)) {
+    if (!empty($vocabulary) && $this->getDriver() instanceof DrupalDriverInterface) {
       $stub->setValue('vocabulary_machine_name', $this->resolveVocabularyMachineName((string) $vocabulary));
     }
 
@@ -648,7 +648,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
         try {
           $driver->languageDelete($stub);
         }
-        catch (\InvalidArgumentException) {
+        catch (\RuntimeException) {
           // The scenario removed the language itself. Deleting a node, a term
           // or a generic entity twice is tolerated, so a language is too.
         }
@@ -813,6 +813,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * when no label matches, leaving the driver to surface a not-found error.
    */
   protected function resolveVocabularyMachineName(string $identifier): string {
+    $this->assertDrupal();
+
     if (!class_exists(Vocabulary::class) || Vocabulary::load($identifier) instanceof Vocabulary) {
       return $identifier;
     }

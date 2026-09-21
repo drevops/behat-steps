@@ -24,6 +24,8 @@ use Drupal\testmode\Testmode;
  */
 trait TestmodeTrait {
 
+  use HelperTrait;
+
   /**
    * Enable test mode before an @api scenario tagged with @testmode.
    */
@@ -34,6 +36,8 @@ trait TestmodeTrait {
     }
 
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
 
     self::testmodeEnableTestMode();
   }
@@ -48,6 +52,8 @@ trait TestmodeTrait {
     }
 
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
 
     self::testmodeDisableTestMode();
   }
