@@ -59,7 +59,6 @@ class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
     'commerce',
     'commerce_price',
     'commerce_store',
-    'commerce_product',
   ];
 
   /**
@@ -72,6 +71,15 @@ class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+
+    // Drupal 12 moved the 'text_with_summary' field type, which the
+    // commerce_product configuration uses, out of 'text' and into its own
+    // module, so it is enabled before the configuration that reads it.
+    if (\Drupal::service('extension.list.module')->exists('text_with_summary')) {
+      $this->enableModules(['text_with_summary']);
+    }
+
+    $this->enableModules(['commerce_product']);
 
     $this->installEntitySchema('user');
     $this->installEntitySchema('path_alias');
