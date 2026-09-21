@@ -197,10 +197,10 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
     $storage = new readonly class($files_by_uri) {
 
       /**
-       * @param array<string, object> $files_by_uri
+       * @param array<string, object> $filesByUri
        *   Files keyed by URI.
        */
-      public function __construct(protected array $files_by_uri) {}
+      public function __construct(protected array $filesByUri) {}
 
       /**
        * Returns the file matching the given URI, or an empty list.
@@ -214,8 +214,8 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
       public function loadByProperties(array $properties): array {
         $uri = $properties['uri'] ?? NULL;
 
-        return $uri !== NULL && isset($this->files_by_uri[$uri])
-          ? [$this->files_by_uri[$uri]]
+        return $uri !== NULL && isset($this->filesByUri[$uri])
+          ? [$this->filesByUri[$uri]]
           : [];
       }
 

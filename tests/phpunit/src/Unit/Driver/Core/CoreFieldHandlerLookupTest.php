@@ -194,10 +194,10 @@ class FieldTypeMapCore extends Core {
    *   Drupal root directory.
    * @param string $uri
    *   Site URI.
-   * @param array<string, string> $field_type_map
+   * @param array<string, string> $fieldTypeMap
    *   Map of field name to field type id.
    */
-  public function __construct(string $drupal_root, string $uri, protected array $field_type_map) {
+  public function __construct(string $drupal_root, string $uri, protected array $fieldTypeMap) {
     parent::__construct($drupal_root, $uri);
   }
 
@@ -205,7 +205,7 @@ class FieldTypeMapCore extends Core {
    * {@inheritdoc}
    */
   public function getEntityFieldTypes(string $entity_type, ?string $bundle = NULL): array {
-    return $this->field_type_map;
+    return $this->fieldTypeMap;
   }
 
 }
