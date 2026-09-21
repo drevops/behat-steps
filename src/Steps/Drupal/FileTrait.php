@@ -39,7 +39,7 @@ trait FileTrait {
    *
    * @var array<int, string>
    */
-  protected array $filesUnmanagedUris = [];
+  protected array $fileUnmanagedUris = [];
 
   /**
    * Ensure private and temp directories exist.
@@ -77,7 +77,7 @@ trait FileTrait {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
-    foreach ($this->filesUnmanagedUris as $uri) {
+    foreach ($this->fileUnmanagedUris as $uri) {
       @unlink($uri);
     }
   }
@@ -175,7 +175,7 @@ trait FileTrait {
     // @codeCoverageIgnoreEnd
     file_put_contents($uri, $content);
 
-    $this->filesUnmanagedUris[] = $uri;
+    $this->fileUnmanagedUris[] = $uri;
   }
 
   /**
