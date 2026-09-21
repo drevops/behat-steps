@@ -10,21 +10,21 @@
 
 declare(strict_types=1);
 
-use Behat\Step\When;
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterFeature;
 use Behat\Hook\BeforeScenario;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\file\Entity\File;
 use Symfony\Component\BrowserKit\Cookie;
-use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.

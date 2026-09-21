@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-use SebastianBergmann\CodeCoverage\Report\Html\Facade;
-use SebastianBergmann\CodeCoverage\Report\Cobertura;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Report\Cobertura;
+use SebastianBergmann\CodeCoverage\Report\Html\Facade;
 
 // The coverage files are serialised by the fixture site's php-code-coverage,
 // and only unserialise against that same installation, so prefer the fixture's

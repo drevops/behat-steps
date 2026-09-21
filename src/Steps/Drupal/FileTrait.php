@@ -12,9 +12,9 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 

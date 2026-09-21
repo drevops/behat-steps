@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
 
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
@@ -15,15 +11,19 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManager;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManager;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
+use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**

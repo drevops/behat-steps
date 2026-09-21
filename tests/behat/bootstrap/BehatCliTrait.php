@@ -9,12 +9,12 @@
 
 declare(strict_types=1);
 
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use Behat\Step\Given;
+use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Tag;
 
 /**

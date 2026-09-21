@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer\Driver;
 
-use Drupal\Tests\DrupalTestBrowser;
 use Behat\Mink\Driver\BrowserKitDriver;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use Drupal\Tests\DrupalTestBrowser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;

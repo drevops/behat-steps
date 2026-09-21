@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver;
 
-use Drupal\Tests\DrupalTestBrowser;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
+use Drupal\Tests\DrupalTestBrowser;
 use DrupalFinder\DrupalFinderComposerRuntime;
 use GuzzleHttp\Client;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;

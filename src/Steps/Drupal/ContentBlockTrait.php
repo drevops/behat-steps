@@ -9,9 +9,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal content blocks.
