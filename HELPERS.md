@@ -674,7 +674,7 @@ Assert that a set of meta tags is present and non-empty
 </details>
 
 <details>
-  <summary><code>public function metatagFindMeta(string $name): ?NodeElement</code></summary>
+  <summary><code>public function metatagFindMeta(string $meta_name): ?NodeElement</code></summary>
 
 <br/>
 Find a meta tag by its "name" or "property" attribute
@@ -701,7 +701,7 @@ Get the hreflang alternates present on the current page
 </details>
 
 <details>
-  <summary><code>public function metatagGetMetaContent(string $name): ?string</code></summary>
+  <summary><code>public function metatagGetMetaContent(string $meta_name): ?string</code></summary>
 
 <br/>
 Get the content of a meta tag by its "name" or "property" attribute
@@ -974,7 +974,7 @@ Get all available breakpoints
 </details>
 
 <details>
-  <summary><code>public function responsiveGetBreakpoint(string $name): string</code></summary>
+  <summary><code>public function responsiveGetBreakpoint(string $breakpoint): string</code></summary>
 
 <br/>
 Get breakpoint dimensions by name
@@ -1058,7 +1058,7 @@ Find a table element by CSS selector
 </details>
 
 <details>
-  <summary><code>public function tableFindRowByText(string $text): ?NodeElement</code></summary>
+  <summary><code>public function tableFindRowByText(string $row_text): ?NodeElement</code></summary>
 
 <br/>
 Find a table row containing the given text
@@ -1493,7 +1493,7 @@ Create a single media item
 </details>
 
 <details>
-  <summary><code>public function mediaLoadMultiple(string $type, array $conditions = []): array</code></summary>
+  <summary><code>public function mediaLoadMultiple(string $media_type, array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple media entities with specified type and conditions
@@ -1583,7 +1583,7 @@ Check if a module's code is present
 > Manage Drupal paragraphs entities with structured field data.
 
 <details>
-  <summary><code>public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface</code></summary>
+  <summary><code>public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface</code></summary>
 
 <br/>
 Create a paragraphs item from a stub and attach it to an entity
