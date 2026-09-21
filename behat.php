@@ -19,8 +19,8 @@ use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext('FeatureContext')
-  ->addContext('BehatCliContext')
+  ->addContext(FeatureContext::class)
+  ->addContext(BehatCliContext::class)
   ->addContext(MinkContext::class)
   ->addContext(ScreenshotContext::class)
   ->addContext(PhpServerContext::class, [
