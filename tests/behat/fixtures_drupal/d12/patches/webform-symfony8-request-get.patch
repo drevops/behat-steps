@@ -1,0 +1,158 @@
+Read query parameters through the bag Symfony 8 still offers.
+
+Symfony 8 removed Request::get(). Every key read here - the wrapper format,
+the redirect destination, the template flag and the various tokens - arrives
+as a query parameter, so the query bag is the equivalent accessor.
+
+diff --git a/src/Form/WebformAjaxFormTrait.php b/src/Form/WebformAjaxFormTrait.php
+--- a/src/Form/WebformAjaxFormTrait.php
++++ b/src/Form/WebformAjaxFormTrait.php
+@@ -73,7 +73,7 @@
+    *   TRUE if the current request is for an Ajax modal/dialog.
+    */
+   protected function isDialog() {
+-    $wrapper_format = $this->getRequest()
++    $wrapper_format = $this->getRequest()->query
+       ->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     return (in_array($wrapper_format, [
+       'drupal_ajax',
+@@ -90,7 +90,7 @@
+    *   TRUE if the current request is for an off canvas dialog.
+    */
+   protected function isOffCanvasDialog() {
+-    $wrapper_format = $this->getRequest()
++    $wrapper_format = $this->getRequest()->query
+       ->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     return (in_array($wrapper_format, [
+       'drupal_dialog.off_canvas',
+@@ -361,7 +361,7 @@
+    */
+   protected function getFormStateRedirectUrl(FormStateInterface $form_state) {
+     // Always check the ?destination which is used by the off-canvas/system tray.
+-    if ($this->getRequest()->get('destination')) {
++    if ($this->getRequest()->query->get('destination')) {
+       $destination = $this->getRedirectDestination()->get();
+       return str_starts_with($destination, $destination) ? $destination : base_path() . $destination;
+     }
+diff --git a/src/WebformSubmissionForm.php b/src/WebformSubmissionForm.php
+--- a/src/WebformSubmissionForm.php
++++ b/src/WebformSubmissionForm.php
+@@ -1989,7 +1989,7 @@
+       // On update, rebuild and display message unless ?destination= is set.
+       // @see \Drupal\webform\WebformSubmissionForm::setConfirmation
+       if ($state === WebformSubmissionInterface::STATE_UPDATED) {
+-        if (!$this->getRequest()->get('destination')) {
++        if (!$this->getRequest()->query->get('destination')) {
+           $this->rebuild($form, $form_state);
+         }
+       }
+diff --git a/src/WebformRequest.php b/src/WebformRequest.php
+--- a/src/WebformRequest.php
++++ b/src/WebformRequest.php
+@@ -220,7 +220,7 @@
+    * {@inheritdoc}
+    */
+   public function isAjax() {
+-    return $this->request->get(AjaxResponseSubscriber::AJAX_REQUEST_PARAMETER) ? TRUE : FALSE;
++    return $this->request->query->get(AjaxResponseSubscriber::AJAX_REQUEST_PARAMETER) ? TRUE : FALSE;
+   }
+
+   /**
+diff --git a/src/Controller/WebformEntityController.php b/src/Controller/WebformEntityController.php
+--- a/src/Controller/WebformEntityController.php
++++ b/src/Controller/WebformEntityController.php
+@@ -230,7 +230,7 @@
+       $source_entity = $this->requestHandler->getCurrentSourceEntity('webform');
+     }
+
+-    if ($token = $request->get('token')) {
++    if ($token = $request->query->get('token')) {
+       /** @var \Drupal\webform\WebformSubmissionStorageInterface $webform_submission_storage */
+       $webform_submission_storage = $this->entityTypeManager()->getStorage('webform_submission');
+       if ($entities = $webform_submission_storage->loadByProperties(['token' => $token])) {
+diff --git a/src/Entity/Webform.php b/src/Entity/Webform.php
+--- a/src/Entity/Webform.php
++++ b/src/Entity/Webform.php
+@@ -2156,7 +2156,7 @@
+     // If template being used to create a new webform, clear description
+     // and remove the template flag.
+     // @see \Drupal\webform_templates\Controller\WebformTemplatesController::index
+-    $is_template_duplicate = \Drupal::request()->get('template');
++    $is_template_duplicate = \Drupal::request()->query->get('template');
+     if ($duplicate->isTemplate() && !$is_template_duplicate) {
+       $duplicate->set('description', '');
+       $duplicate->set('template', FALSE);
+diff --git a/src/Hook/WebformMaillogHooks.php b/src/Hook/WebformMaillogHooks.php
+--- a/src/Hook/WebformMaillogHooks.php
++++ b/src/Hook/WebformMaillogHooks.php
+@@ -26,7 +26,7 @@
+       return;
+     }
+     // Never display Maillog message via dialogs or Ajax requests.
+-    $wrapper_format = \Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++    $wrapper_format = \Drupal::request()->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     if ($wrapper_format) {
+       return;
+     }
+diff --git a/src/Plugin/WebformElement/WebformManagedFileBase.php b/src/Plugin/WebformElement/WebformManagedFileBase.php
+--- a/src/Plugin/WebformElement/WebformManagedFileBase.php
++++ b/src/Plugin/WebformElement/WebformManagedFileBase.php
+@@ -907,7 +907,7 @@
+     }
+
+     // Only validate file limits for ajax uploads.
+-    $wrapper_format = \Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++    $wrapper_format = \Drupal::request()->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+     if (!$wrapper_format || !in_array($wrapper_format, ['drupal_ajax', 'drupal_modal', 'drupal_dialog'])) {
+       return;
+     }
+diff --git a/src/Plugin/WebformHandler/RemotePostWebformHandler.php b/src/Plugin/WebformHandler/RemotePostWebformHandler.php
+--- a/src/Plugin/WebformHandler/RemotePostWebformHandler.php
++++ b/src/Plugin/WebformHandler/RemotePostWebformHandler.php
+@@ -1110,7 +1110,7 @@
+       $request = $this->requestStack->getCurrentRequest();
+
+       // Build Ajax redirect or trusted redirect response.
+-      $wrapper_format = $request->get(MainContentViewSubscriber::WRAPPER_FORMAT);
++      $wrapper_format = $request->query->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+       $is_ajax_request = ($wrapper_format === 'drupal_ajax');
+       if ($is_ajax_request) {
+         $response = new AjaxResponse();
+diff --git a/modules/webform_templates/src/Controller/WebformTemplatesController.php b/modules/webform_templates/src/Controller/WebformTemplatesController.php
+--- a/modules/webform_templates/src/Controller/WebformTemplatesController.php
++++ b/modules/webform_templates/src/Controller/WebformTemplatesController.php
+@@ -59,8 +59,8 @@
+    *   response to a selected webform via the filter's autocomplete.
+    */
+   public function index(Request $request, $manage = FALSE) {
+-    $keys = $request->get('search');
+-    $category = $request->get('category');
++    $keys = $request->query->get('search');
++    $category = $request->query->get('category');
+
+     // Handler autocomplete redirect.
+     if ($keys && preg_match('#\(([^)]+)\)$#', $keys, $match)) {
+diff --git a/modules/webform_ui/src/Form/WebformUiElementAddForm.php b/modules/webform_ui/src/Form/WebformUiElementAddForm.php
+--- a/modules/webform_ui/src/Form/WebformUiElementAddForm.php
++++ b/modules/webform_ui/src/Form/WebformUiElementAddForm.php
+@@ -24,7 +24,7 @@
+     $this->element['#type'] = $type;
+     $this->action = $this->t('created');
+
+-    $parent_key = $this->getRequest()->get('parent');
++    $parent_key = $this->getRequest()->query->get('parent');
+     if ($parent_key) {
+       $parent_element = $webform->getElement($parent_key);
+       if (!$parent_element) {
+diff --git a/modules/webform_ui/src/Form/WebformUiElementEditForm.php b/modules/webform_ui/src/Form/WebformUiElementEditForm.php
+--- a/modules/webform_ui/src/Form/WebformUiElementEditForm.php
++++ b/modules/webform_ui/src/Form/WebformUiElementEditForm.php
+@@ -30,7 +30,7 @@
+     }
+
+     // Handler changing element type.
+-    if ($type = $this->getRequest()->get('type')) {
++    if ($type = $this->getRequest()->query->get('type')) {
+       $webform_element = $this->getWebformElementPlugin();
+       $related_types = $webform_element->getRelatedTypes($this->element);
+       if (!isset($related_types[$type])) {

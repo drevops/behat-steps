@@ -1,0 +1,25 @@
+Read the original entity through getOriginal().
+
+Drupal 12 removed the magic 'original' property, so the alias update hook
+read NULL and fataled on every alias save. An alias saved outside an update
+has no original at all, so the redirect is only created when one exists.
+
+diff --git a/redirect.module b/redirect.module
+--- a/redirect.module
++++ b/redirect.module
+@@ -91,13 +91,13 @@
+   }
+
+   /** @var \Drupal\path_alias\PathAliasInterface $original_path_alias */
+-  $original_path_alias = $path_alias->original;
++  $original_path_alias = $path_alias->getOriginal();
+
+   // Delete all redirects having the same source as this alias.
+   redirect_delete_by_path($path_alias->getAlias(), $path_alias->language()->getId(), FALSE);
+
+   // Create redirect from the old path alias to the new one.
+-  if ($original_path_alias->getAlias() != $path_alias->getAlias()) {
++  if ($original_path_alias && $original_path_alias->getAlias() != $path_alias->getAlias()) {
+     if (!redirect_repository()->findMatchingRedirect($original_path_alias->getAlias(), [], $original_path_alias->language()->getId())) {
+       $redirect = Redirect::create();
+       $redirect->setSource($original_path_alias->getAlias());

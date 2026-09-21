@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\DefaultHandler;
 use Drupal\Core\Field\BaseFieldDefinition;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Coverage test: every known field type is handled or explicitly skipped.
@@ -32,6 +33,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(Core::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
 
   /**
@@ -49,7 +51,6 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     'file',
     'image',
     'options',
-    'telephone',
     'comment',
     'path',
     'taxonomy',

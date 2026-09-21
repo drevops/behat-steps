@@ -12,6 +12,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for EntityReferenceHandler via the Core driver.
@@ -24,6 +25,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(EntityReferenceHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

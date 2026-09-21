@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 use DrevOps\BehatSteps\Driver\Core\Field\ListFloatHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for ListFloatHandler via the Core driver.
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(ListFloatHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class ListFloatHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

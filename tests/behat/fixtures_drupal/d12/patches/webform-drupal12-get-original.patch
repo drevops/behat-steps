@@ -1,0 +1,61 @@
+Read the original entity through getOriginal().
+
+Drupal 12 removed the magic 'original' property, so these reads produced a
+warning and a NULL, and the settings form raised one on every save. The
+access rule comparison also guards the NULL a create rather than an update
+leaves behind.
+
+diff --git a/webform.module b/webform.module
+--- a/webform.module
++++ b/webform.module
+@@ -187,8 +187,8 @@
+ function _webform_clear_webform_submission_list_cache_tag(EntityInterface $entity) {
+   if ($entity->getEntityTypeId() === 'user') {
+     $original_target_ids = [];
+-    if ($entity->original) {
+-      foreach ($entity->original->roles as $item) {
++    if ($entity->getOriginal()) {
++      foreach ($entity->getOriginal()->roles as $item) {
+         $original_target_ids[$item->target_id] = $item->target_id;
+       }
+     }
+diff --git a/src/Entity/WebformSubmission.php b/src/Entity/WebformSubmission.php
+--- a/src/Entity/WebformSubmission.php
++++ b/src/Entity/WebformSubmission.php
+@@ -875,9 +875,9 @@
+     // cache we have to reset it for the original webform submission entity.
+     // @see \Drupal\Core\Entity\EntityStorageBase::doPreSave
+     // @see \Drupal\Core\Entity\ContentEntityStorageBase::getFromPersistentCache
+-    if (isset($this->original)) {
+-      $this->original->setData($this->originalData);
+-      $this->original->setOriginalData($this->original->getData());
++    if ($this->getOriginal()) {
++      $this->getOriginal()->setData($this->originalData);
++      $this->getOriginal()->setOriginalData($this->getOriginal()->getData());
+     }
+
+     $request_time = \Drupal::time()->getRequestTime();
+diff --git a/src/WebformEntityStorage.php b/src/WebformEntityStorage.php
+--- a/src/WebformEntityStorage.php
++++ b/src/WebformEntityStorage.php
+@@ -98,7 +98,7 @@
+    * {@inheritdoc}
+    */
+   protected function doPostSave(EntityInterface $entity, $update) {
+-    if ($update && $entity->getAccessRules() !== $entity->original->getAccessRules()) {
++    if ($update && $entity->getOriginal() && $entity->getAccessRules() !== $entity->getOriginal()->getAccessRules()) {
+       // Invalidate webform_submission listing cache tags because due to the
+       // change in access rules of this webform, some listings might have
+       // changed for users.
+diff --git a/src/Hook/WebformEditorHooks.php b/src/Hook/WebformEditorHooks.php
+--- a/src/Hook/WebformEditorHooks.php
++++ b/src/Hook/WebformEditorHooks.php
+@@ -41,7 +41,7 @@
+    */
+   #[Hook('webform_update')]
+   public function webformUpdate(WebformInterface $webform) {
+-    $original_uuids = _webform_get_config_entity_file_uuids($webform->original);
++    $original_uuids = _webform_get_config_entity_file_uuids($webform->getOriginal());
+     $uuids = _webform_get_config_entity_file_uuids($webform);
+     // Detect file usages that should be incremented.
+     $added_files = array_diff($uuids, $original_uuids);

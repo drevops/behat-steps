@@ -161,6 +161,18 @@ jobs:
             drupal_version: '11'
             behat: '4'
             deps: 'lowest'
+          # Drupal 12 requires PHP 8.5 and Symfony 8, and the newest Behat 3
+          # caps Symfony at 7, so PHP 8.5 on Behat 4 is the whole Drupal 12
+          # grid. The fixture patches the contrib modules that Drupal 12 and
+          # Symfony 8 broke - see "Drupal versions" in CONTRIBUTING.md.
+          - php_version: '8.5'
+            drupal_version: '12'
+            behat: '4'
+            deps: 'normal'
+          - php_version: '8.5'
+            drupal_version: '12'
+            behat: '4'
+            deps: 'lowest'
 
     container:
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e

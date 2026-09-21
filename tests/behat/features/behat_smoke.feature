@@ -9,17 +9,17 @@ Feature: Behat feature context smoke tests
     When I log in as a user with the "administer site configuration, administer modules" permissions
     When I go to "/admin/modules"
     Then the response status code should be 200
-    And the "modules[ban][enable]" checkbox should be unchecked
+    And the "modules[syslog][enable]" checkbox should be unchecked
 
-    When I install a "ban" module
+    When I install a "syslog" module
     And I go to "/admin/modules"
     Then the response status code should be 200
-    And the "modules[ban][enable]" checkbox should be checked
+    And the "modules[syslog][enable]" checkbox should be checked
 
-    When I uninstall a "ban" module
+    When I uninstall a "syslog" module
     And I go to "/admin/modules"
     Then the response status code should be 200
-    And the "modules[ban][enable]" checkbox should be unchecked
+    And the "modules[syslog][enable]" checkbox should be unchecked
 
   @api
   Scenario: Assert that a cookie presence and absence assertions work

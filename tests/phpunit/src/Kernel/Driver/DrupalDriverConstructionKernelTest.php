@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for 'DrupalDriver' construction and version detection.
@@ -25,6 +26,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversClass(DrupalDriver::class)]
 #[Group('drivers')]
 #[Group('drupal')]
+#[RunTestsInSeparateProcesses]
 class DrupalDriverConstructionKernelTest extends KernelTestBase {
 
   /**

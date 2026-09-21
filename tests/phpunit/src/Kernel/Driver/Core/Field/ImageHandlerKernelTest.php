@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\ImageHandler;
 use Drupal\file\Entity\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for ImageHandler via the Core driver.
@@ -22,6 +23,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class ImageHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

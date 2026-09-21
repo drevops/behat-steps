@@ -6,17 +6,18 @@ This directory contains Drupal fixture sites used for testing the Behat Steps li
 
 ```
 fixtures_drupal/
-└── d11/          # Drupal 11 fixture
-    ├── composer.json
-    ├── config/
-    │   └── sync/  # Exported Drupal configuration
-    ├── scripts/
-    │   └── composer/
-    │       └── ScriptHandler.php
-    └── web/
-        └── modules/
-            └── custom/
-                └── mysite_core/
+├── d11/          # Drupal 11 fixture
+│   ├── composer.json
+│   ├── config/
+│   │   └── sync/  # Exported Drupal configuration
+│   ├── scripts/
+│   │   └── composer/
+│   │       └── ScriptHandler.php
+│   └── web/
+│       └── modules/
+│           └── custom/
+│               └── mysite_core/
+└── d12/          # Drupal 12 fixture, same layout
 ```
 
 `scripts/provision.sh` and `.ahoy.yml` address the fixture as `d${DRUPAL_VERSION}`, so a fixture for a new Drupal major is added as a sibling directory with no changes to either.
@@ -243,12 +244,13 @@ When adding new test scenarios that require Drupal features:
 
 If a new test requires additional Drupal modules:
 
-1. **Add to `d11/composer.json`:**
+1. **Add to every fixture's `composer.json`:**
    ```json
    "require": {
        "drupal/example_module": "^1.0"
    }
    ```
+   In `d12/composer.json`, add the module to `extra.drupal-lenient.allowed-list` as well.
 
 2. **Enable in configuration:**
    The module will be enabled after `composer drupal-post-install` imports config from `config/sync/core.extension.yml`
@@ -263,7 +265,16 @@ If a new test requires additional Drupal modules:
 - Drupal core: `~11.4.0`
 - All modules must be Drupal 11 compatible
 
-The core constraint is pinned to a single minor rather than `^11`, so each minor move is a deliberate, reviewable change. Renovate raises it to each new minor.
+### Drupal 12 (d12/)
+- PHP >= 8.5
+- Drupal core: `~12.0.0-alpha1`
+- Symfony 8, which `behat/behat` 4 accepts and `behat/behat` 3 does not
+
+The core constraint is pinned to a single minor rather than `^11` or `^12`, so each minor move is a deliberate, reviewable change. Renovate raises it to each new minor.
+
+Most contrib modules have no release declaring `drupal/core ^12`, so `d12/composer.json` declares `mglaman/composer-drupal-lenient` and lists every contrib module it installs under `extra.drupal-lenient.allowed-list`. The plugin strips the core constraint from those modules. A module added to `require` or `require-dev` is added to that list at the same time, along with any contrib module it pulls in transitively.
+
+`minimum-stability` is `dev` with `prefer-stable` because `drush/drush` has no tagged release that accepts Symfony 8, so the fixture takes `^14@dev`.
 
 ## Testing Flow
 

@@ -1,0 +1,28 @@
+Match the Drupal 12 signature of getDefaultOperations().
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument,
+which this list builder does not declare, so PHP rejects the override while
+the module installs.
+
+diff --git a/src/ScheduledTransitionsListBuilder.php b/src/ScheduledTransitionsListBuilder.php
+--- a/src/ScheduledTransitionsListBuilder.php
++++ b/src/ScheduledTransitionsListBuilder.php
+@@ -5,6 +5,7 @@
+ namespace Drupal\scheduled_transitions;
+
+ use Drupal\Component\Serialization\Json;
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Datetime\DateFormatterInterface;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityListBuilder;
+@@ -77,8 +78,8 @@
+     return $row + parent::buildRow($entity);
+   }
+
+-  protected function getDefaultOperations(EntityInterface $entity): array {
+-    $operations = parent::getDefaultOperations($entity);
++  protected function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability): array {
++    $operations = parent::getDefaultOperations($entity, $cacheability);
+
+     $rescheduleUrl = $entity->toUrl('reschedule-form');
+     // @todo improve access cacheability after

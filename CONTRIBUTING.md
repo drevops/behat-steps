@@ -329,6 +329,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
+| PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, on a patched contrib set. See [Drupal versions](#drupal-versions). |
 
 The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
@@ -336,20 +337,78 @@ Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Beha
 
 ### Behat 4 legs
 
-Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes 2 packages that cannot be installed alongside Behat 4 on this fixture: `dmore/behat-chrome-extension`, which has no release that accepts it, and `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the fixture is held back, and coverage on Behat 4 waits for a Drupal test stack on PHPUnit 12. So Behat 4 has no `chrome_headless` leg and no coverage, and [behat.php](behat.php) registers the coverage extension only when it is installed.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes `dmore/behat-chrome-extension`, which has no release that accepts Behat 4. That is why Behat 4 has no `chrome_headless` leg.
+
+On Drupal 11 it also removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
 Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
 
-To run the suites on Behat 4 locally, provision the fixture for it first, and run `ahoy provision` to switch back to Behat 3:
+`BEHAT` reaches the container through `ahoy`, so provisioning the fixture for Behat 4 locally is a matter of setting it. Run `ahoy provision` to switch back to Behat 3:
 
 ```bash
-ahoy cli "BEHAT=4 ./scripts/provision.sh"
+BEHAT=4 ahoy provision
 ahoy test-bdd
 ```
 
 ### Drupal versions
 
-The matrix pins Drupal 11 on every leg, and Renovate leaves Composer major updates alone, so a new core major is a deliberate change rather than an automatic one. Drupal 12 legs land the day a testable core exists.
+Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
+
+Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
+
+Drupal 12 constrains its own grid hard:
+
+- Drupal 12 requires PHP 8.5, so PHP 8.3 and PHP 8.4 are out.
+- Drupal 12 requires Symfony 8, and `behat/behat` 3.33 - the newest Behat 3 - requires `symfony/yaml ^5.4 || ^6.4 || ^7.0`, so Behat 3 is out. `behat/behat` 4.0 accepts Symfony 8.
+- `dmore/behat-chrome-extension` accepts Behat 3 only, so `chrome_headless` is out.
+- Drupal 12 raises the database floor to MariaDB 10.11, which is why [docker-compose.yml](docker-compose.yml) runs `uselagoon/mariadb-10.11-drupal`. Drupal 11 asks for 10.6 or newer, so one image serves both majors.
+
+Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does not:
+
+- `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. The hosted lenient endpoint on drupal.org is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.sh](scripts/provision.sh) installs it globally before the build update; Composer loads global plugins for local projects.
+- `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
+- `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
+
+Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release predates the major and fails on it whatever the patches do - `drupal/token` at its lowest resolvable release declares no return type on `getSubscribedEvents()` - and a patch written against one release does not apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
+
+The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
+
+Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.sh](scripts/provision.sh) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
+
+Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
+
+### Patched contrib
+
+Getting contrib installed is not the same as getting it to run. Drupal 12 and Symfony 8 between them broke 13 of the modules the fixture installs, so `d12/composer.json` carries a patch for each under `extra.patches`, applied by `cweagans/composer-patches`. The patches live in `d12/patches/` and fall into 5 groups:
+
+| What changed | Modules |
+| --- | --- |
+| Drupal 12 removed the magic `original` property | `redirect`, `webform` |
+| Symfony 8 removed `Request::get()` | `webform` |
+| Drupal 12 removed annotation-only plugin discovery | `ctools`, `webform` |
+| Drupal 12 and Symfony 8 tightened method signatures | `date_recur`, `dynamic_entity_reference`, `eck`, `entity_reference_revisions`, `paragraphs`, `pathauto`, `profile`, `redirect`, `scheduled_transitions`, `state_machine`, `time_field`, `webform` |
+| Drupal 12 stopped discovering `template_preprocess_HOOK()` | `eck` |
+
+Drupal 12 also deleted the Archiver plugin system, which `webform` injected but never used, and moved the `text_with_summary` field type out of `text` into a module of its own, which the fixture now requires and enables.
+
+Every patch is generated against the released source rather than against the `build/` tree, which carries whatever the last provisioning applied. A patch generated from `build/` silently loses any hunk the tree already has.
+
+A patch stops being needed the day its module ships a Drupal 12 release, at which point both the patch and the module's floor come out.
+
+### Verifying the import landed
+
+`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.sh](scripts/provision.sh) therefore reads a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success on an empty site.
+
+### Coverage
+
+Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
+To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
+
+```bash
+PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
+```
+
+That run installs Drupal 12 and then fails on the configuration check, which is the state this section describes.
 
 ## Updating fixture site
 

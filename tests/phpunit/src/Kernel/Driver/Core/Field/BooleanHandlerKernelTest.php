@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Driver\Core\Field;
 use DrevOps\BehatSteps\Driver\Core\Field\BooleanHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for BooleanHandler via the Core driver.
@@ -19,6 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(BooleanHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   /**

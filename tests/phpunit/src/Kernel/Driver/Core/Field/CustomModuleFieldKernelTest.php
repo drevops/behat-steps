@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Core\Core;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test: a contrib module's custom field types through the real driver.
@@ -30,6 +31,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
 
   /**

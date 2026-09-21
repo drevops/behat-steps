@@ -1,0 +1,102 @@
+Declare the cacheability argument Drupal 12 passes.
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument.
+The module already reads it through func_get_arg() and hands it to the parent,
+but leaves the parameter commented out, so PHP rejects the override.
+
+diff --git a/modules/promotion/src/PromotionListBuilder.php b/modules/promotion/src/PromotionListBuilder.php
+--- a/modules/promotion/src/PromotionListBuilder.php
++++ b/modules/promotion/src/PromotionListBuilder.php
+@@ -237,7 +237,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  protected function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+
+diff --git a/modules/promotion/src/CouponListBuilder.php b/modules/promotion/src/CouponListBuilder.php
+--- a/modules/promotion/src/CouponListBuilder.php
++++ b/modules/promotion/src/CouponListBuilder.php
+@@ -96,7 +96,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  protected function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+
+diff --git a/modules/order/src/OrderListBuilder.php b/modules/order/src/OrderListBuilder.php
+--- a/modules/order/src/OrderListBuilder.php
++++ b/modules/order/src/OrderListBuilder.php
+@@ -86,7 +86,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  public function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+
+diff --git a/modules/number_pattern/src/NumberPatternListBuilder.php b/modules/number_pattern/src/NumberPatternListBuilder.php
+--- a/modules/number_pattern/src/NumberPatternListBuilder.php
++++ b/modules/number_pattern/src/NumberPatternListBuilder.php
+@@ -34,7 +34,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  public function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+     $access = $entity->access('reset_sequence', NULL, TRUE);
+diff --git a/modules/payment/src/PaymentListBuilder.php b/modules/payment/src/PaymentListBuilder.php
+--- a/modules/payment/src/PaymentListBuilder.php
++++ b/modules/payment/src/PaymentListBuilder.php
+@@ -81,7 +81,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  public function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = [];
+     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $entity */
+diff --git a/modules/product/src/ProductVariationListBuilder.php b/modules/product/src/ProductVariationListBuilder.php
+--- a/modules/product/src/ProductVariationListBuilder.php
++++ b/modules/product/src/ProductVariationListBuilder.php
+@@ -289,7 +289,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  protected function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+
+diff --git a/modules/product/src/ProductListBuilder.php b/modules/product/src/ProductListBuilder.php
+--- a/modules/product/src/ProductListBuilder.php
++++ b/modules/product/src/ProductListBuilder.php
+@@ -41,7 +41,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  protected function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+
+diff --git a/modules/store/src/StoreListBuilder.php b/modules/store/src/StoreListBuilder.php
+--- a/modules/store/src/StoreListBuilder.php
++++ b/modules/store/src/StoreListBuilder.php
+@@ -41,7 +41,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
++  protected function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+     $cacheability = func_num_args() > 1 ? func_get_arg(1) : NULL;
+     $operations = parent::getDefaultOperations($entity, $cacheability);
+     assert($entity instanceof StoreInterface);

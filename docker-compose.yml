@@ -25,6 +25,7 @@ x-environment:
   XDEBUG_ENABLE: ${XDEBUG_ENABLE:-}
   DEPS: ${DEPS:-normal}
   DRUPAL_VERSION: ${DRUPAL_VERSION:-11}
+  BEHAT: ${BEHAT:-3}
   PHP_VERSION: ${PHP_VERSION:-8.3}
   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
   PHP_MEMORY_LIMIT: 2048M
@@ -66,7 +67,7 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-10.6-drupal:26.8.1@sha256:41f0e53fe191301658e8a52095232b35594c275f4548d0e79c2d204c6306fa98
+    image: uselagoon/mariadb-10.11-drupal:26.8.1@sha256:de40aea8f7ec09fc5d1719afb6119c44b56a7caacd669e58efa86e4e853195c4
     environment:
       <<: *default-environment
     ports:

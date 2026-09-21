@@ -1,0 +1,28 @@
+Match the Drupal 12 signature of getDefaultOperations().
+
+EntityListBuilder::getDefaultOperations() takes a CacheableMetadata argument,
+which these list builders do not declare, so PHP rejects the overrides while
+the module installs.
+
+diff --git a/src/ProfileListBuilder.php b/src/ProfileListBuilder.php
+--- a/src/ProfileListBuilder.php
++++ b/src/ProfileListBuilder.php
+@@ -2,6 +2,7 @@
+
+ namespace Drupal\profile;
+
++use Drupal\Core\Cache\CacheableMetadata;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\EntityListBuilder;
+ use Drupal\Core\Entity\EntityTypeInterface;
+@@ -115,8 +116,8 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function getDefaultOperations(EntityInterface $entity) {
+-    $operations = parent::getDefaultOperations($entity);
++  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
++    $operations = parent::getDefaultOperations($entity, $cacheability);
+
+     $destination = $this->redirectDestination->getAsArray();
+     foreach ($operations as $key => $operation) {

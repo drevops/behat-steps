@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for AbstractHandler's field-not-found guard.
@@ -23,6 +24,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
+#[RunTestsInSeparateProcesses]
 class AbstractHandlerFieldNotFoundKernelTest extends FieldHandlerKernelTestBase {
 
   /**
