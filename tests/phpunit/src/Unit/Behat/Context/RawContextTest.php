@@ -333,6 +333,19 @@ class RawContextTest extends UnitTestCase {
     yield 'configurable_language' => ['configurable_language'];
   }
 
+  public function testAnAlreadyRemovedLanguageDoesNotStopCleanup(): void {
+    $driver = $this->createDriver([LanguageCapabilityInterface::class, ContentCapabilityInterface::class]);
+    $driver->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('The language "fr" does not exist.'));
+    $driver->expects($this->once())->method('nodeDelete');
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('node', 'page'), new EntityStub('language', NULL, ['langcode' => 'fr'])]);
+
+    $context->cleanEntities($this->createAfterScenarioScope());
+
+    $this->assertSame([], $context->getCreatedStubs());
+  }
+
   public function testLanguageIsLeftBehindByIncapableDriver(): void {
     $driver = $this->createContentDriver();
     $driver->expects($this->never())->method('entityDelete');

@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests AbstractHandler constructor guards that need no Drupal kernel.
+ * Tests AbstractHandler guards that need no Drupal kernel.
  *
  * 'DefaultHandler' is the simplest concrete subclass and is used here to
  * exercise the base class error branches.
@@ -34,6 +34,21 @@ class AbstractHandlerErrorPathsTest extends TestCase {
     $this->expectExceptionMessageMatches('/You must specify an entity type/');
 
     new DefaultHandler(new EntityStub(''), '', 'field_any');
+  }
+
+  /**
+   * Tests that 'normalize()' rejects a handler without a main property.
+   */
+  public function testNormalizeRejectsMissingMainProperty(): void {
+    $handler = (new \ReflectionClass(DefaultHandler::class))->newInstanceWithoutConstructor();
+
+    $main_property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
+    $main_property->setValue($handler, NULL);
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessageMatches('/Handler ".+DefaultHandler" has no main property/');
+
+    $handler->expand('value');
   }
 
 }

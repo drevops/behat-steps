@@ -93,6 +93,12 @@ class TimeHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
+    yield 'unparseable string rejected' => [
+      ['nonsense'],
+      NULL,
+      \RuntimeException::class,
+      'Time field value "nonsense" is not parseable.',
+    ];
   }
 
 }

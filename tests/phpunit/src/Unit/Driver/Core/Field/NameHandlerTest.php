@@ -86,6 +86,12 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
       NULL,
     ];
+    yield 'keyed record auto-wrapped' => [
+      ['given' => 'Ada', 'family' => 'Lovelace'],
+      [['given' => 'Ada', 'family' => 'Lovelace']],
+      NULL,
+      NULL,
+    ];
 
     yield 'mixed numeric and named keys rejected' => [
       [['John', 'family' => 'Smith']],
@@ -98,6 +104,18 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
       \RuntimeException::class,
       'Invalid name sub-field key: nickname.',
+    ];
+    yield 'non-string non-array value rejected' => [
+      42,
+      NULL,
+      \RuntimeException::class,
+      'Name field value must be a string or an array, got int.',
+    ];
+    yield 'non-string non-array delta rejected' => [
+      ['Doe, John', 42],
+      NULL,
+      \RuntimeException::class,
+      'Name field delta 1 must be a string or an array, got int.',
     ];
   }
 

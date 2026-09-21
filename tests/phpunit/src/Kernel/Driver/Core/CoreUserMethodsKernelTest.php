@@ -120,6 +120,18 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that 'userAddRole()' throws when the stub's uid matches no account.
+   */
+  public function testUserAddRoleThrowsOnUnknownUser(): void {
+    $role_id = $this->core->roleCreate(['access user profiles']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
+
+    $this->core->userAddRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
+  }
+
+  /**
    * Tests that roleCreate rejects unknown permission strings.
    */
   public function testRoleCreateRejectsUnknownPermission(): void {

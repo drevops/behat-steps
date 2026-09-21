@@ -144,6 +144,21 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
   }
 
   /**
+   * Tests that 'doExpand()' rejects a record without the main property.
+   *
+   * The base 'normalize()' rejects such a record before 'doExpand()' runs,
+   * so the test feeds 'doExpand()' directly.
+   */
+  public function testDoExpandRejectsRecordMissingMainProperty(): void {
+    $handler = $this->createHandler();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Entity reference record is missing the main property "target_id".');
+
+    (new \ReflectionMethod($handler, 'doExpand'))->invoke($handler, [['display' => 1]]);
+  }
+
+  /**
    * Builds an entity_type.manager + entity-query stub keyed by label.
    *
    * @param array<string, int> $known_labels

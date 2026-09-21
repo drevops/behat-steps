@@ -233,7 +233,9 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   protected function aliasDocumentElement(): void {
     if (!class_exists(UpstreamDocumentElement::class, FALSE)) {
+      // @codeCoverageIgnoreStart
       class_alias(DocumentElement::class, UpstreamDocumentElement::class, TRUE);
+      // @codeCoverageIgnoreEnd
     }
   }
 
