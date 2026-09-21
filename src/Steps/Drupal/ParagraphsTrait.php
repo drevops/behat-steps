@@ -59,9 +59,9 @@ trait ParagraphsTrait {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
    *   Entity to attach the paragraphs item to.
-   * @param string $parent_field_name
+   * @param string $parent_field
    *   Field name on the entity that refers paragraphs item.
-   * @param string $paragraph_bundle
+   * @param string $paragraph_type
    *   Paragraphs item bundle name.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   Stub with filled-in fields. Fields are merged with created
@@ -73,21 +73,21 @@ trait ParagraphsTrait {
    * @return \Drupal\paragraphs\ParagraphInterface
    *   Created paragraphs item.
    */
-  public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
+  public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->assertDrupal();
 
     $values = $stub->getValues();
-    $values['type'] = $paragraph_bundle;
+    $values['type'] = $paragraph_type;
 
     $paragraph = Paragraph::create($values);
-    $paragraph->setParentEntity($parent_entity, $parent_field_name)->save();
+    $paragraph->setParentEntity($parent_entity, $parent_field)->save();
 
-    $new_value = $parent_entity->get($parent_field_name)->getValue();
+    $new_value = $parent_entity->get($parent_field)->getValue();
     $new_value[] = [
       'target_id' => $paragraph->id(),
       'target_revision_id' => $paragraph->getRevisionId(),
     ];
-    $parent_entity->set($parent_field_name, $new_value);
+    $parent_entity->set($parent_field, $new_value);
 
     if ($save_entity) {
       $parent_entity->save();

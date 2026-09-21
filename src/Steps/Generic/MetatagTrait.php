@@ -384,14 +384,14 @@ trait MetatagTrait {
   /**
    * Find a meta tag by its "name" or "property" attribute.
    *
-   * @param string $name
+   * @param string $meta_name
    *   The meta tag name or property.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The meta element, or NULL when not found.
    */
-  public function metatagFindMeta(string $name): ?NodeElement {
-    $escaped_name = (new Escaper())->escapeLiteral($name);
+  public function metatagFindMeta(string $meta_name): ?NodeElement {
+    $escaped_name = (new Escaper())->escapeLiteral($meta_name);
 
     return $this->getSession()->getPage()->find('xpath', sprintf('//meta[@name=%s or @property=%s]', $escaped_name, $escaped_name));
   }
@@ -399,14 +399,14 @@ trait MetatagTrait {
   /**
    * Get the content of a meta tag by its "name" or "property" attribute.
    *
-   * @param string $name
+   * @param string $meta_name
    *   The meta tag name or property.
    *
    * @return string|null
    *   The content attribute value, or NULL when the meta tag is not found.
    */
-  public function metatagGetMetaContent(string $name): ?string {
-    $meta = $this->metatagFindMeta($name);
+  public function metatagGetMetaContent(string $meta_name): ?string {
+    $meta = $this->metatagFindMeta($meta_name);
 
     return $meta === NULL ? NULL : (string) $meta->getAttribute('content');
   }

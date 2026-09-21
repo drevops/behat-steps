@@ -217,9 +217,9 @@ trait TableTrait {
       foreach ($rows as $actual_row) {
         $cells = $actual_row->findAll('css', 'td');
         $match = TRUE;
-        foreach ($column_indices as $col_pos => $col_index) {
-          $expected_value = $expected_row[$expected_headers[$col_pos]];
-          $actual_value = isset($cells[$col_index]) ? trim($cells[$col_index]->getText()) : '';
+        foreach ($column_indices as $column_position => $column_index) {
+          $expected_value = $expected_row[$expected_headers[$column_position]];
+          $actual_value = isset($cells[$column_index]) ? trim($cells[$column_index]->getText()) : '';
           if ($actual_value !== $expected_value) {
             $match = FALSE;
             break;
@@ -431,17 +431,17 @@ trait TableTrait {
   /**
    * Find a table row containing the given text.
    *
-   * @param string $text
+   * @param string $row_text
    *   The text to search for within a table row.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The row element if found, or NULL.
    */
-  public function tableFindRowByText(string $text): ?NodeElement {
+  public function tableFindRowByText(string $row_text): ?NodeElement {
     $rows = $this->getSession()->getPage()->findAll('css', 'table tr');
 
     foreach ($rows as $row) {
-      if (str_contains((string) $row->getText(), $text)) {
+      if (str_contains((string) $row->getText(), $row_text)) {
         return $row;
       }
     }

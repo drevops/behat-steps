@@ -354,7 +354,7 @@ trait MediaTrait {
   /**
    * Load multiple media entities with specified type and conditions.
    *
-   * @param string $type
+   * @param string $media_type
    *   The media type.
    * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
@@ -362,12 +362,12 @@ trait MediaTrait {
    * @return array<int, string>
    *   Array of media ids.
    */
-  public function mediaLoadMultiple(string $type, array $conditions = []): array {
+  public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
     $this->assertDrupal();
 
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)
-      ->condition('bundle', $type);
+      ->condition('bundle', $media_type);
 
     foreach ($conditions as $k => $v) {
       $and = $query->andConditionGroup();
