@@ -369,6 +369,8 @@ Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does 
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
 
+A patch targets one release, so every patched module carries a floor at that release in `d12/composer.json`. Without it the `lowest` leg installs code the patch cannot apply to and the build fails before a single scenario runs. The floor is the only constraint those modules get: `lowest` still resolves the oldest usable version of everything else.
+
 Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.sh](scripts/provision.sh) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
 Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
