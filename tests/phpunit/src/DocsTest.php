@@ -1645,7 +1645,7 @@ EOD,
   /**
    * Get the fixtures directory path.
    */
-  private function getFixturesDir(): string {
+  protected function getFixturesDir(): string {
     return __DIR__ . '/../fixtures/docs';
   }
 
@@ -1654,7 +1654,7 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string}
    */
-  private function setupTestEnvironment(): array {
+  protected function setupTestEnvironment(): array {
     $base_path = static::$tmp;
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     mkdir($steps_dir, 0777, TRUE);
@@ -1678,7 +1678,7 @@ EOD,
    * @return string
    *   The path to the copied file.
    */
-  private function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Generic'): string {
+  protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Generic'): string {
     $fixture_file = $this->getFixturesDir() . DIRECTORY_SEPARATOR . $context . DIRECTORY_SEPARATOR . $trait_name . '.php';
     $target_dir = $steps_dir . DIRECTORY_SEPARATOR . $context;
 
@@ -1703,7 +1703,7 @@ EOD,
    * @param string $steps_dir
    *   The target vocabulary directory.
    */
-  private function copyFixtureTraits(array $trait_names, string $steps_dir): void {
+  protected function copyFixtureTraits(array $trait_names, string $steps_dir): void {
     foreach ($trait_names as $trait_name) {
       $this->copyFixtureTrait($trait_name, $steps_dir);
     }
@@ -1721,7 +1721,7 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string, class_name: string}
    */
-  private function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
+  protected function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
     $paths = $this->setupTestEnvironment();
 
     // Copy fixture files.
@@ -1747,7 +1747,7 @@ EOD,
   /**
    * Create a test context class that uses specified traits.
    */
-  private function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
+  protected function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
     if (!class_exists($class_name, FALSE)) {
       // Add namespace prefix to trait names.
       $namespaced_traits = array_map(function ($trait_name): string {
