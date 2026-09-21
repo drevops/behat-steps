@@ -114,8 +114,8 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
   /**
    * Tests mail collection swaps mailsystem senders when the module is on.
    *
-   * Exercises 'replaceMailSenders()', 'mailStartCollectingSystemMail()', and
-   * 'mailStopCollectingSystemMail()'.
+   * Exercises 'replaceMailSenders()', 'startCollectingSystemMail()', and
+   * 'stopCollectingSystemMail()'.
    */
   public function testMailCollectionRedirectsMailsystemSenders(): void {
     \Drupal::service('module_installer')->install(['mailsystem']);

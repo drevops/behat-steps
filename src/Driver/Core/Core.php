@@ -1239,7 +1239,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $mail_config['interface'] = ['default' => 'test_mail_collector'];
     $config->setData($mail_config)->save();
     // Disable the mail system module's mail if enabled.
-    $this->mailStartCollectingSystemMail();
+    $this->startCollectingSystemMail();
   }
 
   /**
@@ -1253,7 +1253,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $config = \Drupal::configFactory()->getEditable('system.mail');
     $config->setData($this->originalConfiguration['system.mail'])->save();
     // Re-enable the mailsystem module's mail if enabled.
-    $this->mailStopCollectingSystemMail();
+    $this->stopCollectingSystemMail();
   }
 
   /**
@@ -1296,7 +1296,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *
    * @see MailsystemManager::getPluginInstance()
    */
-  protected function mailStartCollectingSystemMail(): void {
+  protected function startCollectingSystemMail(): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }
@@ -1339,7 +1339,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * If the Mail System module is enabled, stop collecting those mails.
    */
-  protected function mailStopCollectingSystemMail(): void {
+  protected function stopCollectingSystemMail(): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }
