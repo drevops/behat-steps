@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
-use Behat\Mink\Element\DocumentElement as MinkDocumentElement;
+use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
@@ -231,8 +231,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * only governs how page text reads.
    */
   protected function aliasDocumentElement(): void {
-    if (!class_exists(MinkDocumentElement::class, FALSE)) {
-      class_alias(DocumentElement::class, MinkDocumentElement::class, TRUE);
+    if (!class_exists(UpstreamDocumentElement::class, FALSE)) {
+      class_alias(DocumentElement::class, UpstreamDocumentElement::class, TRUE);
     }
   }
 

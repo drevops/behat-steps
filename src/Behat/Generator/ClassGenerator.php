@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Generator;
 
-use Behat\Behat\Context\ContextClass\ClassGenerator as BehatClassGenerator;
+use Behat\Behat\Context\ContextClass\ClassGenerator as UpstreamClassGenerator;
 use Behat\Testwork\Suite\Suite;
 
 /**
@@ -16,7 +16,7 @@ use Behat\Testwork\Suite\Suite;
  * The '$contextClass' parameters stay untyped so the declaration matches both
  * the untyped Behat 3 interface and the 'string'-typed Behat 4 one.
  */
-class ClassGenerator implements BehatClassGenerator {
+class ClassGenerator implements UpstreamClassGenerator {
 
   /**
    * Template for generated context class files.
