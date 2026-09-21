@@ -45,6 +45,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *   Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
  *   And the config "system.site" key "name" should have the effective value "My overridden site"
  * @endcode
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ConfigTrait {
 

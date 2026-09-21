@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
  * cleared unconditionally before and after the scenario to prevent state
  * leaking into subsequent scenarios.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait StateTrait {
 

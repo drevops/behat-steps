@@ -20,7 +20,7 @@ use Behat\Step\When;
  * `regions:` map in the extension configuration. Every step throws when the
  * name is not mapped or the mapped selector matches nothing on the page.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait RegionTrait {
 

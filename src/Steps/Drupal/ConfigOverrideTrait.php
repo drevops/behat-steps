@@ -60,7 +60,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ConfigOverrideTrait {
 

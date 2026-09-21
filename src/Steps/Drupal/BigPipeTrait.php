@@ -40,7 +40,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
  * `FeatureContext` to change the maximum wait.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait BigPipeTrait {
 
