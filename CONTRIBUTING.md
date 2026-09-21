@@ -329,9 +329,9 @@ If a reachable branch has no test, the fix is the test, not the marker.
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
 | 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
-| PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, against both the newest and the oldest resolvable dependencies. Red until contrib catches up, and not required on `4.x`. See [Drupal versions](#drupal-versions). |
+| PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, on a patched contrib set. See [Drupal versions](#drupal-versions). |
 
-The unit and kernel suites run on every leg that is not driven by a Behat profile and is not on Drupal 12, since a profile changes how the Behat suite runs and not what PHPUnit covers, and Drupal 12 cannot install the PHPUnit helper the suites need.
+The unit and kernel suites run on every leg that is not driven by a Behat profile, since a profile changes how the Behat suite runs and not what PHPUnit covers.
 
 Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Behat 3, merged by Codecov into a single report, and its upload fails the leg rather than passing quietly. Test artifacts (`.logs`) are uploaded from every leg.
 
@@ -354,7 +354,7 @@ ahoy test-bdd
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
 
-Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Those legs are red today: the fixture resolves and the site installs, but the configuration import does not complete, because contrib fatals part way through it. See [What blocks Drupal 12](#what-blocks-drupal-12).
+Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
 
 Drupal 12 constrains its own grid hard:
 
@@ -377,22 +377,31 @@ Relaxing the Composer solve is only half of it. Drupal reads `core_version_requi
 
 Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
 
-### What blocks Drupal 12
+### Patched contrib
 
-Getting contrib installed is not the same as getting it to run. 2 modules the fixture needs fatal on Drupal 12, and neither has a branch that does not:
+Getting contrib installed is not the same as getting it to run. Drupal 12 and Symfony 8 between them broke 13 of the modules the fixture installs, so `d12/composer.json` carries a patch for each under `extra.patches`, applied by `cweagans/composer-patches`. The patches live in `d12/patches/` and fall into 5 groups:
 
-- `drupal/webform` 6.3.0 raises `Declaration of Drupal\webform\Plugin\WebformHandlerManager::getGroupedDefinitions() must be compatible with Drupal\Component\Plugin\CategorizingPluginManagerInterface::getGroupedDefinitions()`. Its newest branch, `6.3.x`, declares `^10.3 || ^11.0`.
-- `drupal/ctools`, which `drupal/pathauto` requires, raises `RelationshipManager only supports annotation-based discovery, which is no longer supported as of Drupal 12.0`. Its newest branch, `4.1.x`, declares `^9.5 || ^10 || ^11`.
+| What changed | Modules |
+| --- | --- |
+| Drupal 12 removed the magic `original` property | `redirect`, `webform` |
+| Symfony 8 removed `Request::get()` | `webform` |
+| Drupal 12 removed annotation-only plugin discovery | `ctools`, `webform` |
+| Drupal 12 and Symfony 8 tightened method signatures | `date_recur`, `dynamic_entity_reference`, `eck`, `entity_reference_revisions`, `paragraphs`, `pathauto`, `profile`, `redirect`, `scheduled_transitions`, `state_machine`, `time_field`, `webform` |
+| Drupal 12 stopped discovering `template_preprocess_HOOK()` | `eck` |
 
-The ctools fatal lands while `drush cim` is creating config entities. `drush` exits 0 regardless, so the site comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.sh](scripts/provision.sh) therefore checks a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success and produces an empty site.
+Drupal 12 also deleted the Archiver plugin system, which `webform` injected but never used, and moved the `text_with_summary` field type out of `text` into a module of its own, which the fixture now requires and enables.
 
-The 2 Drupal 12 legs are in the matrix anyway, so the grid is in place for the day those releases land and so a release that fixes this is noticed the first time CI runs after it. They carry no `continue-on-error`: a leg allowed to fail proves nothing, and the red is the signal that the wait is still on. They are also not required checks on `4.x`, so they report without blocking a merge - the 14 Drupal 11 legs and `Lint` are what gate it.
+Every patch is generated against the released source rather than against the `build/` tree, which carries whatever the last provisioning applied. A patch generated from `build/` silently loses any hunk the tree already has.
 
-2 further gaps apply to the Drupal 12 legs, independent of the fatals above:
+A patch stops being needed the day its module ships a Drupal 12 release, at which point both the patch and the module's floor come out.
 
-- The PHPUnit unit and kernel suites need `alexskrypnyk/phpunit-helpers`, which requires `symfony/process ^6.4 || ^7.2`, so [scripts/provision.sh](scripts/provision.sh) removes it for Drupal 12. Widening that constraint to accept Symfony 8 closes the gap.
-- Coverage is not collected. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
+### Verifying the import landed
 
+`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.sh](scripts/provision.sh) therefore reads a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success on an empty site.
+
+### Coverage
+
+Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
 To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
 
 ```bash

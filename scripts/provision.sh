@@ -106,11 +106,6 @@ if [ "${BEHAT}" = "4" ]; then
 fi
 
 if [ "${DRUPAL_VERSION}" -ge 12 ]; then
-  # 'alexskrypnyk/phpunit-helpers' caps 'symfony/process' at 7, while Drupal
-  # 12 requires 8. The PHPUnit suites need it, so they do not run here.
-  echo "  > Removing packages that cannot be installed alongside Drupal 12."
-  composer remove --dev --no-update alexskrypnyk/phpunit-helpers
-
   # A plugin only shapes a solve that it is already installed for, and the
   # fixture has no solution until this one relaxes the contrib core
   # constraints. Composer loads globally installed plugins for local projects,
