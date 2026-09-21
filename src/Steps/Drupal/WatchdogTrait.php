@@ -12,7 +12,6 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Database\Database;
 
 /**
@@ -29,7 +28,7 @@ use Drupal\Core\Database\Database;
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
  * - `@error` - add to scenarios that are expected to trigger an error.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait WatchdogTrait {
 

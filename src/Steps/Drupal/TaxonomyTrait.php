@@ -10,7 +10,6 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
