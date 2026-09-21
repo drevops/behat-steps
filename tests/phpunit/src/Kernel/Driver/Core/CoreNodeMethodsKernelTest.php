@@ -112,9 +112,6 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that nodeCreate rejects an unknown 'author' value.
-   *
-   * Previously a missing user was silently coerced into 'uid = 0', leaving
-   * the typo invisible to the test author. The creation alias now throws.
    */
   public function testNodeCreateRejectsUnknownAuthor(): void {
     $this->expectException(CreationAliasResolutionException::class);

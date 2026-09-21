@@ -168,7 +168,6 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function getSubDriverPaths(): array {
-    // Ensure system is bootstrapped.
     if (!$this->isBootstrapped()) {
       $this->bootstrap();
     }
@@ -421,7 +420,6 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
 
     // A root missing either file cannot define '\Drupal' itself, so VERSION
     // would describe whichever installation the process loaded first.
-    // 'Core::bootstrap()' requires both files as well.
     foreach ($version_files as $path) {
       if (file_exists($this->drupalRoot . $path)) {
         continue;
@@ -451,8 +449,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   /**
    * Reads the Drupal VERSION constant.
    *
-   * Subclasses override this to return a synthetic version for testing the
-   * non-numeric and sub-11 branches of 'detectMajorVersion()'.
+   * A subclass can override this to return a synthetic version.
    */
   protected function readVersionConstant(): string {
     return \Drupal::VERSION;

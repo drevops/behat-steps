@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
  * Hook attribute the reader has no call class for.
  *
  * A project can declare its own attribute against the marker interface, which
- * the reader has to walk past rather than fail on.
+ * the reader must skip rather than fail on.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class UnmappedHook implements DrupalHookInterface {

@@ -16,8 +16,8 @@ use DrevOps\BehatSteps\Steps\Generic\HelperTrait as CommonHelperTrait;
  * queries. Includes the generic helper trait so a consumer trait can rely on a
  * single include for both generic and Drupal helpers.
  *
- * Entities saved outside the driver's create pipeline join the scenario
- * teardown through 'RawContext::entityRegister()'.
+ * 'RawContext::entityRegister()' adds an entity saved outside the driver's
+ * create pipeline to the scenario teardown.
  *
  * This is an internal trait and should not be used directly in step definitions.
  *
@@ -71,8 +71,7 @@ trait HelperTrait {
         continue;
       }
 
-      // Hooks fired by 'RawContext::nodeCreate()' run before
-      // 'parseEntityFields()', so on the node path the value is the raw
+      // A stub not yet parsed by 'parseEntityFields()' still holds the raw
       // compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
       if (is_string($value) && $this->helperLooksLikeCompoundCell($value)) {
@@ -202,7 +201,7 @@ trait HelperTrait {
 
     $resolved = realpath($fixture_path . $value);
 
-    // is_file() also succeeds for a '..' path that lands outside the
+    // is_file() also succeeds for a '..' path that resolves outside the
     // fixtures directory.
     if ($resolved === FALSE || !str_starts_with($resolved, $fixture_path)) {
       return NULL;
@@ -272,9 +271,9 @@ trait HelperTrait {
   /**
    * Assert that a module backing a set of steps is enabled.
    *
-   * Without this check a step reaches a contrib module's API regardless, and
-   * the failure arrives as a fatal on an unresolvable class or a raw database
-   * error rather than a message naming the module.
+   * Without the check, a step against a missing module fails with a fatal on
+   * an unresolvable class or a raw database error, not a message naming the
+   * module.
    *
    * @param string $module
    *   The module machine name.

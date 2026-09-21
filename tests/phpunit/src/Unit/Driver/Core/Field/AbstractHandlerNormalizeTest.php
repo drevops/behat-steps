@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests AbstractHandler::normalize() across every input shape we accept.
+ * Tests AbstractHandler::normalize() across every accepted input shape.
  *
  * @group fields
  */

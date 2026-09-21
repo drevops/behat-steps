@@ -83,8 +83,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *
    * Users are tracked separately via the user manager because they need
    * lookup-by-name. Everything else (nodes, terms, languages, generic
-   * entities) lives here and is removed in reverse order so dependent
-   * entities come down before their dependencies.
+   * entities) is stored here and removed in reverse order, so a dependent
+   * entity is deleted before the entity it references.
    *
    * @var array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
    */
@@ -115,9 +115,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public static function alterNodeParameters(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
-    // Blackbox and Drush drivers route around this entity pipeline entirely,
-    // so converting string dates on timestamp fields only means anything for
-    // the in-process driver.
+    // The blackbox and Drush drivers do not use this entity pipeline, so
+    // string dates on timestamp fields are converted for the in-process
+    // driver only.
     $context = $scope->getContext();
 
     if (!$context instanceof DriverAwareInterface) {
@@ -160,8 +160,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Removes every entity created during the scenario.
    *
-   * Walks 'createdStubs' in reverse order so dependent entities (a node
-   * referencing a term, say) come down before the entities they reference.
+   * Walks 'createdStubs' in reverse order, so a dependent entity such as a
+   * node referencing a term is deleted before the entity it references.
    *
    * Skip the whole pass with '@behat-steps-skip:cleanEntities', or one entity
    * type with '@behat-steps-entity-cleanup-skip:<entity_type_id>'.
@@ -343,10 +343,10 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Asserts the scenario can reach Drupal's API, and returns the driver.
    *
-   * A trait calls this before touching '\Drupal::' statics: the container
-   * exists only once the in-process driver has bootstrapped, and only an
-   * '@api' scenario runs on that driver. Bootstrapping happens on the first
-   * call of a scenario and is a no-op afterwards.
+   * Guards access to '\Drupal::' statics: the container exists only once the
+   * in-process driver has bootstrapped, and only an '@api' scenario runs on
+   * that driver. Bootstrapping happens on the first call of a scenario and
+   * is a no-op afterwards.
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
    *   When the scenario is not tagged '@api', or when the driver it selected
@@ -398,7 +398,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $this->restoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
-    // leaves the entity behind, and cleanup can only remove what it knows.
+    // leaves the entity behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
     $this->dispatchHooks(AfterNodeCreateScope::class, $stub);
@@ -435,7 +435,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $this->restoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
-    // leaves the user behind, and cleanup can only remove what it knows.
+    // leaves the user behind, and cleanup removes only registered stubs.
     $this->getUserManager()->addUser($stub);
 
     $this->dispatchHooks(AfterUserCreateScope::class, $stub);
@@ -481,7 +481,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $this->restoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
-    // leaves the term behind, and cleanup can only remove what it knows.
+    // leaves the term behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
     $this->dispatchHooks(AfterTermCreateScope::class, $stub);
@@ -513,7 +513,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $this->restoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hook runs: a hook that throws still
-    // leaves the entity behind, and cleanup can only remove what it knows.
+    // leaves the entity behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
     $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
@@ -524,9 +524,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
-   * Table cells arrive as written - a bare scalar, a comma-separated list, or
-   * a compound 'key:"value"' cell - and the parser resolves each against the
-   * field's own definition before the driver saves the entity.
+   * A table cell is passed as written - a bare scalar, a comma-separated
+   * list, or a compound 'key:"value"' cell - and the parser resolves each
+   * against the field's own definition before the driver saves the entity.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -549,10 +549,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Registers an entity saved outside the create pipeline for cleanup.
    *
-   * A step that saves an entity through Drupal's API rather than the driver
-   * calls this so the entity joins the same reverse-order teardown. Only the
-   * type and id are kept, so cleanup reloads the entity and tolerates a row
-   * the scenario already deleted.
+   * An entity saved through Drupal's API rather than the driver joins the
+   * same reverse-order teardown. Only the type and id are kept, so cleanup
+   * reloads the entity and tolerates a row the scenario already deleted.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The saved entity.
@@ -596,7 +595,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     // Register before the post-create hook runs: a hook that throws still
-    // leaves the language behind, and cleanup can only remove what it knows.
+    // leaves the language behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $result;
 
     $this->dispatchHooks(AfterLanguageCreateScope::class, $result);
@@ -773,9 +772,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * Expands a stub's values during creation, when the driver can classify them.
    *
    * Classification reads the site's field definitions, which only the
-   * in-process driver exposes. On the Drush driver the values reach the
-   * command line as the scenario wrote them, so the pipeline leaves them
-   * alone rather than failing a creation the driver can carry out.
+   * in-process driver exposes. The Drush driver passes the values to the
+   * command line as written, so they are left unparsed instead of failing a
+   * creation the driver can perform.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -833,8 +832,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * The driver runs base fields through the field-handler pipeline during
    * create, which casts scalar values such as 'title', 'name', 'mail' or
    * 'pass' to single-element arrays. Downstream code (user manager indexing,
-   * login flow, stub matching) expects scalars, so callers snapshot them
-   * before the driver call and restore them after.
+   * login flow, stub matching) expects scalars, so the values are captured
+   * before the driver call and restored after it.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub to inspect.

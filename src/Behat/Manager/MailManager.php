@@ -9,9 +9,9 @@ use DrevOps\BehatSteps\Driver\Capability\MailCapabilityInterface;
 /**
  * Default implementation of the mail manager service.
  *
- * This uses Drupal core's test_mail_collector mail backend, which both
- * collects outbound mail and prevents it from being sent. Therefore using
- * this implementation, mail is collected if and only if sending is disabled.
+ * This uses Drupal core's 'test_mail_collector' mail backend, which both
+ * collects outbound mail and prevents it from being sent. Mail is collected
+ * if and only if sending is disabled.
  */
 class MailManager implements MailManagerInterface {
 

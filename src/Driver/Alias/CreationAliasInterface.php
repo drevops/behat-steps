@@ -34,9 +34,8 @@ interface CreationAliasInterface {
   /**
    * Returns a human-readable description of what this alias does.
    *
-   * Used by documentation tools and error messages. Should describe the
-   * input shape, the resolution behaviour, and the resulting effect on
-   * the created entity in a single sentence.
+   * Should describe the input shape, the resolution behaviour, and the
+   * resulting effect on the created entity in a single sentence.
    *
    * @return string
    *   A single-sentence description of the alias's behaviour.

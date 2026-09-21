@@ -34,13 +34,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * Visibility marks the API: a public method that Behat does not register is
  * the toolbox, published in HELPERS.md and covered by semantic versioning,
- * while a protected one promises nothing. A method cannot be narrowed again
- * before the next major, so these tests hold the four conventions that keep
- * the surface deliberate.
+ * while a protected one carries no guarantee. A method cannot be narrowed
+ * again before the next major, so these tests hold the four conventions that
+ * keep the surface deliberate.
  *
- * Each loop reads its subject into a variable first: a foreach directly over a
- * method call is rewritten by Rector to a camel case value variable, which the
- * snake case coding standard then rewrites back.
+ * Each loop reads its subject into a variable first. Rector rewrites a foreach
+ * directly over a method call to a camel case value variable, which the snake
+ * case coding standard then rewrites back.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {

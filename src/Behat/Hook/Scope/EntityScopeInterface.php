@@ -23,7 +23,7 @@ interface EntityScopeInterface extends HookScope {
   public function getContext(): Context;
 
   /**
-   * Returns the entity stub flowing through the create hooks.
+   * Returns the entity stub the create hooks receive.
    */
   public function getStub(): EntityStubInterface;
 

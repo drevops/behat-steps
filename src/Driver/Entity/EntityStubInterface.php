@@ -39,11 +39,6 @@ interface EntityStubInterface {
 
   /**
    * Sets the bundle key for this stub's entity type.
-   *
-   * Callers that bootstrap a stub before the driver has a chance to consult
-   * Drupal's entity type definitions can override the default here. The
-   * driver itself sets this from the entity type's declared bundle key
-   * before storage operations run.
    */
   public function setBundleKey(string $bundle_key): self;
 

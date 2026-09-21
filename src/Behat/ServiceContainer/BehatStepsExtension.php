@@ -190,7 +190,6 @@ class BehatStepsExtension implements ExtensionInterface {
             ->prototype('scalar')->end()
           ->end()
         ->end()
-        // Drupal drivers.
         ->arrayNode('blackbox')
           ->info('Settings of the driver that drives the site through the browser only. It has no options, and it is the fallback for a scenario that selects no other driver.')
         ->end()
@@ -222,13 +221,15 @@ class BehatStepsExtension implements ExtensionInterface {
   /**
    * Puts this package's document element in place of Mink's own.
    *
-   * The alias has to be installed before Mink autoloads the class it replaces,
-   * so the check reads declared classes only, and the name being taken already
-   * is left alone. A Behat run loads this extension while the container is
-   * built, long before anything asks Mink for an element, so the replacement
-   * is in force for the session. A process that loaded Mink's class first -
-   * this package's own PHPUnit suite, for one - keeps Mink's behaviour, which
-   * only governs how page text reads.
+   * The alias must be installed before Mink autoloads the class it replaces,
+   * so the check reads declared classes only and an already-declared name is
+   * left alone.
+   *
+   * A Behat run loads this extension while the container is built, before
+   * any element is requested from Mink, so the replacement holds for the
+   * session. A process that loaded Mink's class first, such as this package's
+   * PHPUnit suite, keeps Mink's behaviour, which affects only page-text
+   * extraction.
    */
   protected function aliasDocumentElement(): void {
     if (!class_exists(UpstreamDocumentElement::class, FALSE)) {
@@ -237,7 +238,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Load test parameters.
+   * Loads test parameters.
    *
    * Exposes the configured region map under the 'behat_steps.regions' container
    * parameter and surfaces it through the 'region' Mink selector.
@@ -296,7 +297,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Load the blackbox driver.
+   * Loads the blackbox driver.
    */
   protected function loadBlackbox(FileLoader $loader): void {
     // The blackbox driver is the fallback for scenarios that select no other,
@@ -305,7 +306,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Load the Drupal driver.
+   * Loads the Drupal driver.
    *
    * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
    *   The file loader.
@@ -322,7 +323,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Load the Drush driver.
+   * Loads the Drush driver.
    *
    * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
    *   The file loader.
@@ -355,7 +356,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Resolve a relative binary path to an absolute path.
+   * Resolves a relative binary path to an absolute path.
    *
    * Probes the current working directory and its parent to locate the binary.
    * This ensures the path remains valid after the Drupal API driver changes
@@ -369,7 +370,6 @@ class BehatStepsExtension implements ExtensionInterface {
       return $binary;
     }
 
-    // Bare command names (no directory separator) resolve via $PATH.
     if (!str_contains($binary, '/')) {
       return $binary;
     }
@@ -392,7 +392,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Set global drush arguments.
+   * Sets global Drush arguments.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
@@ -407,7 +407,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Process the driver pass.
+   * Runs the driver pass.
    */
   protected function processDriverPass(ContainerBuilder $container): void {
     $driver_pass = new DriverPass();
@@ -436,7 +436,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Switch to custom class generator.
+   * Switches to the custom class generator.
    *
    * Behat collects generators by tag before an activated extension's
    * 'process()' runs, and it collects them as references to a service id, so

@@ -103,7 +103,7 @@ class BrowserKitFactoryTest extends UnitTestCase {
   }
 
   /**
-   * Builds a factory answering with a Drupal root and a loaded test browser.
+   * Builds a factory reporting a Drupal root and a loaded test browser.
    */
   protected function createFactory(): TestableBrowserKitFactory {
     $factory = new TestableBrowserKitFactory();

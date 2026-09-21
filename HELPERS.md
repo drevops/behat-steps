@@ -893,7 +893,7 @@ Generates a 'Random::name()' string with original case preserved
   <summary><code>public function randomGenerateString(int $length): string</code></summary>
 
 <br/>
-Generates a lowercase string - the default for unknown shape requests
+Generates a lowercase string, the default token type
 <br/><br/>
 
 </details>

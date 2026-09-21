@@ -88,10 +88,8 @@ class ParentTermAliasTest extends TestCase {
   /**
    * Tests that a missing vocabulary throws with a clear message.
    *
-   * Pins the new strict-failure branch added when 'parent' is resolved
-   * without a bundle or 'vid' to scope the term lookup. Without this
-   * coverage, the missing-vocabulary path would only be exercised
-   * indirectly via the parent-not-found assertion.
+   * Pins the strict-failure branch taken when 'parent' is resolved without a
+   * bundle or 'vid' to scope the term lookup.
    */
   public function testApplyToStubThrowsOnMissingVocabulary(): void {
     $alias = new ParentTermAlias(static fn (): int => 1);

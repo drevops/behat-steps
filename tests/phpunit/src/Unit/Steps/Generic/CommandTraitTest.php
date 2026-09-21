@@ -164,28 +164,28 @@ class CommandTraitTestImplementation {
   }
 
   /**
-   * Expose the captured exit code.
+   * Exposes the captured exit code.
    */
   public function exitCode(): ?int {
     return $this->commandExitCode;
   }
 
   /**
-   * Expose the captured standard output.
+   * Exposes the captured standard output.
    */
   public function stdout(): string {
     return $this->commandStdout;
   }
 
   /**
-   * Expose the captured error output.
+   * Exposes the captured error output.
    */
   public function stderr(): string {
     return $this->commandStderr;
   }
 
   /**
-   * Expose the captured duration.
+   * Exposes the captured duration.
    */
   public function duration(): float {
     return $this->commandDuration;

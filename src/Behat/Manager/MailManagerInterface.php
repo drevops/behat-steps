@@ -10,27 +10,27 @@ namespace DrevOps\BehatSteps\Behat\Manager;
 interface MailManagerInterface {
 
   /**
-   * Collect outbound mail for analysis.
+   * Collects outbound mail for analysis.
    */
   public function startCollectingMail(): void;
 
   /**
-   * Stop collecting outbound mail.
+   * Stops collecting outbound mail.
    */
   public function stopCollectingMail(): void;
 
   /**
-   * Allow mail to be actually sent out.
+   * Allows mail to be actually sent out.
    */
   public function enableMail(): void;
 
   /**
-   * Prevent mail from being actually sent out.
+   * Prevents mail from being actually sent out.
    */
   public function disableMail(): void;
 
   /**
-   * Get all collected mail.
+   * Gets all collected mail.
    *
    * @return array<int, array<string, mixed>>
    *   An array of collected emails. Each item is a Drupal mail message
@@ -40,7 +40,7 @@ interface MailManagerInterface {
   public function getMail(): array;
 
   /**
-   * Empty the store of collected mail.
+   * Empties the store of collected mail.
    */
   public function clearMail(): void;
 

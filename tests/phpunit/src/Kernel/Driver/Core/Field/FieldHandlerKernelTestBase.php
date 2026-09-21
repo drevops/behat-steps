@@ -78,8 +78,9 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     // entity_test does not auto-register a default bundle in kernel tests.
     EntityTestHelper::createBundle(self::BUNDLE);
 
-    // Core::bootstrap() is NOT called: KernelTestBase has already booted the
-    // kernel. We only need a Core instance to call the driver API methods on.
+    // Core::bootstrap() is not called: KernelTestBase has already booted the
+    // kernel, and a Core instance is only needed to call the driver API
+    // methods on.
     $this->core = new Core($this->root);
   }
 
@@ -150,8 +151,8 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
       ? [$expanded]
       : $expanded;
 
-    // Assert the stored delta count matches the stub so a handler that
-    // duplicates or appends deltas cannot slip through the per-delta loop.
+    // Assert the stored delta count matches the stub; the per-delta loop
+    // alone would not detect a handler that duplicates or appends deltas.
     $field_items = $reloaded->get($field_name);
     $this->assertCount(
       count($deltas),
@@ -168,11 +169,9 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
         $this->assertEquals($expected, $actual, sprintf('Field "%s" delta %d did not round-trip.', $field_name, $delta));
       }
       else {
-        // Scalar path: compare against the field's main column. Most fields
-        // use 'value', but entity_reference uses 'target_id' and other types
-        // may use a different key. Prefer 'value' if present, else fall back
-        // to the first property returned by getValue(). Loose equality is
-        // intentional: SQLite returns integer/float columns as strings.
+        // Most fields use 'value', but entity_reference uses 'target_id' and
+        // other types may use a different key. Loose equality is intentional:
+        // SQLite returns integer/float columns as strings.
         $raw = $item->getValue();
         $actual = $raw['value'] ?? reset($raw);
         $this->assertEquals($expected, $actual, sprintf('Field "%s" delta %d did not round-trip.', $field_name, $delta));

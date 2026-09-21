@@ -54,7 +54,6 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    * {@inheritdoc}
    */
   public function logIn(EntityStubInterface $user): void {
-    // Log out any existing user before logging in a new user.
     $this->fastLogout();
 
     $session = $this->getSession();
@@ -65,9 +64,6 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
     $name = (string) $user->getValue('name');
     $pass = (string) $user->getValue('pass');
 
-    // Which user property is submitted as the login value. Defaults to 'name'
-    // but may be set to 'mail' for sites that authenticate by email or to any
-    // other user entity property.
     $login_field = (string) ($this->getParameter('login_field') ?: 'name');
     $login_value = (string) $user->getValue($login_field);
 
@@ -83,13 +79,11 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
 
     $login_wait = (int) $this->getParameter('login_wait');
     if ($login_wait > 0) {
-      // Wait for the redirect away from the login form.
       $timeout = microtime(TRUE) + $login_wait;
       while (microtime(TRUE) < $timeout && $session->getCurrentUrl() === $login_url) {
         usleep(100000);
       }
 
-      // Wait for the page body to render.
       $timeout = microtime(TRUE) + $login_wait;
       while (microtime(TRUE) < $timeout && !$session->getPage()->find('css', 'body')) {
         usleep(100000);
@@ -145,7 +139,6 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
   public function loggedIn(): bool {
     $session = $this->getSession();
 
-    // A session that has not started has no user logged in.
     if (!$session->isStarted()) {
       return FALSE;
     }
@@ -178,11 +171,10 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
       return FALSE;
     }
 
-    // As a last resort, a logout link means a user is logged in. On themes
-    // that defer header navigation (through Critical CSS or a late JS render)
-    // the link may be absent at the moment of this lookup, so poll for it
-    // within the same window 'login_wait' configures for the post-submit
-    // waits in 'logIn()'.
+    // As a last resort, a logout link means a user is logged in. A theme that
+    // defers header navigation (Critical CSS or a late JS render) may not
+    // have added the link yet. Poll for it within the 'login_wait' window
+    // that 'logIn()' also uses after submit.
     $session->visit($this->locatePath('/'));
     $login_wait = (int) $this->getParameter('login_wait');
     if ($login_wait > 0) {

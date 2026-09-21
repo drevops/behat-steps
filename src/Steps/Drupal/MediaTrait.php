@@ -342,8 +342,6 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    *
-   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
-   *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The entity stub.
    */

@@ -65,8 +65,8 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [
       'root' => 'web',
-      // Drush resolves a request URI for every command, and without one it
-      // refuses to bootstrap.
+      // Drush resolves a request URI for every command and does not
+      // bootstrap without one.
       'global_options' => '--uri=http://nginx:8080',
     ],
     'selectors' => [

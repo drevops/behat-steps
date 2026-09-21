@@ -335,8 +335,8 @@ JS;
   /**
    * Unselect an option from a select field.
    *
-   * This is useful for multi-select fields where you want to remove a specific
-   * option while keeping other selections.
+   * This is useful for multi-select fields, where a specific option can be
+   * removed while the other selections are kept.
    *
    * @param string $option
    *   The option label or value to unselect.
@@ -366,7 +366,6 @@ JS;
     }
 
     $option_value = $option_element->getValue();
-    // Option value should always be a string or null.
     // @codeCoverageIgnoreStart
     if (is_array($option_value) || is_bool($option_value)) {
       throw new ExpectationException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector), $this->getSession()->getDriver());
@@ -987,8 +986,7 @@ JS;
    *
    * Mink can search within an element but cannot test the element against a
    * selector, so the two selector shapes the markers use are read off the
-   * element directly. Any other shape is matched against the element's
-   * subtree by the caller.
+   * element directly.
    *
    * @param \Behat\Mink\Element\NodeElement $element
    *   The element to test.
@@ -1090,7 +1088,7 @@ JS;
     $page = $this->getSession()->getPage();
     $element = $page->find('xpath', $xpath);
 
-    // If not found, try to find by span (Drupal field label pattern).
+    // Drupal field labels can also render as a `<span>`.
     if ($element === NULL) {
       $xpath = sprintf(
         '//span[contains(text(), "%s")]/../..//input[contains(@name, "[%s][%s]")]',

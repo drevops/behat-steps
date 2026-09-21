@@ -64,9 +64,9 @@ class DocsTest extends UnitTestCase {
 
     require_once __DIR__ . '/../../../docs.php';
 
-    // Pre-load all fixture traits so they're available for eval().
-    // Note: We don't pre-load Drupal context traits because they need to
-    // be loaded from the test's temporary directory to get the correct context.
+    // Pre-load the fixture traits so they are available for eval(). Drupal
+    // context traits are excluded because they are loaded from the test's
+    // temporary directory to get the correct context.
     $fixture_files = glob($this->getFixturesDir() . '/Generic/*.php');
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
@@ -413,23 +413,19 @@ EOD,
       $this->expectExceptionMessage($exception);
     }
 
-    // Create a mock that will simulate our file_exists checks in the render_info method.
     $base_path = static::$tmp;
 
-    // Create temporary files for testing.
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
-    // Ensure directories exist.
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
-    // Create sample files that the function will check for existence.
+    // The files are created because render_info() checks they exist.
     foreach ($info as $trait => $data) {
       $context = $data['context'] ?? 'Generic';
 
-      // Update test data to include name_contextual if it doesn't exist.
       if (!isset($data['name_contextual'])) {
         $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
       }
@@ -439,38 +435,32 @@ EOD,
       }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-      // Add "drupal_" prefix for Drupal-specific traits.
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
       $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
 
-    // For the missing file test.
     if (isset($info['MissingTrait'])) {
       @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Generic' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
     }
 
     $actual = render_info($info, $base_path);
 
-    // Only test for certain elements instead of exact formatting.
+    // Individual elements are asserted rather than the exact formatting.
     if ($exception === NULL && !empty($info)) {
-      // Verify index table exists.
       foreach ($info as $trait => $data) {
-        // Use name_contextual instead of trait name for the link.
         $name_contextual = $data['name_contextual'] ?? $trait;
         $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
         $this->assertStringContainsString(sprintf("[%s](#%s)", $name_contextual, $link_id), $actual);
         $this->assertStringContainsString($data['description'], $actual);
       }
 
-      // Verify trait sections exist.
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
         $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Generic', $trait), $actual);
 
-        // Verify step details for each method.
         if (isset($data['methods']) && is_array($data['methods'])) {
           foreach ($data['methods'] as $method) {
             if (isset($method['steps']) && is_array($method['steps'])) {
@@ -485,12 +475,10 @@ EOD,
             if (isset($method['example'])) {
               $this->assertStringContainsString("```gherkin", $actual);
 
-              // For this specific test case, we'll skip the example content check.
               if (isset($method['example']) && $method['example'] === 123) {
-                // Skip this check.
+                // The content check is skipped for the integer example fixture.
               }
               else {
-                // Convert example to string if it's not a string and not empty.
                 $example = is_string($method['example']) ? $method['example'] : (string) $method['example'];
                 if (!empty($example)) {
                   $example_lines = explode("\n", $example);
@@ -507,8 +495,8 @@ EOD,
       }
     }
     elseif (empty($info)) {
-      // With the updated implementation, even empty info now returns index headers.
-      // Just check that it doesn't contain any actual trait data.
+      // Empty info renders the index headers, so only the absence of trait
+      // data is asserted.
       $this->assertStringNotContainsString('<details>', $actual);
       $this->assertStringNotContainsString('[Source]', $actual);
     }
@@ -933,28 +921,23 @@ EOD,
   public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
     $base_path = static::$tmp;
 
-    // Create temporary files for testing.
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
-    // Ensure directories exist.
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
-    // Create sample files that the function will check for existence.
+    // The files are created because render_info() checks they exist.
     foreach ($info as $trait => $data) {
       $context = $data['context'] ?? 'Generic';
 
-      // Update test data to include name_contextual if it doesn't exist.
       if (!isset($data['name_contextual'])) {
         $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
       }
 
-      // Create the source file.
       file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
 
-      // Create the feature file.
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
@@ -964,7 +947,6 @@ EOD,
 
     $actual = render_info($info, $base_path, $path_for_links);
 
-    // Verify that the path_for_links is used in the index.
     foreach ($info as $trait => $data) {
       $name_contextual = $data['name_contextual'] ?? $trait;
       $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
@@ -972,7 +954,7 @@ EOD,
       $this->assertStringContainsString($expected_link, $actual);
     }
 
-    // When path_for_links is set, the actual content (not index) should not be rendered.
+    // With path_for_links set, only the index is rendered.
     $this->assertStringNotContainsString('<details>', $actual);
     $this->assertStringNotContainsString('[Source]', $actual);
   }
@@ -1028,7 +1010,7 @@ EOD,
   public function testValidate(array $info, array $expected): void {
     $actual = validate($info);
 
-    // Sort the arrays for comparison since the order might differ.
+    // The order might differ, so both arrays are sorted before comparison.
     sort($expected);
     sort($actual);
 
@@ -1626,7 +1608,6 @@ EOD,
   ): void {
     $setup = $this->setupExtractInfoTest($trait_names);
 
-    // Call extract_info.
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     $result = extract_info($class_name, $exclude, $setup['base_path']);
@@ -1744,7 +1725,6 @@ EOD,
   protected function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
     $paths = $this->setupTestEnvironment();
 
-    // Copy fixture files.
     if ($context && count($trait_names) === 1) {
       $target_file = $this->copyFixtureTrait($trait_names[0], $paths['steps_dir'], $context);
       // Load the trait from test directory for correct path reflection.
@@ -1754,7 +1734,6 @@ EOD,
       $this->copyFixtureTraits($trait_names, $paths['steps_dir']);
     }
 
-    // Create test context with unique name.
     $class_name = $this->createTestContext($trait_names, 'TestContext' . uniqid());
 
     return [
@@ -1769,7 +1748,6 @@ EOD,
    */
   protected function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
     if (!class_exists($class_name, FALSE)) {
-      // Add namespace prefix to trait names.
       $namespaced_traits = array_map(function ($trait_name): string {
         $context = file_exists($this->getFixturesDir() . '/Drupal/' . $trait_name . '.php') ? 'Drupal' : 'Generic';
 
@@ -1790,17 +1768,14 @@ EOD,
     $trait_name = 'MultiMethodTrait';
     $setup = $this->setupExtractInfoTest([$trait_name]);
 
-    // Call extract_info.
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     $result = extract_info($class_name, [], $setup['base_path']);
 
-    // Verify the result includes methods in correct order (Given, When, Then).
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertIsArray($result[$trait_name]['methods']);
     $this->assertCount(5, $result[$trait_name]['methods']);
 
-    // Check order: Given, When, Then.
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][0]);
     $this->assertStringContainsString('@Given', $result[$trait_name]['methods'][0]['steps'][0]);
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][1]);
@@ -1810,7 +1785,6 @@ EOD,
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][3]);
     $this->assertStringContainsString('@Then', $result[$trait_name]['methods'][3]['steps'][0]);
 
-    // Check PyString example is preserved.
     $pystring_method = $result[$trait_name]['methods'][4];
     $this->assertIsString($pystring_method['example']);
     $this->assertStringContainsString('"""', $pystring_method['example']);
@@ -1833,15 +1807,13 @@ EOD,
 
     $paths = $this->setupTestEnvironment();
 
-    // Copy fixture file that won't be used by the class.
+    // The copied fixture is not used by the class.
     $this->copyFixtureTrait('UnusedTrait', $paths['steps_dir']);
 
-    // Create an empty test context with unique name (doesn't use the trait).
     $class_name = 'TestContextEmpty' . uniqid();
     // @phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
     eval(sprintf('class %s {}', $class_name));
 
-    // Call extract_info - should throw exception about unused trait file.
     /** @var class-string $class_name */
     extract_info($class_name, [], $paths['base_path']);
   }
@@ -1853,12 +1825,10 @@ EOD,
     $trait_name = 'DrupalTrait';
     $setup = $this->setupExtractInfoTest([$trait_name], 'Drupal');
 
-    // Call extract_info.
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     $result = extract_info($class_name, [], $setup['base_path']);
 
-    // Verify the result includes the Drupal context.
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertEquals('Drupal', $result[$trait_name]['context']);
     $this->assertEquals('Drupal\\' . $trait_name, $result[$trait_name]['name_contextual']);
@@ -1871,12 +1841,12 @@ EOD,
     $trait_name = 'NoMatchTrait';
     $setup = $this->setupExtractInfoTest([$trait_name]);
 
-    // Call extract_info.
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     $result = extract_info($class_name, [], $setup['base_path']);
 
-    // Trait is in result but has empty methods array because no methods match naming convention.
+    // The trait is in the result with an empty methods array because none of
+    // its methods match the naming convention.
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertEmpty($result[$trait_name]['methods']);
   }
@@ -1886,8 +1856,6 @@ EOD,
    */
   #[DataProvider('dataProviderExtractInfoErrors')]
   public function testExtractInfoErrors(string $error_case, string $expected_error): void {
-    // This is a simpler version of the test that verifies we validate these conditions
-    // without actually dynamically creating classes, which is complex in a test environment.
     $this->assertTrue(
       str_contains($expected_error, 'Class comment') ||
       str_contains($expected_error, 'descriptive content'),
@@ -2297,7 +2265,6 @@ EOD,
     $trait_name = 'EmptyCommentTrait';
     $setup = $this->setupExtractInfoTest([$trait_name]);
 
-    // Call extract_info - should throw exception.
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
     extract_info($class_name, [], $setup['base_path']);

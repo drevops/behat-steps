@@ -67,8 +67,8 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetReportDirUsesCapturedBaseDir(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir('/sentinel/base');
 
-    // chdir() to a different directory to prove the report directory anchors to
-    // the captured base rather than the live working directory.
+    // Changing directory proves the report directory anchors to the captured
+    // base rather than the live working directory.
     $original = getcwd();
     chdir(static::locationsTmp());
 
@@ -381,10 +381,10 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
-    // Advisory mode: no violation is serialised as a failure...
+    // Advisory mode serialises no violation as a failure.
     $this->assertCount(0, $doc->xpath('//failure') ?: []);
     $this->assertStringNotContainsString('<failure', $xml);
-    // ...but every finding stays visible as a passing testcase with <system-out>.
+    // Every finding stays visible as a passing testcase with <system-out>.
     $this->assertCount(3, $doc->xpath('//system-out') ?: []);
     $this->assertStringContainsString('classname="accessibility.image-alt"', $xml);
     $this->assertStringContainsString('classname="accessibility.link-name"', $xml);
@@ -418,7 +418,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Render a sample accumulator through the full data + render pipeline.
+   * Renders a sample accumulator through the full data + render pipeline.
    *
    * @param array<int, array<string, mixed>> $aggregate
    *   Sample accumulator.
@@ -430,7 +430,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Build a representative accumulator with two scenarios, a shared URL, a blank tab, and mixed-impact findings.
+   * Builds a representative accumulator with two scenarios, a shared URL, a blank tab, and mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
    *   Sample aggregate data in the shape produced by accessibilityAggregateCapture().
@@ -527,7 +527,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Build an accumulator for a run that found no violations at all.
+   * Builds an accumulator for a run that found no violations at all.
    *
    * @return array<int, array<string, mixed>>
    *   Sample aggregate data with a single clean page.
@@ -551,7 +551,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Build a scenario result with one violation per impact plus two passes.
+   * Builds a scenario result with one violation per impact plus two passes.
    *
    * @return array<int, array{url: string, rules: string, result: array<string, mixed>}>
    *   A single-page result: critical, serious and moderate violations (one

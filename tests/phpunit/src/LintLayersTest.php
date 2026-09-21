@@ -72,9 +72,9 @@ class LintLayersTest extends UnitTestCase {
    * Fixture rows for the violation scan.
    *
    * The classes named here do not exist. The scan reads tokens rather than
-   * resolving them, and an expected symbol that matches a real class is
-   * rewritten to a '::class' constant by static tooling, which drops the
-   * leading separator the scan reports.
+   * resolving them. Static tooling rewrites an expected symbol that matches a
+   * real class to a '::class' constant, which drops the leading separator the
+   * scan reports.
    */
   public static function dataProviderFileViolations(): array {
     return [

@@ -75,9 +75,9 @@ class EntityStubTest extends TestCase {
   /**
    * Tests that 'hasValue()' is true even when the stored value is NULL.
    *
-   * Pinned alongside the 'getValue()' assertion so a future regression that
-   * swaps 'array_key_exists()' back for the null-coalescing operator surfaces
-   * here rather than as a quiet null-vs-default ambiguity downstream.
+   * Pinned alongside the 'getValue()' assertion so a regression that replaces
+   * 'array_key_exists()' with the null-coalescing operator surfaces here
+   * rather than downstream.
    */
   public function testHasValueDistinguishesNullFromAbsent(): void {
     $stub = new EntityStub('node', 'article');

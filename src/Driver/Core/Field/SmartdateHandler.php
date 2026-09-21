@@ -23,8 +23,6 @@ class SmartdateHandler extends AbstractHandler {
       $values = [$values];
     }
 
-    // A list whose first element is an array is treated as a list of
-    // records; anything else is a single delta wrapped in a list.
     $is_list_of_records = array_is_list($values) && is_array($values[0]);
 
     if (!$is_list_of_records) {

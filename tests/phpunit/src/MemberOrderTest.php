@@ -17,9 +17,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * in the same place in every file. CONTRIBUTING.md states the layout; this
  * test holds it.
  *
- * The order is settled between groups only. Members inside one group stay in
- * whatever order reads best, which is also what keeps STEPS.md stable: docs.php
- * sorts steps by Given, When and Then and preserves source order within each.
+ * The order is settled between groups only; members inside one group stay in
+ * whatever order reads best. This also keeps STEPS.md stable: docs.php sorts
+ * steps by Given, When and Then and preserves source order within each.
  */
 #[CoversNothing]
 class MemberOrderTest extends UnitTestCase {

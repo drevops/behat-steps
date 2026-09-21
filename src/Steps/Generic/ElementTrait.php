@@ -132,7 +132,7 @@ trait ElementTrait {
    *
    * By default, scrolls the element to the center of the viewport. Override
    * the elementGetScrollIntoViewCenter() method to return FALSE to use the
-   * legacy behavior that aligns the element to the top of the viewport.
+   * behavior that aligns the element to the top of the viewport.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -507,11 +507,11 @@ trait ElementTrait {
    *
    * The element's top edge has to sit within 2 pixels of the viewport top,
    * which absorbs the sub-pixel offsets that normal rendering produces. Use
-   * the step with an explicit tolerance for layouts that need more slack.
+   * the step with an explicit tolerance for layouts that need a larger one.
    *
    * This asserts where the element currently renders, so scroll the page
-   * first to tell a pinned element apart from one that merely starts at the
-   * top of the document.
+   * first to tell a pinned element apart from one that starts at the top of
+   * the document.
    *
    * @code
    * When I scroll to the element "#footer"

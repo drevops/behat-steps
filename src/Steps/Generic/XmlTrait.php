@@ -64,8 +64,6 @@ trait XmlTrait {
 
   /**
    * Clear cached XML document state after each scenario.
-   *
-   * Ensures fresh document parsing for each scenario.
    */
   #[AfterScenario]
   public function xmlAfterScenario(AfterScenarioScope $scope): void {
@@ -892,9 +890,9 @@ trait XmlTrait {
    * with validation enabled, so a DTD from a file and an inline DTD share this
    * code path.
    *
-   * Validation refuses every external reference, so a `SYSTEM` entity declared
-   * in the DTD reaches neither a local path nor the network. Validation fails
-   * with a resolver error if a DTD references one.
+   * External references are not resolved during validation, so a `SYSTEM`
+   * entity declared in the DTD reaches neither a local path nor the network.
+   * Validation fails with a resolver error if a DTD references one.
    *
    * DTDs are namespace-unaware, so a namespaced response is validated verbatim
    * and its `xmlns` attributes must be declared in the DTD. This matches
@@ -926,9 +924,9 @@ trait XmlTrait {
     libxml_clear_errors();
 
     // A SYSTEM entity declared in the DTD is dereferenced while validating.
-    // The resolver refuses every external reference, so validation can neither
-    // read a local path nor reach the network. LIBXML_NONET is passed as well,
-    // but on its own it blocks only the network half.
+    // The loader returns NULL for every external reference, so validation can
+    // neither read a local path nor reach the network. LIBXML_NONET is passed
+    // as well, but on its own it blocks only the network half.
     $previous_loader = function_exists('libxml_get_external_entity_loader') ? libxml_get_external_entity_loader() : NULL;
     libxml_set_external_entity_loader(static fn(): null => NULL);
 

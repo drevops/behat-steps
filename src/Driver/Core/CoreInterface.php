@@ -27,7 +27,6 @@ use Drupal\Component\Utility\Random;
  *
  * Combines the Drupal-bootstrap internals (validate, module list, field
  * handler, and so on) with the operational capabilities every Core provides.
- * Used by 'DrupalDriver' as the shared delegation target.
  *
  * Authentication is deliberately absent: a Core declares
  * 'AuthenticationCapabilityInterface' separately, so 'instanceof' answers
@@ -101,13 +100,12 @@ interface CoreInterface extends
   /**
    * Registers a field handler class for a field type.
    *
-   * Consumer projects call this to override one of the driver's built-in
-   * handlers or to teach the driver about a field type it does not ship a
-   * handler for. The registration wins over the defaults registered by
-   * 'Core::registerDefaultFieldHandlers()' in the constructor. Handlers must
-   * implement 'FieldHandlerInterface'; a class that does not triggers an
-   * 'InvalidArgumentException' at registration time rather than at field
-   * resolution time.
+   * Overrides one of the driver's built-in handlers or adds a handler for a
+   * field type the driver does not ship one for. The registration wins over
+   * the defaults registered by 'Core::registerDefaultFieldHandlers()' in the
+   * constructor. Handlers must implement 'FieldHandlerInterface'; a class
+   * that does not triggers an 'InvalidArgumentException' at registration
+   * time rather than at field resolution time.
    *
    * @param string $field_type
    *   The Drupal field type id, e.g. 'boolean', 'entity_reference', or a
@@ -142,8 +140,8 @@ interface CoreInterface extends
   /**
    * Returns the field classifier, lazily instantiating on first access.
    *
-   * Consumers call into the field classifier to ask which F-row a field belongs
-   * to (F1, F2, ..., F9). See 'src/Driver/Core/Field/README.md'.
+   * The field classifier reports which F-row a field belongs to (F1, F2, ...,
+   * F9). See 'src/Driver/Core/Field/README.md'.
    *
    * @return \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface
    *   The field classifier instance.
@@ -153,9 +151,9 @@ interface CoreInterface extends
   /**
    * Returns the field shape classifier, lazily instantiating on first access.
    *
-   * Consumers call into the field shape classifier to ask a field's stored
-   * value shape - whether it is an entity reference or a complex/nested value -
-   * during handler selection. See 'src/Driver/Core/Field/README.md'.
+   * The field shape classifier reports a field's stored value shape - whether
+   * it is an entity reference or a complex/nested value - during handler
+   * selection. See 'src/Driver/Core/Field/README.md'.
    *
    * @return \DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface
    *   The field shape classifier instance.

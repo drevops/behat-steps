@@ -162,8 +162,8 @@ class TraitMethodNamingTest extends UnitTestCase {
 
     $names = [];
     foreach ($methods as $method) {
-      // A trait that composes another trait reports the composed methods
-      // too; the file each method is declared in tells them apart.
+      // A trait that composes another trait reports the composed methods too,
+      // so only the methods declared in this file are the trait's own.
       if (realpath((string) $method->getFileName()) !== $file) {
         continue;
       }

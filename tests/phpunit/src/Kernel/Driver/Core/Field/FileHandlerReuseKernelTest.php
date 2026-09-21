@@ -15,9 +15,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for FileHandler's existing-managed-file reuse path.
  *
- * Complements FileHandlerKernelTest (upload path) by asserting the 2.x
- * contract: referencing a pre-created managed file by URI or by bare
- * basename reuses that file's id without re-uploading the contents.
+ * Complements FileHandlerKernelTest (upload path): referencing a pre-created
+ * managed file by URI or by bare basename reuses that file's id without
+ * re-uploading the contents.
  *
  * @group fields
  */

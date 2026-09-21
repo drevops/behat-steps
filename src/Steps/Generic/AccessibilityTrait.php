@@ -244,7 +244,7 @@ trait AccessibilityTrait {
     }
 
     // A failed step has already failed the scenario, so gating on top of it
-    // would report a violation found on a page the step left half-built. The
+    // would report a violation found on a page the step left incomplete. The
     // gate is applied whether or not this step assessed a new page, because a
     // last step that navigates nowhere still ends the scenario.
     if (!$scope->getTestResult()->isPassed() || !$this->helperIsLastStep($scope)) {
@@ -493,9 +493,6 @@ trait AccessibilityTrait {
 
   /**
    * Return the impact levels in descending severity order, statically.
-   *
-   * The static rollup cannot reach the instance getter, so both read this one
-   * ordering rather than each carrying its own copy.
    *
    * @return array<int, string>
    *   Impact identifiers ordered from most severe to least.
@@ -827,8 +824,7 @@ trait AccessibilityTrait {
   /**
    * Return URL values that represent a blank tab rather than a real page.
    *
-   * Shared by the per-step auto assessment (so a blank tab never enters the
-   * results) and the aggregate renderer (defence in depth). Override to extend.
+   * Override to extend.
    *
    * @return array<int, string>
    *   URL values to ignore.

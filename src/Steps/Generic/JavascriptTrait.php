@@ -102,10 +102,10 @@ trait JavascriptTrait {
   /**
    * Assert collected errors when the last step did not run, then reset state.
    *
-   * A step that fails on its own skips every step after it, including the one
-   * that would have asserted, so the errors collected up to that point are
-   * reported here instead. The scenario has already failed by then, so the
-   * assertion cannot mask a passing scenario from the rerun cache.
+   * A step that fails by itself skips every later step, including the
+   * asserting one, so the errors collected so far are reported here instead.
+   * The scenario has already failed by then, so the assertion cannot mask a
+   * passing scenario from the rerun cache.
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
@@ -144,8 +144,7 @@ trait JavascriptTrait {
     }
 
     // Collection runs through the driver-agnostic Mink script API, so any
-    // JavaScript-capable driver qualifies. Naming one driver class skipped
-    // every other one, including the Chrome driver this package suggests.
+    // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->helperIsJavascriptSupported()) {
       return;
@@ -158,7 +157,7 @@ trait JavascriptTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Silently fail if session not started yet.
+      // The session may not be started yet.
     }
     // @codeCoverageIgnoreEnd
   }
@@ -181,8 +180,7 @@ trait JavascriptTrait {
     }
 
     // Collection runs through the driver-agnostic Mink script API, so any
-    // JavaScript-capable driver qualifies. Naming one driver class skipped
-    // every other one, including the Chrome driver this package suggests.
+    // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->helperIsJavascriptSupported()) {
       return;
@@ -200,7 +198,6 @@ trait JavascriptTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Silently fail if there are issues.
     }
     // @codeCoverageIgnoreEnd
     if ($this->javascriptBypassErrors || !$this->helperIsLastStep($scope)) {
@@ -219,16 +216,13 @@ trait JavascriptTrait {
   protected function javascriptInjectCollector(): void {
     $script = <<<JS
       (function() {
-        // Initialize error collector
         if (typeof window.jsErrors === 'undefined') {
           window.jsErrors = [];
         }
 
-        // Only initialize once
         if (!window.jsErrorsInitialized) {
           window.jsErrorsInitialized = true;
 
-          // Preserve existing window.onerror handler
           var previousOnError = window.onerror;
           window.onerror = function(message, source, lineno, colno, error) {
             window.jsErrors.push({
@@ -239,16 +233,14 @@ trait JavascriptTrait {
               timestamp: new Date().toISOString()
             });
 
-            // Call previous handler if it exists
             if (typeof previousOnError === 'function') {
               return previousOnError.apply(this, arguments);
             }
 
-            // Don't suppress default error handling
+            // Returning false keeps the default error handling.
             return false;
           };
 
-          // Capture unhandled Promise rejections
           window.addEventListener('unhandledrejection', function(event) {
             var reason = event.reason;
             var message = reason && reason.message ? reason.message : String(reason);
@@ -265,7 +257,6 @@ trait JavascriptTrait {
             });
           });
 
-          // Preserve and wrap console.error
           var oldError = console.error;
           console.error = function() {
             window.jsErrors.push({
@@ -275,7 +266,6 @@ trait JavascriptTrait {
               column: 0,
               timestamp: new Date().toISOString()
             });
-            // Always call original console.error
             oldError.apply(console, arguments);
           };
         }
@@ -307,7 +297,7 @@ JS;
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Silently fail if script evaluation fails.
+      // Script evaluation can throw.
     }
     // @codeCoverageIgnoreEnd
   }

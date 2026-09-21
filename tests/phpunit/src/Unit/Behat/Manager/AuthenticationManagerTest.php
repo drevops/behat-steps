@@ -295,9 +295,9 @@ class AuthenticationManagerTest extends TestCase {
    * Tests that loggedIn() polls for the logout link when login_wait > 0.
    *
    * Simulates the Critical CSS / late JS race: the logged-in selector
-   * never appears, the login form is absent (we are logged in), and the
-   * logout link is initially missing but materialises a few polls later.
-   * With login_wait > 0, the third-resort check must keep polling.
+   * never appears, the login form is absent (the user is logged in), and
+   * the logout link appears only after several polls. With login_wait > 0,
+   * the third-resort check must keep polling.
    */
   public function testLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
     $link = $this->createMock(NodeElement::class);
@@ -325,9 +325,8 @@ class AuthenticationManagerTest extends TestCase {
   /**
    * Tests that loggedIn() does not poll when login_wait is 0.
    *
-   * Confirms the wait loop is skipped entirely when waiting is disabled,
-   * preserving the historical single-lookup behaviour for the third-
-   * resort check.
+   * Confirms the wait loop is skipped entirely when waiting is disabled, so
+   * the third-resort check performs a single lookup.
    */
   public function testLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
     $call_count = 0;
@@ -389,7 +388,7 @@ class AuthenticationManagerTest extends TestCase {
     $session->method('isStarted')->willReturn(TRUE);
 
     $manager = $this->createManager($session);
-    // Should not throw — login form is found so returns false.
+    // The login form is found, so the call returns FALSE rather than throwing.
     $this->assertFalse($manager->loggedIn());
   }
 
@@ -627,7 +626,7 @@ class AuthenticationManagerTest extends TestCase {
     $session = $this->createSessionMock($page);
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
-    // Simulate URL change after login (redirect).
+    // The URL changes after login, as on a redirect.
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturnCallback(function () use (&$url_call_count): string {
       $url_call_count++;
@@ -648,7 +647,7 @@ class AuthenticationManagerTest extends TestCase {
    * Tests that logIn() polls until the page body renders.
    *
    * A driver can return a page whose body has not been written yet, so the
-   * wait loop keeps looking rather than moving on to the logged-in check.
+   * wait loop polls for the body before proceeding to the logged-in check.
    */
   public function testLogInWaitsForTheBodyToRender(): void {
     $submit = $this->createMock(NodeElement::class);
@@ -703,7 +702,7 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
 
-    // No login_wait configured — the race condition scenario.
+    // No login_wait is configured; this is the race condition scenario.
     $manager = $this->createManager($session);
 
     $this->expectException(\Exception::class);

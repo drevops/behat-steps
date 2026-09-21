@@ -117,9 +117,9 @@ abstract class AbstractHandler implements FieldHandlerInterface {
       return [];
     }
 
-    // '['foo.jpg', 'alt' => 'A']' is ambiguous: is 'foo.jpg' the main
-    // value with 'alt' as an extra, or two separate deltas with one of
-    // them named? Reject rather than silently picking one.
+    // '['foo.jpg', 'alt' => 'A']' is ambiguous: 'foo.jpg' could be the main
+    // value with 'alt' as an extra, or two separate deltas with one of them
+    // named. Reject rather than silently picking one.
     $has_int_key = FALSE;
     $has_string_key = FALSE;
 

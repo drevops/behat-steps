@@ -41,16 +41,6 @@ trait ContentTrait {
 
   /**
    * Expand fixture file paths for file/image fields on nodes.
-   *
-   * Rewrites fixture paths (e.g. 'document.pdf', 'images/photo.png') on
-   * 'file' and 'image' field types to absolute paths under the Mink
-   * 'files_path'. drupal-driver's FileHandler can then read and upload them
-   * during node creation.
-   *
-   * Without this, scenarios with file fields on nodes have to pre-create
-   * managed files explicitly via FileTrait.
-   *
-   * Backed by 'HelperTrait::helperExpandEntityFieldsFixtures()'.
    */
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
@@ -312,8 +302,7 @@ trait ContentTrait {
     $path_value['alias'] = '/' . ltrim($alias, '/');
 
     // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
-    // on save. The property exists only on 'PathautoItem', so setting it
-    // without the module throws.
+    // on save.
     if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
       $path_value['pathauto'] = 0;
     }

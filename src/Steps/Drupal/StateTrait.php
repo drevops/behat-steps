@@ -60,8 +60,8 @@ trait StateTrait {
       return;
     }
 
-    // A scenario that recorded no snapshot has nothing to revert, and asking
-    // for the driver would fail one running on a driver that never had it.
+    // A scenario with no snapshot has nothing to revert, and 'assertDrupal()'
+    // would fail one that ran on a driver without Drupal.
     if ($this->stateOriginalValues === []) {
       return;
     }

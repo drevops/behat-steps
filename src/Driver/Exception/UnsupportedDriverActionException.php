@@ -15,7 +15,7 @@ class UnsupportedDriverActionException extends Exception {
    * Initializes exception.
    *
    * @param string $template
-   *   What is unsupported?
+   *   A message template describing what is unsupported.
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
    *   Driver instance.
    * @param int $code

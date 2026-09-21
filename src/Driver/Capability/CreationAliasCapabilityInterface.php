@@ -17,7 +17,7 @@ namespace DrevOps\BehatSteps\Driver\Capability;
  * interfaces. Consumers should check '$driver instanceof
  * CreationAliasCapabilityInterface' before calling
  * 'getCreationAliases()' so that hand-rolled drivers and test doubles
- * that target the older composite interfaces remain valid.
+ * that target the composite interfaces remain valid.
  */
 interface CreationAliasCapabilityInterface {
 

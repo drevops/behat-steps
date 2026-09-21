@@ -17,15 +17,15 @@ use Symfony\Component\DependencyInjection\Definition;
  * Builds the 'browserkit_http' driver on top of Drupal's own test browser.
  *
  * Mink's own factory drives a bare BrowserKit client. Drupal ships
- * 'Drupal\Tests\DrupalTestBrowser', which understands the site's session
- * cookies and its test-run headers, so a scenario reaches the same request
+ * 'Drupal\Tests\DrupalTestBrowser', which handles the site's session cookies
+ * and its test-run headers, so a scenario is served by the same request
  * pipeline Drupal's functional tests use.
  *
  * The class is not autoloadable - it lives under a Drupal root that Composer
  * does not map - so the root is located and the file included before the
  * definition names it. The root comes from Composer's own record of where
  * 'drupal/core' was installed, which does not depend on the working directory
- * Behat happens to run from.
+ * Behat runs from.
  *
  * @see \Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory
  */
@@ -45,9 +45,9 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
    * Guzzle request options a configured value merges over.
    *
    * Redirects stay off so a step can assert on the redirecting response
-   * itself, and cookies stay on so a login survives across requests. Both are
-   * load-bearing for the step vocabulary, so configuring one option does not
-   * drop the others.
+   * itself, and cookies stay on so a login persists across requests. The step
+   * vocabulary depends on both, so configuring one option does not drop the
+   * others.
    */
   protected const DEFAULT_REQUEST_OPTIONS = [
     'allow_redirects' => FALSE,

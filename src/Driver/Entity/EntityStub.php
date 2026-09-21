@@ -7,11 +7,9 @@ namespace DrevOps\BehatSteps\Driver\Entity;
 /**
  * Typed envelope for creating, tracking, and cleaning up a Drupal entity.
  *
- * Replaces the historical 'stdClass' that flowed between the extension's
- * Gherkin parser and the driver's create methods. Mirrors Drupal Core's own
- * 'Entity::create($type, $values)' shape - one final class, no subclasses,
- * with the entity type and bundle pinned at construction time and a
- * mutable values bag plus a saved-entity slot.
+ * Mirrors Drupal Core's own 'Entity::create($type, $values)' shape - one
+ * final class, no subclasses, with the entity type and bundle pinned at
+ * construction time and a mutable values bag plus a saved-entity slot.
  */
 final class EntityStub implements EntityStubInterface {
 

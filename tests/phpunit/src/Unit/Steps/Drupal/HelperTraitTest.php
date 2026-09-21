@@ -42,7 +42,7 @@ class HelperTraitTest extends UnitTestCase {
   }
 
   /**
-   * Create fixture files with placeholder content in the fixtures directory.
+   * Creates fixture files with placeholder content in the fixtures directory.
    *
    * @param array<int, string> $paths
    *   Paths to create, relative to the per-test fixtures directory. Missing

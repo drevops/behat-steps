@@ -117,10 +117,6 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that termCreate rejects a parent term that does not exist.
-   *
-   * Previously a non-matching parent was silently left as the raw name string,
-   * which produced an opaque downstream error from Term::create. Now it fails
-   * loudly with a message that names the missing parent.
    */
   public function testTermCreateRejectsUnknownParent(): void {
     $this->expectException(\InvalidArgumentException::class);

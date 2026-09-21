@@ -59,9 +59,8 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * The user entity type's id key is 'uid', so entityCreate should populate
    * the stub under 'uid' (not the generic 'id' property), and entityDelete
-   * should load by that same key. This matches the convention already used
-   * by nodeCreate/nodeDelete (nid), userCreate (uid), and termCreate/
-   * termDelete (tid).
+   * should load by that same key. nodeCreate/nodeDelete (nid), userCreate
+   * (uid) and termCreate/termDelete (tid) follow the same convention.
    */
   public function testEntityCreateAndDeleteWithStub(): void {
     $stub = new EntityStub('user', NULL, [
@@ -88,13 +87,11 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
   /**
    * Tests 'entityCreate()' auto-expands base fields set on the stub.
    *
-   * 'name' is a base field on the user entity type. Base fields are not
-   * registered field storage configs, so without auto-detection the field
-   * handler pipeline would skip them and values like entity references on
-   * a base field (e.g. 'commerce_product.variations', 'user.roles') would
-   * reach entity storage in their raw scalar form. With auto-detection,
-   * DefaultHandler wraps the scalar value into the array form expected by
-   * the field API - observable here by inspecting the stub after create.
+   * 'name' is a base field on the user entity type, and base fields are not
+   * registered field storage configs, so the handler pipeline reaches them
+   * only through auto-detection. DefaultHandler then wraps the scalar value
+   * into the array form the field API expects, which is observable on the
+   * stub after create.
    */
   public function testEntityCreateAutoExpandsBaseFieldsSetOnStub(): void {
     $stub = new EntityStub('user', NULL, [
@@ -122,13 +119,9 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests base entity-reference fields round-trip through entityCreate().
    *
    * 'user.roles' is a base entity_reference field targeting the user_role
-   * config entity type - structurally the same scenario that motivated the
-   * fix (a stub sets a base entity-reference field by label/id and expects
-   * the driver to resolve and attach it). Before the fix, base entity-ref
-   * fields set on a stub were filtered out of the handler pipeline and
-   * never reached EntityReferenceHandler, so the reference was silently
-   * dropped. This test pins the end-to-end round-trip: stub -> driver ->
-   * storage -> reload -> assertion.
+   * config entity type: a stub sets it by label or id and expects the driver
+   * to resolve and attach the reference. This test pins the end-to-end
+   * round-trip: stub -> driver -> storage -> reload -> assertion.
    */
   public function testEntityCreateExpandsBaseEntityReferenceFieldOnStub(): void {
     Role::create(['id' => 'editor', 'label' => 'Editor'])->save();

@@ -30,9 +30,8 @@ interface UserManagerInterface {
   /**
    * Adds a new user.
    *
-   * Call this after creating a new user to keep track of all the users that are
-   * created in a test scenario. They can then be cleaned up after completing
-   * the test.
+   * Tracks a created user, so every user created in a scenario can be cleaned
+   * up after the test.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $user
    *   The user stub.

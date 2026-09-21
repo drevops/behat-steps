@@ -94,9 +94,9 @@ trait CommandTrait {
 
     fclose($pipes[0]);
 
-    // Drain both pipes concurrently. Reading one to completion before the other
-    // would deadlock when a command fills the buffer of the unread pipe (~64KB)
-    // and blocks before it can finish writing the pipe being read.
+    // Drain both pipes concurrently. A sequential read deadlocks once a
+    // command fills the unread pipe's buffer (~64KB) and blocks before it
+    // finishes writing the pipe being read.
     stream_set_blocking($pipes[1], FALSE);
     stream_set_blocking($pipes[2], FALSE);
 

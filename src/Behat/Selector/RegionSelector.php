@@ -10,13 +10,8 @@ use Behat\Mink\Selector\SelectorInterface;
 /**
  * Mink selector that resolves a human-readable region name to XPath.
  *
- * The extension registers this class in Mink's selector handler at compile
- * time through the 'behat_steps.region_selector' service, tagged
- * 'mink.selector' with the alias 'region'. Any context with a Mink session
- * can then call '$page->find("region", "Header")', and Mink dispatches here.
- *
- * Regions are a generic page concept, so this selector has no Drupal API
- * dependency and works against any HTML page.
+ * Registered in Mink's selector handler under the alias 'region', so any
+ * context with a Mink session can call '$page->find("region", "Header")'.
  */
 class RegionSelector implements SelectorInterface {
 

@@ -108,9 +108,8 @@ trait FileDownloadTrait {
     }
 
     // BrowserKit-based drivers like GoutteDriver. Values are passed through as
-    // the driver reports them, because they are going back out in a Cookie
-    // header and belong in their wire form. CookieTrait decodes the same
-    // values instead, since it presents them for assertion.
+    // the driver reports them, because the Cookie header carries them in wire
+    // form.
     elseif (method_exists($driver, 'getClient')) {
       /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
       // @phpstan-ignore-next-line
@@ -350,7 +349,7 @@ trait FileDownloadTrait {
       throw new \RuntimeException('Downloaded file information does not have content type data.');
     }
     // @codeCoverageIgnoreEnd
-    // Allow .zip files to proceed to validation even with incorrect content-type.
+    // A ".zip" file name is exempt from the content-type check.
     $file_name = $this->fileDownloadDownloadedFileInfo['file_name'] ?? '';
     $has_zip_extension = str_ends_with(strtolower($file_name), '.zip');
 
@@ -419,8 +418,6 @@ trait FileDownloadTrait {
       // @codeCoverageIgnoreEnd
     }
 
-    // An error page has a body like any other response, so without this the
-    // response to a 404 would be saved and asserted on as the downloaded file.
     if ($status >= 400) {
       throw new \RuntimeException(sprintf('The URL %s returned HTTP status %d.', $url, $status));
     }

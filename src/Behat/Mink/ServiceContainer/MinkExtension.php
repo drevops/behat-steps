@@ -15,12 +15,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Mink extension that drives 'browserkit_http' through Drupal's test browser.
  *
- * Mink builds the driver from a factory keyed by driver name, and the client
- * that factory wires in is not configurable, so a suite cannot ask for
- * 'browserkit_http' over Drupal's Guzzle-backed browser through configuration
- * alone. Registering a replacement factory under the same name is what makes
- * that available, and it happens here so the swap is in place before Mink's
- * configuration tree is built.
+ * Mink builds the driver from a factory keyed by driver name, and that
+ * factory's client is not configurable. Configuration alone therefore cannot
+ * put Drupal's Guzzle-backed browser behind 'browserkit_http'; a replacement
+ * factory registered under the same name does. It is registered here so the
+ * swap is in place before Mink's configuration tree is built.
  *
  * Mink's extension is wrapped rather than extended: it is declared 'final' from
  * Mink 3, the release that carries Behat 4 support, so a subclass cannot load

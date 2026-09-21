@@ -58,10 +58,9 @@ trait RandomTrait {
   /**
    * Pre-resolves every token literal found in the current scenario.
    *
-   * Running this in a 'BeforeScenario' hook means the cache is warm by
-   * the time the first step runs, which keeps repeated token literals stable
-   * even when their first occurrence is inside a step argument that
-   * Behat dispatches before the rest are visited.
+   * Every literal is cached before the first step runs, so repeated token
+   * literals stay stable. This holds even when the first occurrence is inside
+   * a step argument that Behat dispatches before the rest are visited.
    */
   #[BeforeScenario]
   public function randomBeforeScenario(BeforeScenarioScope $scope): void {
@@ -155,11 +154,6 @@ trait RandomTrait {
 
   /**
    * Resolves a token literal to its generated value.
-   *
-   * On first encounter the literal is parsed, normalized to a canonical
-   * '(name, type, args)' tuple, the value is generated and stored under
-   * the canonical key, and the literal is recorded in the parsing memo
-   * so future lookups are O(1).
    */
   public function randomResolveLiteral(string $literal): string|int {
     if (isset($this->randomLiterals[$literal])) {
@@ -201,11 +195,10 @@ trait RandomTrait {
   /**
    * Validates and fills defaults so equivalent tokens share a cache key.
    *
-   * Each branch returns the canonical args list for the given type, or
-   * throws 'InvalidArgumentException' when the literal supplies malformed
-   * input (non-integer length, wrong arg count, extra args on argless
-   * types). Failing fast prevents typos like '[?title:string,abc]' from
-   * silently producing a 1-character string.
+   * Malformed input (a non-integer length, a wrong arg count, extra args on
+   * an argless type) throws 'InvalidArgumentException'. Failing fast prevents
+   * typos like '[?title:string,abc]' from silently producing a 1-character
+   * string.
    *
    * @param string $type
    *   The generator type extracted from the token.
@@ -279,7 +272,7 @@ trait RandomTrait {
   }
 
   /**
-   * Validates argless types ('email', 'uuid'): refuses any positional args.
+   * Validates argless types ('email', 'uuid'): any positional arg is an error.
    *
    * @param string $type
    *   The generator type, used for error messages.
@@ -324,7 +317,7 @@ trait RandomTrait {
   }
 
   /**
-   * Generates a lowercase string - the default for unknown shape requests.
+   * Generates a lowercase string, the default token type.
    */
   public function randomGenerateString(int $length): string {
     return strtolower((string) $this->randomGetGenerator()->name(max(1, $length)));

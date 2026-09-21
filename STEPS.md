@@ -536,9 +536,9 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  
 >  The trait is opt-in: `use` it in the context and it is active with no further
 >  configuration. Every field is individually toggleable by overriding its
->  `diagnosticsGetShow*()` method to return FALSE, and each value source
->  degrades gracefully to nothing when the driver cannot provide it - a failed
->  step is never turned into a different failure by this trait.
+>  `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
+>  to nothing when the driver cannot provide it, so a failed step is never
+>  turned into a different failure.
 >  <br/><br/>
 >  Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
 >  <br/><br/>
@@ -565,13 +565,12 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  - Works on any element that handles native `drop` events (Dropzone.js,
 >  custom drop targets, framework widgets).
 >  <br/><br/>
->  Why this exists: Mink's `attachFile` writes each file to a hidden
->  `<input type="file">` sequentially, so file A finishes uploading before
->  file B starts. Real users release multiple files together, which fires a
->  single `drop` event whose `dataTransfer.files` contains all of them and
->  triggers concurrent uploads. Race conditions in dedup maps, status
->  indicators, error handlers, and server-side queues only reproduce under
->  the multi-file path - this trait reproduces it.
+>  Mink's `attachFile` writes each file to a hidden `<input type="file">`
+>  sequentially, so file A finishes uploading before file B starts. Real users
+>  release multiple files together, which fires a single `drop` event whose
+>  `dataTransfer.files` contains all of them and triggers concurrent uploads.
+>  Race conditions in dedup maps, status indicators, error handlers and
+>  server-side queues reproduce only under the multi-file path.
 >  <br/><br/>
 >  `@javascript`-only: requires a headless browser session.
 
@@ -2379,8 +2378,8 @@ Then the link "Return to site content" should not be an absolute link
 >  resolve identically. Keys are unique across groups, so the group a key was
 >  declared in does not take part in the lookup.
 >  <br/><br/>
->  Resolution keys off the token's own braces rather than the placeholder name,
->  so one map covers every step taking a string without the step opting in.
+>  The transform matches the token's braces rather than a placeholder name, so
+>  one map covers every string argument without the step opting in.
 >  <br/><br/>
 >  Operates on Gherkin text alone: no Mink session and no driver, so the trait
 >  works in any suite.
@@ -2608,7 +2607,7 @@ Then the following warning messages should not exist:
 [Source](src/Steps/Generic/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
 
 >  Assert `<meta>` tags and head/SEO markup in page markup.
->  - Assert presence and content of meta tags with proper attribute handling.
+>  - Assert presence and content of meta tags.
 >  - Verify meta tag content is free of HTML markup.
 >  - Assert canonical URL, robots directives and indexability.
 >  - Assert hreflang alternates are valid and reciprocal.
@@ -3920,8 +3919,8 @@ Then the link "Delete" should not exist in the row "Article title"
 >  every step that navigates or submits.
 >  <br/><br/>
 >  Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
->  updates through `Drupal.ajax`, so an assertion following a click can read the
->  page before the update lands. The wait here watches both.
+>  updates through `Drupal.ajax`. An assertion following a click can read the
+>  page before the update applies, so the wait here watches both.
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
@@ -4446,29 +4445,29 @@ When I wait for the batch job to finish
 >  <br/><br/>
 >  Drupal BigPipe streams parts of a page in after the initial response and
 >  replaces its `<span data-big-pipe-placeholder-id="...">` markers with the
->  real markup using JavaScript. Assertions that run before those replacements
->  land intermittently fail with "element not found". When this trait is
->  included, every `@javascript` scenario waits - before each step - until no
->  BigPipe placeholder markers remain in the DOM, removing that race without an
->  explicit step.
+>  real markup using JavaScript. An assertion that runs before those
+>  replacements complete fails intermittently with "element not found".
 >  <br/><br/>
->  The wait is best-effort: on timeout the step still runs, so a genuinely stuck
->  placeholder surfaces as the real assertion failure rather than being masked
->  here.
+>  With this trait included, every `@javascript` scenario waits before each
+>  step until no BigPipe placeholder marker remains in the DOM, which removes
+>  that race without an explicit step.
 >  <br/><br/>
->  A driver that runs no JavaScript never replaces those placeholders and does
->  not follow the `http-equiv=refresh` fallback either, so an authenticated-user
->  assertion silently misses whatever BigPipe deferred. Tag such a scenario
->  `@bigpipe` and the `big_pipe_nojs` cookie is set for it, which makes Drupal
->  render the page in full server-side.
+>  The wait is best-effort: on timeout the step still runs, so a placeholder
+>  that is never replaced fails the following assertion rather than the wait.
+>  <br/><br/>
+>  A driver that runs no JavaScript never replaces those placeholders, and does
+>  not follow the `http-equiv=refresh` fallback either. An authenticated-user
+>  assertion on such a driver silently misses whatever BigPipe deferred. A
+>  scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, which makes
+>  Drupal render the page in full server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@bigpipe` - render server-side on a driver without JavaScript.
 >  
->  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
->  `FeatureContext` to change the maximum wait.
+>  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in the
+>  consuming `FeatureContext` to change the maximum wait.
 
 
 ## Drupal\BlockTrait
@@ -7058,7 +7057,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 >  Control system time in tests using Drupal state overrides.
 >  <br/><br/>
->  IMPORTANT: This trait requires your application to use a mockable time
+>  This trait requires the consuming application to use a mockable time
 >  service that checks Drupal state for time overrides.
 >  <br/><br/>
 >  Example implementation:

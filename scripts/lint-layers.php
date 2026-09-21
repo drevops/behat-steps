@@ -23,7 +23,8 @@ const LAYER_FORBIDDEN_ROOTS = ['Behat', 'Mink'];
  */
 const LAYER_DIRECTORY = 'src/Driver';
 
-// Execute the entry function only when the script is run directly, not when included.
+// Execute the entry function only when the script is run directly, not when
+// included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
   $options = getopt('', ['path::']);

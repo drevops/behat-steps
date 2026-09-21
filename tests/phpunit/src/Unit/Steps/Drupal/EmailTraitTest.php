@@ -87,7 +87,7 @@ class EmailTraitTestImplementation extends RawContext {
   use EmailTrait;
 
   /**
-   * Extract all links from provided string.
+   * Extracts all links from the provided string.
    *
    * @param string $string
    *   String to extract links from.

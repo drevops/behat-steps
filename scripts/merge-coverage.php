@@ -30,14 +30,11 @@ if (!file_exists($autoloader)) {
 
 require_once $autoloader;
 
-// Get coverage root path from command line argument or use default.
 define('COVERAGE_ROOT_PATH', $argv[1] ?? '/app/.logs/coverage');
 
-// Source coverage files to be merged.
 define('SOURCE_MAIN_COVERAGE_FILE', COVERAGE_ROOT_PATH . '/behat/phpcov.php');
 define('SOURCE_SUBPROCESS_COVERAGE_DIR', COVERAGE_ROOT_PATH . '/behat_cli/phpcov');
 
-// Output files for merged coverage and reports.
 define('OUTPUT_MERGED_COVERAGE_FILE', COVERAGE_ROOT_PATH . '/behat_cli/phpcov.php');
 define('OUTPUT_COBERTURA_REPORT_FILE', COVERAGE_ROOT_PATH . '/behat_cli/cobertura.xml');
 define('OUTPUT_HTML_REPORT_DIR', COVERAGE_ROOT_PATH . '/behat_cli/.coverage-html');
@@ -47,7 +44,6 @@ if (!file_exists(SOURCE_MAIN_COVERAGE_FILE)) {
   exit(1);
 }
 
-// Load main coverage.
 try {
   $main_coverage = @include SOURCE_MAIN_COVERAGE_FILE;
 }
@@ -63,7 +59,6 @@ if (!$main_coverage instanceof CodeCoverage) {
   exit(0);
 }
 
-// Find all subprocess coverage files.
 $subprocess_files = [];
 if (is_dir(SOURCE_SUBPROCESS_COVERAGE_DIR)) {
   $subprocess_files = glob(SOURCE_SUBPROCESS_COVERAGE_DIR . '/*.php');
@@ -89,7 +84,6 @@ foreach ($subprocess_files as $file) {
   }
 }
 
-// Save merged coverage.
 $output_dir = dirname(OUTPUT_MERGED_COVERAGE_FILE);
 if (!is_dir($output_dir)) {
   mkdir($output_dir, 0755, TRUE);
@@ -99,12 +93,10 @@ file_put_contents(OUTPUT_MERGED_COVERAGE_FILE, '<?php' . PHP_EOL . 'return \\uns
 
 echo sprintf('Coverage merged and saved to: %s%s', OUTPUT_MERGED_COVERAGE_FILE, PHP_EOL);
 
-// Generate Cobertura report.
 $cobertura_report = new Cobertura();
 file_put_contents(OUTPUT_COBERTURA_REPORT_FILE, $cobertura_report->process($main_coverage));
 echo sprintf('Cobertura report generated: %s%s', OUTPUT_COBERTURA_REPORT_FILE, PHP_EOL);
 
-// Generate HTML report.
 $html_report = new Facade();
 $html_report->process($main_coverage, OUTPUT_HTML_REPORT_DIR);
 echo sprintf('HTML report generated: %s%s', OUTPUT_HTML_REPORT_DIR, PHP_EOL);

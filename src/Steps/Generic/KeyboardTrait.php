@@ -228,8 +228,6 @@ JS;
   protected function keyboardTriggerKey(string $xpath, string $key): void {
     $driver = $this->getSession()->getDriver();
 
-    // Selenium2 driver: reuse the bundled Syn library via reflection to inject
-    // synthetic events and execute JS on the element.
     if ($driver instanceof Selenium2Driver) {
       $reflector = new \ReflectionClass($driver);
       $with_syn_reflection = $reflector->getMethod('withSyn');
@@ -244,10 +242,9 @@ JS;
       return;
     }
 
-    // CDP-based drivers like the Chrome (chrome-mink) driver: dispatch native
-    // DevTools key events. Special keys are sent as a keycode down/up pair so
-    // their default action (focus move, submit, etc.) fires; printable
-    // characters are sent as a single character so their text is inserted.
+    // Special keys are sent as a keycode down/up pair so their default action
+    // (focus move, submit, etc.) fires. Printable characters are sent as a
+    // single character so their text is inserted.
     $keycodes = [
       "\b" => 8,
       "\t" => 9,

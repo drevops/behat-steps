@@ -39,16 +39,13 @@ trait FeatureContextTrait {
    * When a @javascript scenario runs in the parent process, Mink keeps the
    * Selenium2/Chrome connection open (via resetSessions()). This causes
    * child processes to hang when they try to establish their own connection.
-   * This hook ensures all sessions are properly stopped before sub-process
-   * scenarios run.
+   *
+   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
    */
   #[BeforeScenario]
   public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
     $has_trait_tag = (bool) array_filter(Tag::on($scope->getScenario()), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
 
-    // Stop all Mink sessions before sub-process scenarios to prevent
-    // connection interference between parent and child processes.
-    // @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession().
     if ($has_trait_tag) {
       $this->getMink()->stopSessions();
     }
@@ -93,7 +90,6 @@ trait FeatureContextTrait {
    */
   #[Then('user :name should exist')]
   public function testUserExists(string $name): void {
-    // We need to check that user exists in both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
@@ -114,7 +110,6 @@ trait FeatureContextTrait {
    */
   #[Then('user :name should not exist')]
   public function testUserNotExists(string $name): void {
-    // We need to check that user was removed from both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
@@ -449,7 +444,7 @@ trait FeatureContextTrait {
   protected bool $testElementScrollCenter = TRUE;
 
   /**
-   * Set scroll alignment to top (legacy behavior).
+   * Set scroll alignment to top.
    */
   #[Given('I set scroll to top alignment')]
   public function testSetScrollToTopAlignment(): void {
@@ -496,7 +491,6 @@ trait FeatureContextTrait {
       throw new \Exception('helperTransposeVerticalTable returned empty result.');
     }
 
-    // Validate result structure.
     foreach ($result as $entity) {
       if (!is_array($entity)) {
         throw new \Exception('helperTransposeVerticalTable returned invalid entity data.');

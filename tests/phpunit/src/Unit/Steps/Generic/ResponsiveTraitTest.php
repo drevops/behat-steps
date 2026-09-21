@@ -256,10 +256,8 @@ class ResponsiveTraitTest extends UnitTestCase {
 
     $this->testObject->responsiveSetBreakpoints($breakpoints);
 
-    // Verify breakpoints were set correctly.
     if (!$exception) {
       if (empty($breakpoints)) {
-        // For empty array, just verify all defaults still exist.
         $defaults = $this->testObject->testResponsiveGetAllBreakpoints();
         $this->assertNotEmpty($defaults);
         $this->assertArrayHasKey('mobile_portrait', $defaults);
@@ -319,21 +317,21 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
   use ResponsiveTrait;
 
   /**
-   * Expose protected method for testing.
+   * Exposes the protected method for testing.
    */
   public function testResponsiveExtractDimensions(string $dimensions, ?string $name = NULL): array {
     return $this->responsiveExtractDimensions($dimensions, $name);
   }
 
   /**
-   * Expose protected method for testing.
+   * Exposes the protected method for testing.
    */
   public function testResponsiveGetBreakpoint(string $name): string {
     return $this->responsiveGetBreakpoint($name);
   }
 
   /**
-   * Expose protected method for testing.
+   * Exposes the protected method for testing.
    */
   public function testResponsiveGetAllBreakpoints(): array {
     return $this->responsiveGetAllBreakpoints();

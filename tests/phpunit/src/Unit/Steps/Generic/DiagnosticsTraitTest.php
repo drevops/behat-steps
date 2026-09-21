@@ -285,7 +285,7 @@ class DiagnosticsTraitTestImplementation extends RawContext {
   }
 
   /**
-   * Expose the collected JavaScript console error messages.
+   * Exposes the collected JavaScript console error messages.
    *
    * @return array<int, string>
    *   Collected JavaScript error messages.

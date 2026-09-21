@@ -39,13 +39,6 @@ trait RedirectTrait {
   /**
    * Create one or more redirects.
    *
-   * Provide redirect data in the following format:
-   *
-   * | from              | to                        | status_code |
-   * | /old/about        | /about                    | 301         |
-   * | /promo            | https://example.com/promo | 302         |
-   * | /legacy/contact   | /contact                  |             |
-   *
    * The `status_code` column is optional and defaults to `301` when omitted
    * or left blank. Allowed values: 301, 302, 303, 307, 308.
    *
@@ -93,7 +86,7 @@ trait RedirectTrait {
   /**
    * Delete redirects by source path.
    *
-   * Provide one source path per row. Rows that match no existing redirect are
+   * Each row is one source path. Rows that match no existing redirect are
    * silently skipped.
    *
    * @code
@@ -130,16 +123,10 @@ trait RedirectTrait {
   /**
    * Assert that one or more redirects exist.
    *
-   * Provide redirect data in the following format:
-   *
-   * | from              | to                        | status_code |
-   * | /old/about        | /about                    | 301         |
-   * | /promo            | https://example.com/promo |             |
-   * | /legacy/contact   |                           |             |
-   *
    * The `from` column is required. The `to` and `status_code` columns are
-   * optional: when blank or omitted, only the source path is matched. When
-   * `to` is provided, internal paths (`/about`) are normalized to
+   * optional: when blank or omitted, only the source path is matched.
+   *
+   * When `to` is provided, internal paths (`/about`) are normalized to
    * `internal:/about` to match the storage format. When `status_code` is
    * provided, it is validated against the allowed set (301, 302, 303, 307,
    * 308).
@@ -197,7 +184,7 @@ trait RedirectTrait {
   /**
    * Assert that no redirect exists for one or more source paths.
    *
-   * Provide one source path per row.
+   * Each row is one source path.
    *
    * @code
    * Then the following redirects should not exist:

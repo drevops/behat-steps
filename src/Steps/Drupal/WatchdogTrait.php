@@ -67,9 +67,7 @@ trait WatchdogTrait {
 
     $scenario = $scope->getScenario();
 
-    // Step scopes carry neither scenario tags nor scenario identity, so both
-    // are resolved here for the step hook to read. An unset start time
-    // disables the check.
+    // An unset start time disables the check.
     if (Tag::has($scenario, 'behat-steps-skip:watchdogAfterStep') || Tag::has($scenario, 'error')) {
       return;
     }
@@ -86,10 +84,6 @@ trait WatchdogTrait {
   /**
    * Check for every error logged since the scenario started, on its last step.
    *
-   * Add @error to any scenario that is expected to trigger an error - the
-   * error tracking will be ignored. Skip the check for a scenario with
-   * `@behat-steps-skip:watchdogAfterStep`.
-   *
    * Behat composes a step teardown into that step's result, so a failure
    * raised here marks the scenario as failed for the rerun cache. Checking on
    * the last step rather than on every step keeps the whole scenario in scope,
@@ -97,8 +91,6 @@ trait WatchdogTrait {
    */
   #[AfterStep]
   public function watchdogAfterStep(AfterStepScope $scope): void {
-    // The start time is set only for '@api' scenarios that opted into the
-    // check.
     if (!isset($this->watchdogScenarioStartTime) || !$this->helperIsLastStep($scope)) {
       return;
     }
@@ -115,13 +107,14 @@ trait WatchdogTrait {
   /**
    * Check for errors that the last step could not have seen.
    *
-   * Two cases reach here. A scenario whose earlier step failed never ran its
-   * last step, so nothing was checked at step scope. A scenario that passed
-   * may still log an error while another trait tears it down, after the last
-   * step result has already been composed - Behat cannot attribute that to a
-   * step, so it is reported here at the cost of being absent from the rerun
-   * cache. Errors reported at step scope are deleted, so they are not
-   * reported twice.
+   * A scenario whose earlier step failed never ran its last step, so nothing
+   * was checked at step scope. A scenario that passed may still log an error
+   * while another trait tears it down, after the last step result has been
+   * composed.
+   *
+   * Behat cannot attribute a teardown error to a step, so it is reported here
+   * and is absent from the rerun cache. Errors reported at step scope are
+   * deleted, so they are not reported twice.
    */
   #[AfterScenario('@api')]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
@@ -131,9 +124,9 @@ trait WatchdogTrait {
 
     $this->assertDrupal();
 
-    // The step hook throws for a missing table because it runs while the
-    // verdict is still open. This hook runs after it, where throwing would
-    // replace a real scenario failure with a configuration error.
+    // The step hook throws for a missing table because the step result is
+    // still open. This hook runs after the result is set, where throwing
+    // would replace a real scenario failure with a configuration error.
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
       return;
     }
@@ -188,8 +181,6 @@ trait WatchdogTrait {
 
     $database = Database::getConnection();
 
-    // Select entries for every tracked message type that appeared from the
-    // start of the scenario.
     $entries = $database->select('watchdog', 'w')
       ->fields('w')
       ->condition('w.type', $this->watchdogMessageTypes, 'IN')

@@ -13,7 +13,7 @@ use Behat\Step\Then;
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.
  *
- * - Assert presence and content of meta tags with proper attribute handling.
+ * - Assert presence and content of meta tags.
  * - Verify meta tag content is free of HTML markup.
  * - Assert canonical URL, robots directives and indexability.
  * - Assert hreflang alternates are valid and reciprocal.
@@ -254,9 +254,9 @@ trait MetatagTrait {
    * Assert hreflang alternates are valid.
    *
    * Checks, without fetching any alternate page, that at least one hreflang
-   * alternate exists, that a self-referencing alternate for the current URL is
-   * present, and that every hreflang value is a well-formed language code (or
-   * "x-default").
+   * alternate exists and that a self-referencing alternate for the current
+   * URL is present. Every hreflang value must be a well-formed language code
+   * (or "x-default").
    *
    * @code
    * Then the hreflang alternates should be valid
@@ -295,8 +295,7 @@ trait MetatagTrait {
    * Assert hreflang alternates have reciprocal return links.
    *
    * Fetches each non-"x-default" alternate page (other than the current page)
-   * and asserts that it links back to the current URL, failing clearly when an
-   * alternate does not reciprocate.
+   * and asserts that it links back to the current URL.
    *
    * @code
    * Then the hreflang alternates should have reciprocal return links
@@ -607,9 +606,8 @@ trait MetatagTrait {
    * Absolute URLs are returned unchanged and root-relative URLs are resolved
    * against the base URL's origin. Document-relative URLs (such as "page.html"
    * or "../en") are resolved against the origin rather than the base path.
-   * Hreflang and canonical markup should therefore use absolute or
-   * root-relative URLs, in line with search-engine guidance to use
-   * fully-qualified URLs.
+   *
+   * Hreflang and canonical markup should use absolute or root-relative URLs.
    *
    * @param string $url
    *   The URL to resolve.

@@ -62,7 +62,6 @@ class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
 
     $this->assertFieldRoundTripViaDriver('field_attachment', [$fixture]);
 
-    // Sanity: the file entity the handler created is actually loadable.
     $file_id = $this->latestFileId();
     $this->assertInstanceOf(File::class, File::load($file_id));
   }

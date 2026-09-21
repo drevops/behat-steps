@@ -16,13 +16,12 @@ use Behat\Step\When;
  * - Works on any element that handles native `drop` events (Dropzone.js,
  *   custom drop targets, framework widgets).
  *
- * Why this exists: Mink's `attachFile` writes each file to a hidden
- * `<input type="file">` sequentially, so file A finishes uploading before
- * file B starts. Real users release multiple files together, which fires a
- * single `drop` event whose `dataTransfer.files` contains all of them and
- * triggers concurrent uploads. Race conditions in dedup maps, status
- * indicators, error handlers, and server-side queues only reproduce under
- * the multi-file path - this trait reproduces it.
+ * Mink's `attachFile` writes each file to a hidden `<input type="file">`
+ * sequentially, so file A finishes uploading before file B starts. Real users
+ * release multiple files together, which fires a single `drop` event whose
+ * `dataTransfer.files` contains all of them and triggers concurrent uploads.
+ * Race conditions in dedup maps, status indicators, error handlers and
+ * server-side queues reproduce only under the multi-file path.
  *
  * `@javascript`-only: requires a headless browser session.
  *

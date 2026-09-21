@@ -8,7 +8,7 @@ namespace DrevOps\BehatSteps\Exception;
  * Thrown when a step assertion fails and no Mink session is available.
  *
  * \Behat\Mink\Exception\ExpectationException requires a Mink driver, so a
- * trait that never touches the browser cannot construct it. This carries the
+ * trait that never uses the browser cannot construct it. This carries the
  * same meaning - an expectation about the system under test was not met -
  * without that dependency.
  *

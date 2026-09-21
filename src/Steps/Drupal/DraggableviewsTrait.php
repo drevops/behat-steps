@@ -47,7 +47,7 @@ trait DraggableviewsTrait {
 
       $entity_id = $node->id();
 
-      // Here and below: mirrors draggableviews_views_submit().
+      // The delete and insert mirror draggableviews_views_submit().
       $database->delete('draggableviews_structure')
         ->condition('view_name', $view_id)
         ->condition('view_display', $view_display_id)

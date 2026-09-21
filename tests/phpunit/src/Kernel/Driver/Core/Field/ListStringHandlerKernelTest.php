@@ -49,8 +49,8 @@ class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
 
     // Pass the label; the handler replaces it with 'active' (the key).
-    // After the driver mutates the stub, the assertion sees the key and
-    // compares it against what storage returned.
+    // After the driver mutates the stub, the assertion compares the key
+    // against what storage returned.
     $this->assertFieldRoundTripViaDriver('field_status', ['Active']);
 
     // Pin the translation explicitly so a regression where the handler stops

@@ -22,11 +22,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests field handler resolution against the registry.
  *
- * The registry replaced the class-name lookup chain: Core's constructor
- * calls 'registerDefaultFieldHandlers()' to populate built-in handlers, and
- * consumers override via 'registerFieldHandler()'. These tests cover the
- * three tiers: default (constructor-registered), consumer override, and
- * fallback to 'DefaultHandler' for unknown field types.
+ * Core's constructor calls 'registerDefaultFieldHandlers()' to populate
+ * built-in handlers, and consumers override via 'registerFieldHandler()'.
+ * These tests cover the three tiers: default (constructor-registered),
+ * consumer override, and fallback to 'DefaultHandler' for unknown field
+ * types.
  *
  * @group core
  * @group fields
@@ -101,9 +101,8 @@ class CoreFieldHandlerLookupTest extends TestCase {
   /**
    * Tests that registering a non-handler class throws at registration time.
    *
-   * Failing at registration - rather than at 'getFieldHandler()' resolution -
-   * surfaces consumer typos immediately in test bootstrap rather than the
-   * first time the affected field runs through expansion.
+   * Failing at registration surfaces a consumer typo at test bootstrap
+   * rather than when the affected field is first expanded.
    */
   public function testRegisterRejectsNonHandlerClass(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', []);
@@ -118,10 +117,10 @@ class CoreFieldHandlerLookupTest extends TestCase {
    * Tests that registering an abstract handler class throws at registration.
    *
    * 'AbstractHandler' satisfies 'is_subclass_of(... FieldHandlerInterface)'
-   * but cannot be instantiated, so 'getFieldHandler()' would fatal with a
-   * cryptic 'Cannot instantiate abstract class' error at the first call. The
-   * registry-contract docblock on 'CoreInterface::registerFieldHandler()'
-   * promises rejection at registration time - this test holds it to that.
+   * but cannot be instantiated, so 'getFieldHandler()' would fatal with
+   * 'Cannot instantiate abstract class' at the first call.
+   * 'CoreInterface::registerFieldHandler()' documents rejection at
+   * registration time.
    */
   public function testRegisterRejectsAbstractHandlerClass(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', []);
@@ -138,7 +137,7 @@ class CoreFieldHandlerLookupTest extends TestCase {
    * AbstractHandler's constructor pulls the entity field manager and the
    * entity type manager off '\Drupal'; tests instantiate handlers via the
    * registry, so both services must resolve. Storage and field definitions
-   * are stubbed generously because the tests don't care about their shape.
+   * are stubbed loosely because no test depends on their shape.
    */
   protected function setUpDrupalContainer(): void {
     $field_definition = $this->createMock(FieldDefinitionInterface::class);
