@@ -272,8 +272,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setDriverManager(DriverManagerInterface $driverManager): void {
-    $this->driverManager = $driverManager;
+  public function setDriverManager(DriverManagerInterface $driver_manager): void {
+    $this->driverManager = $driver_manager;
   }
 
   /**
@@ -297,8 +297,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setUserManager(UserManagerInterface $userManager): void {
-    $this->userManager = $userManager;
+  public function setUserManager(UserManagerInterface $user_manager): void {
+    $this->userManager = $user_manager;
   }
 
   /**
@@ -315,8 +315,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setAuthenticationManager(AuthenticationManagerInterface $authenticationManager): void {
-    $this->authenticationManager = $authenticationManager;
+  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void {
+    $this->authenticationManager = $authentication_manager;
   }
 
   /**
@@ -736,7 +736,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Dispatches the hooks registered for a scope.
    *
-   * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Scope\BaseEntityScope> $scopeClass
+   * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Scope\BaseEntityScope> $scope_class
    *   The fully-qualified scope class name.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub flowing through the create pipeline.
@@ -744,7 +744,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * @throws \RuntimeException
    *   When the context has not been initialized by Behat.
    */
-  protected function dispatchHooks(string $scopeClass, EntityStubInterface $stub): void {
+  protected function dispatchHooks(string $scope_class, EntityStubInterface $stub): void {
     if (!$this->dispatcher instanceof HookDispatcher) {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
@@ -755,7 +755,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       throw new \RuntimeException('Hooks can be dispatched only once a scenario has started.');
     }
 
-    $scope = new $scopeClass($environment, $this, $stub);
+    $scope = new $scope_class($environment, $this, $stub);
     $call_results = $this->dispatcher->dispatchScopeHooks($scope);
 
     // The dispatcher collects exceptions rather than raising them, so surface

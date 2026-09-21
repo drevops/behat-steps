@@ -33,7 +33,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    *   The user manager.
    * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
    *   The driver manager.
-   * @param array<string, mixed> $minkParameters
+   * @param array<string, mixed> $mink_parameters
    *   Mink configuration parameters.
    * @param array<string, mixed> $parameters
    *   Extension parameters.
@@ -42,11 +42,11 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
     Mink $mink,
     protected UserManagerInterface $userManager,
     protected DriverManagerInterface $driverManager,
-    array $minkParameters,
+    array $mink_parameters,
     array $parameters,
   ) {
     $this->setMink($mink);
-    $this->setMinkParameters($minkParameters);
+    $this->setMinkParameters($mink_parameters);
     $this->setParameters($parameters);
   }
 
@@ -256,15 +256,15 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    */
   protected function resolveBasicAuth(): ?array {
     $base_url = (string) $this->getMinkParameter('base_url');
-    $user = parse_url($base_url, PHP_URL_USER);
-    if (is_string($user) && $user !== '') {
+    $name = parse_url($base_url, PHP_URL_USER);
+    if (is_string($name) && $name !== '') {
       $pass = parse_url($base_url, PHP_URL_PASS);
 
       return [
         // Userinfo is RFC 3986 encoded, where '+' is a literal plus and
         // spaces are '%20', so decode with rawurldecode() rather than
         // urldecode() (which would turn a literal '+' into a space).
-        'username' => rawurldecode($user),
+        'username' => rawurldecode($name),
         'password' => is_string($pass) ? rawurldecode($pass) : '',
       ];
     }

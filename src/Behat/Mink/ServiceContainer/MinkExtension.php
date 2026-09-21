@@ -52,11 +52,11 @@ class MinkExtension implements ExtensionInterface {
    * Other extensions add their driver this way after resolving the extension
    * registered under the 'mink' key, so the method has to stay reachable here.
    *
-   * @param \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory $driverFactory
+   * @param \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory $driver_factory
    *   The factory to register.
    */
-  public function registerDriverFactory(DriverFactory $driverFactory): void {
-    $this->inner->registerDriverFactory($driverFactory);
+  public function registerDriverFactory(DriverFactory $driver_factory): void {
+    $this->inner->registerDriverFactory($driver_factory);
   }
 
   /**

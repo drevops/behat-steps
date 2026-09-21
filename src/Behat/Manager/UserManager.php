@@ -48,19 +48,19 @@ class UserManager implements UserManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function removeUser(string $userName): void {
-    unset($this->users[$userName]);
+  public function removeUser(string $name): void {
+    unset($this->users[$name]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getUser(string $userName): EntityStubInterface {
-    if (!isset($this->users[$userName])) {
-      throw new \InvalidArgumentException(sprintf('No user with %s name is registered with the driver.', $userName));
+  public function getUser(string $name): EntityStubInterface {
+    if (!isset($this->users[$name])) {
+      throw new \InvalidArgumentException(sprintf('No user with %s name is registered with the driver.', $name));
     }
 
-    return $this->users[$userName];
+    return $this->users[$name];
   }
 
   /**

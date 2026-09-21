@@ -42,10 +42,10 @@ interface UserManagerInterface {
   /**
    * Removes a user from the list of users that were created in the test.
    *
-   * @param string $userName
+   * @param string $name
    *   The name of the user to remove.
    */
-  public function removeUser(string $userName): void;
+  public function removeUser(string $name): void;
 
   /**
    * Returns the list of users that were created in the test.
@@ -58,7 +58,7 @@ interface UserManagerInterface {
   /**
    * Returns the user with the given user name.
    *
-   * @param string $userName
+   * @param string $name
    *   The name of the user to return.
    *
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
@@ -67,7 +67,7 @@ interface UserManagerInterface {
    * @throws \InvalidArgumentException
    *   Thrown when the user with the given name does not exist.
    */
-  public function getUser(string $userName): EntityStubInterface;
+  public function getUser(string $name): EntityStubInterface;
 
   /**
    * Clears the list of users that were created in the test.

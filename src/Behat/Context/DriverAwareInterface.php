@@ -24,7 +24,7 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setDriverManager(DriverManagerInterface $driverManager): void;
+  public function setDriverManager(DriverManagerInterface $driver_manager): void;
 
   /**
    * Returns the driver manager.
@@ -48,7 +48,7 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setUserManager(UserManagerInterface $userManager): void;
+  public function setUserManager(UserManagerInterface $user_manager): void;
 
   /**
    * Returns the user manager.
@@ -61,7 +61,7 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setAuthenticationManager(AuthenticationManagerInterface $authenticationManager): void;
+  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void;
 
   /**
    * Returns the authentication manager.
