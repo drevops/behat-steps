@@ -595,19 +595,57 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\ModuleTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\StateTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
-| `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException` |
+| `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
-| `FieldTrait` (`the option ... should (not) exist within the select element ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select, `ExpectationException` for the option |
+| `FieldTrait` (`the option ... should (not) exist within the select element ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
 | `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
+| `TableTrait` (any table step, when the table or the row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `ModalTrait` (`I close the modal`, `I click on ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `FieldTrait` (`I unselect ... from ...` and `the option ... should not be selected within the select element ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `XmlTrait` (every `the XML element ...` and `the XML attribute ... on element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `JsonTrait` (an invalid JSONPath expression, an invalid regular expression, a count that is not an integer, a schema that is not JSON) | `ExpectationException` | `\RuntimeException` |
+| `TableTrait` (`the table ... should be sorted by ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
+| `ElementTrait` (`... with the index ...`, with an index below 1; `... pinned to the top of the viewport within ... pixels`, with a negative tolerance) | `ExpectationException` | `\RuntimeException` |
+| `Drupal\EmailTrait` (`I follow link number ...`, with a link number that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
+| `FieldTrait` (`I fill in the WYSIWYG field ...`, when the field has no `id` attribute) | `ExpectationException` | `\RuntimeException` |
+| `XmlTrait` (`I print last XML response`, when the document cannot be serialised) | `ExpectationException` | `\RuntimeException` |
+| `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
+| `Drupal\BlockTrait` (every `Given the block ...` step, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
+| `WaitTrait` (`I wait for AJAX to finish` and `I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
+| `FieldTrait` (`I fill in the multi-value field ...`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
 
-3 failure messages changed along with their type:
+14 failure messages changed along with their type:
 
 | Step | Was | Now |
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
-| `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `The option "..." was not found in the select "..." on the page ....` |
+| `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
+| `I unselect :option from :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option should not be selected within the select element :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
+| `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
+| every `the table ...` step, when the table is missing | `Table with selector "..." not found.` | `Table matching css "..." not found.` |
+| every `... the row ...` step, when the row is missing | `Table row containing text "..." not found.` | `Table row with text "..." not found.` |
+| `I close the modal` | `The modal close button was not found.` | `Modal close button matching css "..." not found.` |
+| `I click on :selector in the modal` | `The element "..." was not found in the modal.` | `Element in the modal with css\|id\|name\|title\|alt\|value\|text "..." not found.` |
+| `the modal should (not) contain :text` | `The modal content element was not found.` | `Modal content element matching css "..." not found.` |
+| every `the XML element ...` and `the XML attribute ... on element ...` step, when the element is missing | `The XML element "..." was not found.` | `XML element matching xpath "..." not found.` |
+| `the meta tag should exist with the following attributes:` | `Meta tag with specified attributes was not found: {...}.` | `Meta tag with attributes "{...}" not found.` |
+| `the :meta_name meta tag should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
+
+The same rule now covers the driver layer and the Behat managers, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls the driver or a manager directly and catches on the type, update it:
+
+| Class | Was | Now |
+| --- | --- | --- |
+| `Driver\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Driver\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Behat\Manager\DriverManager::getDriver()` and `setDefaultDriverName()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Manager\UserManager::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Driver\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Driver\Exception\Exception` |
+
+`CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` no longer catches it; catch the class itself.
 
 Behat reports every one of these as a failed step either way, so a scenario that simply runs to a failure behaves the same. Only code that catches a specific type, or asserts on the message text, needs changing.
 

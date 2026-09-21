@@ -93,9 +93,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the following configuration:')]
   public function blockConfigure(string $label, TableNode $fields): void {
-    $this->blockAssertExists($label);
-
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockGetByLabel($label);
 
     $settings = $block->get('settings');
     foreach ($fields->getRowsHash() as $field => $value) {
@@ -162,8 +160,7 @@ trait BlockTrait {
    */
   #[Given('the block :label is enabled')]
   public function blockEnable(string $label): void {
-    $this->blockAssertExists($label);
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockGetByLabel($label);
 
     $block->enable();
 
@@ -185,8 +182,7 @@ trait BlockTrait {
    */
   #[Given('the block :label is disabled')]
   public function blockDisable(string $label): void {
-    $this->blockAssertExists($label);
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockGetByLabel($label);
 
     $block->disable();
 
@@ -211,8 +207,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the following :condition condition configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
-    $this->blockAssertExists($label);
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockGetByLabel($label);
 
     $configuration = $fields->getRowsHash();
     $configuration['id'] = $condition;
@@ -337,6 +332,28 @@ trait BlockTrait {
     if ($actual_region === $region) {
       throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should not be.', $label, $region), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Load a block by its label or fail.
+   *
+   * @param string $label
+   *   The visible label of the block to find.
+   *
+   * @return \Drupal\block\Entity\Block
+   *   The loaded block entity.
+   *
+   * @throws \RuntimeException
+   *   When no block carries that label.
+   */
+  public function blockGetByLabel(string $label): Block {
+    $block = $this->blockLoadByLabel($label);
+
+    if (!$block instanceof Block) {
+      throw new \RuntimeException(sprintf('The block "%s" does not exist.', $label));
+    }
+
+    return $block;
   }
 
   /**

@@ -121,7 +121,7 @@ Feature: Check that KeyboardTrait works
       When I press the keys "abc"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
+    Then it should fail with an exception:
       """
       No element is currently focused. Please focus an element first using a step with a selector.
       """

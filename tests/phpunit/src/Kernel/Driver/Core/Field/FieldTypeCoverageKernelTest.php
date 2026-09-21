@@ -26,8 +26,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * If a type falls into none of these buckets the test fails with the type
  * name, forcing the contributor to add a handler, confirm DefaultHandler is
- * safe, or record a SKIP entry with a reason. This is the safety net that
- * catches missing-handler regressions before they ship to consumers.
+ * safe, or record a SKIP entry with a reason.
  *
  * @group fields
  */
@@ -59,8 +58,8 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Field types that are not eligible for driver expand().
    *
-   * Each entry documents the reason so the skip list does not become a
-   * silent hiding place for regressions.
+   * Each entry documents the reason so the skip list does not silently hide a
+   * regression.
    *
    * @var array<string, string>
    */
@@ -122,7 +121,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
   }
 
   /**
-   * Returns TRUE when the field type can ride DefaultHandler's pass-through.
+   * Returns TRUE when DefaultHandler's pass-through is safe for the field type.
    *
    * DefaultHandler relays a field verbatim only when every stored property is
    * a plain scalar. The field shape classifier flags an entity-reference target
@@ -136,10 +135,10 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
       $unsafe = $shape->fieldIsEntityReference($storage) || $shape->fieldIsComplexValue($storage);
     }
     catch (\Throwable) {
-      // Property construction fails for types that require settings we haven't
-      // supplied (e.g. entity_reference without target_type). Treat those as
-      // unsafe: if the classifier cannot reason about the properties, neither
-      // can this coverage test, and a dedicated handler is the right answer.
+      // Property construction fails for types that require settings not
+      // supplied here (e.g. entity_reference without target_type). Those are
+      // treated as unsafe: the classifier cannot reason about the properties,
+      // so the type needs a dedicated handler.
       return FALSE;
     }
 

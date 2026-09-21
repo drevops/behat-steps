@@ -29,7 +29,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Table with selector ".nonexistent" not found.
+      Table matching css ".nonexistent" not found.
       """
 
   @trait:TableTrait
@@ -171,7 +171,7 @@ Feature: Check that TableTrait works
       Then the table ".table-asc" should be sorted by "Name" in "invalid" order
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       Invalid sort direction "invalid". Use "ascending" or "descending".
       """
@@ -257,7 +257,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No table row containing the text "NonExistent" was found.
+      Table row with text "NonExistent" not found.
       """
 
   @trait:TableTrait

@@ -61,7 +61,7 @@ class DriverManagerTest extends TestCase {
   public function testGetDriverThrowsWithoutDefault(): void {
     $manager = new DriverManager();
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Specify a Drupal driver to get.');
 
     $manager->getDriver();
@@ -70,7 +70,7 @@ class DriverManagerTest extends TestCase {
   public function testGetDriverThrowsForUnregisteredName(): void {
     $manager = new DriverManager();
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Driver "ghost" is not registered');
 
     $manager->getDriver('ghost');
@@ -117,7 +117,7 @@ class DriverManagerTest extends TestCase {
   public function testSetDefaultDriverNameThrowsForUnregistered(): void {
     $manager = new DriverManager();
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Driver "missing" is not registered.');
 
     $manager->setDefaultDriverName('missing');

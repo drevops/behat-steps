@@ -118,7 +118,7 @@ class DaterangeHandlerTest extends FieldHandlerUnitTestBase {
         'not-a-record',
       ],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Daterange field record must be an array',
     ];
   }

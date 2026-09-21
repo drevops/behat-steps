@@ -43,11 +43,11 @@ class NameHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     $enabled = $this->getEnabledComponents();
 
     if (is_string($values)) {
-      return [$this->normaliseString($values, $enabled)];
+      return [$this->normalizeString($values, $enabled)];
     }
 
     if ($values === []) {
@@ -55,26 +55,26 @@ class NameHandler extends AbstractHandler {
     }
 
     if (!is_array($values)) {
-      throw new \InvalidArgumentException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
+      throw new \RuntimeException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
     }
 
     if (!array_is_list($values)) {
-      return [$this->normaliseArray($values, $enabled)];
+      return [$this->normalizeArray($values, $enabled)];
     }
 
     $names = [];
 
     foreach ($values as $delta => $value) {
       if (is_string($value)) {
-        $names[] = $this->normaliseString($value, $enabled);
+        $names[] = $this->normalizeString($value, $enabled);
         continue;
       }
 
       if (!is_array($value)) {
-        throw new \InvalidArgumentException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
+        throw new \RuntimeException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
       }
 
-      $names[] = $this->normaliseArray($value, $enabled);
+      $names[] = $this->normalizeArray($value, $enabled);
     }
 
     return $names;
@@ -117,7 +117,7 @@ class NameHandler extends AbstractHandler {
    * @return array<string, mixed>
    *   The keyed component array.
    */
-  protected function normaliseString(string $value, array $enabled): array {
+  protected function normalizeString(string $value, array $enabled): array {
     $parts = array_map(trim(...), explode(',', $value));
 
     if (count($parts) > 2) {
@@ -154,7 +154,7 @@ class NameHandler extends AbstractHandler {
    * @return array<string, mixed>
    *   A keyed array of name components.
    */
-  protected function normaliseArray(array $value, array $enabled): array {
+  protected function normalizeArray(array $value, array $enabled): array {
     if ($value !== [] && !array_is_list($value) && $this->hasNumericKey($value)) {
       throw new \RuntimeException('Cannot mix numeric and named keys in the same name value; use one shape consistently.');
     }

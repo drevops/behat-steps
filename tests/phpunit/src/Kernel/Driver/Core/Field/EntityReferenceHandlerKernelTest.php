@@ -56,7 +56,6 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
       'target_type' => 'user',
     ]);
 
-    // Create a user that the handler can look up by name.
     $user = User::create(['name' => 'alice']);
     $user->save();
 
@@ -82,13 +81,11 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests round-trip when a delta is an associative array.
    *
-   * Callers passing the field-item shape used by file / image /
-   * entity_reference_revisions values - e.g. '['target_id' => 'alice',
-   * 'display' => 1]' - previously crashed because the array was handed to
-   * 'query->condition()' directly, producing a SQL parameter-binding error.
-   * The handler should treat the main property value as the lookup label,
-   * resolve it to an id, and preserve the original array shape so any extra
-   * item properties round-trip through to storage.
+   * A delta may use the field-item shape of file, image or
+   * entity_reference_revisions values, e.g. '['target_id' => 'alice',
+   * 'display' => 1]'. The handler treats the main property value as the
+   * lookup label, resolves it to an id, and preserves the original array
+   * shape so any extra item properties round-trip through to storage.
    */
   public function testUserReferenceResolvesAssociativeArrayDelta(): void {
     $this->attachField('field_owner', 'entity_reference', [
@@ -131,12 +128,11 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests round-trip for an entity_reference field targeting taxonomy terms.
    *
-   * Drupal 8 beta10 removed the legacy 'taxonomy_term_reference' field type;
-   * modern sites use 'entity_reference' with 'target_type = taxonomy_term',
-   * so the driver routes through EntityReferenceHandler. Covered here
-   * alongside the other EntityReferenceHandler targets rather than in its
-   * own suite because it is the same handler exercising a different
-   * 'target_type'.
+   * Taxonomy terms are referenced through 'entity_reference' with
+   * 'target_type = taxonomy_term', so the driver routes through
+   * EntityReferenceHandler. Covered here alongside the other
+   * EntityReferenceHandler targets rather than in its own suite because it is
+   * the same handler exercising a different 'target_type'.
    */
   public function testTaxonomyTermReferenceByNameRoundTrip(): void {
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();

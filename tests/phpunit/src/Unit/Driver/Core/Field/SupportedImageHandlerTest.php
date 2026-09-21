@@ -109,13 +109,13 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
     yield 'NULL target_id rejected' => [
       [['target_id' => NULL]],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Supported image field "target_id" must not be NULL or empty.',
     ];
-    yield 'unreadable path bubbles up as Exception' => [
+    yield 'unreadable path bubbles up as RuntimeException' => [
       '/nonexistent/missing-supported-image.jpg',
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       'Error reading file /nonexistent/missing-supported-image.jpg.',
     ];
   }

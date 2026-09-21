@@ -9,17 +9,15 @@
 
 declare(strict_types=1);
 
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use Behat\Step\Given;
+use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Tag;
 
 /**
- * Trait BehatCliTrait.
- *
  * Additional shortcut steps for BehatCliContext.
  */
 trait BehatCliTrait {
@@ -41,8 +39,7 @@ trait BehatCliTrait {
 
     $traits = [];
 
-    // Scan scenario tags and extract trait names from tags starting with
-    // 'trait:'. For example, @trait:PathTrait or @trait:Drupal\\UserTrait.
+    // A trait tag reads @trait:PathTrait or @trait:Drupal\\UserTrait.
     foreach (Tag::on($scope->getScenario()) as $tag) {
       if (str_starts_with($tag, 'trait:')) {
         $tags = trim(substr($tag, strlen('trait:')));
@@ -56,7 +53,6 @@ trait BehatCliTrait {
     $traits = array_filter($traits);
     $traits = array_unique($traits);
 
-    // Only create FeatureContext.php if there is at least one '@trait:' tag.
     if (empty($traits)) {
       return;
     }
@@ -70,8 +66,7 @@ trait BehatCliTrait {
     // This requires Drupal root to be discoverable when running Behat from a
     // random directory using Drupal Finder.
     //
-    // Set environment variables for Drupal Finder.
-    // This requires Drupal Finder version > 1.2 at commit:
+    // Drupal Finder reads these variables from version > 1.2 at commit:
     // @see https://github.com/webflo/drupal-finder/commit/2663b117878f4a45ca56df028460350c977f92c0
     $this->iSetEnvironmentVariable('DRUPAL_FINDER_DRUPAL_ROOT', '/app/build/web');
     $this->iSetEnvironmentVariable('DRUPAL_FINDER_COMPOSER_ROOT', '/app/build');
@@ -168,7 +163,6 @@ EOL;
   public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
-    // Make sure that indentation in provided content is accurate.
     $content_lines = explode(PHP_EOL, $content);
     foreach ($content_lines as $k => $content_line) {
       $content_lines[$k] = str_repeat(' ', 4) . trim($content_line);
@@ -350,7 +344,7 @@ EOL;
    * Helper to check if debug mode is enabled.
    */
   protected static function behatCliIsDebug(): bool {
-    // Change to TRUE to see debug messages for this trait.
+    // TRUE enables debug messages for this trait.
     return FALSE;
   }
 
@@ -365,14 +359,11 @@ EOL;
    * Copy fixtures to the working directory.
    */
   protected function behatCliCopyFixtures() {
-    // Copy fixtures to the working directory.
     $fixture_path = 'tests/behat/fixtures';
-    // @note Hardcoded path to the fixture directory.
     $fixture_path_abs = '/app' . DIRECTORY_SEPARATOR . $fixture_path;
     if (is_dir($fixture_path_abs)) {
       $dst = $this->workingDir . DIRECTORY_SEPARATOR . $fixture_path;
       mkdir($dst, 0777, TRUE);
-      // Copy fixtures from the webroot to the working directory.
       foreach (glob($fixture_path_abs . '/*') as $file) {
         // @note Only copy files for speed.
         if (is_file($file)) {

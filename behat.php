@@ -19,8 +19,8 @@ use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext('FeatureContext')
-  ->addContext('BehatCliContext')
+  ->addContext(FeatureContext::class)
+  ->addContext(BehatCliContext::class)
   ->addContext(MinkContext::class)
   ->addContext(ScreenshotContext::class)
   ->addContext(PhpServerContext::class, [
@@ -65,8 +65,8 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [
       'root' => 'web',
-      // Drush resolves a request URI for every command, and without one it
-      // refuses to bootstrap.
+      // Drush resolves a request URI for every command and does not
+      // bootstrap without one.
       'global_options' => '--uri=http://nginx:8080',
     ],
     'selectors' => [

@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
  * cleared unconditionally before and after the scenario to prevent state
  * leaking into subsequent scenarios.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait StateTrait {
 
@@ -58,8 +60,8 @@ trait StateTrait {
       return;
     }
 
-    // A scenario that recorded no snapshot has nothing to revert, and asking
-    // for the driver would fail one running on a driver that never had it.
+    // A scenario with no snapshot has nothing to revert, and 'assertDrupal()'
+    // would fail one that ran on a driver without Drupal.
     if ($this->stateOriginalValues === []) {
       return;
     }

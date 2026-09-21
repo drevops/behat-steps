@@ -39,9 +39,9 @@ interface EntityFieldParserInterface {
   /**
    * Sets property names accepted without field-type validation.
    *
-   * Used by callers that put driver-level creation hints on the stub
-   * (e.g. 'author', 'role', 'vocabulary_machine_name') which are not real
-   * Drupal fields but are consumed by the driver's create methods.
+   * Driver-level creation hints on the stub (e.g. 'author', 'role',
+   * 'vocabulary_machine_name') are not real Drupal fields; the driver's
+   * create methods consume them.
    *
    * @param string[] $properties
    *   Property names to accept without validation.

@@ -110,9 +110,8 @@ class AuthorAliasTest extends TestCase {
   /**
    * Tests that empty or null 'author' values throw a clear error.
    *
-   * Empty strings used to be coerced into a 'user "" not found' message
-   * which buried the actual problem (the alias is set but empty). The
-   * resolver now throws before the lookup with the empty-alias signal.
+   * The resolver throws before the lookup, so the message reports the empty
+   * alias rather than a missing user.
    *
    * @param mixed $author
    *   The empty-ish 'author' value placed on the stub.

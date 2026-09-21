@@ -49,11 +49,8 @@ interface DrupalDriverInterface extends
   /**
    * Injects the active Core implementation.
    *
-   * Consumers override the driver's default Core lookup by passing any
-   * class that implements 'CoreInterface' - the class name and namespace
-   * do not matter. Typically called in a test bootstrap when the project
-   * ships its own Core subclass (e.g. one that registers additional field
-   * handlers in its 'registerDefaultFieldHandlers()' override).
+   * Overrides the driver's default Core lookup. Any class that implements
+   * 'CoreInterface' is accepted; the class name and namespace do not matter.
    *
    * @param \DrevOps\BehatSteps\Driver\Core\CoreInterface $core
    *   The Core instance the driver should delegate to.

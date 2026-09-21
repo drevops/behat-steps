@@ -11,13 +11,15 @@ use Behat\Step\When;
 /**
  * Control system time in tests using Drupal state overrides.
  *
- * IMPORTANT: This trait requires your application to use a mockable time
+ * This trait requires the consuming application to use a mockable time
  * service that checks Drupal state for time overrides.
  *
  * Example implementation:
  * - Time service: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
  * - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
  * - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait TimeTrait {
 
@@ -31,8 +33,8 @@ trait TimeTrait {
    */
   #[AfterScenario('@api')]
   public function timeCleanup(AfterScenarioScope $scope): void {
-    // A scenario that never set the time has nothing to clean up, and asking
-    // for the driver would fail one running on a driver that never had it.
+    // A scenario that never set the time has nothing to clean up, and
+    // 'assertDrupal()' would fail one that ran on a driver without Drupal.
     if (!$this->timeWasSet || $this->skipTag(__FUNCTION__, $scope)) {
       $this->timeWasSet = FALSE;
 

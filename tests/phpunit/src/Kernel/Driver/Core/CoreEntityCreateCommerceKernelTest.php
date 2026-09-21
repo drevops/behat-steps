@@ -16,18 +16,16 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test exercising 'entityCreate()' on a 'commerce_product' stub.
  *
- * This is the canonical scenario from #270: a stub sets
- * 'commerce_product.variations' - a BASE entity_reference field targeting
- * 'commerce_product_variation' - and expects the driver to resolve each
- * referenced variation and attach it to the product on save. Without the
- * base-field auto-detection in 'expandEntityFields()', variations are
- * filtered out of the field-handler pipeline, reach entity storage in raw
- * scalar form, and the product is saved with no variations attached.
+ * A stub sets 'commerce_product.variations', a base entity_reference field
+ * targeting 'commerce_product_variation', and expects the driver to resolve
+ * each referenced variation and attach it to the product on save. Without
+ * the base-field auto-detection in 'expandEntityFields()', variations are
+ * filtered out of the field-handler pipeline and reach entity storage in raw
+ * scalar form. The product is then saved with no variations attached.
  *
- * The test dogfoods the driver end-to-end: both the variation and the
- * product are created via 'Core::entityCreate()', then the product is
- * loaded back via the entity type manager to assert the resolved
- * relationship.
+ * Both the variation and the product are created via 'Core::entityCreate()',
+ * then the product is loaded back via the entity type manager to assert the
+ * resolved relationship.
  *
  * @group core
  */
@@ -72,9 +70,10 @@ class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Drupal 12 moved the 'text_with_summary' field type, which the
-    // commerce_product configuration uses, out of 'text' and into its own
-    // module, so it is enabled before the configuration that reads it.
+    // On Drupal 12 the 'text_with_summary' field type, which the
+    // commerce_product configuration uses, is provided by its own module
+    // rather than by 'text', so it is enabled before the configuration that
+    // reads it.
     if (\Drupal::service('extension.list.module')->exists('text_with_summary')) {
       $this->enableModules(['text_with_summary']);
     }

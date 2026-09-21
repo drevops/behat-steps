@@ -44,7 +44,7 @@ class DocumentElement extends TraversableElement {
   }
 
   /**
-   * Check whether document has specified content.
+   * Checks whether the document has the specified content.
    *
    * @param string $content
    *   The content to check for.
@@ -64,9 +64,9 @@ class DocumentElement extends TraversableElement {
       return parent::getText();
     }
 
-    // Strip what the reader does not see. 'strip_tags()' below drops the
-    // tags but keeps their bodies, so a script or style body would otherwise
-    // count as page text.
+    // Strip content a browser does not render. 'strip_tags()' below drops
+    // the tags but keeps their bodies, so a script or style body would
+    // otherwise count as page text.
     $raw_content = preg_replace([
       '@<head>(.+?)</head>@si',
       '@<script\b[^>]*>.*?</script>@si',

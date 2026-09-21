@@ -30,8 +30,8 @@ class DriverPass implements CompilerPassInterface {
         }
       }
 
-      // The Drupal driver takes a single Core via setCore(). Resolve the
-      // first service tagged 'behat_steps.core' and inject it.
+      // The Drupal driver takes a single Core, so only the first service
+      // tagged 'behat_steps.core' is injected.
       if ($id !== 'behat_steps.driver.drupal') {
         continue;
       }

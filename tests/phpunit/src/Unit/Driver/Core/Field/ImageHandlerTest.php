@@ -120,19 +120,19 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
     yield 'NULL target_id rejected' => [
       [['target_id' => NULL, 'alt' => 'A']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Image field "target_id" must not be NULL or empty.',
     ];
     yield 'empty target_id rejected' => [
       [['target_id' => '', 'alt' => 'A']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Image field "target_id" must not be NULL or empty.',
     ];
-    yield 'unreadable path bubbles up as Exception' => [
+    yield 'unreadable path bubbles up as RuntimeException' => [
       ['/nonexistent/missing-image.jpg'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       'Error reading file /nonexistent/missing-image.jpg.',
     ];
   }
@@ -197,10 +197,10 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
     $storage = new readonly class($files_by_uri) {
 
       /**
-       * @param array<string, object> $files_by_uri
+       * @param array<string, object> $filesByUri
        *   Files keyed by URI.
        */
-      public function __construct(protected array $files_by_uri) {}
+      public function __construct(protected array $filesByUri) {}
 
       /**
        * Returns the file matching the given URI, or an empty list.
@@ -214,8 +214,8 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
       public function loadByProperties(array $properties): array {
         $uri = $properties['uri'] ?? NULL;
 
-        return $uri !== NULL && isset($this->files_by_uri[$uri])
-          ? [$this->files_by_uri[$uri]]
+        return $uri !== NULL && isset($this->filesByUri[$uri])
+          ? [$this->filesByUri[$uri]]
           : [];
       }
 

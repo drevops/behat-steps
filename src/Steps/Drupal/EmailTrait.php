@@ -13,7 +13,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
 
@@ -98,8 +97,6 @@ trait EmailTrait {
       return;
     }
 
-    // A scenario that skipped 'emailBeforeScenario' never reached Drupal, and
-    // teardown runs before any other hook that would have bootstrapped it.
     $this->assertDrupal();
 
     $this->emailDisableTestEmailSystem();
@@ -169,8 +166,8 @@ trait EmailTrait {
    * Follow the first link containing a fragment in an email.
    *
    * Searches every collected message for a link whose URL contains the
-   * fragment, so a scenario can follow a one-time login or confirmation link
-   * without knowing its position in the body.
+   * fragment. A one-time login or confirmation link can be followed without
+   * knowing its position in the body.
    *
    * @code
    * When I follow the link containing "user/reset" in the email
@@ -261,6 +258,8 @@ trait EmailTrait {
    */
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
+    $this->assertDrupal();
+
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemDefault($type);
       if (!self::emailGetMailSystemOriginal($type)) {
@@ -283,6 +282,8 @@ trait EmailTrait {
    */
   #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
+    $this->assertDrupal();
+
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = self::emailGetMailSystemOriginal($type);
       self::emailSetMailSystemDefault($type, $original_test_system);
@@ -692,11 +693,8 @@ trait EmailTrait {
   protected static function emailSetMailSystemDefault(string $type, mixed $value): void {
     \Drupal::configFactory()->getEditable('system.mail')->set('interface.' . $type, $value)->save();
 
-    // The Mailsystem module completely takes over the default interface, so
-    // update its configuration as well when the module is installed.
-    // For unknown reasons, resetting this back to the original values after
-    // the test is not required: the values in the configuration will not be
-    // overridden.
+    // The Mailsystem module replaces the default interface, so update its
+    // configuration as well when the module is installed.
     // @codeCoverageIgnoreStart
     if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
@@ -740,10 +738,6 @@ trait EmailTrait {
     // may corrupt the system under test.
     $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");
 
-    // A failed read is not the same as an empty mailbox. Connection::query()
-    // returns NULL when execution failed and the exception handler suppressed
-    // it, and treating that as zero messages would make every "no emails"
-    // assertion pass without the collector ever being consulted.
     // @codeCoverageIgnoreStart
     if (!$query instanceof StatementInterface) {
       throw new \RuntimeException('The test email collector could not be read from the key_value store.');
@@ -751,7 +745,6 @@ trait EmailTrait {
     // @codeCoverageIgnoreEnd
     $messages = array_map(unserialize(...), $query->fetchAllKeyed());
 
-    // An absent key means the collector is readable and holds nothing yet.
     $messages = $messages['system.test_mail_collector'] ?? [];
 
     $fields = ['subject', 'body', 'to', 'from', 'cc', 'bcc'];
@@ -827,8 +820,7 @@ trait EmailTrait {
   /**
    * Convert a link number step argument into a positive integer.
    *
-   * Links are numbered from 1. Anything below that would index the link list
-   * out of range further down, so it is rejected here.
+   * Links are numbered from 1, so a number below 1 is rejected.
    *
    * @param string $link_number
    *   The link number as provided in the step.
@@ -836,12 +828,12 @@ trait EmailTrait {
    * @return int
    *   The link number as a positive integer.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \RuntimeException
    *   When the link number is not a positive integer.
    */
   protected function emailAssertLinkNumber(string $link_number): int {
     if (!ctype_digit(trim($link_number)) || (int) $link_number < 1) {
-      throw new ExpectationException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number));
     }
 
     return (int) $link_number;

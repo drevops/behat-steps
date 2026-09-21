@@ -31,7 +31,7 @@ class EntityReferenceHandler extends AbstractHandler {
 
     foreach ($records as $record) {
       if (!array_key_exists($this->mainProperty, $record)) {
-        throw new \InvalidArgumentException(sprintf('Entity reference record is missing the main property "%s".', $this->mainProperty));
+        throw new \RuntimeException(sprintf('Entity reference record is missing the main property "%s".', $this->mainProperty));
       }
 
       $lookup = $record[$this->mainProperty];
@@ -73,7 +73,7 @@ class EntityReferenceHandler extends AbstractHandler {
       $entities = $query->execute();
 
       if (!$entities) {
-        throw new \Exception(sprintf("No entity '%s' of type '%s' exists.", $lookup, $entity_type_id));
+        throw new \RuntimeException(sprintf("No entity '%s' of type '%s' exists.", $lookup, $entity_type_id));
       }
 
       $record[$this->mainProperty] = array_shift($entities);

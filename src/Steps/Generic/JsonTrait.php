@@ -258,7 +258,7 @@ trait JsonTrait {
 
     $result = @preg_match($pattern, (string) $actual);
     if ($result === FALSE) {
-      throw new ExpectationException(sprintf('The regular expression "%s" is invalid.', $pattern), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The regular expression "%s" is invalid.', $pattern));
     }
 
     if ($result === 0) {
@@ -279,7 +279,7 @@ trait JsonTrait {
 
     $result = @preg_match($pattern, (string) $actual);
     if ($result === FALSE) {
-      throw new ExpectationException(sprintf('The regular expression "%s" is invalid.', $pattern), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The regular expression "%s" is invalid.', $pattern));
     }
 
     if ($result === 1) {
@@ -355,7 +355,7 @@ trait JsonTrait {
     }
 
     if (!ctype_digit($count)) {
-      throw new ExpectationException(sprintf('The expected element count "%s" is not a valid non-negative integer.', $count), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The expected element count "%s" is not a valid non-negative integer.', $count));
     }
 
     $actual = count($value);
@@ -520,7 +520,7 @@ trait JsonTrait {
       $result = (new JSONPath($this->jsonData))->find($path);
     }
     catch (\Exception $exception) {
-      throw new ExpectationException(sprintf('The JSON path "%s" is invalid: %s.', $path, $exception->getMessage()), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The JSON path "%s" is invalid: %s.', $path, $exception->getMessage()), $exception->getCode(), $exception);
     }
 
     $data = $result->getData();
@@ -608,7 +608,7 @@ trait JsonTrait {
 
     $schema = json_decode($schema_json);
     if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new ExpectationException(sprintf('The provided JSON schema is not valid JSON: %s.', json_last_error_msg()), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The provided JSON schema is not valid JSON: %s.', json_last_error_msg()));
     }
 
     $validator = new Validator();

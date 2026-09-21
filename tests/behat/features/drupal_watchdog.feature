@@ -1,4 +1,4 @@
-@errorcleanup
+@test-errorcleanup
 Feature: Check that WatchdogTrait works
   As Behat Steps library developer
   I want to provide tools to monitor Drupal watchdog messages

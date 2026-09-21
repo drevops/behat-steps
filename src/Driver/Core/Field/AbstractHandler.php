@@ -27,7 +27,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * Main property name of the field's storage definition.
    *
    * NULL for field types without a single main column (e.g. 'address',
-   * 'name'); those handlers must override 'normalise()' to interpret
+   * 'name'); those handlers must override 'normalize()' to interpret
    * records themselves.
    */
   protected ?string $mainProperty;
@@ -42,12 +42,12 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * @param string $field_name
    *   The field name.
    *
-   * @throws \Exception
+   * @throws \RuntimeException
    *   Thrown when the given field name does not exist on the entity.
    */
   public function __construct(EntityStubInterface $stub, string $entity_type, string $field_name) {
     if ($entity_type === '') {
-      throw new \InvalidArgumentException('You must specify an entity type in order to parse entity fields.');
+      throw new \RuntimeException('You must specify an entity type in order to parse entity fields.');
     }
 
     /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager */
@@ -81,7 +81,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * {@inheritdoc}
    */
   final public function expand(mixed $values): array {
-    return $this->doExpand($this->normalise($values));
+    return $this->doExpand($this->normalize($values));
   }
 
   /**
@@ -95,7 +95,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    *   - Mixed list of scalars and records -> scalars wrapped, records kept.
    *
    * Subclasses with custom shorthand override this method and may call
-   * 'parent::normalise()' for the residual shapes they do not handle
+   * 'parent::normalize()' for the residual shapes they do not handle
    * themselves.
    *
    * @param mixed $values
@@ -104,9 +104,9 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * @return array<int, array<string, mixed>>
    *   Canonical list of records.
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if ($this->mainProperty === NULL) {
-      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalise(); override normalise() in the handler subclass.', static::class));
+      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
     }
 
     if (!is_array($values)) {
@@ -117,9 +117,9 @@ abstract class AbstractHandler implements FieldHandlerInterface {
       return [];
     }
 
-    // '['foo.jpg', 'alt' => 'A']' is ambiguous: is 'foo.jpg' the main
-    // value with 'alt' as an extra, or two separate deltas with one of
-    // them named? Reject rather than silently picking one.
+    // '['foo.jpg', 'alt' => 'A']' is ambiguous: 'foo.jpg' could be the main
+    // value with 'alt' as an extra, or two separate deltas with one of them
+    // named. Reject rather than silently picking one.
     $has_int_key = FALSE;
     $has_string_key = FALSE;
 
@@ -133,7 +133,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     }
 
     if ($has_int_key && $has_string_key) {
-      throw new \InvalidArgumentException(sprintf(
+      throw new \RuntimeException(sprintf(
         'Field value cannot mix positional and named keys at the top level. Got keys: %s. Pass either a list of values or a single keyed record, not both.',
         implode(', ', array_keys($values)),
       ));
@@ -156,7 +156,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     // handler does not silently dispatch on missing data.
     foreach ($records as $record) {
       if (!array_key_exists($this->mainProperty, $record)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Field record must include the main property "%s". Got keys: %s.',
           $this->mainProperty,
           implode(', ', array_keys($record)) ?: '(none)',

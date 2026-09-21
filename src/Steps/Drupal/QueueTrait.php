@@ -225,9 +225,9 @@ trait QueueTrait {
   /**
    * Track a queue name for cleanup.
    */
-  protected function queueTrackName(string $queue_name): void {
-    if (!in_array($queue_name, $this->queueNames, TRUE)) {
-      $this->queueNames[] = $queue_name;
+  protected function queueTrackName(string $queue): void {
+    if (!in_array($queue, $this->queueNames, TRUE)) {
+      $this->queueNames[] = $queue;
     }
   }
 

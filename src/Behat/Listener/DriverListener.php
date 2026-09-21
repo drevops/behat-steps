@@ -54,19 +54,19 @@ class DriverListener implements EventSubscriberInterface {
    *   When neither a tag nor 'default_driver' names a driver.
    */
   public function prepareDefaultDriver(BeforeScenarioTested $event): void {
-    $driver = $this->parameters['default_driver'] ?? NULL;
+    $name = $this->parameters['default_driver'] ?? NULL;
 
     foreach (Tag::all($event) as $tag) {
       if (!empty($this->parameters[$tag . '_driver'])) {
-        $driver = $this->parameters[$tag . '_driver'];
+        $name = $this->parameters[$tag . '_driver'];
       }
     }
 
-    if (!is_string($driver) || $driver === '') {
+    if (!is_string($name) || $name === '') {
       throw new \RuntimeException('No driver is configured for this scenario: set "default_driver" in the extension configuration.');
     }
 
-    $this->driverManager->setDefaultDriverName($driver);
+    $this->driverManager->setDefaultDriverName($name);
     $this->driverManager->setEnvironment($event->getEnvironment());
   }
 

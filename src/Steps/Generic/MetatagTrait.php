@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
@@ -13,7 +14,7 @@ use Behat\Step\Then;
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.
  *
- * - Assert presence and content of meta tags with proper attribute handling.
+ * - Assert presence and content of meta tags.
  * - Verify meta tag content is free of HTML markup.
  * - Assert canonical URL, robots directives and indexability.
  * - Assert hreflang alternates are valid and reciprocal.
@@ -62,7 +63,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new ExpectationException(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'attributes', (string) json_encode($attributes));
     }
   }
 
@@ -115,7 +116,7 @@ trait MetatagTrait {
     $meta_tag = $this->metatagFindMeta($meta_name);
 
     if ($meta_tag === NULL) {
-      throw new ExpectationException(sprintf('Meta tag with name or property "%s" not found.', $meta_name), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'name|property', $meta_name);
     }
 
     $content = (string) $meta_tag->getAttribute('content');
@@ -254,9 +255,9 @@ trait MetatagTrait {
    * Assert hreflang alternates are valid.
    *
    * Checks, without fetching any alternate page, that at least one hreflang
-   * alternate exists, that a self-referencing alternate for the current URL is
-   * present, and that every hreflang value is a well-formed language code (or
-   * "x-default").
+   * alternate exists and that a self-referencing alternate for the current
+   * URL is present. Every hreflang value must be a well-formed language code
+   * (or "x-default").
    *
    * @code
    * Then the hreflang alternates should be valid
@@ -295,8 +296,7 @@ trait MetatagTrait {
    * Assert hreflang alternates have reciprocal return links.
    *
    * Fetches each non-"x-default" alternate page (other than the current page)
-   * and asserts that it links back to the current URL, failing clearly when an
-   * alternate does not reciprocate.
+   * and asserts that it links back to the current URL.
    *
    * @code
    * Then the hreflang alternates should have reciprocal return links
@@ -384,14 +384,14 @@ trait MetatagTrait {
   /**
    * Find a meta tag by its "name" or "property" attribute.
    *
-   * @param string $name
+   * @param string $meta_name
    *   The meta tag name or property.
    *
    * @return \Behat\Mink\Element\NodeElement|null
    *   The meta element, or NULL when not found.
    */
-  public function metatagFindMeta(string $name): ?NodeElement {
-    $escaped_name = (new Escaper())->escapeLiteral($name);
+  public function metatagFindMeta(string $meta_name): ?NodeElement {
+    $escaped_name = (new Escaper())->escapeLiteral($meta_name);
 
     return $this->getSession()->getPage()->find('xpath', sprintf('//meta[@name=%s or @property=%s]', $escaped_name, $escaped_name));
   }
@@ -399,14 +399,14 @@ trait MetatagTrait {
   /**
    * Get the content of a meta tag by its "name" or "property" attribute.
    *
-   * @param string $name
+   * @param string $meta_name
    *   The meta tag name or property.
    *
    * @return string|null
    *   The content attribute value, or NULL when the meta tag is not found.
    */
-  public function metatagGetMetaContent(string $name): ?string {
-    $meta = $this->metatagFindMeta($name);
+  public function metatagGetMetaContent(string $meta_name): ?string {
+    $meta = $this->metatagFindMeta($meta_name);
 
     return $meta === NULL ? NULL : (string) $meta->getAttribute('content');
   }
@@ -552,7 +552,7 @@ trait MetatagTrait {
     }
 
     if ($status >= 400) {
-      throw new ExpectationException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status));
     }
 
     return $body;
@@ -607,9 +607,8 @@ trait MetatagTrait {
    * Absolute URLs are returned unchanged and root-relative URLs are resolved
    * against the base URL's origin. Document-relative URLs (such as "page.html"
    * or "../en") are resolved against the origin rather than the base path.
-   * Hreflang and canonical markup should therefore use absolute or
-   * root-relative URLs, in line with search-engine guidance to use
-   * fully-qualified URLs.
+   *
+   * Hreflang and canonical markup should use absolute or root-relative URLs.
    *
    * @param string $url
    *   The URL to resolve.

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
-use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
 
@@ -192,7 +192,7 @@ JS;
       $xpath = $this->getSession()->evaluateScript($script);
 
       if (!$xpath) {
-        throw new ExpectationException('No element is currently focused. Please focus an element first using a step with a selector.', $this->getSession()->getDriver());
+        throw new \RuntimeException('No element is currently focused. Please focus an element first using a step with a selector.');
       }
 
       $this->keyboardTriggerKey($xpath, $char);
@@ -203,7 +203,7 @@ JS;
 
       // @codeCoverageIgnoreStart
       if (!$element) {
-        throw new \RuntimeException(sprintf('Unable to find an element with "%s" selector.', $selector));
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
       // @codeCoverageIgnoreEnd
       $this->keyboardTriggerKey($element->getXpath(), $char);
@@ -228,8 +228,6 @@ JS;
   protected function keyboardTriggerKey(string $xpath, string $key): void {
     $driver = $this->getSession()->getDriver();
 
-    // Selenium2 driver: reuse the bundled Syn library via reflection to inject
-    // synthetic events and execute JS on the element.
     if ($driver instanceof Selenium2Driver) {
       $reflector = new \ReflectionClass($driver);
       $with_syn_reflection = $reflector->getMethod('withSyn');
@@ -244,10 +242,9 @@ JS;
       return;
     }
 
-    // CDP-based drivers like the Chrome (chrome-mink) driver: dispatch native
-    // DevTools key events. Special keys are sent as a keycode down/up pair so
-    // their default action (focus move, submit, etc.) fires; printable
-    // characters are sent as a single character so their text is inserted.
+    // Special keys are sent as a keycode down/up pair so their default action
+    // (focus move, submit, etc.) fires. Printable characters are sent as a
+    // single character so their text is inserted.
     $keycodes = [
       "\b" => 8,
       "\t" => 9,

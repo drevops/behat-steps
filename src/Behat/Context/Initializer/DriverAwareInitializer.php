@@ -45,10 +45,6 @@ class DriverAwareInitializer implements ContextInitializer {
    * {@inheritdoc}
    */
   public function initializeContext(Context $context): void {
-    // 'ParametersAwareInterface' is a strict subset of 'DriverAwareInterface'
-    // (the latter extends the former). Pass parameters to any context that
-    // asks for them, then layer the heavier driver wiring on top for full
-    // driver-aware contexts only.
     if ($context instanceof ParametersAwareInterface) {
       $context->setParameters($this->parameters);
     }

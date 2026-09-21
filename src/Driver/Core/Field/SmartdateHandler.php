@@ -12,7 +12,7 @@ class SmartdateHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if ($values === []) {
       return [];
     }
@@ -23,8 +23,6 @@ class SmartdateHandler extends AbstractHandler {
       $values = [$values];
     }
 
-    // A list whose first element is an array is treated as a list of
-    // records; anything else is a single delta wrapped in a list.
     $is_list_of_records = array_is_list($values) && is_array($values[0]);
 
     if (!$is_list_of_records) {
@@ -35,7 +33,7 @@ class SmartdateHandler extends AbstractHandler {
 
     foreach ($values as $value) {
       if (!is_array($value)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Smartdate field delta must be an array (positional [start, end] or keyed value/end_value). Got %s.',
           get_debug_type($value),
         ));

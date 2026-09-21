@@ -11,19 +11,19 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests AbstractHandler::normalise() across every input shape we accept.
+ * Tests AbstractHandler::normalize() across every accepted input shape.
  *
  * @group fields
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
-class AbstractHandlerNormaliseTest extends TestCase {
+class AbstractHandlerNormalizeTest extends TestCase {
 
   /**
-   * Tests every accepted and rejected input shape for normalise().
+   * Tests every accepted and rejected input shape for normalize().
    *
    * @param mixed $input
-   *   The loose input to feed to normalise().
+   *   The loose input to feed to normalize().
    * @param string $main_property
    *   The field's main property name (returned by the mocked fieldInfo).
    * @param array<int, array<string, mixed>>|null $expected
@@ -34,10 +34,10 @@ class AbstractHandlerNormaliseTest extends TestCase {
    * @param string|null $exception_message
    *   Substring the exception message must contain, or NULL.
    *
-   * @dataProvider dataProviderNormalise
+   * @dataProvider dataProviderNormalize
    */
-  #[DataProvider('dataProviderNormalise')]
-  public function testNormalise(mixed $input, string $main_property, ?array $expected, ?string $exception, ?string $exception_message): void {
+  #[DataProvider('dataProviderNormalize')]
+  public function testNormalize(mixed $input, string $main_property, ?array $expected, ?string $exception, ?string $exception_message): void {
     $handler = $this->createHandler($main_property);
 
     if ($exception !== NULL) {
@@ -48,7 +48,7 @@ class AbstractHandlerNormaliseTest extends TestCase {
       }
     }
 
-    $result = $this->invokeNormalise($handler, $input);
+    $result = $this->invokeNormalize($handler, $input);
 
     if ($exception === NULL) {
       $this->assertSame($expected, $result);
@@ -56,12 +56,12 @@ class AbstractHandlerNormaliseTest extends TestCase {
   }
 
   /**
-   * Data provider for testNormalise().
+   * Data provider for testNormalize().
    *
    * Covers happy paths (every loose input shape the helper must accept)
    * and error paths (every malformed shape the helper must reject).
    */
-  public static function dataProviderNormalise(): \Iterator {
+  public static function dataProviderNormalize(): \Iterator {
     yield 'bare string scalar with target_id main' => [
       'foo.jpg',
       'target_id',
@@ -156,61 +156,61 @@ class AbstractHandlerNormaliseTest extends TestCase {
       ['/path/foo.jpg', 'alt' => 'A'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 0, alt.',
     ];
     yield 'rejects numeric 0 with multiple named extras' => [
       ['/path/foo.jpg', 'alt' => 'A', 'title' => 'B'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 0, alt, title.',
     ];
     yield 'rejects named keys followed by numeric' => [
       ['alt' => 'A', 0 => '/path/foo.jpg'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: alt, 0.',
     ];
     yield 'rejects gappy numeric mixed with named' => [
       [2 => 'a', 'alt' => 'A'],
       'value',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 2, alt.',
     ];
     yield 'rejects single record missing main property' => [
       ['alt' => 'A', 'title' => 'B'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id". Got keys: alt, title.',
     ];
     yield 'rejects record in list missing main property' => [
       [['target_id' => 'a.jpg'], ['alt' => 'orphan']],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id". Got keys: alt.',
     ];
     yield 'rejects empty record' => [
       [[]],
       'value',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value". Got keys: (none).',
     ];
   }
 
   /**
-   * Invokes the protected normalise() method on the given handler.
+   * Invokes the protected normalize() method on the given handler.
    *
    * @return array<int, array<string, mixed>>
-   *   The canonical list of records returned by normalise().
+   *   The canonical list of records returned by normalize().
    */
-  protected function invokeNormalise(AbstractHandler $handler, mixed $input): array {
-    $method = new \ReflectionMethod(AbstractHandler::class, 'normalise');
+  protected function invokeNormalize(AbstractHandler $handler, mixed $input): array {
+    $method = new \ReflectionMethod(AbstractHandler::class, 'normalize');
     return $method->invoke($handler, $input);
   }
 
@@ -218,11 +218,11 @@ class AbstractHandlerNormaliseTest extends TestCase {
    * Creates an AbstractHandler subclass with the main property injected.
    *
    * Bypasses the constructor (which requires a full Drupal entity bootstrap)
-   * and sets 'mainProperty' directly via reflection - 'normalise()' only
+   * and sets 'mainProperty' directly via reflection - 'normalize()' only
    * needs that one value.
    */
   protected function createHandler(string $main_property): AbstractHandler {
-    $handler = (new \ReflectionClass(NormaliseTestHandler::class))->newInstanceWithoutConstructor();
+    $handler = (new \ReflectionClass(NormalizeTestHandler::class))->newInstanceWithoutConstructor();
 
     $property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
     $property->setValue($handler, $main_property);
@@ -233,9 +233,9 @@ class AbstractHandlerNormaliseTest extends TestCase {
 }
 
 /**
- * Concrete AbstractHandler subclass used only by the normalise() tests.
+ * Concrete AbstractHandler subclass used only by the normalize() tests.
  */
-final class NormaliseTestHandler extends AbstractHandler {
+final class NormalizeTestHandler extends AbstractHandler {
 
   /**
    * {@inheritdoc}

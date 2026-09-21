@@ -9,15 +9,17 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 /**
  * Classifies a field's stored value shape for handler selection.
  *
- * Where 'FieldClassifierInterface' answers the pipeline-entry (F-row) question
- * from a field's origin and storage profile, this answers the orthogonal
- * value-shape question the README calls a "handler-selection input": is a
- * field's stored value a plain scalar the default handler can relay, or a shape
- * that needs a dedicated handler? Both predicates read only the storage
- * definition's stored (non-computed) property definitions and enumerate no
- * field-type or data-type strings, so a datetime, boolean, or list column is
- * neither an entity reference nor complex - it is a plain scalar the default
- * relays, and value translation for it belongs in a dedicated handler.
+ * 'FieldClassifierInterface' answers the pipeline-entry (F-row) question from
+ * a field's origin and storage profile. This interface answers the orthogonal
+ * value-shape question the README calls a "handler-selection input": whether
+ * a field's stored value is a plain scalar the default handler can relay, or
+ * a shape that needs a dedicated handler.
+ *
+ * Both predicates read only the storage definition's stored (non-computed)
+ * property definitions and enumerate no field-type or data-type strings. A
+ * datetime, boolean, or list column is therefore neither an entity reference
+ * nor complex: it is a plain scalar the default relays, and value translation
+ * for it belongs in a dedicated handler.
  *
  * See 'src/Driver/Core/Field/README.md' for the value-shape axis and how
  * 'Core' consumes it during handler selection.

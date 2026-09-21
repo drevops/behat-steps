@@ -229,7 +229,7 @@ class SmartdateHandlerTest extends FieldHandlerUnitTestBase {
         'not-a-record',
       ],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Smartdate field delta must be an array',
     ];
   }

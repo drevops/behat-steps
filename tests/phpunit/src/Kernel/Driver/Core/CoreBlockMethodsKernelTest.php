@@ -51,10 +51,10 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('block_content');
-    // Only 'system' config is installed. Installing 'block_content' config on
-    // Drupal 11-lowest pulls in 'field.storage.block_content.body', whose
-    // schema references the 'text' module - unnecessary surface for this test,
-    // which creates its own body-less 'block_content_type' inline.
+    // Installing 'block_content' config on Drupal 11-lowest pulls in
+    // 'field.storage.block_content.body', whose schema references the 'text'
+    // module. The test creates its own body-less 'block_content_type' inline,
+    // so only 'system' config is installed.
     $this->installConfig(['system']);
     \Drupal::service('theme_installer')->install(['stark']);
     $this->core = new Core($this->root);
@@ -129,7 +129,7 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
    * Tests that 'blockDelete()' fails loudly when the stub has no id.
    */
   public function testBlockDeleteRequiresIdOnStub(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/id/');
 
     $this->core->blockDelete(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));

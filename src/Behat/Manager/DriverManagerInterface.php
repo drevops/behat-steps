@@ -32,7 +32,7 @@ interface DriverManagerInterface {
    * @return \DrevOps\BehatSteps\Driver\DriverInterface
    *   The requested driver, bootstrapped.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the requested driver is not registered.
    */
   public function getDriver(?string $name = NULL): DriverInterface;
@@ -51,7 +51,7 @@ interface DriverManagerInterface {
    * @param string $name
    *   Default driver name to set.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the driver is not registered.
    */
   public function setDefaultDriverName(string $name): void;

@@ -68,7 +68,7 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
  * Classes published in the toolbox reference alongside the step traits.
  *
  * A context base class contributes the scenario lifecycle a domain step is
- * written against, which is as much a part of the toolbox as a trait helper.
+ * written against, so that lifecycle is part of the toolbox too.
  */
 const TOOLBOX_CLASSES = [RawContext::class];
 
@@ -82,7 +82,8 @@ const HELPERS_FILE = 'HELPERS.md';
  */
 const CONFIGURATION_FILE = 'docs/configuration.md';
 
-// Execute the main function only when the script is run directly, not when included.
+// Execute the main function only when the script is run directly, not when
+// included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
   $options = getopt('', ['fail-on-change', 'path::']);
@@ -242,7 +243,7 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
     sort($traits_files);
   }
 
-  $reflection = new ReflectionClass($class_name);
+  $reflection = new \ReflectionClass($class_name);
   $traits = $reflection->getTraits();
   usort(
     $traits,
@@ -253,7 +254,6 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
   foreach ($traits as $trait) {
     $trait_name = $trait->getShortName();
 
-    // Mark as processed.
     if (in_array($trait_name, $traits_files, TRUE)) {
       unset($traits_files[array_search($trait_name, $traits_files, TRUE)]);
     }
@@ -313,7 +313,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
-    $methods = $trait->getMethods(ReflectionMethod::IS_PUBLIC);
+    $methods = $trait->getMethods(\ReflectionMethod::IS_PUBLIC);
     $trait_prefix = str_replace('Trait', '', $trait_name);
     foreach ($methods as $method) {
       if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
@@ -335,7 +335,6 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
     }
 
     if (!empty($class_info['methods'])) {
-      // Sort info by Given, When, Then.
       usort($class_info['methods'], static function (array $a, array $b): int {
         $order = ['@Given', '@When', '@Then'];
 
@@ -385,10 +384,10 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  // Remove docblock asterisk and up to one space, but preserve remaining indentation.
-  $lines = array_map(static fn(string $l): string => preg_replace('/^\s*\* ?/', '', $l), $lines);
+  // Remove docblock asterisk and up to one space, but preserve remaining
+  // indentation.
+  $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
 
-  // Remove first and last empty lines.
   if (count($lines) > 1 && empty($lines[0])) {
     array_shift($lines);
   }
@@ -398,28 +397,27 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   // Trim lines, but preserve indentation within @code blocks.
   $in_code_block = FALSE;
-  $lines = array_map(static function (string $l) use (&$in_code_block): string {
-    if (str_starts_with(trim($l), '@code')) {
+  $lines = array_map(static function (string $line) use (&$in_code_block): string {
+    if (str_starts_with(trim($line), '@code')) {
       $in_code_block = TRUE;
-      return trim($l);
+      return trim($line);
     }
 
-    if (str_starts_with(trim($l), '@endcode')) {
+    if (str_starts_with(trim($line), '@endcode')) {
       $in_code_block = FALSE;
-      return trim($l);
+      return trim($line);
     }
 
     if ($in_code_block) {
-      // Preserve indentation within code blocks.
-      return rtrim($l);
+      return rtrim($line);
     }
 
-    return trim($l);
+    return trim($line);
   }, $lines);
 
   // Static-analysis annotations state the trait's contract for tooling, not
   // for the reader of the generated documentation.
-  $lines = array_values(array_filter($lines, static fn(string $l): bool => !str_starts_with($l, '@phpstan-')));
+  $lines = array_values(array_filter($lines, static fn(string $line): bool => !str_starts_with($line, '@phpstan-')));
 
   while ($lines !== [] && end($lines) === '') {
     array_pop($lines);
@@ -518,9 +516,9 @@ function parse_method_comment(string $comment): ?array {
     // reference.
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
-    foreach ($lines as $l) {
-      if ($l !== '') {
-        $first_line = $l;
+    foreach ($lines as $line) {
+      if ($line !== '') {
+        $first_line = $line;
         break;
       }
     }
@@ -565,7 +563,6 @@ function extract_method_steps(\ReflectionMethod $method): array {
     }
   }
 
-  // Sort by Given, When, Then.
   $sorted = [];
   foreach (['@Given', '@When', '@Then'] as $step_prefix) {
     foreach ($steps as $step) {
@@ -770,7 +767,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
   }
 
   foreach (TOOLBOX_CLASSES as $toolbox_class) {
-    $reflection = new ReflectionClass($toolbox_class);
+    $reflection = new \ReflectionClass($toolbox_class);
     $short_name = $reflection->getShortName();
 
     $helpers = collect_helper_methods($reflection);
@@ -815,7 +812,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
 function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
   $helpers = [];
 
-  foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+  foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
     if ($prefix === NULL) {
       if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
         continue;
@@ -869,7 +866,7 @@ function resolve_inherited_comment(\ReflectionMethod $method): string {
   $candidates = array_values($declaring->getInterfaces());
 
   $parent = $declaring->getParentClass();
-  if ($parent instanceof ReflectionClass) {
+  if ($parent instanceof \ReflectionClass) {
     array_unshift($candidates, $parent);
   }
 
@@ -958,7 +955,6 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
-    // Add description as markdown-safe accommodating for lists.
     $description_full = '';
     // @phpstan-ignore-next-line
     $lines = explode(PHP_EOL, $trait_info['description_full']);
@@ -968,14 +964,12 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     foreach ($lines as $line) {
       $trimmed_line = trim($line);
 
-      // Handle @code tag - start collecting code block.
       if (str_starts_with($trimmed_line, '@code')) {
         $in_code_block = TRUE;
         $code_block = '';
         continue;
       }
 
-      // Handle @endcode tag - wrap collected code in markdown code block.
       if (str_starts_with($trimmed_line, '@endcode')) {
         $in_code_block = FALSE;
         $description_full .= '```' . PHP_EOL;
@@ -985,7 +979,6 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
         continue;
       }
 
-      // If inside code block, collect lines without processing.
       if ($in_code_block) {
         $code_block .= $line . PHP_EOL;
         continue;
@@ -1015,7 +1008,6 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $description_full = preg_replace('/^/m', '>  ', $description_full);
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
-    // Add to index.
     // @phpstan-ignore-next-line
     $index_rows_path = '#' . heading_anchor((string) $trait_info['name_contextual']);
     if ($path_for_links) {
@@ -1070,7 +1062,6 @@ EOT;
     }
   }
 
-  // Make sure 'Generic' key exists.
   $index_rows['Generic'] ??= [];
   $index_rows = array_merge(
     ['Generic' => $index_rows['Generic']],
@@ -1084,7 +1075,6 @@ EOT;
     $index_output .= array_to_markdown_table(['Class', 'Description'], $index_rows_contextual) . PHP_EOL . PHP_EOL;
   }
 
-  // Make sure 'Generic' key exists.
   $content_output['Generic'] ??= '';
   $content_output = array_merge(
     ['Generic' => $content_output['Generic']],
@@ -1096,7 +1086,6 @@ EOT;
 
   $output .= $index_output . PHP_EOL;
 
-  // Render content if this is not a path for links.
   if (!$path_for_links) {
     $output .= '---' . PHP_EOL . PHP_EOL;
     $output .= $content_output . PHP_EOL;
@@ -1165,7 +1154,6 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     ];
   }
 
-  // Make sure 'Generic' key exists and comes first.
   $index_rows['Generic'] ??= [];
   $index_rows = array_merge(['Generic' => $index_rows['Generic']], array_diff_key($index_rows, ['Generic' => []]));
 
@@ -1335,8 +1323,10 @@ function non_descriptive_placeholders(): array {
  * The separator between a tag and its value is always a colon: a `parametrized`
  * tag is written `@prefix:value`, never `@prefix-value`. Hyphens only join
  * words inside a tag name (e.g. `@disable-form-validation`). A `flag` tag
- * stands alone and takes no value. Add every new special tag here so that
- * validate_tags() can guard its format and prevent separator drift.
+ * stands alone and takes no value.
+ *
+ * Add every new special tag here so that validate_tags() can guard its format
+ * and prevent separator drift.
  *
  * @return array<string, array{form: string, description: string}>
  *   Map of tag prefix to its form, one of 'parametrized' or 'flag', and the
@@ -1344,7 +1334,6 @@ function non_descriptive_placeholders(): array {
  */
 function tag_registry(): array {
   return [
-    // Parametrized tags - expect a `:value` suffix.
     'behat-steps-skip' => [
       'form' => 'parametrized',
       'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`).',
@@ -1377,7 +1366,6 @@ function tag_registry(): array {
       'form' => 'parametrized',
       'description' => 'Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`.',
     ],
-    // Flag tags - stand alone, no value.
     'bigpipe' => [
       'form' => 'flag',
       'description' => 'Render BigPipe placeholders server-side, for a driver without JavaScript.',
@@ -1540,7 +1528,7 @@ function extension_option_description(NodeInterface $node): string {
  * Validate that every environment variable the source reads is documented.
  *
  * The variables have no registry to generate from, so the reference is written
- * by hand and this check keeps it honest.
+ * by hand and this check keeps it complete.
  *
  * @param string $base_path
  *   Base path for the repository.
@@ -1583,8 +1571,8 @@ function validate_env_vars(string $base_path = __DIR__): array {
     preg_match_all('/getenv\(\s*[\'"]([A-Z][A-Z0-9_]*)[\'"]\s*\)/', $code, $matches);
 
     foreach (array_unique($matches[1]) as $variable) {
-      // A boundary of name characters rather than '\b', which does not
-      // separate a name from a following underscore.
+      // The boundary is one of name characters rather than '\b', which does
+      // not separate a name from a following underscore.
       if (preg_match('/(?<![A-Z0-9_])' . preg_quote($variable, '/') . '(?![A-Z0-9_])/', $documented) === 1) {
         continue;
       }
@@ -1779,7 +1767,6 @@ function replace_content(string $haystack, string $start, string $end, string $r
     throw new \Exception('End not found in the haystack');
   }
 
-  // Start should be before the end.
   if (strpos($haystack, $start) > strpos($haystack, $end)) {
     throw new \Exception('Start is after the end');
   }

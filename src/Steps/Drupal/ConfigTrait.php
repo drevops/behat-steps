@@ -45,6 +45,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *   Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
  *   And the config "system.site" key "name" should have the effective value "My overridden site"
  * @endcode
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ConfigTrait {
 
@@ -52,8 +54,8 @@ trait ConfigTrait {
    * Original raw data of configuration objects touched during the scenario.
    *
    * Keyed by configuration name. Each entry records whether the object
-   * existed before the first write so revert deletes objects the scenario
-   * created instead of leaving empty objects behind.
+   * existed before the first write, so the revert deletes objects the
+   * scenario created instead of leaving them empty.
    *
    * @var array<string, array{existed: bool, data: array<int|string, mixed>}>
    */
@@ -80,8 +82,8 @@ trait ConfigTrait {
       return;
     }
 
-    // A scenario that recorded no snapshot has nothing to revert, and asking
-    // for the driver would fail one running on a driver that never had it.
+    // A scenario that recorded no snapshot has nothing to revert, and
+    // 'assertDrupal()' would fail one running on a driver without Drupal.
     if ($this->configOriginalData === []) {
       return;
     }

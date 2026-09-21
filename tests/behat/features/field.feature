@@ -315,9 +315,9 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should exist within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
+    Then it should fail with an error:
       """
-      The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings.
+      Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
   @api @trait:FieldTrait
@@ -360,9 +360,9 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should not be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
+    Then it should fail with an error:
       """
-      The option "INVALID_OPTION" was not found in the select "date_default_timezone" on the page /admin/config/regional/settings.
+      Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
   @api @trait:FieldTrait
@@ -890,7 +890,7 @@ Feature: Check that FieldTrait works
       When I fill in the WYSIWYG field "noid" with the value "test content"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       WYSIWYG field must have an ID attribute.
       """
@@ -962,7 +962,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The option "Invalid Option" was not found in the select "Multi-select options".
+      Option in the select "Multi-select options" with value|text "Invalid Option" not found.
       """
 
   @trait:FieldTrait

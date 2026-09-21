@@ -26,7 +26,7 @@ interface PreCreateAliasInterface extends CreationAliasInterface {
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub being prepared for creation. Must already carry a value
-   *   under 'getName()' - the dispatcher checks for presence first.
+   *   under 'getName()'.
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\CreationAliasResolutionException
    *   When the value cannot be resolved into a Drupal storage value.

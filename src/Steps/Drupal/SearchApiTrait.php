@@ -61,6 +61,8 @@ trait SearchApiTrait {
   public function searchApiDoIndex(string|int $count): void {
     $this->assertDrupal();
 
+    $this->helperAssertModuleEnabled('search_api', 'drupal/search_api');
+
     $count = (int) $count;
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');

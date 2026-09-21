@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer\Driver;
 
-use Drupal\Tests\DrupalTestBrowser;
 use Behat\Mink\Driver\BrowserKitDriver;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use Drupal\Tests\DrupalTestBrowser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -103,7 +103,7 @@ class BrowserKitFactoryTest extends UnitTestCase {
   }
 
   /**
-   * Builds a factory answering with a Drupal root and a loaded test browser.
+   * Builds a factory reporting a Drupal root and a loaded test browser.
    */
   protected function createFactory(): TestableBrowserKitFactory {
     $factory = new TestableBrowserKitFactory();

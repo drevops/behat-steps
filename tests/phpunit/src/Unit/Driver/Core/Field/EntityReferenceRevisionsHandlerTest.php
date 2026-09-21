@@ -43,14 +43,17 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
   protected const REVISION_ID = 7;
 
   /**
+   * Bundle every loaded target reports.
+   */
+  protected const TARGET_BUNDLE = 'text';
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
 
-    $container = new ContainerBuilder();
-    $container->set('entity_type.manager', $this->createEntityTypeManager(self::KNOWN_LABELS, self::REVISION_ID));
-    \Drupal::setContainer($container);
+    $this->installContainer($this->createTarget(self::REVISION_ID, self::TARGET_BUNDLE));
   }
 
   /**
@@ -65,27 +68,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
    * {@inheritdoc}
    */
   protected function createHandler(): FieldHandlerInterface {
-    $field_info = $this->createMock(FieldStorageDefinitionInterface::class);
-    $field_info->method('getSetting')
-      ->with('target_type')
-      ->willReturn('paragraph');
-
-    $field_config = $this->createMock(FieldDefinitionInterface::class);
-    $field_config->method('getSettings')->willReturn([]);
-
-    $reflection = new \ReflectionClass(EntityReferenceRevisionsHandler::class);
-    $handler = $reflection->newInstanceWithoutConstructor();
-
-    $info_property = new \ReflectionProperty(EntityReferenceRevisionsHandler::class, 'fieldInfo');
-    $info_property->setValue($handler, $field_info);
-
-    $config_property = new \ReflectionProperty(EntityReferenceRevisionsHandler::class, 'fieldConfig');
-    $config_property->setValue($handler, $field_config);
-
-    $main_property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
-    $main_property->setValue($handler, 'target_id');
-
-    return $handler;
+    return $this->createHandlerWithSettings([]);
   }
 
   /**
@@ -114,9 +97,107 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     yield 'unknown label throws' => [
       ['Paragraph X'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       "No entity 'Paragraph X' of type 'paragraph' exists.",
     ];
+  }
+
+  /**
+   * Tests that 'doExpand()' rejects a record without the main property.
+   *
+   * The base 'normalize()' rejects such a record before 'doExpand()' runs,
+   * so the test feeds 'doExpand()' directly.
+   */
+  public function testDoExpandRejectsRecordMissingMainProperty(): void {
+    $handler = $this->createHandler();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Entity reference revisions record is missing the main property "target_id".');
+
+    (new \ReflectionMethod($handler, 'doExpand'))->invoke($handler, [['extra' => 'keep-me']]);
+  }
+
+  /**
+   * Tests that a resolved id whose entity no longer loads is rejected.
+   */
+  public function testExpandRejectsDeletedTarget(): void {
+    $this->installContainer(NULL);
+    $handler = $this->createHandler();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage("Entity '99' of type 'paragraph' no longer exists.");
+
+    $handler->expand([99]);
+  }
+
+  /**
+   * Tests that a loaded target outside the field's bundles is rejected.
+   */
+  public function testExpandRejectsTargetOfUnacceptedBundle(): void {
+    $handler = $this->createHandlerWithSettings(['handler_settings' => ['target_bundles' => ['image' => 'image']]]);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf("Entity '99' of type 'paragraph' is of bundle '%s', which the field does not accept. Allowed: image.", self::TARGET_BUNDLE));
+
+    $handler->expand([99]);
+  }
+
+  /**
+   * Installs a container whose entity storage loads the given target.
+   *
+   * @param \Drupal\Core\Entity\RevisionableInterface|null $target
+   *   The entity 'load()' returns, or NULL when the target no longer exists.
+   */
+  protected function installContainer(?RevisionableInterface $target): void {
+    $container = new ContainerBuilder();
+    $container->set('entity_type.manager', $this->createEntityTypeManager(self::KNOWN_LABELS, $target));
+    \Drupal::setContainer($container);
+  }
+
+  /**
+   * Creates an EntityReferenceRevisionsHandler with the given field settings.
+   *
+   * @param array<string, mixed> $settings
+   *   Field settings the 'fieldConfig' mock returns.
+   */
+  protected function createHandlerWithSettings(array $settings): EntityReferenceRevisionsHandler {
+    $field_info = $this->createMock(FieldStorageDefinitionInterface::class);
+    $field_info->method('getSetting')
+      ->with('target_type')
+      ->willReturn('paragraph');
+
+    $field_config = $this->createMock(FieldDefinitionInterface::class);
+    $field_config->method('getSettings')->willReturn($settings);
+
+    $reflection = new \ReflectionClass(EntityReferenceRevisionsHandler::class);
+    $handler = $reflection->newInstanceWithoutConstructor();
+
+    $info_property = new \ReflectionProperty(EntityReferenceRevisionsHandler::class, 'fieldInfo');
+    $info_property->setValue($handler, $field_info);
+
+    $config_property = new \ReflectionProperty(EntityReferenceRevisionsHandler::class, 'fieldConfig');
+    $config_property->setValue($handler, $field_config);
+
+    $main_property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
+    $main_property->setValue($handler, 'target_id');
+
+    return $handler;
+  }
+
+  /**
+   * Builds a target entity mock with the given revision id and bundle.
+   *
+   * @param int $revision_id
+   *   Revision id the target reports.
+   * @param string $bundle
+   *   Bundle the target reports.
+   */
+  protected function createTarget(int $revision_id, string $bundle): RevisionableInterface {
+    $target = $this->createMock(RevisionableInterface::class);
+    $target->method('getRevisionId')->willReturn($revision_id);
+    $target->method('bundle')->willReturn($bundle);
+
+    return $target;
   }
 
   /**
@@ -124,19 +205,16 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
    *
    * @param array<string, int> $known_labels
    *   Label-to-id index.
-   * @param int $revision_id
-   *   Revision id every loaded target reports.
+   * @param \Drupal\Core\Entity\RevisionableInterface|null $target
+   *   The entity every 'load()' returns, or NULL when nothing loads.
    */
-  protected function createEntityTypeManager(array $known_labels, int $revision_id): object {
+  protected function createEntityTypeManager(array $known_labels, ?RevisionableInterface $target): object {
     $entity_type = $this->createMock(EntityTypeInterface::class);
     $entity_type->method('getKey')->willReturnMap([
       ['id', 'id'],
       ['label', 'label'],
       ['bundle', 'type'],
     ]);
-
-    $target = $this->createMock(RevisionableInterface::class);
-    $target->method('getRevisionId')->willReturn($revision_id);
 
     $query = $this->createQueryStub($known_labels);
 

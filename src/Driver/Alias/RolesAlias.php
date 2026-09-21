@@ -15,10 +15,6 @@ use DrevOps\BehatSteps\Driver\Exception\CreationAliasResolutionException;
  * names or labels) and calls 'userAddRole()' for each entry on the
  * driver supplied at construction. No-ops when the value is missing or
  * not an array.
- *
- * Shared across drivers - 'Core', 'DrupalDriver', and 'DrushDriver'
- * all register an instance that targets their own 'userAddRole()'
- * implementation.
  */
 class RolesAlias implements PostCreateAliasInterface {
 

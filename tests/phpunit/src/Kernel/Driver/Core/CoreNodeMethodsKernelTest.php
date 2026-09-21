@@ -94,7 +94,7 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
    * Tests that nodeCreate rejects an unknown bundle.
    */
   public function testNodeCreateRejectsUnknownBundle(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot create content because provided content type bogus does not exist.');
 
     $this->core->nodeCreate(new EntityStub('node', 'bogus', ['title' => 'Nope']));
@@ -104,7 +104,7 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
    * Tests that nodeCreate rejects a node with no type.
    */
   public function testNodeCreateRejectsMissingType(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage("Cannot create content because it is missing the required property 'type'.");
 
     $this->core->nodeCreate(new EntityStub('node', NULL, ['title' => 'Nope']));
@@ -112,9 +112,6 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that nodeCreate rejects an unknown 'author' value.
-   *
-   * Previously a missing user was silently coerced into 'uid = 0', leaving
-   * the typo invisible to the test author. The creation alias now throws.
    */
   public function testNodeCreateRejectsUnknownAuthor(): void {
     $this->expectException(CreationAliasResolutionException::class);

@@ -126,21 +126,36 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     yield 'unknown label throws' => [
       ['nobody'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       "No entity 'nobody' of type 'user' exists.",
     ];
     yield 'mixed positional and named keys rejected' => [
       ['alice', 'extra' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['display' => 1],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id"',
     ];
+  }
+
+  /**
+   * Tests that 'doExpand()' rejects a record without the main property.
+   *
+   * The base 'normalize()' rejects such a record before 'doExpand()' runs,
+   * so the test feeds 'doExpand()' directly.
+   */
+  public function testDoExpandRejectsRecordMissingMainProperty(): void {
+    $handler = $this->createHandler();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Entity reference record is missing the main property "target_id".');
+
+    (new \ReflectionMethod($handler, 'doExpand'))->invoke($handler, [['display' => 1]]);
   }
 
   /**

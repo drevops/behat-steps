@@ -17,13 +17,12 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Regression test for F3 (moderation_state).
+ * Regression test for 'moderation_state' on a stub.
  *
  * When a stub carries a computed-writable base field such as
- * 'moderation_state', the driver must skip it entirely so the scalar flows
- * untouched into 'Node::create()' and the content_moderation save-hook
- * captures it. Before the F3 skip rule this case raised a RuntimeException
- * because the handler pipeline tried to marshal a field with no storage.
+ * 'moderation_state', the driver must skip it entirely so the scalar reaches
+ * 'Node::create()' untouched and the content_moderation save-hook captures
+ * it.
  *
  * @group core
  * @group fields

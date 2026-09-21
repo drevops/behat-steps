@@ -132,7 +132,7 @@ trait ElementTrait {
    *
    * By default, scrolls the element to the center of the viewport. Override
    * the elementGetScrollIntoViewCenter() method to return FALSE to use the
-   * legacy behavior that aligns the element to the top of the viewport.
+   * behavior that aligns the element to the top of the viewport.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -200,7 +200,7 @@ trait ElementTrait {
   #[Then('the heading :heading should exist')]
   public function elementAssertHeadingExists(string $heading): void {
     if (!$this->elementFindHeading($heading) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The heading "%s" was not found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'heading', 'text', $heading);
     }
   }
 
@@ -496,7 +496,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should be centered in the viewport')]
   public function elementAssertElementCenteredInViewport(string $selector): void {
-    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var elementCenter = rect.top + rect.height / 2; var viewportThird = window.innerHeight / 3; return (elementCenter >= viewportThird && elementCenter <= viewportThird * 2);');
     if (!$result) {
       throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
     }
@@ -507,11 +507,11 @@ trait ElementTrait {
    *
    * The element's top edge has to sit within 2 pixels of the viewport top,
    * which absorbs the sub-pixel offsets that normal rendering produces. Use
-   * the step with an explicit tolerance for layouts that need more slack.
+   * the step with an explicit tolerance for layouts that need a larger one.
    *
    * This asserts where the element currently renders, so scroll the page
-   * first to tell a pinned element apart from one that merely starts at the
-   * top of the document.
+   * first to tell a pinned element apart from one that starts at the top of
+   * the document.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -1037,8 +1037,8 @@ trait ElementTrait {
           // when it carries a z-index, without needing to be positioned.
           var parent = el.parentElement;
           if (parent && style.zIndex !== 'auto') {
-            var parent_display = window.getComputedStyle(parent).display;
-            if (['flex', 'inline-flex', 'grid', 'inline-grid'].indexOf(parent_display) !== -1) {
+            var parentDisplay = window.getComputedStyle(parent).display;
+            if (['flex', 'inline-flex', 'grid', 'inline-grid'].indexOf(parentDisplay) !== -1) {
               return true;
             }
           }
@@ -1123,7 +1123,7 @@ JS;
    */
   protected function elementAssertPinnedToTopWithin(string $selector, int $tolerance, bool $is_inverted): void {
     if ($tolerance < 0) {
-      throw new ExpectationException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance));
     }
 
     $element = $this->getSession()->getPage()->find('css', $selector);
@@ -1323,11 +1323,13 @@ JS;
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When no elements matched.
    * @throws \Behat\Mink\Exception\ExpectationException
-   *   When the index is below 1 or beyond the number of matches.
+   *   When the index is beyond the number of matches.
+   * @throws \RuntimeException
+   *   When the index is below 1.
    */
   public function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
     if ($index < 1) {
-      throw new ExpectationException(sprintf('The index must be 1 or greater, but "%d" was given.', $index), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The index must be 1 or greater, but "%d" was given.', $index));
     }
 
     if ($elements === []) {

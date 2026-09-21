@@ -12,9 +12,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  * Groups the two distinct block operations a driver typically needs during
  * scenario setup:
  *
- *  - Placing a block in a region - the 'block' config entity. Answers what
- *    a scenario step like "Given the X block is placed in the Y region"
- *    resolves to internally.
+ *  - Placing a block in a region - the 'block' config entity.
  *  - Creating a content block - the 'block_content' content entity. The
  *    reusable block body that would normally be authored through the
  *    block library UI.

@@ -9,8 +9,8 @@ use DrevOps\BehatSteps\Driver\DrushDriver;
 /**
  * Subclass of 'DrushDriver' that exposes the protected static parser.
  *
- * Used only by 'DrushDriverMethodsTest::testParseArguments()' to invoke the
- * protected 'parseArguments()' method directly without a Drush binary.
+ * Lets a test invoke the protected 'parseArguments()' method directly
+ * without a Drush binary.
  */
 class ArgumentsExposingDrushDriver extends DrushDriver {
 

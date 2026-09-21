@@ -36,8 +36,8 @@ use DrevOps\BehatSteps\Steps\Generic\WaitTrait;
  * composing its own context from 'RawContext'.
  *
  * 'WaitTrait' is included even though it carries step hooks: those hooks only
- * wait for AJAX on a '@javascript' scenario, which removes a race rather than
- * introducing a verdict of its own.
+ * wait for AJAX on a '@javascript' scenario, so they remove a race and add no
+ * failure condition of their own.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\RawContext
  */

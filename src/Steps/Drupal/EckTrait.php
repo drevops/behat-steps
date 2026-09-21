@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
-use Drupal\Core\Entity\EntityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -36,6 +36,10 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities exist:')]
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
+    $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+
     $filtered_table = TableNode::fromList($table->getColumn(0));
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
     $this->eckCreateEntities($entity_type, $bundle, $table);
@@ -53,6 +57,8 @@ trait EckTrait {
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
     foreach ($table->getHash() as $entity_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
@@ -75,6 +81,8 @@ trait EckTrait {
   #[When('I visit eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -102,6 +110,8 @@ trait EckTrait {
   #[When('I edit eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [

@@ -17,8 +17,7 @@ final readonly class DrushResult {
    * Constructs a DrushResult.
    *
    * @param int $exitCode
-   *   The command exit code. Zero indicates success; a signalled process is
-   *   reported as a non-zero failure.
+   *   The command exit code. Zero indicates success.
    * @param string $output
    *   The command's captured standard output.
    * @param string $errorOutput

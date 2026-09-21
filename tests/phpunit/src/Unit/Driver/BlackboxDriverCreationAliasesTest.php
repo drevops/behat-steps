@@ -13,9 +13,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests that 'BlackboxDriver' opts out of the creation-alias capability.
  *
- * Consistent with the driver's no-capability stance, it does not
- * implement 'CreationAliasCapabilityInterface' and consumers must
- * 'instanceof'-check before calling 'getCreationAliases()'.
+ * The driver declares no capabilities, so it does not implement
+ * 'CreationAliasCapabilityInterface'; consumers must 'instanceof'-check
+ * before calling 'getCreationAliases()'.
  *
  * @group drivers
  * @group blackbox

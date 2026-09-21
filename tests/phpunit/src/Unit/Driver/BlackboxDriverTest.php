@@ -45,7 +45,7 @@ class BlackboxDriverTest extends TestCase {
   }
 
   /**
-   * Tests that BlackboxDriver considers itself bootstrapped.
+   * Tests that 'isBootstrapped()' returns TRUE.
    */
   public function testIsBootstrappedReturnsTrue(): void {
     $driver = new BlackboxDriver();

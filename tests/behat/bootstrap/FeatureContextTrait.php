@@ -10,24 +10,26 @@
 
 declare(strict_types=1);
 
-use Behat\Step\When;
-use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterFeature;
 use Behat\Hook\BeforeScenario;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Tag;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\file\Entity\File;
 use Symfony\Component\BrowserKit\Cookie;
-use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait FeatureContextTrait {
 
@@ -37,16 +39,13 @@ trait FeatureContextTrait {
    * When a @javascript scenario runs in the parent process, Mink keeps the
    * Selenium2/Chrome connection open (via resetSessions()). This causes
    * child processes to hang when they try to establish their own connection.
-   * This hook ensures all sessions are properly stopped before sub-process
-   * scenarios run.
+   *
+   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
    */
   #[BeforeScenario]
   public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
     $has_trait_tag = (bool) array_filter(Tag::on($scope->getScenario()), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
 
-    // Stop all Mink sessions before sub-process scenarios to prevent
-    // connection interference between parent and child processes.
-    // @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession().
     if ($has_trait_tag) {
       $this->getMink()->stopSessions();
     }
@@ -67,7 +66,7 @@ trait FeatureContextTrait {
   /**
    * Clean watchdog after feature with an error.
    */
-  #[AfterFeature('@errorcleanup')]
+  #[AfterFeature('@test-errorcleanup')]
   public static function testClearWatchdog(AfterFeatureScope $scope): void {
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
@@ -80,6 +79,8 @@ trait FeatureContextTrait {
    */
   #[Given('the watchdog is cleared')]
   public function testClearWatchdogTable(): void {
+    $this->assertDrupal();
+
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
@@ -91,7 +92,6 @@ trait FeatureContextTrait {
    */
   #[Then('user :name should exist')]
   public function testUserExists(string $name): void {
-    // We need to check that user exists in both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
@@ -112,7 +112,6 @@ trait FeatureContextTrait {
    */
   #[Then('user :name should not exist')]
   public function testUserNotExists(string $name): void {
-    // We need to check that user was removed from both DB and test variables.
     $users = $this->userLoadMultiple(['name' => $name]);
     $user = reset($users);
 
@@ -229,7 +228,7 @@ trait FeatureContextTrait {
       'test_email',
       $email,
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
-      ['body' => strval($string)],
+      ['body' => (string) $string],
       NULL
     );
   }
@@ -249,7 +248,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Cc' => $cc,
         ],
@@ -273,7 +272,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Bcc' => $bcc,
         ],
@@ -297,7 +296,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => 'Test Email',
-        'body' => strval($string),
+        'body' => (string) $string,
         'headers' => [
           'Cc' => $cc,
           'Bcc' => $bcc,
@@ -321,7 +320,7 @@ trait FeatureContextTrait {
       \Drupal::languageManager()->getDefaultLanguage()->getId(),
       [
         'subject' => $subject,
-        'body' => strval($body),
+        'body' => (string) $body,
         'attachments' => [
           ['filename' => $attachment, 'content' => 'Attachment content for ' . $attachment],
         ],
@@ -335,6 +334,8 @@ trait FeatureContextTrait {
    */
   #[Then(':file_name file object exists')]
   public function testAssertFileObjectExists(string $file_name): void {
+    $this->assertDrupal();
+
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
     if (empty($fids)) {
@@ -447,7 +448,7 @@ trait FeatureContextTrait {
   protected bool $testElementScrollCenter = TRUE;
 
   /**
-   * Set scroll alignment to top (legacy behavior).
+   * Set scroll alignment to top.
    */
   #[Given('I set scroll to top alignment')]
   public function testSetScrollToTopAlignment(): void {
@@ -494,7 +495,6 @@ trait FeatureContextTrait {
       throw new \Exception('helperTransposeVerticalTable returned empty result.');
     }
 
-    // Validate result structure.
     foreach ($result as $entity) {
       if (!is_array($entity)) {
         throw new \Exception('helperTransposeVerticalTable returned invalid entity data.');

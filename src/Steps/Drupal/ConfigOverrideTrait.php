@@ -60,7 +60,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ConfigOverrideTrait {
 
@@ -96,8 +96,6 @@ trait ConfigOverrideTrait {
       return;
     }
 
-    // BeforeStep scope does not have access to scenario tags, so resolve the
-    // skip flag here.
     if ($this->skipTag('configOverrideBeforeStep', $scope)) {
       $this->configOverrideSkipBeforeStep = TRUE;
     }
@@ -134,8 +132,8 @@ trait ConfigOverrideTrait {
 
     $value = implode(',', $this->configOverrideDisabledNames);
 
-    // Set request header on the Mink driver for BrowserKit-based sessions.
-    // Selenium-based drivers cannot set request headers - skip silently.
+    // Selenium-based drivers cannot set request headers, so the header is set
+    // on BrowserKit-based sessions only.
     $driver = $this->getSession()->getDriver();
     if (!$driver instanceof Selenium2Driver) {
       $driver->setRequestHeader('X-Config-No-Override', $value);
@@ -143,10 +141,10 @@ trait ConfigOverrideTrait {
 
     $this->helperSetRequestHeader('X-Config-No-Override', $value);
 
-    // For SUTs accessed via direct code invocation within the same process.
+    // A SUT invoked directly within the same process reads '$_SERVER'.
     $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
 
-    // For SUTs accessed via Drush subprocesses.
+    // A SUT accessed through a Drush subprocess inherits the environment.
     putenv('HTTP_X_CONFIG_NO_OVERRIDE=' . $value);
   }
 

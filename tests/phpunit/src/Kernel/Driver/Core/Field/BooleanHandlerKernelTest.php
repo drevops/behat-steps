@@ -52,8 +52,8 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
    * Tests the field's configured on_label takes priority over canonical forms.
    *
    * Site builders often customise the labels (e.g. 'Published'/'Draft' on a
-   * publishing workflow field). Scenarios should be able to use those exact
-   * words without the handler second-guessing them.
+   * publishing workflow field), so a scenario must be able to use those exact
+   * words.
    */
   public function testFieldOnLabelResolvesToTrue(): void {
     $this->attachField('field_flag', 'boolean', [], [
@@ -79,7 +79,7 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests an unrecognised value raises a descriptive exception.
    */
-  public function testUnrecognisedValueThrows(): void {
+  public function testUnrecognizedValueThrows(): void {
     $this->attachField('field_flag', 'boolean');
 
     $this->expectException(\RuntimeException::class);

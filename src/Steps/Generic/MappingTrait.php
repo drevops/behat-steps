@@ -17,8 +17,8 @@ use Behat\Transformation\Transform;
  * resolve identically. Keys are unique across groups, so the group a key was
  * declared in does not take part in the lookup.
  *
- * Resolution keys off the token's own braces rather than the placeholder name,
- * so one map covers every step taking a string without the step opting in.
+ * The transform matches the token's braces rather than a placeholder name, so
+ * one map covers every string argument without the step opting in.
  *
  * Operates on Gherkin text alone: no Mink session and no driver, so the trait
  * works in any suite.

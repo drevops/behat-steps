@@ -12,12 +12,12 @@ class FileHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
-    $records = parent::normalise($values);
+  protected function normalize(mixed $values): array {
+    $records = parent::normalize($values);
 
     foreach ($records as &$record) {
       if ($record[$this->mainProperty] === NULL || $record[$this->mainProperty] === '') {
-        throw new \InvalidArgumentException(sprintf('%s field "%s" must not be NULL or empty.', $this->getFieldLabel(), $this->mainProperty));
+        throw new \RuntimeException(sprintf('%s field "%s" must not be NULL or empty.', $this->getFieldLabel(), $this->mainProperty));
       }
 
       $record[$this->mainProperty] = (string) $record[$this->mainProperty];
@@ -50,8 +50,8 @@ class FileHandler extends AbstractHandler {
    * Reads the id from a saved file entity.
    *
    * The file arrives as a bare object so a unit-test double can stand in
-   * without implementing Drupal's File entity contract, which leaves the
-   * 'id()' call unchecked until here.
+   * without implementing Drupal's File entity contract. The 'id()' call is
+   * therefore unchecked until here.
    *
    * @param object $file
    *   A File entity, or a File-compatible stub in tests.
@@ -77,16 +77,15 @@ class FileHandler extends AbstractHandler {
   /**
    * Returns a managed File addressed by URI or bare basename, or NULL.
    *
-   * Restores the 2.x behaviour where tests could pre-create a managed file
-   * and reference it by URI ('public://foo.txt') or bare basename
-   * ('foo.txt') without triggering a re-upload. Paths containing '/' but no
-   * scheme (e.g. '/tmp/foo.txt') are treated as disk paths and fall through
-   * to the upload path unchanged.
+   * A managed file that already exists can be referenced by its URI
+   * ('public://foo.txt') or its bare basename ('foo.txt') without
+   * triggering a re-upload. Paths containing '/' but no scheme (e.g.
+   * '/tmp/foo.txt') are treated as disk paths and fall through to the
+   * upload path unchanged.
    *
-   * The native return type is 'object' (not FileInterface) so unit-test
-   * doubles that satisfy the small 'id()' surface this method's callers
-   * actually need can also pass without implementing the full File entity
-   * contract. In production the storage returns File entities.
+   * The native return type is 'object' (not FileInterface) so a unit-test
+   * double that exposes only 'id()' can pass without implementing the full
+   * File entity contract. In production the storage returns File entities.
    *
    * @param string $value
    *   The raw field value: URI, bare basename, or absolute filesystem path.
@@ -134,7 +133,7 @@ class FileHandler extends AbstractHandler {
     $data = file_get_contents($file_path);
 
     if ($data === FALSE) {
-      throw new \Exception(sprintf('Error reading file %s.', $file_path));
+      throw new \RuntimeException(sprintf('Error reading file %s.', $file_path));
     }
 
     $file_extension = pathinfo($file_path, PATHINFO_EXTENSION);

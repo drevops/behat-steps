@@ -23,7 +23,8 @@ const LAYER_FORBIDDEN_ROOTS = ['Behat', 'Mink'];
  */
 const LAYER_DIRECTORY = 'src/Driver';
 
-// Execute the entry function only when the script is run directly, not when included.
+// Execute the entry function only when the script is run directly, not when
+// included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
   $options = getopt('', ['path::']);
@@ -81,10 +82,10 @@ function lint_layers(array $options = []): void {
  */
 function layer_files(string $directory): array {
   $files = [];
-  $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS));
+  $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
 
   foreach ($iterator as $file) {
-    if ($file instanceof SplFileInfo && $file->getExtension() === 'php') {
+    if ($file instanceof \SplFileInfo && $file->getExtension() === 'php') {
       $files[] = $file->getPathname();
     }
   }

@@ -44,12 +44,6 @@ trait MenuTrait {
   /**
    * Create menus.
    *
-   * Provide menu data in the following format:
-   *
-   * | label        | description     |
-   * | Fish Menu    | Menu of fish    |
-   * | ...          | ...             |
-   *
    * @code
    * Given the following menus exist:
    *   | label            | description                    |
@@ -78,10 +72,6 @@ trait MenuTrait {
 
   /**
    * Remove menu links by title.
-   *
-   * Provide menu link titles in the following format:
-   * | Test Menu    |
-   * | ...          |
    *
    * @code
    * Given the following menu links do not exist in the menu "Main navigation":

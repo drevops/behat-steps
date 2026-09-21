@@ -84,14 +84,20 @@ class TimeHandlerTest extends FieldHandlerUnitTestBase {
     yield 'mixed positional and named keys rejected' => [
       [3600, 'extra' => 'unexpected'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['unexpected' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value"',
+    ];
+    yield 'unparseable string rejected' => [
+      ['nonsense'],
+      NULL,
+      \RuntimeException::class,
+      'Time field value "nonsense" is not parseable.',
     ];
   }
 

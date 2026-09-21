@@ -13,7 +13,6 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Steps\Generic\HelperTrait;
 use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -123,8 +122,8 @@ trait UserTrait {
         unset($values['roles']);
       }
 
-      // A blank cell reads as "no password given", not as an empty password,
-      // which the account could not be created with.
+      // An account cannot be created with an empty password, so a blank
+      // 'pass' cell is treated as no password given.
       if (empty($values['pass'])) {
         $values['pass'] = $this->getRandom()->name();
       }
@@ -709,8 +708,7 @@ trait UserTrait {
    *   The user name.
    *
    * @return \Drupal\user\UserInterface|null
-   *   The loaded user object. The nullable return type is retained for
-   *   compatibility, but a missing user raises an exception rather than
+   *   The loaded user object. A missing user raises an exception rather than
    *   returning NULL.
    *
    * @throws \RuntimeException

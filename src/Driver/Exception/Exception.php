@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 /**
  * Drupal driver manager base exception class.
  */
-abstract class Exception extends \Exception {
+abstract class Exception extends \RuntimeException {
 
   /**
    * Initializes Drupal driver manager exception.

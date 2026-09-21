@@ -6,10 +6,10 @@ namespace DrevOps\BehatSteps\Tests\Unit\Driver\Core;
 
 use DrevOps\BehatSteps\Driver\Core\Core;
 use Drupal\Core\CronInterface;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -58,16 +58,13 @@ class CoreCronMethodsTest extends TestCase {
     $before = time();
     $stale_time = $before - 60;
 
-    // Create a real Symfony Request with a stale REQUEST_TIME.
     $request = new Request();
     $request->server->set('REQUEST_TIME', $stale_time);
     $_SERVER['REQUEST_TIME'] = $stale_time;
 
-    // Mock the cron service.
     $cron = $this->createMock(CronInterface::class);
     $cron->method('run')->willReturn(TRUE);
 
-    // Wire a container with request_stack and cron service.
     $request_stack = new RequestStack();
     $request_stack->push($request);
 
@@ -76,7 +73,7 @@ class CoreCronMethodsTest extends TestCase {
     $container->set('cron', $cron);
     \Drupal::setContainer($container);
 
-    // Use __DIR__ as a dummy drupal root (cronRun does not use it).
+    // '__DIR__' is a placeholder Drupal root; 'cronRun()' does not read it.
     $core = new Core(__DIR__, 'default');
     $result = $core->cronRun();
 

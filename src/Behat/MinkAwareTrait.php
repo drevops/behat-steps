@@ -11,9 +11,9 @@ use Behat\Mink\WebAssert;
 /**
  * Provides Mink session access to classes that are not Behat contexts.
  *
- * A context reaches the session through its 'RawMinkContext' ancestor. The
- * managers are container services rather than contexts, so they take the Mink
- * instance through 'setMink()' and read the same session through this trait.
+ * A context reaches the session through its 'RawMinkContext' ancestor. A
+ * container service is not a context, so it takes the Mink instance through
+ * 'setMink()' and reads the same session through this trait.
  *
  * @see \Behat\MinkExtension\Context\RawMinkContext
  */
@@ -116,9 +116,8 @@ trait MinkAwareTrait {
    * Override to provide a custom routing mechanism.
    */
   public function locatePath(string $path): string {
-    // Only a full HTTP scheme makes the path absolute, so a relative path
-    // that merely starts with the same letters still resolves against
-    // 'base_url'.
+    // Only a full 'http://' or 'https://' scheme makes the path absolute, so
+    // a relative path that begins with 'http' resolves against 'base_url'.
     if (preg_match('#^https?://#i', $path) === 1) {
       return $path;
     }

@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 class TestableBrowserKitFactory extends BrowserKitFactory {
 
   /**
-   * Root to answer with in place of the one Composer recorded.
+   * Root returned in place of the one Composer recorded.
    */
   public ?string $drupalRoot = NULL;
 

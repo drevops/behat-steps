@@ -96,7 +96,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @phpserver
@@ -134,7 +134,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -186,7 +186,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -238,7 +238,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -295,7 +295,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -366,7 +366,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -447,7 +447,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -461,7 +461,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -475,7 +475,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -489,7 +489,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -581,7 +581,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait
@@ -628,7 +628,7 @@ Feature: Check that XmlTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The XML element "//nonexistent" was not found.
+      XML element matching xpath "//nonexistent" not found.
       """
 
   @trait:XmlTrait

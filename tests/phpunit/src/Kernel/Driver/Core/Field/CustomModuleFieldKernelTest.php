@@ -19,8 +19,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * handler registered - not a stripped-down subclass - so this proves the
  * classifier gate end to end:
  *
- *  - 'driver_test_scalar' (plain-scalar columns) rides 'DefaultHandler' and
- *    round-trips through real storage intact.
+ *  - 'driver_test_scalar' (plain-scalar columns) is handled by
+ *    'DefaultHandler' and round-trips through real storage intact.
  *  - 'driver_test_reference' (an entity-reference target column) is refused at
  *    handler resolution with the actionable "register a dedicated handler"
  *    exception, rather than persisting a bogus id.
@@ -45,7 +45,7 @@ class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
   ];
 
   /**
-   * Tests a custom plain-scalar field with no handler rides the fallback.
+   * Tests a custom plain-scalar field with no handler uses the fallback.
    */
   public function testScalarFieldWithoutHandlerRoundTrips(): void {
     $this->attachField('field_scalar', 'driver_test_scalar');

@@ -95,8 +95,6 @@ trait CacheTrait {
       throw new \RuntimeException(sprintf('The page cache table "%s" does not exist. Ensure the "%s" cache bin is configured.', $table, $bin));
     }
 
-    // Escape SQL LIKE metacharacters so they match literally, then convert
-    // the glob `*` to the SQL `%` wildcard.
     $like = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $path_pattern);
     $like = str_replace('*', '%', $like);
 

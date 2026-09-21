@@ -55,8 +55,8 @@ class CoreConfigMethodsKernelTest extends KernelTestBase {
    * Tests configGetOriginal returns the value as stored (no apply-yet).
    *
    * ConfigBase::getOriginal tracks the not-yet-applied-to-config baseline, so
-   * it matches configGet after a save. This test just asserts the passthrough
-   * works and does not blow up on an empty key.
+   * it matches configGet after a save. The test asserts the passthrough works
+   * and does not throw on an empty key.
    */
   public function testConfigGetOriginalExposesStoredValue(): void {
     $this->core->configSet('system.site', 'name', 'Pinned');

@@ -38,7 +38,7 @@ class DateTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderDateRelativeProcessValue(): array {
-    // Use a fixed timestamp for tests: May 5, 2024 12:00:00 UTC.
+    // The fixed test timestamp is May 5, 2024 12:00:00 UTC.
     $timestamp = 1714924800;
 
     return [

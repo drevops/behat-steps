@@ -16,11 +16,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for user-related methods on Core.
  *
- * The whole lifecycle runs inside one test method on purpose: KernelTestBase's
- * setUp runs per-method and costs roughly a second of bootstrap. Bundling
- * closely related assertions here keeps CI time down without sacrificing
- * coverage. Split a method out only when a scenario genuinely needs its own
- * clean state (e.g. asserting a failure path that leaves the container dirty).
+ * The whole lifecycle runs inside one test method: KernelTestBase's setUp
+ * runs per-method and costs roughly a second of bootstrap. Bundling closely
+ * related assertions keeps CI time down without sacrificing coverage.
+ *
+ * A method is split out only when a scenario needs its own clean state, such
+ * as a failure path that leaves the container dirty.
  *
  * To actually run this test, see the bootstrap/env notes in
  * DatetimeHandlerKernelTest.
@@ -59,21 +60,15 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['user']);
 
-    // Core's bootstrap() is NOT called - KernelTestBase has already booted the
-    // kernel. We just instantiate and exercise the API methods directly.
+    // Core's bootstrap() is not called: KernelTestBase has already booted the
+    // kernel, so the API methods are exercised directly.
     $this->core = new Core($this->root);
   }
 
   /**
    * Tests the full user/role lifecycle in one bundled method.
-   *
-   * Rationale: every assertion below shares the same module set and a clean
-   * user table; running them as separate test methods would multiply the
-   * ~1s setUp cost four-fold. The sequence also mirrors how the driver is
-   * used in practice - create user, mint role, grant role, tear down.
    */
   public function testUserLifecycle(): void {
-    // 1. userCreate assigns a UID and persists the account.
     $user_stub = new EntityStub('user', NULL, [
       'name' => 'alice',
       'mail' => 'alice@example.com',
@@ -88,7 +83,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertSame('alice', $account->getAccountName());
     $this->assertSame(1, (int) $account->get('status')->value);
 
-    // 2. roleCreate returns a new role id and stores the granted permissions.
     // 'access user profiles' is provided by the user module enabled here, so
     // checkPermissions() can validate it in isolation without pulling in node.
     $permission = 'access user profiles';
@@ -97,16 +91,13 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission($permission));
 
-    // 3. userAddRole attaches the role to the user.
     $this->core->userAddRole($user_stub, $role_id);
     $account = User::load($user_stub->getValue('uid'));
     $this->assertContains($role_id, $account->getRoles());
 
-    // 4. userDelete removes the user (processes the batch synchronously).
     $this->core->userDelete($user_stub);
     $this->assertNull(\Drupal::entityTypeManager()->getStorage('user')->loadUnchanged($user_stub->getValue('uid')));
 
-    // 5. roleDelete removes the role.
     $this->core->roleDelete($role_id);
     $this->assertNull(Role::load($role_id));
   }
@@ -129,10 +120,19 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that 'userAddRole()' throws when the stub's uid matches no account.
+   */
+  public function testUserAddRoleThrowsOnUnknownUser(): void {
+    $role_id = $this->core->roleCreate(['access user profiles']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
+
+    $this->core->userAddRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
+  }
+
+  /**
    * Tests that roleCreate rejects unknown permission strings.
-   *
-   * Kept as a separate method because it exercises a failure path - better
-   * to run it in a clean container than tacked onto the happy path above.
    */
   public function testRoleCreateRejectsUnknownPermission(): void {
     $this->expectException(\RuntimeException::class);
@@ -143,10 +143,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests 'roleCreate()' honours explicit id and label arguments.
-   *
-   * Without this path, scenarios that need to assert against a role by name
-   * (e.g. verifying it appears in a permissions admin form) have to scrape the
-   * random id out of the return value - which makes the assertion opaque.
    */
   public function testRoleCreateAcceptsExplicitIdAndLabel(): void {
     $role_id = $this->core->roleCreate(['access user profiles'], 'editor', 'Editor');
@@ -172,10 +168,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that 'userCreate()' honours the 'roles' creation alias.
-   *
-   * Mirrors the existing Drush-side test (DrushDriverMethodsTest) on Core
-   * and closes the symmetry gap: a stub created via Core can now assign
-   * roles in one call instead of requiring a follow-up 'userAddRole()'.
    */
   public function testUserCreateAppliesRolesAlias(): void {
     $role_id = $this->core->roleCreate(['access user profiles'], 'editor');

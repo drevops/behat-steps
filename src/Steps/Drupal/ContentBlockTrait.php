@@ -9,9 +9,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 
 /**
  * Manage Drupal content blocks.
@@ -28,9 +28,6 @@ trait ContentBlockTrait {
 
   /**
    * Remove content blocks of a specified type with the given descriptions.
-   *
-   * Delete all content blocks of the specified type that match any of the
-   * descriptions (titles) provided in the table.
    *
    * @code
    * Given the following "basic" content blocks do not exist:
@@ -61,8 +58,6 @@ trait ContentBlockTrait {
   /**
    * Create content blocks of the specified type with the given field values.
    *
-   * This step creates new content block (block_content) entities with
-   * the specified field values.
    * Each row in the table creates a separate block entity of the given type.
    *
    * Required fields:
@@ -121,10 +116,6 @@ trait ContentBlockTrait {
 
   /**
    * Navigate to the edit page for a specified content block.
-   *
-   * Find a content block by its type and description (admin title) and
-   * navigate to its edit page. Throws an exception if no matching block
-   * is found.
    *
    * @code
    * When I edit the "basic" content block with the description "[TEST] Footer Block"

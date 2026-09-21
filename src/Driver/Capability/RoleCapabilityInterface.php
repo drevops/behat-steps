@@ -16,8 +16,7 @@ interface RoleCapabilityInterface {
    *   Permission machine names or labels.
    * @param string|null $id
    *   Optional role machine name. If omitted, a random lowercase id is
-   *   generated. Callers that need to reference the role by a known name
-   *   (e.g. in assertions against a configuration form) should pass this.
+   *   generated.
    * @param string|null $label
    *   Optional human-readable role label. Defaults to the id when omitted;
    *   falls back to a random string only when both this and $id are NULL.

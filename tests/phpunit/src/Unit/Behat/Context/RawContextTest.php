@@ -333,6 +333,19 @@ class RawContextTest extends UnitTestCase {
     yield 'configurable_language' => ['configurable_language'];
   }
 
+  public function testAnAlreadyRemovedLanguageDoesNotStopCleanup(): void {
+    $driver = $this->createDriver([LanguageCapabilityInterface::class, ContentCapabilityInterface::class]);
+    $driver->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('The language "fr" does not exist.'));
+    $driver->expects($this->once())->method('nodeDelete');
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('node', 'page'), new EntityStub('language', NULL, ['langcode' => 'fr'])]);
+
+    $context->cleanEntities($this->createAfterScenarioScope());
+
+    $this->assertSame([], $context->getCreatedStubs());
+  }
+
   public function testLanguageIsLeftBehindByIncapableDriver(): void {
     $driver = $this->createContentDriver();
     $driver->expects($this->never())->method('entityDelete');
@@ -531,7 +544,7 @@ class RawContextTest extends UnitTestCase {
     $driver->expects($this->never())->method('userDelete');
 
     // The normal path calls 'fastLogout()' even for a scenario that created
-    // no users, so expecting it never is what proves the early return ran.
+    // no users, so the 'never()' expectation proves the early return ran.
     /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
     $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
     $authentication_manager->expects($this->never())->method('fastLogout');

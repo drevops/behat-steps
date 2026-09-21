@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
 use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Session;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\DiagnosticsTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -285,7 +285,7 @@ class DiagnosticsTraitTestImplementation extends RawContext {
   }
 
   /**
-   * Expose the collected JavaScript console error messages.
+   * Exposes the collected JavaScript console error messages.
    *
    * @return array<int, string>
    *   Collected JavaScript error messages.

@@ -27,7 +27,7 @@ class TimeHandler extends AbstractHandler {
       $timestamp = strtotime((string) $value);
 
       if ($timestamp === FALSE) {
-        throw new \InvalidArgumentException(sprintf('Time field value "%s" is not parseable.', (string) $value));
+        throw new \RuntimeException(sprintf('Time field value "%s" is not parseable.', (string) $value));
       }
 
       $seconds[] = $timestamp - $midnight;

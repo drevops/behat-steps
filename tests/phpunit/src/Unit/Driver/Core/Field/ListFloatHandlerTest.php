@@ -64,7 +64,7 @@ class ListFloatHandlerTest extends FieldHandlerUnitTestBase {
     yield 'record missing main property rejected' => [
       ['unexpected' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
   }

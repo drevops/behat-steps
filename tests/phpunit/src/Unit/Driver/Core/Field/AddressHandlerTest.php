@@ -79,6 +79,18 @@ class AddressHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Invalid address sub-field key: unknown_key.',
     ];
+    yield 'non-string non-array value rejected' => [
+      42,
+      NULL,
+      \RuntimeException::class,
+      'Address field value must be a string or array. Got int.',
+    ];
+    yield 'non-string non-array delta rejected' => [
+      [['given_name' => 'John'], 42],
+      NULL,
+      \RuntimeException::class,
+      'Address field delta must be a string or array. Got int.',
+    ];
   }
 
   /**

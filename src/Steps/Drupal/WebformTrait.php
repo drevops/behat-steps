@@ -35,6 +35,10 @@ trait WebformTrait {
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
+    $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('webform', 'drupal/webform');
+
     $webforms = $this->webformLoadAll($title);
 
     foreach ($webforms as $webform) {
@@ -59,6 +63,10 @@ trait WebformTrait {
    */
   #[Given('the webform :title exists from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {
+    $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('webform', 'drupal/webform');
+
     $templates = $this->webformTemplates($template);
 
     if (empty($templates)) {
@@ -103,6 +111,8 @@ trait WebformTrait {
    */
   public function webformLoadAll(string $title): array {
     $this->assertDrupal();
+
+    $this->helperAssertModuleEnabled('webform', 'drupal/webform');
 
     // Clear config factory cache to pick up webform changes made via the
     // admin UI in a separate process.

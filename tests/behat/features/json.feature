@@ -123,7 +123,7 @@ Feature: Check that JsonTrait works
       Then the JSON path "$.items[?(@.x" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       is invalid
       """
@@ -317,7 +317,7 @@ Feature: Check that JsonTrait works
       Then the JSON path "$.email" should match "not-a-valid-regex"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The regular expression "not-a-valid-regex" is invalid.
       """
@@ -350,7 +350,7 @@ Feature: Check that JsonTrait works
       Then the JSON path "$.email" should not match "not-a-valid-regex"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The regular expression "not-a-valid-regex" is invalid.
       """
@@ -456,7 +456,7 @@ Feature: Check that JsonTrait works
       Then the JSON path "$.items" should have "three" elements
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The expected element count "three" is not a valid non-negative integer.
       """
@@ -501,7 +501,7 @@ Feature: Check that JsonTrait works
         '''
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The provided JSON schema is not valid JSON
       """

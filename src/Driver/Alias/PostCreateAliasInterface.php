@@ -20,8 +20,8 @@ interface PostCreateAliasInterface extends CreationAliasInterface {
    * Reads the alias value from the stub and applies it to the entity.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
-   *   The stub used to create the entity. The dispatcher checks that
-   *   'getName()' is present on the stub before calling this method.
+   *   The stub used to create the entity. Must already carry a value under
+   *   'getName()'.
    * @param object $entity
    *   The Drupal entity that was just persisted.
    *

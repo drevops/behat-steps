@@ -97,7 +97,7 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
    * Tests that termCreate rejects a stub missing the vocabulary.
    */
   public function testTermCreateRejectsMissingVocabularyProperty(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/vocabulary is missing/");
 
     $this->core->termCreate(new EntityStub('taxonomy_term', NULL, ['name' => 'Orphan']));
@@ -107,7 +107,7 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
    * Tests that termCreate rejects an unknown vocabulary.
    */
   public function testTermCreateRejectsUnknownVocabulary(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/vocabulary 'ghosts' does not exist/");
 
     $this->core->termCreate(new EntityStub('taxonomy_term', 'ghosts', [
@@ -117,13 +117,9 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that termCreate rejects a parent term that does not exist.
-   *
-   * Previously a non-matching parent was silently left as the raw name string,
-   * which produced an opaque downstream error from Term::create. Now it fails
-   * loudly with a message that names the missing parent.
    */
   public function testTermCreateRejectsUnknownParent(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/parent term 'Missing' does not exist in vocabulary 'tags'/");
 
     $this->core->termCreate(new EntityStub('taxonomy_term', 'tags', [

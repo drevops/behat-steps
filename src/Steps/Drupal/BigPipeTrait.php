@@ -16,31 +16,31 @@ use DrevOps\BehatSteps\Behat\Tag;
  *
  * Drupal BigPipe streams parts of a page in after the initial response and
  * replaces its `<span data-big-pipe-placeholder-id="...">` markers with the
- * real markup using JavaScript. Assertions that run before those replacements
- * land intermittently fail with "element not found". When this trait is
- * included, every `@javascript` scenario waits - before each step - until no
- * BigPipe placeholder markers remain in the DOM, removing that race without an
- * explicit step.
+ * real markup using JavaScript. An assertion that runs before those
+ * replacements complete fails intermittently with "element not found".
  *
- * The wait is best-effort: on timeout the step still runs, so a genuinely stuck
- * placeholder surfaces as the real assertion failure rather than being masked
- * here.
+ * With this trait included, every `@javascript` scenario waits before each
+ * step until no BigPipe placeholder marker remains in the DOM, which removes
+ * that race without an explicit step.
  *
- * A driver that runs no JavaScript never replaces those placeholders and does
- * not follow the `http-equiv=refresh` fallback either, so an authenticated-user
- * assertion silently misses whatever BigPipe deferred. Tag such a scenario
- * `@bigpipe` and the `big_pipe_nojs` cookie is set for it, which makes Drupal
- * render the page in full server-side.
+ * The wait is best-effort: on timeout the step still runs, so a placeholder
+ * that is never replaced fails the following assertion rather than the wait.
+ *
+ * A driver that runs no JavaScript never replaces those placeholders, and does
+ * not follow the `http-equiv=refresh` fallback either. An authenticated-user
+ * assertion on such a driver silently misses whatever BigPipe deferred. A
+ * scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, which makes
+ * Drupal render the page in full server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *
  * Special tags:
  * - `@bigpipe` - render server-side on a driver without JavaScript.
  *
- * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in your
- * `FeatureContext` to change the maximum wait.
+ * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in the
+ * consuming `FeatureContext` to change the maximum wait.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait BigPipeTrait {
 
@@ -82,8 +82,6 @@ trait BigPipeTrait {
    */
   #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
-    // Resolved here, not in the BeforeStep hook, because a BeforeStep scope
-    // cannot read scenario-level tags.
     $tags = Tag::all($scope);
     $is_skipped = $this->skipTag('BigPipeTrait', $scope);
 

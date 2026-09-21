@@ -47,7 +47,8 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
     parent::setUp();
     $this->installConfig(['filter']);
 
-    // Drupal 12 moved the 'text_with_summary' field type out of 'text'.
+    // On Drupal 12 the 'text_with_summary' field type is provided by its own
+    // module rather than by 'text'.
     if (\Drupal::service('extension.list.module')->exists('text_with_summary')) {
       $this->enableModules(['text_with_summary']);
     }
@@ -88,9 +89,9 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
 /**
  * Test-only handler that emits a deterministic marker value.
  *
- * Extends 'AbstractHandler' directly so its class lineage does not touch
- * 'DefaultHandler' - this proves the registry is the resolution path, not
- * some hidden class-name convention.
+ * Extends 'AbstractHandler' directly so its class lineage does not include
+ * 'DefaultHandler', which proves the registry is the resolution path rather
+ * than a class-name convention.
  */
 class MarkerTextWithSummaryHandler extends AbstractHandler {
 
@@ -100,10 +101,6 @@ class MarkerTextWithSummaryHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    // Replace each delta's 'value' with the marker while preserving other
-    // columns. The kernel-test helper asserts the stored value equals what
-    // the handler emitted, so the round-trip only passes if this handler
-    // ran.
     $emitted = [];
 
     foreach ($records as $record) {

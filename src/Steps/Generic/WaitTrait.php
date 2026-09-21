@@ -11,6 +11,7 @@ use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
 
@@ -22,8 +23,8 @@ use DrevOps\BehatSteps\Behat\Tag;
  *   every step that navigates or submits.
  *
  * Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
- * updates through `Drupal.ajax`, so an assertion following a click can read the
- * page before the update lands. The wait here watches both.
+ * updates through `Drupal.ajax`. An assertion following a click can read the
+ * page before the update applies, so the wait here watches both.
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
@@ -58,10 +59,9 @@ trait WaitTrait {
   /**
    * Wait for AJAX before a step that navigates or submits.
    *
-   * The after-step wait only fires on steps matching the same pattern, so AJAX
-   * a non-matching step started - a select or a keystroke bound to a Drupal
-   * behaviour - is still in flight when the next click arrives. This hook is
-   * what settles it.
+   * The after-step wait fires only on steps matching the same pattern. AJAX
+   * from a non-matching step, such as a select or keystroke bound to a Drupal
+   * behaviour, is still in flight at the next click. This hook settles it.
    */
   #[BeforeStep]
   public function waitBeforeStep(BeforeStepScope $scope): void {
@@ -118,8 +118,7 @@ trait WaitTrait {
     $seconds = (int) $seconds;
 
     if (!$this->helperIsJavascriptSupported()) {
-      $driver = $this->getSession()->getDriver();
-      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $driver::class));
+      throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $this->getSession()->getDriver());
     }
 
     $script = <<<JS
@@ -129,8 +128,6 @@ trait WaitTrait {
         }
         var notAjaxing = (typeof Drupal === 'undefined' || typeof Drupal.ajax === 'undefined' || typeof Drupal.ajax.instances === 'undefined' || !Drupal.ajax.instances.some(isAjaxing))
         return (
-          // Assert no AJAX request is running (via jQuery or Drupal) and no
-          // animation is running.
           (typeof jQuery === 'undefined' || (jQuery.active === 0 && jQuery(':animated').length === 0)) &&
           notAjaxing
         );
@@ -155,9 +152,9 @@ JS;
       return;
     }
 
-    // Match against the step's own words: the same verbs appear inside
-    // arguments, as in 'I fill in "Search" with "Click here"', which names no
-    // navigation at all.
+    // The same verbs appear inside quoted arguments, as in 'I fill in
+    // "Search" with "Click here"', so the arguments are stripped before
+    // matching.
     $text = preg_replace('/"[^"]*"/', '', $scope->getStep()->getText());
 
     if (preg_match(self::WAIT_STEP_PATTERN, (string) $text) !== 1) {

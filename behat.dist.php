@@ -3,8 +3,8 @@
 /**
  * Reference configuration setting every option this package accepts.
  *
- * The suite in this repository runs from 'behat.php', which takes precedence,
- * so Behat never loads this file here.
+ * The suite in this repository runs from 'behat.php'. That file takes
+ * precedence, so Behat never loads this one here.
  */
 
 declare(strict_types=1);

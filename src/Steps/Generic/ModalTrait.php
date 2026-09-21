@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -39,7 +40,7 @@ trait ModalTrait {
     $close = $this->modalFindElementIn($modal, $this->modalGetCloseSelectors());
 
     if ($close === NULL) {
-      throw new ExpectationException('The modal close button was not found.', $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal close button', 'css', implode(', ', $this->modalGetCloseSelectors()));
     }
 
     $close->click();
@@ -76,7 +77,7 @@ trait ModalTrait {
     }
 
     if ($element === NULL || !$element->isVisible()) {
-      throw new ExpectationException(sprintf('The element "%s" was not found in the modal.', $selector), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element in the modal', 'css|id|name|title|alt|value|text', $selector);
     }
 
     $element->click();
@@ -157,7 +158,7 @@ trait ModalTrait {
     $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
     if ($content === NULL) {
-      throw new ExpectationException('The modal content element was not found.', $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal content element', 'css', implode(', ', $this->modalGetContentSelectors()));
     }
 
     $actual_text = $content->getText();
@@ -182,7 +183,7 @@ trait ModalTrait {
     $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
     if ($content === NULL) {
-      throw new ExpectationException('The modal content element was not found.', $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal content element', 'css', implode(', ', $this->modalGetContentSelectors()));
     }
 
     $actual_text = $content->getText();

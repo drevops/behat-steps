@@ -69,9 +69,8 @@ trait HelperTrait {
   /**
    * Record the line of the scenario's last step.
    *
-   * A hook that runs once per scenario, yet raises its verdict at step
-   * scope for Behat to record it, must recognise the last step. Step scopes
-   * expose no scenario, so the line is resolved here and compared later.
+   * Step scopes expose no scenario, so the line is resolved here and compared
+   * later.
    */
   protected function helperSetLastStepLine(BeforeScenarioScope $scope): void {
     $steps = $scope->getScenario()->getSteps();
@@ -144,8 +143,6 @@ trait HelperTrait {
     foreach ($rows as $row) {
       $field_name = array_shift($row);
 
-      // Gherkin rejects a table whose rows have differing column counts, so
-      // row length needs no validation here.
       foreach ($row as $index => $value) {
         $entities[$index][$field_name] = $value;
       }
@@ -156,9 +153,6 @@ trait HelperTrait {
 
   /**
    * Convert vertical format entities to horizontal TableNode.
-   *
-   * Converts an array of entities (from helperTransposeVerticalTable) back
-   * to horizontal format TableNode expected by DrupalExtension methods.
    *
    * @param array<int, array<string, string>> $entities
    *   Array of entity data arrays from helperTransposeVerticalTable().

@@ -9,9 +9,8 @@ namespace DrevOps\BehatSteps\Driver\Core\Field;
  *
  * Each predicate answers "is this field in F{N}?" for one row of the truth
  * table, based only on the field's declaration and storage profile. The
- * classifier expresses no opinion about what a consumer does with the
- * classification - that decision lives in the consumer (e.g. 'Core' decides
- * which F-rows participate in its handler-expansion pipeline).
+ * classifier does not decide what is done with a classification; that
+ * decision belongs to the consumer.
  *
  * See 'src/Driver/Core/Field/README.md' for the full truth table, the
  * example fields per row, the handler-selection sub-table, and how 'Core'

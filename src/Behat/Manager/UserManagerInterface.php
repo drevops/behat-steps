@@ -30,9 +30,8 @@ interface UserManagerInterface {
   /**
    * Adds a new user.
    *
-   * Call this after creating a new user to keep track of all the users that are
-   * created in a test scenario. They can then be cleaned up after completing
-   * the test.
+   * Tracks a created user, so every user created in a scenario can be cleaned
+   * up after the test.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $user
    *   The user stub.
@@ -42,10 +41,10 @@ interface UserManagerInterface {
   /**
    * Removes a user from the list of users that were created in the test.
    *
-   * @param string $userName
+   * @param string $name
    *   The name of the user to remove.
    */
-  public function removeUser(string $userName): void;
+  public function removeUser(string $name): void;
 
   /**
    * Returns the list of users that were created in the test.
@@ -58,16 +57,16 @@ interface UserManagerInterface {
   /**
    * Returns the user with the given user name.
    *
-   * @param string $userName
+   * @param string $name
    *   The name of the user to return.
    *
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The user stub.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the user with the given name does not exist.
    */
-  public function getUser(string $userName): EntityStubInterface;
+  public function getUser(string $name): EntityStubInterface;
 
   /**
    * Clears the list of users that were created in the test.

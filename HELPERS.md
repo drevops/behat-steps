@@ -34,7 +34,7 @@
 | Class | Helpers | Description |
 | --- | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | 2 | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
-| [Drupal\BlockTrait](#drupalblocktrait) | 1 | Manage Drupal blocks. |
+| [Drupal\BlockTrait](#drupalblocktrait) | 2 | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | 1 | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | 2 | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 2 | Manage Drupal content blocks. |
@@ -674,7 +674,7 @@ Assert that a set of meta tags is present and non-empty
 </details>
 
 <details>
-  <summary><code>public function metatagFindMeta(string $name): ?NodeElement</code></summary>
+  <summary><code>public function metatagFindMeta(string $meta_name): ?NodeElement</code></summary>
 
 <br/>
 Find a meta tag by its "name" or "property" attribute
@@ -701,7 +701,7 @@ Get the hreflang alternates present on the current page
 </details>
 
 <details>
-  <summary><code>public function metatagGetMetaContent(string $name): ?string</code></summary>
+  <summary><code>public function metatagGetMetaContent(string $meta_name): ?string</code></summary>
 
 <br/>
 Get the content of a meta tag by its "name" or "property" attribute
@@ -893,7 +893,7 @@ Generates a 'Random::name()' string with original case preserved
   <summary><code>public function randomGenerateString(int $length): string</code></summary>
 
 <br/>
-Generates a lowercase string - the default for unknown shape requests
+Generates a lowercase string, the default token type
 <br/><br/>
 
 </details>
@@ -974,7 +974,7 @@ Get all available breakpoints
 </details>
 
 <details>
-  <summary><code>public function responsiveGetBreakpoint(string $name): string</code></summary>
+  <summary><code>public function responsiveGetBreakpoint(string $breakpoint): string</code></summary>
 
 <br/>
 Get breakpoint dimensions by name
@@ -1058,7 +1058,7 @@ Find a table element by CSS selector
 </details>
 
 <details>
-  <summary><code>public function tableFindRowByText(string $text): ?NodeElement</code></summary>
+  <summary><code>public function tableFindRowByText(string $row_text): ?NodeElement</code></summary>
 
 <br/>
 Find a table row containing the given text
@@ -1224,6 +1224,15 @@ Wait until no BigPipe placeholder markers remain in the DOM
 [Source](src/Steps/Drupal/BlockTrait.php), [Steps](STEPS.md#drupalblocktrait)
 
 > Manage Drupal blocks.
+
+<details>
+  <summary><code>public function blockGetByLabel(string $label): Block</code></summary>
+
+<br/>
+Load a block by its label or fail
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function blockLoadByLabel(string $label): ?Block</code></summary>
@@ -1493,7 +1502,7 @@ Create a single media item
 </details>
 
 <details>
-  <summary><code>public function mediaLoadMultiple(string $type, array $conditions = []): array</code></summary>
+  <summary><code>public function mediaLoadMultiple(string $media_type, array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple media entities with specified type and conditions
@@ -1583,7 +1592,7 @@ Check if a module's code is present
 > Manage Drupal paragraphs entities with structured field data.
 
 <details>
-  <summary><code>public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface</code></summary>
+  <summary><code>public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface</code></summary>
 
 <br/>
 Create a paragraphs item from a stub and attach it to an entity

@@ -115,6 +115,18 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that 'languageDelete()' throws when the language does not exist.
+   */
+  public function testLanguageDeleteThrowsWhenLanguageMissing(): void {
+    $this->assertNull(ConfigurableLanguage::load('fr'));
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches('/Cannot delete language "fr" because it does not exist/');
+
+    $this->core->languageDelete(new EntityStub('language', NULL, ['langcode' => 'fr']));
+  }
+
+  /**
    * Tests that login switches the active account and logout restores it.
    */
   public function testLoginAndLogoutSwitchesAccount(): void {

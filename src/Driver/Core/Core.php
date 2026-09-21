@@ -115,11 +115,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Populates the creation-alias registry with aliases this class ships.
    *
-   * A 'Core' subclass that wants to add version-specific overrides
-   * should override this method, call
-   * 'parent::registerDefaultCreationAliases()' first, and then register
-   * its own aliases. Re-registering a name on the same entity type
-   * replaces the inherited entry.
+   * A 'Core' subclass with version-specific overrides overrides this
+   * method, calls 'parent::registerDefaultCreationAliases()' first, and
+   * then registers its own aliases. Re-registering a name on the same
+   * entity type replaces the inherited entry.
    */
   protected function registerDefaultCreationAliases(): void {
     $this->registerCreationAlias(new AuthorAlias());
@@ -140,11 +139,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function registerFieldHandler(string $field_type, string $class): void {
     if (!is_subclass_of($class, FieldHandlerInterface::class)) {
-      throw new \InvalidArgumentException(sprintf('Handler class "%s" must implement "%s".', $class, FieldHandlerInterface::class));
+      throw new \RuntimeException(sprintf('Handler class "%s" must implement "%s".', $class, FieldHandlerInterface::class));
     }
 
     if ((new \ReflectionClass($class))->isAbstract()) {
-      throw new \InvalidArgumentException(sprintf('Handler class "%s" must be instantiable.', $class));
+      throw new \RuntimeException(sprintf('Handler class "%s" must be instantiable.', $class));
     }
 
     $this->fieldHandlers[$field_type] = $class;
@@ -153,12 +152,12 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Populates the field-handler registry with handlers this class ships.
    *
-   * A 'Core' subclass that wants to add version-specific overrides should
-   * override this method, call 'parent::registerDefaultFieldHandlers()'
-   * first, and then call 'registerHandlersFromDirectory()' against its
-   * own 'Field/' sibling directory. Each directory scan is independent,
-   * so a subclass only re-registers the types it actually changes; types
-   * it does not touch are inherited from the parent scan.
+   * A 'Core' subclass with version-specific overrides overrides this
+   * method, calls 'parent::registerDefaultFieldHandlers()' first, and then
+   * calls 'registerHandlersFromDirectory()' against its own 'Field/'
+   * sibling directory. Each directory scan is independent, so a subclass
+   * re-registers only the types it changes; the rest are inherited from
+   * the parent scan.
    */
   protected function registerDefaultFieldHandlers(): void {
     $this->registerHandlersFromDirectory(__DIR__ . '/Field', __NAMESPACE__ . '\\Field');
@@ -281,12 +280,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Rejects a field the DefaultHandler fallback cannot marshal.
    *
-   * Consulted only when no dedicated handler is registered for the field type.
-   * Delegates the value-shape decision to the field shape classifier and, when
-   * it reports the field is an entity reference or a complex/nested value,
-   * throws an actionable exception naming the field and why the default cannot
-   * relay it.
-   *
    * @param string $entity_type
    *   The entity type ID.
    * @param string $field_name
@@ -339,10 +332,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $definition = $this->loadEntityTypeDefinition($entity_type);
 
     // The id key and bundle key identify the record itself and must not pass
-    // through the handler pipeline. For example, on 'commerce_product' the
-    // bundle key 'type' is also a base entity_reference field; expanding it
-    // would resolve the bundle machine name through EntityReferenceHandler
-    // and overwrite the scalar with ['target_id' => ...], corrupting every
+    // through the handler pipeline. On 'commerce_product' the bundle key
+    // 'type' is also a base entity_reference field. Expanding it would
+    // resolve the bundle machine name through EntityReferenceHandler and
+    // overwrite the scalar with ['target_id' => ...], corrupting every
     // subsequent bundle lookup for the same stub.
     $skip = array_filter([$definition->getKey('id'), $definition->getKey('bundle')]);
 
@@ -395,10 +388,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Resolves an entity type definition, rethrowing with an actionable message.
    *
    * Drupal's EntityTypeManager throws 'PluginNotFoundException' with text like
-   * "The 'xyz' plugin does not exist." That is technically correct but leaks
-   * plugin-system vocabulary into what a scenario author experiences as a
-   * driver-level error. Wrapping it lets us produce a message that names
-   * what actually went wrong: the entity type argument they passed.
+   * "The 'xyz' plugin does not exist.", which describes the plugin system
+   * rather than the driver-level error a scenario author sees. The wrapper
+   * names the entity type argument instead.
    *
    * @param string $entity_type
    *   Entity type id to load.
@@ -406,7 +398,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return \Drupal\Core\Entity\EntityTypeInterface
    *   The resolved definition.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   If the entity type id is not registered.
    */
   protected function loadEntityTypeDefinition(string $entity_type): EntityTypeInterface {
@@ -414,7 +406,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       return \Drupal::entityTypeManager()->getDefinition($entity_type);
     }
     catch (PluginNotFoundException $e) {
-      throw new \InvalidArgumentException(sprintf('Unknown entity type "%s".', $entity_type), 0, $e);
+      throw new \RuntimeException(sprintf('Unknown entity type "%s".', $entity_type), 0, $e);
     }
   }
 
@@ -428,12 +420,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @codeCoverageIgnore
    */
   public function bootstrap(): void {
-    // Validate, and prepare environment for Drupal bootstrap.
     if (!defined('DRUPAL_ROOT')) {
       define('DRUPAL_ROOT', $this->drupalRoot);
     }
 
-    // Bootstrap Drupal.
     chdir(DRUPAL_ROOT);
     $autoloader = require DRUPAL_ROOT . '/autoload.php';
     require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
@@ -448,7 +438,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $kernel->preHandle($request);
 
-    // Initialise an anonymous session. required for the bootstrap.
+    // The bootstrap requires an anonymous session.
     \Drupal::service('session_manager')->start();
   }
 
@@ -467,7 +457,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $type = $stub->getBundle() ?? $stub->getValue('type');
 
     if (empty($type)) {
-      throw new \Exception("Cannot create content because it is missing the required property 'type'.");
+      throw new \RuntimeException("Cannot create content because it is missing the required property 'type'.");
     }
 
     /** @var \Drupal\Core\Entity\EntityTypeBundleInfo $bundle_info */
@@ -475,7 +465,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $bundles = $bundle_info->getBundleInfo('node');
 
     if (!in_array($type, array_keys($bundles))) {
-      throw new \Exception(sprintf('Cannot create content because provided content type %s does not exist.', $type));
+      throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
     // 'Node::create()' reads the bundle from the 'type' values key, so make
@@ -578,7 +568,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       return (int) $severity;
     }
 
-    throw new \InvalidArgumentException(sprintf('Unknown severity level: %s', $severity));
+    throw new \RuntimeException(sprintf('Unknown severity level: %s', $severity));
   }
 
   /**
@@ -611,7 +601,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function userCreate(EntityStubInterface $stub): void {
-    // Default status to TRUE if not explicitly creating a blocked user.
     if (!$stub->hasValue('status')) {
       $stub->setValue('status', 1);
     }
@@ -622,7 +611,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $account = \Drupal::entityTypeManager()->getStorage('user')->create($stub->getValues());
     $account->save();
 
-    // Store UID and the saved account.
     $stub->setValue('uid', $account->id());
     $stub->markSaved($account);
 
@@ -773,7 +761,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return int|string
    *   The user id.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the stub carries no id. Uid 0 is the anonymous user, so a
    *   caller that acts on an unresolved stub acts on the wrong account.
    */
@@ -781,7 +769,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $uid = $stub->getId() ?? $stub->getValue('uid');
 
     if ($uid === NULL) {
-      throw new \InvalidArgumentException('Cannot resolve a user id from the stub: neither the saved entity nor a "uid" value is set.');
+      throw new \RuntimeException('Cannot resolve a user id from the stub: neither the saved entity nor a "uid" value is set.');
     }
 
     return $uid;
@@ -796,7 +784,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return \Drupal\user\Entity\User
    *   The loaded account.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the stub carries no id, or when the id it carries no
    *   longer resolves to an account.
    */
@@ -805,7 +793,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $account = User::load($uid);
 
     if (!$account instanceof User) {
-      throw new \InvalidArgumentException(sprintf('No user with id "%s" exists.', $uid));
+      throw new \RuntimeException(sprintf('No user with id "%s" exists.', $uid));
     }
 
     return $account;
@@ -829,7 +817,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
         throw new BootstrapException(sprintf('Cannot parse the site URI %s', $this->uri));
       }
 
-      // Fill in defaults.
       $drupal_base_url += [
         'path' => NULL,
         'host' => NULL,
@@ -876,11 +863,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $vocabulary = $stub->getBundle() ?? $stub->getValue('vid');
 
     if (empty($vocabulary)) {
-      throw new \InvalidArgumentException("Cannot create term because the vocabulary is missing. Supply a bundle, a 'vid' value, or the 'vocabulary_machine_name' creation alias.");
+      throw new \RuntimeException("Cannot create term because the vocabulary is missing. Supply a bundle, a 'vid' value, or the 'vocabulary_machine_name' creation alias.");
     }
 
     if (Vocabulary::load($vocabulary) === NULL) {
-      throw new \InvalidArgumentException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
+      throw new \RuntimeException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
     }
 
     $stub->setValue('vid', $vocabulary);
@@ -920,9 +907,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function blockPlace(EntityStubInterface $stub): EntityStubInterface {
-    // Generate a placement id when the caller did not supply one, matching
-    // the 'nodeCreate'/'roleCreate' convention of tolerating ID-less stubs.
-    // Block config entities require an id, so we must fill it before save.
+    // Block config entities require an id, so one is generated when the
+    // caller did not supply it. This matches the 'nodeCreate' and
+    // 'roleCreate' convention of tolerating id-less stubs.
     if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
       $stub->setValue('id', strtolower($this->random->name(8, TRUE)));
     }
@@ -944,7 +931,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $id = $stub->getValue('id');
 
       if (!is_string($id) || $id === '') {
-        throw new \InvalidArgumentException('Cannot delete a block placement from a stub without a string "id" property.');
+        throw new \RuntimeException('Cannot delete a block placement from a stub without a string "id" property.');
       }
 
       $entity = \Drupal::entityTypeManager()->getStorage('block')->load($id);
@@ -982,7 +969,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function getExtensionPathList(): array {
     $paths = [];
 
-    // Get enabled modules.
     foreach (\Drupal::moduleHandler()->getModuleList() as $module) {
       $paths[] = $this->drupalRoot . DIRECTORY_SEPARATOR . $module->getPath();
     }
@@ -1007,11 +993,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $types = [];
 
     foreach ($fields as $field_name => $field) {
-      // See src/Driver/Core/Field/README.md. Only F1, F5, F9 enter the
-      // expansion pipeline; the OR below names those rows explicitly.
-      // F5 is additionally scoped to the bundle when known - otherwise a
-      // configurable field storage attached only to other bundles would slip
-      // into the type map and blow up in AbstractHandler::__construct().
+      // See src/Driver/Core/Field/README.md. Only F1, F5 and F9 enter the
+      // expansion pipeline. F5 is also scoped to the bundle when known;
+      // otherwise a configurable field storage attached only to other
+      // bundles would enter the type map and fail in
+      // AbstractHandler::__construct().
       $is_base_standard = $this->getFieldClassifier()->fieldIsBaseStandard($entity_type, $field_name);
       $is_configurable = $this->getFieldClassifier()->fieldIsConfigurable($entity_type, $field_name)
         && ($bundle === NULL || isset($bundle_fields[$field_name]));
@@ -1044,7 +1030,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false {
     $langcode = $this->resolveLangcode($stub);
 
-    // Enable a language only if it has not been enabled already.
     if (ConfigurableLanguage::load($langcode)) {
       return FALSE;
     }
@@ -1064,7 +1049,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $configurable_language = ConfigurableLanguage::load($langcode);
 
     if (!$configurable_language instanceof ConfigurableLanguage) {
-      throw new \InvalidArgumentException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
+      throw new \RuntimeException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
     }
 
     $configurable_language->delete();
@@ -1073,16 +1058,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Returns a non-empty langcode string from the stub or throws.
    *
-   * Centralises the input validation so 'languageCreate()' and
-   * 'languageDelete()' fail loudly with the same message rather than
-   * passing 'NULL'/'""' through to Drupal's storage layer where they would
-   * surface as opaque storage errors.
+   * A 'NULL' or '""' langcode passed through to Drupal's storage layer
+   * surfaces as an opaque storage error.
    */
   protected function resolveLangcode(EntityStubInterface $stub): string {
     $langcode = $stub->getValue('langcode');
 
     if (!is_string($langcode) || $langcode === '') {
-      throw new \InvalidArgumentException('Cannot operate on a language without a non-empty "langcode" value.');
+      throw new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.');
     }
 
     return $langcode;
@@ -1130,7 +1113,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $entity_type = $stub->getEntityType();
 
     if ($entity_type === '') {
-      throw new \InvalidArgumentException('You must specify an entity type to create an entity.');
+      throw new \RuntimeException('You must specify an entity type to create an entity.');
     }
 
     $definition = $this->loadEntityTypeDefinition($entity_type);
@@ -1138,7 +1121,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \InvalidArgumentException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
+      throw new \RuntimeException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
     }
 
     // Sync the typed bundle property into the values bag so
@@ -1147,14 +1130,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $stub->setValue($bundle_key, $stub->getBundle());
     }
 
-    // Throw an exception if a bundle is specified but does not exist.
     if ($bundle_key && $stub->hasValue($bundle_key) && $stub->getValue($bundle_key) !== NULL) {
       /** @var \Drupal\Core\Entity\EntityTypeBundleInfo $bundle_info */
       $bundle_info = \Drupal::service('entity_type.bundle.info');
       $bundles = $bundle_info->getBundleInfo($entity_type);
 
       if (!in_array($stub->getValue($bundle_key), array_keys($bundles))) {
-        throw new \InvalidArgumentException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
+        throw new \RuntimeException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
       }
     }
 
@@ -1181,13 +1163,12 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     if (!$entity instanceof EntityInterface) {
       $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
 
-      // Fail loudly if the stub does not carry the resolved id key. Without
-      // this guard a missing property would silently call storage->load(NULL)
-      // - 'hasValue()' is intentionally not enough here because a stored NULL
-      // would still pass the "is set" check while triggering a Drupal
-      // assertion error inside 'EntityStorageBase::load()'.
+      // Without this guard a missing id key would silently reach
+      // storage->load(NULL). 'hasValue()' alone is not enough: a stored NULL
+      // passes the "is set" check and triggers a Drupal assertion error
+      // inside 'EntityStorageBase::load()'.
       if (!is_string($id_key) || !$stub->hasValue($id_key)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Cannot delete an entity of type "%s" from a stub without the id key "%s" set.',
           $entity_type,
           (string) $id_key,
@@ -1197,7 +1178,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $id = $stub->getValue($id_key);
 
       if ((!is_int($id) && !is_string($id)) || $id === '') {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Cannot delete an entity of type "%s" from a stub with an empty id key "%s".',
           $entity_type,
           $id_key,
@@ -1235,11 +1216,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $this->storeOriginalConfiguration('system.mail', $mail_config);
 
-    // @todo Use a collector that supports html after D#2223967 lands.
     $mail_config['interface'] = ['default' => 'test_mail_collector'];
     $config->setData($mail_config)->save();
-    // Disable the mail system module's mail if enabled.
-    $this->mailStartCollectingSystemMail();
+    $this->startCollectingSystemMail();
   }
 
   /**
@@ -1252,8 +1231,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $config = \Drupal::configFactory()->getEditable('system.mail');
     $config->setData($this->originalConfiguration['system.mail'])->save();
-    // Re-enable the mailsystem module's mail if enabled.
-    $this->mailStopCollectingSystemMail();
+    $this->stopCollectingSystemMail();
   }
 
   /**
@@ -1296,7 +1274,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *
    * @see MailsystemManager::getPluginInstance()
    */
-  protected function mailStartCollectingSystemMail(): void {
+  protected function startCollectingSystemMail(): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }
@@ -1339,7 +1317,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * If the Mail System module is enabled, stop collecting those mails.
    */
-  protected function mailStopCollectingSystemMail(): void {
+  protected function stopCollectingSystemMail(): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }

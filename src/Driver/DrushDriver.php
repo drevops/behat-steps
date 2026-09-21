@@ -21,7 +21,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   use CreationAliasRegistryTrait;
 
   /**
-   * Store a drush alias for tests requiring shell access.
+   * Store a drush alias.
    */
   public string $alias;
 
@@ -74,7 +74,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
     }
 
     if (!empty($alias)) {
-      // Trim off the '@' symbol if it has been added.
       $this->alias = ltrim($alias, '@');
     }
     else {
@@ -87,8 +86,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
       $this->root = $resolved;
     }
 
-    // When the default 'drush' binary is used, try to resolve the
-    // project-level Drush binary first.
     if ($binary === 'drush') {
       $binary = $this->resolveProjectDrush($binary);
     }
@@ -102,8 +99,8 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   /**
    * Populates the creation-alias registry with aliases this driver ships.
    *
-   * A subclass that wants to add custom aliases should override this
-   * method and call 'parent::registerDefaultCreationAliases()' first.
+   * A subclass that adds custom aliases should override this method and
+   * call 'parent::registerDefaultCreationAliases()' first.
    */
   protected function registerDefaultCreationAliases(): void {
     $this->registerCreationAlias(new RolesAlias($this));
@@ -134,8 +131,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function processBatch(): void {
-    // Do nothing. Drush should internally handle any needs for processing
-    // batch ops.
+    // Drush is expected to handle batch processing internally.
   }
 
   /**
@@ -148,7 +144,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
       return;
     }
 
-    // Both 'all' and 'drush' clear the drush cache first.
     if ($type === 'all') {
       $this->drush('cache-clear', ['drush'], []);
     }
@@ -174,7 +169,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
     // 'drush config:get' returns whatever JSON shape the value has (object,
     // array, scalar). Decode objects to associative arrays so the return
     // shape matches 'Core::configGet()', which delegates to Drupal's config
-    // API and hands back arrays.
+    // API and returns arrays.
     return json_decode($output, TRUE);
   }
 
@@ -377,8 +372,8 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
 
     $process = $this->runProcess($argv);
 
-    // A signalled process yields a NULL exit code; classify that as a failure
-    // rather than letting it read as success.
+    // A signalled process yields a NULL exit code, so it is classified as a
+    // failure.
     return new DrushResult($process->getExitCode() ?? 1, $process->getOutput(), $process->getErrorOutput());
   }
 
@@ -414,7 +409,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Run Drush commands dynamically from a DrupalContext.
+   * Runs an undefined method call as a Drush command.
    *
    * @param string $name
    *   The method name, used as a Drush command.
@@ -455,13 +450,11 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    *   The resolved binary path.
    */
   protected function resolveProjectDrush(string $fallback): string {
-    // Try Composer's runtime bin directory.
     $composer_bin = getenv('COMPOSER_BIN_DIR');
     if ($composer_bin && file_exists($composer_bin . '/drush')) {
       return $composer_bin . '/drush';
     }
 
-    // Try common vendor/bin location relative to working directory.
     $cwd = getcwd();
     if ($cwd && file_exists($cwd . '/vendor/bin/drush')) {
       return $cwd . '/vendor/bin/drush';
@@ -478,13 +471,10 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * data row.
    */
   protected function parseUserId(string $info): ?int {
-    // Legacy format: "User ID : 123".
     if (preg_match('/User ID\s+:\s+(\d+)/', $info, $matches)) {
       return (int) $matches[1];
     }
 
-    // Drush 12+ table format: extract the first numeric value from the first
-    // data row (the row after the header separator).
     if (preg_match('/User ID/', $info)) {
       $lines = explode("\n", trim($info));
 
@@ -500,7 +490,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
           continue;
         }
 
-        // The first column in the data row is the User ID.
         if (preg_match('/^\s*(\d+)\s/', $line, $matches)) {
           return (int) $matches[1];
         }

@@ -27,9 +27,9 @@ use Behat\Testwork\Tester\Result\ExceptionResult;
  *
  * The trait is opt-in: `use` it in the context and it is active with no further
  * configuration. Every field is individually toggleable by overriding its
- * `diagnosticsGetShow*()` method to return FALSE, and each value source
- * degrades gracefully to nothing when the driver cannot provide it - a failed
- * step is never turned into a different failure by this trait.
+ * `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
+ * to nothing when the driver cannot provide it, so a failed step is never
+ * turned into a different failure.
  *
  * Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
  *
@@ -67,8 +67,8 @@ trait DiagnosticsTrait {
   /**
    * Capture re-run coordinates and resolve the opt-out for the scenario.
    *
-   * The opt-out is resolved here, rather than in the step hook, because the
-   * after-step scope exposes no scenario to read a scenario-level skip tag from.
+   * The after-step scope exposes no scenario to read a scenario-level skip tag
+   * from, so the opt-out is resolved here.
    */
   #[BeforeScenario]
   public function diagnosticsBeforeScenario(BeforeScenarioScope $scope): void {
@@ -90,7 +90,6 @@ trait DiagnosticsTrait {
     $result = $scope->getTestResult();
     $exception = $result instanceof ExceptionResult ? $result->getException() : NULL;
 
-    // A passing, undefined or pending step carries no exception to annotate.
     if (!$exception instanceof \Exception) {
       return;
     }
@@ -210,10 +209,10 @@ trait DiagnosticsTrait {
   /**
    * Return collected JavaScript console error messages.
    *
-   * Sources, merged and de-duplicated: the registry maintained by
-   * `JavascriptTrait` when the context also uses it (detected at runtime, so
-   * there is no hard dependency on that trait), and the live browser buffer
-   * populated by its collector. Both are best-effort and yield nothing under a
+   * Two sources are merged and de-duplicated: the `JavascriptTrait` registry
+   * when the context also uses it, and the live browser buffer its collector
+   * populates. The registry is detected at runtime, so there is no hard
+   * dependency on that trait. Both are best-effort and yield nothing under a
    * driver that cannot evaluate JavaScript.
    *
    * @return array<int, string>

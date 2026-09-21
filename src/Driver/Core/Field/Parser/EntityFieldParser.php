@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\Parser\Exception\MultipleParseException
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\Exception\ParseException;
 
 /**
- * Modern entity-field parser.
+ * Entity-field parser.
  *
  * Implements a syntax with a single uniform escape mechanism (double
  * quotes) for compound values. Cells fall into two modes detected by the
@@ -56,8 +56,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
    *   The bundle for the stub being parsed, or NULL for entity types
    *   without bundles. When provided, bundle-scoped fields (F6-F9) are
    *   accepted as known fields rather than triggering the unknown-field
-   *   guard - their values flow to the entity unchanged so the bundle's
-   *   field item-list class can take over at save.
+   *   guard; their values are passed to the entity unchanged for the
+   *   bundle's field item-list class to handle at save.
    */
   public function __construct(
     protected readonly string $entityType,
@@ -299,10 +299,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
         $start = $i;
 
         // '"' is only structural at the start of an item (handled in the
-        // branch above). Once we are inside an unquoted item it can be
-        // any literal character (e.g. an HTML attribute value), so the
-        // stop set is the list separator ',' and the compound-record
-        // separator ';' only.
+        // branch above). Inside an unquoted item it can be any literal
+        // character (e.g. an HTML attribute value), so the stop set is the
+        // list separator ',' and the compound-record separator ';' only.
         while ($i < $length && $cell[$i] !== ',' && $cell[$i] !== ';') {
           $i++;
         }

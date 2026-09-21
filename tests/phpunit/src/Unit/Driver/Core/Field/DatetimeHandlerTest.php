@@ -117,13 +117,13 @@ class DatetimeHandlerTest extends FieldHandlerUnitTestBase {
     yield 'mixed positional and named keys rejected' => [
       ['2026-07-15T09:00:00', 'extra' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['format' => 'datetime'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
   }
