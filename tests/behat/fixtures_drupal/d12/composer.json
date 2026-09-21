@@ -132,7 +132,8 @@
         "enable-patching": true,
         "patches": {
             "drupal/commerce": {
-                "Symfony 8: match the constraint validator signatures": "patches/commerce-symfony8-validator-signatures.patch"
+                "Symfony 8: match the constraint validator signatures": "patches/commerce-symfony8-validator-signatures.patch",
+                "Drupal 12: declare the cacheability argument on getDefaultOperations()": "patches/commerce-drupal12-default-operations.patch"
             },
             "drupal/ctools": {
                 "Drupal 12: discover Relationship plugins by attribute": "patches/ctools-drupal12-attribute-discovery.patch"
