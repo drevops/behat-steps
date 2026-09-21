@@ -4,7 +4,7 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AccessibilityTrait](#accessibilitytrait) | 12 | Assess accessibility of rendered pages. |
+| [AccessibilityTrait](#accessibilitytrait) | 15 | Assess accessibility of rendered pages. |
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](#commandtrait) | 1 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
@@ -80,6 +80,15 @@ Run the engine, normalize the result, record it for the scenario
 </details>
 
 <details>
+  <summary><code>public function accessibilityFetchJs(string $url, int $timeout): string|false</code></summary>
+
+<br/>
+Read the engine source once from the given location
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function accessibilityGetAutoTag(): string</code></summary>
 
 <br/>
@@ -120,6 +129,24 @@ Return TRUE if "incomplete" findings should fail the gate by default
 
 <br/>
 Return the default failure threshold
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetFetchAttempts(): int</code></summary>
+
+<br/>
+Return how many times the engine fetch is attempted before failing
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityGetFetchTimeout(): int</code></summary>
+
+<br/>
+Return the per-attempt timeout, in seconds, for the engine fetch
 <br/><br/>
 
 </details>
