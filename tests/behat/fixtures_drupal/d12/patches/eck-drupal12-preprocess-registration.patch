@@ -1,0 +1,17 @@
+Name the preprocess function the theme registry no longer finds.
+
+Drupal 12 stopped discovering template_preprocess_HOOK() for a theme hook a
+module defines, so nothing populated the 'content' variable and every ECK
+entity rendered as an empty wrapper.
+
+diff --git a/eck.module b/eck.module
+--- a/eck.module
++++ b/eck.module
+@@ -243,6 +243,7 @@
+ function eck_theme() {
+   $templates['eck_entity'] = [
+     'render element' => 'elements',
++    'preprocess functions' => ['template_preprocess_eck_entity'],
+   ];
+
+   return $templates;

@@ -130,7 +130,8 @@
                 "Drupal 12: declare the array return on massageFormValues()": "patches/dynamic_entity_reference-drupal12-massage-form-values.patch"
             },
             "drupal/eck": {
-                "Drupal 12: match the getDefaultOperations() signature": "patches/eck-drupal12-default-operations.patch"
+                "Drupal 12: match the getDefaultOperations() signature": "patches/eck-drupal12-default-operations.patch",
+                "Drupal 12: register the entity preprocess function": "patches/eck-drupal12-preprocess-registration.patch"
             },
             "drupal/entity_reference_revisions": {
                 "Drupal 12: declare the array return on massageFormValues()": "patches/entity_reference_revisions-drupal12-massage-form-values.patch"
@@ -146,7 +147,8 @@
             },
             "drupal/redirect": {
                 "Symfony 8: match the constraint validator signatures": "patches/redirect-symfony8-validator-signatures.patch",
-                "Drupal 12: declare the array return on massageFormValues()": "patches/redirect-drupal12-massage-form-values.patch"
+                "Drupal 12: declare the array return on massageFormValues()": "patches/redirect-drupal12-massage-form-values.patch",
+                "Drupal 12: read the original entity through getOriginal()": "patches/redirect-drupal12-get-original.patch"
             },
             "drupal/scheduled_transitions": {
                 "Drupal 12: match the getDefaultOperations() signature": "patches/scheduled-transitions-drupal12-default-operations.patch"
