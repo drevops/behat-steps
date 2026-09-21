@@ -27,7 +27,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * Main property name of the field's storage definition.
    *
    * NULL for field types without a single main column (e.g. 'address',
-   * 'name'); those handlers must override 'normalise()' to interpret
+   * 'name'); those handlers must override 'normalize()' to interpret
    * records themselves.
    */
   protected ?string $mainProperty;
@@ -81,7 +81,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * {@inheritdoc}
    */
   final public function expand(mixed $values): array {
-    return $this->doExpand($this->normalise($values));
+    return $this->doExpand($this->normalize($values));
   }
 
   /**
@@ -95,7 +95,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    *   - Mixed list of scalars and records -> scalars wrapped, records kept.
    *
    * Subclasses with custom shorthand override this method and may call
-   * 'parent::normalise()' for the residual shapes they do not handle
+   * 'parent::normalize()' for the residual shapes they do not handle
    * themselves.
    *
    * @param mixed $values
@@ -104,9 +104,9 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * @return array<int, array<string, mixed>>
    *   Canonical list of records.
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if ($this->mainProperty === NULL) {
-      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalise(); override normalise() in the handler subclass.', static::class));
+      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
     }
 
     if (!is_array($values)) {

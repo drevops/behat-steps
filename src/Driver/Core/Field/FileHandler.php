@@ -12,8 +12,8 @@ class FileHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
-    $records = parent::normalise($values);
+  protected function normalize(mixed $values): array {
+    $records = parent::normalize($values);
 
     foreach ($records as &$record) {
       if ($record[$this->mainProperty] === NULL || $record[$this->mainProperty] === '') {

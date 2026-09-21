@@ -79,7 +79,7 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests an unrecognised value raises a descriptive exception.
    */
-  public function testUnrecognisedValueThrows(): void {
+  public function testUnrecognizedValueThrows(): void {
     $this->attachField('field_flag', 'boolean');
 
     $this->expectException(\RuntimeException::class);

@@ -12,7 +12,7 @@ class LinkHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if (!is_array($values)) {
       return [['uri' => $values]];
     }

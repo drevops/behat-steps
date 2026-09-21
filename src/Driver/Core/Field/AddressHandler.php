@@ -12,7 +12,7 @@ class AddressHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if ($values === []) {
       return [];
     }
@@ -20,7 +20,7 @@ class AddressHandler extends AbstractHandler {
     $visible_fields = $this->getVisibleAddressFields();
 
     if (is_string($values)) {
-      return [$this->normaliseDelta($values, $visible_fields)];
+      return [$this->normalizeDelta($values, $visible_fields)];
     }
 
     if (!is_array($values)) {
@@ -33,7 +33,7 @@ class AddressHandler extends AbstractHandler {
     $is_list_of_records = array_is_list($values) && is_array($values[0] ?? NULL);
 
     if (!$is_list_of_records) {
-      return [$this->normaliseDelta($values, $visible_fields)];
+      return [$this->normalizeDelta($values, $visible_fields)];
     }
 
     $records = [];
@@ -43,7 +43,7 @@ class AddressHandler extends AbstractHandler {
         throw new \InvalidArgumentException(sprintf('Address field delta must be a string or array. Got %s.', get_debug_type($value)));
       }
 
-      $records[] = $this->normaliseDelta($value, $visible_fields);
+      $records[] = $this->normalizeDelta($value, $visible_fields);
     }
 
     return $records;
@@ -119,7 +119,7 @@ class AddressHandler extends AbstractHandler {
    * @return array<string, mixed>
    *   A keyed array of address field values.
    */
-  protected function normaliseDelta(mixed $value, array $visible_fields): array {
+  protected function normalizeDelta(mixed $value, array $visible_fields): array {
     if (is_string($value)) {
       $first_field = reset($visible_fields);
 
@@ -130,12 +130,12 @@ class AddressHandler extends AbstractHandler {
       return [$first_field => $value];
     }
 
-    $normalised = [];
+    $normalized = [];
     $position = 0;
 
     foreach ($value as $key => $field_value) {
       if (in_array($key, $visible_fields, TRUE)) {
-        $normalised[$key] = $field_value;
+        $normalized[$key] = $field_value;
         continue;
       }
 
@@ -147,11 +147,11 @@ class AddressHandler extends AbstractHandler {
         throw new \RuntimeException(sprintf('Too many address sub-field values supplied; only %d visible fields available.', count($visible_fields)));
       }
 
-      $normalised[$visible_fields[$position]] = $field_value;
+      $normalized[$visible_fields[$position]] = $field_value;
       $position++;
     }
 
-    return $normalised;
+    return $normalized;
   }
 
 }

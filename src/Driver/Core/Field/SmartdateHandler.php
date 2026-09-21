@@ -12,7 +12,7 @@ class SmartdateHandler extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  protected function normalise(mixed $values): array {
+  protected function normalize(mixed $values): array {
     if ($values === []) {
       return [];
     }
