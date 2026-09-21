@@ -496,7 +496,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should be centered in the viewport')]
   public function elementAssertElementCenteredInViewport(string $selector): void {
-    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var element_center = rect.top + rect.height / 2; var viewport_third = window.innerHeight / 3; return (element_center >= viewport_third && element_center <= viewport_third * 2);');
+    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var elementCenter = rect.top + rect.height / 2; var viewportThird = window.innerHeight / 3; return (elementCenter >= viewportThird && elementCenter <= viewportThird * 2);');
     if (!$result) {
       throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
     }
@@ -1037,8 +1037,8 @@ trait ElementTrait {
           // when it carries a z-index, without needing to be positioned.
           var parent = el.parentElement;
           if (parent && style.zIndex !== 'auto') {
-            var parent_display = window.getComputedStyle(parent).display;
-            if (['flex', 'inline-flex', 'grid', 'inline-grid'].indexOf(parent_display) !== -1) {
+            var parentDisplay = window.getComputedStyle(parent).display;
+            if (['flex', 'inline-flex', 'grid', 'inline-grid'].indexOf(parentDisplay) !== -1) {
               return true;
             }
           }
