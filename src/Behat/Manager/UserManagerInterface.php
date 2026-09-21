@@ -63,7 +63,7 @@ interface UserManagerInterface {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The user stub.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the user with the given name does not exist.
    */
   public function getUser(string $name): EntityStubInterface;

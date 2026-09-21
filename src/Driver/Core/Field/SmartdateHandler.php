@@ -33,7 +33,7 @@ class SmartdateHandler extends AbstractHandler {
 
     foreach ($values as $value) {
       if (!is_array($value)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Smartdate field delta must be an array (positional [start, end] or keyed value/end_value). Got %s.',
           get_debug_type($value),
         ));

@@ -200,7 +200,7 @@ trait ElementTrait {
   #[Then('the heading :heading should exist')]
   public function elementAssertHeadingExists(string $heading): void {
     if (!$this->elementFindHeading($heading) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The heading "%s" was not found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'heading', 'text', $heading);
     }
   }
 
@@ -1123,7 +1123,7 @@ JS;
    */
   protected function elementAssertPinnedToTopWithin(string $selector, int $tolerance, bool $is_inverted): void {
     if ($tolerance < 0) {
-      throw new ExpectationException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance));
     }
 
     $element = $this->getSession()->getPage()->find('css', $selector);
@@ -1323,11 +1323,13 @@ JS;
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When no elements matched.
    * @throws \Behat\Mink\Exception\ExpectationException
-   *   When the index is below 1 or beyond the number of matches.
+   *   When the index is beyond the number of matches.
+   * @throws \RuntimeException
+   *   When the index is below 1.
    */
   public function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
     if ($index < 1) {
-      throw new ExpectationException(sprintf('The index must be 1 or greater, but "%d" was given.', $index), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The index must be 1 or greater, but "%d" was given.', $index));
     }
 
     if ($elements === []) {

@@ -36,7 +36,7 @@ class LinkHandler extends AbstractHandler {
     }
 
     if ($has_int_key && $has_string_key) {
-      throw new \InvalidArgumentException(sprintf(
+      throw new \RuntimeException(sprintf(
         'Link field value cannot mix positional and named keys at the top level. Got keys: %s.',
         implode(', ', array_keys($values)),
       ));
@@ -69,7 +69,7 @@ class LinkHandler extends AbstractHandler {
       }
 
       if (!array_key_exists('uri', $record)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Link field record must include a uri (named "uri" key or positional index 1). Got keys: %s.',
           implode(', ', array_keys($value)) ?: '(none)',
         ));

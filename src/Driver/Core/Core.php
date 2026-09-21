@@ -139,11 +139,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function registerFieldHandler(string $field_type, string $class): void {
     if (!is_subclass_of($class, FieldHandlerInterface::class)) {
-      throw new \InvalidArgumentException(sprintf('Handler class "%s" must implement "%s".', $class, FieldHandlerInterface::class));
+      throw new \RuntimeException(sprintf('Handler class "%s" must implement "%s".', $class, FieldHandlerInterface::class));
     }
 
     if ((new \ReflectionClass($class))->isAbstract()) {
-      throw new \InvalidArgumentException(sprintf('Handler class "%s" must be instantiable.', $class));
+      throw new \RuntimeException(sprintf('Handler class "%s" must be instantiable.', $class));
     }
 
     $this->fieldHandlers[$field_type] = $class;
@@ -398,7 +398,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return \Drupal\Core\Entity\EntityTypeInterface
    *   The resolved definition.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   If the entity type id is not registered.
    */
   protected function loadEntityTypeDefinition(string $entity_type): EntityTypeInterface {
@@ -406,7 +406,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       return \Drupal::entityTypeManager()->getDefinition($entity_type);
     }
     catch (PluginNotFoundException $e) {
-      throw new \InvalidArgumentException(sprintf('Unknown entity type "%s".', $entity_type), 0, $e);
+      throw new \RuntimeException(sprintf('Unknown entity type "%s".', $entity_type), 0, $e);
     }
   }
 
@@ -457,7 +457,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $type = $stub->getBundle() ?? $stub->getValue('type');
 
     if (empty($type)) {
-      throw new \Exception("Cannot create content because it is missing the required property 'type'.");
+      throw new \RuntimeException("Cannot create content because it is missing the required property 'type'.");
     }
 
     /** @var \Drupal\Core\Entity\EntityTypeBundleInfo $bundle_info */
@@ -465,7 +465,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $bundles = $bundle_info->getBundleInfo('node');
 
     if (!in_array($type, array_keys($bundles))) {
-      throw new \Exception(sprintf('Cannot create content because provided content type %s does not exist.', $type));
+      throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
     // 'Node::create()' reads the bundle from the 'type' values key, so make
@@ -568,7 +568,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       return (int) $severity;
     }
 
-    throw new \InvalidArgumentException(sprintf('Unknown severity level: %s', $severity));
+    throw new \RuntimeException(sprintf('Unknown severity level: %s', $severity));
   }
 
   /**
@@ -761,7 +761,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return int|string
    *   The user id.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the stub carries no id. Uid 0 is the anonymous user, so a
    *   caller that acts on an unresolved stub acts on the wrong account.
    */
@@ -769,7 +769,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $uid = $stub->getId() ?? $stub->getValue('uid');
 
     if ($uid === NULL) {
-      throw new \InvalidArgumentException('Cannot resolve a user id from the stub: neither the saved entity nor a "uid" value is set.');
+      throw new \RuntimeException('Cannot resolve a user id from the stub: neither the saved entity nor a "uid" value is set.');
     }
 
     return $uid;
@@ -784,7 +784,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @return \Drupal\user\Entity\User
    *   The loaded account.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   Thrown when the stub carries no id, or when the id it carries no
    *   longer resolves to an account.
    */
@@ -793,7 +793,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $account = User::load($uid);
 
     if (!$account instanceof User) {
-      throw new \InvalidArgumentException(sprintf('No user with id "%s" exists.', $uid));
+      throw new \RuntimeException(sprintf('No user with id "%s" exists.', $uid));
     }
 
     return $account;
@@ -863,11 +863,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $vocabulary = $stub->getBundle() ?? $stub->getValue('vid');
 
     if (empty($vocabulary)) {
-      throw new \InvalidArgumentException("Cannot create term because the vocabulary is missing. Supply a bundle, a 'vid' value, or the 'vocabulary_machine_name' creation alias.");
+      throw new \RuntimeException("Cannot create term because the vocabulary is missing. Supply a bundle, a 'vid' value, or the 'vocabulary_machine_name' creation alias.");
     }
 
     if (Vocabulary::load($vocabulary) === NULL) {
-      throw new \InvalidArgumentException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
+      throw new \RuntimeException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
     }
 
     $stub->setValue('vid', $vocabulary);
@@ -931,7 +931,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $id = $stub->getValue('id');
 
       if (!is_string($id) || $id === '') {
-        throw new \InvalidArgumentException('Cannot delete a block placement from a stub without a string "id" property.');
+        throw new \RuntimeException('Cannot delete a block placement from a stub without a string "id" property.');
       }
 
       $entity = \Drupal::entityTypeManager()->getStorage('block')->load($id);
@@ -1049,7 +1049,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $configurable_language = ConfigurableLanguage::load($langcode);
 
     if (!$configurable_language instanceof ConfigurableLanguage) {
-      throw new \InvalidArgumentException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
+      throw new \RuntimeException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
     }
 
     $configurable_language->delete();
@@ -1065,7 +1065,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $langcode = $stub->getValue('langcode');
 
     if (!is_string($langcode) || $langcode === '') {
-      throw new \InvalidArgumentException('Cannot operate on a language without a non-empty "langcode" value.');
+      throw new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.');
     }
 
     return $langcode;
@@ -1113,7 +1113,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $entity_type = $stub->getEntityType();
 
     if ($entity_type === '') {
-      throw new \InvalidArgumentException('You must specify an entity type to create an entity.');
+      throw new \RuntimeException('You must specify an entity type to create an entity.');
     }
 
     $definition = $this->loadEntityTypeDefinition($entity_type);
@@ -1121,7 +1121,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \InvalidArgumentException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
+      throw new \RuntimeException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
     }
 
     // Sync the typed bundle property into the values bag so
@@ -1136,7 +1136,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $bundles = $bundle_info->getBundleInfo($entity_type);
 
       if (!in_array($stub->getValue($bundle_key), array_keys($bundles))) {
-        throw new \InvalidArgumentException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
+        throw new \RuntimeException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
       }
     }
 
@@ -1168,7 +1168,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       // passes the "is set" check and triggers a Drupal assertion error
       // inside 'EntityStorageBase::load()'.
       if (!is_string($id_key) || !$stub->hasValue($id_key)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Cannot delete an entity of type "%s" from a stub without the id key "%s" set.',
           $entity_type,
           (string) $id_key,
@@ -1178,7 +1178,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $id = $stub->getValue($id_key);
 
       if ((!is_int($id) && !is_string($id)) || $id === '') {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Cannot delete an entity of type "%s" from a stub with an empty id key "%s".',
           $entity_type,
           $id_key,

@@ -17,7 +17,7 @@ class FileHandler extends AbstractHandler {
 
     foreach ($records as &$record) {
       if ($record[$this->mainProperty] === NULL || $record[$this->mainProperty] === '') {
-        throw new \InvalidArgumentException(sprintf('%s field "%s" must not be NULL or empty.', $this->getFieldLabel(), $this->mainProperty));
+        throw new \RuntimeException(sprintf('%s field "%s" must not be NULL or empty.', $this->getFieldLabel(), $this->mainProperty));
       }
 
       $record[$this->mainProperty] = (string) $record[$this->mainProperty];
@@ -133,7 +133,7 @@ class FileHandler extends AbstractHandler {
     $data = file_get_contents($file_path);
 
     if ($data === FALSE) {
-      throw new \Exception(sprintf('Error reading file %s.', $file_path));
+      throw new \RuntimeException(sprintf('Error reading file %s.', $file_path));
     }
 
     $file_extension = pathinfo($file_path, PATHINFO_EXTENSION);

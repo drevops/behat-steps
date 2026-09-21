@@ -24,7 +24,7 @@ class AddressHandler extends AbstractHandler {
     }
 
     if (!is_array($values)) {
-      throw new \InvalidArgumentException(sprintf('Address field value must be a string or array. Got %s.', get_debug_type($values)));
+      throw new \RuntimeException(sprintf('Address field value must be a string or array. Got %s.', get_debug_type($values)));
     }
 
     // A top-level list of scalars is a single positional address (the
@@ -40,7 +40,7 @@ class AddressHandler extends AbstractHandler {
 
     foreach ($values as $value) {
       if (!is_array($value) && !is_string($value)) {
-        throw new \InvalidArgumentException(sprintf('Address field delta must be a string or array. Got %s.', get_debug_type($value)));
+        throw new \RuntimeException(sprintf('Address field delta must be a string or array. Got %s.', get_debug_type($value)));
       }
 
       $records[] = $this->normalizeDelta($value, $visible_fields);

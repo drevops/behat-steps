@@ -473,7 +473,7 @@ Feature: Check that EmailTrait works
       Then I follow link number "<number>" in the email with the subject "Test Email"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The link number must be a positive integer, but "<number>" was provided.
       """
@@ -495,7 +495,7 @@ Feature: Check that EmailTrait works
       Then I follow link number "0" in the email with the subject containing "Test"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The link number must be a positive integer, but "0" was provided.
       """

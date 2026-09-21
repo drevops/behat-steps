@@ -42,12 +42,12 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * @param string $field_name
    *   The field name.
    *
-   * @throws \Exception
+   * @throws \RuntimeException
    *   Thrown when the given field name does not exist on the entity.
    */
   public function __construct(EntityStubInterface $stub, string $entity_type, string $field_name) {
     if ($entity_type === '') {
-      throw new \InvalidArgumentException('You must specify an entity type in order to parse entity fields.');
+      throw new \RuntimeException('You must specify an entity type in order to parse entity fields.');
     }
 
     /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager */
@@ -133,7 +133,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     }
 
     if ($has_int_key && $has_string_key) {
-      throw new \InvalidArgumentException(sprintf(
+      throw new \RuntimeException(sprintf(
         'Field value cannot mix positional and named keys at the top level. Got keys: %s. Pass either a list of values or a single keyed record, not both.',
         implode(', ', array_keys($values)),
       ));
@@ -156,7 +156,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     // handler does not silently dispatch on missing data.
     foreach ($records as $record) {
       if (!array_key_exists($this->mainProperty, $record)) {
-        throw new \InvalidArgumentException(sprintf(
+        throw new \RuntimeException(sprintf(
           'Field record must include the main property "%s". Got keys: %s.',
           $this->mainProperty,
           implode(', ', array_keys($record)) ?: '(none)',

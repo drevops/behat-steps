@@ -156,49 +156,49 @@ class AbstractHandlerNormalizeTest extends TestCase {
       ['/path/foo.jpg', 'alt' => 'A'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 0, alt.',
     ];
     yield 'rejects numeric 0 with multiple named extras' => [
       ['/path/foo.jpg', 'alt' => 'A', 'title' => 'B'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 0, alt, title.',
     ];
     yield 'rejects named keys followed by numeric' => [
       ['alt' => 'A', 0 => '/path/foo.jpg'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: alt, 0.',
     ];
     yield 'rejects gappy numeric mixed with named' => [
       [2 => 'a', 'alt' => 'A'],
       'value',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Got keys: 2, alt.',
     ];
     yield 'rejects single record missing main property' => [
       ['alt' => 'A', 'title' => 'B'],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id". Got keys: alt, title.',
     ];
     yield 'rejects record in list missing main property' => [
       [['target_id' => 'a.jpg'], ['alt' => 'orphan']],
       'target_id',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id". Got keys: alt.',
     ];
     yield 'rejects empty record' => [
       [[]],
       'value',
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value". Got keys: (none).',
     ];
   }

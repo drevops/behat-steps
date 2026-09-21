@@ -39,13 +39,13 @@ class RegionSelector implements SelectorInterface {
    * @return string
    *   The XPath for the region.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   When the name matches no configured region.
    */
   // phpcs:ignore Drupal.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
   public function translateToXPath($locator): string {
     if (!is_string($locator) || !isset($this->regions[$locator])) {
-      throw new \InvalidArgumentException(sprintf('The "%s" region isn\'t configured!', is_string($locator) ? $locator : gettype($locator)));
+      throw new \RuntimeException(sprintf('The "%s" region isn\'t configured!', is_string($locator) ? $locator : gettype($locator)));
     }
 
     return $this->cssSelector->translateToXPath($this->regions[$locator]);

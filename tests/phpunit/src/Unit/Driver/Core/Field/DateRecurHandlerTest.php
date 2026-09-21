@@ -100,13 +100,13 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
     yield 'mixed positional and named keys rejected' => [
       ['2025-01-01T09:00:00', 'timezone' => 'UTC'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['timezone' => 'UTC', 'rrule' => 'FREQ=DAILY;COUNT=5'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
   }

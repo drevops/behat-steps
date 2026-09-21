@@ -104,7 +104,7 @@ interface CoreInterface extends
    * field type the driver does not ship one for. The registration wins over
    * the defaults registered by 'Core::registerDefaultFieldHandlers()' in the
    * constructor. Handlers must implement 'FieldHandlerInterface'; a class
-   * that does not triggers an 'InvalidArgumentException' at registration
+   * that does not triggers a 'RuntimeException' at registration
    * time rather than at field resolution time.
    *
    * @param string $field_type
@@ -114,7 +114,7 @@ interface CoreInterface extends
    *   The handler class to instantiate when a field of this type is
    *   expanded. The class must implement 'FieldHandlerInterface'.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   When '$class' does not implement 'FieldHandlerInterface'.
    */
   public function registerFieldHandler(string $field_type, string $class): void;

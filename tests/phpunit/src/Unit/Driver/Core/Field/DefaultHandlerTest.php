@@ -69,13 +69,13 @@ class DefaultHandlerTest extends FieldHandlerUnitTestBase {
     yield 'mixed positional and named keys rejected' => [
       ['hello', 'extra' => 'unexpected'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['unexpected' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
   }

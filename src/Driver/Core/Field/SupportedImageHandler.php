@@ -19,7 +19,7 @@ class SupportedImageHandler extends AbstractHandler {
 
     foreach ($records as &$record) {
       if ($record[$this->mainProperty] === NULL || $record[$this->mainProperty] === '') {
-        throw new \InvalidArgumentException(sprintf('Supported image field "%s" must not be NULL or empty.', $this->mainProperty));
+        throw new \RuntimeException(sprintf('Supported image field "%s" must not be NULL or empty.', $this->mainProperty));
       }
 
       $record[$this->mainProperty] = (string) $record[$this->mainProperty];
@@ -40,7 +40,7 @@ class SupportedImageHandler extends AbstractHandler {
       $data = file_get_contents($file_path);
 
       if ($data === FALSE) {
-        throw new \Exception(sprintf('Error reading file %s.', $file_path));
+        throw new \RuntimeException(sprintf('Error reading file %s.', $file_path));
       }
 
       /** @var \Drupal\file\FileInterface $file */

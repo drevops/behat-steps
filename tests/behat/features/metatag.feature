@@ -23,7 +23,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Meta tag with specified attributes was not found: {"name":"Non_Existing","content":"width"}
+      Meta tag with attributes "{"name":"Non_Existing","content":"width"}" not found.
       """
 
   @api
@@ -86,7 +86,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Meta tag with name or property "nonexistent" not found.
+      Meta tag with name|property "nonexistent" not found.
       """
 
   @phpserver
@@ -354,7 +354,7 @@ Feature: Check that MetatagTrait works
       Then the hreflang alternates should have reciprocal return links
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       returned HTTP status 404
       """

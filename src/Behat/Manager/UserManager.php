@@ -57,7 +57,7 @@ class UserManager implements UserManagerInterface {
    */
   public function getUser(string $name): EntityStubInterface {
     if (!isset($this->users[$name])) {
-      throw new \InvalidArgumentException(sprintf('No user with %s name is registered with the driver.', $name));
+      throw new \RuntimeException(sprintf('No user with %s name is registered with the driver.', $name));
     }
 
     return $this->users[$name];

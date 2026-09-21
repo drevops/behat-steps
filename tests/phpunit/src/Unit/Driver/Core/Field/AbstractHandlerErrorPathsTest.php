@@ -30,7 +30,7 @@ class AbstractHandlerErrorPathsTest extends TestCase {
    * is required.
    */
   public function testConstructorRejectsEmptyEntityType(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/You must specify an entity type/');
 
     new DefaultHandler(new EntityStub(''), '', 'field_any');

@@ -14,6 +14,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -158,7 +159,7 @@ trait FieldTrait {
   #[When('I fill in the multi-value field :field with the following values:')]
   public function fieldFillMultiValue(string $field, TableNode $table): void {
     if (!$this->helperIsJavascriptSupported()) {
-      throw new \RuntimeException('The "fill in the multi-value field" step requires a JavaScript-capable driver.');
+      throw new UnsupportedDriverActionException('The "fill in the multi-value field" step requires a JavaScript-capable driver.', $this->getSession()->getDriver());
     }
 
     $rows = $table->getColumn(0);
@@ -238,7 +239,7 @@ trait FieldTrait {
 
     foreach ($values as $index => $value) {
       if (!isset($inputs[$index])) {
-        throw new ExpectationException(sprintf('Could not locate input row %d for multi-value field "%s".', $index, $field), $this->getSession()->getDriver());
+        throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('input row of the multi-value field "%s"', $field), 'index', (string) $index);
       }
       $inputs[$index]->setValue($value);
     }
@@ -299,7 +300,7 @@ JS;
 
     $element_id = $element->getAttribute('id');
     if (empty($element_id)) {
-      throw new ExpectationException('WYSIWYG field must have an ID attribute.', $this->getSession()->getDriver());
+      throw new \RuntimeException('WYSIWYG field must have an ID attribute.');
     }
 
     $element_id_js = json_encode($element_id, JSON_UNESCAPED_SLASHES);
@@ -362,13 +363,13 @@ JS;
 
     $option_element = $select_field->find('named', ['option', $option]);
     if (!$option_element) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s".', $option, $selector), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
     }
 
     $option_value = $option_element->getValue();
     // @codeCoverageIgnoreStart
     if (is_array($option_value) || is_bool($option_value)) {
-      throw new ExpectationException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
     }
     // @codeCoverageIgnoreEnd
     $option_value = (string) $option_value;
@@ -771,7 +772,7 @@ JS;
     $option_element = $select_element->find('named', ['option', $option]);
 
     if ($option_element === NULL) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
     }
   }
 
@@ -846,7 +847,7 @@ JS;
     $option_field = $select_field->find('named', ['option', $option]);
 
     if (!$option_field) {
-      throw new ExpectationException(sprintf('The option "%s" was not found in the select "%s" on the page %s.', $option, $selector, $path), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
     }
 
     if ($option_field->isSelected()) {

@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
@@ -121,7 +122,7 @@ trait XmlTrait {
     $output = $this->xmlDocument->saveXML();
 
     if ($output === FALSE) {
-      throw new ExpectationException('Failed to format the XML response.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Failed to format the XML response.');
     }
 
     print $output;
@@ -181,7 +182,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
   }
 
@@ -217,13 +218,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
       // @codeCoverageIgnoreEnd
     }
 
@@ -247,13 +248,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
       // @codeCoverageIgnoreEnd
     }
 
@@ -277,13 +278,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
       // @codeCoverageIgnoreEnd
     }
 
@@ -307,13 +308,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
       // @codeCoverageIgnoreEnd
     }
 
@@ -337,7 +338,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -360,7 +361,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -383,7 +384,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -411,7 +412,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -439,7 +440,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -467,7 +468,7 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
@@ -495,13 +496,13 @@ trait XmlTrait {
 
     $nodes = $this->xmlXpath->query($element);
     if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ExpectationException(sprintf('The XML element "%s" was not found.', $element), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $parent_node = $nodes->item(0);
     if (!$parent_node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException(sprintf('The XML element "%s" is not a valid node.', $element), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
       // @codeCoverageIgnoreEnd
     }
 
@@ -907,14 +908,14 @@ trait XmlTrait {
     $root = $this->xmlDocument->documentElement;
     if (!$root instanceof \DOMElement) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException('The response has no root element to validate against the DTD.', $this->getSession()->getDriver());
+      throw new \RuntimeException('The response has no root element to validate against the DTD.');
       // @codeCoverageIgnoreEnd
     }
 
     $body = $this->xmlDocument->saveXML($root);
     if ($body === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new ExpectationException('Failed to serialise the response for DTD validation.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Failed to serialise the response for DTD validation.');
       // @codeCoverageIgnoreEnd
     }
 

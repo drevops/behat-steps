@@ -86,13 +86,13 @@ class LinkHandlerTest extends FieldHandlerUnitTestBase {
     yield 'top-level mixed positional and named keys rejected' => [
       ['https://first.com', 'title' => 'Mixed'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Link field value cannot mix positional and named keys',
     ];
     yield 'record missing uri rejected' => [
       [['title' => 'No URI']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Link field record must include a uri',
     ];
   }

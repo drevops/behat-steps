@@ -56,11 +56,11 @@ class DriverManager implements DriverManagerInterface {
     $name = $name === NULL ? $this->defaultDriverName : strtolower($name);
 
     if ($name === NULL) {
-      throw new \InvalidArgumentException('Specify a Drupal driver to get.');
+      throw new \RuntimeException('Specify a Drupal driver to get.');
     }
 
     if (!isset($this->drivers[$name])) {
-      throw new \InvalidArgumentException(sprintf('Driver "%s" is not registered', $name));
+      throw new \RuntimeException(sprintf('Driver "%s" is not registered', $name));
     }
 
     $driver = $this->drivers[$name];
@@ -86,7 +86,7 @@ class DriverManager implements DriverManagerInterface {
     $name = strtolower($name);
 
     if (!isset($this->drivers[$name])) {
-      throw new \InvalidArgumentException(sprintf('Driver "%s" is not registered.', $name));
+      throw new \RuntimeException(sprintf('Driver "%s" is not registered.', $name));
     }
 
     $this->defaultDriverName = $name;

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
-use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
 
@@ -192,7 +192,7 @@ JS;
       $xpath = $this->getSession()->evaluateScript($script);
 
       if (!$xpath) {
-        throw new ExpectationException('No element is currently focused. Please focus an element first using a step with a selector.', $this->getSession()->getDriver());
+        throw new \RuntimeException('No element is currently focused. Please focus an element first using a step with a selector.');
       }
 
       $this->keyboardTriggerKey($xpath, $char);
@@ -203,7 +203,7 @@ JS;
 
       // @codeCoverageIgnoreStart
       if (!$element) {
-        throw new \RuntimeException(sprintf('Unable to find an element with "%s" selector.', $selector));
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
       // @codeCoverageIgnoreEnd
       $this->keyboardTriggerKey($element->getXpath(), $char);

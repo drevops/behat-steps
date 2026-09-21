@@ -793,7 +793,7 @@ Feature: Check that ElementTrait works
       When I click on the element ".nth-child" with the index 0
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The index must be 1 or greater, but "0" was given.
       """
@@ -1181,7 +1181,7 @@ Feature: Check that ElementTrait works
       Then the element "#pinned-header" should be pinned to the top of the viewport within -5 pixels
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The tolerance must be 0 or greater, but "-5" was given.
       """

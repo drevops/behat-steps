@@ -11,9 +11,6 @@ namespace DrevOps\BehatSteps\Driver\Exception;
  * translated into a Drupal storage operation - for example, an 'author'
  * alias referencing a username with no matching user account, or a
  * 'parent' term name that does not exist in the target vocabulary.
- *
- * Extends '\InvalidArgumentException' because the failure mode is a
- * caller-supplied value that cannot be made valid by retrying.
  */
-class CreationAliasResolutionException extends \InvalidArgumentException {
+class CreationAliasResolutionException extends Exception {
 }

@@ -368,7 +368,7 @@ trait FileDownloadTrait {
       }
 
       // @codeCoverageIgnoreStart
-      throw new ExpectationException('Downloaded file cannot be read.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Downloaded file cannot be read.');
       // @codeCoverageIgnoreEnd
     }
 

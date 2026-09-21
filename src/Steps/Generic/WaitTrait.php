@@ -11,6 +11,7 @@ use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
 
@@ -117,8 +118,7 @@ trait WaitTrait {
     $seconds = (int) $seconds;
 
     if (!$this->helperIsJavascriptSupported()) {
-      $driver = $this->getSession()->getDriver();
-      throw new \RuntimeException(sprintf('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $driver::class));
+      throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $this->getSession()->getDriver());
     }
 
     $script = <<<JS

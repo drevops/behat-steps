@@ -129,7 +129,7 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
    * Tests that 'blockDelete()' fails loudly when the stub has no id.
    */
   public function testBlockDeleteRequiresIdOnStub(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/id/');
 
     $this->core->blockDelete(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));

@@ -109,7 +109,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests 'entityDelete()' rejects a stub missing the resolved id key.
    */
   public function testEntityDeleteRejectsStubMissingIdKey(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/stub without the id key "uid" set/');
 
     $this->core->entityDelete(new EntityStub('user', NULL, ['name' => 'missing-uid']));
@@ -182,10 +182,10 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Drupal's 'EntityTypeManager::getDefinition()' raises a
    * 'PluginNotFoundException' with plugin-system vocabulary that does not
    * describe what a scenario author actually did wrong. The driver wraps it
-   * as an 'InvalidArgumentException' that names the offending entity type.
+   * as a 'RuntimeException' that names the offending entity type.
    */
   public function testEntityCreateRejectsUnknownEntityType(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Unknown entity type "nonexistent_type"/');
 
     $this->core->entityCreate(new EntityStub('nonexistent_type', NULL, ['name' => 'foo']));
@@ -195,7 +195,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests 'entityDelete()' rejects an unknown entity type with a clear message.
    */
   public function testEntityDeleteRejectsUnknownEntityType(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Unknown entity type "nonexistent_type"/');
 
     $this->core->entityDelete(new EntityStub('nonexistent_type', NULL, ['id' => 1]));
@@ -210,7 +210,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
   public function testEntityCreateRejectsUnknownBundle(): void {
     $stub = new EntityStub('entity_test', 'not_a_real_bundle', ['name' => 'orphan']);
 
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/Cannot create entity because provided bundle 'not_a_real_bundle' does not exist/");
 
     $this->core->entityCreate($stub);

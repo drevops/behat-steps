@@ -50,7 +50,7 @@ Feature: Check that WaitTrait works
       Then I should see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
       """
     When I run "behat --no-colors"
-    Then it should fail with an exception:
+    Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
       """
       Method can be used only with JS-capable driver
       """

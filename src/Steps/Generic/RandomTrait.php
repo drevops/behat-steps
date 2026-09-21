@@ -196,7 +196,7 @@ trait RandomTrait {
    * Validates and fills defaults so equivalent tokens share a cache key.
    *
    * Malformed input (a non-integer length, a wrong arg count, extra args on
-   * an argless type) throws 'InvalidArgumentException'. Failing fast prevents
+   * an argless type) throws 'RuntimeException'. Failing fast prevents
    * typos like '[?title:string,abc]' from silently producing a 1-character
    * string.
    *

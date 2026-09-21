@@ -107,7 +107,7 @@ class CoreFieldHandlerLookupTest extends TestCase {
   public function testRegisterRejectsNonHandlerClass(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', []);
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/must implement/');
 
     $core->registerFieldHandler('phone', \stdClass::class);
@@ -125,7 +125,7 @@ class CoreFieldHandlerLookupTest extends TestCase {
   public function testRegisterRejectsAbstractHandlerClass(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', []);
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/must be instantiable/');
 
     $core->registerFieldHandler('phone', AbstractHandler::class);

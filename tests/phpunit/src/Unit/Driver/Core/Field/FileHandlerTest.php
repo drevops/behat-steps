@@ -127,19 +127,19 @@ class FileHandlerTest extends FieldHandlerUnitTestBase {
     yield 'NULL target_id rejected by normalise' => [
       [['target_id' => NULL]],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'File field "target_id" must not be NULL or empty.',
     ];
     yield 'empty target_id rejected by normalise' => [
       [['target_id' => '']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'File field "target_id" must not be NULL or empty.',
     ];
-    yield 'unreadable path bubbles up as Exception' => [
+    yield 'unreadable path bubbles up as RuntimeException' => [
       ['/nonexistent/missing-file.bin'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       'Error reading file /nonexistent/missing-file.bin.',
     ];
   }

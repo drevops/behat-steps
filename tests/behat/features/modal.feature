@@ -219,7 +219,7 @@ Feature: Check that ModalTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The element ".nonexistent-element" was not found in the modal.
+      Element in the modal with css|id|name|title|alt|value|text ".nonexistent-element" not found.
       """
 
   @trait:ModalTrait

@@ -60,7 +60,7 @@ class UserManagerTest extends TestCase {
   public function testGetUserThrowsForUnknown(): void {
     $manager = new UserManager();
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No user with ghost name is registered with the driver.');
 
     $manager->getUser('ghost');
@@ -72,7 +72,7 @@ class UserManagerTest extends TestCase {
 
     $manager->removeUser('editor');
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $manager->getUser('editor');
   }
 

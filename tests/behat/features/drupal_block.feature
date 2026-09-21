@@ -150,7 +150,7 @@ Feature: Check that BlockTrait works
       Given the block "Non-existent Block Label" is enabled
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The block "Non-existent Block Label" does not exist.
       """
@@ -163,7 +163,7 @@ Feature: Check that BlockTrait works
       Given the block "Non-existent Block Label" is disabled
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The block "Non-existent Block Label" does not exist.
       """
@@ -177,7 +177,7 @@ Feature: Check that BlockTrait works
         | region | content |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The block "Non-existent Block Label" does not exist.
       """
@@ -213,7 +213,7 @@ Feature: Check that BlockTrait works
         | pages | /user/* |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The block "Non-existent Block Label" does not exist.
       """
@@ -226,7 +226,7 @@ Feature: Check that BlockTrait works
       Given the block "Non-existent Block Label" has the "request_path" condition removed
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with an exception:
       """
       The block "Non-existent Block Label" does not exist.
       """

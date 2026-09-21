@@ -126,19 +126,19 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     yield 'unknown label throws' => [
       ['nobody'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       "No entity 'nobody' of type 'user' exists.",
     ];
     yield 'mixed positional and named keys rejected' => [
       ['alice', 'extra' => 'oops'],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field value cannot mix positional and named keys',
     ];
     yield 'record missing main property rejected' => [
       ['display' => 1],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Field record must include the main property "target_id"',
     ];
   }

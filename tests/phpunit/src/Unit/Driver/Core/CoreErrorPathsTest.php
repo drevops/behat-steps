@@ -66,7 +66,7 @@ class CoreErrorPathsTest extends TestCase {
     $core = $this->createCore();
     $reflection = new \ReflectionMethod($core, 'resolveSeverityLevel');
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Unknown severity level: catastrophic/');
 
     $reflection->invoke($core, 'catastrophic');
@@ -81,7 +81,7 @@ class CoreErrorPathsTest extends TestCase {
   public function testEntityCreateRejectsEmptyEntityType(): void {
     $core = $this->createCore();
 
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/You must specify an entity type/');
 
     $core->entityCreate(new EntityStub(''));

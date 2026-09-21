@@ -114,7 +114,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     yield 'unknown label throws' => [
       ['Paragraph X'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       "No entity 'Paragraph X' of type 'paragraph' exists.",
     ];
   }

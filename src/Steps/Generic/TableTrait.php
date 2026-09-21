@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -37,7 +38,7 @@ trait TableTrait {
     $element = $this->tableGetRowByText($row_text)->findLink($link);
 
     if (!$element instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $row_text), 'id|title|alt|text', $link);
     }
 
     $element->click();
@@ -55,7 +56,7 @@ trait TableTrait {
     $element = $this->tableGetRowByText($row_text)->findButton($button);
 
     if (!$element instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" button.', $row_text, $button), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('button in the row containing "%s"', $row_text), 'id|name|title|alt|value', $button);
     }
 
     $element->press();
@@ -162,7 +163,7 @@ trait TableTrait {
   #[Then('the table :selector should be sorted by :column in :direction order')]
   public function tableAssertSortOrder(string $selector, string $column, string $direction): void {
     if ($direction !== 'ascending' && $direction !== 'descending') {
-      throw new ExpectationException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction));
     }
 
     $table = $this->tableFind($selector);
@@ -298,7 +299,7 @@ trait TableTrait {
   #[Then('the link :link should exist in the row :row_text')]
   public function tableAssertLinkInRow(string $link, string $row_text): void {
     if (!$this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not have a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $row_text), 'id|title|alt|text', $link);
     }
   }
 
@@ -325,14 +326,14 @@ trait TableTrait {
    * @return \Behat\Mink\Element\NodeElement
    *   The row element.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When no row contains the text.
    */
   public function tableGetRowByText(string $row_text): NodeElement {
     $row = $this->tableFindRowByText($row_text);
 
     if (!$row instanceof NodeElement) {
-      throw new ExpectationException(sprintf('No table row containing the text "%s" was found.', $row_text), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'table row', 'text', $row_text);
     }
 
     return $row;
@@ -361,7 +362,7 @@ trait TableTrait {
    * @return \Behat\Mink\Element\NodeElement
    *   The table element.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When the table is not found.
    */
   public function tableFind(string $selector): NodeElement {
@@ -369,7 +370,7 @@ trait TableTrait {
     $table = $page->find('css', $selector);
 
     if (!$table) {
-      throw new ExpectationException(sprintf('Table with selector "%s" not found.', $selector), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'table', 'css', $selector);
     }
 
     return $table;

@@ -120,19 +120,19 @@ class ImageHandlerTest extends FieldHandlerUnitTestBase {
     yield 'NULL target_id rejected' => [
       [['target_id' => NULL, 'alt' => 'A']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Image field "target_id" must not be NULL or empty.',
     ];
     yield 'empty target_id rejected' => [
       [['target_id' => '', 'alt' => 'A']],
       NULL,
-      \InvalidArgumentException::class,
+      \RuntimeException::class,
       'Image field "target_id" must not be NULL or empty.',
     ];
-    yield 'unreadable path bubbles up as Exception' => [
+    yield 'unreadable path bubbles up as RuntimeException' => [
       ['/nonexistent/missing-image.jpg'],
       NULL,
-      \Exception::class,
+      \RuntimeException::class,
       'Error reading file /nonexistent/missing-image.jpg.',
     ];
   }

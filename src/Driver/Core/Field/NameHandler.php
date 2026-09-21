@@ -55,7 +55,7 @@ class NameHandler extends AbstractHandler {
     }
 
     if (!is_array($values)) {
-      throw new \InvalidArgumentException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
+      throw new \RuntimeException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
     }
 
     if (!array_is_list($values)) {
@@ -71,7 +71,7 @@ class NameHandler extends AbstractHandler {
       }
 
       if (!is_array($value)) {
-        throw new \InvalidArgumentException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
+        throw new \RuntimeException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
       }
 
       $names[] = $this->normalizeArray($value, $enabled);

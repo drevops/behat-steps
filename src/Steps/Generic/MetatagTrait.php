@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Generic;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
@@ -62,7 +63,7 @@ trait MetatagTrait {
     }
 
     if (!$found) {
-      throw new ExpectationException(sprintf('Meta tag with specified attributes was not found: %s.', json_encode($attributes)), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'attributes', (string) json_encode($attributes));
     }
   }
 
@@ -115,7 +116,7 @@ trait MetatagTrait {
     $meta_tag = $this->metatagFindMeta($meta_name);
 
     if ($meta_tag === NULL) {
-      throw new ExpectationException(sprintf('Meta tag with name or property "%s" not found.', $meta_name), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'name|property', $meta_name);
     }
 
     $content = (string) $meta_tag->getAttribute('content');
@@ -551,7 +552,7 @@ trait MetatagTrait {
     }
 
     if ($status >= 400) {
-      throw new ExpectationException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status), $this->getSession()->getDriver());
+      throw new \RuntimeException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status));
     }
 
     return $body;

@@ -77,14 +77,14 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new ExpectationException('Current path is empty.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new ExpectationException('Current path is not a valid URL.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Current path is not a valid URL.');
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
@@ -112,14 +112,14 @@ trait PathTrait {
 
     // @codeCoverageIgnoreStart
     if (empty($current_path)) {
-      throw new ExpectationException('Current path is empty.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd
     $current_path = parse_url((string) $current_path, PHP_URL_PATH);
 
     // @codeCoverageIgnoreStart
     if ($current_path === FALSE) {
-      throw new ExpectationException('Current path is not a valid URL.', $this->getSession()->getDriver());
+      throw new \RuntimeException('Current path is not a valid URL.');
     }
     // @codeCoverageIgnoreEnd
     $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
