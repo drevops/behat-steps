@@ -34,7 +34,7 @@
 | Class | Helpers | Description |
 | --- | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | 2 | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
-| [Drupal\BlockTrait](#drupalblocktrait) | 1 | Manage Drupal blocks. |
+| [Drupal\BlockTrait](#drupalblocktrait) | 2 | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | 1 | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | 2 | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 2 | Manage Drupal content blocks. |
@@ -1224,6 +1224,15 @@ Wait until no BigPipe placeholder markers remain in the DOM
 [Source](src/Steps/Drupal/BlockTrait.php), [Steps](STEPS.md#drupalblocktrait)
 
 > Manage Drupal blocks.
+
+<details>
+  <summary><code>public function blockGetByLabel(string $label): Block</code></summary>
+
+<br/>
+Load a block by its label or fail
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function blockLoadByLabel(string $label): ?Block</code></summary>
