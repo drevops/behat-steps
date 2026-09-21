@@ -6,10 +6,10 @@ namespace DrevOps\BehatSteps\Tests\Unit\Driver\Core;
 
 use DrevOps\BehatSteps\Driver\Core\Core;
 use Drupal\Core\CronInterface;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
