@@ -3,7 +3,6 @@ Feature: Check that ContentBlockTrait works
   I want to provide tools to manage content blocks
   So that users can test block content and placement functionality
 
-  @api
   Scenario: Verify content block type exists
     Given the following "basic" content blocks exist:
       | info                        | body                                      | status |
@@ -13,7 +12,7 @@ Feature: Check that ContentBlockTrait works
     And I visit "/admin/content/block"
     Then I should see "[TEST] Verify Block Content"
 
-  @api @trait:Drupal\ContentBlockTrait
+  @trait:Drupal\ContentBlockTrait
   Scenario: Verify content block type validation fails for non-existent type
     Given some behat configuration
     And scenario steps:
@@ -26,7 +25,6 @@ Feature: Check that ContentBlockTrait works
       Content block type "non_existent_type" does not exist.
       """
 
-  @api
   Scenario: Create, manage, and verify content block entities
     When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -44,7 +42,6 @@ Feature: Check that ContentBlockTrait works
     Then the "Block description" field should contain "[TEST] Content Block 1"
     And the "Body" field should contain "[TEST] Body content 1"
 
-  @api
   Scenario: Verify "Given the following content blocks do not exist" does not fail for non-existent content blocks
     When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -52,7 +49,7 @@ Feature: Check that ContentBlockTrait works
       | [TEST] Non-existent Block |
     Then I should not see "[TEST] Non-existent Block"
 
-  @api @skipped
+  @skipped
   Scenario: Edit a content block
     When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -66,7 +63,7 @@ Feature: Check that ContentBlockTrait works
     And I press "Save"
     Then the success message "Basic block [TEST] Editable Block has been updated." should exist
 
-  @api @trait:Drupal\ContentBlockTrait
+  @trait:Drupal\ContentBlockTrait
   Scenario: Assert editing a non-existent content block fails
     Given some behat configuration
     And scenario steps:
@@ -80,7 +77,6 @@ Feature: Check that ContentBlockTrait works
       Unable to find "basic" content block with the description "Non-existent Content Block"
       """
 
-  @api
   Scenario: Create a new basic content block and place it in a region
     Given the following "basic" content blocks exist:
       | info               | body                | status |
@@ -96,7 +92,7 @@ Feature: Check that ContentBlockTrait works
     Then I should see "[TEST] Content Block"
     And I should see "[TEST] Body content"
 
-  @api @trait:Drupal\BlockTrait
+  @trait:Drupal\BlockTrait
   Scenario: Assert "the instance of block exists with the following configuration" fails for non-existent block
     Given some behat configuration
     And scenario steps:
@@ -113,7 +109,7 @@ Feature: Check that ContentBlockTrait works
       Could not create block with admin label "Non-existent Block"
       """
 
-  @api @skipped
+  @skipped
   Scenario: Edit content block with configuration
     Given the following "basic" content blocks exist:
       | info                  | body                  | status |
@@ -133,7 +129,6 @@ Feature: Check that ContentBlockTrait works
     Then I should see "[TEST] Updated Content Block"
     And I should see "This content has been updated through Behat test"
 
-  @api
   Scenario: Remove content block
     When I log in as a user with the "administrator" role
     When the following "basic" content blocks exist:
@@ -147,7 +142,6 @@ Feature: Check that ContentBlockTrait works
     And I visit "/admin/content/block"
     Then I should not see "[TEST] Removable Block"
 
-  @api
   Scenario: Create basic content block, then delete it, and verify it no longer exists
     When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -161,7 +155,7 @@ Feature: Check that ContentBlockTrait works
     And I go to "admin/content/block"
     Then I should not see "[TEST] Temporary Block"
 
-  @api @trait:Drupal\ContentBlockTrait
+  @trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
     When I log in as a user with the "administrator" role
     And the content block type "basic" should exist
@@ -169,7 +163,7 @@ Feature: Check that ContentBlockTrait works
       | [TEST] Content Block That Doesn't Exist |
     Then I should not see "[TEST] Content Block That Doesn't Exist"
 
-  @api @behat-steps-entity-cleanup-skip:block_content
+  @behat-steps-entity-cleanup-skip:block_content
   Scenario: Content blocks are not automatically cleaned up when skip tag is used
     Given the following "basic" content blocks exist:
       | info                      | body              | status |
@@ -182,7 +176,6 @@ Feature: Check that ContentBlockTrait works
     When the following "basic" content blocks do not exist:
       | [TEST] Skip Cleanup Block |
 
-  @api
   Scenario: Create single content block with vertical field format
     When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:
@@ -194,7 +187,6 @@ Feature: Check that ContentBlockTrait works
     When I edit the "basic" content block with the description "[TEST] Vertical Block"
     Then the "Body" field should contain "Created with vertical format"
 
-  @api
   Scenario: Create multiple content blocks with vertical field format
     When I log in as a user with the "administrator" role
     And the following basic content blocks with fields exist:

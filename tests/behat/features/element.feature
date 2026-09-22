@@ -259,7 +259,7 @@ Feature: Check that ElementTrait works
     Then the element "button[data-action='delete']" should be at the top of the viewport
     When I trigger the JS event "click" on the element "button[data-action='edit']"
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
     When I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed
@@ -268,7 +268,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should be displayed" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/elements_relative.html"
       Then the element "#hidden" should be displayed
@@ -279,7 +279,7 @@ Feature: Check that ElementTrait works
       None of the elements defined by "#hidden" selector are visible on the page.
       """
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should not be displayed" succeeds as expected
     When I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed
@@ -287,7 +287,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should not be displayed" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed
@@ -298,20 +298,20 @@ Feature: Check that ElementTrait works
       Element defined by "#top" selector is visible on the page, but should not be.
       """
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
 
-  @api @javascript @phpserver @skipped
+  @javascript @phpserver @skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should be displayed within a viewport with a top offset of 1000 pixels
@@ -322,7 +322,7 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 1000 pixels.
       """
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" and "Then the element :selector should not be displayed within a viewport" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within a viewport
@@ -335,7 +335,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_relative.html"
@@ -350,7 +350,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait @skipped
   Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport" fails as expected
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_relative.html"
@@ -362,12 +362,12 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
       """
 
-  @api @phpserver
+  @phpserver
   Scenario: Text appears after another text
     When I visit "http://cli:8888/elements.html"
     Then the text "Copyright 2024" should appear after the text "Welcome"
 
-  @api @phpserver
+  @phpserver
   Scenario: Assert "Then the element :selector1 should appear after the element :selector2" works as expected
     When I visit "http://cli:8888/elements.html"
     Then the element "body" should appear after the element "head"
@@ -666,7 +666,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element visibility fails when element is not present
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#nonexistent" should be displayed
@@ -680,7 +680,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element visibility fails when no elements are visible
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#hidden" should be displayed
@@ -694,7 +694,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element not visible fails when element is visible
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed
@@ -708,7 +708,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element visually visible fails when not in viewport
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#sr-only" should be displayed within a viewport
@@ -722,7 +722,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element visually visible with offset fails when not in viewport
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should be displayed within a viewport with a top offset of 10000 pixels
@@ -736,7 +736,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element not visually visible with offset fails when visible
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport with a top offset of 0 pixels
@@ -750,7 +750,7 @@ Feature: Check that ElementTrait works
   @trait:ElementTrait
   Scenario: Assert element visually hidden fails when visible in viewport
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within a viewport

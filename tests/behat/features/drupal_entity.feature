@@ -3,7 +3,6 @@ Feature: Check that EntityTrait works
   I want to provide a step that creates entities of any type
   So that users can cover entity types without a dedicated trait
 
-  @api
   Scenario: Assert "Given the following :entity_type entities exist:" works as expected
     Given the following "block_content" entities exist:
       | info                | type  |
@@ -16,7 +15,7 @@ Feature: Check that EntityTrait works
   # the first keeps its entity past teardown, the second proves it survived and
   # removes it so later scenarios do not inherit it.
 
-  @api @behat-steps-entity-cleanup-skip:block_content
+  @behat-steps-entity-cleanup-skip:block_content
   Scenario: The per-type skip tag keeps entities of the named type
     Given the following "block_content" entities exist:
       | info               | type  |
@@ -25,7 +24,6 @@ Feature: Check that EntityTrait works
     And I visit "/admin/content/block"
     Then I should see "[TEST] Kept block"
 
-  @api
   Scenario: An entity kept by the per-type skip tag survives teardown and is removed manually
     Given the following "basic" content blocks do not exist:
       | [TEST] Kept block |

@@ -472,7 +472,7 @@ Feature: Check that JsonTrait works
   @trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the response should match the following JSON schema:" fails with an error
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given the response JSON is the following:
         '''
@@ -509,7 +509,7 @@ Feature: Check that JsonTrait works
   @trait:JsonTrait
   Scenario: Assert that "Then the response should match the following JSON schema:" fails with an error for an invalid response body
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given the response JSON is the following:
         '''
@@ -552,7 +552,7 @@ Feature: Check that JsonTrait works
   @trait:JsonTrait
   Scenario: Assert that "When I print last JSON response" fails with an error for invalid JSON
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given the response JSON is the following:
         '''

@@ -6,7 +6,7 @@ Feature: Check that LanguageTrait works
   # The module teardown uninstalls "language" again, which removes the language
   # it defines. Both run as AfterScenario hooks in no guaranteed order, so the
   # entity cleanup is told to leave languages to the module uninstall.
-  @api @module:language @behat-steps-entity-cleanup-skip:language
+  @module:language @behat-steps-entity-cleanup-skip:language
   Scenario: Assert "Given the following languages exist:" works as expected
     Given the "language" module is enabled
     And the following languages exist:
@@ -19,7 +19,7 @@ Feature: Check that LanguageTrait works
   @trait:Drupal\LanguageTrait
   Scenario: Assert "Given the following languages exist:" fails without a langcode
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given the following languages exist:
         | notlangcode |

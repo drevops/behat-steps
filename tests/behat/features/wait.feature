@@ -3,7 +3,6 @@ Feature: Check that WaitTrait works
   I want to provide tools to wait for elements or time periods
   So that users can synchronize tests with page loading and AJAX events
 
-  @api
   Scenario: Assert "When I wait for :seconds second(s)"
     When I go to the homepage
     And I wait for 1 second
@@ -14,7 +13,7 @@ Feature: Check that WaitTrait works
     Then I save screenshot
     When I wait for 2 seconds
 
-  @api @javascript
+  @javascript
   Scenario: Assert "When I wait for :seconds second(s) for AJAX to finish"
     When I log in as a user with the "administrator" role
     When I visit "admin/structure/types/manage/page/form-display"
@@ -26,7 +25,7 @@ Feature: Check that WaitTrait works
   @trait:WaitTrait
   Scenario: Assert that "When I wait for :seconds second(s) for AJAX to finish" fails when AJAX does not complete in time
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/ajax_timeout.html"
       And I wait for "2" seconds for AJAX to finish
@@ -40,7 +39,7 @@ Feature: Check that WaitTrait works
   @trait:WaitTrait
   Scenario: Assert that negative assertion for "When I wait for :seconds second(s) for AJAX to finish" can be used only with JS-capable driver
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I log in as a user with the "administrator" role
       Then I visit "admin/structure/types/manage/page/form-display"

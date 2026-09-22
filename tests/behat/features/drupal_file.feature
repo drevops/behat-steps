@@ -3,7 +3,6 @@ Feature: Check that FileTrait works
   I want to provide tools to manage files programmatically
   So that users can test file functionality and operations
 
-  @api
   Scenario: Assert "When the following managed files exist:"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -20,7 +19,6 @@ Feature: Check that FileTrait works
     And "text.txt" file object exists
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
-  @api
   Scenario: Assert "When the following managed files exist: With subdirectory path"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -28,7 +26,6 @@ Feature: Check that FileTrait works
       | subdir/document.pdf   |
     Then "document.pdf" file object exists
 
-  @api
   Scenario: Assert "When the following managed files exist: With uri"
     When I log in as a user with the "administrator" role
     And no "document.pdf" file object exists
@@ -43,7 +40,6 @@ Feature: Check that FileTrait works
     And "image.png" file object exists
     And "audio.mp3" file object exists
 
-  @api
   Scenario: Assert "When the following managed files do not exist: With filename"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -63,7 +59,6 @@ Feature: Check that FileTrait works
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
 
-  @api
   Scenario: Assert "When the following managed files do not exist: With uri"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -83,7 +78,6 @@ Feature: Check that FileTrait works
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
 
-  @api
   Scenario: Assert "When the following managed files do not exist: With status"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -101,7 +95,6 @@ Feature: Check that FileTrait works
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
 
-  @api
   Scenario: Assert "When the following managed files do not exist: With filemime"
     When I log in as a user with the "administrator" role
     When the following managed files exist:
@@ -119,7 +112,6 @@ Feature: Check that FileTrait works
     And no "image.png" file object exists
     And "audio.mp3" file object exists
 
-  @api
   Scenario: Assert unmanaged files step definitions
     Given an unmanaged file at the URI "public://test1.txt" should not exist
     When the unmanaged file at the URI "public://test1.txt" exists
@@ -194,20 +186,20 @@ Feature: Check that FileTrait works
       File contents "test content" contains "test content", but should not.
       """
 
-  @api @trait:Drupal\FileTrait
+  @trait:Drupal\FileTrait
   Scenario: Assert that skip tag for beforeScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @behat-steps-skip:fileBeforeScenario":
+    And scenario steps tagged with "@behat-steps-skip:fileBeforeScenario":
       """
       When I visit "/"
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @api @trait:Drupal\FileTrait
+  @trait:Drupal\FileTrait
   Scenario: Assert that skip tag for afterScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @behat-steps-skip:fileAfterScenario":
+    And scenario steps tagged with "@behat-steps-skip:fileAfterScenario":
       """
       When I visit "/"
       """

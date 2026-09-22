@@ -3,7 +3,6 @@ Feature: Check that WebformTrait works
   I want to provide tools to manage Drupal webforms programmatically
   So that users can test webform functionality reliably
 
-  @api
   Scenario: Assert "@Given the webform :title does not exist" works as expected
     When I log in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
@@ -16,11 +15,10 @@ Feature: Check that WebformTrait works
     And I visit "/admin/structure/webform"
     Then I should not see "Test webform to delete"
 
-  @api
   Scenario: Assert "@Given the webform :title does not exist" works as expected on non-existing webform
     Given the webform "Non-existing webform" does not exist
 
-  @api @module:webform_templates
+  @module:webform_templates
   Scenario: Assert "@Given the webform :title exists from the template :template" works as expected
     When I log in as a user with the "administrator" role
     When I visit "/admin/structure/webform/add"
@@ -39,7 +37,7 @@ Feature: Check that WebformTrait works
   @trait:Drupal\WebformTrait
   Scenario: Assert "@Given the webform :title exists from the template :template" fails for non-existing template
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       Given the webform "My form" exists from the template "Non-existing template"
       """

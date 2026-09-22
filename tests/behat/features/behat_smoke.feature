@@ -4,7 +4,6 @@ Feature: Behat feature context smoke tests
   I want to provide tools to verify Behat test infrastructure
   So that users can be confident in the Behat step definitions
 
-  @api
   Scenario: Assert that a module can be installed and uninstalled
     When I log in as a user with the "administer site configuration, administer modules" permissions
     When I go to "/admin/modules"
@@ -21,7 +20,6 @@ Feature: Behat feature context smoke tests
     Then the response status code should be 200
     And the "modules[syslog][enable]" checkbox should be unchecked
 
-  @api
   Scenario: Assert that a cookie presence and absence assertions work
     When I log in as a user with the "administer site configuration" permissions
     Then cookie "testcookiename" exists

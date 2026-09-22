@@ -3,7 +3,6 @@ Feature: Check that PathTrait works
   I want to test path-related functionality
   So that I can verify proper URL paths in my application
 
-  @api
   Scenario Outline: Assert that the path is the same as the given path
     Given the user is anonymous
     When I go to "<src>"
@@ -17,7 +16,6 @@ Feature: Check that PathTrait works
       | /user/login | /user/login |
       | user/login  | user/login  |
 
-  @api
   Scenario Outline: Assert that the path is not the same as the given path
     Given the user is anonymous
     When I go to "<src>"
@@ -121,7 +119,6 @@ Feature: Check that PathTrait works
       Current path should not be "<front>"
       """
 
-  @api
   Scenario: Assert that URL has query parameter with a specific value
     When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
@@ -130,7 +127,6 @@ Feature: Check that PathTrait works
     And the current URL should have the "type" parameter
     And the current URL should have the "type" parameter with the value "article"
 
-  @api
   Scenario: Assert that URL does not have query parameter with specific value
     When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1&type=article"
@@ -198,13 +194,11 @@ Feature: Check that PathTrait works
       The parameter "status" is in the URL but should not be
       """
 
-  @api
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
     When I log in as a user with the "administrator" role
     When I visit "/admin/content?status=1"
     Then the current URL should not have the "nonexistent" parameter with the value "value"
 
-  @api
   Scenario: Assert that a URL parameter with a zero or empty value counts as present
     Given the user is anonymous
     When I visit "/user/login?filter=0&empty=&keyword=recent"
@@ -277,7 +271,6 @@ Feature: Check that PathTrait works
       The parameter "empty" with value "" is in the URL but should not be
       """
 
-  @api
   Scenario: Assert "When I go back" navigates to the previous page
     Given the user is anonymous
     When I go to "/user/login"
@@ -285,7 +278,6 @@ Feature: Check that PathTrait works
     And I go back
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert "Given the basic authentication has the username :username and the password :password"
     Given the following users exist:
       | name       | mail               | pass       |

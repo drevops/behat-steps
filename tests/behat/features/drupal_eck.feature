@@ -14,14 +14,13 @@ Feature: Check that EckTrait works
       | title            | field_test_text | field_test_reference |
       | [TEST] ECK test1 | Test text field | T2                   |
 
-  @api
   Scenario: Assert "I visit eck :bundle :entity_type entity with the title :title" works as expected
     When I log in as a user with the "administrator" role
     When I visit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
 
-  @api @trait:Drupal\EckTrait
+  @trait:Drupal\EckTrait
   Scenario: Assert navigate "I visit eck :bundle :entity_type entity with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
@@ -35,13 +34,12 @@ Feature: Check that EckTrait works
       Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
 
-  @api
   Scenario: Assert "When I edit eck :bundle :entity_type entity with the title :title" works as expected
     When I log in as a user with the "administrator" role
     When I edit eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
-  @api @trait:Drupal\EckTrait
+  @trait:Drupal\EckTrait
   Scenario: Assert negative "When I edit eck :bundle :entity_type entity with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
@@ -55,7 +53,7 @@ Feature: Check that EckTrait works
       Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
 
-  @api @behat-steps-entity-cleanup-skip:test_entity_type
+  @behat-steps-entity-cleanup-skip:test_entity_type
   Scenario: ECK entities are not automatically cleaned up when skip tag is used
     Given the following eck "test_bundle" "test_entity_type" entities exist:
       | title                   | field_test_text   |
@@ -69,7 +67,6 @@ Feature: Check that EckTrait works
       | title                   |
       | [TEST] Skip Cleanup ECK |
 
-  @api
   Scenario: ECK entities are automatically cleaned up after scenario
     Given the following eck "test_bundle" "test_entity_type" entities exist:
       | title                     | field_test_text     |

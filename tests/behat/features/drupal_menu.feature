@@ -3,7 +3,6 @@ Feature: Check that MenuTrait works
   I want to provide tools to manage menus programmatically
   So that users can test menu functionality
 
-  @api
   Scenario: Assert "When the following menus exist:"
     When the following menus exist:
       | label               | description             |
@@ -16,7 +15,6 @@ Feature: Check that MenuTrait works
     And I should see "Test menu 1 description"
     And I should see "Test menu 2 description"
 
-  @api
   Scenario: Assert "When the menu :menu_name does not exist"
     Given the following menus exist:
       | label               | description             |
@@ -32,7 +30,6 @@ Feature: Check that MenuTrait works
     And I should not see "Test menu 1 description"
     And I should not see "Test menu 2 description"
 
-  @api
   Scenario: Assert "When the following menu links exist/do not exist in the menu :menu_name"
     When the following menus exist:
       | label               | description             |

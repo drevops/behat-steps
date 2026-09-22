@@ -21,6 +21,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Drupal\file\Entity\File;
@@ -79,7 +80,7 @@ trait FeatureContextTrait {
    */
   #[Given('the watchdog is cleared')]
   public function testClearWatchdogTable(): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();
     if ($database->schema()->tableExists('watchdog')) {
@@ -135,7 +136,7 @@ trait FeatureContextTrait {
   #[Given('set watchdog error level :level')]
   #[Given('set watchdog error level :level of type :type')]
   public function testSetWatchdogError(string $level, string $type = 'php'): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::logger($type)->log($level, 'test');
   }
@@ -169,7 +170,7 @@ trait FeatureContextTrait {
    */
   #[Given('I install a :name module')]
   public function testInstallModule(string $name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -197,7 +198,7 @@ trait FeatureContextTrait {
    */
   #[Given('I uninstall a :name module')]
   public function testUninstallModule(string $name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
@@ -221,7 +222,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :email with')]
   #[When('I send test email to :email with:')]
   public function testSendEmail(string $email, PyStringNode $string): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -239,7 +240,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc with')]
   #[When('I send test email to :to with cc :cc with:')]
   public function testSendEmailWithCc(string $to, string $cc, PyStringNode $string): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -263,7 +264,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with bcc :bcc with')]
   #[When('I send test email to :to with bcc :bcc with:')]
   public function testSendEmailWithBcc(string $to, string $bcc, PyStringNode $string): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -287,7 +288,7 @@ trait FeatureContextTrait {
   #[When('I send test email to :to with cc :cc and bcc :bcc with')]
   #[When('I send test email to :to with cc :cc and bcc :bcc with:')]
   public function testSendEmailWithCcAndBcc(string $to, string $cc, string $bcc, PyStringNode $string): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -311,7 +312,7 @@ trait FeatureContextTrait {
    */
   #[When('I send test email to :email with subject :subject and attachment :attachment and body:')]
   public function testSendEmailWithAttachment(string $email, string $subject, string $attachment, PyStringNode $body): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service('plugin.manager.mail')->mail(
       'mysite_core',
@@ -334,7 +335,7 @@ trait FeatureContextTrait {
    */
   #[Then(':file_name file object exists')]
   public function testAssertFileObjectExists(string $file_name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $file_name = basename($file_name);
     $fids = $this->fileLoadMultiple(['filename' => $file_name]);
@@ -367,7 +368,7 @@ trait FeatureContextTrait {
    */
   #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
 
@@ -460,7 +461,7 @@ trait FeatureContextTrait {
    */
   #[Then('the mailsystem formatter should be :expected')]
   public function testAssertMailsystemFormatter(string $expected): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
     if ($formatter !== $expected) {
@@ -503,11 +504,44 @@ trait FeatureContextTrait {
   }
 
   /**
+   * Assert the order the scenario resolves drivers in.
+   */
+  #[Then('the scenario driver order should be :order')]
+  public function testAssertDriverOrder(string $order): void {
+    $actual = implode(', ', array_keys($this->getDriverManager()->getScenarioDrivers()));
+
+    if ($actual !== $order) {
+      throw new \RuntimeException(sprintf('Expected the driver order "%s", but it was "%s".', $order, $actual));
+    }
+  }
+
+  /**
+   * Assert which driver class a capability resolves to.
+   *
+   * The capability is named by the part before 'CapabilityInterface', so
+   * 'Cache' names 'CacheCapabilityInterface'.
+   */
+  #[Then('the :capability capability should resolve to the :expected driver')]
+  public function testAssertCapabilityResolvesTo(string $capability, string $expected): void {
+    $interface = sprintf('DrevOps\BehatSteps\Driver\Capability\%sCapabilityInterface', $capability);
+
+    if (!interface_exists($interface)) {
+      throw new \RuntimeException(sprintf('There is no "%s" capability interface.', $capability));
+    }
+
+    $actual = $this->driverFor($interface)::class;
+
+    if ($actual !== $expected) {
+      throw new \RuntimeException(sprintf('Expected the "%s" capability to resolve to "%s", but it resolved to "%s".', $capability, $expected, $actual));
+    }
+  }
+
+  /**
    * Add items to a Drupal queue for testing.
    */
   #[Given('I add :count item(s) to the :queue queue')]
   public function testAddItemsToQueue(int $count, string $queue): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $queue_instance = \Drupal::service('queue')->get($queue);
     for ($i = 0; $i < $count; $i++) {

@@ -3,7 +3,7 @@ Feature: Check that BatchTrait works
   I want to provide a step that waits for Drupal's Batch API
   So that assertions run against the finished operation, not the progress page
 
-  @api @javascript
+  @javascript
   Scenario: Assert "When I wait for the batch job to finish" returns on a page with no batch
     Given the user is anonymous
     When I visit "/"

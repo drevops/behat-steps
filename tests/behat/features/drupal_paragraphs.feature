@@ -12,7 +12,6 @@ Feature: Check that ParagraphsTrait works
       | title                 |
       | [TEST] Landing page 1 |
 
-  @api
   Scenario: Assert "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:"
     When the following fields for the paragraph "text" exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
       | field_paragraph_title       | My paragraph title   |
@@ -22,7 +21,7 @@ Feature: Check that ParagraphsTrait works
     Then I should see "My paragraph title"
     And I should see "My paragraph message"
 
-  @api @trait:Drupal\ParagraphsTrait
+  @trait:Drupal\ParagraphsTrait
   Scenario: Assert that negative assertion for "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent field
     Given some behat configuration
     And scenario steps:
@@ -36,7 +35,7 @@ Feature: Check that ParagraphsTrait works
       The entity type "node" with bundle "landing_page" does not have a field "field_non_existing_paragraph".
       """
 
-  @api @trait:Drupal\ParagraphsTrait
+  @trait:Drupal\ParagraphsTrait
   Scenario: Assert that negative assertion for "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent entity
     Given some behat configuration
     And scenario steps:

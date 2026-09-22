@@ -1,6 +1,5 @@
 Feature: Ensure TimeTrait works.
 
-  @api
   Scenario: Assert system time can be overridden
     When I go to "/mysite_core/test-time"
     Then I should not see "1737849900"
@@ -8,7 +7,6 @@ Feature: Ensure TimeTrait works.
     And I go to "/mysite_core/test-time"
     Then I should see "1737849900"
 
-  @api
   Scenario: Assert system time can be reset
     When I set system time to "1737849900"
     And I go to "/mysite_core/test-time"
@@ -17,7 +15,6 @@ Feature: Ensure TimeTrait works.
     And I go to "/mysite_core/test-time"
     Then I should not see "1737849900"
 
-  @api
   Scenario: Assert system time is cleaned up after scenario
     When I go to "/mysite_core/test-time"
     Then I should not see "1737849900"

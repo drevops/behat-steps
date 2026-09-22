@@ -243,7 +243,6 @@ Feature: Check that FieldTrait works
       The field "username" is marked as required, but should not be.
       """
 
-  @api
   Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
     Given the following page content exist:
       | title             |
@@ -256,7 +255,7 @@ Feature: Check that FieldTrait works
     Then I should see "[TEST] body"
     And I should see "[TEST] description"
 
-  @api @javascript
+  @javascript
   Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected with JS driver
     Given the following page content exist:
       | title                       |
@@ -269,28 +268,25 @@ Feature: Check that FieldTrait works
     Then I should see "[TEST-JS-Driver] body"
     And I should see "[TEST-JS-Driver] description"
 
-  @api
   Scenario: Assert that a select has/has not an option
     When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "AU" should exist within the select element "site_default_country"
     And the option "DUMMY-COUNTRY" should not exist within the select element "site_default_country"
 
-  @api
   Scenario: Assert that a select option is selected
     When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "UTC" should exist within the select element "date_default_timezone"
     And the option "UTC" should be selected within the select element "date_default_timezone"
 
-  @api
   Scenario: Assert that a select option is not selected
     When I log in as a user with the "administrator" role
     When I visit "/admin/config/regional/settings"
     Then the option "Australia/Sydney" should exist within the select element "date_default_timezone"
     And the option "Australia/Sydney" should not be selected within the select element "date_default_timezone"
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -305,7 +301,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -320,7 +316,7 @@ Feature: Check that FieldTrait works
       Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select element :selector" for existing option
     Given some behat configuration
     And scenario steps:
@@ -335,7 +331,7 @@ Feature: Check that FieldTrait works
       The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not exist.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -350,7 +346,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -365,7 +361,7 @@ Feature: Check that FieldTrait works
       Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for selected option
     Given some behat configuration
     And scenario steps:
@@ -380,7 +376,7 @@ Feature: Check that FieldTrait works
       The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -395,7 +391,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -410,7 +406,7 @@ Feature: Check that FieldTrait works
       No option is selected in the date_default_timezone select on the page /admin/config/regional/settings.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-selected option
     Given some behat configuration
     And scenario steps:
@@ -425,7 +421,7 @@ Feature: Check that FieldTrait works
       The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings.
       """
 
-  @api @trait:FieldTrait
+  @trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -664,7 +660,7 @@ Feature: Check that FieldTrait works
     # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill datetime field with date and time
     Given the following page content exist:
       | title                     |
@@ -675,7 +671,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Datetime test page has been updated."
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill datetime field using separate date and time steps
     Given the following page content exist:
       | title                          |
@@ -687,7 +683,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Datetime separate steps has been updated."
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill date-only field
     Given the following page content exist:
       | title                      |
@@ -698,7 +694,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Date only test page has been updated."
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill date-only field using date part step
     Given the following page content exist:
       | title                      |
@@ -709,7 +705,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Date part test page has been updated."
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill daterange field with start and end dates
     Given the following page content exist:
       | title                      |
@@ -721,7 +717,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Daterange test page has been updated."
 
-  @api @datetime @skipped
+  @datetime @skipped
   Scenario: Fill daterange date-only field
     Given the following page content exist:
       | title                                |
@@ -808,7 +804,7 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent range (end_value/date)" not found.
       """
 
-  @api @javascript
+  @javascript
   Scenario: Fill in multi-value field with more values than existing rows
     When I log in as a user with the "administrator" role
     When I go to "node/add/page"
@@ -824,7 +820,7 @@ Feature: Check that FieldTrait works
   @trait:FieldTrait
   Scenario: Assert negative "fill in the multi-value field" for non-existent field
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript":
+    And scenario steps tagged with "@javascript":
       """
       When I log in as a user with the "administrator" role
       And I go to "node/add/page"
@@ -841,7 +837,7 @@ Feature: Check that FieldTrait works
   @trait:FieldTrait
   Scenario: Assert negative color field value assertion when values don't match
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/fields.html"
       Then the color field "#edit-color-input" should have the value "#000000"
@@ -854,14 +850,14 @@ Feature: Check that FieldTrait works
       Color field "#edit-color-input" expected a value "#000000" but has a value "#ffffff".
       """
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 5
     When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
     And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 5 body content"
     And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 5 description"
 
   # Non-commercial version of CKEditor 4 throw an error about being insecure.
-  @api @javascript @js-errors @phpserver
+  @javascript @js-errors @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 4
     When I visit "http://cli:8888/wysiwyg_ckeditor4.html"
     And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 4 body content"
