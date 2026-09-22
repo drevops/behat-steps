@@ -30,17 +30,17 @@ use Behat\Config\Suite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 // The browser surface: what an editor or a visitor can do in a page.
-$ui = (new Suite('ui'))
+$ui = (new Suite('ui', ['drivers' => ['drupal', 'blackbox']]))
   ->withPaths('%paths.base%/tests/behat/features/ui')
   ->addContext(UiContext::class);
 
 // The API surface: responses, headers and payloads, with no browser.
-$api = (new Suite('api'))
+$api = (new Suite('api', ['drivers' => ['drupal', 'blackbox']]))
   ->withPaths('%paths.base%/tests/behat/features/api')
   ->addContext(ApiContext::class);
 
 // The specification surface: the few domain-language scenarios a stakeholder reads.
-$spec = (new Suite('spec'))
+$spec = (new Suite('spec', ['drivers' => ['drupal', 'blackbox']]))
   ->withPaths('%paths.base%/tests/behat/features/spec')
   ->addContext(SpecContext::class);
 
@@ -48,7 +48,7 @@ $profile = (new Profile('default'))
   ->withSuite($ui)
   ->withSuite($api)
   ->withSuite($spec)
-  ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => 'web']]));
+  ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
 
 return (new Config())->withProfile($profile);
 ```
@@ -57,6 +57,7 @@ Run one surface with `vendor/bin/behat --suite=api`, or all of them with a bare 
 
 Three properties follow from the layout:
 
+- **Each suite declares the drivers it may reach.** The `drivers` list is both the allow-list and the precedence order, so a suite that lists only `blackbox` cannot write to the site it points at, whatever a scenario asks for. See [Driver resolution](#driver-resolution).
 - **Each suite composes only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
 - **The spec suite and the regression suites do different jobs.** The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
 - **A slow surface can be excluded without touching the others.** Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
@@ -82,6 +83,56 @@ class UiContext extends RawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names. `RawContext` and `DrupalContext` declare no constructor, which leaves the whole signature to the consuming context.
 
+### Driver resolution
+
+Five authorities decide which driver runs a step, and each decides exactly one thing.
+
+| Authority | Decides | Where |
+| --- | --- | --- |
+| Suite | Which drivers exist at all | `new Suite('x', ['drivers' => [...]])` |
+| Profile | Which drivers exist per environment | `behat -p remote` |
+| Scenario tag | Preference among the drivers that exist | `@driver:NAME` |
+| Step | Which capability it needs | `driverFor(X::class)` |
+| Capability interface | Which drivers are even eligible | `instanceof` during the walk |
+
+A suite's `drivers` setting is both the allow-list and the precedence order. Each entry names a driver the extension registers; a keyed entry gives the driver a name of its own, so the same feature file can run against a different driver in another suite.
+
+```php
+// Local build: the codebase and the database are local.
+new Suite('functional', [
+  'drivers' => [
+    'drupal',
+    'api' => 'acme-jsonapi',
+    'blackbox',
+  ],
+]);
+
+// Smoke tests against production: no Drupal driver exists here at all.
+new Suite('smoke', ['drivers' => ['blackbox']]);
+```
+
+A name holds only letters, digits, `_` and `-`, so that `@driver:NAME` is a valid tag, and it is unique within the suite. A name the extension does not register fails the container build. A suite that declares no list gets every registered driver, in registration order.
+
+At step time the resolution is:
+
+1. Start from the suite's configured order.
+2. Move every name a `@driver:` tag promotes to the front, scenario tags ahead of feature tags and, within one line, in the order they were written.
+3. Walk that order and return the first driver implementing the capability the step asked for, bootstrapping only that one.
+
+```gherkin
+@driver:api
+Scenario: Content created over the public API is immediately visible
+  Given the following "article" content exist:
+    | title      |
+    | Lab report |
+  When I visit "/articles"
+  Then the page should contain "Lab report"
+```
+
+The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted driver actually provides.
+
+`@driver:NAME` reorders the suite's list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` suite listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
+
 ### Behat 3 and the YAML equivalent
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
@@ -93,15 +144,16 @@ default:
   suites:
     ui:
       paths: ['%paths.base%/tests/behat/features/ui']
+      drivers: ['drupal', 'blackbox']
       contexts:
         - UiContext:
             fixtures_path: '%paths.base%/tests/behat/fixtures'
     api:
       paths: ['%paths.base%/tests/behat/features/api']
+      drivers: ['drupal', 'blackbox']
       contexts: [ApiContext]
   extensions:
     DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-      api_driver: drupal
       drupal:
         drupal_root: web
 ```
@@ -110,11 +162,10 @@ default:
 
 ## 2. The `behat_steps` extension key
 
-Settings under this key configure how the package reaches the site: which driver bootstraps Drupal, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
+Settings under this key configure how the package reaches the site: how each driver connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile. Which of those drivers a suite may use is a suite setting - see [Driver resolution](#driver-resolution).
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'api_driver' => 'drupal',
   'drupal' => ['drupal_root' => 'web'],
   'regions' => ['content' => '#content'],
 ]));
@@ -126,9 +177,6 @@ A nested option is written as a section in the configuration and reads as a dott
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `default_driver` | string | `'blackbox'` | Use "blackbox" to test remote site. See "api_driver" for easier integration. |
-| `api_driver` | string | `'drush'` | Bootstraps drupal through "drupal" or "drush". |
-| `drush_driver` | string | `'drush'` | Driver that runs Drush commands for the steps that shell out, independently of "api_driver". |
 | `login_field` | string | `'name'` | User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property. |
 | `regions` | map | `[]` | Map of named regions to CSS selectors. Region steps such as 'I press :button in the :region region' resolve against this map.<br>My region: "#css-selector"<br>Content: "#main .region-content"<br>Right sidebar: "#sidebar-second" |
 | `text` | section | - | Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.<br>login_url: "/user"<br>logout_url: "/user/logout"<br>logout_confirm_url: "/user/logout/confirm"<br>log_out: "Sign out"<br>log_in: "Sign in"<br>password_field: "Enter your password"<br>username_field: "Nickname" |
@@ -150,7 +198,7 @@ A nested option is written as a section in the configuration and reads as a dott
 | `selectors.login_form_selector` | string | `'form#user-login,form#user-login-form'` | Selector of the login form, used to tell a login page from a page that merely holds a login block. |
 | `selectors.logged_in_selector` | string | `'body.logged-in,body.user-logged-in'` | Selector present only while a user is authenticated, used to confirm a login took effect. |
 | `mappings` | map | `[]` | Named value mappings grouped for organisation. A "{{ Key }}" token in any step argument or table cell is replaced with the mapped value before the step runs; whitespace inside the braces is ignored, so "{{ Key }}" and "{{Key}}" are equivalent. Group names are organisational only - a key must be unique across all groups.<br>paths:<br>User Registration: "/user/register"<br>User Login: "/user/login" |
-| `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It has no options, and it is the fallback for a scenario that selects no other driver. |
+| `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
 | `drupal` | section | - | Settings of the driver that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process driver bootstraps. |
 | `drush` | section | - | Settings of the driver that reaches the site by running Drush. |
@@ -166,7 +214,7 @@ A nested option is written as a section in the configuration and reads as a dott
 A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.
 
 ```gherkin
-@api @module:redirect @behat-steps-skip:watchdogAfterStep
+@module:redirect @behat-steps-skip:watchdogAfterStep
 Scenario: Editor publishes a page
 ```
 
@@ -176,6 +224,7 @@ Scenario: Editor publishes a page
 | --- | --- |
 | `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
+| `@driver:VALUE` | Move the named driver to the front of the suite's driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
 | `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. One tag per scenario, and the scenario has to be `@javascript`. |
 | `@email:VALUE` | Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler. |
@@ -192,7 +241,7 @@ Scenario: Editor publishes a page
 
 [//]: # (END_TAGS)
 
-`@api` and `@javascript` are Behat and Mink tags rather than tags of this package: `@api` selects the driver named by `api_driver`, and `@javascript` selects the browser session. A step that reaches Drupal's API directly needs `api_driver` set to `drupal`, the driver that bootstraps Drupal in-process; on the default `drush` it throws. Both tags are documented in [CONTRIBUTING.md](../CONTRIBUTING.md#what-a-trait-needs-from-the-driver).
+`@javascript` is a Mink tag rather than a tag of this package: it selects the browser session. Which driver a step runs against is settled by [driver resolution](#driver-resolution) and the `@driver:NAME` tag above.
 
 ## 4. Environment variables
 

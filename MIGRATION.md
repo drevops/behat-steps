@@ -264,7 +264,7 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 | `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
 | `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
 
-Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
+Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. The three driver-selection keys are the exception; see [Capability-based driver resolution](#capability-based-driver-resolution).
 
 `MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
 
@@ -277,6 +277,57 @@ extensions:
 ```
 
 Setting it on `MinkExtension` still works and still applies, and reports itself as deprecated.
+
+## Capability-based driver resolution
+
+`@api` no longer selects a driver, and the `default_driver`, `api_driver` and `drush_driver` options are gone. A suite declares the drivers it may reach, in precedence order, and a step resolves the driver by the capability it needs.
+
+| Before | After |
+| --- | --- |
+| `'default_driver' => 'blackbox'` | A suite that declares no `drivers` list gets every registered driver, in registration order |
+| `'api_driver' => 'drupal'` | `new Suite('default', ['drivers' => ['drupal', 'blackbox']])` |
+| `'drush_driver' => 'drush'` | Add `'drush'` to the suite's `drivers` list |
+| `@api` on a scenario | Nothing. A step that needs Drupal resolves `CoreCapabilityInterface` from the suite's list |
+| `@drush` on a scenario | Nothing. `DrushTrait` resolves `DrushCapabilityInterface` |
+
+```php
+// Before.
+$suite = (new Suite('default'))->withPaths('%paths.base%/tests/behat/features');
+
+$profile = (new Profile('default'))
+  ->withSuite($suite)
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'default_driver' => 'blackbox',
+    'api_driver' => 'drupal',
+    'drush_driver' => 'drush',
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
+
+// After.
+$suite = (new Suite('default', ['drivers' => ['drupal', 'drush', 'blackbox']]))
+  ->withPaths('%paths.base%/tests/behat/features');
+
+$profile = (new Profile('default'))
+  ->withSuite($suite)
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
+```
+
+Then remove `@api` from every scenario and feature. It is not a tag of this package any more, and a suite that lists a Drupal driver reaches Drupal without it.
+
+To run one scenario against a different driver, tag it `@driver:NAME`, where `NAME` is a name the suite lists. The tag moves that driver to the front of the scenario's order; it never adds a driver the suite does not list. A name outside the list fails at scenario start.
+
+```gherkin
+@driver:drush
+Scenario: The cache is cleared over the command line
+  Given the cache is empty
+```
+
+Two consequences are worth checking in an existing suite:
+
+- **A step that used to fail for a missing `@api` now succeeds.** The tag no longer gates anything, so a scenario that reached a Drupal step without it used to throw and now runs. Where that gate was load-bearing, give the suite a `drivers` list that excludes the Drupal driver.
+- **`RawContext::assertDrupal()` is gone.** A custom step that called it calls `$this->driverFor(CoreCapabilityInterface::class);` instead. `RawContext::getDriver()` now takes a name and no longer defaults to "the current driver"; a call with no argument becomes `driverFor()` naming the capability the caller needs.
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 
