@@ -78,8 +78,6 @@ interface DriverManagerInterface {
    * Walks the scenario's driver order and bootstraps only the driver it
    * returns.
    *
-   * @template T of object
-   *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
    *
@@ -88,6 +86,8 @@ interface DriverManagerInterface {
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order implements the capability.
+   *
+   * @template T of object
    */
   public function getDriverFor(string $capability): object;
 
@@ -109,13 +109,13 @@ interface DriverManagerInterface {
    * question than 'hasCapability()': a suite may list a cache-capable driver
    * that no step in this scenario ever asked for.
    *
-   * @template T of object
-   *
    * @param class-string<T> $capability
    *   The capability interface to look for.
    *
    * @return T|null
    *   The driver, or NULL when this scenario resolved no such driver.
+   *
+   * @template T of object
    */
   public function getResolvedDriverFor(string $capability): ?object;
 

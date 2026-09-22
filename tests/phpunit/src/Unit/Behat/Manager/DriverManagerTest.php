@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,7 +32,7 @@ class DriverManagerTest extends TestCase {
 
     $manager = new DriverManager(['Alpha' => $driver]);
 
-    $this->assertSame([ 'alpha' => $driver], $manager->getDrivers());
+    $this->assertSame(['alpha' => $driver], $manager->getDrivers());
   }
 
   public function testRegisterDriverLowercasesName(): void {
@@ -89,7 +90,7 @@ class DriverManagerTest extends TestCase {
     $this->assertSame($driver, $manager->getDriver('API'));
   }
 
-  public function testGetDriverRejectsANameOutsideTheScenarioOrder(): void {
+  public function testGetDriverRejectsNameOutsideTheScenarioOrder(): void {
     $manager = new DriverManager(['a' => $this->createDriverMock(TRUE), 'b' => $this->createDriverMock(TRUE)]);
     $manager->setScenarioDrivers(['a' => 'a']);
 
@@ -178,21 +179,21 @@ class DriverManagerTest extends TestCase {
     $this->assertFalse($manager->hasCapability(ContentCapabilityInterface::class));
   }
 
-  public function testHasCapabilityIgnoresARegisteredDriverOutsideTheScenarioOrder(): void {
+  public function testHasCapabilityIgnoresRegisteredDriverOutsideTheScenarioOrder(): void {
     $manager = new DriverManager(['capable' => $this->createCacheDriverMock(TRUE), 'plain' => $this->createDriverMock(TRUE)]);
     $manager->setScenarioDrivers(['plain' => 'plain']);
 
     $this->assertFalse($manager->hasCapability(CacheCapabilityInterface::class));
   }
 
-  public function testGetResolvedDriverForReturnsNullUntilAStepAsksForIt(): void {
+  public function testGetResolvedDriverForReturnsNullUntilStepAsksForIt(): void {
     $manager = new DriverManager(['capable' => $this->createCacheDriverMock(TRUE)]);
     $manager->setScenarioDrivers(['capable' => 'capable']);
 
     $this->assertNull($manager->getResolvedDriverFor(CacheCapabilityInterface::class));
   }
 
-  public function testGetResolvedDriverForReturnsADriverTheScenarioResolved(): void {
+  public function testGetResolvedDriverForReturnsDriverTheScenarioResolved(): void {
     $capable = $this->createCacheDriverMock(TRUE);
     $manager = new DriverManager(['capable' => $capable]);
     $manager->setScenarioDrivers(['capable' => 'capable']);
@@ -231,8 +232,11 @@ class DriverManagerTest extends TestCase {
 
   /**
    * Creates a driver double reporting the given bootstrap state.
+   *
+   * @return \DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The driver double.
    */
-  protected function createDriverMock(bool $bootstrapped): DriverInterface {
+  protected function createDriverMock(bool $bootstrapped): DriverInterface&MockObject {
     $driver = $this->createMock(DriverInterface::class);
     $driver->method('isBootstrapped')->willReturn($bootstrapped);
 
@@ -241,8 +245,12 @@ class DriverManagerTest extends TestCase {
 
   /**
    * Creates a cache-capable driver double reporting the bootstrap state.
+   *
+   * @return \DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The driver double.
    */
-  protected function createCacheDriverMock(bool $bootstrapped): DriverInterface&CacheCapabilityInterface {
+  protected function createCacheDriverMock(bool $bootstrapped): DriverInterface&MockObject {
+    /** @var \DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject $driver */
     $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, CacheCapabilityInterface::class]);
     $driver->method('isBootstrapped')->willReturn($bootstrapped);
 

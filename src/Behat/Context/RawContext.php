@@ -332,8 +332,6 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * driver gets the step working the moment that driver implements the
    * interface.
    *
-   * @template T of object
-   *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
    *
@@ -342,6 +340,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order implements the capability.
+   *
+   * @template T of object
    */
   public function driverFor(string $capability): object {
     return $this->getDriverManager()->getDriverFor($capability);

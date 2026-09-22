@@ -29,10 +29,8 @@ use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriver;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
@@ -453,7 +451,7 @@ class RawContextTest extends UnitTestCase {
     $this->createContext($driver)->cleanRoles($this->createAfterScenarioScope());
   }
 
-  public function testStaticCachesAreClearedOnADriverTheScenarioReached(): void {
+  public function testStaticCachesAreClearedOnDriverTheScenarioReached(): void {
     $driver = $this->createDriver([CacheCapabilityInterface::class]);
     $driver->expects($this->once())->method('cacheClearStatic');
 
@@ -463,7 +461,7 @@ class RawContextTest extends UnitTestCase {
     $context->clearStaticCaches();
   }
 
-  public function testStaticCachesAreSkippedOnADriverTheScenarioNeverReached(): void {
+  public function testStaticCachesAreSkippedOnDriverTheScenarioNeverReached(): void {
     $driver = $this->createDriver([CacheCapabilityInterface::class]);
     $driver->expects($this->never())->method('cacheClearStatic');
 

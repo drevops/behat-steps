@@ -101,7 +101,7 @@ class DriverListenerTest extends TestCase {
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api'], ['drivers' => ['blackbox', 'api' => 'drupal']]));
   }
 
-  public function testATagNameIsMatchedWithoutRegardToCase(): void {
+  public function testTagNameIsMatchedWithoutRegardToCase(): void {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
@@ -115,8 +115,8 @@ class DriverListenerTest extends TestCase {
    * @param array<string, mixed> $settings
    *   The suite settings.
    */
-  #[DataProvider('dataProviderNoConfiguredList')]
-  public function testASuiteWithoutAListGetsEveryRegisteredDriver(array $settings): void {
+  #[DataProvider('dataProviderSuiteWithoutListGetsEveryRegisteredDriver')]
+  public function testSuiteWithoutListGetsEveryRegisteredDriver(array $settings): void {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->method('getDrivers')->willReturn([
       'blackbox' => $this->createMock(DriverInterface::class),
@@ -128,13 +128,13 @@ class DriverListenerTest extends TestCase {
     $listener->prepareScenarioDrivers($this->createEvent([], [], $settings));
   }
 
-  public static function dataProviderNoConfiguredList(): \Iterator {
+  public static function dataProviderSuiteWithoutListGetsEveryRegisteredDriver(): \Iterator {
     yield 'no setting at all' => [[]];
     yield 'an empty list' => [['drivers' => []]];
     yield 'a setting that is not a list' => [['drivers' => 'drupal']];
   }
 
-  public function testATagNamingAnUnlistedDriverIsReported(): void {
+  public function testTagNamingUnlistedDriverIsReported(): void {
     $listener = new DriverListener($this->createMock(DriverManagerInterface::class));
 
     $this->expectException(\RuntimeException::class);

@@ -460,7 +460,7 @@ class BehatStepsExtension implements ExtensionInterface {
         throw new InvalidConfigurationException(sprintf('The "%s" suite lists a driver that is not a name under "drivers:". Write each entry as a driver name, or as "tag: driver name".', $suite));
       }
 
-      $tag = is_int($tag) ? $name : (string) $tag;
+      $tag = is_int($tag) ? $name : $tag;
 
       // A tag name is typed into a feature file after '@driver:', so it cannot
       // carry whitespace or a second colon.
