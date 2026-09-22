@@ -2781,7 +2781,7 @@ EOD,
     $actual = render_extension_options();
 
     $this->assertStringContainsString('| Option | Type | Default | Description |', $actual);
-    $this->assertStringContainsString("| `default_driver` | string | `'blackbox'` |", $actual);
+    $this->assertStringContainsString("| `login_field` | string | `'name'` |", $actual);
     $this->assertStringContainsString('| `ajax_timeout` | integer | `5` |', $actual);
     $this->assertStringContainsString('| `regions` | map | `[]` |', $actual);
     $this->assertStringContainsString('| `text` | section | - |', $actual);
@@ -2807,7 +2807,7 @@ EOD,
 
   public static function dataProviderExtensionOptionType(): array {
     return [
-      'scalar' => ['api_driver', 'string'],
+      'scalar' => ['login_field', 'string'],
       'integer' => ['ajax_timeout', 'integer'],
       'prototyped array' => ['regions', 'map'],
       'array' => ['text', 'section'],

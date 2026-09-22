@@ -49,20 +49,20 @@ class DriverPassTest extends TestCase {
 
     (new DriverPass())->process($container);
 
-    $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
-
-    $this->assertCount(1, $calls);
-    $this->assertSame('setDefaultDriverName', $calls[0][0]);
+    $this->assertSame([], $container->getDefinition('behat_steps.driver_manager')->getMethodCalls());
   }
 
-  public function testTheDefaultDriverNameIsTakenFromTheParameter(): void {
-    $container = $this->createContainer('drush');
+  public function testRegisteredNamesAreCollectedInRegistrationOrder(): void {
+    $container = $this->createContainer();
+    $container->setDefinition('behat_steps.driver.blackbox', (new Definition(BlackboxDriver::class))->addTag('behat_steps.driver', ['alias' => 'Blackbox']));
+    $container->setDefinition('behat_steps.driver.drupal', (new Definition(DrupalDriver::class))->addTag('behat_steps.driver', ['alias' => 'drupal']));
+    $container->setDefinition('behat_steps.driver.nameless', (new Definition(BlackboxDriver::class))->addTag('behat_steps.driver'));
 
-    (new DriverPass())->process($container);
+    $this->assertSame(['blackbox', 'drupal'], DriverPass::registeredNames($container));
+  }
 
-    $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
-
-    $this->assertSame(['setDefaultDriverName', ['drush']], $calls[0]);
+  public function testRegisteredNamesAreEmptyWithoutTaggedDrivers(): void {
+    $this->assertSame([], DriverPass::registeredNames($this->createContainer()));
   }
 
   public function testTheDrupalDriverReceivesTheTaggedCore(): void {
@@ -97,10 +97,9 @@ class DriverPassTest extends TestCase {
   /**
    * Builds a container holding the driver manager the pass looks for.
    */
-  protected function createContainer(string $default_driver = 'blackbox'): ContainerBuilder {
+  protected function createContainer(): ContainerBuilder {
     $container = new ContainerBuilder();
     $container->setDefinition('behat_steps.driver_manager', new Definition(DriverManager::class));
-    $container->setParameter('behat_steps.default_driver', $default_driver);
 
     return $container;
   }

@@ -113,7 +113,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    if (!$context->getDriverManager()->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+    $manager = $context->getDriverManager();
+
+    if (!$manager->hasCapability(ContentCapabilityInterface::class)) {
+      return;
+    }
+
+    if (!$manager->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -185,7 +191,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     // Resolving a driver bootstraps it, so a scenario that created no users
     // never boots one on the way out.
-    if ($user_manager->hasUsers()) {
+    if ($user_manager->hasUsers() && $this->getDriverManager()->hasCapability(UserCapabilityInterface::class)) {
       $driver = $this->driverFor(UserCapabilityInterface::class);
 
       foreach ($user_manager->getUsers() as $user) {
@@ -360,9 +366,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['author']);
 
     $driver = $this->getContentDriver();
+    $this->parseCreatedEntityFields($stub, $driver, ['author']);
 
     $scalars = $this->captureScalarBaseFields($stub);
     $driver->nodeCreate($stub);
@@ -393,9 +399,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['role']);
 
     $driver = $this->driverFor(UserCapabilityInterface::class);
+    $this->parseCreatedEntityFields($stub, $driver, ['role']);
 
     $scalars = $this->captureScalarBaseFields($stub);
     $driver->userCreate($stub);
@@ -439,9 +445,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
     $this->dispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub, ['vocabulary_machine_name']);
 
     $driver = $this->getContentDriver();
+    $this->parseCreatedEntityFields($stub, $driver, ['vocabulary_machine_name']);
 
     $scalars = $this->captureScalarBaseFields($stub);
     $driver->termCreate($stub);
@@ -471,9 +477,9 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    */
   public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
-    $this->parseCreatedEntityFields($stub);
 
     $driver = $this->getContentDriver();
+    $this->parseCreatedEntityFields($stub, $driver);
 
     $scalars = $this->captureScalarBaseFields($stub);
     $driver->entityCreate($stub);
@@ -742,11 +748,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
+   * @param object $driver
+   *   The driver that will save the entity.
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched.
    */
-  protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    if (!$this->driverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+  protected function parseCreatedEntityFields(EntityStubInterface $stub, object $driver, array $ignored_properties = []): void {
+    if (!$driver instanceof CoreCapabilityInterface) {
       return;
     }
 

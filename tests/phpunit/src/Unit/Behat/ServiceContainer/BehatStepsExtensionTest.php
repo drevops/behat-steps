@@ -112,7 +112,6 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertTrue($container->hasDefinition('behat_steps.context.attribute_reader'));
     $this->assertTrue($container->hasDefinition('behat_steps.listener.driver'));
     $this->assertTrue($container->hasDefinition('behat_steps.region_selector'));
-    $this->assertSame('blackbox', $container->getParameter('behat_steps.default_driver'));
   }
 
   public function testDrupalDriverIsRegisteredWithItsRoot(): void {
@@ -254,9 +253,6 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public static function dataProviderSchemaDefaults(): \Iterator {
-    yield 'default_driver' => ['default_driver', 'blackbox'];
-    yield 'api_driver' => ['api_driver', 'drush'];
-    yield 'drush_driver' => ['drush_driver', 'drush'];
     yield 'login_field' => ['login_field', 'name'];
     yield 'login_wait' => ['login_wait', 0];
     yield 'ajax_timeout' => ['ajax_timeout', 5];
@@ -306,8 +302,90 @@ class BehatStepsExtensionTest extends TestCase {
     $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
     $names = array_map(static fn(array $call): string => $call[0], $calls);
 
-    $this->assertContains('registerDriver', $names);
-    $this->assertSame('setDefaultDriverName', end($names));
+    $this->assertSame(['registerDriver', 'registerDriver'], $names);
+  }
+
+  /**
+   * Tests the driver lists a suite may declare.
+   *
+   * @param array<array-key, mixed> $drivers
+   *   The 'drivers' setting the suite declares.
+   */
+  #[DataProvider('dataProviderValidSuiteDrivers')]
+  public function testProcessAcceptsAValidSuiteDriverList(array $drivers): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->setParameter('suite.configurations', ['default' => ['type' => NULL, 'settings' => ['drivers' => $drivers]]]);
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public static function dataProviderValidSuiteDrivers(): \Iterator {
+    yield 'bare entries' => [['drupal', 'blackbox']];
+    yield 'aliased entries' => [['api' => 'drupal']];
+    yield 'bare and aliased mixed' => [['blackbox', 'api' => 'drupal']];
+    yield 'a name carrying a hyphen, an underscore and a digit' => [['api-2_b' => 'drupal']];
+    yield 'a name matched without regard to case' => [['Drupal']];
+  }
+
+  /**
+   * Tests the driver lists a suite may not declare.
+   *
+   * @param array<array-key, mixed> $drivers
+   *   The 'drivers' setting the suite declares.
+   * @param string $message
+   *   Part of the message the build is expected to fail with.
+   */
+  #[DataProvider('dataProviderInvalidSuiteDrivers')]
+  public function testProcessRejectsAnInvalidSuiteDriverList(array $drivers, string $message): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->setParameter('suite.configurations', ['default' => ['type' => NULL, 'settings' => ['drivers' => $drivers]]]);
+
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($message);
+
+    $extension->process($container);
+  }
+
+  public static function dataProviderInvalidSuiteDrivers(): \Iterator {
+    yield 'an unregistered driver' => [['ghost'], 'The "default" suite lists the driver "ghost" under "drivers:", which is not registered. Registered drivers: blackbox, drupal.'];
+    yield 'an unregistered driver behind an alias' => [['api' => 'ghost'], 'which is not registered'];
+    yield 'a tag name carrying a space' => [['my driver' => 'drupal'], 'so that "@driver:my driver" is a valid tag'];
+    yield 'a tag name carrying a colon' => [['my:driver' => 'drupal'], 'so that "@driver:my:driver" is a valid tag'];
+    yield 'an entry that is not a name' => [[['drupal']], 'Write each entry as a driver name, or as "tag: driver name".'];
+    yield 'an empty entry' => [[''], 'Write each entry as a driver name, or as "tag: driver name".'];
+  }
+
+  /**
+   * Tests the suite configurations that the build leaves alone.
+   *
+   * @param array<string, mixed>|string|null $suites
+   *   The 'suite.configurations' parameter, or NULL to leave it unset.
+   */
+  #[DataProvider('dataProviderSkippedSuiteDrivers')]
+  public function testProcessSkipsSuitesWithNothingToValidate(array|string|null $suites): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+
+    if ($suites !== NULL) {
+      $container->setParameter('suite.configurations', $suites);
+    }
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public static function dataProviderSkippedSuiteDrivers(): \Iterator {
+    yield 'no suite configuration at all' => [NULL];
+    yield 'a parameter that is not a map' => ['default'];
+    yield 'a suite that is not a map' => [['default' => 'yes']];
+    yield 'a suite with no settings' => [['default' => ['type' => NULL]]];
+    yield 'a suite declaring no driver list' => [['default' => ['type' => NULL, 'settings' => ['paths' => []]]]];
+    yield 'a driver list that is not a list' => [['default' => ['type' => NULL, 'settings' => ['drivers' => 'drupal']]]];
   }
 
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
