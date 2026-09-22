@@ -42,7 +42,6 @@ services:
     class: "%behat_steps.listener.driver.class%"
     arguments:
       - "@behat_steps.driver_manager"
-      - "%behat_steps.parameters%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }
   behat_steps.region_selector:

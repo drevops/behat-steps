@@ -9,7 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
@@ -38,7 +38,7 @@ trait MediaTrait {
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaRemoveType(string $media_type): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
@@ -108,7 +108,7 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $media_hash) {
       $ids = $this->mediaLoadMultiple($media_type, $media_hash);
@@ -175,7 +175,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -193,7 +193,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -291,7 +291,7 @@ trait MediaTrait {
    *   The created media entity.
    */
   public function mediaCreateEntity(EntityStub $stub): MediaInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $bundle = $stub->getBundle();
 
@@ -325,13 +325,7 @@ trait MediaTrait {
    *   The entity stub.
    */
   protected function mediaExpandEntityFields(EntityStub $stub): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriverInterface) {
-      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
-    }
-
-    $core = $driver->getCore();
+    $core = $this->driverFor(CoreCapabilityInterface::class)->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
@@ -361,7 +355,7 @@ trait MediaTrait {
    *   Array of media ids.
    */
   public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('media')
       ->accessCheck(FALSE)

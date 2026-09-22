@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
@@ -25,6 +26,7 @@ interface DrushDriverInterface extends
   CacheCapabilityInterface,
   ConfigCapabilityInterface,
   CronCapabilityInterface,
+  DrushCapabilityInterface,
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
   UserCapabilityInterface,

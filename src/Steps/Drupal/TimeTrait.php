@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
  * Control system time in tests using Drupal state overrides.
@@ -31,10 +32,10 @@ trait TimeTrait {
   /**
    * Cleans up testing.time state after each scenario.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function timeCleanup(AfterScenarioScope $scope): void {
     // A scenario that never set the time has nothing to clean up, and
-    // 'assertDrupal()' would fail one that ran on a driver without Drupal.
+    // resolving a driver would fail a suite that lists none reaching Drupal.
     if (!$this->timeWasSet || $this->skipTag(__FUNCTION__, $scope)) {
       $this->timeWasSet = FALSE;
 
@@ -43,7 +44,7 @@ trait TimeTrait {
 
     $this->timeWasSet = FALSE;
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::state()->delete('testing.time');
   }
@@ -60,7 +61,7 @@ trait TimeTrait {
    */
   #[When('I set system time to :value')]
   public function timeSet(string $value): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->timeWasSet = TRUE;
 
@@ -76,7 +77,7 @@ trait TimeTrait {
    */
   #[When('I reset system time')]
   public function timeReset(): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::state()->delete('testing.time');
   }

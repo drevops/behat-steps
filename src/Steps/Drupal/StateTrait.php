@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -42,7 +43,7 @@ trait StateTrait {
   /**
    * Reset the snapshot registry before each scenario.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function stateBeforeScenario(BeforeScenarioScope $scope): void {
     $this->stateOriginalValues = [];
   }
@@ -50,7 +51,7 @@ trait StateTrait {
   /**
    * Revert every touched state key after the scenario finishes.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
     if (
       $this->skipTag(__FUNCTION__, $scope)
@@ -60,13 +61,13 @@ trait StateTrait {
       return;
     }
 
-    // A scenario with no snapshot has nothing to revert, and 'assertDrupal()'
-    // would fail one that ran on a driver without Drupal.
+    // A scenario with no snapshot has nothing to revert, and resolving a
+    // driver would fail a suite that lists none reaching Drupal.
     if ($this->stateOriginalValues === []) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $state = \Drupal::state();
     foreach ($this->stateOriginalValues as $name => $snapshot) {
@@ -90,7 +91,7 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->set($name, $this->stateNormalizeValue($value));
@@ -105,7 +106,7 @@ trait StateTrait {
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->stateStoreOriginalValue($name);
     \Drupal::state()->delete($name);
@@ -123,7 +124,7 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $state = \Drupal::state();
     foreach ($table->getHash() as $row) {
@@ -188,7 +189,7 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   public function stateReadValue(string $name): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $key_value = \Drupal::keyValue('state');
 

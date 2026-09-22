@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
@@ -108,11 +109,7 @@ trait UserTrait {
    */
   #[Given('the following users exist:')]
   public function userCreateMultiple(TableNode $table): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof UserCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user creation.', $driver::class));
-    }
+    $driver = $this->driverFor(UserCapabilityInterface::class);
 
     foreach ($table->getHash() as $values) {
       $roles = '';
@@ -222,7 +219,7 @@ trait UserTrait {
    */
   #[Given('the role :role_name has the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $permissions = $this->helperSplitCommaSeparated($permissions);
 
@@ -315,14 +312,10 @@ trait UserTrait {
    */
   #[When('I log in as a user with the :permissions permission(s)')]
   public function userLogInWithPermissions(string $permissions): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof RoleCapabilityInterface || !$driver instanceof UserCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support role and user management.', $driver::class));
-    }
-
-    $role = $driver->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
+    $role = $this->driverFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
+
+    $driver = $this->driverFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub();
     $this->userCreate($stub);
@@ -568,15 +561,11 @@ trait UserTrait {
    * @param array<string, mixed> $extra_fields
    *   Additional values to set on the account.
    *
-   * @throws \RuntimeException
-   *   When the active driver cannot assign roles.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order can manage users.
    */
   public function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof UserCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user role assignment.', $driver::class));
-    }
+    $driver = $this->driverFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub($extra_fields);
     $this->userCreate($stub);
@@ -638,7 +627,7 @@ trait UserTrait {
    *   The user object.
    */
   public function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $timestamp = \Drupal::time()->getRequestTime();
 
@@ -663,7 +652,7 @@ trait UserTrait {
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
   public function userExistsByMail(string $mail): bool {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $ids = \Drupal::entityTypeManager()
       ->getStorage('user')
@@ -686,7 +675,7 @@ trait UserTrait {
    *   Array of loaded user objects.
    */
   public function userLoadMultiple(array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
 

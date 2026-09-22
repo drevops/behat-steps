@@ -9,6 +9,7 @@ use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Listener\DriverListener;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -50,7 +51,6 @@ class BehatStepsExtension implements ExtensionInterface {
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));
     $loader->load('services.yml');
-    $container->setParameter('behat_steps.default_driver', $config['default_driver']);
 
     $this->loadParameters($container, $config);
 
@@ -64,6 +64,7 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   public function process(ContainerBuilder $container): void {
     $this->processDriverPass($container);
+    $this->processSuiteDrivers($container);
     $this->processClassGenerator($container);
     $this->processMinkAjaxTimeout($container);
   }
@@ -76,18 +77,6 @@ class BehatStepsExtension implements ExtensionInterface {
     // phpcs:disable
     $builder
       ->children()
-        ->scalarNode('default_driver')
-          ->defaultValue('blackbox')
-          ->info('Use "blackbox" to test remote site. See "api_driver" for easier integration.')
-        ->end()
-        ->scalarNode('api_driver')
-          ->defaultValue('drush')
-          ->info('Bootstraps drupal through "drupal" or "drush".')
-        ->end()
-        ->scalarNode('drush_driver')
-          ->defaultValue('drush')
-          ->info('Driver that runs Drush commands for the steps that shell out, independently of "api_driver".')
-        ->end()
         ->scalarNode('login_field')
           ->defaultValue('name')
           ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
@@ -191,7 +180,7 @@ class BehatStepsExtension implements ExtensionInterface {
           ->end()
         ->end()
         ->arrayNode('blackbox')
-          ->info('Settings of the driver that drives the site through the browser only. It has no options, and it is the fallback for a scenario that selects no other driver.')
+          ->info('Settings of the driver that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
         ->end()
         ->arrayNode('drupal')
           ->info('Settings of the driver that bootstraps Drupal in-process.')
@@ -414,6 +403,75 @@ class BehatStepsExtension implements ExtensionInterface {
   protected function processDriverPass(ContainerBuilder $container): void {
     $driver_pass = new DriverPass();
     $driver_pass->process($container);
+  }
+
+  /**
+   * Validates the ordered driver list each suite declares.
+   *
+   * A suite's 'drivers' setting is both the allow-list and the precedence
+   * order. Checking it here rather than at scenario start means a typo in a
+   * suite that rarely runs still fails the build.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When a tag name is not tag-safe, or names a driver that is not
+   *   registered.
+   */
+  protected function processSuiteDrivers(ContainerBuilder $container): void {
+    if (!$container->hasParameter('suite.configurations')) {
+      return;
+    }
+
+    $suites = $container->getParameter('suite.configurations');
+
+    if (!is_array($suites)) {
+      return;
+    }
+
+    $registered = DriverPass::registeredNames($container);
+
+    foreach ($suites as $suite => $configuration) {
+      $drivers = is_array($configuration) && is_array($configuration['settings'] ?? NULL) ? $configuration['settings'][DriverListener::DRIVERS_SETTING] ?? NULL : NULL;
+
+      if (!is_array($drivers)) {
+        continue;
+      }
+
+      $this->validateSuiteDrivers((string) $suite, $drivers, $registered);
+    }
+  }
+
+  /**
+   * Validates one suite's driver list.
+   *
+   * @param string $suite
+   *   The suite name, for the error message.
+   * @param array<array-key, mixed> $drivers
+   *   The suite's 'drivers' setting, as configured.
+   * @param array<int, string> $registered
+   *   The names the extension registers drivers under.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When a tag name is not tag-safe, or names a driver that is not
+   *   registered.
+   */
+  protected function validateSuiteDrivers(string $suite, array $drivers, array $registered): void {
+    foreach ($drivers as $tag => $name) {
+      if (!is_string($name) || $name === '') {
+        throw new InvalidConfigurationException(sprintf('The "%s" suite lists a driver that is not a name under "drivers:". Write each entry as a driver name, or as "tag: driver name".', $suite));
+      }
+
+      $tag = is_int($tag) ? $name : (string) $tag;
+
+      // A tag name is typed into a feature file after '@driver:', so it cannot
+      // carry whitespace or a second colon.
+      if (preg_match('/^[a-z0-9_-]+$/', strtolower($tag)) !== 1) {
+        throw new InvalidConfigurationException(sprintf('The "%s" suite names a driver "%s" under "drivers:". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', $suite, $tag, $tag));
+      }
+
+      if (!in_array(strtolower($name), $registered, TRUE)) {
+        throw new InvalidConfigurationException(sprintf('The "%s" suite lists the driver "%s" under "drivers:", which is not registered. Registered drivers: %s.', $suite, $name, $registered === [] ? 'none' : implode(', ', $registered)));
+      }
+    }
   }
 
   /**

@@ -51,7 +51,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  *
  * Example:
  * @code
- * @api @disable-config-override:system.site @disable-config-override:myconfig.settings
+ * @disable-config-override:system.site @disable-config-override:myconfig.settings
  * Scenario: Render the page with original config values
  *   When I visit "/"
  *   Then the response should contain "Original site name"
@@ -86,7 +86,7 @@ trait ConfigOverrideTrait {
    * `@behat-steps-skip:configOverrideBeforeScenario` bypasses tag collection,
    * not the clearing.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function configOverrideBeforeScenario(BeforeScenarioScope $scope): void {
     $this->configOverrideDisabledNames = [];
     $this->configOverrideSkipBeforeStep = FALSE;
@@ -122,8 +122,7 @@ trait ConfigOverrideTrait {
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideSkipBeforeStep || $this->configOverrideDisabledNames === []) {
       // Nothing to propagate. The process-level signal outlives the scenario
-      // that set it and 'configOverrideBeforeScenario()' only runs for '@api',
-      // so it is cleared here as well as the driver-level header.
+      // that set it, so it is cleared here as well as the driver-level header.
       $this->configOverrideClearSignal();
       $this->configOverrideClearDriverHeader();
 

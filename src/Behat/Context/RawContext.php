@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
-use Behat\Hook\BeforeScenario;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
@@ -32,6 +30,7 @@ use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
@@ -39,10 +38,8 @@ use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use Drupal\Component\Utility\Random;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -98,14 +95,6 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   protected array $roles = [];
 
   /**
-   * Whether the scenario is tagged '@api', NULL outside a scenario.
-   *
-   * NULL means no scenario scope was ever seen, as when a context is driven
-   * directly from a unit test, and the tag is then not asserted.
-   */
-  protected ?bool $isApiScenario = NULL;
-
-  /**
    * Converts textual node timestamps into the numeric form storage expects.
    *
    * @throws \RuntimeException
@@ -115,16 +104,16 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   public static function alterNodeParameters(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
-    // The blackbox and Drush drivers do not use this entity pipeline, so
-    // string dates on timestamp fields are converted for the in-process
-    // driver only.
+    // A driver that writes the node over the command line takes the values as
+    // written, so string dates are converted only for a driver that saves them
+    // through Drupal's own storage.
     $context = $scope->getContext();
 
     if (!$context instanceof DriverAwareInterface) {
       return;
     }
 
-    if (!$context->getDriverManager()->getDriver() instanceof DrupalDriverInterface) {
+    if (!$context->getDriverManager()->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -143,18 +132,6 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
       $stub->setValue($field, $timestamp);
     }
-  }
-
-  /**
-   * Records whether the scenario asked for Drupal's API.
-   *
-   * A step scope carries no tags, so the answer is resolved once here and read
-   * by 'assertDrupal()' on every call.
-   */
-  #[BeforeScenario]
-  public function resolveApiScenario(BeforeScenarioScope $scope): void {
-    $tags = Tag::all($scope);
-    $this->isApiScenario = in_array('api', $tags, TRUE);
   }
 
   /**
@@ -177,14 +154,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     $skip_types = $this->entityCleanupSkippedTypes($scope);
-    $driver = $this->getDriver();
 
     foreach (array_reverse($this->createdStubs) as $stub) {
       if (in_array($stub->getEntityType(), $skip_types, TRUE)) {
         continue;
       }
 
-      $this->deleteStub($stub, $driver);
+      $this->deleteStub($stub);
     }
 
     $this->createdStubs = [];
@@ -205,10 +181,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    $driver = $this->getDriver();
     $user_manager = $this->getUserManager();
 
-    if ($user_manager->hasUsers() && $driver instanceof UserCapabilityInterface) {
+    // Resolving a driver bootstraps it, so a scenario that created no users
+    // never boots one on the way out.
+    if ($user_manager->hasUsers()) {
+      $driver = $this->driverFor(UserCapabilityInterface::class);
+
       foreach ($user_manager->getUsers() as $user) {
         $driver->userDelete($user);
       }
@@ -244,11 +223,11 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof RoleCapabilityInterface) {
+    if (!$this->getDriverManager()->hasCapability(RoleCapabilityInterface::class)) {
       return;
     }
+
+    $driver = $this->driverFor(RoleCapabilityInterface::class);
 
     foreach ($this->roles as $role) {
       $driver->roleDelete($role);
@@ -259,14 +238,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
 
   /**
    * Clears static caches.
+   *
+   * Only a scenario that reached a cache-capable driver can have left a static
+   * cache behind, so a scenario that never touched one is left alone.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function clearStaticCaches(): void {
-    $driver = $this->getDriver();
-
-    if ($driver instanceof CacheCapabilityInterface) {
-      $driver->cacheClearStatic();
-    }
+    $this->getDriverManager()->getResolvedDriverFor(CacheCapabilityInterface::class)?->cacheClearStatic();
   }
 
   /**
@@ -331,50 +309,43 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns the active driver.
+   * Returns a driver of this scenario by the name its suite gave it.
    *
-   * @param string|null $name
-   *   The driver name, or NULL for the scenario's default driver.
+   * @param string $name
+   *   The tag name the suite lists the driver under.
    */
-  public function getDriver(?string $name = NULL): DriverInterface {
+  public function getDriver(string $name): DriverInterface {
     return $this->getDriverManager()->getDriver($name);
   }
 
   /**
-   * Asserts the scenario can reach Drupal's API, and returns the driver.
+   * Returns the highest-priority driver providing the given capability.
    *
-   * Guards access to '\Drupal::' statics: the container exists only once the
-   * in-process driver has bootstrapped, and only an '@api' scenario runs on
-   * that driver. Bootstrapping happens on the first call of a scenario and
-   * is a no-op afterwards.
+   * A step names the capability it needs and never a driver, which is what
+   * keeps the shipped vocabulary portable: a project that registers its own
+   * driver gets the step working the moment that driver implements the
+   * interface.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
-   *   When the scenario is not tagged '@api', or when the driver it selected
-   *   does not bootstrap Drupal in-process.
+   * @template T of object
+   *
+   * @param class-string<T> $capability
+   *   The capability interface the caller needs.
+   *
+   * @return T
+   *   The driver, bootstrapped.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order implements the capability.
    */
-  public function assertDrupal(): DrupalDriverInterface {
-    if ($this->isApiScenario === FALSE) {
-      throw new BootstrapException('The step requires Drupal\'s API. Tag the scenario "@api" so it runs on the in-process Drupal driver.');
-    }
-
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriverInterface) {
-      throw new BootstrapException(sprintf('The step requires Drupal\'s API, which the configured "api_driver" ("%s") does not provide.', $driver::class));
-    }
-
-    if (!$driver->isBootstrapped()) {
-      $driver->bootstrap();
-    }
-
-    return $driver;
+  public function driverFor(string $capability): object {
+    return $this->getDriverManager()->getDriverFor($capability);
   }
 
   /**
    * Returns the driver's random generator.
    */
   public function getRandom(): Random {
-    return $this->getDriver()->getRandom();
+    return $this->driverFor(DriverInterface::class)->getRandom();
   }
 
   /**
@@ -416,19 +387,15 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    *
-   * @throws \RuntimeException
-   *   When the active driver cannot create users.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order can create users.
    */
   public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
     $this->parseCreatedEntityFields($stub, ['role']);
 
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof UserCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support user creation.', $driver::class));
-    }
+    $driver = $this->driverFor(UserCapabilityInterface::class);
 
     $scalars = $this->captureScalarBaseFields($stub);
     $driver->userCreate($stub);
@@ -459,7 +426,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     // a clearer failure than this could.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
-    if (!empty($vocabulary) && $this->getDriver() instanceof DrupalDriverInterface) {
+    if (!empty($vocabulary) && $this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
       $stub->setValue('vocabulary_machine_name', $this->resolveVocabularyMachineName((string) $vocabulary));
     }
 
@@ -534,11 +501,11 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   Value names to leave untouched, such as base properties the caller
    *   handles itself.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\BootstrapException
-   *   When the scenario does not run on the in-process Drupal driver.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order reaches Drupal's API.
    */
   public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->assertDrupal()->getCore()->getFieldClassifier();
+    $classifier = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
 
     $parser = $this->getFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
     $parser->ignoring($ignored_properties);
@@ -576,19 +543,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface|false
    *   The created language stub, or FALSE if the language already existed.
    *
-   * @throws \RuntimeException
-   *   When the active driver cannot manage languages.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order can manage languages.
    */
   public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false {
     $this->dispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof LanguageCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support language management.', $driver::class));
-    }
-
-    $result = $driver->languageCreate($stub);
+    $result = $this->driverFor(LanguageCapabilityInterface::class)->languageCreate($stub);
 
     if ($result === FALSE) {
       return FALSE;
@@ -640,13 +601,14 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Routes a stub to the right per-type driver delete method.
    */
-  protected function deleteStub(EntityStubInterface $stub, DriverInterface $driver): void {
+  protected function deleteStub(EntityStubInterface $stub): void {
     $type = $stub->getEntityType();
+    $manager = $this->getDriverManager();
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
-      if ($driver instanceof LanguageCapabilityInterface) {
+      if ($manager->hasCapability(LanguageCapabilityInterface::class)) {
         try {
-          $driver->languageDelete($stub);
+          $this->driverFor(LanguageCapabilityInterface::class)->languageDelete($stub);
         }
         catch (\RuntimeException) {
           // The scenario removed the language itself. Deleting a node, a term
@@ -657,9 +619,11 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return;
     }
 
-    if (!$driver instanceof ContentCapabilityInterface) {
+    if (!$manager->hasCapability(ContentCapabilityInterface::class)) {
       return;
     }
+
+    $driver = $this->driverFor(ContentCapabilityInterface::class);
 
     match ($type) {
       'node' => $driver->nodeDelete($stub),
@@ -771,10 +735,10 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Expands a stub's values during creation, when the driver can classify them.
    *
-   * Classification reads the site's field definitions, which only the
-   * in-process driver exposes. The Drush driver passes the values to the
-   * command line as written, so they are left unparsed instead of failing a
-   * creation the driver can perform.
+   * Classification reads the site's field definitions, which only a driver
+   * with Drupal bootstrapped exposes. A driver that passes the values to the
+   * command line takes them as written, so they are left unparsed instead of
+   * failing a creation the driver can perform.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -782,7 +746,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    *   Value names to leave untouched.
    */
   protected function parseCreatedEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    if (!$this->getDriver() instanceof DrupalDriverInterface) {
+    if (!$this->driverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -813,7 +777,7 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
    * when no label matches, leaving the driver to surface a not-found error.
    */
   protected function resolveVocabularyMachineName(string $identifier): string {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if (!class_exists(Vocabulary::class) || Vocabulary::load($identifier) instanceof Vocabulary) {
       return $identifier;
@@ -862,19 +826,13 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Resolves the active driver as a content-capable instance.
+   * Resolves the driver that saves entities for this scenario.
    *
-   * @throws \RuntimeException
-   *   When the active driver does not implement 'ContentCapabilityInterface'.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order can create content.
    */
   protected function getContentDriver(): ContentCapabilityInterface {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof ContentCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support content creation.', $driver::class));
-    }
-
-    return $driver;
+    return $this->driverFor(ContentCapabilityInterface::class);
   }
 
 }

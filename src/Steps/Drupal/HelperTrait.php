@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Steps\Generic\HelperTrait as CommonHelperTrait;
 
@@ -58,13 +58,11 @@ trait HelperTrait {
 
     $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriverInterface) {
+    if (!$this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
       return;
     }
 
-    $field_types = $driver->getCore()->getEntityFieldTypes($entity_type);
+    $field_types = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
 
     foreach ($stub->getValues() as $name => $value) {
       if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {
@@ -224,7 +222,7 @@ trait HelperTrait {
    *   private://basename.
    */
   protected function helperManagedFileExists(string $basename): bool {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;
@@ -253,7 +251,7 @@ trait HelperTrait {
    *   Array of node ids.
    */
   protected function helperLoadNodeIds(string $content_type, array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
@@ -285,7 +283,7 @@ trait HelperTrait {
    *   When the module is not enabled.
    */
   protected function helperAssertModuleEnabled(string $module, string $package = ''): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     // @codeCoverageIgnoreStart
     if (\Drupal::moduleHandler()->moduleExists($module)) {

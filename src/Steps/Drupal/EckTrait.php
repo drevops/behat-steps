@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\Entity\EntityInterface;
 
@@ -36,7 +37,7 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities exist:')]
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
@@ -56,7 +57,7 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
@@ -80,7 +81,7 @@ trait EckTrait {
    */
   #[When('I visit eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
@@ -109,7 +110,7 @@ trait EckTrait {
    */
   #[When('I edit eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('eck', 'drupal/eck');
 
@@ -143,7 +144,7 @@ trait EckTrait {
    *   Array of entity ids.
    */
   public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
@@ -181,14 +182,7 @@ trait EckTrait {
   public function eckCreateEntity(EntityStub $stub): void {
     $this->parseEntityFields($stub);
 
-    $driver = $this->getDriver();
-    if (!$driver instanceof ContentCapabilityInterface) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support ECK entity creation.', $driver::class));
-      // @codeCoverageIgnoreEnd
-    }
-
-    $driver->entityCreate($stub);
+    $this->driverFor(ContentCapabilityInterface::class)->entityCreate($stub);
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {

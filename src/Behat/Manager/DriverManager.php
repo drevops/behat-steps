@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Behat\Manager;
 
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 
 /**
  * Default implementation of the driver manager service.
@@ -13,16 +14,25 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 class DriverManager implements DriverManagerInterface {
 
   /**
-   * The name of the default driver.
-   */
-  protected ?string $defaultDriverName = NULL;
-
-  /**
-   * All registered drivers, keyed by their lowercased name.
+   * All registered drivers, keyed by their lowercased registered name.
    *
    * @var array<string, \DrevOps\BehatSteps\Driver\DriverInterface>
    */
   protected array $drivers = [];
+
+  /**
+   * The current scenario's order, as tag name to registered driver name.
+   *
+   * @var array<string, string>
+   */
+  protected array $scenarioDrivers = [];
+
+  /**
+   * Drivers handed out during the current scenario.
+   *
+   * @var array<int, \DrevOps\BehatSteps\Driver\DriverInterface>
+   */
+  protected array $resolvedDrivers = [];
 
   /**
    * Behat environment.
@@ -52,29 +62,6 @@ class DriverManager implements DriverManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getDriver(?string $name = NULL): DriverInterface {
-    $name = $name === NULL ? $this->defaultDriverName : strtolower($name);
-
-    if ($name === NULL) {
-      throw new \RuntimeException('Specify a Drupal driver to get.');
-    }
-
-    if (!isset($this->drivers[$name])) {
-      throw new \RuntimeException(sprintf('Driver "%s" is not registered', $name));
-    }
-
-    $driver = $this->drivers[$name];
-
-    if (!$driver->isBootstrapped()) {
-      $driver->bootstrap();
-    }
-
-    return $driver;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getDrivers(): array {
     return $this->drivers;
   }
@@ -82,14 +69,84 @@ class DriverManager implements DriverManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function setDefaultDriverName(string $name): void {
-    $name = strtolower($name);
+  public function setScenarioDrivers(array $drivers): void {
+    $order = [];
 
-    if (!isset($this->drivers[$name])) {
-      throw new \RuntimeException(sprintf('Driver "%s" is not registered.', $name));
+    foreach ($drivers as $tag => $name) {
+      $name = strtolower($name);
+
+      if (!isset($this->drivers[$name])) {
+        throw new \RuntimeException(sprintf('Driver "%s" is not registered. Registered drivers: %s.', $name, $this->listRegisteredNames()));
+      }
+
+      $order[strtolower((string) $tag)] = $name;
     }
 
-    $this->defaultDriverName = $name;
+    $this->scenarioDrivers = $order;
+    $this->resolvedDrivers = [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getScenarioDrivers(): array {
+    return $this->scenarioDrivers;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDriver(string $name): DriverInterface {
+    $name = strtolower($name);
+
+    if (!isset($this->scenarioDrivers[$name])) {
+      throw new \RuntimeException(sprintf('Driver "%s" is not available to this scenario. Available drivers: %s.', $name, $this->listScenarioNames()));
+    }
+
+    return $this->resolve($this->drivers[$this->scenarioDrivers[$name]]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDriverFor(string $capability): object {
+    foreach ($this->scenarioDrivers as $name) {
+      $driver = $this->drivers[$name];
+
+      if ($driver instanceof $capability) {
+        $this->resolve($driver);
+
+        return $driver;
+      }
+    }
+
+    throw new UnsupportedDriverActionException(sprintf('No driver provides "%s". Drivers available to this scenario, in order: %s.', $capability, $this->listScenarioNames()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasCapability(string $capability): bool {
+    foreach ($this->scenarioDrivers as $name) {
+      if ($this->drivers[$name] instanceof $capability) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getResolvedDriverFor(string $capability): ?object {
+    foreach ($this->resolvedDrivers as $driver) {
+      if ($driver instanceof $capability) {
+        return $driver;
+      }
+    }
+
+    return NULL;
   }
 
   /**
@@ -104,6 +161,35 @@ class DriverManager implements DriverManagerInterface {
    */
   public function setEnvironment(Environment $environment): void {
     $this->environment = $environment;
+  }
+
+  /**
+   * Bootstraps a driver and records that this scenario reached for it.
+   */
+  protected function resolve(DriverInterface $driver): DriverInterface {
+    if (!in_array($driver, $this->resolvedDrivers, TRUE)) {
+      $this->resolvedDrivers[] = $driver;
+    }
+
+    if (!$driver->isBootstrapped()) {
+      $driver->bootstrap();
+    }
+
+    return $driver;
+  }
+
+  /**
+   * Formats the registered driver names for an error message.
+   */
+  protected function listRegisteredNames(): string {
+    return $this->drivers === [] ? 'none' : implode(', ', array_keys($this->drivers));
+  }
+
+  /**
+   * Formats the scenario's driver names for an error message.
+   */
+  protected function listScenarioNames(): string {
+    return $this->scenarioDrivers === [] ? 'none' : implode(', ', array_keys($this->scenarioDrivers));
   }
 
 }

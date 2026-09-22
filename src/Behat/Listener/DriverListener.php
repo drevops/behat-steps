@@ -7,26 +7,34 @@ namespace DrevOps\BehatSteps\Behat\Listener;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
+use Behat\Gherkin\Node\TaggedNodeInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Selects the driver each scenario or example runs against.
+ * Builds the driver order each scenario or example resolves against.
  */
 class DriverListener implements EventSubscriberInterface {
+
+  /**
+   * Prefix of the tag that promotes a driver for one scenario or feature.
+   */
+  public const DRIVER_TAG_PREFIX = 'driver:';
+
+  /**
+   * Suite setting holding the suite's ordered driver list.
+   */
+  public const DRIVERS_SETTING = 'drivers';
 
   /**
    * Constructs a DriverListener.
    *
    * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
    *   The driver manager.
-   * @param array<string, mixed> $parameters
-   *   Test parameters.
    */
   public function __construct(
     protected readonly DriverManagerInterface $driverManager,
-    protected array $parameters,
   ) {
   }
 
@@ -35,39 +43,96 @@ class DriverListener implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents(): array {
     return [
-      ScenarioTested::BEFORE => ['prepareDefaultDriver', 11],
-      ExampleTested::BEFORE => ['prepareDefaultDriver', 11],
+      ScenarioTested::BEFORE => ['prepareScenarioDrivers', 11],
+      ExampleTested::BEFORE => ['prepareScenarioDrivers', 11],
     ];
   }
 
   /**
-   * Sets the default driver for the scenario or example about to run.
+   * Hands the manager the driver order for the scenario about to run.
    *
-   * A tag named '<tag>' selects the driver configured as '<tag>_driver', so
-   * an '@api' scenario runs against 'api_driver'. Scenarios carrying no such
-   * tag run against 'default_driver'.
+   * The suite's list is both the allow-list and the precedence order. A
+   * '@driver:NAME' tag moves NAME to the front of that order for this scenario;
+   * it never adds a driver the suite does not list.
    *
    * Both subscribed events carry a 'BeforeScenarioTested', an example's
    * scenario being the outline row itself.
    *
    * @throws \RuntimeException
-   *   When neither a tag nor 'default_driver' names a driver.
+   *   When a '@driver:' tag names a driver the suite does not list.
    */
-  public function prepareDefaultDriver(BeforeScenarioTested $event): void {
-    $name = $this->parameters['default_driver'] ?? NULL;
+  public function prepareScenarioDrivers(BeforeScenarioTested $event): void {
+    $suite = $event->getEnvironment()->getSuite();
+    $configured = $this->configuredDrivers($suite->hasSetting(self::DRIVERS_SETTING) ? $suite->getSetting(self::DRIVERS_SETTING) : NULL);
 
-    foreach (Tag::all($event) as $tag) {
-      if (!empty($this->parameters[$tag . '_driver'])) {
-        $name = $this->parameters[$tag . '_driver'];
+    $order = [];
+
+    foreach ($this->promotedNames($event) as $name) {
+      if (!isset($configured[$name])) {
+        throw new \RuntimeException(sprintf('The "@%s%s" tag names a driver that the "%s" suite does not list. The suite lists: %s. The tag reorders the suite list; it never adds to it.', self::DRIVER_TAG_PREFIX, $name, $suite->getName(), implode(', ', array_keys($configured))));
+      }
+
+      $order[$name] = $configured[$name];
+    }
+
+    $this->driverManager->setScenarioDrivers($order + $configured);
+    $this->driverManager->setEnvironment($event->getEnvironment());
+  }
+
+  /**
+   * Normalizes the suite's driver list into a tag name to driver name map.
+   *
+   * A bare entry names a driver whose tag name is the driver name. A keyed
+   * entry gives the tag a name of its own, so the same feature file can run
+   * against a different driver in another suite.
+   *
+   * @param mixed $setting
+   *   The 'drivers' suite setting, or NULL when the suite declares none.
+   *
+   * @return array<string, string>
+   *   Ordered map of tag name to registered driver name. A suite that declares
+   *   no list gets every registered driver, in registration order.
+   */
+  protected function configuredDrivers(mixed $setting): array {
+    if (!is_array($setting) || $setting === []) {
+      $names = array_keys($this->driverManager->getDrivers());
+
+      return array_combine($names, $names);
+    }
+
+    $drivers = [];
+
+    foreach ($setting as $tag => $name) {
+      $name = (string) $name;
+      $drivers[strtolower(is_int($tag) ? $name : $tag)] = $name;
+    }
+
+    return $drivers;
+  }
+
+  /**
+   * Collects the driver names a scenario and its feature promote.
+   *
+   * Scenario tags come first, so the more specific declaration takes the front
+   * of the order. Within one node the tags keep the order they were written in.
+   *
+   * @return array<int, string>
+   *   Promoted driver names, deduplicated, most specific first.
+   */
+  protected function promotedNames(BeforeScenarioTested $event): array {
+    $scenario = $event->getScenario();
+    $tags = $scenario instanceof TaggedNodeInterface ? Tag::on($scenario) : [];
+    $tags = array_merge($tags, Tag::on($event->getFeature()));
+
+    $names = [];
+
+    foreach ($tags as $tag) {
+      if (str_starts_with($tag, self::DRIVER_TAG_PREFIX)) {
+        $names[] = strtolower(substr($tag, strlen(self::DRIVER_TAG_PREFIX)));
       }
     }
 
-    if (!is_string($name) || $name === '') {
-      throw new \RuntimeException('No driver is configured for this scenario: set "default_driver" in the extension configuration.');
-    }
-
-    $this->driverManager->setDefaultDriverName($name);
-    $this->driverManager->setEnvironment($event->getEnvironment());
+    return array_values(array_unique($names));
   }
 
 }

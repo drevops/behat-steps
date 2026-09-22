@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\testmode\Testmode;
 
 /**
@@ -27,15 +28,15 @@ trait TestmodeTrait {
   use HelperTrait;
 
   /**
-   * Enable test mode before an @api scenario tagged with @testmode.
+   * Enable test mode before a scenario tagged with @testmode.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
 
@@ -43,15 +44,15 @@ trait TestmodeTrait {
   }
 
   /**
-   * Disable test mode after an @api scenario tagged with @testmode.
+   * Disable test mode after a scenario tagged with @testmode.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
 
