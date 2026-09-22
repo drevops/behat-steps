@@ -16,9 +16,12 @@ title Class structure: the driver layer
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   class DriverManager {
     +registerDriver(name, driver) : void
+    +setScenarioDrivers(drivers) : void
     +getDriver(name) : DriverInterface
+    +getDriverFor(capability) : object
+    +hasCapability(capability) : bool
+    +getResolvedDriverFor(capability) : ?DriverInterface
     +getDrivers() : array
-    +setDefaultDriverName(name) : void
   }
 }
 
@@ -32,7 +35,7 @@ package "DrevOps\\BehatSteps\\Driver" #E8F5E9 {
 
   interface BlackboxDriverInterface
   interface DrupalDriverInterface {
-    +getCore() : CoreInterface
+    +setCore(core) : void
   }
   interface DrushDriverInterface
 
@@ -60,8 +63,10 @@ package "DrevOps\\BehatSteps\\Driver\\Capability" #E8F5E9 {
   interface CacheCapabilityInterface
   interface ConfigCapabilityInterface
   interface ContentCapabilityInterface
+  interface CoreCapabilityInterface
   interface CreationAliasCapabilityInterface
   interface CronCapabilityInterface
+  interface DrushCapabilityInterface
   interface LanguageCapabilityInterface
   interface MailCapabilityInterface
   interface ModuleCapabilityInterface
@@ -73,10 +78,12 @@ package "DrevOps\\BehatSteps\\Driver\\Capability" #E8F5E9 {
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
   BlockCapabilityInterface -[hidden]down- CacheCapabilityInterface
   CacheCapabilityInterface -[hidden]down- ConfigCapabilityInterface
+  ConfigCapabilityInterface -[hidden]down- ContentCapabilityInterface
 
-  ContentCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
+  CoreCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
   CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
-  CronCapabilityInterface -[hidden]down- LanguageCapabilityInterface
+  CronCapabilityInterface -[hidden]down- DrushCapabilityInterface
+  DrushCapabilityInterface -[hidden]down- LanguageCapabilityInterface
   LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
 
   ModuleCapabilityInterface -[hidden]down- RoleCapabilityInterface
@@ -109,24 +116,30 @@ DriverManager o--> DriverInterface : registered by name
 
 DrupalDriverInterface ..|> AuthenticationCapabilityInterface
 DrupalDriverInterface ..|> ContentCapabilityInterface
-DrupalDriverInterface ..|> ModuleCapabilityInterface
-DrushDriverInterface ..|> BatchCapabilityInterface
+DrupalDriverInterface ..|> CoreCapabilityInterface
+DrushDriverInterface ..|> DrushCapabilityInterface
 DrushDriverInterface ..|> ModuleCapabilityInterface
 
 DrupalDriver --> CoreInterface : getCore
 Core --> EntityStubInterface : creates and loads
 
 note right of BlackboxDriver
-  Implements the base contract only.
-  A step needing a capability the
-  active driver lacks throws
+  Implements the base contract only, so it
+  answers no capability. A step whose
+  capability no driver in the scenario's
+  order provides throws
   UnsupportedDriverActionException.
 end note
 
 note bottom of DrupalDriverInterface
-  DrupalDriverInterface extends all 14
-  capability interfaces; DrushDriverInterface
-  extends the 8 that Drush can service.
+  DrupalDriverInterface extends 14 capability
+  interfaces and DrushDriverInterface 9, of
+  which DrushCapabilityInterface is its own.
   Only a few edges are drawn here.
+
+  DriverManager walks the scenario's driver
+  order and returns the first instance of the
+  capability a step asked for, bootstrapping
+  only that one.
 end note
 @enduml

@@ -32,7 +32,7 @@ package "drevops/behat-steps" {
   }
 
   package "Driver - src/Driver" #E8F5E9 {
-    component "DriverInterface\n+ 14 capability interfaces" as DriverIface
+    component "DriverInterface\n+ 16 capability interfaces" as DriverIface
     component "DrupalDriver\nbootstraps Drupal in-process" as DrupalDrv
     component "DrushDriver\nshells out to drush" as DrushDrv
     component "BlackboxDriver\nno Drupal at all" as BlackboxDrv
@@ -64,7 +64,7 @@ Ext ..> MinkExt : reads ajax_timeout
 Ext ..> Mink : aliases DocumentElement
 RawCtx --> Managers
 
-Managers --> DriverIface : resolves by name
+Managers --> DriverIface : resolves by capability
 DrupalDrv ..|> DriverIface
 DrushDrv ..|> DriverIface
 BlackboxDrv ..|> DriverIface

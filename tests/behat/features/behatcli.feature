@@ -59,7 +59,7 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:2
           Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/"             # FeatureContext::pathAssertCurrent()
 
@@ -80,14 +80,14 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:2
           Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/nonexisting"  # FeatureContext::pathAssertCurrent()
             Current path is "/", but expected is "/nonexisting". (Behat\Mink\Exception\ExpectationException)
 
       --- Failed scenarios:
 
-          features/drupal_bootstrap.feature:3
+          features/drupal_bootstrap.feature:2
 
       1 scenario (1 failed)
       2 steps (1 passed, 1 failed)
@@ -107,7 +107,7 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        Scenario: Anonymous user visits homepage                       # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage                       # features/drupal_bootstrap.feature:2
           Given I go to the homepage                                   # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           Then I throw test exception with message "Intentional error" # FeatureContext::throwTestException()
             Intentional error (RuntimeException)
@@ -115,7 +115,7 @@ Feature: Behat CLI context
 
       --- Failed scenarios:
 
-          features/drupal_bootstrap.feature:3
+          features/drupal_bootstrap.feature:2
 
       1 scenario (1 failed)
       3 steps (1 passed, 1 failed, 1 skipped)

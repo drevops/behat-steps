@@ -2,7 +2,7 @@
 ' drevops/behat-steps - data flow for a step running in a consuming project.
 ' Traced from src/Steps/Generic/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
 ' src/Behat/Context/RawContext.php, src/Behat/Manager/DriverManager.php,
-' src/Driver/DrupalDriver.php, behat.php.
+' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -14,9 +14,16 @@ participant "Feature file" as Feature
 participant "Behat" as Behat
 participant "FeatureContext\nextends RawContext" as Ctx
 participant "Step trait method" as Trait
+participant "DriverListener" as Listener
 participant "DriverManager" as DM
 participant "Driver\nDrupal, Drush or Blackbox" as Driver
 participant "Mink session" as Mink
+
+Behat -> Listener: BeforeScenarioTested
+activate Listener
+Listener -> Listener: read the suite's drivers list,\npromote every "@driver:" tag
+Listener -> DM: setScenarioDrivers(order)
+deactivate Listener
 
 Behat -> Ctx: instantiate, inject managers via DriverAwareInitializer
 activate Ctx
@@ -36,17 +43,18 @@ alt the step only needs the browser
   Mink --> Trait: current URL
   deactivate Mink
 else the step needs Drupal
-  Trait -> DM: getDriver()
+  Trait -> DM: driverFor(ContentCapabilityInterface)
   activate DM
-  DM --> Trait: the driver for this suite
-  deactivate DM
-  Trait -> Driver: a capability call, e.g. createNode(stub)
-  activate Driver
-  alt the driver implements the capability
-    Driver --> Trait: result
-  else it does not
-    Driver -> Trait: throw UnsupportedDriverActionException
+  alt a driver in the scenario's order implements it
+    DM -> Driver: bootstrap, the first time only
+    DM --> Trait: that driver
+  else none does
+    DM -> Trait: throw UnsupportedDriverActionException
   end
+  deactivate DM
+  Trait -> Driver: the capability call, e.g. nodeCreate(stub)
+  activate Driver
+  Driver --> Trait: result
   deactivate Driver
 end
 

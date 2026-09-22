@@ -15,13 +15,13 @@ title Class detail: context, managers, helpers and step traits
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   class RawContext {
-    +resolveApiScenario(scope) : void
     +cleanEntities(scope) : void
     +cleanUsers(scope) : void
     +cleanRoles(scope) : void
+    +clearStaticCaches() : void
     --
     +getDriver(name) : DriverInterface
-    +assertDrupal() : DrupalDriverInterface
+    +driverFor(capability) : object
     --
     +nodeCreate(stub) : EntityStubInterface
     +userCreate(stub) : EntityStubInterface
@@ -42,7 +42,11 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
-  interface DriverManagerInterface
+  interface DriverManagerInterface {
+    +getDriverFor(capability) : object
+    +hasCapability(capability) : bool
+    +setScenarioDrivers(drivers) : void
+  }
   interface AuthenticationManagerInterface {
     +logIn(user) : void
     +logOut() : void
@@ -123,8 +127,8 @@ package "Thrown on failure" #FFEBEE {
     no driver required
   }
   class UnsupportedDriverActionException {
-    the active driver lacks
-    the capability
+    no driver in the scenario's
+    order provides the capability
   }
   class RuntimeException {
     invalid argument or
@@ -155,5 +159,9 @@ note bottom of RawContext
   not in a trait: the context owns the whole
   scenario lifecycle and dispatches the
   before/after entity-create hooks.
+
+  A step names a capability through driverFor()
+  and never a driver, so the vocabulary carries
+  over to a driver a project registers itself.
 end note
 @enduml

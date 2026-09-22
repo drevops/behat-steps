@@ -34,7 +34,7 @@ deactivate Prov
 Dev -> Behat: behat -c /app/behat.php, run from build/
 activate Behat
 
-Behat -> Site: @api scenarios drive Drupal and Mink directly
+Behat -> Site: scenarios drive Drupal and Mink directly
 activate Site
 Site --> Behat: page and entity state
 deactivate Site
