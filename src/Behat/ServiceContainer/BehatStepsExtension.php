@@ -430,7 +430,11 @@ class BehatStepsExtension implements ExtensionInterface {
     $registered = DriverPass::registeredNames($container);
 
     foreach ($suites as $suite => $configuration) {
-      $drivers = is_array($configuration) && is_array($configuration['settings'] ?? NULL) ? $configuration['settings'][DriverListener::DRIVERS_SETTING] ?? NULL : NULL;
+      if (!is_array($configuration) || !is_array($configuration['settings'] ?? NULL)) {
+        continue;
+      }
+
+      $drivers = $configuration['settings'][DriverListener::DRIVERS_SETTING] ?? NULL;
 
       if (!is_array($drivers)) {
         continue;
