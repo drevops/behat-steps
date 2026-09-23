@@ -42,21 +42,22 @@ If it reports that the command is missing, stop before rendering, say explicitly
 4. Update the surrounding prose so the visuals and the prose agree.
 5. Add any new diagram to the index table in `docs/architecture/README.md`.
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new driver or capability interface, a change to how `RawContext` composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new driver or capability interface, a change to how a context composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## Sources to trace from
 
 The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
 - `src/Driver/` - the driver layer. `DriverInterface` plus the capability interfaces in `Driver/Capability/`, the 3 drivers, and the `Driver/Core/` field-handling bridge. It references nothing from Behat or Mink.
-- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/RawContext.php` for the scenario lifecycle, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
-- `src/Steps/Generic/` and `src/Steps/Drupal/` - the vocabulary, plus the step-free `HelperTrait` in each namespace. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
+- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 5 context classes and the scenario lifecycle they split between them, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
+- `src/Steps/Web/` and `src/Steps/Drupal/` - the vocabulary. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
+- `src/Helper/` - the step-free traits a step trait and a raw context both compose.
 - `src/Exception/AssertionException.php` - what a session-less trait throws.
 - `composer.json` - the published package surface and the PSR-4 map.
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
-- `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
-- `scripts/lint-layers.php` - the enforced layer boundary. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
+- `tests/behat/bootstrap/` - `FeatureContext`, `DrupalFeatureContext` and the nested-Behat harness in `BehatCliTrait`.
+- `scripts/lint-layers.php` - the enforced layer boundaries. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.
 
 ## Diagram conventions

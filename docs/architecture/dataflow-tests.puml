@@ -41,7 +41,7 @@ deactivate Site
 
 Behat -> Cli: scenario tagged @trait:SomeTrait
 activate Cli
-Cli -> Cli: behatCliBeforeScenario reads the tag and writes\na FeatureContext composing only those traits
+Cli -> Cli: behatCliBeforeScenario reads the tag and writes a\nDrupalRawContext subclass composing only those traits
 Cli -> Sub: spawn behat in a temp directory
 activate Sub
 Sub --> Cli: exit code, output, phpcov file
