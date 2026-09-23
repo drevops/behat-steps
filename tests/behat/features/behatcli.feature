@@ -38,9 +38,9 @@ Feature: Behat CLI context
       use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
-        ->withSuite((new Suite('default', ['drivers' => ['drupal', 'blackbox']]))->addContext('FeatureContext')->addContext(MinkContext::class))
+        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
         ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => '/app/build/web']]));
+        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['drupal', 'blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
 
       return (new Config())->withProfile($profile);
       """
@@ -135,7 +135,7 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should pass
 
-  Scenario: A Drupal step in a suite listing no Drupal driver names the capability
+  Scenario: A Drupal step in a configuration listing no Drupal driver names the capability
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
@@ -157,16 +157,16 @@ Feature: Behat CLI context
       use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
-        ->withSuite((new Suite('default', ['drivers' => ['blackbox']]))->addContext('FeatureContext')->addContext(MinkContext::class))
+        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
         ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => '/app/build/web']]));
+        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
 
       return (new Config())->withProfile($profile);
       """
     And a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Content
-        Scenario: A scenario in a blackbox-only suite reaches for Drupal
+        Scenario: A scenario in a blackbox-only configuration reaches for Drupal
           Given the content type "article" does not exist
       """
     When I run "behat --no-colors"
@@ -175,7 +175,7 @@ Feature: Behat CLI context
       No driver provides "DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface". Drivers available to this scenario, in order: blackbox.
       """
 
-  Scenario: A "@driver" tag naming a driver the suite does not list fails at scenario start
+  Scenario: A "@driver" tag naming a driver the configuration does not hold fails at scenario start
     Given a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Content
@@ -186,5 +186,5 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      The "@driver:typo" tag names a driver that the "default" suite does not list. The suite lists: drupal, blackbox. The tag reorders the suite list; it never adds to it.
+      The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, blackbox. The tag reorders that list; it never adds to it.
       """

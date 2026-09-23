@@ -1344,7 +1344,7 @@ function tag_registry(): array {
     ],
     'driver' => [
       'form' => 'parametrized',
-      'description' => "Move the named driver to the front of the suite's driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it.",
+      'description' => 'Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it.',
     ],
     'module' => [
       'form' => 'parametrized',

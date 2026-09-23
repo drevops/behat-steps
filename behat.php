@@ -17,7 +17,7 @@ use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
-$suite = (new Suite('default', ['drivers' => ['drupal', 'drush', 'blackbox']]))
+$suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
   ->addContext(FeatureContext::class)
   ->addContext(BehatCliContext::class)
@@ -59,6 +59,7 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'blackbox' => NULL,
+    'drivers' => ['drupal', 'drush', 'blackbox'],
     // Behat runs from within "build", so both roots are relative to it.
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [

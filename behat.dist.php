@@ -18,9 +18,7 @@ use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
-// The 'drivers' list is both the allow-list and the precedence order: a step
-// resolves the first driver in it that provides the capability the step needs.
-$suite = (new Suite('default', ['drivers' => ['drupal', 'drush', 'blackbox']]))
+$suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
   ->addContext(DrupalContext::class)
   ->addContext(MinkContext::class);
@@ -38,6 +36,9 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
+    // Both the allow-list and the precedence order: a step resolves the first
+    // driver here that provides the capability the step needs.
+    'drivers' => ['drupal', 'drush', 'blackbox'],
     'login_field' => 'name',
     'login_wait' => 0,
     'ajax_timeout' => 5,

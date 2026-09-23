@@ -21,7 +21,7 @@ participant "Mink session" as Mink
 
 Behat -> Listener: BeforeScenarioTested
 activate Listener
-Listener -> Listener: read the suite's drivers list,\npromote every "@driver:" tag
+Listener -> Listener: take the configured drivers list,\npromote every "@driver:" tag
 Listener -> DM: setScenarioDrivers(order)
 deactivate Listener
 

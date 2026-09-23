@@ -8,6 +8,7 @@ parameters:
   behat_steps.region_selector.class: DrevOps\BehatSteps\Behat\Selector\RegionSelector
   behat_steps.parameters: {}
   behat_steps.regions: {}
+  behat_steps.drivers: {}
 
 services:
   behat_steps.driver_manager:
@@ -42,6 +43,7 @@ services:
     class: "%behat_steps.listener.driver.class%"
     arguments:
       - "@behat_steps.driver_manager"
+      - "%behat_steps.drivers%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }
   behat_steps.region_selector:

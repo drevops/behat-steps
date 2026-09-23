@@ -30,17 +30,17 @@ use Behat\Config\Suite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 // The browser surface: what an editor or a visitor can do in a page.
-$ui = (new Suite('ui', ['drivers' => ['drupal', 'blackbox']]))
+$ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
   ->addContext(UiContext::class);
 
 // The API surface: responses, headers and payloads, with no browser.
-$api = (new Suite('api', ['drivers' => ['drupal', 'blackbox']]))
+$api = (new Suite('api'))
   ->withPaths('%paths.base%/tests/behat/features/api')
   ->addContext(ApiContext::class);
 
 // The specification surface: the few domain-language scenarios a stakeholder reads.
-$spec = (new Suite('spec', ['drivers' => ['drupal', 'blackbox']]))
+$spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
   ->addContext(SpecContext::class);
 
@@ -57,7 +57,6 @@ Run one surface with `vendor/bin/behat --suite=api`, or all of them with a bare 
 
 Three properties follow from the layout:
 
-- **Each suite declares the drivers it may reach.** The `drivers` list is both the allow-list and the precedence order, so a suite that lists only `blackbox` cannot write to the site it points at, whatever a scenario asks for. See [Driver resolution](#driver-resolution).
 - **Each suite composes only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
 - **The spec suite and the regression suites do different jobs.** The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
 - **A slow surface can be excluded without touching the others.** Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
@@ -83,58 +82,6 @@ class UiContext extends RawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names. `RawContext` and `DrupalContext` declare no constructor, which leaves the whole signature to the consuming context.
 
-### Driver resolution
-
-Five authorities decide which driver runs a step, and each decides exactly one thing.
-
-| Authority | Decides | Where |
-| --- | --- | --- |
-| Suite | Which drivers exist at all | `new Suite('x', ['drivers' => [...]])` |
-| Profile | Which drivers exist per environment | `behat -p remote` |
-| Scenario tag | Preference among the drivers that exist | `@driver:NAME` |
-| Step | Which capability it needs | `driverFor(X::class)` |
-| Capability interface | Which drivers are even eligible | `instanceof` during the walk |
-
-A suite's `drivers` setting is both the allow-list and the precedence order. Each entry names a driver the extension registers; a keyed entry gives the driver a name of its own, so the same feature file can run against a different driver in another suite.
-
-```php
-// Local build: the codebase and the database are local.
-new Suite('functional', [
-  'drivers' => [
-    'drupal',
-    'api' => 'acme-jsonapi',
-    'blackbox',
-  ],
-]);
-
-// Smoke tests against production: no Drupal driver exists here at all.
-new Suite('smoke', ['drivers' => ['blackbox']]);
-```
-
-A name holds only letters, digits, `_` and `-`, so that `@driver:NAME` is a valid tag, and it is unique within the suite. A name the extension does not register fails the container build. A suite that declares no list gets every registered driver, in registration order.
-
-At step time the resolution is:
-
-1. Start from the suite's configured order.
-2. Move every name a `@driver:` tag promotes to the front, scenario tags ahead of feature tags and, within one line, in the order they were written.
-3. Walk that order and return the first driver implementing the capability the step asked for, bootstrapping only that one.
-
-```gherkin
-@driver:api
-Scenario: Content created over the public API is immediately visible
-  Given the following "article" content exist:
-    | title      |
-    | Lab report |
-  When I visit "/articles"
-  Then the page should contain "Lab report"
-```
-
-The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted driver actually provides.
-
-`@driver:NAME` reorders the suite's list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` suite listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
-
-### Behat 3 and the YAML equivalent
-
 Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
 
 While a project is still on Behat 3, the YAML form of the suite above is:
@@ -144,13 +91,11 @@ default:
   suites:
     ui:
       paths: ['%paths.base%/tests/behat/features/ui']
-      drivers: ['drupal', 'blackbox']
       contexts:
         - UiContext:
             fixtures_path: '%paths.base%/tests/behat/fixtures'
     api:
       paths: ['%paths.base%/tests/behat/features/api']
-      drivers: ['drupal', 'blackbox']
       contexts: [ApiContext]
   extensions:
     DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
@@ -162,10 +107,11 @@ default:
 
 ## 2. The `behat_steps` extension key
 
-Settings under this key configure how the package reaches the site: how each driver connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile. Which of those drivers a suite may use is a suite setting - see [Driver resolution](#driver-resolution).
+Settings under this key configure how the package reaches the site: which drivers a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drivers' => ['drupal', 'blackbox'],
   'drupal' => ['drupal_root' => 'web'],
   'regions' => ['content' => '#content'],
 ]));
@@ -177,6 +123,7 @@ A nested option is written as a section in the configuration and reads as a dott
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
+| `drivers` | map | `[]` | Ordered list of the drivers a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first driver here providing it answers. A bare entry names a registered driver; a "tag: driver" entry gives it a name of its own, so the same feature file runs against a different driver in another profile. Omit it to get every registered driver, in registration order.<br>- drupal<br>- api: acme-jsonapi<br>- blackbox |
 | `login_field` | string | `'name'` | User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property. |
 | `regions` | map | `[]` | Map of named regions to CSS selectors. Region steps such as 'I press :button in the :region region' resolve against this map.<br>My region: "#css-selector"<br>Content: "#main .region-content"<br>Right sidebar: "#sidebar-second" |
 | `text` | section | - | Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.<br>login_url: "/user"<br>logout_url: "/user/logout"<br>logout_confirm_url: "/user/logout/confirm"<br>log_out: "Sign out"<br>log_in: "Sign in"<br>password_field: "Enter your password"<br>username_field: "Nickname" |
@@ -209,6 +156,66 @@ A nested option is written as a section in the configuration and reads as a dott
 
 [//]: # (END_EXTENSION_OPTIONS)
 
+### Driver resolution
+
+Five authorities decide which driver runs a step, and each decides exactly one thing.
+
+| Authority | Decides | Where |
+| --- | --- | --- |
+| Extension | Which drivers exist at all, and in what order | `behat_steps: { drivers: [...] }` |
+| Profile | Which drivers exist per environment | `behat -p remote` |
+| Scenario tag | Preference among the drivers that exist | `@driver:NAME` |
+| Step | Which capability it needs | `driverFor(X::class)` |
+| Capability interface | Which drivers are even eligible | `instanceof` during the walk |
+
+The `drivers` list is both the allow-list and the precedence order. Each entry names a driver the extension registers; a keyed entry gives the driver a name of its own, so the same feature file can run against a different driver in another profile.
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'blackbox' => NULL,
+  'drupal' => ['drupal_root' => 'web'],
+  'drivers' => [
+    'drupal',
+    'api' => 'acme-jsonapi',
+    'blackbox',
+  ],
+]));
+```
+
+That aliasing is what lets a profile swap the implementation behind a name without touching any Gherkin:
+
+```php
+// Default profile: "api" is the in-process driver.
+'drivers' => ['api' => 'drupal', 'blackbox'],
+
+// "behat -p staging": "api" is the real HTTP API, and Drupal is unreachable.
+'drivers' => ['api' => 'acme-jsonapi', 'blackbox'],
+```
+
+A name holds only letters, digits, `_` and `-`, so that `@driver:NAME` is a valid tag, and it is unique. A name the extension does not register fails the container build. A configuration that declares no list gets every registered driver, in registration order.
+
+Scoping a run to a restricted driver set is a profile's job, not a suite's: the package reads nothing from a Behat suite's settings.
+
+At step time the resolution is:
+
+1. Start from the configured order.
+2. Move every name a `@driver:` tag promotes to the front, scenario tags ahead of feature tags and, within one line, in the order they were written.
+3. Walk that order and return the first driver implementing the capability the step asked for, bootstrapping only that one.
+
+```gherkin
+@driver:api
+Scenario: Content created over the public API is immediately visible
+  Given the following "article" content exist:
+    | title      |
+    | Lab report |
+  When I visit "/articles"
+  Then the page should contain "Lab report"
+```
+
+The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted driver actually provides.
+
+`@driver:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
+
 ## 3. Tags
 
 A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.
@@ -224,7 +231,7 @@ Scenario: Editor publishes a page
 | --- | --- |
 | `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
-| `@driver:VALUE` | Move the named driver to the front of the suite's driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
+| `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
 | `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. One tag per scenario, and the scenario has to be `@javascript`. |
 | `@email:VALUE` | Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler. |

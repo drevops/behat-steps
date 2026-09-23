@@ -62,9 +62,9 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 ## The integration layer
 
-`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates every suite's `drivers` list against those registrations, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
+`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
 
-`DriverListener` builds the driver order once per scenario, before the first step: it reads the suite's `drivers` setting, moves every `@driver:` name to the front, and hands the result to `DriverManager`. A tag naming a driver the suite does not list fails there, at scenario start, so a typo cannot quietly run the wrong driver.
+`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverManager`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver.
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 

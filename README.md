@@ -191,18 +191,21 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
-$suite = (new Suite('default', ['drivers' => ['drupal', 'blackbox']]))
+$suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
   ->addContext(FeatureContext::class);
 
 $profile = (new Profile('default'))
   ->withSuite($suite)
-  ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'drivers' => ['drupal', 'blackbox'],
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
 
 return (new Config())->withProfile($profile);
 ```
 
-The extension key says how to reach the site; the suite's `drivers` list says which of those drivers the suite may use, and in what order. A step never names a driver - it names the capability it needs, and the first driver in the list providing that capability answers. See [Driver resolution](docs/configuration.md#driver-resolution).
+The `drivers` list says which drivers a scenario may reach, and in what order. A step never names a driver - it names the capability it needs, and the first driver in the list providing that capability answers. See [Driver resolution](docs/configuration.md#driver-resolution).
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 

@@ -34,15 +34,15 @@ trait BehatCliTrait {
   ];
 
   /**
-   * Driver list the generated suite declares.
+   * Driver list the generated extension configuration declares.
    *
    * @var array<int, string>
    */
-  protected array $behatCliSuiteDrivers = ['drupal', 'blackbox'];
+  protected array $behatCliConfiguredDrivers = ['drupal', 'blackbox'];
 
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->behatCliSuiteDrivers = ['drupal', 'blackbox'];
+    $this->behatCliConfiguredDrivers = ['drupal', 'blackbox'];
     $this->behatCliCopyFixtures();
 
     $traits = [];
@@ -202,21 +202,21 @@ EOL;
   }
 
   /**
-   * Narrow the generated suite's driver list.
+   * Narrow the generated configuration's driver list.
    *
-   * Runs before 'some behat configuration', so a scenario can exercise a suite
-   * that lists no driver reaching Drupal.
+   * Runs before 'some behat configuration', so a scenario can exercise a
+   * configuration that lists no driver reaching Drupal.
    */
-  #[Given('a suite listing the driver(s) :drivers')]
-  public function behatCliSetSuiteDrivers(string $drivers): void {
-    $this->behatCliSuiteDrivers = array_map(trim(...), explode(',', $drivers));
+  #[Given('a configuration listing the driver(s) :drivers')]
+  public function behatCliSetConfiguredDrivers(string $drivers): void {
+    $this->behatCliConfiguredDrivers = array_map(trim(...), explode(',', $drivers));
   }
 
   /**
-   * Render the suite driver list as the PHP array literal the config holds.
+   * Render the driver list as the PHP array literal the config holds.
    */
-  protected function behatCliRenderSuiteDrivers(): string {
-    return sprintf("['%s']", implode("', '", $this->behatCliSuiteDrivers));
+  protected function behatCliRenderConfiguredDrivers(): string {
+    return sprintf("['%s']", implode("', '", $this->behatCliConfiguredDrivers));
   }
 
   #[Given('some behat configuration')]
@@ -238,7 +238,7 @@ use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
-$suite = (new Suite('default', ['drivers' => {{SUITE_DRIVERS}}]))
+$suite = (new Suite('default'))
   ->addContext('FeatureContext')
   ->addContext(MinkContext::class)
   ->addContext(ScreenshotContext::class)
@@ -267,6 +267,7 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
+    'drivers' => {{CONFIGURED_DRIVERS}},
     'drupal' => ['drupal_root' => '/app/build/web'],
     'selectors' => [
       'messages' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning'],
@@ -288,7 +289,7 @@ EOL;
 
     $content = strtr($content, [
       '{{COVERAGE_EXTENSION}}' => $coverage_extension,
-      '{{SUITE_DRIVERS}}' => $this->behatCliRenderSuiteDrivers(),
+      '{{CONFIGURED_DRIVERS}}' => $this->behatCliRenderConfiguredDrivers(),
     ]);
 
     $filename = 'behat.php';

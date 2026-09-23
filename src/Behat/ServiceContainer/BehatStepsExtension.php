@@ -9,7 +9,6 @@ use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
-use DrevOps\BehatSteps\Behat\Listener\DriverListener;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -29,6 +28,11 @@ class BehatStepsExtension implements ExtensionInterface {
    * Key this extension's settings live under in the Behat configuration.
    */
   public const CONFIG_KEY = 'behat_steps';
+
+  /**
+   * Container parameter holding the configured ordered driver list.
+   */
+  public const DRIVERS_PARAMETER = 'behat_steps.drivers';
 
   /**
    * {@inheritdoc}
@@ -64,7 +68,7 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   public function process(ContainerBuilder $container): void {
     $this->processDriverPass($container);
-    $this->processSuiteDrivers($container);
+    $this->processDrivers($container);
     $this->processClassGenerator($container);
     $this->processMinkAjaxTimeout($container);
   }
@@ -77,6 +81,14 @@ class BehatStepsExtension implements ExtensionInterface {
     // phpcs:disable
     $builder
       ->children()
+        ->arrayNode('drivers')
+          ->info('Ordered list of the drivers a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first driver here providing it answers. A bare entry names a registered driver; a "tag: driver" entry gives it a name of its own, so the same feature file runs against a different driver in another profile. Omit it to get every registered driver, in registration order.' . PHP_EOL
+            . '  - drupal' . PHP_EOL
+            . '  - api: acme-jsonapi' . PHP_EOL
+            . '  - blackbox' . PHP_EOL)
+          ->normalizeKeys(FALSE)
+          ->prototype('scalar')->end()
+        ->end()
         ->scalarNode('login_field')
           ->defaultValue('name')
           ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
@@ -254,6 +266,7 @@ class BehatStepsExtension implements ExtensionInterface {
 
     $container->setParameter('behat_steps.parameters', $config);
     $container->setParameter('behat_steps.regions', $regions);
+    $container->setParameter(self::DRIVERS_PARAMETER, $config['drivers'] ?? []);
   }
 
   /**
@@ -406,69 +419,32 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Validates the ordered driver list each suite declares.
+   * Validates the ordered driver list the extension configuration declares.
    *
-   * A suite's 'drivers' setting is both the allow-list and the precedence
-   * order. Checking it here rather than at scenario start means a typo in a
-   * suite that rarely runs still fails the build.
+   * The 'drivers' list is both the allow-list and the precedence order.
+   * Checking it at container build means a typo fails before the first
+   * scenario rather than at the step that would have resolved it.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When a tag name is not tag-safe, or names a driver that is not
-   *   registered.
+   *   When an entry is not a name, a tag name is not tag-safe, or a name
+   *   refers to a driver that is not registered.
    */
-  protected function processSuiteDrivers(ContainerBuilder $container): void {
-    if (!$container->hasParameter('suite.configurations')) {
+  protected function processDrivers(ContainerBuilder $container): void {
+    if (!$container->hasParameter(self::DRIVERS_PARAMETER)) {
       return;
     }
 
-    $suites = $container->getParameter('suite.configurations');
+    $drivers = $container->getParameter(self::DRIVERS_PARAMETER);
 
-    if (!is_array($suites)) {
+    if (!is_array($drivers)) {
       return;
     }
 
     $registered = DriverPass::registeredNames($container);
 
-    foreach ($suites as $suite => $configuration) {
-      if (!is_array($configuration) || !is_array($configuration['settings'] ?? NULL)) {
-        continue;
-      }
-
-      $drivers = $configuration['settings'][DriverListener::DRIVERS_SETTING] ?? NULL;
-
-      if ($drivers === NULL) {
-        continue;
-      }
-
-      // A scalar here would read as "no list" at scenario start and hand the
-      // suite every registered driver, which is the opposite of the scoping
-      // the setting exists to provide.
-      if (!is_array($drivers)) {
-        throw new InvalidConfigurationException(sprintf('The "%s" suite sets "drivers:" to a value that is not a list of driver names.', (string) $suite));
-      }
-
-      $this->validateSuiteDrivers((string) $suite, $drivers, $registered);
-    }
-  }
-
-  /**
-   * Validates one suite's driver list.
-   *
-   * @param string $suite
-   *   The suite name, for the error message.
-   * @param array<array-key, mixed> $drivers
-   *   The suite's 'drivers' setting, as configured.
-   * @param array<int, string> $registered
-   *   The names the extension registers drivers under.
-   *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When a tag name is not tag-safe, or names a driver that is not
-   *   registered.
-   */
-  protected function validateSuiteDrivers(string $suite, array $drivers, array $registered): void {
     foreach ($drivers as $tag => $name) {
       if (!is_string($name) || $name === '') {
-        throw new InvalidConfigurationException(sprintf('The "%s" suite lists a driver that is not a name under "drivers:". Write each entry as a driver name, or as "tag: driver name".', $suite));
+        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" holds an entry that is not a driver name. Write each entry as a driver name, or as "tag: driver name".', self::CONFIG_KEY));
       }
 
       $tag = is_int($tag) ? $name : $tag;
@@ -476,11 +452,11 @@ class BehatStepsExtension implements ExtensionInterface {
       // A tag name is typed into a feature file after '@driver:', so it cannot
       // carry whitespace or a second colon.
       if (preg_match('/^[a-z0-9_-]+$/', strtolower($tag)) !== 1) {
-        throw new InvalidConfigurationException(sprintf('The "%s" suite names a driver "%s" under "drivers:". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', $suite, $tag, $tag));
+        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names a driver "%s". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
       }
 
       if (!in_array(strtolower($name), $registered, TRUE)) {
-        throw new InvalidConfigurationException(sprintf('The "%s" suite lists the driver "%s" under "drivers:", which is not registered. Registered drivers: %s.', $suite, $name, $registered === [] ? 'none' : implode(', ', $registered)));
+        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names the driver "%s", which is not registered. Registered drivers: %s.', self::CONFIG_KEY, $name, $registered === [] ? 'none' : implode(', ', $registered)));
       }
     }
   }

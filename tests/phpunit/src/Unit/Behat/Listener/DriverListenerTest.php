@@ -10,7 +10,6 @@ use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Environment\Environment;
-use Behat\Testwork\Suite\GenericSuite;
 use DrevOps\BehatSteps\Behat\Listener\DriverListener;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
@@ -19,13 +18,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests how a suite's driver list and a scenario's tags build the driver order.
+ * Tests how the configured list and a scenario's tags build the driver order.
  */
 #[CoversClass(DriverListener::class)]
 class DriverListenerTest extends TestCase {
 
   /**
-   * The driver list the test suite declares, in configuration order.
+   * The driver list the extension configuration declares, in order.
    */
   protected const DRIVERS = ['drupal', 'drush', 'blackbox'];
 
@@ -51,8 +50,8 @@ class DriverListenerTest extends TestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->expects($this->once())->method('setScenarioDrivers')->with($expected);
 
-    $listener = new DriverListener($driver_manager);
-    $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags, ['drivers' => self::DRIVERS]));
+    $listener = new DriverListener($driver_manager, self::DRIVERS);
+    $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags));
   }
 
   public static function dataProviderDriverOrder(): \Iterator {
@@ -97,26 +96,19 @@ class DriverListenerTest extends TestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_manager);
-    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api'], ['drivers' => ['blackbox', 'api' => 'drupal']]));
+    $listener = new DriverListener($driver_manager, ['blackbox', 'api' => 'drupal']);
+    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api']));
   }
 
   public function testTagNameIsMatchedWithoutRegardToCase(): void {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_manager);
-    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:API'], ['drivers' => ['API' => 'drupal', 'blackbox']]));
+    $listener = new DriverListener($driver_manager, ['API' => 'drupal', 'blackbox']);
+    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:API']));
   }
 
-  /**
-   * Tests the fallback for a suite that declares no driver list.
-   *
-   * @param array<string, mixed> $settings
-   *   The suite settings.
-   */
-  #[DataProvider('dataProviderSuiteWithoutListGetsEveryRegisteredDriver')]
-  public function testSuiteWithoutListGetsEveryRegisteredDriver(array $settings): void {
+  public function testConfigurationWithoutListGetsEveryRegisteredDriver(): void {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->method('getDrivers')->willReturn([
       'blackbox' => $this->createMock(DriverInterface::class),
@@ -125,31 +117,25 @@ class DriverListenerTest extends TestCase {
     $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['blackbox' => 'blackbox', 'drupal' => 'drupal']);
 
     $listener = new DriverListener($driver_manager);
-    $listener->prepareScenarioDrivers($this->createEvent([], [], $settings));
-  }
-
-  public static function dataProviderSuiteWithoutListGetsEveryRegisteredDriver(): \Iterator {
-    yield 'no setting at all' => [[]];
-    yield 'an empty list' => [['drivers' => []]];
-    yield 'a setting that is not a list' => [['drivers' => 'drupal']];
+    $listener->prepareScenarioDrivers($this->createEvent([], []));
   }
 
   public function testTagNamingUnlistedDriverIsReported(): void {
-    $listener = new DriverListener($this->createMock(DriverManagerInterface::class));
+    $listener = new DriverListener($this->createMock(DriverManagerInterface::class), self::DRIVERS);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The "@driver:typo" tag names a driver that the "default" suite does not list. The suite lists: drupal, drush, blackbox. The tag reorders the suite list; it never adds to it.');
+    $this->expectExceptionMessage('The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, drush, blackbox. The tag reorders that list; it never adds to it.');
 
-    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:typo'], ['drivers' => self::DRIVERS]));
+    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:typo']));
   }
 
   public function testTheEnvironmentIsHandedToTheManager(): void {
-    $event = $this->createEvent([], [], ['drivers' => self::DRIVERS]);
+    $event = $this->createEvent([], []);
 
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
 
-    $listener = new DriverListener($driver_manager);
+    $listener = new DriverListener($driver_manager, self::DRIVERS);
     $listener->prepareScenarioDrivers($event);
   }
 
@@ -160,17 +146,12 @@ class DriverListenerTest extends TestCase {
    *   Tags declared on the feature.
    * @param list<string> $scenario_tags
    *   Tags declared on the scenario.
-   * @param array<string, mixed> $settings
-   *   Settings of the suite the scenario belongs to.
    */
-  protected function createEvent(array $feature_tags, array $scenario_tags, array $settings): BeforeScenarioTested {
+  protected function createEvent(array $feature_tags, array $scenario_tags): BeforeScenarioTested {
     $scenario = new ScenarioNode('Scenario', $scenario_tags, [], 'Scenario', 2);
     $feature = new FeatureNode('Feature', NULL, $feature_tags, NULL, [$scenario], 'Feature', 'en', NULL, 1);
 
-    $environment = $this->createMock(Environment::class);
-    $environment->method('getSuite')->willReturn(new GenericSuite('default', $settings));
-
-    return new BeforeScenarioTested($environment, $feature, $scenario);
+    return new BeforeScenarioTested($this->createMock(Environment::class), $feature, $scenario);
   }
 
 }
