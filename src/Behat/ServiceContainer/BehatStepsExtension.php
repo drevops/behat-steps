@@ -441,24 +441,57 @@ class BehatStepsExtension implements ExtensionInterface {
     }
 
     $registered = DriverPass::registeredNames($container);
+    $seen = [];
 
     foreach ($drivers as $tag => $name) {
-      if (!is_string($name) || $name === '') {
-        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" holds an entry that is not a driver name. Write each entry as a driver name, or as "tag: driver name".', self::CONFIG_KEY));
+      $tag = $this->validateDriverEntry($tag, $name, $registered);
+
+      // Resolution lowercases a name, so two entries differing only by case
+      // would collapse into one and the later would silently take the
+      // earlier's place in the order.
+      if (isset($seen[$tag])) {
+        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names "%s" twice. A name is matched without regard to case, so it may appear only once.', self::CONFIG_KEY, $tag));
       }
 
-      $tag = is_int($tag) ? $name : $tag;
-
-      // A tag name is typed into a feature file after '@driver:', so it cannot
-      // carry whitespace or a second colon.
-      if (preg_match('/^[a-z0-9_-]+$/', strtolower($tag)) !== 1) {
-        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names a driver "%s". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
-      }
-
-      if (!in_array(strtolower($name), $registered, TRUE)) {
-        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names the driver "%s", which is not registered. Registered drivers: %s.', self::CONFIG_KEY, $name, $registered === [] ? 'none' : implode(', ', $registered)));
-      }
+      $seen[$tag] = TRUE;
     }
+  }
+
+  /**
+   * Validates one entry of the driver list and returns its tag name.
+   *
+   * @param int|string $tag
+   *   The entry's key: an integer for a bare entry, the tag name otherwise.
+   * @param mixed $name
+   *   The entry's value, expected to be a registered driver name.
+   * @param array<int, string> $registered
+   *   The names the extension registers drivers under.
+   *
+   * @return string
+   *   The entry's tag name, lowercased.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When the entry is not a name, the tag name is not tag-safe, or the name
+   *   refers to a driver that is not registered.
+   */
+  protected function validateDriverEntry(int|string $tag, mixed $name, array $registered): string {
+    if (!is_string($name) || $name === '') {
+      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" holds an entry that is not a driver name. Write each entry as a driver name, or as "tag: driver name".', self::CONFIG_KEY));
+    }
+
+    $tag = strtolower(is_int($tag) ? $name : $tag);
+
+    // A tag name is typed into a feature file after '@driver:', so it cannot
+    // carry whitespace or a second colon.
+    if (preg_match('/^[a-z0-9_-]+$/', $tag) !== 1) {
+      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names a driver "%s". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
+    }
+
+    if (!in_array(strtolower($name), $registered, TRUE)) {
+      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names the driver "%s", which is not registered. Registered drivers: %s.', self::CONFIG_KEY, $name, $registered === [] ? 'none' : implode(', ', $registered)));
+    }
+
+    return $tag;
   }
 
   /**

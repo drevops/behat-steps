@@ -297,14 +297,18 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'api_driver' => 'drupal',
   'drush_driver' => 'drush',
   'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
 ]));
 
 // After.
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'drivers' => ['drupal', 'drush', 'blackbox'],
   'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
 ]));
 ```
+
+Every name in the list has to be a driver the extension registers, so a `drivers` entry keeps company with the settings block that registers it: `drupal` needs `drupal:`, `drush` needs `drush:`, and `blackbox` is always registered. Naming one without its block fails the container build.
 
 Then remove `@api` from every scenario and feature. It is not a tag of this package any more, and a configuration that lists a Drupal driver reaches Drupal without it.
 

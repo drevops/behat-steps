@@ -367,6 +367,18 @@ class BehatStepsExtensionTest extends TestCase {
     yield 'a tag name carrying a colon' => [['my:driver' => 'drupal'], 'so that "@driver:my:driver" is a valid tag'];
     yield 'an entry that is not a name' => [[['drupal']], 'holds an entry that is not a driver name'];
     yield 'an empty entry' => [[''], 'holds an entry that is not a driver name'];
+    yield 'the same name twice' => [['drupal', 'drupal'], 'names "drupal" twice'];
+    yield 'two names differing only by case' => [['drupal', 'Drupal'], 'names "drupal" twice'];
+    yield 'two aliases differing only by case' => [['api' => 'drupal', 'API' => 'blackbox'], 'names "api" twice'];
+  }
+
+  public function testTheSameDriverMayCarryTwoDistinctNames(): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drivers' => ['api' => 'drupal', 'web' => 'drupal'], 'drupal' => ['drupal_root' => 'web']], $extension);
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
   }
 
   public function testProcessSkipsValidationWithoutTheDriversParameter(): void {
