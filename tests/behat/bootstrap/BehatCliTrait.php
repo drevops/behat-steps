@@ -28,7 +28,7 @@ trait BehatCliTrait {
    * @var array<int, string>
    */
   protected const BEHAT_CLI_BASELINE_TRAITS = [
-    'Generic\PathTrait',
+    'Web\PathTrait',
     'Drupal\ContentTrait',
     'Drupal\UserTrait',
   ];
@@ -123,8 +123,8 @@ trait BehatCliTrait {
 
     foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
       // A tag names the trait's context and short name, as in
-      // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
-      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+      // 'Drupal\ModuleTrait'. A tag with no context names a web trait.
+      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Web\\' . $trait;
     }
 
     foreach (array_unique($qualified_traits) as $qualified) {
@@ -141,14 +141,17 @@ trait BehatCliTrait {
 
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 {{USE_DECLARATION}}
 
-class FeatureContext extends RawContext {
+// A trait tag names a trait from either half, so the generated context extends
+// the base that carries both halves' plumbing.
+class FeatureContext extends DrupalRawContext {
   {{USE_IN_CLASS}}
 
   use FeatureContextTrait;
+  use DrupalFeatureContextTrait;
 
   #[Given('I throw test exception with message :message')]
   public function throwTestException($message) {
@@ -174,12 +177,15 @@ EOL;
     $filename = 'features/bootstrap/FeatureContext.php';
     $this->createFileInWorkingDir($filename, $content);
 
-    $feature_context_trait_content = file_get_contents(__DIR__ . '/FeatureContextTrait.php');
-    if ($feature_context_trait_content === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to access file "%s"', __DIR__ . '/FeatureContextTrait.php'));
+    foreach (['FeatureContextTrait.php', 'DrupalFeatureContextTrait.php'] as $trait_file) {
+      $trait_content = file_get_contents(__DIR__ . '/' . $trait_file);
+
+      if ($trait_content === FALSE) {
+        throw new \RuntimeException(sprintf('Unable to access file "%s"', __DIR__ . '/' . $trait_file));
+      }
+
+      $this->createFileInWorkingDir('features/bootstrap/' . $trait_file, $trait_content);
     }
-    $feature_context_trait = 'features/bootstrap/FeatureContextTrait.php';
-    $this->createFileInWorkingDir($feature_context_trait, $feature_context_trait_content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'FeatureContext.php');

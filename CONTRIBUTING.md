@@ -144,16 +144,19 @@ Calling an instance method through `self::` or `static::` is not in this list - 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/RawContext` is the base context a consuming `FeatureContext` extends, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator. `RawContext` registers no step definitions - it owns the scenario lifecycle only.
-- **`src/Steps`** is the step vocabulary - traits a consuming `FeatureContext` mixes in. `Generic/` holds the framework-agnostic ones, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/` holds the 5 context classes, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator.
+- **`src/Helper`** holds the step-free traits a step trait and a raw context both compose - last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition, fixture-file resolution and the direct Drupal queries. They carry no steps and no hooks, so composing one twice shares its state instead of registering anything twice.
+- **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
-A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in the step-free `HelperTrait` of its context.
+`Context/` mirrors the `Steps/` split. `RawContext` carries what both halves share and registers no steps; `WebRawContext` and `DrupalRawContext` add their half's plumbing and still register none; `WebContext` and `DrupalContext` compose every trait of their directory. `ContextCompositionTest` holds that directory-to-context coverage in both directions.
+
+A trait names the context class it needs with `@phpstan-require-extends`, and never composes another step trait: shared logic goes in a helper trait under `src/Helper` named for its concern, composed by whoever needs it.
 
 ## What a trait needs from the driver
 
 A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
-- **Nothing.** Every trait under `src/Steps/Generic` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
+- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
 - **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
 - **A narrow capability.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps resolve one named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `DrushCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver implementing it, which for most is the Drush driver as well as the in-process one.
 - **Drupal's API in this process.** Every other trait under `src/Steps/Drupal` calls into `\Drupal::` directly, which only a driver that bootstraps Drupal in-process can serve. Those steps resolve `CoreCapabilityInterface`.
@@ -162,7 +165,7 @@ A step names a capability and never a driver. `RawContext::driverFor()` walks th
 
 A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
 
-[scripts/lint-layers.php](scripts/lint-layers.php) holds the lower boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+[scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Driver` excludes `Behat` and `Mink`; `src/Steps/Web` and `WebRawContext` exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 
 ## Behat 4 readiness
 
@@ -236,8 +239,8 @@ classes from there. Run `ahoy build` first.
 Tests live under `tests/phpunit/src/` in a directory named after their suite:
 `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
 Inside a suite directory the path mirrors `src/`, so
-`src/Steps/Drupal/HelperTrait.php` is tested by
-`tests/phpunit/src/Unit/Steps/Drupal/HelperTraitTest.php`. Tests with no
+`src/Helper/FixtureFileTrait.php` is tested by
+`tests/phpunit/src/Unit/Helper/FixtureFileTraitTest.php`. Tests with no
 counterpart in `src/` - the docs generator, the layer linter and the
 convention tests - sit at the root of `tests/phpunit/src/`.
 
@@ -257,8 +260,10 @@ everything the tests reach. Its output paths are declared in
 
 Behat tests are used as functional/integration tests to validate the
 functionality of the traits. These Behat tests run in the same way they
-would be run in your project: traits are included
-into [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php)
+would be run in your project: the web half is registered
+through [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php)
+and the Drupal half
+through [DrupalFeatureContext.php](tests/behat/bootstrap/DrupalFeatureContext.php),
 and then ran on the
 pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11)
 using [test features](tests/behat/features).

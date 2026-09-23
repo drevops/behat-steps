@@ -10,6 +10,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\testmode\Testmode;
 
 /**
@@ -25,7 +26,7 @@ use Drupal\testmode\Testmode;
  */
 trait TestmodeTrait {
 
-  use HelperTrait;
+  use DrupalQueryTrait;
 
   /**
    * Enable test mode before a scenario tagged with @testmode.
@@ -38,7 +39,7 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
 
     self::testmodeEnableTestMode();
   }
@@ -54,7 +55,7 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
 
     self::testmodeDisableTestMode();
   }

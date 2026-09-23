@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
 
 /**
  * Context exposing the registries and helpers the step vocabulary fills.
  */
-class TestableRawContext extends RawContext {
+class TestableRawContext extends DrupalRawContext {
 
   /**
    * Returns the stubs created during the scenario.

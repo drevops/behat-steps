@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -24,7 +25,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
  */
 trait TaxonomyTrait {
 
-  use HelperTrait;
+  use TableTransposeTrait;
 
   /**
    * Create taxonomy terms with vertical field format.
@@ -45,8 +46,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms with fields exist:')]
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->taxonomyCreate($vocabulary, $horizontal_table);
   }
 

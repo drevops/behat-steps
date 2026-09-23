@@ -7,11 +7,13 @@ This repository contains Behat step definitions for PHP projects (with specializ
 
 Source files are located in the `src` directory. Each trait is organized into a separate file, and the steps are defined within those files.
 
-The step vocabulary lives under `src/Steps/`, split into `Generic/` (`DrevOps\BehatSteps\Steps\Generic`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The driver layer under `src/Driver/` is library code, not vocabulary.
+The step vocabulary lives under `src/Steps/`, split into `Web/` (`DrevOps\BehatSteps\Steps\Web`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The driver layer under `src/Driver/` and the helper traits under `src/Helper/` are library code, not vocabulary.
 
-Step traits never `use` other step traits. Shared logic belongs in the step-free `HelperTrait` pair - `Steps\Generic\HelperTrait` for framework-agnostic helpers, `Steps\Drupal\HelperTrait` for Drupal ones.
+`src/Behat/Context/` mirrors that split: `RawContext` carries the shared plumbing, `WebRawContext` and `DrupalRawContext` each add their half's plumbing without registering steps, and `WebContext` and `DrupalContext` compose every trait of their matching `src/Steps/` directory.
 
-Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` for the Mink session, `Drupal\DrupalExtension\Context\RawDrupalContext` for the Drupal driver, `Drupal\DrupalExtension\Context\DrupalContext` for its entity-creation steps. A trait that calls nothing outside itself carries none.
+Step traits never `use` other step traits. Shared logic belongs in a helper trait under `src/Helper/` named for its concern, composed by whichever step traits and raw contexts need it.
+
+Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches, and `DrevOps\BehatSteps\Behat\Context\RawContext` when it reaches the driver, the entity lifecycle or the extension configuration. A trait that calls nothing outside itself carries none.
 
 
 ## Installation & Requirements for cosnuming this library
@@ -123,7 +125,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
-A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Generic\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
+A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
 In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
@@ -190,7 +192,7 @@ After editing any `.puml`, re-render every SVG so the sources and the renders ca
 plantuml -tsvg docs/architecture/*.puml
 ```
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how `FeatureContext` composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how a shipped context composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## Implementation Patterns and Learnings
 
@@ -217,7 +219,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Use descriptive tags (e.g., `@datetime`) to allow selective test execution
 - Negative tests using `@trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
-- Test-only tags - ones consumed by the test harness (`FeatureContext` or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
+- Test-only tags - ones consumed by the test harness (the test contexts or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
 
 ### Step Definition Constraints
 - Documentation tool (`docs.php`) does not support multiple `@When` annotations per method
@@ -285,7 +287,7 @@ ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 php scripts/check-coverage.php SomeTrait
 
 # Output shows:
-# Class: DrevOps\BehatSteps\Steps\Generic\SomeTrait
+# Class: DrevOps\BehatSteps\Steps\Web\SomeTrait
 # Line rate: 0.95901639344262 (95.90%)
 #
 # Uncovered lines:
@@ -298,10 +300,10 @@ php scripts/check-coverage.php SomeTrait
 ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 
 # Check API-only coverage
-grep 'class name="DrevOps\\BehatSteps\\Steps\\Generic\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
 
 # Check MERGED coverage (THIS IS THE TRUE COVERAGE)
-grep 'class name="DrevOps\\BehatSteps\\Steps\\Generic\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
 ```
 
 **Coverage Check Script Usage**:

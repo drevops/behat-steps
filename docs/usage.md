@@ -10,28 +10,89 @@ A project uses this package by composing a context out of traits and pointing an
 
 [Configuration](configuration.md) is the reference for every option and tag. This page is the model those options sit in.
 
-## Compose a context
+## The 4 entry points
 
-A context is `RawContext` plus the traits whose steps the suite needs. `RawContext` registers no steps: it owns the scenario lifecycle - driver access, authentication, entity creation and cleanup.
+The vocabulary is split in 2 halves, and each half has a step-free base class and a class that adds the whole half's steps. Every class is honest about what it drags in:
+
+```
+              Behat\MinkExtension\Context\RawMinkContext
+                                |
+                          RawContext
+              driver access, configuration, hook dispatch
+                                |
+            +-------------------+--------------------+
+            |                                        |
+       WebRawContext                          DrupalRawContext
+   web helpers, no steps                  entity lifecycle, login,
+                                          cleanup, no steps
+            |                                        |
+        WebContext                              DrupalContext
+     use Steps\Web\*  (28)                  use Steps\Drupal\*  (29)
+```
+
+| Extend or register | When |
+| --- | --- |
+| `WebContext` / `DrupalContext` | The suite wants the vocabulary and only needs to override behavior |
+| `WebRawContext` | The project wants the web plumbing and picks its own traits |
+| `DrupalRawContext` | The project wants the Drupal entity lifecycle and picks its own traits |
+| `RawContext` | The project wants neither half's plumbing |
+
+`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal`. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
+
+## Register the halves side by side
+
+`DrupalContext` does not extend `WebContext`. The 2 halves are siblings, registered independently:
+
+```php
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(WebContext::class)
+  ->addContext(DrupalContext::class)
+  ->addContext(MinkContext::class);
+```
+
+That keeps each half replaceable: a project can register `DrupalContext` beside Mink's own `MinkContext` and skip this package's web vocabulary entirely, or pair it with a hand-composed context because it already has steps that would collide.
+
+It has one cost. A Drupal suite has to register both, because `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms live in the web half - `RandomTrait`, `MappingTrait` and `DateTrait` are all `Steps\Web` traits. A suite that registers only `DrupalContext` fails on its first navigation step.
+
+## Compose your own context
+
+A context of your own is the raw context of the half you want plus the traits whose steps the suite needs.
 
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
-use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
-use DrevOps\BehatSteps\Steps\Generic\JavascriptTrait;
-use DrevOps\BehatSteps\Steps\Generic\WaitTrait;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
+use DrevOps\BehatSteps\Steps\Web\WaitTrait;
 
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   use JavascriptTrait;
   use WaitTrait;
-  use WatchdogTrait;
 
 }
 ```
 
-For a suite that needs no PHP at all, register `DrupalContext`, which is `RawContext` plus a curated set of traits.
+Each raw context also composes the helper traits of its half, so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
+
+## The rules that govern composition
+
+Behat's attribute inheritance behaves differently for a trait that is composed and a class that is extended, in opposite directions:
+
+| What the project does | Result |
+| --- | --- |
+| Registers 2 contexts composing the same trait | Fatal, `RedundantStepException` |
+| A subclass re-composes a trait its parent already has | Fatal, every step in it registers twice |
+| A subclass overrides an inherited step, no attribute | Works, the subclass body runs, the step text is inherited |
+| A subclass overrides an inherited step and repeats the attribute | Fatal, the pattern registers twice |
+| A subclass overrides an inherited step with a different pattern | Both patterns register, both run the subclass body |
+| A composed trait's method is redeclared without the attribute | The step is silently removed |
+| A composed trait is aliased `as protected` and the attribute redeclared | Works, wraps the original |
+| A subclass overrides an inherited hook, no attribute | Works, the subclass body runs |
+| A subclass overrides an inherited hook and repeats the attribute | **Runs twice, silently** |
+
+The last row is the least discoverable: `HookRepository` does not deduplicate, so a hook whose attribute is repeated on the override fires once for the parent declaration and once for the subclass one. Override an inherited hook without repeating its attribute.
 
 ## Register it against the extension
 
@@ -105,9 +166,21 @@ rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
 An option covers the values a trait expects to vary. Anything else is an override of the trait's own seam in the composing context:
 
 ```php
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   use ModalTrait;
+
+  public function modalGetSelectors(): array {
+    return ['.acme-dialog'];
+  }
+
+}
+```
+
+A suite that registers `WebContext` overrides the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
+
+```php
+class AcmeWebContext extends WebContext {
 
   public function modalGetSelectors(): array {
     return ['.acme-dialog'];

@@ -16,7 +16,7 @@ Feature: Behat CLI context
       <?php
       use Behat\Step\Given;
       use DrevOps\BehatSteps\Behat\Context\RawContext;
-      use DrevOps\BehatSteps\Steps\Generic\PathTrait;
+      use DrevOps\BehatSteps\Steps\Web\PathTrait;
       class FeatureContext extends RawContext {
         use PathTrait;
 

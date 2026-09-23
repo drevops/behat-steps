@@ -13,6 +13,9 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -38,14 +41,16 @@ use Drupal\workflows\Entity\Workflow;
  */
 trait ContentTrait {
 
-  use HelperTrait;
+  use DrupalQueryTrait;
+  use FixtureFileTrait;
+  use TableTransposeTrait;
 
   /**
    * Expand fixture file paths for file/image fields on nodes.
    */
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
+    $this->fixtureFileExpandEntityFields('node', $scope->getStub());
   }
 
   /**
@@ -81,7 +86,7 @@ trait ContentTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->helperLoadNodeIds($content_type, $node_hash);
+      $nids = $this->drupalQueryNodeIds($content_type, $node_hash);
 
       $storage = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $storage->loadMultiple($nids);
@@ -109,8 +114,8 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content with fields exist:')]
   public function contentCreateWithFields(string $content_type, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->contentCreate($content_type, $horizontal_table);
   }
 
@@ -322,7 +327,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
-    $nids = $this->helperLoadNodeIds($content_type, ['title' => $title]);
+    $nids = $this->drupalQueryNodeIds($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
@@ -401,7 +406,7 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
     }
 
-    $nids = $this->helperLoadNodeIds($content_type, [
+    $nids = $this->drupalQueryNodeIds($content_type, [
       'title' => $title,
     ]);
 

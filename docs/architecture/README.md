@@ -38,7 +38,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the context base class, the entity-creation hooks.
 
-**`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Generic` and `Steps\Drupal`. This is the only layer a consuming project mixes into its own `FeatureContext`.
+**`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Web` and `Steps\Drupal`. This is the only layer a consuming project mixes into its own `FeatureContext`.
 
 ![Component architecture](architecture.svg)
 
@@ -83,7 +83,7 @@ Note where cleanup lives now. It is the context's job, not a trait's - which is 
 
 Traits live in 2 places, and the split is meaningful:
 
-- `src/Steps/Generic/` in `DrevOps\BehatSteps\Steps\Generic` - 29 traits that talk to Mink and know nothing about Drupal. `PathTrait`, `ElementTrait`, `JsonTrait`, `RegionTrait`, `CommandTrait` and friends.
+- `src/Steps/Web/` in `DrevOps\BehatSteps\Steps\Web` - 29 traits that talk to Mink and know nothing about Drupal. `PathTrait`, `ElementTrait`, `JsonTrait`, `RegionTrait`, `CommandTrait` and friends.
 - `src/Steps/Drupal/` in `DrevOps\BehatSteps\Steps\Drupal` - 30 traits that go through the driver. `ContentTrait`, `UserTrait`, `MediaTrait`, `DrushTrait`, `WatchdogTrait`, and so on.
 
 That directory split isn't just tidiness. `docs.php` reads a trait's context straight off its subdirectory under `src/Steps`, so a file's location decides which index it lands in. The driver layer under `src/Driver/` is library code, not vocabulary, and is not scanned.

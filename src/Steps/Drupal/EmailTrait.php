@@ -14,6 +14,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\StringTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
 
@@ -36,7 +37,7 @@ use Drupal\Core\Database\StatementInterface;
  */
 trait EmailTrait {
 
-  use HelperTrait;
+  use StringTrait;
 
   /**
    * List of email handler types.
@@ -304,7 +305,7 @@ trait EmailTrait {
   #[Then('an email should be sent to the address :address')]
   public function emailAssertMessageSentTo(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = $this->helperSplitCommaSeparated((string) $message['to']);
+      $to = $this->stringSplitCommaSeparated((string) $message['to']);
 
       if (in_array($address, $to, TRUE)) {
         return;
@@ -345,7 +346,7 @@ trait EmailTrait {
     $actual = 0;
 
     foreach ($this->emailGetCollectedMessages() as $message) {
-      if (in_array($address, $this->helperSplitCommaSeparated((string) $message['to']), TRUE)) {
+      if (in_array($address, $this->stringSplitCommaSeparated((string) $message['to']), TRUE)) {
         $actual++;
       }
     }
@@ -402,20 +403,20 @@ trait EmailTrait {
   #[Then('no emails should have been sent to the address :address')]
   public function emailAssertMessagesNotSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = $this->helperSplitCommaSeparated((string) $message['to']);
+      $to = $this->stringSplitCommaSeparated((string) $message['to']);
       if (in_array($address, $to, TRUE)) {
         throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
-        $cc = $this->helperSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
+        $cc = $this->stringSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
         if (in_array($address, $cc, TRUE)) {
           throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
       }
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
-        $bcc = $this->helperSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
+        $bcc = $this->stringSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
         if (in_array($address, $bcc, TRUE)) {
           throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
@@ -436,11 +437,11 @@ trait EmailTrait {
   #[Then('the email header :header should contain:')]
   public function emailAssertMessageHeaderContains(string $header, PyStringNode $string, bool $exact = FALSE): void {
     $string_value = (string) $string;
-    $string_value = $exact ? $string_value : $this->helperNormalizeWhitespace($string_value);
+    $string_value = $exact ? $string_value : $this->stringNormalizeWhitespace($string_value);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $header_value = $message['headers'][$header] ?? '';
-      $header_value = $exact ? $header_value : $this->helperNormalizeWhitespace((string) $header_value);
+      $header_value = $exact ? $header_value : $this->stringNormalizeWhitespace((string) $header_value);
 
       if (str_contains((string) $header_value, (string) $string_value)) {
         return;
@@ -596,11 +597,11 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
+    $string = $exact ? $string : $this->stringNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $value = $message[$field] ?? '';
-      $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
+      $field_string = $exact ? $value : $this->stringNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
         throw new ExpectationException(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
@@ -786,11 +787,11 @@ trait EmailTrait {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $exact ? $string : $this->helperNormalizeWhitespace($string);
+    $string = $exact ? $string : $this->stringNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $value = $message[$field] ?? '';
-      $field_string = $exact ? $value : $this->helperNormalizeWhitespace((string) $value);
+      $field_string = $exact ? $value : $this->stringNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
         return $message;

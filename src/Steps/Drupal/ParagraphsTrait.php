@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
@@ -24,7 +25,7 @@ use Drupal\paragraphs\ParagraphInterface;
  */
 trait ParagraphsTrait {
 
-  use HelperTrait;
+  use DrupalQueryTrait;
 
   /**
    * Create a paragraph of the given type with fields within an existing entity.
@@ -41,7 +42,7 @@ trait ParagraphsTrait {
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->drupalQueryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
@@ -80,7 +81,7 @@ trait ParagraphsTrait {
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->drupalQueryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
     $values = $stub->getValues();
     $values['type'] = $paragraph_type;

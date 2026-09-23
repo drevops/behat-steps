@@ -54,7 +54,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 
 ## Available steps
 
-### Index of Generic steps
+### Index of Web steps
 
 | Class | Description |
 | --- | --- |
@@ -150,32 +150,36 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 
 ## 🚀 Quick start
 
-### 1. Compose the vocabulary you need
+### 1. Register the vocabulary you need
 
-Add required traits to your
-`FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
+The vocabulary comes in 2 halves, registered side by side. `WebContext` carries every step that drives a page, `DrupalContext` every step that reaches a Drupal site, and a Drupal suite registers both:
+
+```php
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(WebContext::class)
+  ->addContext(DrupalContext::class);
+```
+
+That needs no PHP of your own. To pick your own traits instead, extend the raw context of the half you want and compose them ([example](tests/behat/bootstrap/FeatureContext.php)):
 
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
-use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawContext {
+class FeatureContext extends WebRawContext {
 
   use CookieTrait;
 
 }
 ```
 
-`RawContext` registers no steps of its own: it owns the scenario lifecycle -
-driver access, authentication, entity creation and cleanup - and you compose the
-vocabulary you want on top. For a suite that needs no PHP at all, register
-`DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
-plus a curated set of the broadly-safe traits.
+A raw context registers no steps of its own: `WebRawContext` owns the web plumbing, `DrupalRawContext` the Drupal entity lifecycle, login and cleanup, and `RawContext` the driver access and configuration both share. [Usage](docs/usage.md) covers the 4 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 
@@ -190,11 +194,14 @@ use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(FeatureContext::class);
+  ->addContext(WebContext::class)
+  ->addContext(DrupalContext::class);
 
 $profile = (new Profile('default'))
   ->withSuite($suite)
@@ -296,7 +303,7 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Generic\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 
