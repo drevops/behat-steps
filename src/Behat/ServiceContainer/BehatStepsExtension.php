@@ -485,7 +485,9 @@ class BehatStepsExtension implements ExtensionInterface {
     $steps = is_array($parameters['steps'] ?? NULL) ? $parameters['steps'] : [];
     $wait = is_array($steps['wait'] ?? NULL) ? $steps['wait'] : [];
 
-    $wait['ajax_timeout'] = $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
+    // A project migrating in steps can carry both paths at once, so the value
+    // at the path that replaces this one wins.
+    $wait['ajax_timeout'] ??= $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
     $steps['wait'] = $wait;
     $parameters['steps'] = $steps;
 

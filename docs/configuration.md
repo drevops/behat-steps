@@ -85,15 +85,17 @@ Behat matches the arguments to the constructor by name, so the array keys are th
 `RawContext` declares one argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between two contexts of the same profile:
 
 ```php
-$api = (new Suite('api'))
-  ->withPaths('%paths.base%/tests/behat/features/api')
-  ->addContext(ApiContext::class, [
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(UiContext::class, [
     'config' => [
-      'javascript' => ['enabled' => FALSE],
+      'javascript' => ['fail_on_errors' => FALSE],
       'diagnostics' => ['show_url' => FALSE, 'show_js_errors' => FALSE],
     ],
   ]);
 ```
+
+A group names the trait that declares it, so a context accepts only the groups its own traits bring: overriding `javascript` on a context that does not compose `JavascriptTrait` is an error at construction, naming what that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent:
 

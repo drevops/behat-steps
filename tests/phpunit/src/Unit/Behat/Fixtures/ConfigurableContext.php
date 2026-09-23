@@ -14,6 +14,7 @@ class ConfigurableContext extends RawContext {
 
   use OtherSampleConfigTrait;
   use SampleConfigTrait;
+  use SampleExtraConfigTrait;
 
   /**
    * Public bridge to the protected skip resolution.

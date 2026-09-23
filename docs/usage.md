@@ -65,13 +65,13 @@ Each configurable trait declares its own options, named after the trait in snake
 ]));
 ```
 
-A value that has to differ between two suites of the same profile travels as the context's `config` argument instead:
+A value that has to differ between two suites of the same profile travels as the context's `config` argument instead. `UiContext` composes `JavascriptTrait` above, so it is the context that accepts the `javascript` group:
 
 ```php
-$api = (new Suite('api'))
-  ->withPaths('%paths.base%/tests/behat/features/api')
-  ->addContext(ApiContext::class, [
-    'config' => ['javascript' => ['enabled' => FALSE]],
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(UiContext::class, [
+    'config' => ['javascript' => ['fail_on_errors' => FALSE]],
   ]);
 ```
 

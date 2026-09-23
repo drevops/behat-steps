@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
 /**
- * Trait whose prefix extends another group's, declaring no switch.
+ * Trait declaring a map option and no switch.
  */
 trait OtherSampleConfigTrait {
 

@@ -95,6 +95,17 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame(['enabled' => FALSE, 'ajax_timeout' => 12], $parameters['steps']['wait']);
   }
 
+  public function testAnExplicitAjaxTimeoutSurvivesTheDeprecatedMinkOne(): void {
+    $container = $this->load(['steps' => ['wait' => ['ajax_timeout' => 10]]]);
+    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 5);
+
+    (new BehatStepsExtension())->process($container);
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+    $this->assertIsArray($parameters);
+    $this->assertSame(10, $parameters['steps']['wait']['ajax_timeout']);
+  }
+
   public function testNoWaitOptionIsWrittenWithoutTheMinkTree(): void {
     $container = $this->load([]);
 

@@ -41,7 +41,7 @@ class ContextConfigTest extends UnitTestCase {
     $context = new ConfigurableContext();
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit');
+    $this->expectExceptionMessage('declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit, sample_extra.enabled');
 
     $context->getOption('sample', 'missing');
   }
@@ -146,7 +146,7 @@ class ContextConfigTest extends UnitTestCase {
   public static function dataProviderStrictValidation(): \Iterator {
     yield 'unknown group' => [
       ['nonexistent' => ['enabled' => FALSE]],
-      'Unknown option group "nonexistent" for context "' . ConfigurableContext::class . '". This context accepts: other_sample, sample.',
+      'Unknown option group "nonexistent" for context "' . ConfigurableContext::class . '". This context accepts: other_sample, sample, sample_extra.',
     ];
 
     yield 'unknown option' => [
@@ -313,8 +313,10 @@ class ContextConfigTest extends UnitTestCase {
     yield 'a disabled group skips a method-named hook' => ['sampleBeforeScenario', [], ['sample' => ['enabled' => FALSE]], TRUE];
     yield 'a disabled group skips a trait-named hook' => ['SampleTrait', [], ['sample' => ['enabled' => FALSE]], TRUE];
 
-    // The longer prefix owns the name, so the shorter group does not claim it.
-    yield 'the longest matching prefix wins' => ['otherSampleBeforeScenario', [], ['sample' => ['enabled' => FALSE]], FALSE];
+    // 'sampleExtraBeforeScenario' matches both 'sample' and 'sample_extra', so
+    // the longer group owns the name and the shorter one does not claim it.
+    yield 'the longest matching prefix owns the hook' => ['sampleExtraBeforeScenario', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
+    yield 'the shorter prefix does not claim a longer group' => ['sampleExtraBeforeScenario', [], ['sample' => ['enabled' => FALSE]], FALSE];
 
     // A group without an 'enabled' option contributes no switch.
     yield 'a group with no enabled option is tag-only' => ['otherSampleBeforeScenario', ['behat-steps-skip:otherSampleBeforeScenario'], [], TRUE];
