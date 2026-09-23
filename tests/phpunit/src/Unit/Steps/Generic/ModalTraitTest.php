@@ -10,7 +10,7 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\ModalTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -104,7 +104,7 @@ class ModalTraitTest extends UnitTestCase {
 /**
  * Test implementation of ModalTrait.
  */
-class ModalTraitTestImplementation extends RawMinkContext {
+class ModalTraitTestImplementation extends RawContext {
 
   use ModalTrait;
 

@@ -73,7 +73,7 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame([], $manager->getExtensions());
   }
 
-  public function testAnAjaxTimeoutFromTheMinkTreeOverridesTheDefault(): void {
+  public function testAnAjaxTimeoutFromTheMinkTreeReachesTheWaitOption(): void {
     $container = $this->load([]);
     $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
 
@@ -81,17 +81,39 @@ class BehatStepsExtensionTest extends TestCase {
 
     $parameters = $container->getParameter('behat_steps.parameters');
     $this->assertIsArray($parameters);
-    $this->assertSame(12, $parameters['ajax_timeout']);
+    $this->assertSame(12, $parameters['steps']['wait']['ajax_timeout']);
   }
 
-  public function testTheDefaultAjaxTimeoutSurvivesWithoutTheMinkTree(): void {
+  public function testAnAjaxTimeoutFromTheMinkTreeJoinsTheConfiguredWaitGroup(): void {
+    $container = $this->load(['steps' => ['wait' => ['enabled' => FALSE]]]);
+    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
+
+    (new BehatStepsExtension())->process($container);
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+    $this->assertIsArray($parameters);
+    $this->assertSame(['enabled' => FALSE, 'ajax_timeout' => 12], $parameters['steps']['wait']);
+  }
+
+  public function testAnExplicitAjaxTimeoutSurvivesTheDeprecatedMinkOne(): void {
+    $container = $this->load(['steps' => ['wait' => ['ajax_timeout' => 10]]]);
+    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 5);
+
+    (new BehatStepsExtension())->process($container);
+
+    $parameters = $container->getParameter('behat_steps.parameters');
+    $this->assertIsArray($parameters);
+    $this->assertSame(10, $parameters['steps']['wait']['ajax_timeout']);
+  }
+
+  public function testNoWaitOptionIsWrittenWithoutTheMinkTree(): void {
     $container = $this->load([]);
 
     (new BehatStepsExtension())->process($container);
 
     $parameters = $container->getParameter('behat_steps.parameters');
     $this->assertIsArray($parameters);
-    $this->assertSame(5, $parameters['ajax_timeout']);
+    $this->assertSame([], $parameters['steps']);
   }
 
   public function testBlackboxDriverIsAlwaysRegistered(): void {
@@ -197,43 +219,44 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   /**
-   * Tests that grouped mappings flatten into one lookup map.
+   * Tests that the steps section reaches the parameters untouched.
+   *
+   * A group there may name a trait only one of the registered contexts
+   * composes, so the extension validates nothing about its contents.
    *
    * @param array<string, mixed> $config
    *   The extension configuration, before schema normalisation.
-   * @param array<string, string> $expected
-   *   The expected flattened mapping map.
+   * @param array<string, mixed> $expected
+   *   The expected steps section.
    */
-  #[DataProvider('dataProviderMappingsFlatten')]
-  public function testMappingsFlatten(array $config, array $expected): void {
+  #[DataProvider('dataProviderStepsSectionIsPassedThrough')]
+  public function testStepsSectionIsPassedThrough(array $config, array $expected): void {
     $parameters = $this->load($config)->getParameter('behat_steps.parameters');
 
     $this->assertIsArray($parameters);
-    $this->assertSame($expected, $parameters['mappings']);
+    $this->assertSame($expected, $parameters['steps']);
   }
 
-  public static function dataProviderMappingsFlatten(): \Iterator {
-    yield 'single group flattens to its entries' => [
-      ['mappings' => ['paths' => ['User Registration' => '/user/register', 'User Login' => '/user/login']]],
-      ['User Registration' => '/user/register', 'User Login' => '/user/login'],
+  public static function dataProviderStepsSectionIsPassedThrough(): \Iterator {
+    yield 'one group' => [
+      ['steps' => ['javascript' => ['enabled' => FALSE]]],
+      ['javascript' => ['enabled' => FALSE]],
     ];
 
-    yield 'multiple groups merge into one map' => [
-      ['mappings' => ['paths' => ['Home' => '/'], 'text' => ['Greeting' => 'Hello']]],
-      ['Home' => '/', 'Greeting' => 'Hello'],
+    yield 'nested values are kept as written' => [
+      ['steps' => ['mapping' => ['groups' => ['paths' => ['Home' => '/']]]]],
+      ['mapping' => ['groups' => ['paths' => ['Home' => '/']]]],
     ];
 
-    yield 'no mappings yields an empty map' => [
+    yield 'a group no context composes is kept' => [
+      ['steps' => ['nonexistent' => ['enabled' => FALSE]]],
+      ['nonexistent' => ['enabled' => FALSE]],
+    ];
+
+    yield 'no steps section yields an empty map' => [
       [],
       [],
     ];
-  }
-
-  public function testDuplicateMappingKeyAcrossGroupsThrows(): void {
-    $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage('Duplicate mapping key "Home" found in groups "paths" and "aliases" under "behat_steps: mappings:".');
-
-    $this->load(['mappings' => ['paths' => ['Home' => '/'], 'aliases' => ['Home' => '/front']]]);
   }
 
   /**
@@ -255,7 +278,7 @@ class BehatStepsExtensionTest extends TestCase {
   public static function dataProviderSchemaDefaults(): \Iterator {
     yield 'login_field' => ['login_field', 'name'];
     yield 'login_wait' => ['login_wait', 0];
-    yield 'ajax_timeout' => ['ajax_timeout', 5];
+    yield 'steps' => ['steps', []];
     yield 'text' => [
       'text',
       [
@@ -277,11 +300,18 @@ class BehatStepsExtensionTest extends TestCase {
     ];
   }
 
-  public function testMessageSelectorsAreConfigurable(): void {
-    $parameters = $this->load(['selectors' => ['messages' => ['error' => '.messages--error']]])->getParameter('behat_steps.parameters');
+  public function testMessageSelectorsAtTheirFormerPathAreRejected(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "selectors: messages:" setting under "behat_steps" moved to "steps: message: selectors:". Move each severity selector across.');
+
+    $this->load(['selectors' => ['messages' => ['error' => '.messages--error']]]);
+  }
+
+  public function testSelectorTheTreeDoesNotDeclareIsKept(): void {
+    $parameters = $this->load(['selectors' => ['acme_banner' => '.acme-banner']])->getParameter('behat_steps.parameters');
 
     $this->assertIsArray($parameters);
-    $this->assertSame(['error' => '.messages--error'], $parameters['selectors']['messages']);
+    $this->assertSame('.acme-banner', $parameters['selectors']['acme_banner']);
   }
 
   public function testProcessSwapsInTheContextClassGenerator(): void {

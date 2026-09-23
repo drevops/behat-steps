@@ -213,14 +213,14 @@ trait QueueTrait {
    * Get the maximum number of items to process.
    */
   public function queueGetProcessLimit(): int {
-    return 1000;
+    return (int) $this->getOption('queue', 'process_limit');
   }
 
   /**
    * Get the lease time for claiming queue items.
    */
   public function queueGetLeaseTime(): int {
-    return 30;
+    return (int) $this->getOption('queue', 'lease_time');
   }
 
   /**
@@ -230,6 +230,29 @@ trait QueueTrait {
     if (!in_array($queue, $this->queueNames, TRUE)) {
       $this->queueNames[] = $queue;
     }
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function queueConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Delete the queues a scenario created once it finishes.',
+      ],
+      'process_limit' => [
+        'default' => 1000,
+        'description' => 'Maximum number of items a single queue-processing step handles.',
+      ],
+      'lease_time' => [
+        'default' => 30,
+        'description' => 'Time, in seconds, a claimed queue item stays leased.',
+      ],
+    ];
   }
 
 }

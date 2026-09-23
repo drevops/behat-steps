@@ -130,6 +130,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 
 - [STEPS.md](STEPS.md) - the vocabulary: every step, with an example for each.
 - [HELPERS.md](HELPERS.md) - the toolbox: every helper the steps are built on, which your own step definitions call the same way.
+- [Usage](docs/usage.md) - the extension-plus-context model: composing a context, registering it, and configuring the traits it holds.
 - [Configuration](docs/configuration.md) - the 4 channels a project configures this package through, and the suite layout to start from.
 - [Scenario styles](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
 - [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, layers and the local development setup.

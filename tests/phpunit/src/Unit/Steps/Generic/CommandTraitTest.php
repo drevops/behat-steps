@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Generic\CommandTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -147,7 +148,7 @@ class CommandTraitTest extends UnitTestCase {
 /**
  * Test implementation of CommandTrait.
  */
-class CommandTraitTestImplementation {
+class CommandTraitTestImplementation extends RawContext {
 
   use CommandTrait;
 

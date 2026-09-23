@@ -22,7 +22,7 @@ use Behat\Step\When;
  * - Assert bulk row content against expected values.
  * - Click links and press buttons within a row identified by its text.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait TableTrait {
 
@@ -343,14 +343,14 @@ trait TableTrait {
    * Get the CSS selector for table header cells.
    */
   public function tableGetHeaderSelector(): string {
-    return 'thead tr th';
+    return (string) $this->getOption('table', 'header_selector');
   }
 
   /**
    * Get the CSS selector for table body rows.
    */
   public function tableGetBodyRowSelector(): string {
-    return 'tbody tr';
+    return (string) $this->getOption('table', 'body_row_selector');
   }
 
   /**
@@ -448,6 +448,25 @@ trait TableTrait {
     }
 
     return NULL;
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function tableConfigSchema(): array {
+    return [
+      'header_selector' => [
+        'default' => 'thead tr th',
+        'description' => 'CSS selector of a table header cell, relative to the table.',
+      ],
+      'body_row_selector' => [
+        'default' => 'tbody tr',
+        'description' => 'CSS selector of a table body row, relative to the table.',
+      ],
+    ];
   }
 
 }

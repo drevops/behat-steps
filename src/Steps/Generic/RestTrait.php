@@ -176,4 +176,19 @@ trait RestTrait {
     return $server;
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function restConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Reset the request state this trait accumulates between scenarios.',
+      ],
+    ];
+  }
+
 }

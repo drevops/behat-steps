@@ -68,11 +68,11 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
       // bootstrap without one.
       'global_options' => '--uri=http://nginx:8080',
     ],
-    'selectors' => [
-      'messages' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning'],
-    ],
     'regions' => ['content' => '#content', 'sidebar' => '#sidebar', 'footer' => '#footer'],
-    'mappings' => ['paths' => ['User Login' => '/user/login', 'User Registration' => '/user/register']],
+    'steps' => [
+      'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning']],
+      'mapping' => ['groups' => ['paths' => ['User Login' => '/user/login', 'User Registration' => '/user/register']]],
+    ],
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, [
     'dir' => '%paths.base%/.logs/screenshots',

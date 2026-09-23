@@ -80,7 +80,42 @@ class UiContext extends RawContext {
 }
 ```
 
-Behat matches the arguments to the constructor by name, so the array keys are the parameter names. `RawContext` and `DrupalContext` declare no constructor, which leaves the whole signature to the consuming context.
+Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
+
+`RawContext` declares one argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between two contexts of the same profile:
+
+```php
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(DrupalContext::class, [
+    'config' => ['wait' => ['ajax_timeout' => 10]],
+  ]);
+```
+
+A group names the trait that declares it, so a context accepts only the groups its own traits bring: `DrupalContext` composes `WaitTrait` and takes `wait` above, while overriding `javascript` on it is an error at construction, naming what it does accept.
+
+A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
+
+```php
+class UiContext extends RawContext {
+
+  use JavascriptTrait;
+
+  public function __construct(protected string $fixtures_path, array $config = []) {
+    parent::__construct($config);
+  }
+
+}
+```
+
+```php
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(UiContext::class, [
+    'fixtures_path' => '%paths.base%/tests/behat/fixtures',
+    'config' => ['javascript' => ['fail_on_errors' => FALSE]],
+  ]);
+```
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
 
@@ -135,16 +170,10 @@ A nested option is written as a section in the configuration and reads as a dott
 | `text.password_field` | string | `'Password'` | Label of the password field on the login form. |
 | `text.username_field` | string | `'Username'` | Label of the username field on the login form. |
 | `login_wait` | integer | `0` | Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. |
-| `ajax_timeout` | integer | `5` | Maximum time (in seconds) to wait for AJAX calls to complete. |
+| `steps` | map | `[]` | Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.<br>javascript:<br>enabled: true<br>fail_on_errors: false<br>wait:<br>ajax_timeout: 10 |
 | `selectors` | section | - | CSS selectors the steps resolve page structures against. |
-| `selectors.messages` | section | - | Selectors of the message regions asserted by the message steps, one per severity. |
-| `selectors.messages.default` | string | - | Selector matching a message of any severity. |
-| `selectors.messages.error` | string | - | Selector matching an error message. |
-| `selectors.messages.success` | string | - | Selector matching a success message. |
-| `selectors.messages.warning` | string | - | Selector matching a warning message. |
 | `selectors.login_form_selector` | string | `'form#user-login,form#user-login-form'` | Selector of the login form, used to tell a login page from a page that merely holds a login block. |
 | `selectors.logged_in_selector` | string | `'body.logged-in,body.user-logged-in'` | Selector present only while a user is authenticated, used to confirm a login took effect. |
-| `mappings` | map | `[]` | Named value mappings grouped for organisation. A "{{ Key }}" token in any step argument or table cell is replaced with the mapped value before the step runs; whitespace inside the braces is ignored, so "{{ Key }}" and "{{Key}}" are equivalent. Group names are organisational only - a key must be unique across all groups.<br>paths:<br>User Registration: "/user/register"<br>User Login: "/user/login" |
 | `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
 | `drupal` | section | - | Settings of the driver that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process driver bootstraps. |
@@ -216,6 +245,48 @@ The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to
 
 `@driver:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
 
+### Trait options
+
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](../STEPS.md) lists the options of each trait beside its steps.
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drupal' => ['drupal_root' => 'web'],
+
+  'steps' => [
+    'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
+    'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
+    'big_pipe' => ['wait_timeout' => 5000],
+    'wait' => ['ajax_timeout' => 10],
+    'modal' => ['selectors' => ['.ui-dialog', '[role="dialog"]']],
+  ],
+]));
+```
+
+An option resolves through five layers, each overriding the one above it:
+
+```
+declaration default
+  -> behat_steps.steps        (profile-wide)
+    -> context config          (per context)
+      -> feature tag
+        -> scenario tag
+```
+
+The two levels differ in how strictly they are read, because they know different things:
+
+- **`steps` is permissive.** A group there may name a trait only one of the registered contexts composes, so a group or an option a context cannot serve is ignored. One profile can carry the defaults of every suite.
+- **A context's `config` is strict.** The context knows which traits it composes, so an unknown group, an unknown option, or a value of the wrong type is an error naming what the context accepts.
+
+Two options recur, and they are deliberately separate switches:
+
+| Option | Effect |
+| --- | --- |
+| `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
+| `fail_on_errors` | The trait still collects, and does not fail the scenario on what it found. |
+
+Overriding the trait's `<trait>Get<Noun>()` method in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
+
 ## 3. Tags
 
 A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.
@@ -229,7 +300,7 @@ Scenario: Editor publishes a page
 
 | Tag | Description |
 | --- | --- |
-| `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). |
+| `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
@@ -240,11 +311,11 @@ Scenario: Editor publishes a page
 | `@accessibility:VALUE` | Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`. |
 | `@bigpipe` | Render BigPipe placeholders server-side, for a driver without JavaScript. |
 | `@disable-form-validation` | Strip HTML5 validation from every form on the page so a scenario can submit values the browser would block. |
-| `@js-errors` | Allow JavaScript errors, which otherwise fail the scenario. |
+| `@js-errors` | Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE. |
 | `@download` | Prepare the download directory for the scenario and clean it up afterwards. |
 | `@testmode` | Enable the Testmode module for the scenario. |
 | `@debug` | Print detailed diagnostics while the scenario runs. |
-| `@error` | Expect the scenario to log an error, which turns the Watchdog check off. |
+| `@error` | Expect the scenario to log an error. The errors are still read and cleared, and the scenario is not failed. Sets the `watchdog.fail_on_errors` option to FALSE. |
 
 [//]: # (END_TAGS)
 

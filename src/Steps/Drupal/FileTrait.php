@@ -368,4 +368,19 @@ trait FileTrait {
     return $query->execute();
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function fileConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.',
+      ],
+    ];
+  }
+
 }

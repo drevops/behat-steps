@@ -840,4 +840,19 @@ trait EmailTrait {
     return (int) $link_number;
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function emailConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Collect email for an `@email` scenario and clear the queue around it.',
+      ],
+    ];
+  }
+
 }

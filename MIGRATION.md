@@ -1,5 +1,110 @@
 # Migration guide
 
+## Per-trait configuration
+
+Every configurable trait now declares its options in a `<prefix>ConfigSchema()` method, and the extension carries their profile-wide defaults under a new `steps` section. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists the options of each trait beside its steps.
+
+An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag.
+
+### Three options moved out of the extension root
+
+They are read only by a trait, never by a container service, so they became overridable per context.
+
+| Before | After |
+| --- | --- |
+| `'ajax_timeout' => 5` | `'steps' => ['wait' => ['ajax_timeout' => 5]]` |
+| `'selectors' => ['messages' => [...]]` | `'steps' => ['message' => ['selectors' => [...]]]` |
+| `'mappings' => ['paths' => [...]]` | `'steps' => ['mapping' => ['groups' => ['paths' => [...]]]]` |
+
+```php
+// Before.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'ajax_timeout' => 5,
+  'selectors' => [
+    'messages' => ['default' => '.messages', 'error' => '.messages--error'],
+    'logged_in_selector' => 'body.user-logged-in',
+  ],
+  'mappings' => ['paths' => ['User Login' => '/user/login']],
+]));
+
+// After.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'selectors' => ['logged_in_selector' => 'body.user-logged-in'],
+  'steps' => [
+    'wait' => ['ajax_timeout' => 5],
+    'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages--error']],
+    'mapping' => ['groups' => ['paths' => ['User Login' => '/user/login']]],
+  ],
+]));
+```
+
+The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay where they are: a container service reads them. A `selectors: messages:` left behind fails the container build with a message naming its new path, because the `selectors` node keeps the keys it does not declare and would otherwise accept it and never read it.
+
+### `RawContext` takes a `config` argument
+
+`RawContext::__construct(array $config = [])` is the new constructor, and every shipped and consuming context inherits it without redeclaring one. A context that already declares a constructor adds the parameter and forwards it:
+
+```php
+// Before.
+class UiContext extends RawContext {
+
+  public function __construct(protected string $fixtures_path) {
+  }
+
+}
+
+// After.
+class UiContext extends RawContext {
+
+  public function __construct(protected string $fixtures_path, array $config = []) {
+    parent::__construct($config);
+  }
+
+}
+```
+
+A group or an option the context cannot serve is an error naming what it accepts, so a typo fails while Behat builds the context. The extension's `steps` section is read permissively instead: a group there may name a trait only one of the registered contexts composes.
+
+### `getMapping()` became `mappingGetValue()`
+
+The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is where the groups it reads are now configured. A context that calls it directly renames the call; a context that only uses the `{{ Key }}` token is unaffected.
+
+| Before | After |
+| --- | --- |
+| `$this->getMapping('User Login')` | `$this->mappingGetValue('User Login')` |
+
+### `@error` no longer disables the Watchdog check
+
+`WatchdogTrait` and `JavascriptTrait` each split their single switch into two independent options, which the existing tags now map onto.
+
+| Switch | Extension or context | Scenario tag |
+| --- | --- | --- |
+| Do not collect at all | `'watchdog' => ['enabled' => FALSE]` | `@behat-steps-skip:WatchdogTrait` |
+| Collect, do not fail | `'watchdog' => ['fail_on_errors' => FALSE]` | `@error` |
+| Do not collect at all | `'javascript' => ['enabled' => FALSE]` | `@behat-steps-skip:JavascriptTrait` |
+| Collect, do not fail | `'javascript' => ['fail_on_errors' => FALSE]` | `@js-errors` |
+
+`@error` used to leave the start time unset, which disabled collection entirely. It now means `fail_on_errors = FALSE`: the errors the scenario logged are still read and cleared from the `watchdog` table, and the scenario is not failed. A scenario that relied on `@error` leaving rows behind for a later assertion reads them before the scenario ends, or uses `@behat-steps-skip:WatchdogTrait` instead.
+
+`@error` and `@js-errors` are also read on the `Feature:` line now, as every other tag of this package already was, so either one there covers every scenario in that feature.
+
+### Three transform traits can be switched off
+
+`RandomTrait`, `MappingTrait` and `DateTrait` register suite-wide `#[Transform]` callbacks, which used to rewrite every matching step argument and table cell in the run with no way to opt out. `@behat-steps-skip:RandomTrait` silently did nothing; it now suppresses the transform, as do `@behat-steps-skip:MappingTrait` and `@behat-steps-skip:DateTrait` and the matching `enabled` option.
+
+Each of the three resolves that decision in a `BeforeScenario` hook, so all three now require the composing context to extend `RawContext`. `DateTrait` and `RandomTrait` previously composed into any class.
+
+`ModalTrait`, `TableTrait`, `ElementTrait` and `CommandTrait` require `RawContext` for the same reason: they read a declared option.
+
+### `BigPipeTrait` reads its timeout from configuration
+
+`BIG_PIPE_DEFAULT_WAIT_TIMEOUT` is gone, and `$bigPipeWaitTimeout` now defaults to `NULL`, meaning "take the configured option". Assigning it still overrides the wait for one scenario.
+
+| Before | After |
+| --- | --- |
+| `$this->bigPipeWaitTimeout = 2000;` | Unchanged, or `'steps' => ['big_pipe' => ['wait_timeout' => 2000]]` |
+| `self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT` | `'steps' => ['big_pipe' => ['wait_timeout' => 10000]]` |
+
 ## Unified step text
 
 Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 73 steps now follow one set of conventions.

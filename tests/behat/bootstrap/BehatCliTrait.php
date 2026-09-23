@@ -34,15 +34,35 @@ trait BehatCliTrait {
   ];
 
   /**
+   * Message selectors every generated configuration declares.
+   *
+   * The message steps appear as setup throughout the generated scenarios, and
+   * they have no default selector of their own.
+   */
+  protected const BEHAT_CLI_MESSAGE_SELECTORS = "'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning']],";
+
+  /**
    * Driver list the generated extension configuration declares.
    *
    * @var array<int, string>
    */
   protected array $behatCliConfiguredDrivers = ['drupal', 'blackbox'];
 
+  /**
+   * Body of the 'steps' section the generated configuration declares.
+   */
+  protected string $behatCliStepsConfig = '';
+
+  /**
+   * Arguments the generated configuration passes to 'FeatureContext'.
+   */
+  protected string $behatCliContextArguments = '';
+
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $this->behatCliConfiguredDrivers = ['drupal', 'blackbox'];
+    $this->behatCliStepsConfig = '';
+    $this->behatCliContextArguments = '';
     $this->behatCliCopyFixtures();
 
     $traits = [];
@@ -213,10 +233,50 @@ EOL;
   }
 
   /**
+   * Declare the extension's 'steps' section for the generated configuration.
+   *
+   * The body is written into the generated 'behat.php' verbatim, so it reads as
+   * the inside of a PHP array literal.
+   */
+  #[Given('a configuration with the step options:')]
+  public function behatCliSetStepsConfig(PyStringNode $body): void {
+    $this->behatCliStepsConfig = trim((string) $body);
+  }
+
+  /**
+   * Declare the arguments the generated configuration gives 'FeatureContext'.
+   *
+   * The body is written into the generated 'behat.php' verbatim, so it reads as
+   * the inside of a PHP array literal.
+   */
+  #[Given('a context with the arguments:')]
+  public function behatCliSetContextArguments(PyStringNode $body): void {
+    $this->behatCliContextArguments = trim((string) $body);
+  }
+
+  /**
    * Render the driver list as the PHP array literal the config holds.
    */
   protected function behatCliRenderConfiguredDrivers(): string {
     return sprintf("['%s']", implode("', '", $this->behatCliConfiguredDrivers));
+  }
+
+  /**
+   * Render the 'steps' section as the PHP array literal the config holds.
+   */
+  protected function behatCliRenderStepsConfig(): string {
+    return sprintf('[%s%s%s]', PHP_EOL . '    ' . self::BEHAT_CLI_MESSAGE_SELECTORS, PHP_EOL . '    ' . $this->behatCliStepsConfig, PHP_EOL . '  ');
+  }
+
+  /**
+   * Render the context arguments as the argument list the config holds.
+   */
+  protected function behatCliRenderContextArguments(): string {
+    if ($this->behatCliContextArguments === '') {
+      return '';
+    }
+
+    return sprintf(', [%s]', $this->behatCliContextArguments);
   }
 
   #[Given('some behat configuration')]
@@ -239,7 +299,7 @@ use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
-  ->addContext('FeatureContext')
+  ->addContext('FeatureContext'{{CONTEXT_ARGUMENTS}})
   ->addContext(MinkContext::class)
   ->addContext(ScreenshotContext::class)
   ->addContext(PhpServerContext::class, ['webroot' => '%paths.base%/tests/behat/fixtures', 'protocol' => 'http', 'host' => '0.0.0.0', 'port' => 8888, 'debug' => TRUE]);
@@ -269,9 +329,7 @@ $profile = (new Profile('default'))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'drivers' => {{CONFIGURED_DRIVERS}},
     'drupal' => ['drupal_root' => '/app/build/web'],
-    'selectors' => [
-      'messages' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning'],
-    ],
+    'steps' => {{STEPS_CONFIG}},
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
 
@@ -290,6 +348,8 @@ EOL;
     $content = strtr($content, [
       '{{COVERAGE_EXTENSION}}' => $coverage_extension,
       '{{CONFIGURED_DRIVERS}}' => $this->behatCliRenderConfiguredDrivers(),
+      '{{STEPS_CONFIG}}' => $this->behatCliRenderStepsConfig(),
+      '{{CONTEXT_ARGUMENTS}}' => $this->behatCliRenderContextArguments(),
     ]);
 
     $filename = 'behat.php';

@@ -73,4 +73,19 @@ trait TestmodeTrait {
     Testmode::getInstance()->disableTestMode();
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function testmodeConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Enable the Testmode module for a `@testmode` scenario and disable it afterwards.',
+      ],
+    ];
+  }
+
 }

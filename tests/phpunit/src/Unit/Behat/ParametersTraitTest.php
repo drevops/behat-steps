@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests how configured text, selectors and mappings are read back.
+ * Tests how configured text and selectors are read back.
  */
 #[CoversTrait(ParametersTrait::class)]
 class ParametersTraitTest extends TestCase {
@@ -23,7 +23,6 @@ class ParametersTraitTest extends TestCase {
     'login_field' => 'mail',
     'text' => ['log_out' => 'Sign out'],
     'selectors' => ['logged_in_selector' => 'body.logged-in'],
-    'mappings' => ['User Login' => '/user/login'],
   ];
 
   public function testAnUnsetParameterIsNull(): void {
@@ -44,10 +43,6 @@ class ParametersTraitTest extends TestCase {
 
   public function testConfiguredSelectorIsReturned(): void {
     $this->assertSame('body.logged-in', $this->createHost()->getDrupalSelector('logged_in_selector'));
-  }
-
-  public function testConfiguredMappingIsReturned(): void {
-    $this->assertSame('/user/login', $this->createHost()->getMapping('User Login'));
   }
 
   /**
@@ -71,7 +66,6 @@ class ParametersTraitTest extends TestCase {
   public static function dataProviderUnknownNameThrows(): \Iterator {
     yield 'text' => ['getDrupalText', 'log_in', 'No such Drupal string: log_in'];
     yield 'selector' => ['getDrupalSelector', 'login_form_selector', 'No such selector configured: login_form_selector'];
-    yield 'mapping' => ['getMapping', 'User Registration', 'No such mapping: User Registration'];
   }
 
   /**

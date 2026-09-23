@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Generic;
 
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
 
 /**
@@ -28,8 +30,28 @@ use Behat\Transformation\Transform;
  * a token resolves without a context instance. Late static binding routes the
  * resolution through a `dateNow()` override in the composing context, which is
  * the supported seam for pinning the clock.
+ *
+ * Skip processing with tag: `@behat-steps-skip:DateTrait`.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait DateTrait {
+
+  /**
+   * Whether token replacement is active for the current scenario.
+   */
+  protected bool $dateEnabled = TRUE;
+
+  /**
+   * Resolves whether the current scenario replaces tokens.
+   *
+   * A transform receives no scope, so the resolution happens here and the
+   * transforms read the result.
+   */
+  #[BeforeScenario]
+  public function dateBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->dateEnabled = !$this->skipTag('DateTrait', $scope);
+  }
 
   /**
    * Transform a scalar value.
@@ -38,6 +60,10 @@ trait DateTrait {
   #[Transform(':value')]
   #[Transform(':expectedValue')]
   public function dateRelativeTransformValue(string $value): string {
+    if (!$this->dateEnabled) {
+      return $value;
+    }
+
     return static::dateRelativeProcessValue($value);
   }
 
@@ -47,7 +73,7 @@ trait DateTrait {
   #[Transform('table:*')]
   public function dateRelativeTransformTable(TableNode $table): TableNode {
     // A cheap substring check skips tables without tokens.
-    if (!static::dateRelativeStringHasToken($table->getTableAsString())) {
+    if (!$this->dateEnabled || !static::dateRelativeStringHasToken($table->getTableAsString())) {
       return $table;
     }
 
@@ -138,6 +164,21 @@ trait DateTrait {
     // @codeCoverageIgnoreStart
     return time();
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function dateConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Replace `[relative:...]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.',
+      ],
+    ];
   }
 
 }

@@ -18,7 +18,7 @@ use Behat\Step\When;
  * - Execute JavaScript-based interactions with element state verification.
  * - Handle confirmation dialogs and scrolling operations.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait ElementTrait {
 
@@ -772,7 +772,7 @@ trait ElementTrait {
    * @endcode
    */
   protected function elementGetScrollIntoViewCenter(): bool {
-    return TRUE;
+    return (bool) $this->getOption('element', 'scroll_into_view_center');
   }
 
   /**
@@ -1376,6 +1376,21 @@ JS;
     $script = str_replace('{{SCRIPT}}', $script, $script_wrapper);
 
     return $this->getSession()->getDriver()->evaluateScript($script);
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function elementConfigSchema(): array {
+    return [
+      'scroll_into_view_center' => [
+        'default' => TRUE,
+        'description' => 'Center an element in the viewport when scrolling to it, rather than aligning it to the top.',
+      ],
+    ];
   }
 
 }

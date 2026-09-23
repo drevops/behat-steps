@@ -293,8 +293,9 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string,array<string, array<int, array<string, array<int,string>|string>>|string>>
- *   Array of info with 'name', 'steps', 'description', and 'example' keys.
+ * @return array<string, array<string, mixed>>
+ *   Array of info with 'name', 'options', 'methods', 'description' and
+ *   'description_full' keys.
  *
  * @throws \ReflectionException
  */
@@ -310,6 +311,7 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
       'name_contextual' => ($context !== 'Generic' ? $context . '\\' : '') . $trait_name,
       'context' => $context,
       'methods' => [],
+      'options' => extract_trait_options($class_name, $trait_name),
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
@@ -364,6 +366,49 @@ function extract_info(string $class_name, array $exclude = [], string $base_path
   }
 
   return $info;
+}
+
+/**
+ * Read the option declarations of one trait.
+ *
+ * A trait declares its options in a '<prefix>ConfigSchema()' method. The method
+ * returns a literal, so it is invoked on an instance built without running any
+ * constructor.
+ *
+ * @param string $class_name
+ *   The context class composing the trait.
+ * @param string $trait_name
+ *   The short trait name.
+ *
+ * @return array<string, array<string, mixed>>
+ *   Declarations keyed by option name, empty when the trait declares none.
+ */
+function extract_trait_options(string $class_name, string $trait_name): array {
+  $method = lcfirst(str_replace('Trait', '', $trait_name)) . 'ConfigSchema';
+
+  /** @var class-string $class_name */
+  $reflection = new \ReflectionClass($class_name);
+
+  if (!$reflection->hasMethod($method)) {
+    return [];
+  }
+
+  $declarations = $reflection->getMethod($method)->invoke($reflection->newInstanceWithoutConstructor());
+
+  return is_array($declarations) ? $declarations : [];
+}
+
+/**
+ * Convert a trait name to the group its options are configured under.
+ *
+ * @param string $trait_name
+ *   The short trait name.
+ *
+ * @return string
+ *   The group name, in snake case.
+ */
+function trait_option_group(string $trait_name): string {
+  return camel_to_snake(str_replace('Trait', '', $trait_name));
 }
 
 /**
@@ -669,6 +714,68 @@ function render_value(mixed $value): string {
   }
 
   return is_scalar($value) ? (string) $value : 'object';
+}
+
+/**
+ * Render a trait's option declarations as a markdown table.
+ *
+ * @param string $trait_name
+ *   The short trait name.
+ * @param mixed $options
+ *   The declarations the trait returned, keyed by option name.
+ *
+ * @return string
+ *   The table, or an empty string when the trait declares no option.
+ */
+function render_trait_options(string $trait_name, mixed $options): string {
+  if (!is_array($options) || $options === []) {
+    return '';
+  }
+
+  $group = trait_option_group($trait_name);
+  $rows = [];
+
+  foreach ($options as $key => $declaration) {
+    $declaration = is_array($declaration) ? $declaration : [];
+    $default = $declaration['default'] ?? NULL;
+
+    $tags = is_array($declaration['tags'] ?? NULL) ? array_keys($declaration['tags']) : [];
+
+    if ($key === 'enabled') {
+      $tags[] = 'behat-steps-skip:' . $trait_name;
+    }
+
+    $tags = array_map(static fn(string $tag): string => '`@' . $tag . '`', $tags);
+
+    $rows[] = [
+      sprintf('`%s.%s`', $group, $key),
+      trait_option_type($default),
+      sprintf('`%s`', render_value($default)),
+      $tags === [] ? '-' : implode(', ', $tags),
+      str_replace('|', '\\|', (string) ($declaration['description'] ?? '')),
+    ];
+  }
+
+  return '### Options' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+}
+
+/**
+ * Name the type of an option, taken from the type its default carries.
+ *
+ * @param mixed $default
+ *   The declared default.
+ *
+ * @return string
+ *   The type name, in the vocabulary the configuration reference uses.
+ */
+function trait_option_type(mixed $default): string {
+  return match (get_debug_type($default)) {
+    'bool' => 'boolean',
+    'int' => 'integer',
+    'float' => 'float',
+    'array' => 'map',
+    default => 'string',
+  };
 }
 
 /**
@@ -1009,6 +1116,8 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
+    $content_output[$context] .= render_trait_options($trait, $trait_info['options'] ?? []);
+    // @phpstan-ignore-next-line
     $index_rows_path = '#' . heading_anchor((string) $trait_info['name_contextual']);
     if ($path_for_links) {
       $index_rows_path = $path_for_links . $index_rows_path;
@@ -1216,6 +1325,8 @@ function validate(array $info): array {
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
 
+    $errors = array_merge($errors, validate_trait_options($class_name, $class_info['options'] ?? []));
+
     // @phpstan-ignore-next-line
     foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
@@ -1289,6 +1400,43 @@ function validate(array $info): array {
 }
 
 /**
+ * Validate that every declared option carries a default and a description.
+ *
+ * The option table is generated from the declarations, so an option without a
+ * description would reach the reference as an empty cell.
+ *
+ * @param string $trait_name
+ *   The short trait name, for the error message.
+ * @param mixed $options
+ *   The declarations the trait returned, keyed by option name.
+ *
+ * @return array<string>
+ *   Array of errors.
+ */
+function validate_trait_options(string $trait_name, mixed $options): array {
+  if (!is_array($options)) {
+    return [];
+  }
+
+  $group = trait_option_group($trait_name);
+  $errors = [];
+
+  foreach ($options as $key => $declaration) {
+    if (!is_array($declaration) || !array_key_exists('default', $declaration)) {
+      $errors[] = sprintf('  %s - Option "%s.%s" declares no default' . PHP_EOL, $trait_name, $group, $key);
+
+      continue;
+    }
+
+    if (!isset($declaration['description']) || trim((string) $declaration['description']) === '') {
+      $errors[] = sprintf('  %s - Option "%s.%s" is undocumented' . PHP_EOL, $trait_name, $group, $key);
+    }
+  }
+
+  return $errors;
+}
+
+/**
  * Placeholder names that name a value's type instead of its role.
  *
  * A placeholder is the only description a step gives of what a consumer must
@@ -1336,7 +1484,7 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`).',
+      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE.',
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',
@@ -1380,7 +1528,7 @@ function tag_registry(): array {
     ],
     'js-errors' => [
       'form' => 'flag',
-      'description' => 'Allow JavaScript errors, which otherwise fail the scenario.',
+      'description' => 'Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE.',
     ],
     'download' => [
       'form' => 'flag',
@@ -1396,7 +1544,7 @@ function tag_registry(): array {
     ],
     'error' => [
       'form' => 'flag',
-      'description' => 'Expect the scenario to log an error, which turns the Watchdog check off.',
+      'description' => 'Expect the scenario to log an error. The errors are still read and cleared, and the scenario is not failed. Sets the `watchdog.fail_on_errors` option to FALSE.',
     ],
   ];
 }

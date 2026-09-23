@@ -2782,7 +2782,8 @@ EOD,
 
     $this->assertStringContainsString('| Option | Type | Default | Description |', $actual);
     $this->assertStringContainsString("| `login_field` | string | `'name'` |", $actual);
-    $this->assertStringContainsString('| `ajax_timeout` | integer | `5` |', $actual);
+    $this->assertStringContainsString('| `login_wait` | integer | `0` |', $actual);
+    $this->assertStringContainsString('| `steps` | map | `[]` |', $actual);
     $this->assertStringContainsString('| `regions` | map | `[]` |', $actual);
     $this->assertStringContainsString('| `text` | section | - |', $actual);
 
@@ -2808,7 +2809,7 @@ EOD,
   public static function dataProviderExtensionOptionType(): array {
     return [
       'scalar' => ['login_field', 'string'],
-      'integer' => ['ajax_timeout', 'integer'],
+      'integer' => ['login_wait', 'integer'],
       'prototyped array' => ['regions', 'map'],
       'array' => ['text', 'section'],
     ];

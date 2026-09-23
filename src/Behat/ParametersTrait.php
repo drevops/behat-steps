@@ -97,28 +97,4 @@ trait ParametersTrait {
     return $selectors[$name];
   }
 
-  /**
-   * Returns a mapped value by its key.
-   *
-   * Keys are unique across every configured 'mappings' group, so the group
-   * a key lives in is irrelevant to the lookup.
-   *
-   * @param string $name
-   *   The mapping key.
-   *
-   * @return string
-   *   The mapped value.
-   *
-   * @throws \RuntimeException
-   *   Thrown when the key is not present in the configured mappings.
-   */
-  public function getMapping(string $name): string {
-    $mappings = $this->getParameter('mappings');
-    if (!isset($mappings[$name])) {
-      throw new \RuntimeException(sprintf('No such mapping: %s', $name));
-    }
-
-    return $mappings[$name];
-  }
-
 }

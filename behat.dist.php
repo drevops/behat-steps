@@ -41,7 +41,6 @@ $profile = (new Profile('default'))
     'drivers' => ['drupal', 'drush', 'blackbox'],
     'login_field' => 'name',
     'login_wait' => 0,
-    'ajax_timeout' => 5,
     'blackbox' => NULL,
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [
@@ -60,12 +59,6 @@ $profile = (new Profile('default'))
       'password_field' => 'Password',
     ],
     'selectors' => [
-      'messages' => [
-        'default' => '.messages',
-        'error' => '.messages.messages--error',
-        'success' => '.messages.messages--status',
-        'warning' => '.messages.messages--warning',
-      ],
       'login_form_selector' => 'form#user-login,form#user-login-form',
       'logged_in_selector' => 'body.logged-in,body.user-logged-in',
     ],
@@ -74,10 +67,28 @@ $profile = (new Profile('default'))
       'sidebar' => '#sidebar',
       'footer' => '#footer',
     ],
-    'mappings' => [
-      'paths' => [
-        'User Login' => '/user/login',
-        'User Registration' => '/user/register',
+    // Defaults of the options the step traits declare, keyed by trait group.
+    // STEPS.md lists every group and option; the few below are the ones a
+    // project almost always sets.
+    'steps' => [
+      'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
+      'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
+      'wait' => ['ajax_timeout' => 5],
+      'message' => [
+        'selectors' => [
+          'default' => '.messages',
+          'error' => '.messages.messages--error',
+          'success' => '.messages.messages--status',
+          'warning' => '.messages.messages--warning',
+        ],
+      ],
+      'mapping' => [
+        'groups' => [
+          'paths' => [
+            'User Login' => '/user/login',
+            'User Registration' => '/user/register',
+          ],
+        ],
       ],
     ],
   ]));

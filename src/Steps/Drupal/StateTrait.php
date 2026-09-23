@@ -279,4 +279,19 @@ trait StateTrait {
     return (string) json_encode($value);
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function stateConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Restore the state values a scenario changed once it finishes.',
+      ],
+    ];
+  }
+
 }

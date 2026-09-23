@@ -182,7 +182,7 @@ class FeatureContext extends RawContext {
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
+    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : NULL;
   }
 
 }
