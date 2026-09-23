@@ -1483,7 +1483,7 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`).',
+      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE.',
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',
@@ -1527,7 +1527,7 @@ function tag_registry(): array {
     ],
     'js-errors' => [
       'form' => 'flag',
-      'description' => 'Allow JavaScript errors, which otherwise fail the scenario.',
+      'description' => 'Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE.',
     ],
     'download' => [
       'form' => 'flag',
@@ -1543,7 +1543,7 @@ function tag_registry(): array {
     ],
     'error' => [
       'form' => 'flag',
-      'description' => 'Expect the scenario to log an error, which turns the Watchdog check off.',
+      'description' => 'Expect the scenario to log an error. The errors are still read and cleared, and the scenario is not failed. Sets the `watchdog.fail_on_errors` option to FALSE.',
     ],
   ];
 }

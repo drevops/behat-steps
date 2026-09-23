@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableSubContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\MalformedConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\UndocumentedConfigContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\UntypedConfigContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -239,6 +241,27 @@ class ContextConfigTest extends UnitTestCase {
       UndocumentedConfigContext::class,
       'The "undocumented.label" declaration in ' . UndocumentedConfigContext::class . '::undocumentedConfigSchema() needs a "default" and a "description".',
     ];
+  }
+
+  public function testADeclarationMethodMustReturnAnArray(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(UntypedConfigContext::class . '::untypedConfigSchema() must return an array of option declarations.');
+
+    new UntypedConfigContext();
+  }
+
+  public function testAContextComposingNoDeclaringTraitSaysSo(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('Unknown option group "sample" for context "' . BareConfigContext::class . '". This context accepts: nothing.');
+
+    new BareConfigContext(['sample' => ['enabled' => FALSE]]);
+  }
+
+  public function testAContextComposingNoDeclaringTraitHasNoOptionToRead(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('declares the option "sample.enabled". Declared options: none.');
+
+    (new BareConfigContext())->getOption('sample', 'enabled');
   }
 
   public function testAStepsSectionThatIsNotAMapIsIgnored(): void {

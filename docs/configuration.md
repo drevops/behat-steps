@@ -290,7 +290,7 @@ Scenario: Editor publishes a page
 
 | Tag | Description |
 | --- | --- |
-| `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). |
+| `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
@@ -301,11 +301,11 @@ Scenario: Editor publishes a page
 | `@accessibility:VALUE` | Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`. |
 | `@bigpipe` | Render BigPipe placeholders server-side, for a driver without JavaScript. |
 | `@disable-form-validation` | Strip HTML5 validation from every form on the page so a scenario can submit values the browser would block. |
-| `@js-errors` | Allow JavaScript errors, which otherwise fail the scenario. |
+| `@js-errors` | Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE. |
 | `@download` | Prepare the download directory for the scenario and clean it up afterwards. |
 | `@testmode` | Enable the Testmode module for the scenario. |
 | `@debug` | Print detailed diagnostics while the scenario runs. |
-| `@error` | Expect the scenario to log an error, which turns the Watchdog check off. |
+| `@error` | Expect the scenario to log an error. The errors are still read and cleared, and the scenario is not failed. Sets the `watchdog.fail_on_errors` option to FALSE. |
 
 [//]: # (END_TAGS)
 
