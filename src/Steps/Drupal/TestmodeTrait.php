@@ -41,7 +41,7 @@ trait TestmodeTrait {
 
     $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
 
-    self::testmodeEnableTestMode();
+    static::testmodeEnableTestMode();
   }
 
   /**
@@ -57,7 +57,7 @@ trait TestmodeTrait {
 
     $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
 
-    self::testmodeDisableTestMode();
+    static::testmodeDisableTestMode();
   }
 
   /**

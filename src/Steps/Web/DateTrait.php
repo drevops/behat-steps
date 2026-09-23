@@ -81,7 +81,7 @@ trait DateTrait {
     foreach ($table->getRows() as $hash) {
       $row = [];
       foreach ($hash as $cell) {
-        $row[] = self::dateRelativeProcessValue($cell);
+        $row[] = static::dateRelativeProcessValue($cell);
       }
       $rows[] = $row;
     }
@@ -124,7 +124,7 @@ trait DateTrait {
 
     // An absent `now` truncates to the current minute, so every assertion in
     // a long-running scenario resolves against the same base timestamp.
-    $now = $now ?: strtotime(date('Y-m-d H:i:00', self::dateNow()));
+    $now = $now ?: strtotime(date('Y-m-d H:i:00', static::dateNow()));
     $now = $now ?: NULL;
 
     return (string) preg_replace_callback('/\[relative:([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {

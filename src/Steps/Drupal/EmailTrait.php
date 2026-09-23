@@ -115,7 +115,7 @@ trait EmailTrait {
   public function emailClearTestQueue(bool $force = FALSE): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    if (!$force && !self::emailGetMailSystemOriginal()) {
+    if (!$force && !static::emailGetMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
 
@@ -150,7 +150,7 @@ trait EmailTrait {
       throw new \RuntimeException('No body found in email.');
     }
     // @codeCoverageIgnoreEnd
-    $links = self::emailExtractLinks($body);
+    $links = static::emailExtractLinks($body);
 
     if (empty($links)) {
       throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
@@ -190,7 +190,7 @@ trait EmailTrait {
         continue;
       }
 
-      foreach (self::emailExtractLinks($body) as $link) {
+      foreach (static::emailExtractLinks($body) as $link) {
         if (str_contains($link, $url_fragment)) {
           $this->getSession()->visit($link);
 
@@ -236,7 +236,7 @@ trait EmailTrait {
       throw new \RuntimeException('No body found in email.');
     }
     // @codeCoverageIgnoreEnd
-    $links = self::emailExtractLinks($body);
+    $links = static::emailExtractLinks($body);
 
     if (empty($links)) {
       throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
@@ -263,11 +263,11 @@ trait EmailTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = self::emailGetMailSystemDefault($type);
-      if (!self::emailGetMailSystemOriginal($type)) {
-        self::emailSetMailSystemOriginal($type, $original_test_system);
+      $original_test_system = static::emailGetMailSystemDefault($type);
+      if (!static::emailGetMailSystemOriginal($type)) {
+        static::emailSetMailSystemOriginal($type, $original_test_system);
       }
-      self::emailSetMailSystemDefault($type, 'test_mail_collector');
+      static::emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
     // Clearing here lets this step definition be reused to clear existing
@@ -287,11 +287,11 @@ trait EmailTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = self::emailGetMailSystemOriginal($type);
-      self::emailSetMailSystemDefault($type, $original_test_system);
+      $original_test_system = static::emailGetMailSystemOriginal($type);
+      static::emailSetMailSystemDefault($type, $original_test_system);
     }
 
-    self::emailDeleteMailSystemOriginal();
+    static::emailDeleteMailSystemOriginal();
     $this->emailClearTestQueue(TRUE);
   }
 
