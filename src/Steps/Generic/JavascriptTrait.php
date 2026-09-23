@@ -13,7 +13,6 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Automatically detect JavaScript errors during test execution.
@@ -94,7 +93,7 @@ trait JavascriptTrait {
 
     // Step scopes carry no scenario tags, so the bypass is resolved here for
     // the step hook to read.
-    $this->javascriptBypassErrors = Tag::has($scope->getScenario(), 'js-errors');
+    $this->javascriptBypassErrors = $this->getOption('javascript', 'fail_on_errors', $scope) === FALSE;
 
     $this->helperSetLastStepLine($scope);
   }
@@ -340,6 +339,26 @@ JS;
    */
   protected function javascriptClearRegistry(): void {
     $this->javascriptErrorRegistry = [];
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function javascriptConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Collect JavaScript console errors on a `@javascript` scenario.',
+      ],
+      'fail_on_errors' => [
+        'default' => TRUE,
+        'description' => 'Fail a scenario that collected a console error. Errors are still collected when this is off.',
+        'tags' => ['js-errors' => FALSE],
+      ],
+    ];
   }
 
 }

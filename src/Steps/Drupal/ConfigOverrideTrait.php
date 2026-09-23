@@ -178,4 +178,19 @@ trait ConfigOverrideTrait {
     }
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function configOverrideConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards.',
+      ],
+    ];
+  }
+
 }

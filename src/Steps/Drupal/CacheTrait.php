@@ -133,7 +133,22 @@ trait CacheTrait {
    * internal page cache bin name.
    */
   public function cacheGetPageCacheBin(): string {
-    return 'page';
+    return (string) $this->getOption('cache', 'page_cache_bin');
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function cacheConfigSchema(): array {
+    return [
+      'page_cache_bin' => [
+        'default' => 'page',
+        'description' => 'Name of the cache bin holding the internal page cache.',
+      ],
+    ];
   }
 
 }

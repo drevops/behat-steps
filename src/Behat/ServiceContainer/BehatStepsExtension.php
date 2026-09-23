@@ -150,26 +150,21 @@ class BehatStepsExtension implements ExtensionInterface {
           ->defaultValue(0)
           ->info('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting.')
         ->end()
-        ->integerNode('ajax_timeout')
-          ->min(0)
-          ->defaultValue(5)
-          ->info('Maximum time (in seconds) to wait for AJAX calls to complete.')
+        ->arrayNode('steps')
+          ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL
+            . '  javascript:' . PHP_EOL
+            . '    enabled: true' . PHP_EOL
+            . '    fail_on_errors: false' . PHP_EOL
+            . '  wait:' . PHP_EOL
+            . '    ajax_timeout: 10' . PHP_EOL)
+          ->useAttributeAsKey('group')
+          ->prototype('variable')->end()
         ->end()
         ->arrayNode('selectors')
           ->info('CSS selectors the steps resolve page structures against.')
           ->ignoreExtraKeys(FALSE)
           ->addDefaultsIfNotSet()
           ->children()
-            ->arrayNode('messages')
-              ->info('Selectors of the message regions asserted by the message steps, one per severity.')
-              ->ignoreExtraKeys(FALSE)
-              ->children()
-                ->scalarNode('default')->info('Selector matching a message of any severity.')->end()
-                ->scalarNode('error')->info('Selector matching an error message.')->end()
-                ->scalarNode('success')->info('Selector matching a success message.')->end()
-                ->scalarNode('warning')->info('Selector matching a warning message.')->end()
-              ->end()
-            ->end()
             ->scalarNode('login_form_selector')
               ->defaultValue('form#user-login,form#user-login-form')
               ->info('Selector of the login form, used to tell a login page from a page that merely holds a login block.')
@@ -178,17 +173,6 @@ class BehatStepsExtension implements ExtensionInterface {
               ->defaultValue('body.logged-in,body.user-logged-in')
               ->info('Selector present only while a user is authenticated, used to confirm a login took effect.')
             ->end()
-          ->end()
-        ->end()
-        ->arrayNode('mappings')
-          ->info('Named value mappings grouped for organisation. A "{{ Key }}" token in any step argument or table cell is replaced with the mapped value before the step runs; whitespace inside the braces is ignored, so "{{ Key }}" and "{{Key}}" are equivalent. Group names are organisational only - a key must be unique across all groups.' . PHP_EOL
-            . '  paths:' . PHP_EOL
-            . '    User Registration: "/user/register"' . PHP_EOL
-            . '    User Login: "/user/login"' . PHP_EOL)
-          ->useAttributeAsKey('group')
-          ->prototype('array')
-            ->useAttributeAsKey('key')
-            ->prototype('scalar')->end()
           ->end()
         ->end()
         ->arrayNode('blackbox')
@@ -259,45 +243,9 @@ class BehatStepsExtension implements ExtensionInterface {
     // even when the optional 'regions' key was omitted from the configuration.
     $config['regions'] = $regions;
 
-    // Flatten the grouped mappings to a single key => value map that
-    // contexts resolve '{{ Key }}' tokens against. Groups are only a way
-    // to organise the configuration, so a key must be unique across them.
-    $config['mappings'] = $this->flattenMappings($config['mappings'] ?? []);
-
     $container->setParameter('behat_steps.parameters', $config);
     $container->setParameter('behat_steps.regions', $regions);
     $container->setParameter(self::DRIVERS_PARAMETER, $config['drivers'] ?? []);
-  }
-
-  /**
-   * Flattens grouped mappings into a single key => value map.
-   *
-   * @param array<string, array<string, string>> $grouped
-   *   Mappings as configured: group name => (key => value).
-   *
-   * @return array<string, string>
-   *   The flattened key => value map.
-   *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When the same key appears in more than one group, which would make the
-   *   bare-key '{{ Key }}' token ambiguous.
-   */
-  protected function flattenMappings(array $grouped): array {
-    $flat = [];
-    $groups = [];
-
-    foreach ($grouped as $group => $entries) {
-      foreach ($entries as $key => $value) {
-        if (isset($groups[$key])) {
-          throw new InvalidConfigurationException(sprintf('Duplicate mapping key "%s" found in groups "%s" and "%s" under "%s: mappings:". Mapping keys must be unique across all groups.', $key, $groups[$key], $group, self::CONFIG_KEY));
-        }
-
-        $groups[$key] = $group;
-        $flat[$key] = (string) $value;
-      }
-    }
-
-    return $flat;
   }
 
   /**
@@ -512,7 +460,13 @@ class BehatStepsExtension implements ExtensionInterface {
       return;
     }
 
-    $parameters['ajax_timeout'] = $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
+    $steps = is_array($parameters['steps'] ?? NULL) ? $parameters['steps'] : [];
+    $wait = is_array($steps['wait'] ?? NULL) ? $steps['wait'] : [];
+
+    $wait['ajax_timeout'] = $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
+    $steps['wait'] = $wait;
+    $parameters['steps'] = $steps;
+
     $container->setParameter('behat_steps.parameters', $parameters);
   }
 

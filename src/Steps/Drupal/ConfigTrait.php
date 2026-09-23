@@ -496,4 +496,19 @@ trait ConfigTrait {
     return (string) json_encode($value);
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function configConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Restore the configuration values a scenario changed once it finishes.',
+      ],
+    ];
+  }
+
 }

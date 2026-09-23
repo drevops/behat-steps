@@ -82,4 +82,19 @@ trait TimeTrait {
     \Drupal::state()->delete('testing.time');
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function timeConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Restore the site clock after a scenario that moved it.',
+      ],
+    ];
+  }
+
 }

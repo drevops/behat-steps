@@ -168,9 +168,26 @@ JS;
    * Return the configured AJAX timeout, in seconds.
    */
   public function waitGetAjaxTimeout(): int {
-    $timeout = $this->getParameter('ajax_timeout');
+    return (int) $this->getOption('wait', 'ajax_timeout');
+  }
 
-    return is_numeric($timeout) ? (int) $timeout : 5;
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function waitConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Wait for AJAX around every navigating or submitting step of a `@javascript` scenario.',
+      ],
+      'ajax_timeout' => [
+        'default' => 5,
+        'description' => 'Maximum time, in seconds, to wait for AJAX calls to complete.',
+      ],
+    ];
   }
 
 }

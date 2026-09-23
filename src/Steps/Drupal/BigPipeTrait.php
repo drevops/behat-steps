@@ -37,17 +37,12 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Special tags:
  * - `@bigpipe` - render server-side on a driver without JavaScript.
  *
- * Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in the
- * consuming `FeatureContext` to change the maximum wait.
+ * Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
+ * `$bigPipeWaitTimeout` to override it for one scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait BigPipeTrait {
-
-  /**
-   * Default maximum time to wait for BigPipe placeholders, in milliseconds.
-   */
-  protected const BIG_PIPE_DEFAULT_WAIT_TIMEOUT = 10000;
 
   /**
    * Cookie name BigPipe reads to bypass streaming and render server-side.
@@ -73,9 +68,9 @@ trait BigPipeTrait {
   protected ?bool $bigPipeJavascriptProbe = NULL;
 
   /**
-   * Maximum time to wait for BigPipe placeholders to be replaced, in milliseconds.
+   * Per-scenario wait override, NULL to take the configured option.
    */
-  protected int $bigPipeWaitTimeout = self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT;
+  protected ?int $bigPipeWaitTimeout = NULL;
 
   /**
    * Resolve whether the automatic BigPipe wait applies to this scenario.
@@ -188,7 +183,26 @@ trait BigPipeTrait {
    *   The timeout in milliseconds.
    */
   public function bigPipeGetWaitTimeout(): int {
-    return $this->bigPipeWaitTimeout;
+    return $this->bigPipeWaitTimeout ?? (int) $this->getOption('big_pipe', 'wait_timeout');
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function bigPipeConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario.',
+      ],
+      'wait_timeout' => [
+        'default' => 10000,
+        'description' => 'Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced.',
+      ],
+    ];
   }
 
 }

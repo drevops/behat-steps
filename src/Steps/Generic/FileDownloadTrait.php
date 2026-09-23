@@ -500,7 +500,7 @@ trait FileDownloadTrait {
    * Get temp download dir.
    */
   public function fileDownloadGetTempDir(): string {
-    return '/tmp/behat_downloads';
+    return (string) $this->getOption('file_download', 'temp_dir');
   }
 
   /**
@@ -515,6 +515,25 @@ trait FileDownloadTrait {
   protected function fileDownloadIsRegex(string $string): bool {
     $string = trim($string);
     return (bool) preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string);
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function fileDownloadConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Prepare and clean up the download directory around a `@download` scenario.',
+      ],
+      'temp_dir' => [
+        'default' => '/tmp/behat_downloads',
+        'description' => 'Directory a `@download` scenario writes downloaded files into.',
+      ],
+    ];
   }
 
 }

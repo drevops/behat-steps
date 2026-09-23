@@ -321,4 +321,19 @@ trait ModuleTrait {
     }
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function moduleConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Apply the `@module:` tags of a scenario and restore the original module states afterwards.',
+      ],
+    ];
+  }
+
 }

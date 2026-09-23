@@ -28,7 +28,8 @@ use Drupal\Core\Database\Database;
  *
  * Special tags:
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
- * - `@error` - add to scenarios that are expected to trigger an error.
+ * - `@error` - add to scenarios that are expected to trigger an error. The
+ *   errors are still read and cleared; the scenario is not failed.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
@@ -59,6 +60,11 @@ trait WatchdogTrait {
   protected int $watchdogScenarioLine = 0;
 
   /**
+   * Whether a logged error fails the current scenario.
+   */
+  protected bool $watchdogFailOnErrors = TRUE;
+
+  /**
    * Store the scenario identity, tracked message types and start time.
    */
   #[BeforeScenario]
@@ -70,10 +76,11 @@ trait WatchdogTrait {
     $scenario = $scope->getScenario();
 
     // An unset start time disables the check.
-    if (Tag::has($scenario, 'behat-steps-skip:watchdogAfterStep') || Tag::has($scenario, 'error')) {
+    if (Tag::has($scenario, 'behat-steps-skip:watchdogAfterStep')) {
       return;
     }
 
+    $this->watchdogFailOnErrors = $this->getOption('watchdog', 'fail_on_errors', $scope) !== FALSE;
     $this->watchdogScenarioStartTime = time();
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
@@ -103,6 +110,12 @@ trait WatchdogTrait {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
     }
 
+    if (!$this->watchdogFailOnErrors) {
+      $this->watchdogReadErrors();
+
+      return;
+    }
+
     $this->watchdogAssertNotHasErrors(sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine));
   }
 
@@ -130,6 +143,12 @@ trait WatchdogTrait {
     // still open. This hook runs after the result is set, where throwing
     // would replace a real scenario failure with a configuration error.
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
+      return;
+    }
+
+    if (!$this->watchdogFailOnErrors) {
+      $this->watchdogReadErrors();
+
       return;
     }
 
@@ -170,8 +189,6 @@ trait WatchdogTrait {
   /**
    * Assert no errors at or above the severity threshold were logged.
    *
-   * Reported entries are deleted so a later check sees only new ones.
-   *
    * @param string $context
    *   Description of when the errors were logged, for the failure message.
    *
@@ -179,6 +196,26 @@ trait WatchdogTrait {
    *   If errors at or above the severity threshold were logged.
    */
   public function watchdogAssertNotHasErrors(string $context): void {
+    $errors = $this->watchdogReadErrors();
+
+    if ($errors === []) {
+      return;
+    }
+
+    throw new ExpectationException(sprintf('PHP errors were logged to watchdog %s: %s', $context, PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Read the errors logged since the scenario started, and clear them.
+   *
+   * Read entries are deleted so a later check in the same scenario sees only
+   * new ones.
+   *
+   * @return array<int, string>
+   *   Rendered entries at or above the severity threshold, keyed by their
+   *   watchdog id.
+   */
+  public function watchdogReadErrors(): array {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();
@@ -191,7 +228,7 @@ trait WatchdogTrait {
       ->fetchAll();
 
     if (empty($entries)) {
-      return;
+      return [];
     }
 
     $errors = [];
@@ -209,13 +246,33 @@ trait WatchdogTrait {
       $errors[$error->wid] = print_r($error, TRUE);
     }
 
-    if (!empty($errors)) {
+    if ($errors !== []) {
       $database->delete('watchdog')
         ->condition('wid', array_keys($errors), 'IN')
         ->execute();
-
-      throw new ExpectationException(sprintf('PHP errors were logged to watchdog %s: %s', $context, PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
     }
+
+    return $errors;
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function watchdogConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.',
+      ],
+      'fail_on_errors' => [
+        'default' => TRUE,
+        'description' => 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.',
+        'tags' => ['error' => FALSE],
+      ],
+    ];
   }
 
 }

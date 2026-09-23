@@ -272,13 +272,28 @@ trait MessageTrait {
    *   When the message type has no configured selector.
    */
   public function messageSelector(string $type): string {
-    $selectors = $this->getParameter('selectors');
+    $selectors = $this->getOption('message', 'selectors');
 
-    if (!is_array($selectors) || !isset($selectors['messages'][$type]) || !is_string($selectors['messages'][$type])) {
-      throw new \RuntimeException(sprintf('No CSS selector is configured for the "%s" message type. Set it under "behat_steps: selectors: messages: %s:".', $type, $type));
+    if (!is_array($selectors) || !isset($selectors[$type]) || !is_string($selectors[$type])) {
+      throw new \RuntimeException(sprintf('No CSS selector is configured for the "%s" message type. Set it under "behat_steps: steps: message: selectors: %s:".', $type, $type));
     }
 
-    return $selectors['messages'][$type];
+    return $selectors[$type];
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function messageConfigSchema(): array {
+    return [
+      'selectors' => [
+        'default' => [],
+        'description' => 'Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`.',
+      ],
+    ];
   }
 
 }

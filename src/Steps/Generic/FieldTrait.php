@@ -919,10 +919,7 @@ JS;
    *   CSS selectors to probe for the add-another-item button.
    */
   public function fieldGetAddMoreButtonSelectors(): array {
-    return [
-      'input[value="Add another item"]',
-      'button.field-add-more-submit',
-    ];
+    return (array) $this->getOption('field', 'add_more_button_selectors');
   }
 
   /**
@@ -936,7 +933,7 @@ JS;
    *   CSS selectors to probe for a required marker.
    */
   public function fieldGetRequiredMarkerSelectors(): array {
-    return ['.form-required', '[required]'];
+    return (array) $this->getOption('field', 'required_marker_selectors');
   }
 
   /**
@@ -1115,6 +1112,29 @@ JS;
     }
 
     $element->setValue($value);
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function fieldConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Strip HTML5 validation from every form of a `@disable-form-validation` scenario.',
+      ],
+      'add_more_button_selectors' => [
+        'default' => ['input[value="Add another item"]', 'button.field-add-more-submit'],
+        'description' => 'CSS selectors of the add-another-item button, tried in order.',
+      ],
+      'required_marker_selectors' => [
+        'default' => ['.form-required', '[required]'],
+        'description' => 'CSS selectors that mark a field as required, tried in order.',
+      ],
+    ];
   }
 
 }

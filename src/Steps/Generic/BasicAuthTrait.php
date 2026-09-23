@@ -68,4 +68,19 @@ trait BasicAuthTrait {
     }
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function basicAuthConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Apply the configured basic authentication credentials to every request.',
+      ],
+    ];
+  }
+
 }

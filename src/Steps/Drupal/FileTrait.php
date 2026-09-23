@@ -368,4 +368,19 @@ trait FileTrait {
     return $query->execute();
   }
 
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function fileConfigSchema(): array {
+    return [
+      'enabled' => [
+        'default' => TRUE,
+        'description' => 'Delete the managed files a scenario created once it finishes.',
+      ],
+    ];
+  }
+
 }

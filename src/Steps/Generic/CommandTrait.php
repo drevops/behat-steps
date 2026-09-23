@@ -23,6 +23,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * Commands run through the system shell with the privileges of the process
  * that runs the tests. The command string is passed to the shell verbatim and
  * is subject to shell expansion, so never interpolate untrusted input into it.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
 trait CommandTrait {
 
@@ -382,7 +384,22 @@ trait CommandTrait {
    * The maximum time, in seconds, a command may run before it is terminated.
    */
   public function commandGetTimeout(): int {
-    return 300;
+    return (int) $this->getOption('command', 'timeout');
+  }
+
+  /**
+   * Declares the options this trait reads.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Option declarations keyed by option name.
+   */
+  protected function commandConfigSchema(): array {
+    return [
+      'timeout' => [
+        'default' => 300,
+        'description' => 'Maximum time, in seconds, a command may run before it is terminated.',
+      ],
+    ];
   }
 
 }
