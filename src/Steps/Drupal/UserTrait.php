@@ -315,11 +315,10 @@ trait UserTrait {
     $role = $this->driverFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
 
-    $driver = $this->driverFor(UserCapabilityInterface::class);
-
     $stub = $this->userBuildStub();
     $this->userCreate($stub);
-    $driver->userAddRole($stub, $role);
+
+    $this->driverFor(UserCapabilityInterface::class)->userAddRole($stub, $role);
 
     $this->login($stub);
   }
