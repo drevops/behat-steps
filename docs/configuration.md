@@ -87,26 +87,34 @@ Behat matches the arguments to the constructor by name, so the array keys are th
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
-    'config' => [
-      'javascript' => ['fail_on_errors' => FALSE],
-      'diagnostics' => ['show_url' => FALSE, 'show_js_errors' => FALSE],
-    ],
+  ->addContext(DrupalContext::class, [
+    'config' => ['wait' => ['ajax_timeout' => 10]],
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring: overriding `javascript` on a context that does not compose `JavascriptTrait` is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring: `DrupalContext` composes `WaitTrait` and takes `wait` above, while overriding `javascript` on it is an error at construction, naming what it does accept.
 
-A context that adds arguments of its own forwards `config` to the parent:
+A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
 ```php
 class UiContext extends RawContext {
+
+  use JavascriptTrait;
 
   public function __construct(protected string $fixtures_path, array $config = []) {
     parent::__construct($config);
   }
 
 }
+```
+
+```php
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(UiContext::class, [
+    'fixtures_path' => '%paths.base%/tests/behat/fixtures',
+    'config' => ['javascript' => ['fail_on_errors' => FALSE]],
+  ]);
 ```
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
