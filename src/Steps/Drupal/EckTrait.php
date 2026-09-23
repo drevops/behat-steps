@@ -10,6 +10,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -23,7 +24,7 @@ use Drupal\Core\Entity\EntityInterface;
  */
 trait EckTrait {
 
-  use HelperTrait;
+  use DrupalQueryTrait;
 
   /**
    * Create eck entities.
@@ -39,7 +40,7 @@ trait EckTrait {
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->drupalQueryAssertModuleEnabled('eck', 'drupal/eck');
 
     $filtered_table = TableNode::fromList($table->getColumn(0));
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
@@ -59,7 +60,7 @@ trait EckTrait {
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->drupalQueryAssertModuleEnabled('eck', 'drupal/eck');
 
     foreach ($table->getHash() as $entity_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
@@ -83,7 +84,7 @@ trait EckTrait {
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->drupalQueryAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -112,7 +113,7 @@ trait EckTrait {
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->drupalQueryAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [

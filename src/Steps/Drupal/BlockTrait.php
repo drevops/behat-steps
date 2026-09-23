@@ -22,8 +22,6 @@ use Drupal\block\Entity\Block;
  */
 trait BlockTrait {
 
-  use HelperTrait;
-
   /**
    * Create a block instance.
    *

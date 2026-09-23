@@ -33,7 +33,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 trait FileTrait {
 
-  use HelperTrait;
 
   /**
    * Unmanaged file URIs.

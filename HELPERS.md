@@ -1,6 +1,6 @@
 # Available helpers
 
-### Index of Generic helpers
+### Index of Web helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
@@ -14,7 +14,7 @@
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
-| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -60,13 +60,15 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [RawContext](#rawcontext) | 21 | Base context carrying the scenario lifecycle. |
+| [RawContext](#rawcontext) | 10 | Base context carrying the plumbing both halves of the library share. |
+| [WebRawContext](#webrawcontext) | 2 | Base context carrying the web plumbing. |
+| [DrupalRawContext](#drupalrawcontext) | 12 | Base context carrying the Drupal scenario lifecycle. |
 
 ---
 
 ## AccessibilityTrait
 
-[Source](src/Steps/Generic/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
+[Source](src/Steps/Web/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
 
 > Assess accessibility of rendered pages.
 
@@ -207,7 +209,7 @@ Execute the engine against the current page and return raw results
 
 ## BasicAuthTrait
 
-[Source](src/Steps/Generic/BasicAuthTrait.php), [Steps](STEPS.md#basicauthtrait)
+[Source](src/Steps/Web/BasicAuthTrait.php), [Steps](STEPS.md#basicauthtrait)
 
 > Keep HTTP basic authentication applied across session resets.
 
@@ -222,7 +224,7 @@ Apply the resolved credentials to the session
 
 ## CommandTrait
 
-[Source](src/Steps/Generic/CommandTrait.php), [Steps](STEPS.md#commandtrait)
+[Source](src/Steps/Web/CommandTrait.php), [Steps](STEPS.md#commandtrait)
 
 > Run local shell commands and assert on their result.
 
@@ -237,7 +239,7 @@ The maximum time, in seconds, a command may run before it is terminated
 
 ## CookieTrait
 
-[Source](src/Steps/Generic/CookieTrait.php), [Steps](STEPS.md#cookietrait)
+[Source](src/Steps/Web/CookieTrait.php), [Steps](STEPS.md#cookietrait)
 
 > Verify and inspect browser cookies.
 
@@ -279,7 +281,7 @@ Assert that a cookie does not exist
 
 ## DateTrait
 
-[Source](src/Steps/Generic/DateTrait.php), [Steps](STEPS.md#datetrait)
+[Source](src/Steps/Web/DateTrait.php), [Steps](STEPS.md#datetrait)
 
 > Convert relative date expressions into timestamps or formatted dates.
 
@@ -318,7 +320,7 @@ Assert that string has a token
 
 ## DiagnosticsTrait
 
-[Source](src/Steps/Generic/DiagnosticsTrait.php), [Steps](STEPS.md#diagnosticstrait)
+[Source](src/Steps/Web/DiagnosticsTrait.php), [Steps](STEPS.md#diagnosticstrait)
 
 > Append on-failure diagnostics to the failure message of any failed step.
 
@@ -432,7 +434,7 @@ Return the current page URL, or NULL when it cannot be determined
 
 ## DropzoneTrait
 
-[Source](src/Steps/Generic/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
+[Source](src/Steps/Web/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
 
 > Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 
@@ -447,7 +449,7 @@ Resolve a fixture path against the Mink `files_path` parameter
 
 ## ElementTrait
 
-[Source](src/Steps/Generic/ElementTrait.php), [Steps](STEPS.md#elementtrait)
+[Source](src/Steps/Web/ElementTrait.php), [Steps](STEPS.md#elementtrait)
 
 > Interact with HTML elements using CSS selectors and DOM attributes.
 
@@ -489,7 +491,7 @@ Check whether an element is displayed within the viewport
 
 ## FieldTrait
 
-[Source](src/Steps/Generic/FieldTrait.php), [Steps](STEPS.md#fieldtrait)
+[Source](src/Steps/Web/FieldTrait.php), [Steps](STEPS.md#fieldtrait)
 
 > Manipulate form fields and verify widget functionality.
 
@@ -531,7 +533,7 @@ Check if a given field element is marked as required
 
 ## FileDownloadTrait
 
-[Source](src/Steps/Generic/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
+[Source](src/Steps/Web/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
 
 > Test file download functionality with content verification.
 
@@ -564,7 +566,7 @@ Download file
 
 ## JavascriptTrait
 
-[Source](src/Steps/Generic/JavascriptTrait.php), [Steps](STEPS.md#javascripttrait)
+[Source](src/Steps/Web/JavascriptTrait.php), [Steps](STEPS.md#javascripttrait)
 
 > Automatically detect JavaScript errors during test execution.
 
@@ -577,9 +579,24 @@ Assert that no JavaScript errors were collected
 
 </details>
 
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
+
+</details>
+
 ## JsonTrait
 
-[Source](src/Steps/Generic/JsonTrait.php), [Steps](STEPS.md#jsontrait)
+[Source](src/Steps/Web/JsonTrait.php), [Steps](STEPS.md#jsontrait)
 
 > Assert JSON responses with path and schema checks.
 
@@ -639,7 +656,7 @@ Validate the response body against a JSON schema
 
 ## MappingTrait
 
-[Source](src/Steps/Generic/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
+[Source](src/Steps/Web/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
 
 > Replace `{{ Key }}` tokens in step arguments and table cells.
 
@@ -663,7 +680,7 @@ Substitutes every mapping token found in a single string
 
 ## MessageTrait
 
-[Source](src/Steps/Generic/MessageTrait.php), [Steps](STEPS.md#messagetrait)
+[Source](src/Steps/Web/MessageTrait.php), [Steps](STEPS.md#messagetrait)
 
 > Assert status, error, warning and success messages rendered on the page.
 
@@ -696,7 +713,7 @@ Resolve the configured CSS selector for a message type
 
 ## MetatagTrait
 
-[Source](src/Steps/Generic/MetatagTrait.php), [Steps](STEPS.md#metatagtrait)
+[Source](src/Steps/Web/MetatagTrait.php), [Steps](STEPS.md#metatagtrait)
 
 > Assert `<meta>` tags and head/SEO markup in page markup.
 
@@ -801,7 +818,7 @@ The Twitter Card tags required by "the Twitter Card tags should be valid"
 
 ## ModalTrait
 
-[Source](src/Steps/Generic/ModalTrait.php), [Steps](STEPS.md#modaltrait)
+[Source](src/Steps/Web/ModalTrait.php), [Steps](STEPS.md#modaltrait)
 
 > Interact with and assert modals.
 
@@ -861,7 +878,7 @@ Get the timeout in seconds for waiting for the modal to appear
 
 ## PathTrait
 
-[Source](src/Steps/Generic/PathTrait.php), [Steps](STEPS.md#pathtrait)
+[Source](src/Steps/Web/PathTrait.php), [Steps](STEPS.md#pathtrait)
 
 > Navigate and verify paths with URL validation.
 
@@ -876,7 +893,7 @@ Get the query parameters of the current URL
 
 ## RandomTrait
 
-[Source](src/Steps/Generic/RandomTrait.php), [Steps](STEPS.md#randomtrait)
+[Source](src/Steps/Web/RandomTrait.php), [Steps](STEPS.md#randomtrait)
 
 > Replace random-value tokens in step arguments and table cells.
 
@@ -972,7 +989,7 @@ Applies 'randomSubstitute()' across every cell in '$table'
 
 ## RegionTrait
 
-[Source](src/Steps/Generic/RegionTrait.php), [Steps](STEPS.md#regiontrait)
+[Source](src/Steps/Web/RegionTrait.php), [Steps](STEPS.md#regiontrait)
 
 > Interact with and assert against named page regions.
 
@@ -996,7 +1013,7 @@ Return a named region on the current page
 
 ## ResponsiveTrait
 
-[Source](src/Steps/Generic/ResponsiveTrait.php), [Steps](STEPS.md#responsivetrait)
+[Source](src/Steps/Web/ResponsiveTrait.php), [Steps](STEPS.md#responsivetrait)
 
 > Test responsive layouts with viewport control.
 
@@ -1056,7 +1073,7 @@ Set custom breakpoints
 
 ## RestTrait
 
-[Source](src/Steps/Generic/RestTrait.php), [Steps](STEPS.md#resttrait)
+[Source](src/Steps/Web/RestTrait.php), [Steps](STEPS.md#resttrait)
 
 > Lightweight REST API testing with no Drupal dependencies.
 
@@ -1080,7 +1097,7 @@ Resolve a relative URL against the Mink base URL
 
 ## TableTrait
 
-[Source](src/Steps/Generic/TableTrait.php), [Steps](STEPS.md#tabletrait)
+[Source](src/Steps/Web/TableTrait.php), [Steps](STEPS.md#tabletrait)
 
 > Interact with HTML table elements and assert their content.
 
@@ -1158,7 +1175,7 @@ Get the body rows from a table element
 
 ## WaitTrait
 
-[Source](src/Steps/Generic/WaitTrait.php), [Steps](STEPS.md#waittrait)
+[Source](src/Steps/Web/WaitTrait.php), [Steps](STEPS.md#waittrait)
 
 > Wait for a period of time or for AJAX to finish.
 
@@ -1173,7 +1190,7 @@ Return the configured AJAX timeout, in seconds
 
 ## XmlTrait
 
-[Source](src/Steps/Generic/XmlTrait.php), [Steps](STEPS.md#xmltrait)
+[Source](src/Steps/Web/XmlTrait.php), [Steps](STEPS.md#xmltrait)
 
 > Assert XML responses with element and attribute checks.
 
@@ -1862,7 +1879,7 @@ Load all webform templates whose title contains the given string
 
 [Source](src/Behat/Context/RawContext.php)
 
-> Base context carrying the scenario lifecycle.
+> Base context carrying the plumbing both halves of the library share.
 
 <details>
   <summary><code>public function __construct(array $config = [])</code></summary>
@@ -1878,24 +1895,6 @@ Constructs a RawContext object
 
 <br/>
 Returns the highest-priority driver providing the given capability
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates an entity of a type that has no dedicated method
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
-
-<br/>
-Registers an entity saved outside the create pipeline for cleanup
 <br/><br/>
 
 </details>
@@ -1972,6 +1971,64 @@ Returns the driver's random generator
 
 </details>
 
+## WebRawContext
+
+[Source](src/Behat/Context/WebRawContext.php)
+
+> Base context carrying the web plumbing.
+
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
+
+</details>
+
+<details>
+  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
+
+<br/>
+Set a request header for subsequent requests
+<br/><br/>
+
+```
+$this->requestHeadersSet('X-Acme-Token', 'secret');
+```
+
+</details>
+
+## DrupalRawContext
+
+[Source](src/Behat/Context/DrupalRawContext.php)
+
+> Base context carrying the Drupal scenario lifecycle.
+
+<details>
+  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates an entity of a type that has no dedicated method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+
+<br/>
+Registers an entity saved outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
 <details>
   <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
 
@@ -2032,6 +2089,19 @@ Creates a node
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
 <br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
+
+<br/>
+Set a request header for subsequent requests
+<br/><br/>
+
+```
+$this->requestHeadersSet('X-Acme-Token', 'secret');
+```
 
 </details>
 

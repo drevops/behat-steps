@@ -15,11 +15,15 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
+// The two halves are siblings: a Drupal suite registers both, because the
+// navigation steps and the value transforms live in the web half.
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(WebContext::class)
   ->addContext(DrupalContext::class)
   ->addContext(MinkContext::class);
 

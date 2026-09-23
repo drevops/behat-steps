@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -22,7 +23,7 @@ use Drupal\system\MenuInterface;
  */
 trait MenuTrait {
 
-  use HelperTrait;
+  use DrupalQueryTrait;
 
   /**
    * Remove a single menu by its label if it exists.
@@ -82,7 +83,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
-    $this->helperAssertModuleEnabled('menu_link_content');
+    $this->drupalQueryAssertModuleEnabled('menu_link_content');
 
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->menuLoadLinkByTitle($title, $menu_name);
@@ -106,7 +107,7 @@ trait MenuTrait {
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('menu_link_content');
+    $this->drupalQueryAssertModuleEnabled('menu_link_content');
 
     $menu = $this->menuLoadByLabel($menu_name);
 

@@ -1,6 +1,6 @@
 # Available steps
 
-### Index of Generic steps
+### Index of Web steps
 
 | Class | Description |
 | --- | --- |
@@ -72,7 +72,7 @@
 
 ## AccessibilityTrait
 
-[Source](src/Steps/Generic/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
+[Source](src/Steps/Web/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
 
 >  Assess accessibility of rendered pages.
 >  <br/><br/>
@@ -150,7 +150,7 @@ Then the current page should pass accessibility checks for tags "wcag2a"
 
 ## BasicAuthTrait
 
-[Source](src/Steps/Generic/BasicAuthTrait.php), [Example](tests/behat/features/basic_auth.feature)
+[Source](src/Steps/Web/BasicAuthTrait.php), [Example](tests/behat/features/basic_auth.feature)
 
 >  Keep HTTP basic authentication applied across session resets.
 >  - Re-apply the configured credentials before every scenario and step.
@@ -171,7 +171,7 @@ Then the current page should pass accessibility checks for tags "wcag2a"
 
 ## CommandTrait
 
-[Source](src/Steps/Generic/CommandTrait.php), [Example](tests/behat/features/command.feature)
+[Source](src/Steps/Web/CommandTrait.php), [Example](tests/behat/features/command.feature)
 
 >  Run local shell commands and assert on their result.
 >  - Run a shell command and capture its output, error output, and exit code.
@@ -342,7 +342,7 @@ Then the command should complete in more than 1 second
 
 ## CookieTrait
 
-[Source](src/Steps/Generic/CookieTrait.php), [Example](tests/behat/features/cookie.feature)
+[Source](src/Steps/Web/CookieTrait.php), [Example](tests/behat/features/cookie.feature)
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.
@@ -519,7 +519,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DateTrait
 
-[Source](src/Steps/Generic/DateTrait.php), [Example](tests/behat/features/date.feature)
+[Source](src/Steps/Web/DateTrait.php), [Example](tests/behat/features/date.feature)
 
 >  Convert relative date expressions into timestamps or formatted dates.
 >  <br/><br/>
@@ -553,7 +553,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DiagnosticsTrait
 
-[Source](src/Steps/Generic/DiagnosticsTrait.php), [Example](tests/behat/features/diagnostics.feature)
+[Source](src/Steps/Web/DiagnosticsTrait.php), [Example](tests/behat/features/diagnostics.feature)
 
 >  Append on-failure diagnostics to the failure message of any failed step.
 >  <br/><br/>
@@ -604,7 +604,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DropzoneTrait
 
-[Source](src/Steps/Generic/DropzoneTrait.php), [Example](tests/behat/features/dropzone.feature)
+[Source](src/Steps/Web/DropzoneTrait.php), [Example](tests/behat/features/dropzone.feature)
 
 >  Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 >  - Drop one or more files on a CSS-selected target in a single native event.
@@ -655,7 +655,7 @@ When I drop the following files on the ".dropzone" dropzone:
 
 ## ElementTrait
 
-[Source](src/Steps/Generic/ElementTrait.php), [Example](tests/behat/features/element.feature)
+[Source](src/Steps/Web/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
 >  Interact with HTML elements using CSS selectors and DOM attributes.
 >  - Assert element visibility, attribute values, and viewport positioning.
@@ -1263,7 +1263,7 @@ Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 
 ## FieldTrait
 
-[Source](src/Steps/Generic/FieldTrait.php), [Example](tests/behat/features/field.feature)
+[Source](src/Steps/Web/FieldTrait.php), [Example](tests/behat/features/field.feature)
 
 >  Manipulate form fields and verify widget functionality.
 >  - Set field values for various input types including selects and WYSIWYG.
@@ -1714,7 +1714,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 
 ## FileDownloadTrait
 
-[Source](src/Steps/Generic/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
+[Source](src/Steps/Web/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
 
 >  Test file download functionality with content verification.
 >  - Download files through links and URLs with session cookie handling.
@@ -1863,7 +1863,7 @@ Then the downloaded file should be a zip archive not containing the following fi
 
 ## IframeTrait
 
-[Source](src/Steps/Generic/IframeTrait.php), [Example](tests/behat/features/iframe.feature)
+[Source](src/Steps/Web/IframeTrait.php), [Example](tests/behat/features/iframe.feature)
 
 >  Switch between iframes and the root document.
 >  - Switch to iframes by CSS selector, including unnamed iframes.
@@ -1901,7 +1901,7 @@ When I switch to the root document
 
 ## JavascriptTrait
 
-[Source](src/Steps/Generic/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
+[Source](src/Steps/Web/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
 
 >  Automatically detect JavaScript errors during test execution.
 >  - Collects JavaScript errors from `window.onerror` and `console.error`.
@@ -1940,7 +1940,7 @@ When I switch to the root document
 
 ## JsonTrait
 
-[Source](src/Steps/Generic/JsonTrait.php), [Example](tests/behat/features/json.feature)
+[Source](src/Steps/Web/JsonTrait.php), [Example](tests/behat/features/json.feature)
 
 >  Assert JSON responses with path and schema checks.
 >  - Assert response is valid JSON format.
@@ -2235,7 +2235,7 @@ Then the response should match the JSON schema in the file "json_schema.json"
 
 ## KeyboardTrait
 
-[Source](src/Steps/Generic/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
+[Source](src/Steps/Web/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
 >  Simulate keyboard interactions in Drupal browser testing.
 >  - Trigger key press events including special keys and key combinations.
@@ -2303,7 +2303,7 @@ When I press the keys "abc" on the element "#edit-title"
 
 ## LinkTrait
 
-[Source](src/Steps/Generic/LinkTrait.php), [Example](tests/behat/features/link.feature)
+[Source](src/Steps/Web/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
 >  Verify link elements with attribute and content assertions.
 >  - Find links by title, URL, text content, and class attributes.
@@ -2443,7 +2443,7 @@ Then the link "Return to site content" should not be an absolute link
 
 ## MappingTrait
 
-[Source](src/Steps/Generic/MappingTrait.php), [Example](tests/behat/features/mapping.feature)
+[Source](src/Steps/Web/MappingTrait.php), [Example](tests/behat/features/mapping.feature)
 
 >  Replace `{{ Key }}` tokens in step arguments and table cells.
 >  - Resolve a token against the `mapping.groups` option.
@@ -2471,7 +2471,7 @@ Then the link "Return to site content" should not be an absolute link
 
 ## MessageTrait
 
-[Source](src/Steps/Generic/MessageTrait.php), [Example](tests/behat/features/message.feature)
+[Source](src/Steps/Web/MessageTrait.php), [Example](tests/behat/features/message.feature)
 
 >  Assert status, error, warning and success messages rendered on the page.
 >  - Match a single message by substring, per message type.
@@ -2694,7 +2694,7 @@ Then the following warning messages should not exist:
 
 ## MetatagTrait
 
-[Source](src/Steps/Generic/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
+[Source](src/Steps/Web/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
 
 >  Assert `<meta>` tags and head/SEO markup in page markup.
 >  - Assert presence and content of meta tags.
@@ -2943,7 +2943,7 @@ Then the following Twitter Card tags should exist:
 
 ## ModalTrait
 
-[Source](src/Steps/Generic/ModalTrait.php), [Example](tests/behat/features/modal.feature)
+[Source](src/Steps/Web/ModalTrait.php), [Example](tests/behat/features/modal.feature)
 
 >  Interact with and assert modals.
 >  - Assert modal visibility.
@@ -3066,7 +3066,7 @@ Then the modal should not contain "Error message"
 
 ## PathTrait
 
-[Source](src/Steps/Generic/PathTrait.php), [Example](tests/behat/features/path.feature)
+[Source](src/Steps/Web/PathTrait.php), [Example](tests/behat/features/path.feature)
 
 >  Navigate and verify paths with URL validation.
 >  - Assert current page location with front page special handling.
@@ -3207,7 +3207,7 @@ Then the current URL should not have the "filter" parameter with the value "rece
 
 ## RandomTrait
 
-[Source](src/Steps/Generic/RandomTrait.php), [Example](tests/behat/features/random.feature)
+[Source](src/Steps/Web/RandomTrait.php), [Example](tests/behat/features/random.feature)
 
 >  Replace random-value tokens in step arguments and table cells.
 >  - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.
@@ -3231,7 +3231,7 @@ Then the current URL should not have the "filter" parameter with the value "rece
 
 ## RegionTrait
 
-[Source](src/Steps/Generic/RegionTrait.php), [Example](tests/behat/features/region.feature)
+[Source](src/Steps/Web/RegionTrait.php), [Example](tests/behat/features/region.feature)
 
 >  Interact with and assert against named page regions.
 >  - Click links, press buttons, fill fields and toggle checkboxes in a region.
@@ -3524,7 +3524,7 @@ Then the element "span" with the text "New" in the region "content" should have 
 
 ## ResponseTrait
 
-[Source](src/Steps/Generic/ResponseTrait.php), [Example](tests/behat/features/response.feature)
+[Source](src/Steps/Web/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
 >  Verify HTTP responses with status code and header checks.
 >  - Assert HTTP header presence and values.
@@ -3588,7 +3588,7 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 
 ## ResponsiveTrait
 
-[Source](src/Steps/Generic/ResponsiveTrait.php), [Example](tests/behat/features/responsive.feature)
+[Source](src/Steps/Web/ResponsiveTrait.php), [Example](tests/behat/features/responsive.feature)
 
 >  Test responsive layouts with viewport control.
 >  - Default breakpoints: mobile_portrait, tablet_landscape, desktop, etc.
@@ -3711,7 +3711,7 @@ When I set the viewport to "375" by "667"
 
 ## RestTrait
 
-[Source](src/Steps/Generic/RestTrait.php), [Example](tests/behat/features/rest.feature)
+[Source](src/Steps/Web/RestTrait.php), [Example](tests/behat/features/rest.feature)
 
 >  Lightweight REST API testing with no Drupal dependencies.
 >  - Set HTTP headers for subsequent requests.
@@ -3805,7 +3805,7 @@ Then the REST response should contain "success"
 
 ## TableTrait
 
-[Source](src/Steps/Generic/TableTrait.php), [Example](tests/behat/features/table.feature)
+[Source](src/Steps/Web/TableTrait.php), [Example](tests/behat/features/table.feature)
 
 >  Interact with HTML table elements and assert their content.
 >  - Assert table row and column counts.
@@ -4031,7 +4031,7 @@ Then the link "Delete" should not exist in the row "Article title"
 
 ## WaitTrait
 
-[Source](src/Steps/Generic/WaitTrait.php), [Example](tests/behat/features/wait.feature)
+[Source](src/Steps/Web/WaitTrait.php), [Example](tests/behat/features/wait.feature)
 
 >  Wait for a period of time or for AJAX to finish.
 >  - Wait a fixed number of seconds.
@@ -4098,7 +4098,7 @@ When I wait for 1 second for AJAX to finish
 
 ## XmlTrait
 
-[Source](src/Steps/Generic/XmlTrait.php), [Example](tests/behat/features/xml.feature)
+[Source](src/Steps/Web/XmlTrait.php), [Example](tests/behat/features/xml.feature)
 
 >  Assert XML responses with element and attribute checks.
 >  - Assert response is valid XML format.

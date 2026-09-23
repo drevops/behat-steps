@@ -14,6 +14,7 @@ use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
+use DrevOps\BehatSteps\Helper\LastStepTrait;
 use Drupal\Core\Database\Database;
 
 /**
@@ -35,7 +36,7 @@ use Drupal\Core\Database\Database;
  */
 trait WatchdogTrait {
 
-  use HelperTrait;
+  use LastStepTrait;
 
   /**
    * Start time for each scenario.
@@ -87,7 +88,7 @@ trait WatchdogTrait {
 
     $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
 
-    $this->helperSetLastStepLine($scope);
+    $this->lastStepCapture($scope);
   }
 
   /**
@@ -100,7 +101,7 @@ trait WatchdogTrait {
    */
   #[AfterStep]
   public function watchdogAfterStep(AfterStepScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->helperIsLastStep($scope)) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->lastStepReached($scope)) {
       return;
     }
 

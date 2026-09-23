@@ -72,7 +72,7 @@ $ui = (new Suite('ui'))
 ```
 
 ```php
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   public function __construct(protected string $fixtures_path) {
   }
@@ -87,17 +87,17 @@ Behat matches the arguments to the constructor by name, so the array keys are th
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(DrupalContext::class, [
+  ->addContext(WebContext::class, [
     'config' => ['wait' => ['ajax_timeout' => 10]],
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring: `DrupalContext` composes `WaitTrait` and takes `wait` above, while overriding `javascript` on it is an error at construction, naming what it does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`; `watchdog`, `big_pipe`, `cache`, `queue` and `email` belong to `DrupalContext`. Setting a group on the context of the other half is an error at construction, naming what that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
 ```php
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   use JavascriptTrait;
 
