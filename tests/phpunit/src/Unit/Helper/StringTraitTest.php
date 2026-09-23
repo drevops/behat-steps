@@ -47,7 +47,7 @@ class StringTraitTest extends UnitTestCase {
       'empty string falls back to untitled' => ['', 'untitled'],
       'whitespace-only falls back to untitled' => ['   ', 'untitled'],
       'punctuation-only falls back to untitled' => ['!!!', 'untitled'],
-      'unicode strips to untitled when no ASCII alnum remains' => ['héllo wörld', 'h-llo-w-rld'],
+      'non-ASCII characters become hyphens' => ['héllo wörld', 'h-llo-w-rld'],
       'a11y digit boundary stays joined' => ['A11y Trait', 'a11y-trait'],
     ];
   }
