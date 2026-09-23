@@ -360,6 +360,33 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   /**
+   * Tests that a 'drivers' setting that is not a list is refused.
+   *
+   * A scalar reads as "no list" at scenario start, which would hand the suite
+   * every registered driver instead of the one it named.
+   *
+   * @param mixed $drivers
+   *   The 'drivers' setting the suite declares.
+   */
+  #[DataProvider('dataProviderProcessRejectsSuiteDriversThatAreNotList')]
+  public function testProcessRejectsSuiteDriversThatAreNotList(mixed $drivers): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->setParameter('suite.configurations', ['default' => ['type' => NULL, 'settings' => ['drivers' => $drivers]]]);
+
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "default" suite sets "drivers:" to a value that is not a list of driver names.');
+
+    $extension->process($container);
+  }
+
+  public static function dataProviderProcessRejectsSuiteDriversThatAreNotList(): \Iterator {
+    yield 'a driver name written as a bare string' => ['drupal'];
+    yield 'a boolean' => [TRUE];
+    yield 'a number' => [1];
+  }
+
+  /**
    * Tests the suite configurations that the build leaves alone.
    *
    * @param array<string, mixed>|string|null $suites
@@ -385,7 +412,7 @@ class BehatStepsExtensionTest extends TestCase {
     yield 'a suite that is not a map' => [['default' => 'yes']];
     yield 'a suite with no settings' => [['default' => ['type' => NULL]]];
     yield 'a suite declaring no driver list' => [['default' => ['type' => NULL, 'settings' => ['paths' => []]]]];
-    yield 'a driver list that is not a list' => [['default' => ['type' => NULL, 'settings' => ['drivers' => 'drupal']]]];
+    yield 'a driver list explicitly set to NULL' => [['default' => ['type' => NULL, 'settings' => ['drivers' => NULL]]]];
   }
 
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {

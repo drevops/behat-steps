@@ -204,6 +204,31 @@ class DriverManagerTest extends TestCase {
     $this->assertNull($manager->getResolvedDriverFor(ContentCapabilityInterface::class));
   }
 
+  public function testGetResolvedDriverForAnswersInScenarioOrder(): void {
+    $first = $this->createCacheDriverMock(TRUE);
+    $second = $this->createCacheDriverMock(TRUE);
+    $manager = new DriverManager(['first' => $first, 'second' => $second]);
+    $manager->setScenarioDrivers(['first' => 'first', 'second' => 'second']);
+
+    // Reached in the reverse of the scenario's order, as a step asking for a
+    // capability only the second driver provides would do.
+    $manager->getDriver('second');
+    $manager->getDriver('first');
+
+    $this->assertSame($first, $manager->getResolvedDriverFor(CacheCapabilityInterface::class));
+  }
+
+  public function testGetResolvedDriverForSkipsAnUnreachedDriverAheadInTheOrder(): void {
+    $first = $this->createCacheDriverMock(TRUE);
+    $second = $this->createCacheDriverMock(TRUE);
+    $manager = new DriverManager(['first' => $first, 'second' => $second]);
+    $manager->setScenarioDrivers(['first' => 'first', 'second' => 'second']);
+
+    $manager->getDriver('second');
+
+    $this->assertSame($second, $manager->getResolvedDriverFor(CacheCapabilityInterface::class));
+  }
+
   public function testTheNextScenarioForgetsWhatThePreviousOneResolved(): void {
     $capable = $this->createCacheDriverMock(TRUE);
     $manager = new DriverManager(['capable' => $capable]);

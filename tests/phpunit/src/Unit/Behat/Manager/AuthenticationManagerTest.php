@@ -178,6 +178,7 @@ class AuthenticationManagerTest extends TestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->method('hasCapability')->willReturn(TRUE);
     $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = $this->createManager($session, NULL, $driver_manager);
     $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
@@ -246,6 +247,7 @@ class AuthenticationManagerTest extends TestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->method('hasCapability')->willReturn(TRUE);
     $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = $this->createManager($session, NULL, $driver_manager);
     $manager->logOut();
@@ -438,6 +440,7 @@ class AuthenticationManagerTest extends TestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $driver_manager->method('hasCapability')->willReturn(TRUE);
     $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $manager->fastLogout();

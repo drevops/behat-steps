@@ -291,9 +291,10 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    * Logs out on the backend driver if it supports authentication.
    */
   protected function backendLogout(): void {
-    if ($this->driverManager->hasCapability(AuthenticationCapabilityInterface::class)) {
-      $this->driverManager->getDriverFor(AuthenticationCapabilityInterface::class)->logout();
-    }
+    // Only a driver the scenario already reached can hold a backend session,
+    // and resolving one here would bootstrap it: teardown logs every scenario
+    // out, so asking for the capability would boot Drupal for all of them.
+    $this->driverManager->getResolvedDriverFor(AuthenticationCapabilityInterface::class)?->logout();
   }
 
 }

@@ -140,8 +140,13 @@ class DriverManager implements DriverManagerInterface {
    * {@inheritdoc}
    */
   public function getResolvedDriverFor(string $capability): ?object {
-    foreach ($this->resolvedDrivers as $driver) {
-      if ($driver instanceof $capability) {
+    // Walk the scenario's order rather than the order the drivers happened to
+    // be reached in, so this answers with the same driver 'getDriverFor()'
+    // would have returned.
+    foreach ($this->scenarioDrivers as $name) {
+      $driver = $this->drivers[$name];
+
+      if ($driver instanceof $capability && in_array($driver, $this->resolvedDrivers, TRUE)) {
         return $driver;
       }
     }

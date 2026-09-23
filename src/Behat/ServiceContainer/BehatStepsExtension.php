@@ -436,8 +436,15 @@ class BehatStepsExtension implements ExtensionInterface {
 
       $drivers = $configuration['settings'][DriverListener::DRIVERS_SETTING] ?? NULL;
 
-      if (!is_array($drivers)) {
+      if ($drivers === NULL) {
         continue;
+      }
+
+      // A scalar here would read as "no list" at scenario start and hand the
+      // suite every registered driver, which is the opposite of the scoping
+      // the setting exists to provide.
+      if (!is_array($drivers)) {
+        throw new InvalidConfigurationException(sprintf('The "%s" suite sets "drivers:" to a value that is not a list of driver names.', (string) $suite));
       }
 
       $this->validateSuiteDrivers((string) $suite, $drivers, $registered);
