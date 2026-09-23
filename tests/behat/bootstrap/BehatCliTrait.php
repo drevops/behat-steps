@@ -131,8 +131,10 @@ trait BehatCliTrait {
       // Two contexts can hold the same short name, so each import carries a
       // context-qualified alias and one tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
+      // A 'Helper\' tag names a trait outside the vocabulary subtree.
+      $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\Steps\\%s as %s;' . PHP_EOL, $qualified, $alias);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf('use %s%s as %s;' . PHP_EOL, $root, $qualified, $alias);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 

@@ -47,8 +47,10 @@ use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
  *   }
  *   @endcode
  *
- * The signal is also written to the shared request-header bag, so a trait
- * that issues its own HTTP requests - `RestTrait` - carries it too.
+ * The signal is also written to the request-header bag, so a trait that
+ * issues its own HTTP requests - `RestTrait` - carries it too. The bag is
+ * per context, so that reaches `RestTrait` only where one context composes
+ * both; the shipped `WebContext` and `DrupalContext` are separate objects.
  *
  * Example:
  * @code

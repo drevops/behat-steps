@@ -754,7 +754,7 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper`,
 
 `Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Helper\DrupalQueryTrait` and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
 
-`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the shared header bag instead, so the signal reaches `RestTrait` whether or not the context composes it.
+`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the header bag instead. The bag is per context, so a suite that wants the signal on `RestTrait`'s own requests composes both traits into one context rather than registering the two shipped ones; the browser header, the `$_SERVER` entry and the environment variable reach the site either way.
 
 A helper trait composed by a step trait and by the raw context under it holds one slot of state, so both reach the same bag.
 
