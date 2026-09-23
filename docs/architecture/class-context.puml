@@ -156,6 +156,9 @@ WebRawContext ..> RequestHeadersTrait : composes
 WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
 WebRawContext ..> JavascriptSupportTrait : composes
+DrupalRawContext ..> LastStepTrait : composes
+DrupalRawContext ..> RequestHeadersTrait : composes
+DrupalRawContext ..> StringTrait : composes
 DrupalRawContext ..> TableTransposeTrait : composes
 DrupalRawContext ..> FixtureFileTrait : composes
 DrupalRawContext ..> DrupalQueryTrait : composes

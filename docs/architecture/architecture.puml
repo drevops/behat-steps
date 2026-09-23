@@ -13,7 +13,7 @@ title Component architecture
 package "Consuming project" #FFF3E0 {
   component "Feature files\n*.feature" as Features
   component "behat.php\nextension settings,\nregisters WebContext\nand DrupalContext" as Config
-  component "Own context\nextends a raw context,\ncomposes the chosen traits" as Consumer
+  component "Own context\nextends either WebRawContext\nor DrupalRawContext,\ncomposes the chosen traits" as Consumer
 }
 
 package "drevops/behat-steps" {
