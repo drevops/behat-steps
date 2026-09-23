@@ -16,7 +16,7 @@
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
 | [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
-| [MappingTrait](#mappingtrait) | 1 | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](#metatagtrait) | 11 | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](#modaltrait) | 6 | Interact with and assert modals. |
@@ -53,14 +53,14 @@
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 2 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\UserTrait](#drupalusertrait) | 8 | Manage Drupal users with role and permission assignments. |
-| [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 1 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 2 | Manage Drupal webforms. |
 
 ### Index of Context helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [RawContext](#rawcontext) | 20 | Base context carrying the scenario lifecycle. |
+| [RawContext](#rawcontext) | 21 | Base context carrying the scenario lifecycle. |
 
 ---
 
@@ -642,6 +642,15 @@ Validate the response body against a JSON schema
 [Source](src/Steps/Generic/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
 
 > Replace `{{ Key }}` tokens in step arguments and table cells.
+
+<details>
+  <summary><code>public function mappingGetValue(string $name): string</code></summary>
+
+<br/>
+Returns a mapped value by its key
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function mappingSubstitute(string $value): string</code></summary>
@@ -1816,6 +1825,15 @@ Assert no errors at or above the severity threshold were logged
 
 </details>
 
+<details>
+  <summary><code>public function watchdogReadErrors(): array</code></summary>
+
+<br/>
+Read the errors logged since the scenario started, and clear them
+<br/><br/>
+
+</details>
+
 ## Drupal\WebformTrait
 
 [Source](src/Steps/Drupal/WebformTrait.php), [Steps](STEPS.md#drupalwebformtrait)
@@ -1845,6 +1863,15 @@ Load all webform templates whose title contains the given string
 [Source](src/Behat/Context/RawContext.php)
 
 > Base context carrying the scenario lifecycle.
+
+<details>
+  <summary><code>public function __construct(array $config = [])</code></summary>
+
+<br/>
+Constructs a RawContext object
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function driverFor(string $capability): object</code></summary>
@@ -1919,10 +1946,10 @@ Returns a specific Drupal text value
 </details>
 
 <details>
-  <summary><code>public function getMapping(string $name): string</code></summary>
+  <summary><code>public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed</code></summary>
 
 <br/>
-Returns a mapped value by its key
+Returns a trait option resolved for this context
 <br/><br/>
 
 </details>

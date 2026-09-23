@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Generic;
 
+use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Steps\Generic\DateTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -102,12 +104,36 @@ class DateTraitTest extends UnitTestCase {
     $this->testObject::dateRelativeProcessValue('[relative:-1 day# ]');
   }
 
+  /**
+   * Tests that a skipped scenario passes a token through untouched.
+   */
+  public function testSkippedScenarioLeavesTokensUntouched(): void {
+    $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope(['behat-steps-skip:DateTrait']));
+
+    $this->assertSame('[relative:-1 day#Y-m-d]', $this->testObject->dateRelativeTransformValue('[relative:-1 day#Y-m-d]'));
+
+    $table = new TableNode([['created'], ['[relative:-1 day#Y-m-d]']]);
+    $this->assertSame([['created'], ['[relative:-1 day#Y-m-d]']], $this->testObject->dateRelativeTransformTable($table)->getRows());
+  }
+
+  /**
+   * Tests that an unskipped scenario resolves tokens.
+   */
+  public function testUnskippedScenarioResolvesTokens(): void {
+    $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope());
+
+    $this->assertSame('2024-05-05', $this->testObject->dateRelativeTransformValue('[relative:-1 day#Y-m-d]'));
+
+    $table = new TableNode([['created'], ['[relative:-1 day#Y-m-d]']]);
+    $this->assertSame([['created'], ['2024-05-05']], $this->testObject->dateRelativeTransformTable($table)->getRows());
+  }
+
 }
 
 /**
  * Test implementation of DateTrait.
  */
-class DateTraitTestImplementation {
+class DateTraitTestImplementation extends RawContext {
 
   use DateTrait;
 

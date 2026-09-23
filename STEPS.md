@@ -106,6 +106,20 @@
 >  than `0`, or override `accessibilityGetPrintCli()`, to enable it.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `accessibility.enabled` | boolean | `TRUE` | `@behat-steps-skip:AccessibilityTrait` | Assess every page an `@accessibility` scenario visits. |
+| `accessibility.auto_tag` | string | `'accessibility'` | - | Base tag name, without its `@`, that puts a scenario into automatic mode. |
+| `accessibility.default_rules` | string | `'wcag2a,wcag2aa'` | - | Rule identifier passed to the engine when a scenario names none. |
+| `accessibility.failure_threshold` | string | `'any'` | - | Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier. |
+| `accessibility.fail_on_incomplete` | boolean | `FALSE` | - | Fail the scenario on a finding the engine could not decide. |
+| `accessibility.cdn_url` | string | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | - | Location the engine source is read from. |
+| `accessibility.fetch_timeout` | integer | `10` | - | Per-attempt timeout, in seconds, for the engine fetch. |
+| `accessibility.fetch_attempts` | integer | `3` | - | How many times the engine fetch is attempted before failing. |
+| `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from. |
+
 <details>
   <summary><code>@Then the current page should pass accessibility checks</code></summary>
 
@@ -149,6 +163,12 @@ Then the current page should pass accessibility checks for tags "wcag2a"
 >  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `basic_auth.enabled` | boolean | `TRUE` | `@behat-steps-skip:BasicAuthTrait` | Apply the configured basic authentication credentials to every request. |
+
 ## CommandTrait
 
 [Source](src/Steps/Generic/CommandTrait.php), [Example](tests/behat/features/command.feature)
@@ -163,6 +183,12 @@ Then the current page should pass accessibility checks for tags "wcag2a"
 >  that runs the tests. The command string is passed to the shell verbatim and
 >  is subject to shell expansion, so never interpolate untrusted input into it.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `command.timeout` | integer | `300` | - | Maximum time, in seconds, a command may run before it is terminated. |
 
 <details>
   <summary><code>@When I run the command :command</code></summary>
@@ -515,7 +541,15 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  a token resolves without a context instance. Late static binding routes the
 >  resolution through a `dateNow()` override in the composing context, which is
 >  the supported seam for pinning the clock.
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:DateTrait`.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | Replace `[relative:...]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
 
 ## DiagnosticsTrait
 
@@ -554,6 +588,19 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >    # Re-run: vendor/bin/behat features/example.feature:3
 >  ```
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `diagnostics.enabled` | boolean | `TRUE` | `@behat-steps-skip:DiagnosticsTrait` | Append a diagnostics block to the message of a failing step. |
+| `diagnostics.header` | string | `'--- Failure diagnostics ---'` | - | Header line that precedes the diagnostics block. |
+| `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | Binary named in the re-run command the block prints. |
+| `diagnostics.show_url` | boolean | `TRUE` | - | Include the current URL in the block. |
+| `diagnostics.show_status_code` | boolean | `TRUE` | - | Include the HTTP status code in the block. |
+| `diagnostics.show_driver` | boolean | `TRUE` | - | Include the Mink driver class in the block. |
+| `diagnostics.show_js_errors` | boolean | `TRUE` | - | Include the JavaScript console errors in the block. |
+| `diagnostics.show_rerun` | boolean | `TRUE` | - | Include the command that re-runs the failing scenario in the block. |
 
 ## DropzoneTrait
 
@@ -615,6 +662,12 @@ When I drop the following files on the ".dropzone" dropzone:
 >  - Execute JavaScript-based interactions with element state verification.
 >  - Handle confirmation dialogs and scrolling operations.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `element.scroll_into_view_center` | boolean | `TRUE` | - | Center an element in the viewport when scrolling to it, rather than aligning it to the top. |
 
 <details>
   <summary><code>@Given confirmation dialogs are accepted</code></summary>
@@ -1222,6 +1275,14 @@ Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 >  Skip processing with tag: `@behat-steps-skip:FieldTrait`
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `field.enabled` | boolean | `TRUE` | `@behat-steps-skip:FieldTrait` | Strip HTML5 validation from every form of a `@disable-form-validation` scenario. |
+| `field.add_more_button_selectors` | map | `[...]` | - | CSS selectors of the add-another-item button, tried in order. |
+| `field.required_marker_selectors` | map | `[...]` | - | CSS selectors that mark a field as required, tried in order. |
+
 <details>
   <summary><code>@Given the browser validation for the form :selector is disabled</code></summary>
 
@@ -1667,6 +1728,13 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 >  - `@download` - enable download handling
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | Prepare and clean up the download directory around a `@download` scenario. |
+| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | Directory a `@download` scenario writes downloaded files into. |
+
 <details>
   <summary><code>@When I download the file from the URL :url</code></summary>
 
@@ -1862,6 +1930,13 @@ When I switch to the root document
 >    Given I visit "/legacy-page"
 >  ```
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | Collect JavaScript console errors on a `@javascript` scenario. |
+| `javascript.fail_on_errors` | boolean | `TRUE` | `@js-errors` | Fail a scenario that collected a console error. Errors are still collected when this is off. |
 
 ## JsonTrait
 
@@ -2371,7 +2446,7 @@ Then the link "Return to site content" should not be an absolute link
 [Source](src/Steps/Generic/MappingTrait.php), [Example](tests/behat/features/mapping.feature)
 
 >  Replace `{{ Key }}` tokens in step arguments and table cells.
->  - Resolve a token against the `mappings:` groups in the configuration.
+>  - Resolve a token against the `mapping.groups` option.
 >  - Fail the step when a key is not mapped.
 >  
 >  Whitespace inside the braces is ignored, so `{{ Key }}` and `{{Key}}`
@@ -2383,7 +2458,16 @@ Then the link "Return to site content" should not be an absolute link
 >  <br/><br/>
 >  Operates on Gherkin text alone: no Mink session and no driver, so the trait
 >  works in any suite.
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:MappingTrait`.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
+| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups. |
 
 ## MessageTrait
 
@@ -2398,6 +2482,12 @@ Then the link "Return to site content" should not be an absolute link
 >  `error`, `success` and `warning`. A message matches when the text of any
 >  element found by that selector contains the expected string.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `message.selectors` | map | `[]` | - | Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`. |
 
 <details>
   <summary><code>@Then the message :message should exist</code></summary>
@@ -2865,6 +2955,15 @@ Then the following Twitter Card tags should exist:
 >  selector methods. All steps require a JavaScript-enabled driver.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `modal.selectors` | map | `[...]` | - | CSS selectors of the modal container, tried in order. |
+| `modal.content_selectors` | map | `[...]` | - | CSS selectors of the modal content element, tried in order. |
+| `modal.close_selectors` | map | `[...]` | - | CSS selectors of the modal close button, tried in order. |
+| `modal.wait_timeout` | integer | `3` | - | Maximum time, in seconds, to wait for a modal to appear. |
+
 <details>
   <summary><code>@When I close the modal</code></summary>
 
@@ -3120,7 +3219,15 @@ Then the current URL should not have the "filter" parameter with the value "rece
 >  <br/><br/>
 >  Operates on Gherkin text alone: no Mink session and no driver, so the trait
 >  works in any suite.
+>  <br/><br/>
+>  Skip processing with tag: `@behat-steps-skip:RandomTrait`.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | Replace `[?name:type]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
 
 ## RegionTrait
 
@@ -3614,6 +3721,12 @@ When I set the viewport to "375" by "667"
 >  Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | Reset the request state this trait accumulates between scenarios. |
+
 <details>
   <summary><code>@Given the REST header :name has the value :value</code></summary>
 
@@ -3703,6 +3816,13 @@ Then the REST response should contain "success"
 >  - Assert bulk row content against expected values.
 >  - Click links and press buttons within a row identified by its text.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `table.header_selector` | string | `'thead tr th'` | - | CSS selector of a table header cell, relative to the table. |
+| `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
 
 <details>
   <summary><code>@When I click the link :link in the row :row_text</code></summary>
@@ -3924,6 +4044,13 @@ Then the link "Delete" should not exist in the row "Article title"
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `wait.enabled` | boolean | `TRUE` | `@behat-steps-skip:WaitTrait` | Wait for AJAX around every navigating or submitting step of a `@javascript` scenario. |
+| `wait.ajax_timeout` | integer | `5` | - | Maximum time, in seconds, to wait for AJAX calls to complete. |
 
 <details>
   <summary><code>@When I wait for AJAX to finish</code></summary>
@@ -4466,9 +4593,16 @@ When I wait for the batch job to finish
 >  Special tags:
 >  - `@bigpipe` - render server-side on a driver without JavaScript.
 >  
->  Override `bigPipeGetWaitTimeout()` (or set `$bigPipeWaitTimeout`) in the
->  consuming `FeatureContext` to change the maximum wait.
+>  Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
+>  `$bigPipeWaitTimeout` to override it for one scenario.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `big_pipe.enabled` | boolean | `TRUE` | `@behat-steps-skip:BigPipeTrait` | Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario. |
+| `big_pipe.wait_timeout` | integer | `10000` | - | Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced. |
 
 ## Drupal\BlockTrait
 
@@ -4653,6 +4787,12 @@ Then the block "My block" should not exist in the "content" region
 >  - Run cron, which also flushes the caches cron itself invalidates.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `cache.page_cache_bin` | string | `'page'` | - | Name of the cache bin holding the internal page cache. |
+
 <details>
   <summary><code>@Given the cache is empty</code></summary>
 
@@ -4776,6 +4916,12 @@ When I run cron
 >  and `@behat-steps-skip:configOverrideBeforeStep`.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `config_override.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigOverrideTrait` | Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards. |
+
 ## Drupal\ConfigTrait
 
 [Source](src/Steps/Drupal/ConfigTrait.php), [Example](tests/behat/features/drupal_config.feature)
@@ -4811,6 +4957,12 @@ When I run cron
 >    And the config "system.site" key "name" should have the effective value "My overridden site"
 >  ```
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | Restore the configuration values a scenario changed once it finishes. |
 
 <details>
   <summary><code>@Given the config :name key :key has the value :value</code></summary>
@@ -5536,6 +5688,12 @@ When I edit eck "contact" "contact_type" entity with the title "Test contact"
 >  - `@debug` (enable detailed logs)
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `email.enabled` | boolean | `TRUE` | `@behat-steps-skip:EmailTrait` | Collect email for an `@email` scenario and clear the queue around it. |
+
 <details>
   <summary><code>@When I clear the test email system queue</code></summary>
 
@@ -5965,6 +6123,12 @@ Given the following "commerce_product" entities exist:
 >  Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
 >  `@behat-steps-skip:fileAfterScenario`
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | Delete the managed files a scenario created once it finishes. |
 
 <details>
   <summary><code>@Given the following managed files exist:</code></summary>
@@ -6397,6 +6561,12 @@ Given the following menu links exist in the menu "Main navigation":
 >  - `@module:!module_name` - disable module for scenario
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | Apply the `@module:` tags of a scenario and restore the original module states afterwards. |
+
 <details>
   <summary><code>@Given the :module module is enabled</code></summary>
 
@@ -6555,6 +6725,14 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 >  - Process queue items during tests.
 >  - Assert queue item counts.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | Delete the queues a scenario created once it finishes. |
+| `queue.process_limit` | integer | `1000` | - | Maximum number of items a single queue-processing step handles. |
+| `queue.lease_time` | integer | `30` | - | Time, in seconds, a claimed queue item stays leased. |
 
 <details>
   <summary><code>@Given the following item is in the :queue queue:</code></summary>
@@ -6808,6 +6986,12 @@ When I run the Search API Solr cron
 >  leaking into subsequent scenarios.
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | Restore the state values a scenario changed once it finishes. |
+
 <details>
   <summary><code>@Given the state :name has the value :value</code></summary>
 
@@ -7050,6 +7234,12 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 >  - `@testmode` - enable for scenario
 
 
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | Enable the Testmode module for a `@testmode` scenario and disable it afterwards. |
+
 ## Drupal\TimeTrait
 
 [Source](src/Steps/Drupal/TimeTrait.php), [Example](tests/behat/features/drupal_time.feature)
@@ -7064,6 +7254,12 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 >  - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
 >  - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | Restore the site clock after a scenario that moved it. |
 
 <details>
   <summary><code>@When I set system time to :value</code></summary>
@@ -7533,8 +7729,16 @@ Then the user "John" should not be blocked
 >  <br/><br/>
 >  Special tags:
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.
->  - `@error` - add to scenarios that are expected to trigger an error.
+>  - `@error` - add to scenarios that are expected to trigger an error. The
+>  errors are still read and cleared; the scenario is not failed.
 
+
+### Options
+
+| Option | Type | Default | Tag | Description |
+| --- | --- | --- | --- | --- |
+| `watchdog.enabled` | boolean | `TRUE` | `@behat-steps-skip:WatchdogTrait` | Read the errors a scenario logged to Watchdog. Nothing is read when this is off. |
+| `watchdog.fail_on_errors` | boolean | `TRUE` | `@error` | Fail a scenario that logged an error. The errors are still read and cleared when this is off. |
 
 ## Drupal\WebformTrait
 
