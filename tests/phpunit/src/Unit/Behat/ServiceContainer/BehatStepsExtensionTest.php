@@ -365,6 +365,7 @@ class BehatStepsExtensionTest extends TestCase {
     yield 'an unregistered driver behind an alias' => [['api' => 'ghost'], 'which is not registered'];
     yield 'a tag name carrying a space' => [['my driver' => 'drupal'], 'so that "@driver:my driver" is a valid tag'];
     yield 'a tag name carrying a colon' => [['my:driver' => 'drupal'], 'so that "@driver:my:driver" is a valid tag'];
+    yield 'a tag name carrying a trailing newline' => [["api\n" => 'drupal'], 'A driver name may hold only letters, digits'];
     yield 'an entry that is not a name' => [[['drupal']], 'holds an entry that is not a driver name'];
     yield 'an empty entry' => [[''], 'holds an entry that is not a driver name'];
     yield 'the same name twice' => [['drupal', 'drupal'], 'names "drupal" twice'];

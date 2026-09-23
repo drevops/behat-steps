@@ -482,8 +482,9 @@ class BehatStepsExtension implements ExtensionInterface {
     $tag = strtolower(is_int($tag) ? $name : $tag);
 
     // A tag name is typed into a feature file after '@driver:', so it cannot
-    // carry whitespace or a second colon.
-    if (preg_match('/^[a-z0-9_-]+$/', $tag) !== 1) {
+    // carry whitespace or a second colon. '\z' rather than '$', which would
+    // also match before a trailing newline and let one through.
+    if (preg_match('/^[a-z0-9_-]+\z/', $tag) !== 1) {
       throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names a driver "%s". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
     }
 
