@@ -121,7 +121,7 @@ class DateTraitTest extends UnitTestCase {
   public function testUnskippedScenarioResolvesTokens(): void {
     $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope());
 
-    $expected = date('Y-m-d', (int) strtotime('-1 day', DateTraitTestImplementation::CLOCK));
+    $expected = date('Y-m-d', strtotime('-1 day', DateTraitTestImplementation::CLOCK));
 
     $this->assertSame($expected, $this->testObject->dateRelativeTransformValue('[relative:-1 day#Y-m-d]'));
 
