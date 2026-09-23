@@ -6,7 +6,6 @@ Feature: Check that BlockTrait works
   Background:
     Given the block "[TEST] User Account Menu" does not exist
 
-  @api
   Scenario: Create a block instance, disable and enable it
     Given the instance of "User account menu" block exists with the following configuration:
       | label         | [TEST] User Account Menu |
@@ -33,7 +32,6 @@ Feature: Check that BlockTrait works
     Given the block "[TEST] User Account Menu" does not exist
     And the block "[TEST] User Account Menu" does not exist
 
-  @api
   Scenario: Assert that the most recently created block wins when two share a label
     Given the block "[TEST] Duplicate Label" does not exist
     And the instance of "User account menu" block exists with the following configuration:
@@ -49,7 +47,7 @@ Feature: Check that BlockTrait works
     Then the block "[TEST] Duplicate Label" should exist in the "footer_top" region
     And the block "[TEST] Duplicate Label" should not exist in the "content" region
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should exist" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -62,7 +60,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist" fails for existing block
     Given some behat configuration
     And scenario steps:
@@ -80,7 +78,7 @@ Feature: Check that BlockTrait works
       The block "[TEST] User Account Menu" exists but should not.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should exist in region" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -93,7 +91,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should exist in region" fails for block in wrong region
     Given some behat configuration
     And scenario steps:
@@ -111,7 +109,7 @@ Feature: Check that BlockTrait works
       Block "[TEST] User Account Menu" is in region "content" but should be in "sidebar"
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist in region" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -124,7 +122,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist in region" fails for block in the specified region
     Given some behat configuration
     And scenario steps:
@@ -142,7 +140,7 @@ Feature: Check that BlockTrait works
       Block "[TEST] User Account Menu" is in region "content" but should not be
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "Given the block is enabled" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -155,7 +153,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "Given the block is disabled" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -168,7 +166,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "Given the block has configuration" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -182,7 +180,6 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @api
   Scenario: Configure visibility conditions for a block
     Given the instance of "User account menu" block exists with the following configuration:
       | label         | [TEST] User Account Menu |
@@ -204,7 +201,7 @@ Feature: Check that BlockTrait works
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block has condition configuration" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -218,7 +215,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block has condition removed" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -231,7 +228,6 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @api
   Scenario: Move block from one region to another
     Given the instance of "User account menu" block exists with the following configuration:
       | label         | [TEST] User Account Menu |
@@ -245,7 +241,7 @@ Feature: Check that BlockTrait works
     Then the block "[TEST] User Account Menu" should exist in the "header" region
     And the block "[TEST] User Account Menu" should not exist in the "content" region
 
-  @trait:Drupal\BlockTrait @api
+  @trait:Drupal\BlockTrait
   Scenario: Assert "block instance exists" fails for non-existing block type
     Given some behat configuration
     And scenario steps:
@@ -262,7 +258,7 @@ Feature: Check that BlockTrait works
       Could not create block with admin label "Non-existent Block Type"
       """
 
-  @api @behat-steps-entity-cleanup-skip:block
+  @behat-steps-entity-cleanup-skip:block
   Scenario: Blocks are not automatically cleaned up when skip tag is used
     Given the instance of "User account menu" block exists with the following configuration:
       | label         | [TEST] Skip Cleanup Block |

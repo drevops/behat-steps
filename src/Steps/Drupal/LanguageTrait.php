@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 
 /**
@@ -35,7 +36,7 @@ trait LanguageTrait {
    */
   #[Given('the following languages exist:')]
   public function languageCreateMultiple(TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       $langcode = $row['langcode'] ?? reset($row);

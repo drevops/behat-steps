@@ -3,7 +3,6 @@ Feature: Check that MessageTrait works
   I want to provide tools to assert Drupal status messages
   So that users can verify the feedback a page renders
 
-  @api
   Scenario: Assert "Then the message :message should exist" works as expected
     Given the user is anonymous
     When I visit "/user/login"
@@ -15,7 +14,6 @@ Feature: Check that MessageTrait works
     And the success message "Unrecognized username or password." should not exist
     And the warning message "Unrecognized username or password." should not exist
 
-  @api
   Scenario: Assert "Then the following error messages should exist:" works as expected
     Given the user is anonymous
     When I visit "/user/login"
@@ -26,7 +24,6 @@ Feature: Check that MessageTrait works
     And the following error messages should not exist:
       | This message was never rendered. |
 
-  @api
   Scenario: Assert "Then the message :message should not exist" works as expected
     Given the user is anonymous
     When I visit "/user/login"

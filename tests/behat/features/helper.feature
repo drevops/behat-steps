@@ -6,7 +6,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable works with single entity (2 columns)
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John  |
@@ -18,7 +18,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable works with multiple entities (3+ columns)
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John      | Jane      |
@@ -30,7 +30,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable throws exception for less than 2 columns
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  |
@@ -44,7 +44,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable throws exception for duplicate field names
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John  |
@@ -59,7 +59,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable throws exception for empty field names
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         |       | John  |
@@ -73,7 +73,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable handles empty values in rows
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John   | Jane   |
@@ -85,7 +85,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable throws exception for single column table
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | |
@@ -99,7 +99,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable works with many entities (5+ columns)
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John     | Jane     | Bob      | Alice    |
@@ -111,7 +111,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable works with single field
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | John  |
@@ -122,7 +122,7 @@ Feature: Check that HelperTrait works
   @trait:HelperTrait
   Scenario: Assert transposeVerticalTable works with special characters in values
     Given some behat configuration
-    And scenario steps tagged with "@api":
+    And scenario steps:
       """
       When I call helperTransposeVerticalTable with:
         | name  | O'Brien                |

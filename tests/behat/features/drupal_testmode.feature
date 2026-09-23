@@ -14,7 +14,6 @@ Feature: Ensure TestmodeTrait works.
       | [MYTEST] Article 6 |
       | [MYTEST] Article 7 |
 
-  @api
   Scenario: Assert visiting test content page without test mode will put the required content on the second page
     When I log in as a user with the "administrator" role
     When I go to "/content_test"
@@ -26,7 +25,7 @@ Feature: Ensure TestmodeTrait works.
     And I should not see "[MYTEST] Article 6"
     And I should not see "[MYTEST] Article 7"
 
-  @api @testmode
+  @testmode
   Scenario: Assert visiting test content page with test mode will put the required content on the second page
     When I log in as a user with the "administrator" role
     When I go to "/content_test"
@@ -39,20 +38,20 @@ Feature: Ensure TestmodeTrait works.
     And I should see "[MYTEST] Article 7"
     And I save screenshot
 
-  @api @trait:Drupal\TestmodeTrait
+  @trait:Drupal\TestmodeTrait
   Scenario: Assert that skip tag for beforeScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @testmode @behat-steps-skip:testmodeBeforeScenario":
+    And scenario steps tagged with "@testmode @behat-steps-skip:testmodeBeforeScenario":
       """
       When I visit "/"
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @api @trait:Drupal\TestmodeTrait
+  @trait:Drupal\TestmodeTrait
   Scenario: Assert that skip tag for afterScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @testmode @behat-steps-skip:testmodeAfterScenario":
+    And scenario steps tagged with "@testmode @behat-steps-skip:testmodeAfterScenario":
       """
       When I visit "/"
       """

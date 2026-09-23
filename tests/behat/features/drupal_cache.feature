@@ -3,28 +3,25 @@ Feature: Check that CacheTrait works
   I want to provide tools for targeted Drupal cache invalidation
   So that users can clear specific caches in their tests without a full rebuild
 
-  @api
   Scenario: Assert "Given the page cache for the path :path is empty" clears a single path
     When I log in as a user with the "administrator" role
     And the page cache for the path "/user" is empty
     When I go to "/user"
     Then I should see "Member for"
 
-  @api
   Scenario: Assert "Given the page cache for the paths matching :path_pattern is empty" clears matching paths
     When I log in as a user with the "administrator" role
     And the page cache for the paths matching "/user*" is empty
     When I go to "/user"
     Then I should see "Member for"
 
-  @api
   Scenario: Assert "Given the render cache is empty" clears the render cache
     When I log in as a user with the "administrator" role
     And the render cache is empty
     When I go to "/user"
     Then I should see "Member for"
 
-  @api @trait:Drupal\CacheTrait
+  @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty path fails
     Given some behat configuration
     And scenario steps:
@@ -38,7 +35,7 @@ Feature: Check that CacheTrait works
       The path must not be empty.
       """
 
-  @api @trait:Drupal\CacheTrait
+  @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with a path missing a leading slash fails
     Given some behat configuration
     And scenario steps:
@@ -52,7 +49,7 @@ Feature: Check that CacheTrait works
       The path "about" must start with a leading slash.
       """
 
-  @api @trait:Drupal\CacheTrait
+  @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty pattern fails
     Given some behat configuration
     And scenario steps:
@@ -66,7 +63,7 @@ Feature: Check that CacheTrait works
       The path pattern must not be empty.
       """
 
-  @api @trait:Drupal\CacheTrait
+  @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with a pattern missing a leading slash fails
     Given some behat configuration
     And scenario steps:

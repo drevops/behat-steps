@@ -151,14 +151,16 @@ A trait names the context class it needs with `@phpstan-require-extends`, and ne
 
 ## What a trait needs from the driver
 
-A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides whether a scenario has to be tagged `@api`.
+A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
 - **Nothing.** Every trait under `src/Steps/Generic` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
 - **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
-- **A capability interface.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps ask the active driver for a named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver that implements it, which for most is the Drush driver as well as the in-process one, and they throw naming the missing capability when it does not.
-- **The in-process driver.** Every other trait under `src/Steps/Drupal` reaches Drupal's API directly. Each such method calls `RawContext::assertDrupal()` first, which asserts the scenario carries `@api` and that the driver it selected bootstraps Drupal in-process, bootstraps it, and returns it. A scenario missing `@api` gets a `BootstrapException` naming the tag; an `@api` scenario whose configured `api_driver` cannot bootstrap in-process gets one naming the driver.
+- **A narrow capability.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps resolve one named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `DrushCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver implementing it, which for most is the Drush driver as well as the in-process one.
+- **Drupal's API in this process.** Every other trait under `src/Steps/Drupal` calls into `\Drupal::` directly, which only a driver that bootstraps Drupal in-process can serve. Those steps resolve `CoreCapabilityInterface`.
 
-A new step that touches `\Drupal::` calls `$this->assertDrupal();` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
+A step names a capability and never a driver. `RawContext::driverFor()` walks the scenario's driver order, returns the first driver implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedDriverActionException` naming the capability and the order. The order itself comes from the `drivers` list under `behat_steps` and the `@driver:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#driver-resolution).
+
+A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
 
 [scripts/lint-layers.php](scripts/lint-layers.php) holds the lower boundary. It reads every file under `src/Driver` and fails on any code reference into the `Behat` or `Mink` namespaces: imports, type declarations, and class names reached through a string. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 

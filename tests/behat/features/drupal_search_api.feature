@@ -4,7 +4,6 @@ Feature: Ensure Search API functionality works
   I want to provide tools to index and search content
   So that users can test search functionality
 
-  @api
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected
     When I run search indexing for 10 items
     And the following article content exist:
@@ -32,7 +31,7 @@ Feature: Ensure Search API functionality works
     Then I should see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
     And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
-  @api @testmode
+  @testmode
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected with test mode
     Given the following article content exist:
       | title                           | moderation_state |
@@ -48,7 +47,6 @@ Feature: Ensure Search API functionality works
     Then I should not see "TESTPUBLISHEDARTICLE 1"
     And I should see "[MYTEST] TESTPUBLISHEDARTICLE 2"
 
-  @api
   Scenario: Assert "When I run search indexing for :count item(s)" works as expected
     Given the following article content exist:
       | title                                     | moderation_state |
@@ -87,7 +85,7 @@ Feature: Ensure Search API functionality works
     And I should see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-  @api @trait:Drupal\SearchApiTrait
+  @trait:Drupal\SearchApiTrait
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" fails when content not found
     Given some behat configuration
     And scenario steps:
@@ -100,7 +98,6 @@ Feature: Ensure Search API functionality works
       Unable to find "article" page "Non-existent article".
       """
 
-  @api
   Scenario: Assert "When I run the Search API cron" works as expected
     Given the following article content exist:
       | title                                    | moderation_state |
@@ -125,6 +122,6 @@ Feature: Ensure Search API functionality works
     Then I should see "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
     And I should see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
-  @api @module:!search_api_solr
+  @module:!search_api_solr
   Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled
     When I run the Search API Solr cron

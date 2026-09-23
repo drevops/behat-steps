@@ -59,8 +59,7 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'blackbox' => NULL,
-    'api_driver' => 'drupal',
-    'drush_driver' => 'drush',
+    'drivers' => ['drupal', 'drush', 'blackbox'],
     // Behat runs from within "build", so both roots are relative to it.
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [

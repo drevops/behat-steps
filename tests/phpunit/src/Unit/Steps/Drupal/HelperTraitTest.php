@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Manager\DriverManager;
+use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
@@ -353,12 +354,21 @@ class HelperTraitTestImplementation extends RawContext {
     return $name === 'files_path' ? $this->minkFilesPath : NULL;
   }
 
-  public function getDriver(?string $name = NULL): DriverInterface {
+  /**
+   * {@inheritdoc}
+   *
+   * Serves the stubbed driver from a manager holding it as the only one, so
+   * the helper resolves through the same capability walk it uses in a run.
+   */
+  public function getDriverManager(): DriverManagerInterface {
     if (!$this->driver instanceof DrupalDriverInterface) {
       throw new \RuntimeException('Set the driver double before the helper reaches it.');
     }
 
-    return $this->driver;
+    $manager = new DriverManager(['drupal' => $this->driver]);
+    $manager->setScenarioDrivers(['drupal' => 'drupal']);
+
+    return $manager;
   }
 
   /**

@@ -3,19 +3,19 @@ Feature: Check that BigPipeTrait works
   I want BigPipe handled for both non-JavaScript and JavaScript drivers
   So that non-JS drivers bypass streaming via the nojs cookie and JS drivers wait for placeholders to be replaced before assertions
 
-  @api @bigpipe
+  @bigpipe
   Scenario: Assert that Big Pipe cookie is set
     Given I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api @bigpipe @behat-steps-skip:BigPipeTrait
+  @bigpipe @behat-steps-skip:BigPipeTrait
   Scenario: Assert that Big Pipe cookie is not set when skip tag is used
     Given I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" does not exist
 
-  @api @bigpipe
+  @bigpipe
   Scenario: Assert that Big Pipe cookie is preserved across multiple users in a scenario
     Given the following users exist:
       | name               | mail                             | roles         | status |
@@ -27,13 +27,12 @@ Feature: Check that BigPipeTrait works
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 
-  @api
   Scenario: Assert that Big Pipe cookie is absent without the bigpipe tag
     Given I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" does not exist
 
-  @api @javascript @bigpipe
+  @javascript @bigpipe
   Scenario: Assert that Big Pipe cookie is not set when JavaScript is supported
     Given I install a "big_pipe" module
     When I visit "/"

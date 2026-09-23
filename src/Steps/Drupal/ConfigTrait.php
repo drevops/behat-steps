@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -39,7 +40,6 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * with `@behat-steps-skip:configAfterScenario` or `@behat-steps-skip:ConfigTrait`.
  *
  * @code
- * @api
  * Scenario: Assert configured values
  *   Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
  *   Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
@@ -64,7 +64,7 @@ trait ConfigTrait {
   /**
    * Reset the snapshot registry before each scenario.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function configBeforeScenario(BeforeScenarioScope $scope): void {
     $this->configOriginalData = [];
   }
@@ -72,7 +72,7 @@ trait ConfigTrait {
   /**
    * Revert every touched configuration object after the scenario finishes.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function configAfterScenario(AfterScenarioScope $scope): void {
     if (
       $this->skipTag(__FUNCTION__, $scope)
@@ -83,12 +83,12 @@ trait ConfigTrait {
     }
 
     // A scenario that recorded no snapshot has nothing to revert, and
-    // 'assertDrupal()' would fail one running on a driver without Drupal.
+    // resolving a driver would fail a suite that lists none reaching Drupal.
     if ($this->configOriginalData === []) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($this->configOriginalData as $name => $snapshot) {
       $config = \Drupal::configFactory()->getEditable($name);
@@ -112,7 +112,7 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->configSnapshot($name);
     \Drupal::configFactory()->getEditable($name)->set($key, $this->configCastValue($value))->save();
@@ -131,7 +131,7 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
@@ -262,7 +262,7 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   public function configReadStored(string $name, string $key): mixed {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     return \Drupal::configFactory()->getEditable($name)->get($key);
   }
@@ -279,7 +279,7 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   public function configReadEffective(string $name, string $key): mixed {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     return \Drupal::config($name)->get($key);
   }
@@ -291,7 +291,7 @@ trait ConfigTrait {
    *   The configuration object name.
    */
   protected function configSnapshot(string $name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if (array_key_exists($name, $this->configOriginalData)) {
       return;

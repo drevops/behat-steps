@@ -4766,7 +4766,7 @@ When I run cron
 >  <br/><br/>
 >  Example:
 >  ```
->  @api @disable-config-override:system.site @disable-config-override:myconfig.settings
+>  @disable-config-override:system.site @disable-config-override:myconfig.settings
 >  Scenario: Render the page with original config values
 >    When I visit "/"
 >    Then the response should contain "Original site name"
@@ -4805,7 +4805,6 @@ When I run cron
 >  with `@behat-steps-skip:configAfterScenario` or `@behat-steps-skip:ConfigTrait`.
 >  <br/><br/>
 >  ```
->  @api
 >  Scenario: Assert configured values
 >    Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
 >    Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
@@ -5330,9 +5329,9 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 >  - Run a command that is expected to fail and keep its error output.
 >  - Assert the last command's output by substring or regular expression.
 >  
->  Steps route through the `drush` driver rather than the scenario's default
->  driver, so they work in a scenario running on any other driver as long as
->  `drush:` is configured.
+>  Steps resolve the driver that can run Drush commands rather than the one at
+>  the front of the scenario's order, so they work in a scenario driven by any
+>  other driver as long as the suite lists a Drush-capable one.
 
 
 <details>

@@ -4,7 +4,7 @@ Feature: Check that KeyboardTrait works
   I want to provide tools to interact with web elements using keyboard keys
   So that users can test keyboard navigation and input
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "When I press the keys :keys on the element :selector" succeeds as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
@@ -12,7 +12,7 @@ Feature: Check that KeyboardTrait works
     When I press the keys "hello" on the element "#input1"
     Then the "input1" field should contain "hello"
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
@@ -39,7 +39,7 @@ Feature: Check that KeyboardTrait works
       Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).
       """
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char" succeeds as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
@@ -47,7 +47,7 @@ Feature: Check that KeyboardTrait works
     When I press the key "tab"
     Then the element "#sr-only-focusable" should be displayed within a viewport
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected with "tab" key
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
@@ -56,7 +56,7 @@ Feature: Check that KeyboardTrait works
     And I press the key "h" on the element "#input2"
     Then the "input2" field should contain "h"
 
-  @api @javascript @phpserver
+  @javascript @phpserver
   Scenario: Assert step definition "When I press the keys :keys" succeeds as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
@@ -69,7 +69,7 @@ Feature: Check that KeyboardTrait works
   @trait:KeyboardTrait
   Scenario: Assert negative assertion for empty key throws an exception
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
@@ -84,7 +84,7 @@ Feature: Check that KeyboardTrait works
   @trait:KeyboardTrait
   Scenario: Assert negative assertion for unsupported key throws an exception
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
@@ -99,7 +99,7 @@ Feature: Check that KeyboardTrait works
   @trait:KeyboardTrait
   Scenario: Assert negative assertion for non-existent element throws an exception
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"
@@ -114,7 +114,7 @@ Feature: Check that KeyboardTrait works
   @trait:KeyboardTrait
   Scenario: Assert negative assertion for no focused element throws an exception
     Given some behat configuration
-    And scenario steps tagged with "@api @javascript @phpserver":
+    And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       And I visit "http://cli:8888/elements_relative.html"

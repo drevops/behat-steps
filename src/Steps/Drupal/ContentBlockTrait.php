@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
@@ -40,7 +41,7 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDelete(string $content_block_type, TableNode $content_block_table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($content_block_table->getColumn(0) as $description) {
       $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
@@ -147,7 +148,7 @@ trait ContentBlockTrait {
    */
   #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
@@ -178,7 +179,7 @@ trait ContentBlockTrait {
    *   When the entity cannot be saved.
    */
   public function contentBlockCreateSingle(string $type, array $values): BlockContent {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
@@ -205,7 +206,7 @@ trait ContentBlockTrait {
    *   Array of block content ids.
    */
   public function contentBlockLoadMultiple(string $type, array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('block_content')
       ->accessCheck(FALSE)

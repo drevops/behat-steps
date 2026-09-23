@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Driver\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\MailCapabilityInterface;
@@ -33,6 +34,7 @@ interface DrupalDriverInterface extends
   CacheCapabilityInterface,
   ConfigCapabilityInterface,
   ContentCapabilityInterface,
+  CoreCapabilityInterface,
   CronCapabilityInterface,
   LanguageCapabilityInterface,
   MailCapabilityInterface,
@@ -40,11 +42,6 @@ interface DrupalDriverInterface extends
   RoleCapabilityInterface,
   UserCapabilityInterface,
   WatchdogCapabilityInterface {
-
-  /**
-   * Return current core.
-   */
-  public function getCore(): CoreInterface;
 
   /**
    * Injects the active Core implementation.
@@ -56,18 +53,5 @@ interface DrupalDriverInterface extends
    *   The Core instance the driver should delegate to.
    */
   public function setCore(CoreInterface $core): void;
-
-  /**
-   * Returns the major Drupal version detected at construction time.
-   *
-   * The version is captured once when the driver is instantiated; the
-   * detection itself may throw BootstrapException, but this getter does not.
-   *
-   * @return int
-   *   The major Drupal version.
-   *
-   * @see drush_drupal_version()
-   */
-  public function getDrupalVersion(): int;
 
 }

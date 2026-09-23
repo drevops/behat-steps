@@ -3,7 +3,6 @@ Feature: Check that MetatagTrait works
   I want to provide tools to verify metatags on pages
   So that users can test SEO implementation
 
-  @api
   Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
     When I visit "/"
     Then the meta tag should exist with the following attributes:
@@ -26,7 +25,6 @@ Feature: Check that MetatagTrait works
       Meta tag with attributes "{"name":"Non_Existing","content":"width"}" not found.
       """
 
-  @api
   Scenario: Assert that "Then the meta tag should not exist with the following attributes:" step works as expected
     When I visit "/"
     Then the meta tag should not exist with the following attributes:
@@ -117,12 +115,10 @@ Feature: Check that MetatagTrait works
     Then the page should not be indexable
     And the meta robots should include "noindex"
 
-  @api
   Scenario: Assert a non-indexable page via the X-Robots-Tag header
     When I visit "/mysite_core/test-robots-header"
     Then the page should not be indexable
 
-  @api
   Scenario: Assert an indexable page with a non-noindex X-Robots-Tag header
     When I visit "/mysite_core/test-robots-header?value=all"
     Then the page should be indexable

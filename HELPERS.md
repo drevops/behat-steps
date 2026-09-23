@@ -1388,10 +1388,10 @@ Find a node using provided conditions
 > Run Drush commands and assert their output.
 
 <details>
-  <summary><code>public function drushDriver(): DrushDriver</code></summary>
+  <summary><code>public function drushDriver(): DrushCapabilityInterface</code></summary>
 
 <br/>
-Return the Drush driver
+Return the driver that runs Drush commands
 <br/><br/>
 
 </details>
@@ -1847,10 +1847,10 @@ Load all webform templates whose title contains the given string
 > Base context carrying the scenario lifecycle.
 
 <details>
-  <summary><code>public function assertDrupal(): DrupalDriverInterface</code></summary>
+  <summary><code>public function driverFor(string $capability): object</code></summary>
 
 <br/>
-Asserts the scenario can reach Drupal's API, and returns the driver
+Returns the highest-priority driver providing the given capability
 <br/><br/>
 
 </details>
@@ -1883,10 +1883,10 @@ Returns the authentication manager
 </details>
 
 <details>
-  <summary><code>public function getDriver(?string $name = NULL): DriverInterface</code></summary>
+  <summary><code>public function getDriver(string $name): DriverInterface</code></summary>
 
 <br/>
-Returns the active driver
+Returns a driver of this scenario by the name its suite gave it
 <br/><br/>
 
 </details>

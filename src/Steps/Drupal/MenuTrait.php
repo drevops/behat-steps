@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -53,7 +54,7 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
@@ -103,7 +104,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('menu_link_content');
 
@@ -151,7 +152,7 @@ trait MenuTrait {
    *   The menu or NULL if not found.
    */
   public function menuLoadByLabel(string $label): ?MenuInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
@@ -181,7 +182,7 @@ trait MenuTrait {
    *   The menu link or NULL if not found.
    */
   public function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $menu = $this->menuLoadByLabel($menu_name);
 

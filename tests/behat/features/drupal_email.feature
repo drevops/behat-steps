@@ -3,7 +3,7 @@ Feature: Check that EmailTrait works
   I want to provide tools to test email functionality
   So that users can verify email sending and content in their applications
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that test email system is automatically
   activated when @email tag is added to the scenario.
     When I send test email to "test@example.com" with
@@ -18,7 +18,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that email step definitions work as
   expected.
     When I send test email to "test@example.com" with
@@ -53,7 +53,7 @@ Feature: Check that EmailTrait works
       Line   three   with  tabs and spaces
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that an email is sent to step definition can correctly assert
   emails sent to multiple recipients.
     Given I send test email to "test@example.com,test2@example.com" with
@@ -74,7 +74,7 @@ Feature: Check that EmailTrait works
       Drupal
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that the email header matches exactly
     Given I send test email to "test@example.com" with
       """
@@ -92,7 +92,7 @@ Feature: Check that EmailTrait works
       Drupal
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email is sent to an address with specific content
     Given I send test email to "test@example.com" with
       """
@@ -107,7 +107,7 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email is sent to an address with content containing a substring
     Given I send test email to "test@example.com" with
       """
@@ -120,7 +120,7 @@ Feature: Check that EmailTrait works
       content line tw
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email is sent to an address with content not containing a substring
     Given I send test email to "test@example.com" with
       """
@@ -133,7 +133,7 @@ Feature: Check that EmailTrait works
       content line four
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email is not sent to an address with specific content
     Given I send test email to "different@example.com" with
       """
@@ -148,7 +148,7 @@ Feature: Check that EmailTrait works
       Test email content line three-three
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email is not sent to an address with content containing a substring
     Given I send test email to "different@example.com" with
       """
@@ -161,7 +161,7 @@ Feature: Check that EmailTrait works
       content line four
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that test email system is activated as before and after scenario steps
     Given I send test email to "test@example.com" with
       """
@@ -179,7 +179,7 @@ Feature: Check that EmailTrait works
       Line four of the test email content
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that test email system queue clearing step is working
     Given I enable the test email system
     And I send test email to "test@example.com" with
@@ -203,7 +203,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       """
 
-  @api @email
+  @email
   Scenario Outline: As a developer, I want to know that following a link from
   the email is working.
     Given I send test email to "test@example.com" with
@@ -226,7 +226,7 @@ Feature: Check that EmailTrait works
       | http://1.example.com http://example.com  http://3.example.com | 2      |
       | http://1.example.com http://2.example.com  http://example.com | 3      |
 
-  @api @email
+  @email
   Scenario: As a developer, I want to follow a link in an email by matching a subject substring
     When I send test email to "test@example.com" with:
       """
@@ -236,7 +236,7 @@ Feature: Check that EmailTrait works
     When I follow link number 1 in the email with the subject containing "Test Email"
     Then I should be on "http://example.com/reset-password"
 
-  @api @email
+  @email
   Scenario: As a developer, I want to know that no emails assertions works as expected
     Given no emails should have been sent
     When I send test email to "test@example.com" with
@@ -250,7 +250,7 @@ Feature: Check that EmailTrait works
     When I clear the test email system queue
     Then no emails should have been sent
 
-  @api @email
+  @email
   Scenario: As a developer, I want to manually enable the test email system and verify it works
     Given no emails should have been sent
     And I enable the test email system
@@ -270,7 +270,7 @@ Feature: Check that EmailTrait works
       Non-existent content
       """
 
-  @api @email
+  @email
   Scenario: As a developer, I want to manually disable the test email system and verify it works
     Given I enable the test email system
     And I send test email to "test@example.com" with
@@ -282,7 +282,7 @@ Feature: Check that EmailTrait works
     When I disable the test email system
     Then no emails should have been sent
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email contains an attachment
     When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
       """
@@ -295,7 +295,7 @@ Feature: Check that EmailTrait works
       """
     And the file "example.pdf" should be attached to the email with the subject "Email with Attachment"
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify that an email with a subject containing a substring has an attachment
     When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
       """
@@ -304,7 +304,7 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the address "test@example.com"
     And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
 
-  @api @email
+  @email
   Scenario: As a developer, I want error when no emails sent but some expected
     Given no emails should have been sent
     When I send test email to "test@example.com" with:
@@ -313,7 +313,7 @@ Feature: Check that EmailTrait works
       """
     Then an email should be sent to the address "test@example.com"
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify no emails sent to address assertion passes when address not used
     When I send test email to "test@example.com" with:
       """
@@ -321,7 +321,7 @@ Feature: Check that EmailTrait works
       """
     Then no emails should have been sent to the address "wrong@example.com"
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify no emails sent to CC address assertion passes when address not used
     When I send test email to "to@example.com" with cc "cc@example.com" with:
       """
@@ -329,7 +329,7 @@ Feature: Check that EmailTrait works
       """
     Then no emails should have been sent to the address "wrong@example.com"
 
-  @api @email
+  @email
   Scenario: As a developer, I want to verify no emails sent to BCC address assertion passes when address not used
     When I send test email to "to@example.com" with bcc "bcc@example.com" with:
       """
@@ -337,7 +337,7 @@ Feature: Check that EmailTrait works
       """
     Then no emails should have been sent to the address "wrong@example.com"
 
-  @api @email @debug
+  @email @debug
   Scenario: As a developer, I want to verify email debug output is triggered with @debug tag
     When I send test email to "test@example.com" with:
       """
@@ -352,7 +352,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that an email was sent to an address
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I log in as a user with the "administrator" role
       Then an email should be sent to the address "test@example.com"
@@ -379,7 +379,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to CC address fails when email WAS sent to that CC address
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "to@example.com" with cc "cc@example.com" with:
         '''
@@ -396,7 +396,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to BCC address fails when email WAS sent to that BCC address
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "to@example.com" with bcc "bcc@example.com" with:
         '''
@@ -413,7 +413,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when email subject not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -430,7 +430,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when no links found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -447,7 +447,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when link number too high
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -464,7 +464,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario Outline: Assert that following link in email fails when link number is not a positive integer
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -486,7 +486,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when link number is zero
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -503,7 +503,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when subject not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -520,7 +520,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when no links found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -537,7 +537,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when link number too high
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -554,7 +554,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent fails when emails WERE sent
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -571,7 +571,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to address fails when email WAS sent to that address
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -588,7 +588,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that email header contains fails when header not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -608,7 +608,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that email field contains fails when field not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -628,7 +628,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that email field should not contain fails when field DOES contain value
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -648,7 +648,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when email subject not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -665,7 +665,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when no attachments found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -682,7 +682,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when email not found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -699,7 +699,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when no attachments found
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -716,7 +716,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that behat-steps-skip tag for AfterScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @email @behat-steps-skip:emailAfterScenario":
+    And scenario steps tagged with "@email @behat-steps-skip:emailAfterScenario":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -731,7 +731,7 @@ Feature: Check that EmailTrait works
   @trait:Drupal\EmailTrait
   Scenario: Assert that EmailTrait boots the Drupal kernel itself when used in isolation
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       When I send test email to "test@example.com" with:
         '''
@@ -742,7 +742,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @api @email @email:default
+  @email @email:default
   Scenario: As a developer, I want to verify custom email handler type tag is processed
     When I send test email to "test@example.com" with:
       """
@@ -754,24 +754,24 @@ Feature: Check that EmailTrait works
       Test content with custom handler type
       """
 
-  @api @email
+  @email
   Scenario: The mailsystem formatter should not be overridden when test email system is enabled
     Then the mailsystem formatter should be "php_mail"
 
-  @api @trait:Drupal\EmailTrait
+  @trait:Drupal\EmailTrait
   Scenario: Assert that skip tag for beforeScenario hook works
     Given some behat configuration
-    And scenario steps tagged with "@api @email @behat-steps-skip:emailBeforeScenario":
+    And scenario steps tagged with "@email @behat-steps-skip:emailBeforeScenario":
       """
       When I visit "/"
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @api @trait:Drupal\EmailTrait
+  @trait:Drupal\EmailTrait
   Scenario: Assert that an unknown email field is rejected by a positive assertion
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       Then the email field "nonexistent" should contain:
         '''
@@ -784,10 +784,10 @@ Feature: Check that EmailTrait works
       Invalid email field nonexistent was specified for assertion.
       """
 
-  @api @trait:Drupal\EmailTrait
+  @trait:Drupal\EmailTrait
   Scenario: Assert that an unknown email field is rejected by a negative assertion
     Given some behat configuration
-    And scenario steps tagged with "@api @email":
+    And scenario steps tagged with "@email":
       """
       Then the email field "nonexistent" should not contain:
         '''

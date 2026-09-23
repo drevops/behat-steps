@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
  * Manage Drupal webforms.
@@ -35,7 +36,7 @@ trait WebformTrait {
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('webform', 'drupal/webform');
 
@@ -63,7 +64,7 @@ trait WebformTrait {
    */
   #[Given('the webform :title exists from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('webform', 'drupal/webform');
 
@@ -110,7 +111,7 @@ trait WebformTrait {
    *   An array of matching webform entities.
    */
   public function webformLoadAll(string $title): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('webform', 'drupal/webform');
 
@@ -150,7 +151,7 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);

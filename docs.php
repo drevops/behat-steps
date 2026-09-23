@@ -1342,6 +1342,10 @@ function tag_registry(): array {
       'form' => 'parametrized',
       'description' => 'Keep entities of the named entity type after the scenario. Repeat the tag to keep several types.',
     ],
+    'driver' => [
+      'form' => 'parametrized',
+      'description' => 'Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it.',
+    ],
     'module' => [
       'form' => 'parametrized',
       'description' => 'Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards.',

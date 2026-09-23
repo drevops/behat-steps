@@ -3,7 +3,6 @@ Feature: Check that RedirectTrait works
   I want to provide tools to manage redirect entities programmatically
   So that users can test legacy-URL preservation, vanity URLs, and path rewrites
 
-  @api
   Scenario: Assert "Given the following redirects exist:" creates redirects with default status code
     Given the following redirects exist:
       | from         | to          |
@@ -16,7 +15,6 @@ Feature: Check that RedirectTrait works
     When I go to "/old-path-2"
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert "Given the following redirects exist:" accepts explicit, omitted, and blank status codes
     Given the following redirects exist:
       | from              | to          | status_code |
@@ -37,7 +35,6 @@ Feature: Check that RedirectTrait works
     When I go to "/explicit-307"
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert "Given the following redirects exist:" accepts source paths without a leading slash
     Given the following redirects exist:
       | from           | to          |
@@ -46,7 +43,6 @@ Feature: Check that RedirectTrait works
     And I go to "/no-leading"
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert "Given the following redirects exist:" accepts external destinations
     Given the following redirects exist:
       | from   | to                                |
@@ -55,7 +51,6 @@ Feature: Check that RedirectTrait works
     And I go to "/admin/config/search/redirect"
     Then I should see "promo"
 
-  @api
   Scenario: Assert "Given the following redirects do not exist:" removes targeted redirects only
     Given the following redirects exist:
       | from        | to          |
@@ -70,7 +65,6 @@ Feature: Check that RedirectTrait works
     When I go to "/delete-me"
     Then the path should not be "/user/login"
 
-  @api
   Scenario: Assert "Given the following redirects do not exist:" silently skips paths that have no redirect
     Given the following redirects exist:
       | from     | to          |
@@ -82,7 +76,6 @@ Feature: Check that RedirectTrait works
     And I go to "/present"
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert "Given the following redirects do not exist:" accepts source paths without a leading slash
     Given the following redirects exist:
       | from         | to          |
@@ -93,7 +86,6 @@ Feature: Check that RedirectTrait works
     And I go to "/strip-slash"
     Then the path should not be "/user/login"
 
-  @api
   Scenario: Assert "Then the following redirects should exist:" matches by source, destination, and status code
     Given the following redirects exist:
       | from           | to                                | status_code |
@@ -106,7 +98,6 @@ Feature: Check that RedirectTrait works
       | /assert-302    | /user/login                       | 302         |
       | /assert-extern | https://example.com/promo-landing |             |
 
-  @api
   Scenario: Assert "Then the following redirects should exist:" matches by source only when other columns are blank or omitted
     Given the following redirects exist:
       | from        | to          |
@@ -118,7 +109,6 @@ Feature: Check that RedirectTrait works
       | from        | to | status_code |
       | /by-source  |    |             |
 
-  @api
   Scenario: Assert "Then the following redirects should exist:" accepts source paths without a leading slash
     Given the following redirects exist:
       | from        | to          |
@@ -127,7 +117,6 @@ Feature: Check that RedirectTrait works
       | from      | to          |
       | no-slash  | /user/login |
 
-  @api
   Scenario: Assert "Then the following redirects should exist:" accepts an "internal:" prefix on the destination
     Given the following redirects exist:
       | from         | to          |
@@ -136,13 +125,11 @@ Feature: Check that RedirectTrait works
       | from         | to                    |
       | /prefix-dest | internal:/user/login  |
 
-  @api
   Scenario: Assert "Then the following redirects should not exist:" passes when no redirect matches
     Then the following redirects should not exist:
       | /never-was       |
       | /also-never-was  |
 
-  @api
   Scenario: Assert "Then the following redirects should not exist:" passes after deletion
     Given the following redirects exist:
       | from       | to          |
@@ -152,7 +139,7 @@ Feature: Check that RedirectTrait works
     Then the following redirects should not exist:
       | /will-go |
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when a redirect is missing
     Given some behat configuration
     And scenario steps:
@@ -171,7 +158,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/not-there", to="/user/login"}.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when destination does not match
     Given some behat configuration
     And scenario steps:
@@ -189,7 +176,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/wrong-dest", to="/admin/content"}.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when status code does not match
     Given some behat configuration
     And scenario steps:
@@ -207,7 +194,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/wrong-code", to="/user/login", status_code=302}.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when "from" is empty
     Given some behat configuration
     And scenario steps:
@@ -222,7 +209,7 @@ Feature: Check that RedirectTrait works
       Each redirect row must define a non-empty "from" path.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should not exist:" fails when a redirect is still present
     Given some behat configuration
     And scenario steps:
@@ -239,7 +226,7 @@ Feature: Check that RedirectTrait works
       The following redirects should not exist but were found: "/lingers".
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails on an unsupported status code
     Given some behat configuration
     And scenario steps:
@@ -254,7 +241,7 @@ Feature: Check that RedirectTrait works
       Invalid redirect status code "404". Allowed values are: 301, 302, 303, 307, 308.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails on a non-numeric status code
     Given some behat configuration
     And scenario steps:
@@ -269,7 +256,7 @@ Feature: Check that RedirectTrait works
       Invalid redirect status code "abc". Allowed values are: 301, 302, 303, 307, 308.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails when "from" is empty
     Given some behat configuration
     And scenario steps:
@@ -284,7 +271,7 @@ Feature: Check that RedirectTrait works
       Each redirect row must define a non-empty "from" path.
       """
 
-  @api @trait:Drupal\RedirectTrait
+  @trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails when "to" is empty
     Given some behat configuration
     And scenario steps:

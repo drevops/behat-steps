@@ -33,8 +33,16 @@ trait BehatCliTrait {
     'Drupal\UserTrait',
   ];
 
+  /**
+   * Driver list the generated extension configuration declares.
+   *
+   * @var array<int, string>
+   */
+  protected array $behatCliConfiguredDrivers = ['drupal', 'blackbox'];
+
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
+    $this->behatCliConfiguredDrivers = ['drupal', 'blackbox'];
     $this->behatCliCopyFixtures();
 
     $traits = [];
@@ -114,6 +122,7 @@ trait BehatCliTrait {
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 {{USE_DECLARATION}}
 
 class FeatureContext extends RawContext {
@@ -131,7 +140,7 @@ class FeatureContext extends RawContext {
    */
   #[AfterScenario('@test-watchdog-teardown')]
   public function testSetWatchdogErrorInTeardown() {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::logger('php')->log('warning', 'test');
   }
@@ -176,7 +185,7 @@ EOL;
 
     $content = <<<'EOL'
 Feature: Stub feature';
-  @api {{ADDITIONAL_TAGS}}
+  {{ADDITIONAL_TAGS}}
   Scenario: Stub scenario title
 {{SCENARIO_CONTENT}}
 EOL;
@@ -190,6 +199,24 @@ EOL;
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'Feature Stub');
     }
+  }
+
+  /**
+   * Narrow the generated configuration's driver list.
+   *
+   * Runs before 'some behat configuration', so a scenario can exercise a
+   * configuration that lists no driver reaching Drupal.
+   */
+  #[Given('a configuration listing the driver(s) :drivers')]
+  public function behatCliSetConfiguredDrivers(string $drivers): void {
+    $this->behatCliConfiguredDrivers = array_map(trim(...), explode(',', $drivers));
+  }
+
+  /**
+   * Render the driver list as the PHP array literal the config holds.
+   */
+  protected function behatCliRenderConfiguredDrivers(): string {
+    return sprintf("['%s']", implode("', '", $this->behatCliConfiguredDrivers));
   }
 
   #[Given('some behat configuration')]
@@ -240,7 +267,7 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'api_driver' => 'drupal',
+    'drivers' => {{CONFIGURED_DRIVERS}},
     'drupal' => ['drupal_root' => '/app/build/web'],
     'selectors' => [
       'messages' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning'],
@@ -260,7 +287,10 @@ EOL;
       $coverage_extension = PHP_EOL . sprintf("  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
     }
 
-    $content = strtr($content, ['{{COVERAGE_EXTENSION}}' => $coverage_extension]);
+    $content = strtr($content, [
+      '{{COVERAGE_EXTENSION}}' => $coverage_extension,
+      '{{CONFIGURED_DRIVERS}}' => $this->behatCliRenderConfiguredDrivers(),
+    ]);
 
     $filename = 'behat.php';
     $this->createFileInWorkingDir($filename, $content);

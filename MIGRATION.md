@@ -264,7 +264,7 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 | `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
 | `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
 
-Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `api_driver`, `drupal_root` - is set exactly as before.
+Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. The three driver-selection keys are the exception; see [Capability-based driver resolution](#capability-based-driver-resolution).
 
 `MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
 
@@ -277,6 +277,55 @@ extensions:
 ```
 
 Setting it on `MinkExtension` still works and still applies, and reports itself as deprecated.
+
+## Capability-based driver resolution
+
+`@api` no longer selects a driver, and the `default_driver`, `api_driver` and `drush_driver` options are replaced by one `drivers` list under `behat_steps`. That list names the drivers a scenario may reach, in precedence order, and a step resolves the driver by the capability it needs.
+
+| Before | After |
+| --- | --- |
+| `'default_driver' => 'blackbox'` | A configuration that declares no `drivers` list gets every registered driver, in registration order |
+| `'api_driver' => 'drupal'` | `'drivers' => ['drupal', 'blackbox']` |
+| `'drush_driver' => 'drush'` | Add `'drush'` to the `drivers` list |
+| `@api` on a scenario | Nothing. A step that needs Drupal resolves `CoreCapabilityInterface` from the configured list |
+| `@drush` on a scenario | Nothing. `DrushTrait` resolves `DrushCapabilityInterface` |
+
+```php
+// Before.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'default_driver' => 'blackbox',
+  'api_driver' => 'drupal',
+  'drush_driver' => 'drush',
+  'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
+]));
+
+// After.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drivers' => ['drupal', 'drush', 'blackbox'],
+  'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
+]));
+```
+
+Every name in the list has to be a driver the extension registers, so a `drivers` entry keeps company with the settings block that registers it: `drupal` needs `drupal:`, `drush` needs `drush:`, and `blackbox` is always registered. Naming one without its block fails the container build.
+
+Then remove `@api` from every scenario and feature. It is not a tag of this package any more, and a configuration that lists a Drupal driver reaches Drupal without it.
+
+To run one scenario against a different driver, tag it `@driver:NAME`, where `NAME` is a name the `drivers` list holds. The tag moves that driver to the front of the scenario's order; it never adds a driver the list does not hold. A name outside the list fails at scenario start.
+
+An entry may be keyed, so a profile can swap the implementation behind a name without editing any Gherkin: `'drivers' => ['api' => 'drupal', 'blackbox']` in one profile and `'drivers' => ['api' => 'acme-jsonapi', 'blackbox']` in another both answer `@driver:api`. Restricting a run to a narrower driver set is a profile's job - the package reads nothing from a Behat suite's settings.
+
+```gherkin
+@driver:drush
+Scenario: The cache is cleared over the command line
+  Given the cache is empty
+```
+
+Two consequences are worth checking in an existing project:
+
+- **A step that used to fail for a missing `@api` now succeeds.** The tag no longer gates anything, so a scenario that reached a Drupal step without it used to throw and now runs. Where that gate was load-bearing, run those scenarios under a profile whose `drivers` list excludes the Drupal driver.
+- **`RawContext::assertDrupal()` is gone.** A custom step that called it calls `$this->driverFor(CoreCapabilityInterface::class);` instead. `RawContext::getDriver()` now takes a name and no longer defaults to "the current driver"; a call with no argument becomes `driverFor()` naming the capability the caller needs.
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 

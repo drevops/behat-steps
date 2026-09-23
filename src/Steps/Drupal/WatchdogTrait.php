@@ -12,6 +12,8 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use Drupal\Core\Database\Database;
 
 /**
@@ -59,9 +61,9 @@ trait WatchdogTrait {
   /**
    * Store the scenario identity, tracked message types and start time.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__FUNCTION__, $scope) || !$this->getDriverManager()->hasCapability(WatchdogCapabilityInterface::class)) {
       return;
     }
 
@@ -95,7 +97,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
@@ -116,13 +118,13 @@ trait WatchdogTrait {
    * and is absent from the rerun cache. Errors reported at step scope are
    * deleted, so they are not reported twice.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime)) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->getDriverManager()->hasCapability(WatchdogCapabilityInterface::class)) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     // The step hook throws for a missing table because the step result is
     // still open. This hook runs after the result is set, where throwing
@@ -177,7 +179,7 @@ trait WatchdogTrait {
    *   If errors at or above the severity threshold were logged.
    */
   public function watchdogAssertNotHasErrors(string $context): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();
 

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
@@ -39,7 +39,7 @@ trait ParagraphsTrait {
    */
   #[Given('the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
@@ -78,7 +78,7 @@ trait ParagraphsTrait {
    *   Created paragraphs item.
    */
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->helperAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
@@ -120,7 +120,7 @@ trait ParagraphsTrait {
    *   Found entity or NULL if not found.
    */
   public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery($entity_type)
       ->accessCheck(FALSE)
@@ -147,13 +147,7 @@ trait ParagraphsTrait {
    *   Stub object.
    */
   protected function paragraphsExpandEntityFields(EntityStub $stub): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof DrupalDriverInterface) {
-      throw new \RuntimeException('The current driver does not support Drupal-specific operations. Ensure you are using a compatible Drupal driver.');
-    }
-
-    $core = $driver->getCore();
+    $core = $this->driverFor(CoreCapabilityInterface::class)->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
@@ -175,7 +169,7 @@ trait ParagraphsTrait {
    *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);

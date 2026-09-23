@@ -36,9 +36,9 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'default_driver' => 'blackbox',
-    'api_driver' => 'drupal',
-    'drush_driver' => 'drush',
+    // Both the allow-list and the precedence order: a step resolves the first
+    // driver here that provides the capability the step needs.
+    'drivers' => ['drupal', 'drush', 'blackbox'],
     'login_field' => 'name',
     'login_wait' => 0,
     'ajax_timeout' => 5,

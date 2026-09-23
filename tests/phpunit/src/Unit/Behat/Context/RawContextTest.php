@@ -16,6 +16,7 @@ use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManager;
@@ -23,14 +24,14 @@ use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriver;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
+use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -100,7 +101,8 @@ class RawContextTest extends UnitTestCase {
     $driver = $this->createMock(DriverInterface::class);
     $context = $this->createContext($driver);
 
-    $this->assertSame($driver, $context->getDriver());
+    $this->assertSame($driver, $context->getDriver('test'));
+    $this->assertSame($driver, $context->driverFor(DriverInterface::class));
   }
 
   public function testTheRandomGeneratorComesFromTheDriver(): void {
@@ -220,25 +222,25 @@ class RawContextTest extends UnitTestCase {
    *   The creation method to call.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
    *   The stub to pass to it.
-   * @param string $expected_message
-   *   The message the guard is expected to throw with.
+   * @param class-string $capability
+   *   The capability the creation is expected to ask for.
    */
   #[DataProvider('dataProviderCreationRefusesIncapableDriver')]
-  public function testCreationRefusesIncapableDriver(string $method, EntityStub $stub, string $expected_message): void {
+  public function testCreationRefusesIncapableDriver(string $method, EntityStub $stub, string $capability): void {
     $context = $this->createContext($this->createMock(DriverInterface::class));
 
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expected_message);
+    $this->expectException(UnsupportedDriverActionException::class);
+    $this->expectExceptionMessage(sprintf('No driver provides "%s". Drivers available to this scenario, in order: test.', $capability));
 
     $context->$method($stub);
   }
 
   public static function dataProviderCreationRefusesIncapableDriver(): \Iterator {
-    yield 'node' => ['nodeCreate', new EntityStub('node'), 'does not support content creation.'];
-    yield 'term' => ['termCreate', new EntityStub('taxonomy_term'), 'does not support content creation.'];
-    yield 'entity' => ['entityCreate', new EntityStub('block_content'), 'does not support content creation.'];
-    yield 'user' => ['userCreate', new EntityStub('user'), 'does not support user creation.'];
-    yield 'language' => ['languageCreate', new EntityStub('language'), 'does not support language management.'];
+    yield 'node' => ['nodeCreate', new EntityStub('node'), ContentCapabilityInterface::class];
+    yield 'term' => ['termCreate', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
+    yield 'entity' => ['entityCreate', new EntityStub('block_content'), ContentCapabilityInterface::class];
+    yield 'user' => ['userCreate', new EntityStub('user'), UserCapabilityInterface::class];
+    yield 'language' => ['languageCreate', new EntityStub('language'), LanguageCapabilityInterface::class];
   }
 
   public function testHookExceptionSurfacesFromDispatcher(): void {
@@ -449,9 +451,19 @@ class RawContextTest extends UnitTestCase {
     $this->createContext($driver)->cleanRoles($this->createAfterScenarioScope());
   }
 
-  public function testStaticCachesAreClearedOnCacheCapableDriver(): void {
+  public function testStaticCachesAreClearedOnDriverTheScenarioReached(): void {
     $driver = $this->createDriver([CacheCapabilityInterface::class]);
     $driver->expects($this->once())->method('cacheClearStatic');
+
+    $context = $this->createContext($driver);
+    $context->driverFor(CacheCapabilityInterface::class);
+
+    $context->clearStaticCaches();
+  }
+
+  public function testStaticCachesAreSkippedOnDriverTheScenarioNeverReached(): void {
+    $driver = $this->createDriver([CacheCapabilityInterface::class]);
+    $driver->expects($this->never())->method('cacheClearStatic');
 
     $this->createContext($driver)->clearStaticCaches();
   }
@@ -590,62 +602,29 @@ class RawContextTest extends UnitTestCase {
     $this->assertSame(['term'], $deleted);
   }
 
-  public function testAssertDrupalRejectsScenarioWithoutTheApiTag(): void {
+  public function testDriverForNamesTheCapabilityWhenNoDriverProvidesIt(): void {
     $context = $this->createContext($this->createMock(DriverInterface::class));
-    $context->resolveApiScenario($this->createBeforeScenarioScope());
 
-    $this->expectException(BootstrapException::class);
-    $this->expectExceptionMessage('Tag the scenario "@api"');
+    $this->expectException(UnsupportedDriverActionException::class);
+    $this->expectExceptionMessage(sprintf('No driver provides "%s".', CoreCapabilityInterface::class));
 
-    $context->assertDrupal();
+    $context->driverFor(CoreCapabilityInterface::class);
   }
 
-  /**
-   * Tests that the tag is honoured from either level.
-   *
-   * @param list<string> $scenario_tags
-   *   Tags on the scenario.
-   * @param list<string> $feature_tags
-   *   Tags on the feature.
-   */
-  #[DataProvider('dataProviderAssertDrupalRejectsNonBootstrappingDriver')]
-  public function testAssertDrupalRejectsNonBootstrappingDriver(array $scenario_tags, array $feature_tags): void {
-    $context = $this->createContext($this->createMock(DriverInterface::class));
-    $context->resolveApiScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
-
-    $this->expectException(BootstrapException::class);
-    $this->expectExceptionMessage('does not provide');
-
-    $context->assertDrupal();
-  }
-
-  public static function dataProviderAssertDrupalRejectsNonBootstrappingDriver(): \Iterator {
-    yield 'tagged on the scenario' => [['api'], []];
-    yield 'tagged on the feature' => [[], ['api']];
-  }
-
-  public function testAssertDrupalBootstrapsOnceAndReturnsTheDriver(): void {
+  public function testDriverForBootstrapsOnceAndReturnsTheDriver(): void {
     $driver = $this->createMock(DrupalDriverInterface::class);
     $driver->method('isBootstrapped')->willReturnOnConsecutiveCalls(FALSE, TRUE);
     $driver->expects($this->once())->method('bootstrap');
 
     $context = $this->createContext($driver);
-    $context->resolveApiScenario($this->createBeforeScenarioScope(['api']));
 
-    $this->assertSame($driver, $context->assertDrupal());
-    $this->assertSame($driver, $context->assertDrupal());
-  }
-
-  public function testAssertDrupalSkipsTheTagCheckOutsideScenario(): void {
-    $driver = $this->createMock(DrupalDriverInterface::class);
-    $driver->method('isBootstrapped')->willReturn(TRUE);
-
-    $this->assertSame($driver, $this->createContext($driver)->assertDrupal());
+    $this->assertSame($driver, $context->driverFor(CoreCapabilityInterface::class));
+    $this->assertSame($driver, $context->driverFor(CoreCapabilityInterface::class));
   }
 
   public function testStringTimestampIsConvertedForInProcessDriver(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
-    $context = $this->createContext(new DrupalDriver(self::DRUPAL_ROOT, 'default'));
+    $context = $this->createContext($this->createDrupalContentDriver());
 
     RawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
@@ -661,7 +640,7 @@ class RawContextTest extends UnitTestCase {
   #[DataProvider('dataProviderNonTextualTimestampIsLeftAlone')]
   public function testNonTextualTimestampIsLeftAlone(mixed $value): void {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
-    $context = $this->createContext(new DrupalDriver(self::DRUPAL_ROOT, 'default'));
+    $context = $this->createContext($this->createDrupalContentDriver());
 
     RawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
@@ -676,7 +655,7 @@ class RawContextTest extends UnitTestCase {
 
   public function testUnreadableTimestampIsReported(): void {
     $stub = new EntityStub('node', 'page', ['created' => 'not a date at all']);
-    $context = $this->createContext(new DrupalDriver(self::DRUPAL_ROOT, 'default'));
+    $context = $this->createContext($this->createDrupalContentDriver());
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
@@ -760,9 +739,9 @@ class RawContextTest extends UnitTestCase {
     // enough for the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDriver')->willReturn($driver);
-    $driver_manager->method('getEnvironment')->willReturn($environment);
+    $driver_manager = new DriverManager(['test' => $driver]);
+    $driver_manager->setScenarioDrivers(['test' => 'test']);
+    $driver_manager->setEnvironment($environment);
 
     $context = new TestableRawContext();
     $context->setDriverManager($driver_manager);
@@ -797,6 +776,16 @@ class RawContextTest extends UnitTestCase {
    */
   protected function createContentDriver(): DriverInterface&MockObject {
     return $this->createDriver([ContentCapabilityInterface::class]);
+  }
+
+  /**
+   * Builds a driver double that saves content through Drupal's own storage.
+   *
+   * @return \DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The driver double.
+   */
+  protected function createDrupalContentDriver(): DriverInterface&MockObject {
+    return $this->createDriver([ContentCapabilityInterface::class, CoreCapabilityInterface::class]);
   }
 
 }

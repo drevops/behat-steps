@@ -4,14 +4,13 @@ Feature: Login
   I want to provide tools to test authentication functionality
   So that users can verify access to secured resources
 
-  @api
   Scenario: Administrator user logs in
     When I log in as a user with the "Administrator" role
     When I go to "admin"
     Then I should be on "/admin"
     And I save screenshot
 
-  @api @javascript
+  @javascript
   Scenario: Administrator user logs in using a real browser
     When I log in as a user with the "Administrator" role
     When I go to "admin"

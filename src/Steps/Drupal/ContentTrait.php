@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
@@ -56,7 +57,7 @@ trait ContentTrait {
    */
   #[Given('the content type :content_type does not exist')]
   public function contentRemoveContentType(string $content_type): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
@@ -77,7 +78,7 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content does not exist:')]
   public function contentDelete(string $content_type, TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->helperLoadNodeIds($content_type, $node_hash);
@@ -201,7 +202,7 @@ trait ContentTrait {
    */
   #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
@@ -237,7 +238,7 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
   public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $node = $this->contentLoadNodeByTitle($content_type, $title);
 
@@ -266,7 +267,7 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for all content')]
   public function contentRebuildAccessGrantsAll(): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
   }
@@ -284,7 +285,7 @@ trait ContentTrait {
    */
   #[When('I set the path alias of the :content_type content with the title :title to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $this->contentAssertPathModuleEnabled();
 
@@ -392,7 +393,7 @@ trait ContentTrait {
    *   The node ID.
    */
   public function contentResolveNidByTitle(string $content_type, string $title): int {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
@@ -425,7 +426,7 @@ trait ContentTrait {
    *   The node.
    */
   public function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $node = Node::load($this->contentResolveNidByTitle($content_type, $title));
 
@@ -442,7 +443,7 @@ trait ContentTrait {
    * Throw when the `path` module is not enabled.
    */
   protected function contentAssertPathModuleEnabled(): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     // @codeCoverageIgnoreStart
     if (!\Drupal::moduleHandler()->moduleExists('path')) {

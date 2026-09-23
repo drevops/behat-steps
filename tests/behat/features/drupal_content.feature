@@ -3,7 +3,6 @@ Feature: Check that ContentTrait works
   I want to provide tools to manage Drupal content programmatically
   So that users can test content functionality reliably
 
-  @api
   Scenario: Assert "@Given the content type :content_type does not exist" works as expected
     When I log in as a user with the "administrator" role
     When I visit "/admin/structure/types/add"
@@ -16,14 +15,12 @@ Feature: Check that ContentTrait works
     And I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
-  @api
   Scenario: Assert "@Given the content type :content_type does not exist" works as expected on non-existing content type
     Given the content type "test_content_type" does not exist
     And I log in as a user with the "administrator" role
     When I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
-  @api
   Scenario: Assert "@Given the following :content_type content does not exist:" works as expected
     Given the following page content exist:
       | title              |
@@ -43,7 +40,6 @@ Feature: Check that ContentTrait works
     When I go to "content/test-page-title2"
     Then the response status code should be 404
 
-  @api
   Scenario: Assert "When I visit the :content_type content page with the title :title" works as expected
     Given the following page content exist:
       | title             |
@@ -80,7 +76,6 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @api
   Scenario: Assert "When I visit the :content_type content edit page with the title :title" works as expected
     Given the following page content exist:
       | title             |
@@ -117,7 +112,6 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @api
   Scenario: Assert "When I visit the :content_type content delete page with the title :title" works as expected
     Given the following page content exist:
       | title             |
@@ -154,7 +148,6 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @api
   Scenario: Assert "When I visit the :content_type content scheduled transitions page with the title :title" works as expected
     Given the following page content exist:
       | title             |
@@ -191,7 +184,6 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @api
   Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
     Given the following page content exist:
       | title             | moderation_state |
@@ -248,7 +240,6 @@ Feature: Check that ContentTrait works
       State "published" is not defined in the workflow for "landing_page" content type.
       """
 
-  @api
   Scenario: Assert "When I visit the :content_type content revisions page with the title :title" works as expected
     Given the following article content exist:
       | title                | body        |
@@ -276,7 +267,6 @@ Feature: Check that ContentTrait works
       Unable to find "article" content with title "[TEST] No existing title".
       """
 
-  @api
   Scenario: Create single node with vertical field format
     When I log in as a user with the "administrator" role
     And the following page content with fields exist:
@@ -286,7 +276,6 @@ Feature: Check that ContentTrait works
     When I go to "/admin/content"
     Then I should see "[TEST] Vertical Page"
 
-  @api
   Scenario: Create multiple nodes with vertical field format
     When I log in as a user with the "administrator" role
     And the following page content with fields exist:
@@ -298,7 +287,6 @@ Feature: Check that ContentTrait works
     And I should see "[TEST] V-Page 2"
     And I should see "[TEST] V-Page 3"
 
-  @api
   Scenario: Assert "Then :content_type content with the title :title should not exist" works as expected
     When I log in as a user with the "administrator" role
     Then "page" content with the title "[TEST] Non-existing page" should not exist
@@ -319,7 +307,6 @@ Feature: Check that ContentTrait works
       "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
       """
 
-  @api
   Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
     Given the following page content exist:
       | title                    |
@@ -329,7 +316,6 @@ Feature: Check that ContentTrait works
     And I visit the "page" content page with the title "[TEST] Grants page title"
     Then I should see "[TEST] Grants page title"
 
-  @api
   Scenario: Assert "When I rebuild the access grants for all content" works as expected
     Given the following page content exist:
       | title                        |
@@ -353,7 +339,6 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @api
   Scenario: Assert file field on node resolves bare fixture filename without explicit managed file
     Given the following article content exist:
       | title                | field_file |
@@ -363,7 +348,6 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Fixture file"
     And the response should contain ".txt"
 
-  @api
   Scenario: Assert image field on node resolves bare fixture filename without explicit managed file
     Given the following article content exist:
       | title                 | field_image |
@@ -372,7 +356,6 @@ Feature: Check that ContentTrait works
     When I visit the "article" content edit page with the title "[TEST] Fixture image"
     Then I should see "[TEST] Fixture image"
 
-  @api
   Scenario: Assert file field on node resolves compound fixture filename without explicit managed file
     Given the following article content exist:
       | title                         | field_file                                       |
@@ -382,7 +365,6 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound fixture file"
     And the response should contain ".txt"
 
-  @api
   Scenario: Assert image field on node resolves compound fixture filename without explicit managed file
     Given the following article content exist:
       | title                          | field_image                              |
@@ -391,7 +373,6 @@ Feature: Check that ContentTrait works
     When I visit the "article" content edit page with the title "[TEST] Compound fixture image"
     Then I should see "[TEST] Compound fixture image"
 
-  @api
   Scenario: Assert file field on node resolves fixture path in a subdirectory
     Given the following article content exist:
       | title                          | field_file          |
@@ -401,7 +382,6 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Subdirectory file"
     And the response should contain ".pdf"
 
-  @api
   Scenario: Assert file field on node resolves compound fixture path in a subdirectory
     Given the following article content exist:
       | title                            | field_file                                              |
@@ -411,7 +391,6 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound subdirectory file"
     And the response should contain ".pdf"
 
-  @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
     Given the following page content exist:
       | title                   |
@@ -422,7 +401,6 @@ Feature: Check that ContentTrait works
     Then the response status code should be 200
     And I should see "[TEST] Alias page title"
 
-  @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an alias without a leading slash
     Given the following page content exist:
       | title                            |
@@ -433,7 +411,6 @@ Feature: Check that ContentTrait works
     Then the response status code should be 200
     And I should see "[TEST] Alias no slash page title"
 
-  @api
   Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" replaces an existing alias instead of adding a second one
     Given the following page content exist:
       | title                            |
@@ -493,21 +470,18 @@ Feature: Check that ContentTrait works
       Path alias for "page" content with the title "[TEST] Empty alias page title" cannot be empty.
       """
 
-  @api
   Scenario: Assert "Then :content_type content with the title :title should be published" works as expected
     Given the following page content exist:
       | title                       | moderation_state |
       | [TEST] Published page title | published        |
     Then "page" content with the title "[TEST] Published page title" should be published
 
-  @api
   Scenario: Assert "Then :content_type content with the title :title should not be published" works as expected
     Given the following page content exist:
       | title                         | moderation_state |
       | [TEST] Unpublished page title | draft            |
     Then "page" content with the title "[TEST] Unpublished page title" should not be published
 
-  @api
   Scenario: Assert publish state assertions resolve the most recently created content when titles are duplicated
     Given the following page content exist:
       | title                       | moderation_state |

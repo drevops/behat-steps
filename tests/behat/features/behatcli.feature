@@ -40,7 +40,7 @@ Feature: Behat CLI context
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
         ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension(BehatStepsExtension::class, ['api_driver' => 'drupal', 'drupal' => ['drupal_root' => '/app/build/web']]));
+        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['drupal', 'blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
 
       return (new Config())->withProfile($profile);
       """
@@ -49,7 +49,6 @@ Feature: Behat CLI context
     Given a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Homepage
-        @api
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
           And the path should be "/"
@@ -60,8 +59,7 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        @api
-        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:2
           Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/"             # FeatureContext::pathAssertCurrent()
 
@@ -73,7 +71,6 @@ Feature: Behat CLI context
     Given a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Homepage
-        @api
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
           And the path should be "/nonexisting"
@@ -83,15 +80,14 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        @api
-        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:2
           Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/nonexisting"  # FeatureContext::pathAssertCurrent()
             Current path is "/", but expected is "/nonexisting". (Behat\Mink\Exception\ExpectationException)
 
       --- Failed scenarios:
 
-          features/drupal_bootstrap.feature:3
+          features/drupal_bootstrap.feature:2
 
       1 scenario (1 failed)
       2 steps (1 passed, 1 failed)
@@ -101,7 +97,6 @@ Feature: Behat CLI context
     Given a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Homepage
-        @api
         Scenario: Anonymous user visits homepage
           Given I go to the homepage
           Then I throw test exception with message "Intentional error"
@@ -112,8 +107,7 @@ Feature: Behat CLI context
       """
       Feature: Homepage
 
-        @api
-        Scenario: Anonymous user visits homepage                       # features/drupal_bootstrap.feature:3
+        Scenario: Anonymous user visits homepage                       # features/drupal_bootstrap.feature:2
           Given I go to the homepage                                   # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           Then I throw test exception with message "Intentional error" # FeatureContext::throwTestException()
             Intentional error (RuntimeException)
@@ -121,7 +115,7 @@ Feature: Behat CLI context
 
       --- Failed scenarios:
 
-          features/drupal_bootstrap.feature:3
+          features/drupal_bootstrap.feature:2
 
       1 scenario (1 failed)
       3 steps (1 passed, 1 failed, 1 skipped)
@@ -141,7 +135,7 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should pass
 
-  Scenario: A Drupal step outside an "@api" scenario names the tag it needs
+  Scenario: A Drupal step in a configuration listing no Drupal driver names the capability
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
@@ -151,14 +145,46 @@ Feature: Behat CLI context
         use ContentTrait;
       }
       """
+    And a file named "behat.php" with:
+      """
+      <?php
+      use Behat\Config\Config;
+      use Behat\Config\Extension;
+      use Behat\Config\Profile;
+      use Behat\Config\Suite;
+      use Behat\MinkExtension\Context\MinkContext;
+      use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
+      $profile = (new Profile('default'))
+        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
+        ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
+        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
+
+      return (new Config())->withProfile($profile);
+      """
     And a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Content
-        Scenario: An untagged scenario reaches for Drupal
+        Scenario: A scenario in a blackbox-only configuration reaches for Drupal
           Given the content type "article" does not exist
       """
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      The step requires Drupal's API. Tag the scenario "@api" so it runs on the in-process Drupal driver.
+      No driver provides "DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface". Drivers available to this scenario, in order: blackbox.
+      """
+
+  Scenario: A "@driver" tag naming a driver the configuration does not hold fails at scenario start
+    Given a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        @driver:typo
+        Scenario: A scenario promotes a driver that does not exist
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, blackbox. The tag reorders that list; it never adds to it.
       """

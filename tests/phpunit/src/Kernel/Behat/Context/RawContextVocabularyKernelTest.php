@@ -10,6 +10,7 @@ use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
@@ -146,18 +147,18 @@ class RawContextVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Builds a driver manager handing out the given driver.
+   * Builds a driver manager holding the given driver as the only one.
    *
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
-   *   The driver the manager hands out.
+   *   The driver the scenario resolves against.
    *
-   * @return \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The driver manager double.
+   * @return \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface
+   *   The driver manager.
    */
-  protected function createDriverManager(DriverInterface $driver): DriverManagerInterface&MockObject {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDriver')->willReturn($driver);
-    $driver_manager->method('getEnvironment')->willReturn($this->createMock(Environment::class));
+  protected function createDriverManager(DriverInterface $driver): DriverManagerInterface {
+    $driver_manager = new DriverManager(['test' => $driver]);
+    $driver_manager->setScenarioDrivers(['test' => 'test']);
+    $driver_manager->setEnvironment($this->createMock(Environment::class));
 
     return $driver_manager;
   }

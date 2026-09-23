@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -40,7 +41,7 @@ trait ModuleTrait {
   /**
    * Enable/disable modules before scenario based on tags.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
@@ -69,7 +70,7 @@ trait ModuleTrait {
   /**
    * Restore module states after scenario.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
@@ -233,7 +234,7 @@ trait ModuleTrait {
    *   TRUE if the module is enabled, FALSE otherwise.
    */
   public function moduleIsEnabled(string $module): bool {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     return \Drupal::moduleHandler()->moduleExists($module);
   }
@@ -245,7 +246,7 @@ trait ModuleTrait {
    *   The module machine name.
    */
   public function moduleEnable(string $module): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     // @codeCoverageIgnoreStart
     if ($this->moduleIsEnabled($module)) {
@@ -274,7 +275,7 @@ trait ModuleTrait {
    *   The module machine name.
    */
   public function moduleDisable(string $module): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     // @codeCoverageIgnoreStart
     if (!$this->moduleIsEnabled($module)) {
@@ -302,7 +303,7 @@ trait ModuleTrait {
    *   TRUE if the module's code is present, FALSE otherwise.
    */
   public function moduleIsPresent(string $module): bool {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $module_list = \Drupal::service('extension.list.module')->getList();
     return isset($module_list[$module]);

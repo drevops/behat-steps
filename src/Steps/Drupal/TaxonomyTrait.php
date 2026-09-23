@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -80,7 +81,7 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms do not exist:')]
   public function taxonomyDeleteTerms(string $vocabulary, TableNode $terms_table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -146,7 +147,7 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -169,7 +170,7 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -187,7 +188,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should exist')]
   public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -216,7 +217,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -247,7 +248,7 @@ trait TaxonomyTrait {
    *   The operation to perform, e.g., '/delete', '/edit', etc.
    */
   public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -283,7 +284,7 @@ trait TaxonomyTrait {
    *   Array of term ids.
    */
   public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('taxonomy_term')
       ->accessCheck(FALSE)

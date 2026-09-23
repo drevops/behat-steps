@@ -54,13 +54,17 @@ A driver is the thing that actually talks to Drupal. `DriverInterface` is delibe
 
 ![Class structure: the driver layer](class-drivers.svg)
 
-This is what makes a step's requirements explicit rather than implicit. A step that needs to create a node needs a driver implementing `ContentCapabilityInterface`; ask a driver that doesn't and you get `UnsupportedDriverActionException` naming the missing capability, instead of a fatal error somewhere deeper.
+This is what makes a step's requirements explicit rather than implicit, and it is also how a driver is chosen. A step names the capability it needs - a step that creates a node asks for `ContentCapabilityInterface` - and `DriverManager` walks the scenario's driver order and hands back the first driver implementing it, bootstrapping only that one. When none does, the step fails with `UnsupportedDriverActionException` naming the capability and the order, instead of a fatal error somewhere deeper.
+
+The order itself comes from the suite: its `drivers` setting is both the allow-list and the precedence order, and a `@driver:NAME` tag moves one of those names to the front for a single scenario or feature. A step never names a driver, so the shipped vocabulary carries over unchanged to a driver a project registers itself.
 
 `DrupalDriver` delegates the messy part - turning a Gherkin table into a saved entity - to `Driver\Core`. That's where the field handlers live, one per field type (`DatetimeHandler`, `EntityReferenceHandler`, `ImageHandler`, `LinkHandler`, `AddressHandler` and a couple of dozen more), along with the classifiers that pick a handler and the parser that walks a stub's fields. `Driver\Alias` resolves human-friendly values into real ones: an author name into a uid, a parent term name into a tid, a vocabulary label into a machine name.
 
 ## The integration layer
 
-`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, picks the default driver, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
+`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
+
+`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverManager`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver.
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 
@@ -69,7 +73,7 @@ The library also ships its own `MinkExtension`, registered separately in the Beh
 - Entity creation (`nodeCreate`, `userCreate`, `termCreate`, `entityCreate`, `languageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `cleanEntities`, `cleanUsers` and `cleanRoles` run after the scenario and delete what it created, in reverse.
 - Authentication: `login`, `logout`, `loggedIn`, delegated to `AuthenticationManager`.
-- Driver access: `getDriver()`, and `assertDrupal()` for the steps that need the real thing.
+- Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
 
 Note where cleanup lives now. It is the context's job, not a trait's - which is why a project gets it by extending `RawContext` rather than by remembering to mix a trait in.
 

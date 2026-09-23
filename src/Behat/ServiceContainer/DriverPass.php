@@ -14,6 +14,11 @@ use Symfony\Component\DependencyInjection\Reference;
 class DriverPass implements CompilerPassInterface {
 
   /**
+   * Tag a driver service carries to be registered with the manager.
+   */
+  public const DRIVER_TAG = 'behat_steps.driver';
+
+  /**
    * Registers drivers.
    */
   public function process(ContainerBuilder $container): void {
@@ -23,7 +28,7 @@ class DriverPass implements CompilerPassInterface {
 
     $manager_definition = $container->getDefinition('behat_steps.driver_manager');
 
-    foreach ($container->findTaggedServiceIds('behat_steps.driver') as $id => $attributes) {
+    foreach ($container->findTaggedServiceIds(self::DRIVER_TAG) as $id => $attributes) {
       foreach ($attributes as $attribute) {
         if (isset($attribute['alias']) && $name = $attribute['alias']) {
           $manager_definition->addMethodCall('registerDriver', [$name, new Reference($id)]);
@@ -44,8 +49,29 @@ class DriverPass implements CompilerPassInterface {
 
       $container->getDefinition($id)->addMethodCall('setCore', [new Reference($core_ids[0])]);
     }
+  }
 
-    $manager_definition->addMethodCall('setDefaultDriverName', [$container->getParameter('behat_steps.default_driver')]);
+  /**
+   * Collects the names the tagged drivers are registered under.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   *
+   * @return array<int, string>
+   *   The lowercased registered driver names, in registration order.
+   */
+  public static function registeredNames(ContainerBuilder $container): array {
+    $names = [];
+
+    foreach ($container->findTaggedServiceIds(self::DRIVER_TAG) as $attributes) {
+      foreach ($attributes as $attribute) {
+        if (isset($attribute['alias']) && $attribute['alias']) {
+          $names[] = strtolower((string) $attribute['alias']);
+        }
+      }
+    }
+
+    return array_values(array_unique($names));
   }
 
 }

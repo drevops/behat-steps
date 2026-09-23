@@ -3,7 +3,6 @@ Feature: Check that DraggableviewsTrait works
   I want to provide tools to manage the order of items in draggable views
   So that users can test content ordering functionality
 
-  @api
   Scenario: Assert save order of the Draggable Order items
     Given the following "draggableviews_demo" content exist:
       | title  | status | created           |

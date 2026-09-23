@@ -176,7 +176,9 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver->expects($this->once())->method('login');
 
     $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDriver')->willReturn($auth_driver);
+    $driver_manager->method('hasCapability')->willReturn(TRUE);
+    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = $this->createManager($session, NULL, $driver_manager);
     $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
@@ -243,7 +245,9 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver->expects($this->once())->method('logout');
 
     $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDriver')->willReturn($auth_driver);
+    $driver_manager->method('hasCapability')->willReturn(TRUE);
+    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = $this->createManager($session, NULL, $driver_manager);
     $manager->logOut();
@@ -434,7 +438,9 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver->expects($this->once())->method('logout');
 
     $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDriver')->willReturn($auth_driver);
+    $driver_manager->method('hasCapability')->willReturn(TRUE);
+    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
+    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
     $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $manager->fastLogout();
@@ -574,6 +580,7 @@ class AuthenticationManagerTest extends TestCase {
     $driver = $this->createMock(DriverInterface::class);
     $driver->method('isBootstrapped')->willReturn(TRUE);
     $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_manager->method('hasCapability')->willReturn(FALSE);
     $driver_manager->method('getDriver')->willReturn($driver);
     return $driver_manager;
   }

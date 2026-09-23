@@ -112,7 +112,6 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertTrue($container->hasDefinition('behat_steps.context.attribute_reader'));
     $this->assertTrue($container->hasDefinition('behat_steps.listener.driver'));
     $this->assertTrue($container->hasDefinition('behat_steps.region_selector'));
-    $this->assertSame('blackbox', $container->getParameter('behat_steps.default_driver'));
   }
 
   public function testDrupalDriverIsRegisteredWithItsRoot(): void {
@@ -254,9 +253,6 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public static function dataProviderSchemaDefaults(): \Iterator {
-    yield 'default_driver' => ['default_driver', 'blackbox'];
-    yield 'api_driver' => ['api_driver', 'drush'];
-    yield 'drush_driver' => ['drush_driver', 'drush'];
     yield 'login_field' => ['login_field', 'name'];
     yield 'login_wait' => ['login_wait', 0];
     yield 'ajax_timeout' => ['ajax_timeout', 5];
@@ -306,8 +302,111 @@ class BehatStepsExtensionTest extends TestCase {
     $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
     $names = array_map(static fn(array $call): string => $call[0], $calls);
 
-    $this->assertContains('registerDriver', $names);
-    $this->assertSame('setDefaultDriverName', end($names));
+    $this->assertSame(['registerDriver', 'registerDriver'], $names);
+  }
+
+  public function testTheConfiguredDriverListReachesTheContainer(): void {
+    $container = $this->load(['drivers' => ['blackbox', 'api' => 'drupal'], 'drupal' => ['drupal_root' => 'web']]);
+
+    $this->assertSame(['blackbox', 'api' => 'drupal'], $container->getParameter(BehatStepsExtension::DRIVERS_PARAMETER));
+  }
+
+  public function testAnOmittedDriverListReachesTheContainerAsEmpty(): void {
+    $this->assertSame([], $this->load([])->getParameter(BehatStepsExtension::DRIVERS_PARAMETER));
+  }
+
+  /**
+   * Tests the driver lists the configuration may declare.
+   *
+   * @param array<array-key, mixed> $drivers
+   *   The 'drivers' list the configuration declares.
+   */
+  #[DataProvider('dataProviderProcessAcceptsValidDriverList')]
+  public function testProcessAcceptsValidDriverList(array $drivers): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drivers' => $drivers, 'drupal' => ['drupal_root' => 'web']], $extension);
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public static function dataProviderProcessAcceptsValidDriverList(): \Iterator {
+    yield 'bare entries' => [['drupal', 'blackbox']];
+    yield 'aliased entries' => [['api' => 'drupal']];
+    yield 'bare and aliased mixed' => [['blackbox', 'api' => 'drupal']];
+    yield 'a name carrying a hyphen, an underscore and a digit' => [['api-2_b' => 'drupal']];
+    yield 'a name matched without regard to case' => [['Drupal']];
+    yield 'an omitted list' => [[]];
+  }
+
+  /**
+   * Tests the driver lists the configuration may not declare.
+   *
+   * @param array<array-key, mixed> $drivers
+   *   The 'drivers' list the configuration declares.
+   * @param string $message
+   *   Part of the message the build is expected to fail with.
+   */
+  #[DataProvider('dataProviderProcessRejectsInvalidDriverList')]
+  public function testProcessRejectsInvalidDriverList(array $drivers, string $message): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->setParameter(BehatStepsExtension::DRIVERS_PARAMETER, $drivers);
+
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($message);
+
+    $extension->process($container);
+  }
+
+  public static function dataProviderProcessRejectsInvalidDriverList(): \Iterator {
+    yield 'an unregistered driver' => [['ghost'], 'The "drivers" list under "behat_steps" names the driver "ghost", which is not registered. Registered drivers: blackbox, drupal.'];
+    yield 'an unregistered driver behind an alias' => [['api' => 'ghost'], 'which is not registered'];
+    yield 'a tag name carrying a space' => [['my driver' => 'drupal'], 'so that "@driver:my driver" is a valid tag'];
+    yield 'a tag name carrying a colon' => [['my:driver' => 'drupal'], 'so that "@driver:my:driver" is a valid tag'];
+    yield 'a tag name carrying a trailing newline' => [["api\n" => 'drupal'], 'A driver name may hold only letters, digits'];
+    yield 'an entry that is not a name' => [[['drupal']], 'holds an entry that is not a driver name'];
+    yield 'an empty entry' => [[''], 'holds an entry that is not a driver name'];
+    yield 'the same name twice' => [['drupal', 'drupal'], 'names "drupal" twice'];
+    yield 'two names differing only by case' => [['drupal', 'Drupal'], 'names "drupal" twice'];
+    yield 'two aliases differing only by case' => [['api' => 'drupal', 'API' => 'blackbox'], 'names "api" twice'];
+  }
+
+  public function testTheSameDriverMayCarryTwoDistinctNames(): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drivers' => ['api' => 'drupal', 'web' => 'drupal'], 'drupal' => ['drupal_root' => 'web']], $extension);
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public function testProcessSkipsValidationWithoutTheDriversParameter(): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->getParameterBag()->remove(BehatStepsExtension::DRIVERS_PARAMETER);
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public function testProcessSkipsValidationWhenTheParameterIsNotList(): void {
+    $extension = new BehatStepsExtension();
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
+    $container->setParameter(BehatStepsExtension::DRIVERS_PARAMETER, 'drupal');
+
+    $extension->process($container);
+
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+  }
+
+  public function testTheSchemaRefusesDriverListThatIsNotList(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('behat_steps.drivers');
+
+    $this->load(['drivers' => 'drupal']);
   }
 
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {

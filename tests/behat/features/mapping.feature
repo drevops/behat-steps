@@ -7,13 +7,11 @@ Feature: Check that MappingTrait works
   # BehatCliContext harness uses "{{ }}" for its own template placeholders and
   # strips them from the generated feature file.
 
-  @api
   Scenario: Assert that a mapping token resolves in a step argument
     Given the user is anonymous
     When I visit "{{ User Login }}"
     Then the path should be "/user/login"
 
-  @api
   Scenario: Assert that a mapping token resolves without surrounding whitespace
     Given the user is anonymous
     When I visit "{{User Registration}}"

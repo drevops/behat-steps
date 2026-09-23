@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -44,13 +45,13 @@ trait FileTrait {
   /**
    * Ensure private and temp directories exist.
    */
-  #[BeforeScenario('@api')]
+  #[BeforeScenario]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
     }
 
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $fs = new Filesystem();
 
@@ -72,7 +73,7 @@ trait FileTrait {
    *
    * Managed file entities are removed by the shared entity registry cleanup.
    */
-  #[AfterScenario('@api')]
+  #[AfterScenario]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
     if ($this->skipTag(__FUNCTION__, $scope)) {
       return;
@@ -131,7 +132,7 @@ trait FileTrait {
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedFiles(TableNode $table): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -161,7 +162,7 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $directory = \Drupal::service('file_system')->dirname($uri);
 
@@ -299,7 +300,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');
 
@@ -354,7 +355,7 @@ trait FileTrait {
    *   Array of file ids.
    */
   public function fileLoadMultiple(array $conditions = []): array {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
 

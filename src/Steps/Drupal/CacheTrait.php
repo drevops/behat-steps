@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
@@ -31,13 +32,7 @@ trait CacheTrait {
    */
   #[Given('the cache is empty')]
   public function cacheClearAll(): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof CacheCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support cache clearing.', $driver::class));
-    }
-
-    $driver->cacheClear();
+    $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
   }
 
   /**
@@ -52,7 +47,7 @@ trait CacheTrait {
    */
   #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if ($path === '') {
       throw new \RuntimeException('The path must not be empty.');
@@ -77,7 +72,7 @@ trait CacheTrait {
    */
   #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     if ($path_pattern === '') {
       throw new \RuntimeException('The path pattern must not be empty.');
@@ -112,7 +107,7 @@ trait CacheTrait {
    */
   #[Given('the render cache is empty')]
   public function cacheClearRender(): void {
-    $this->assertDrupal();
+    $this->driverFor(CoreCapabilityInterface::class);
 
     \Drupal::cache('render')->deleteAll();
   }
@@ -126,13 +121,7 @@ trait CacheTrait {
    */
   #[When('I run cron')]
   public function cacheRunCron(): void {
-    $driver = $this->getDriver();
-
-    if (!$driver instanceof CronCapabilityInterface) {
-      throw new \RuntimeException(sprintf('The active Drupal driver "%s" does not support running cron.', $driver::class));
-    }
-
-    if (!$driver->cronRun()) {
+    if (!$this->driverFor(CronCapabilityInterface::class)->cronRun()) {
       throw new \RuntimeException('Cron did not run. Another cron run may still hold the lock.');
     }
   }

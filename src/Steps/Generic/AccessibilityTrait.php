@@ -81,7 +81,7 @@ trait AccessibilityTrait {
    * Working directory captured before any test bootstrap can chdir().
    *
    * The default report directory anchors to this rather than a live
-   * `getcwd()` call. An `@api` bootstrap chdir()s to the docroot, so a
+   * `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a
    * live `getcwd()` would move reports out of the path-anchored location
    * used by the rest of the run. Captured once at `@BeforeSuite`, before
    * the first scenario, so it records the directory the run was launched
@@ -473,7 +473,7 @@ trait AccessibilityTrait {
    *
    * Default: `.logs/test_results/accessibility/` under the directory the
    * run was launched from. That base is captured at `@BeforeSuite`, so it
-   * is stable even after an `@api` bootstrap chdir()s to the docroot. When
+   * is stable even after a Drupal bootstrap chdir()s to the docroot. When
    * the suite hook has not run, the live working directory is used.
    * Override to return an already-absolute path.
    */

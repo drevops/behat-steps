@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Driver\DrushDriver;
+use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
 
 /**
  * Run Drush commands and assert their output.
@@ -16,9 +16,9 @@ use DrevOps\BehatSteps\Driver\DrushDriver;
  * - Run a command that is expected to fail and keep its error output.
  * - Assert the last command's output by substring or regular expression.
  *
- * Steps route through the `drush` driver rather than the scenario's default
- * driver, so they work in a scenario running on any other driver as long as
- * `drush:` is configured.
+ * Steps resolve the driver that can run Drush commands rather than the one at
+ * the front of the scenario's order, so they work in a scenario driven by any
+ * other driver as long as the suite lists a Drush-capable one.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
  */
@@ -162,19 +162,13 @@ trait DrushTrait {
   }
 
   /**
-   * Return the Drush driver.
+   * Return the driver that runs Drush commands.
    *
-   * @throws \RuntimeException
-   *   When the 'drush' driver is not configured.
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order can run Drush commands.
    */
-  public function drushDriver(): DrushDriver {
-    $driver = $this->getDriver('drush');
-
-    if (!$driver instanceof DrushDriver) {
-      throw new \RuntimeException(sprintf('The "drush" driver resolved to "%s", which cannot run drush commands. Configure "drush:" under "behat_steps:".', $driver::class));
-    }
-
-    return $driver;
+  public function drushDriver(): DrushCapabilityInterface {
+    return $this->driverFor(DrushCapabilityInterface::class);
   }
 
   /**
