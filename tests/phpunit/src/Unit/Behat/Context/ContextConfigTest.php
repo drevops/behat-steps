@@ -41,7 +41,7 @@ class ContextConfigTest extends UnitTestCase {
     $context = new ConfigurableContext();
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit, sample_extra.enabled');
+    $this->expectExceptionMessage('declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit, sample.ratio, sample.anything, sample_extra.enabled');
 
     $context->getOption('sample', 'missing');
   }
@@ -151,7 +151,7 @@ class ContextConfigTest extends UnitTestCase {
 
     yield 'unknown option' => [
       ['sample' => ['nonexistent' => FALSE]],
-      'Unknown option "sample.nonexistent" for context "' . ConfigurableContext::class . '". The "sample" group accepts: enabled, label, limit.',
+      'Unknown option "sample.nonexistent" for context "' . ConfigurableContext::class . '". The "sample" group accepts: enabled, label, limit, ratio, anything.',
     ];
 
     yield 'a group that is not a map' => [
@@ -194,6 +194,16 @@ class ContextConfigTest extends UnitTestCase {
     yield 'a numeric string reads as an integer' => [['sample' => ['limit' => '12']], 'limit', 12];
     yield 'a negative numeric string reads as an integer' => [['sample' => ['limit' => '-3']], 'limit', -3];
     yield 'an integer reads as a string' => [['sample' => ['label' => 42]], 'label', '42'];
+    yield 'a numeric string reads as a float' => [['sample' => ['ratio' => '1.25']], 'ratio', 1.25];
+    yield 'an integer reads as a float' => [['sample' => ['ratio' => 2]], 'ratio', 2.0];
+    yield 'an untyped declaration takes a value of any type' => [['sample' => ['anything' => ['a', 'b']]], 'anything', ['a', 'b']];
+  }
+
+  public function testFailureNamesTheDeclaredType(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "sample.ratio" option expects a float, but null was given.');
+
+    new ConfigurableContext(['sample' => ['ratio' => NULL]]);
   }
 
   /**
