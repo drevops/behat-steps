@@ -335,7 +335,7 @@ trait DrupalFeatureContextTrait {
    * Test tableTransposeVertical method.
    */
   #[When('I call tableTransposeVertical with:')]
-  public function testCallHelperTransposeVerticalTable(TableNode $table): void {
+  public function testCallTableTransposeVertical(TableNode $table): void {
     $result = $this->tableTransposeVertical($table);
 
     if (empty($result)) {

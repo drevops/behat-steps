@@ -135,7 +135,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Web\RandomTrait,Generic\CommandTrait
+  @trait:Web\RandomTrait,Web\CommandTrait
   Scenario: Assert that a disabled transform passes its token through
     Given a configuration with the step options:
       """
@@ -150,7 +150,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Web\RandomTrait,Generic\CommandTrait
+  @trait:Web\RandomTrait,Web\CommandTrait
   Scenario: Assert that an enabled transform replaces its token
     Given some behat configuration
     And scenario steps:
