@@ -812,6 +812,10 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
         if (!is_array($declaration) || !array_key_exists('default', $declaration) || !isset($declaration['description'])) {
           throw new \RuntimeException(sprintf('The "%s.%s" declaration in %s::%s() needs a "default" and a "description".', $group, $key, static::class, $method->getName()));
         }
+
+        if (isset($declaration['tags']) && !is_array($declaration['tags'])) {
+          throw new \RuntimeException(sprintf('The "%s.%s" declaration in %s::%s() lists its tags as a map of tag name to the value it sets.', $group, $key, static::class, $method->getName()));
+        }
       }
 
       $schema[$group] = $declarations;
@@ -843,7 +847,8 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
     $steps = $this->getParameter('steps');
 
     // A group under 'steps' may name a trait only one of the registered
-    // contexts composes, so a group this one does not is not an error here.
+    // contexts composes, so an unservable group is skipped rather than
+    // rejected.
     if (is_array($steps)) {
       $resolved = $this->contextConfigMerge($resolved, $steps, FALSE);
     }

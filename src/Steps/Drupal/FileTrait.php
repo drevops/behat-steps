@@ -378,7 +378,7 @@ trait FileTrait {
     return [
       'enabled' => [
         'default' => TRUE,
-        'description' => 'Delete the managed files a scenario created once it finishes.',
+        'description' => 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.',
       ],
     ];
   }

@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableSubContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\MalformedConfigContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\MistaggedConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\UndocumentedConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\UntypedConfigContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -240,6 +241,11 @@ class ContextConfigTest extends UnitTestCase {
     yield 'no description' => [
       UndocumentedConfigContext::class,
       'The "undocumented.label" declaration in ' . UndocumentedConfigContext::class . '::undocumentedConfigSchema() needs a "default" and a "description".',
+    ];
+
+    yield 'tags that are not a map' => [
+      MistaggedConfigContext::class,
+      'The "mistagged.enabled" declaration in ' . MistaggedConfigContext::class . '::mistaggedConfigSchema() lists its tags as a map of tag name to the value it sets.',
     ];
   }
 
