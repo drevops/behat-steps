@@ -31,7 +31,7 @@ class ContextConfigTest extends UnitTestCase {
     $this->assertSame(['.one', '.two'], $context->getOption('other_sample', 'selectors'));
   }
 
-  public function testASubclassInheritsTheConstructor(): void {
+  public function testSubclassInheritsTheConstructor(): void {
     $context = new ConfigurableSubContext(['sample' => ['label' => 'inherited']]);
 
     $this->assertSame('inherited', $context->getOption('sample', 'label'));
@@ -53,9 +53,9 @@ class ContextConfigTest extends UnitTestCase {
    *   The extension's steps section.
    * @param array<string, mixed> $config
    *   The context's config argument.
-   * @param array<int, string> $feature_tags
+   * @param list<string> $feature_tags
    *   Tags on the feature.
-   * @param array<int, string> $scenario_tags
+   * @param list<string> $scenario_tags
    *   Tags on the scenario.
    * @param mixed $expected
    *   The value the chain is expected to resolve to.
@@ -114,7 +114,7 @@ class ContextConfigTest extends UnitTestCase {
     ];
   }
 
-  public function testTagsAreIgnoredWithoutAScope(): void {
+  public function testTagsAreIgnoredWhenNoScopeIsPassed(): void {
     $context = new ConfigurableContext(['sample' => ['enabled' => TRUE]]);
 
     $this->assertTrue($context->getOption('sample', 'enabled'));
@@ -249,35 +249,35 @@ class ContextConfigTest extends UnitTestCase {
     ];
   }
 
-  public function testADeclarationMethodMustReturnAnArray(): void {
+  public function testDeclarationMethodMustReturnAnArray(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage(UntypedConfigContext::class . '::untypedConfigSchema() must return an array of option declarations.');
 
     new UntypedConfigContext();
   }
 
-  public function testAContextComposingNoDeclaringTraitSaysSo(): void {
+  public function testContextComposingNoDeclaringTraitSaysSo(): void {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('Unknown option group "sample" for context "' . BareConfigContext::class . '". This context accepts: nothing.');
 
     new BareConfigContext(['sample' => ['enabled' => FALSE]]);
   }
 
-  public function testAContextComposingNoDeclaringTraitHasNoOptionToRead(): void {
+  public function testContextComposingNoDeclaringTraitHasNoOptionToRead(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('declares the option "sample.enabled". Declared options: none.');
 
     (new BareConfigContext())->getOption('sample', 'enabled');
   }
 
-  public function testAStepsSectionThatIsNotAMapIsIgnored(): void {
+  public function testScalarStepsSectionIsIgnored(): void {
     $context = new ConfigurableContext();
     $context->setParameters(['steps' => 'off']);
 
     $this->assertSame('a default', $context->getOption('sample', 'label'));
   }
 
-  public function testAMalformedGroupInStepsIsRejected(): void {
+  public function testMalformedGroupInStepsIsRejected(): void {
     $context = new ConfigurableContext();
     $context->setParameters(['steps' => ['sample' => 'off']]);
 
@@ -292,7 +292,7 @@ class ContextConfigTest extends UnitTestCase {
    *
    * @param string $name
    *   The hook method name or trait name a skip tag would carry.
-   * @param array<int, string> $tags
+   * @param list<string> $tags
    *   Tags on the scenario.
    * @param array<string, mixed> $config
    *   The context's config argument.

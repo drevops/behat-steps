@@ -947,20 +947,33 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
   protected function contextConfigCast(mixed $value, mixed $default, string $group, string $key): mixed {
     $expected = get_debug_type($default);
 
-    $cast = match ($expected) {
-      'bool' => is_bool($value) ? $value : NULL,
-      'int' => is_int($value) || (is_string($value) && preg_match('/^-?\d+$/', $value) === 1) ? (int) $value : NULL,
-      'float' => is_int($value) || is_float($value) || (is_string($value) && is_numeric($value)) ? (float) $value : NULL,
-      'string' => is_string($value) || is_int($value) || is_float($value) ? (string) $value : NULL,
-      'array' => is_array($value) ? $value : NULL,
-      default => $value,
-    };
-
-    if ($cast === NULL && $expected !== 'null') {
-      throw new InvalidConfigurationException(sprintf('The "%s.%s" option expects a %s, but a %s was given.', $group, $key, $expected, get_debug_type($value)));
+    if ($expected === 'bool' && is_bool($value)) {
+      return $value;
     }
 
-    return $cast;
+    if ($expected === 'int' && (is_int($value) || (is_string($value) && preg_match('/^-?\d+$/', $value) === 1))) {
+      return (int) $value;
+    }
+
+    if ($expected === 'float' && (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value)))) {
+      return (float) $value;
+    }
+
+    if ($expected === 'string' && (is_string($value) || is_int($value) || is_float($value))) {
+      return (string) $value;
+    }
+
+    if ($expected === 'array' && is_array($value)) {
+      return $value;
+    }
+
+    // A declaration defaulting to NULL names no type, so anything it is given
+    // passes through.
+    if (!in_array($expected, ['bool', 'int', 'float', 'string', 'array'], TRUE)) {
+      return $value;
+    }
+
+    throw new InvalidConfigurationException(sprintf('The "%s.%s" option expects a %s, but a %s was given.', $group, $key, $expected, get_debug_type($value)));
   }
 
   /**

@@ -293,8 +293,9 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string,array<string, array<int, array<string, array<int,string>|string>>|string>>
- *   Array of info with 'name', 'steps', 'description', and 'example' keys.
+ * @return array<string, array<string, mixed>>
+ *   Array of info with 'name', 'options', 'methods', 'description' and
+ *   'description_full' keys.
  *
  * @throws \ReflectionException
  */

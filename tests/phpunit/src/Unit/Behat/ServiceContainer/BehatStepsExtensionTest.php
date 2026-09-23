@@ -84,7 +84,7 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame(12, $parameters['steps']['wait']['ajax_timeout']);
   }
 
-  public function testAnAjaxTimeoutFromTheMinkTreeJoinsAConfiguredWaitGroup(): void {
+  public function testAnAjaxTimeoutFromTheMinkTreeJoinsTheConfiguredWaitGroup(): void {
     $container = $this->load(['steps' => ['wait' => ['enabled' => FALSE]]]);
     $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
 
