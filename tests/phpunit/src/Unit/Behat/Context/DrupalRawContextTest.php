@@ -35,6 +35,8 @@ use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -631,6 +633,29 @@ class DrupalRawContextTest extends UnitTestCase {
     DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
+  }
+
+  public function testTimestampConversionIsSkippedForOutOfProcessDriver(): void {
+    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
+    $context = $this->createContext($this->createContentDriver());
+
+    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+
+    $this->assertSame('1 January 2025', $stub->getValue('created'));
+  }
+
+  public function testAnUnsavedEntityIsNotRegisteredForCleanup(): void {
+    $entity_type = $this->createMock(EntityTypeInterface::class);
+    $entity_type->method('getKey')->willReturn('nid');
+
+    $entity = $this->createMock(EntityInterface::class);
+    $entity->method('id')->willReturn(NULL);
+    $entity->method('getEntityType')->willReturn($entity_type);
+
+    $context = $this->createContext($this->createContentDriver());
+    $context->entityRegister($entity);
+
+    $this->assertSame([], $context->getCreatedStubs());
   }
 
   public function testLoginDelegatesToTheAuthenticationManager(): void {

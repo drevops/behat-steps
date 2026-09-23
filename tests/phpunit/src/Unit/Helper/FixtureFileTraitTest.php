@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
+use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
@@ -305,7 +306,51 @@ class FixtureFileTraitTest extends UnitTestCase {
         ['field_file' => '../outside.pdf'],
         fn(string $f): array => ['field_file' => '../outside.pdf'],
       ],
+      'skips a delta that carries no path and rewrites the rest' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => ['', 'document.pdf']],
+        fn(string $f): array => ['field_file' => ['', $f . 'document.pdf']],
+      ],
+      'rewrites a keyed record that indexes its path at zero' => [
+        ['document.pdf'],
+        [],
+        ['field_file' => 'file'],
+        ['field_file' => [0 => 'document.pdf', 'description' => 'One']],
+        fn(string $f): array => ['field_file' => [0 => $f . 'document.pdf', 'description' => 'One']],
+      ],
     ];
+  }
+
+  public function testNoFilesPathLeavesTheStubAlone(): void {
+    $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
+
+    $this->testObject->minkFilesPath = '';
+    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+
+    $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
+  }
+
+  public function testMissingFilesDirectoryLeavesTheStubAlone(): void {
+    $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
+
+    $this->testObject->minkFilesPath = $this->fixturesPath . 'no-such-directory';
+    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+
+    $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
+  }
+
+  public function testDriverWithoutTheCoreCapabilityLeavesTheStubAlone(): void {
+    $this->createFixtureFiles(['document.pdf']);
+
+    $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
+
+    $this->testObject->driver = $this->createStub(DriverInterface::class);
+    $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
+    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+
+    $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
 
 }
@@ -336,7 +381,7 @@ class FixtureFileTraitTestImplementation extends DrupalRawContext {
   /**
    * Holds the stubbed driver instance once the test sets it.
    */
-  public ?DrupalDriverInterface $driver = NULL;
+  public ?DriverInterface $driver = NULL;
 
   public function callHelperLooksLikeCompoundCell(string $value): bool {
     return $this->fixtureFileLooksLikeCompoundCell($value);
@@ -361,7 +406,7 @@ class FixtureFileTraitTestImplementation extends DrupalRawContext {
    * the helper resolves through the same capability walk it uses in a run.
    */
   public function getDriverManager(): DriverManagerInterface {
-    if (!$this->driver instanceof DrupalDriverInterface) {
+    if (!$this->driver instanceof DriverInterface) {
       throw new \RuntimeException('Set the driver double before the helper reaches it.');
     }
 
