@@ -973,7 +973,28 @@ class RawContext extends RawMinkContext implements DriverAwareInterface {
       return $value;
     }
 
-    throw new InvalidConfigurationException(sprintf('The "%s.%s" option expects a %s, but a %s was given.', $group, $key, $expected, get_debug_type($value)));
+    throw new InvalidConfigurationException(sprintf('The "%s.%s" option expects %s, but %s was given.', $group, $key, $this->contextConfigTypeName($expected), $this->contextConfigTypeName(get_debug_type($value))));
+  }
+
+  /**
+   * Names a type as it reads in a failure message.
+   *
+   * @param string $type
+   *   A type name as 'get_debug_type()' reports it.
+   *
+   * @return string
+   *   The name with its article, or the type itself where none applies.
+   */
+  protected function contextConfigTypeName(string $type): string {
+    return match ($type) {
+      'bool' => 'a boolean',
+      'int' => 'an integer',
+      'float' => 'a float',
+      'string' => 'a string',
+      'array' => 'a map',
+      'null' => 'null',
+      default => 'a ' . $type,
+    };
   }
 
   /**

@@ -38,7 +38,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay where they are: a container service reads them.
+The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay where they are: a container service reads them. A `selectors: messages:` left behind fails the container build with a message naming its new path, because the `selectors` node keeps the keys it does not declare and would otherwise accept it and never read it.
 
 ### `RawContext` takes a `config` argument
 
@@ -86,7 +86,7 @@ The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is
 
 `@error` used to leave the start time unset, which disabled collection entirely. It now means `fail_on_errors = FALSE`: the errors the scenario logged are still read and cleared from the `watchdog` table, and the scenario is not failed. A scenario that relied on `@error` leaving rows behind for a later assertion reads them before the scenario ends, or uses `@behat-steps-skip:WatchdogTrait` instead.
 
-`@js-errors` is also read on the `Feature:` line now, as every other tag of this package already was.
+`@error` and `@js-errors` are also read on the `Feature:` line now, as every other tag of this package already was, so either one there covers every scenario in that feature.
 
 ### Three transform traits can be switched off
 

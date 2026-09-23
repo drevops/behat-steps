@@ -236,6 +236,8 @@ class BehatStepsExtension implements ExtensionInterface {
    *   The extension configuration.
    */
   protected function loadParameters(ContainerBuilder $container, array $config): void {
+    $this->rejectMovedKeys($config);
+
     $regions = $config['regions'] ?? [];
 
     // Mirror the map into the config so the 'behat_steps.parameters' and
@@ -246,6 +248,26 @@ class BehatStepsExtension implements ExtensionInterface {
     $container->setParameter('behat_steps.parameters', $config);
     $container->setParameter('behat_steps.regions', $regions);
     $container->setParameter(self::DRIVERS_PARAMETER, $config['drivers'] ?? []);
+  }
+
+  /**
+   * Rejects a key that a trait now declares as an option.
+   *
+   * The 'selectors' node keeps the keys it does not declare, so that a project
+   * can add named selectors of its own and read them back. That also means a
+   * 'selectors: messages:' left over from before the move is accepted and never
+   * read, and the message steps would fail one by one for a missing selector.
+   *
+   * @param array<string, mixed> $config
+   *   The extension configuration.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When the configuration carries the key at its former path.
+   */
+  protected function rejectMovedKeys(array $config): void {
+    if (isset($config['selectors']['messages'])) {
+      throw new InvalidConfigurationException(sprintf('The "selectors: messages:" setting under "%s" moved to "steps: message: selectors:". Move each severity selector across.', self::CONFIG_KEY));
+    }
   }
 
   /**

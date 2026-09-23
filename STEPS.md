@@ -6128,7 +6128,7 @@ Given the following "commerce_product" entities exist:
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | Delete the managed files a scenario created once it finishes. |
+| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards. |
 
 <details>
   <summary><code>@Given the following managed files exist:</code></summary>

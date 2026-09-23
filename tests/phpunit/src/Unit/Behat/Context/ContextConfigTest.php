@@ -161,17 +161,17 @@ class ContextConfigTest extends UnitTestCase {
 
     yield 'a value of the wrong type' => [
       ['sample' => ['enabled' => 'yes']],
-      'The "sample.enabled" option expects a bool, but a string was given.',
+      'The "sample.enabled" option expects a boolean, but a string was given.',
     ];
 
     yield 'a non-numeric value where an integer is declared' => [
       ['sample' => ['limit' => 'many']],
-      'The "sample.limit" option expects a int, but a string was given.',
+      'The "sample.limit" option expects an integer, but a string was given.',
     ];
 
     yield 'a scalar where a map is declared' => [
       ['other_sample' => ['selectors' => '.one']],
-      'The "other_sample.selectors" option expects a array, but a string was given.',
+      'The "other_sample.selectors" option expects a map, but a string was given.',
     ];
   }
 

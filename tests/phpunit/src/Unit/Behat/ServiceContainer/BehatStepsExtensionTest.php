@@ -289,11 +289,18 @@ class BehatStepsExtensionTest extends TestCase {
     ];
   }
 
-  public function testMessageSelectorsAreConfigurable(): void {
-    $parameters = $this->load(['selectors' => ['messages' => ['error' => '.messages--error']]])->getParameter('behat_steps.parameters');
+  public function testMessageSelectorsAtTheirFormerPathAreRejected(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "selectors: messages:" setting under "behat_steps" moved to "steps: message: selectors:". Move each severity selector across.');
+
+    $this->load(['selectors' => ['messages' => ['error' => '.messages--error']]]);
+  }
+
+  public function testSelectorTheTreeDoesNotDeclareIsKept(): void {
+    $parameters = $this->load(['selectors' => ['acme_banner' => '.acme-banner']])->getParameter('behat_steps.parameters');
 
     $this->assertIsArray($parameters);
-    $this->assertSame(['error' => '.messages--error'], $parameters['selectors']['messages']);
+    $this->assertSame('.acme-banner', $parameters['selectors']['acme_banner']);
   }
 
   public function testProcessSwapsInTheContextClassGenerator(): void {

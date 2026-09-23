@@ -118,7 +118,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      The "watchdog.enabled" option expects a bool, but a string was given.
+      The "watchdog.enabled" option expects a boolean, but a string was given.
       """
 
   @trait:Drupal\WatchdogTrait

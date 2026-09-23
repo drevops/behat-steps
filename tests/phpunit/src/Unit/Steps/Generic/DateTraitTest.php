@@ -40,8 +40,7 @@ class DateTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderDateRelativeProcessValue(): array {
-    // The fixed test timestamp is May 5, 2024 12:00:00 UTC.
-    $timestamp = 1714924800;
+    $timestamp = DateTraitTestImplementation::CLOCK;
 
     return [
       'string without token' => [
@@ -122,10 +121,12 @@ class DateTraitTest extends UnitTestCase {
   public function testUnskippedScenarioResolvesTokens(): void {
     $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope());
 
-    $this->assertSame('2024-05-05', $this->testObject->dateRelativeTransformValue('[relative:-1 day#Y-m-d]'));
+    $expected = date('Y-m-d', (int) strtotime('-1 day', DateTraitTestImplementation::CLOCK));
+
+    $this->assertSame($expected, $this->testObject->dateRelativeTransformValue('[relative:-1 day#Y-m-d]'));
 
     $table = new TableNode([['created'], ['[relative:-1 day#Y-m-d]']]);
-    $this->assertSame([['created'], ['2024-05-05']], $this->testObject->dateRelativeTransformTable($table)->getRows());
+    $this->assertSame([['created'], [$expected]], $this->testObject->dateRelativeTransformTable($table)->getRows());
   }
 
 }
@@ -138,10 +139,15 @@ class DateTraitTestImplementation extends RawContext {
   use DateTrait;
 
   /**
+   * The clock this implementation pins: May 5, 2024 12:00:00 UTC.
+   */
+  public const CLOCK = 1714924800;
+
+  /**
    * Returns fixed timestamp for testing.
    */
   protected static function dateNow(): int {
-    return 1714924800;
+    return self::CLOCK;
   }
 
 }
