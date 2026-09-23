@@ -147,8 +147,8 @@ use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 {{USE_DECLARATION}}
 
-// A trait tag names a trait from either half, so the generated context extends
-// the base that carries both halves' plumbing.
+// A trait tag names a trait from either half. A step trait composes the helper
+// traits it needs, so the Drupal raw base hosts a trait from either half.
 class FeatureContext extends DrupalRawContext {
   {{USE_IN_CLASS}}
 

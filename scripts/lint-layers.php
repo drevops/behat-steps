@@ -31,7 +31,7 @@ const LAYERS = [
   ],
   [
     'name' => 'the web half',
-    'paths' => ['src/Steps/Web', 'src/Behat/Context/WebRawContext.php'],
+    'paths' => ['src/Steps/Web', 'src/Behat/Context/WebRawContext.php', 'src/Behat/Context/WebContext.php'],
     'forbidden' => ['Drupal'],
     // 'drupal/core-utility' ships the random generator and is a hard
     // requirement of the package, Drupal site or not.

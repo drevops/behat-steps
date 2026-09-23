@@ -22,8 +22,9 @@ class FeatureContext extends WebContext {
   /**
    * Override dateNow() method to return a preset value for testing.
    *
-   * The override sits on the class because a trait cannot override a method
-   * the composing class inherits.
+   * The override sits on the class, not in FeatureContextTrait: the generated
+   * trait-tag context composes that trait beside the trait under test, and two
+   * traits declaring the same method collide.
    */
   public static function dateNow(): int {
     return strtotime('2024-07-15 12:00:00');
@@ -32,8 +33,9 @@ class FeatureContext extends WebContext {
   /**
    * Override elementGetScrollIntoViewCenter() to allow runtime toggling.
    *
-   * The override sits on the class because a trait cannot override a method
-   * the composing class inherits.
+   * The override sits on the class, not in FeatureContextTrait: the generated
+   * trait-tag context composes that trait beside the trait under test, and two
+   * traits declaring the same method collide.
    */
   protected function elementGetScrollIntoViewCenter(): bool {
     return $this->testElementScrollCenter;
@@ -47,8 +49,9 @@ class FeatureContext extends WebContext {
    * base path. Deriving the base from the Mink files_path keeps accessibility
    * reports in the same .logs tree as the other Behat artifacts.
    *
-   * The override sits on the class because a trait cannot override a method
-   * the composing class inherits.
+   * The override sits on the class, not in FeatureContextTrait: the generated
+   * trait-tag context composes that trait beside the trait under test, and two
+   * traits declaring the same method collide.
    */
   public function accessibilityGetReportDir(): string {
     return dirname((string) $this->getMinkParameter('files_path'), 3) . '/.logs/test_results/accessibility';
