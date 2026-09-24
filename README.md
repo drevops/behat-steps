@@ -152,16 +152,17 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 
 ### 1. Register the vocabulary you need
 
-The vocabulary comes in 2 halves, registered side by side. `WebContext` carries every step that drives a page, `DrupalContext` every step that reaches a Drupal site, and a Drupal suite registers both:
+The vocabulary sits on one chain. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly one of them:
 
 ```php
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(WebContext::class)
   ->addContext(DrupalContext::class);
 ```
 
-That needs no PHP of your own. To pick your own traits instead, extend the raw context of the half you want and compose them ([example](tests/behat/bootstrap/FeatureContext.php)):
+Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice.
+
+That needs no PHP of your own. To pick your own traits instead, extend the root context and compose them ([example](tests/behat/bootstrap/FeatureContext.php)):
 
 ```php
 <?php
@@ -179,7 +180,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-A raw context registers no steps of its own: `WebRawContext` owns the web plumbing, `DrupalRawContext` the Drupal entity lifecycle, login and cleanup, and `RawContext` the driver access and configuration both share. [Usage](docs/usage.md) covers the 4 entry points and the rules that govern composing them.
+`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and the 4 web helper traits. A context that wants the Drupal entity lifecycle, login and cleanup without the Drupal vocabulary composes `DrupalApiTrait` and declares `DrupalApiInterface`. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 
@@ -195,12 +196,10 @@ use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(WebContext::class)
   ->addContext(DrupalContext::class);
 
 $profile = (new Profile('default'))
@@ -354,10 +353,10 @@ To keep only entities of a **named type**, add
 This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
-- **Helpers** - every public method the step traits and `RawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
+- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
 - **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
-- **Context base classes** - `RawContext` and `DrupalContext`, which a project extends.
+- **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
 Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Driver` and `src/Behat` that none of the surfaces above exposes.
 
