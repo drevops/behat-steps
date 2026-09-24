@@ -60,7 +60,7 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [DrupalApiTrait](#drupalapitrait) | 17 | Carries the Drupal scenario lifecycle. |
+| [DrupalApiTrait](#drupalapitrait) | 16 | Carries the Drupal scenario lifecycle. |
 | [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [WebRawContext](#webrawcontext) | 7 | Root context carrying the plumbing every suite needs. |
@@ -1916,7 +1916,7 @@ Expand fixture file paths for file/image fields on an entity stub
   <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
 
 <br/>
-{@inheritdoc}
+Returns the user manager
 <br/><br/>
 
 </details>
@@ -1980,15 +1980,6 @@ Creates a node
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function setUserManager(UserManagerInterface $user_manager): void</code></summary>
-
-<br/>
-{@inheritdoc}
 <br/><br/>
 
 </details>

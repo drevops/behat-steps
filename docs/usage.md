@@ -30,8 +30,8 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
 
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 steps |
-| `WebContext` | The suite tests a web page and wants the 28 web steps |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits |
+| `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits, and composes `DrupalApiTrait` when it needs the Drupal lifecycle |
 
 `WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
@@ -57,7 +57,7 @@ $suite = (new Suite('default'))
 
 A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
-It costs one thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal steps without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+It costs one thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 ## Compose your own context
 
@@ -83,6 +83,7 @@ A suite that writes its own Drupal steps composes `DrupalApiTrait` and declares 
 ```php
 <?php
 
+use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
