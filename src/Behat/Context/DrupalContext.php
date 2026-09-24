@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -35,24 +36,27 @@ use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
 
 /**
- * Zero-config context carrying the whole Drupal vocabulary.
+ * Zero-config context carrying the whole vocabulary a Drupal suite needs.
  *
- * Registering this context in a suite is enough to write features against a
- * Drupal site without writing any PHP. It defines no steps of its own: it is
- * 'DrupalRawContext' plus every trait under 'Steps\Drupal'.
+ * Extending this context is enough to write features against a Drupal site
+ * without writing any PHP: it is 'WebContext' plus 'DrupalApiTrait' plus
+ * every trait under 'Steps\Drupal', so a Drupal project extends one class
+ * and gets all 57 steps.
  *
  * A trait for a contrib module resolves nothing until one of its steps runs,
  * and then fails with a message naming the module, so composing all of them
  * costs a project nothing.
  *
- * Register it beside 'WebContext' rather than under it: the two halves are
- * siblings, and a suite that registers only this context reaches no
- * navigation step and none of the value transforms.
+ * Registering this context beside 'WebContext' is fatal, because the 28 web
+ * traits would register their steps twice. 'WebContext::assertOneContext()'
+ * reports that rather than letting Behat name an arbitrary step.
  *
- * @see \DrevOps\BehatSteps\Behat\Context\DrupalRawContext
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
+ * @see \DrevOps\BehatSteps\Helper\DrupalApiTrait
  */
-class DrupalContext extends DrupalRawContext {
+class DrupalContext extends WebContext implements DrupalApiInterface {
+
+  use DrupalApiTrait;
 
   use BatchTrait;
   use BigPipeTrait;

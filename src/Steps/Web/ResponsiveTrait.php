@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
@@ -58,6 +59,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
+#[Steps]
 trait ResponsiveTrait {
 
   /**

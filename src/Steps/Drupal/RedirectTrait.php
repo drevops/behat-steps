@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -25,11 +25,11 @@ use Drupal\redirect\Entity\Redirect;
  * consumer project: add `drupal/redirect` to `composer.json` and enable the
  * module as part of the site's standard setup (e.g. in `core.extension.yml`).
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait RedirectTrait {
-
-  use DrupalQueryTrait;
 
   /**
    * Allowed HTTP status codes for redirects.
@@ -60,7 +60,7 @@ trait RedirectTrait {
   public function redirectCreate(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('redirect', 'drupal/redirect');
+    $this->assertModuleEnabled('redirect', 'drupal/redirect');
 
     foreach ($table->getHash() as $row) {
       $from = isset($row['from']) ? trim($row['from']) : '';
@@ -101,7 +101,7 @@ trait RedirectTrait {
   public function redirectDelete(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('redirect', 'drupal/redirect');
+    $this->assertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
 
@@ -145,7 +145,7 @@ trait RedirectTrait {
   public function redirectAssertExist(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('redirect', 'drupal/redirect');
+    $this->assertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $missing = [];
@@ -198,7 +198,7 @@ trait RedirectTrait {
   public function redirectAssertNotExist(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('redirect', 'drupal/redirect');
+    $this->assertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $present = [];

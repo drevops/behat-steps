@@ -36,7 +36,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the 5 context classes, the entity-creation hooks.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the 3 context classes, the entity-creation hooks.
 
 **`src/Helper/` - the shared internals.** 7 step-free traits, each named for one concern, composed by whichever step traits and contexts need them.
 
@@ -44,7 +44,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 ![Component architecture](architecture.svg)
 
-The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext` may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector and gherkinlint. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
+The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext`, `WebContext` and the 4 web helper traits may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-markers.php`, which holds every trait to exactly one `#[Steps]` or `#[Helper]` marker. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
 
 The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
 
@@ -70,22 +70,23 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 
-The context layer mirrors the vocabulary split. `RawContext` carries what both halves share and registers no steps:
+The context layer is one chain. `WebRawContext` is the root and registers no steps:
 
 - Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
 - Option resolution: `getOption()` reads a trait's option through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags.
 - Authentication delegation: `getAuthenticationManager()`, because `BasicAuthTrait` is a web trait and calls it.
 - The hook dispatcher and `skipTag()`.
+- The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.
 
-`WebRawContext` adds the web helper traits and nothing else. `DrupalRawContext` adds the Drupal lifecycle, still without registering a step:
+`WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext`, composes every trait under `src/Steps/Drupal`, and adds the Drupal scenario lifecycle by composing `DrupalApiTrait` and declaring `DrupalApiInterface`:
 
 - Entity creation (`nodeCreate`, `userCreate`, `termCreate`, `entityCreate`, `languageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `cleanEntities`, `cleanUsers` and `cleanRoles` run after the scenario and delete what it created, in reverse.
 - Authentication: `login`, `logout`, `loggedIn`, delegated to `AuthenticationManager`.
 
-Note where cleanup lives. It is the context's job, not a trait's - which is why a project gets it by extending `DrupalRawContext` rather than by remembering to mix a trait in. A suite that registers only `WebContext` never runs those hooks at all.
+Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so a project gets it by extending `DrupalContext` rather than by remembering to mix a trait in. A suite that extends `WebContext` never runs those hooks at all.
 
-`WebContext` and `DrupalContext` sit on top, each composing every trait of its matching `src/Steps/` directory. They are siblings rather than a chain: a Drupal suite registers both, and `ContextCompositionTest` holds the directory-to-context coverage in both directions.
+A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 
 ![Class detail: context, managers, helpers and step traits](class-context.svg)
 
@@ -100,11 +101,11 @@ That directory split isn't just tidiness. `docs.php` reads a trait's context str
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `RawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `WebRawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. The 29 Drupal traits add `@phpstan-require-implements` naming `DrupalApiInterface`, because a trait cannot implement an interface but the class composing it can. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 
-Step traits never `use` other step traits. Shared logic goes in a step-free trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition, fixture-file resolution, direct Drupal queries - and nowhere else. A helper trait composed by a step trait and by the raw context under it holds one property slot, so both reach the same state.
+Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, and the whole Drupal scenario lifecycle - and nowhere else. Each one carries `#[Helper]` where a step trait carries `#[Steps]`, so the rule is a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
 
 ## Flow 1: a step runs
 
@@ -112,7 +113,7 @@ Nothing in this library is invoked directly. Behat owns the loop, and the traits
 
 When Behat starts, it instantiates every registered context, injects the managers through `DriverAwareInitializer`, and scans each class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
 
-Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why `WebContext` and `DrupalContext` compose disjoint sets, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
+Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why each class in the chain composes a trait the ones above it do not, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
 
 ![Data flow: a step runs](dataflow-step.svg)
 
@@ -163,7 +164,7 @@ Behat then runs from inside `build/` but with the project-root `behat.php`, whic
 
 ### The suite
 
-`behat.php` wires up `FeatureContext` (`WebContext` plus the web test-only steps and overrides), `DrupalFeatureContext` (`DrupalContext` plus the Drupal ones), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
+`behat.php` wires up `FeatureContext` (`DrupalContext` plus the test-only steps and overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
 
 Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
 
@@ -171,7 +172,7 @@ Default sessions run through BrowserKit. `@javascript` scenarios run through Sel
 
 Asserting that a step *fails correctly* is awkward from inside the same run: the failure would fail your own scenario. So scenarios tagged `@trait:SomeTrait` take a detour.
 
-`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `DrupalRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context extends the Drupal base because a tag names a trait from either half, and that base carries both halves' plumbing. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
+`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `DrupalApiTrait`, because a tag names a trait from either half and a Drupal trait requires that lifecycle. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
 ![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)
 

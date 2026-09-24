@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
@@ -44,6 +46,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('heading_anchor')]
 #[CoversFunction('extract_helpers')]
 #[CoversFunction('collect_helper_methods')]
+#[CoversFunction('collect_helper_traits')]
 #[CoversFunction('resolve_inherited_comment')]
 #[CoversFunction('relative_source_path')]
 #[CoversFunction('render_helpers')]
@@ -2565,8 +2568,8 @@ EOD,
 
   public static function dataProviderRelativeSourcePath(): array {
     return [
-      'under the documented repository' => ['/repo/src/Behat/Context/RawContext.php', '/repo', 'src/Behat/Context/RawContext.php'],
-      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/RawContext.php', '/elsewhere', 'src/Behat/Context/RawContext.php'],
+      'under the documented repository' => ['/repo/src/Behat/Context/WebRawContext.php', '/repo', 'src/Behat/Context/WebRawContext.php'],
+      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/WebRawContext.php', '/elsewhere', 'src/Behat/Context/WebRawContext.php'],
     ];
   }
 
@@ -2627,22 +2630,36 @@ EOD,
     $class_name = $setup['class_name'];
     $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
-    $this->assertArrayHasKey('RawContext', $actual);
-    $this->assertSame('Context', $actual['RawContext']['context']);
-    $this->assertNull($actual['RawContext']['steps_anchor']);
-    $this->assertSame('src/Behat/Context/RawContext.php', $actual['RawContext']['source']);
-    $this->assertNotEmpty($actual['RawContext']['helpers']);
+    $this->assertArrayHasKey('WebRawContext', $actual);
+    $this->assertSame('Toolbox', $actual['WebRawContext']['context']);
+    $this->assertNull($actual['WebRawContext']['steps_anchor']);
+    $this->assertSame('src/Behat/Context/WebRawContext.php', $actual['WebRawContext']['source']);
 
     // The injection points the initializer calls are withdrawn from the
     // published surface.
-    $names = array_column($actual['RawContext']['helpers'], 'name');
+    $names = array_column($actual['WebRawContext']['helpers'], 'name');
     $this->assertContains('driverFor', $names);
     $this->assertNotContains('setDriverManager', $names);
     $this->assertNotContains('setParameters', $names);
 
-    // Each half's lifecycle is published under the context that owns it.
-    $this->assertContains('nodeCreate', array_column($actual['DrupalRawContext']['helpers'], 'name'));
-    $this->assertContains('javascriptSupportAvailable', array_column($actual['WebRawContext']['helpers'], 'name'));
+    // A composed helper trait is published under its own name, so the context
+    // does not repeat it.
+    $this->assertNotContains('isJavascriptSupported', $names);
+  }
+
+  public function testExtractHelpersPublishesTheHelperTraits(): void {
+    $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
+
+    $this->assertSame('Toolbox', $actual['JavascriptSupportTrait']['context']);
+    $this->assertNull($actual['JavascriptSupportTrait']['steps_anchor']);
+    $this->assertSame('src/Helper/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
+    $this->assertSame(['isJavascriptSupported'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
+
+    $this->assertContains('nodeCreate', array_column($actual['DrupalApiTrait']['helpers'], 'name'));
+  }
+
+  public function testCollectHelperTraitsSkipsTheRepositoryWithoutThem(): void {
+    $this->assertSame([], collect_helper_traits(static::$tmp));
   }
 
   public function testCollectHelperMethodsTakesOnlyDeclaredMembers(): void {

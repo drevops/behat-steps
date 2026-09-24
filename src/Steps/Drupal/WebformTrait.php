@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 
 /**
  * Manage Drupal webforms.
@@ -17,11 +17,11 @@ use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
  *
  * Requires `drupal/webform` module.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait WebformTrait {
-
-  use DrupalQueryTrait;
 
   /**
    * Remove all webforms with a title containing the given string.
@@ -39,7 +39,7 @@ trait WebformTrait {
   public function webformDelete(string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertModuleEnabled('webform', 'drupal/webform');
 
     $webforms = $this->webformLoadAll($title);
 
@@ -67,7 +67,7 @@ trait WebformTrait {
   public function webformCloneTemplate(string $title, string $template): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertModuleEnabled('webform', 'drupal/webform');
 
     $templates = $this->webformTemplates($template);
 
@@ -114,7 +114,7 @@ trait WebformTrait {
   public function webformLoadAll(string $title): array {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertModuleEnabled('webform', 'drupal/webform');
 
     // Clear config factory cache to pick up webform changes made via the
     // admin UI in a separate process.

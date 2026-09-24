@@ -12,8 +12,8 @@ title Component architecture
 
 package "Consuming project" #FFF3E0 {
   component "Feature files\n*.feature" as Features
-  component "behat.php\nextension settings,\nregisters WebContext\nand DrupalContext" as Config
-  component "Own context\nextends either WebRawContext\nor DrupalRawContext,\ncomposes the chosen traits" as Consumer
+  component "behat.php\nextension settings,\nregisters one context" as Config
+  component "Own context\nextends WebRawContext,\ncomposes the chosen traits" as Consumer
 }
 
 package "drevops/behat-steps" {
@@ -24,15 +24,13 @@ package "drevops/behat-steps" {
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
-    component "7 concern traits\nlast step, request headers,\nstrings, JavaScript support,\ntable transpose, fixture files,\nDrupal queries" as Helpers
+    component "5 concern traits\nlast step, request headers,\nstrings, JavaScript support,\nDrupalApiTrait: entity creation,\ncleanup, login, hooks" as Helpers
   }
 
   package "Integration - src/Behat" #F3E5F5 {
     component "BehatStepsExtension\nservice wiring" as Ext
-    component "RawContext\ndriver access, configuration,\nhook dispatch" as RawCtx
-    component "WebRawContext\nweb plumbing, no steps" as WebRawCtx
-    component "DrupalRawContext\nentity creation, cleanup,\nlogin, hooks" as DrupalRawCtx
-    component "WebContext\nDrupalContext\nwhole half each" as Vocabularies
+    component "WebRawContext\ndriver access, configuration,\nhook dispatch, no steps" as WebRawCtx
+    component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
     component "Managers\nDriver, Authentication,\nUser, Mail" as Managers
     component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
   }
@@ -67,19 +65,16 @@ DrupalSteps --> Consumer : mixed into
 WebSteps ..> Helpers : composes
 DrupalSteps ..> Helpers : composes
 WebRawCtx ..> Helpers : composes
-DrupalRawCtx ..> Helpers : composes
+Vocabularies ..> Helpers : composes
+Consumer ..> Helpers : composes
 
 Consumer --|> WebRawCtx
-Consumer --|> DrupalRawCtx
-WebRawCtx --|> RawCtx
-DrupalRawCtx --|> RawCtx
 Vocabularies --|> WebRawCtx
-Vocabularies --|> DrupalRawCtx
 Ext --> Managers : registers
 Ext --> DriverIface : registers drivers
 Ext ..> MinkExt : reads ajax_timeout
 Ext ..> Mink : aliases DocumentElement
-RawCtx --> Managers
+WebRawCtx --> Managers
 
 Managers --> DriverIface : resolves by capability
 DrupalDrv ..|> DriverIface
@@ -102,7 +97,6 @@ end note
 
 Features -[hidden]down- Config
 WebSteps -[hidden]right- DrupalSteps
-WebRawCtx -[hidden]right- DrupalRawCtx
 DrupalDrv -[hidden]right- DrushDrv
 DrushDrv -[hidden]right- BlackboxDrv
 @enduml

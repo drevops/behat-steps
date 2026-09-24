@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
@@ -18,8 +19,9 @@ use Behat\Step\When;
  * - Execute JavaScript-based interactions with element state verification.
  * - Handle confirmation dialogs and scrolling operations.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait ElementTrait {
 
   /**

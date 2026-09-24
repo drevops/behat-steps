@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\DateTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -134,7 +134,7 @@ class DateTraitTest extends UnitTestCase {
 /**
  * Test implementation of DateTrait.
  */
-class DateTraitTestImplementation extends RawContext {
+class DateTraitTestImplementation extends WebRawContext {
 
   use DateTrait;
 

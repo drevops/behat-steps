@@ -12,7 +12,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\FieldTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -92,7 +92,7 @@ class FieldTraitTest extends UnitTestCase {
 /**
  * Test implementation of FieldTrait.
  */
-class FieldTraitTestImplementation extends RawContext {
+class FieldTraitTestImplementation extends WebRawContext {
 
   use FieldTrait;
 

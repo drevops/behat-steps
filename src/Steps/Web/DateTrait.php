@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
@@ -33,8 +34,9 @@ use Behat\Transformation\Transform;
  *
  * Skip processing with tag: `@behat-steps-skip:DateTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait DateTrait {
 
   /**

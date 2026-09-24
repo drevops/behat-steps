@@ -26,7 +26,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->expects($this->never())->method('start');
     $driver->expects($this->once())->method('evaluateScript')->with('true');
 
-    $this->assertTrue($this->createContext($driver)->javascriptSupportAvailable());
+    $this->assertTrue($this->createContext($driver)->isJavascriptSupported());
   }
 
   public function testStoppedDriverIsStartedBeforeTheCheck(): void {
@@ -35,7 +35,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->expects($this->once())->method('start');
     $driver->expects($this->once())->method('evaluateScript')->with('true');
 
-    $this->assertTrue($this->createContext($driver)->javascriptSupportAvailable());
+    $this->assertTrue($this->createContext($driver)->isJavascriptSupported());
   }
 
   public function testDriverRefusingToEvaluateIsNotSupported(): void {
@@ -43,7 +43,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->method('isStarted')->willReturn(TRUE);
     $driver->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('no scripting', $driver));
 
-    $this->assertFalse($this->createContext($driver)->javascriptSupportAvailable());
+    $this->assertFalse($this->createContext($driver)->isJavascriptSupported());
   }
 
   public function testDriverThatFailsToStartIsNotSupported(): void {
@@ -51,7 +51,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->method('isStarted')->willReturn(FALSE);
     $driver->method('start')->willThrowException(new \RuntimeException('no browser'));
 
-    $this->assertFalse($this->createContext($driver)->javascriptSupportAvailable());
+    $this->assertFalse($this->createContext($driver)->isJavascriptSupported());
   }
 
   /**

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -82,8 +84,9 @@ class EmailTraitTest extends UnitTestCase {
  *
  * Exposes the protected link extractor under test.
  */
-class EmailTraitTestImplementation extends RawContext {
+class EmailTraitTestImplementation extends WebRawContext implements DrupalApiInterface {
 
+  use DrupalApiTrait;
   use EmailTrait;
 
   /**

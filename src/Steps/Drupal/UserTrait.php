@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
@@ -15,7 +16,6 @@ use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\StringTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -31,12 +31,13 @@ use Drupal\user\UserInterface;
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait UserTrait {
 
   use StringTrait;
-  use TableTransposeTrait;
 
   /**
    * Remove users specified in a table.
@@ -92,8 +93,8 @@ trait UserTrait {
    */
   #[Given('the following users with fields exist:')]
   public function userCreateWithFields(TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
     $this->userCreateMultiple($horizontal_table);
   }
 
@@ -224,7 +225,7 @@ trait UserTrait {
   public function userCreateRole(string $role_name, string $permissions): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $permissions = $this->stringSplitCommaSeparated($permissions);
+    $permissions = $this->splitCommaSeparated($permissions);
 
     $rid = strtolower($role_name);
     $role_name = trim($role_name);
@@ -466,7 +467,7 @@ trait UserTrait {
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = $this->stringSplitCommaSeparated($roles);
+    $roles = $this->splitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
       throw new ExpectationException(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
@@ -484,7 +485,7 @@ trait UserTrait {
   public function userAssertNotHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = $this->stringSplitCommaSeparated($roles);
+    $roles = $this->splitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
       throw new ExpectationException(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());

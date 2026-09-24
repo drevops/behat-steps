@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
@@ -23,8 +24,9 @@ use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
  *
  * Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait RestTrait {
 
   use RequestHeadersTrait;
@@ -38,7 +40,7 @@ trait RestTrait {
       return;
     }
 
-    $this->requestHeadersReset();
+    $this->resetRequestHeaders();
   }
 
   /**
@@ -51,7 +53,7 @@ trait RestTrait {
    */
   #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
-    $this->requestHeadersSet($name, $value);
+    $this->setRequestHeader($name, $value);
   }
 
   /**
@@ -164,7 +166,7 @@ trait RestTrait {
   protected function restCreateServerArray(): array {
     $server = [];
 
-    foreach ($this->requestHeadersAll() as $name => $value) {
+    foreach ($this->getRequestHeaders() as $name => $value) {
       $key = strtoupper(str_replace('-', '_', $name));
 
       if ($key !== 'CONTENT_TYPE' && $key !== 'CONTENT_LENGTH') {

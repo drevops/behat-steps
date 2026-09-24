@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -52,8 +53,9 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait AccessibilityTrait {
 
   use LastStepTrait;
@@ -205,7 +207,7 @@ trait AccessibilityTrait {
       return;
     }
 
-    $this->lastStepCapture($scope);
+    $this->setLastStepLine($scope);
 
     $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
     $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
@@ -250,7 +252,7 @@ trait AccessibilityTrait {
     // would report a violation found on a page the step left incomplete. The
     // gate is applied whether or not this step assessed a new page, because a
     // last step that navigates nowhere still ends the scenario.
-    if (!$scope->getTestResult()->isPassed() || !$this->lastStepReached($scope)) {
+    if (!$scope->getTestResult()->isPassed() || !$this->isLastStep($scope)) {
       return;
     }
 
@@ -283,7 +285,7 @@ trait AccessibilityTrait {
     if (!is_dir($dir)) {
       mkdir($dir, 0777, TRUE);
     }
-    $slug = $this->stringSlug($this->accessibilityFeatureName) . '__' . $this->stringSlug($this->accessibilityScenarioName);
+    $slug = $this->slug($this->accessibilityFeatureName) . '__' . $this->slug($this->accessibilityScenarioName);
     file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 

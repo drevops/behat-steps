@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
@@ -40,8 +41,10 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
  * `$bigPipeWaitTimeout` to override it for one scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait BigPipeTrait {
 
   /**

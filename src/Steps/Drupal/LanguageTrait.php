@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
@@ -20,8 +21,10 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
  * run in no guaranteed order.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait LanguageTrait {
 
   /**

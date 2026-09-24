@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -220,7 +220,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
 /**
  * Test implementation of DiagnosticsTrait.
  */
-class DiagnosticsTraitTestImplementation extends RawContext {
+class DiagnosticsTraitTestImplementation extends WebRawContext {
 
   use DiagnosticsTrait;
 

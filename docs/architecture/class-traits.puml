@@ -1,9 +1,9 @@
 @startuml
 ' drevops/behat-steps - the step vocabulary and the contexts it mixes into.
 ' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/,
-' src/Behat/Context/RawContext.php, WebRawContext.php, DrupalRawContext.php,
-' WebContext.php, DrupalContext.php, DriverAwareInterface.php,
-' UserAwareInterface.php, tests/behat/bootstrap/FeatureContext.php.
+' src/Behat/Context/WebRawContext.php, WebContext.php, DrupalContext.php,
+' DriverAwareInterface.php, DrupalApiInterface.php,
+' tests/behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -23,20 +23,16 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   interface DriverAwareInterface
-  interface UserAwareInterface
-  class RawContext {
-    driver access, configuration
-  }
+  interface DrupalApiInterface
   class WebRawContext {
-    web plumbing, no steps
-  }
-  class DrupalRawContext {
-    Drupal lifecycle, no steps
+    driver access, configuration,
+    the 4 web helper traits, no steps
   }
   class WebContext {
     use every Steps\\Web trait
   }
   class DrupalContext {
+    use DrupalApiTrait
     use every Steps\\Drupal trait
   }
 }
@@ -47,13 +43,11 @@ class "Own context" as Consumer #FFF3E0 {
   use <any of the traits below>
 }
 
-RawMinkContext <|-- RawContext
-DriverAwareInterface <|.. RawContext
-UserAwareInterface <|.. DrupalRawContext
-RawContext <|-- WebRawContext
-RawContext <|-- DrupalRawContext
+RawMinkContext <|-- WebRawContext
+DriverAwareInterface <|.. WebRawContext
+DrupalApiInterface <|.. DrupalContext
 WebRawContext <|-- WebContext
-DrupalRawContext <|-- DrupalContext
+WebContext <|-- DrupalContext
 WebRawContext <|-- Consumer
 
 package "DrevOps\\BehatSteps\\Steps\\Web" #E8F5E9 {
@@ -188,27 +182,26 @@ package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
   class RequestHeadersTrait <<trait>>
   class StringTrait <<trait>>
   class JavascriptSupportTrait <<trait>>
-  class TableTransposeTrait <<trait>>
-  class FixtureFileTrait <<trait>>
-  class DrupalQueryTrait <<trait>>
+  class DrupalApiTrait <<trait>>
 
   LastStepTrait -[hidden]down- RequestHeadersTrait
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- TableTransposeTrait
-  TableTransposeTrait -[hidden]down- FixtureFileTrait
-  FixtureFileTrait -[hidden]down- DrupalQueryTrait
+  JavascriptSupportTrait -[hidden]down- DrupalApiTrait
 }
 
 note bottom of Consumer
-  A consuming project registers WebContext and DrupalContext
-  for the whole vocabulary, or extends a raw context and mixes
-  in only the traits it needs. Each trait declares what it
-  needs from its host with @phpstan-require-extends: RawContext
-  for the driver, RawMinkContext for a Mink session only.
+  A consuming project extends DrupalContext or WebContext for
+  the whole vocabulary, or extends WebRawContext and mixes in
+  only the traits it needs. Each trait declares what it needs
+  from its host with @phpstan-require-extends: WebRawContext
+  for the driver, RawMinkContext for a Mink session only, and
+  a Drupal trait adds @phpstan-require-implements naming
+  DrupalApiInterface.
 
   Step traits never use other step traits. Shared logic lives
   in the concern-named helper traits, composed by whichever
-  step traits and raw contexts need it.
+  step traits and contexts need it. A #[Steps] marker names a
+  trait that registers Gherkin and #[Helper] one that does not.
 end note
 @enduml

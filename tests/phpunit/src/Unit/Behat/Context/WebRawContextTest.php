@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
@@ -19,13 +19,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests the plumbing both halves of the library share.
+ * Tests the plumbing every shipped context inherits.
  */
-#[CoversClass(RawContext::class)]
-class RawContextTest extends UnitTestCase {
+#[CoversClass(WebRawContext::class)]
+class WebRawContextTest extends UnitTestCase {
 
   public function testImplementsDriverAwareInterface(): void {
-    $this->assertInstanceOf(DriverAwareInterface::class, new RawContext());
+    $this->assertInstanceOf(DriverAwareInterface::class, new WebRawContext());
   }
 
   /**
@@ -41,7 +41,7 @@ class RawContextTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
 
-    (new RawContext())->$method();
+    (new WebRawContext())->$method();
   }
 
   public static function dataProviderUninitializedContextNamesMissingCollaborator(): \Iterator {
@@ -91,12 +91,12 @@ class RawContextTest extends UnitTestCase {
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
    *   The driver the manager hands out.
    */
-  protected function createContext(DriverInterface $driver): RawContext {
+  protected function createContext(DriverInterface $driver): WebRawContext {
     $driver_manager = new DriverManager(['test' => $driver]);
     $driver_manager->setScenarioDrivers(['test' => 'test']);
     $driver_manager->setEnvironment($this->createMock(Environment::class));
 
-    $context = new RawContext();
+    $context = new WebRawContext();
     $context->setDriverManager($driver_manager);
     $context->setDispatcher($this->createHookDispatcher());
     $context->setAuthenticationManager($this->createMock(AuthenticationManagerInterface::class));

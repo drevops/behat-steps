@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
@@ -16,11 +16,11 @@ use Drupal\node\NodeInterface;
 /**
  * Order items in the Drupal Draggable Views.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait DraggableviewsTrait {
-
-  use DrupalQueryTrait;
 
   /**
    * Save order of the Draggable Order items.
@@ -36,7 +36,7 @@ trait DraggableviewsTrait {
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
+    $this->assertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
@@ -23,6 +24,7 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
+#[Steps]
 trait MetatagTrait {
 
   use StringTrait;
@@ -437,7 +439,7 @@ trait MetatagTrait {
       return [];
     }
 
-    return array_values(array_filter($this->stringSplitCommaSeparated(strtolower($content)), static fn(string $directive): bool => $directive !== ''));
+    return array_values(array_filter($this->splitCommaSeparated(strtolower($content)), static fn(string $directive): bool => $directive !== ''));
   }
 
   /**

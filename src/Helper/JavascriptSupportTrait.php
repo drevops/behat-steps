@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
+use DrevOps\BehatSteps\Attribute\Helper;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
@@ -11,6 +12,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
+#[Helper]
 trait JavascriptSupportTrait {
 
   /**
@@ -22,12 +24,12 @@ trait JavascriptSupportTrait {
    *   TRUE if JavaScript is supported, FALSE otherwise.
    *
    * @code
-   * if (!$this->javascriptSupportAvailable()) {
+   * if (!$this->isJavascriptSupported()) {
    *   return;
    * }
    * @endcode
    */
-  public function javascriptSupportAvailable(): bool {
+  public function isJavascriptSupported(): bool {
     try {
       $driver = $this->getSession()->getDriver();
       if (!$driver->isStarted()) {

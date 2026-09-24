@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Kernel\Behat\Context;
+namespace DrevOps\BehatSteps\Tests\Kernel\Helper;
 
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -31,10 +31,10 @@ use PHPUnit\Framework\MockObject\MockObject;
  *
  * @group behat
  */
-#[CoversClass(DrupalRawContext::class)]
+#[CoversTrait(DrupalApiTrait::class)]
 #[Group('behat')]
 #[RunTestsInSeparateProcesses]
-class DrupalRawContextVocabularyKernelTest extends KernelTestBase {
+class DrupalApiTraitVocabularyKernelTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}

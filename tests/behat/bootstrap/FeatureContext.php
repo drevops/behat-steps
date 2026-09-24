@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Feature context for testing the web half of Behat-steps.
+ * Feature context for testing Behat-steps.
  *
  * This is a test for the test framework itself. Consumer project should not
  * use any steps or functions from this file.
@@ -10,12 +10,15 @@
 
 declare(strict_types=1);
 
-use DrevOps\BehatSteps\Behat\Context\WebContext;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Hook\BeforeScenario;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends WebContext {
+class FeatureContext extends DrupalContext {
 
   use FeatureContextTrait;
 
@@ -55,6 +58,18 @@ class FeatureContext extends WebContext {
    */
   public function accessibilityGetReportDir(): string {
     return dirname((string) $this->getMinkParameter('files_path'), 3) . '/.logs/test_results/accessibility';
+  }
+
+  /**
+   * Shorten the BigPipe wait timeout for the timeout coverage scenario.
+   *
+   * Scenarios tagged '@test-bigpipe-timeout' use a short timeout so they can
+   * exercise the wait timing out quickly; every other scenario keeps the trait's
+   * default.
+   */
+  #[BeforeScenario]
+  public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
+    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : NULL;
   }
 
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\FileDownloadTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -72,7 +72,7 @@ class FileDownloadTraitTest extends UnitTestCase {
 /**
  * Test implementation of FileDownloadTrait.
  */
-class FileDownloadTraitTestImplementation extends RawContext {
+class FileDownloadTraitTestImplementation extends WebRawContext {
 
   use FileDownloadTrait {
     fileDownloadIsRegex as public;

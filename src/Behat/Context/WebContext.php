@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
+use Behat\Behat\Context\Environment\ContextEnvironment;
+use Behat\Hook\BeforeSuite;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Steps\Web\BasicAuthTrait;
 use DrevOps\BehatSteps\Steps\Web\CommandTrait;
@@ -44,9 +47,8 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
  * an 'enabled' option, so a project switches it off through configuration
  * rather than by composing its own context.
  *
- * Register it beside 'DrupalContext' rather than under it: the two halves are
- * siblings, and a suite that registers only 'DrupalContext' reaches no
- * navigation step and none of the value transforms.
+ * A Drupal suite extends 'DrupalContext', which extends this class, so it
+ * gets the web vocabulary too. Registering both is fatal.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebRawContext
  * @see \DrevOps\BehatSteps\Behat\Context\DrupalContext
@@ -81,5 +83,32 @@ class WebContext extends WebRawContext {
   use TableTrait;
   use WaitTrait;
   use XmlTrait;
+
+  /**
+   * Rejects a suite that registers this context and a subclass of it.
+   *
+   * Both register the same 28 web traits, and Behat reports that as a
+   * 'RedundantStepException' naming whichever step text it reached first,
+   * which says nothing about the cause.
+   *
+   * @throws \RuntimeException
+   *   When the suite registers two contexts that both carry this class.
+   */
+  #[BeforeSuite]
+  public static function assertOneContext(BeforeSuiteScope $scope): void {
+    $environment = $scope->getEnvironment();
+
+    if (!$environment instanceof ContextEnvironment) {
+      return;
+    }
+
+    $registered = array_values(array_filter($environment->getContextClasses(), static fn(string $class): bool => is_a($class, self::class, TRUE)));
+
+    if (count($registered) < 2) {
+      return;
+    }
+
+    throw new \RuntimeException(sprintf('The "%s" suite registers %s, which all carry the %s vocabulary, so every web step would register more than once. Register the one lowest in the chain and drop the rest: a Drupal suite needs %s alone.', $scope->getSuite()->getName(), implode(' and ', $registered), self::class, DrupalContext::class));
+  }
 
 }

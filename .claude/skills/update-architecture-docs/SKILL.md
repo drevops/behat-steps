@@ -49,15 +49,15 @@ A change is structural when it moves, adds, or removes a component or alters a f
 The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
 - `src/Driver/` - the driver layer. `DriverInterface` plus the capability interfaces in `Driver/Capability/`, the 3 drivers, and the `Driver/Core/` field-handling bridge. It references nothing from Behat or Mink.
-- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 5 context classes and the scenario lifecycle they split between them, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
+- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
 - `src/Steps/Web/` and `src/Steps/Drupal/` - the vocabulary. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
 - `src/Helper/` - the step-free traits a step trait and a raw context both compose.
 - `src/Exception/AssertionException.php` - what a session-less trait throws.
 - `composer.json` - the published package surface and the PSR-4 map.
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
-- `tests/behat/bootstrap/` - `FeatureContext`, `DrupalFeatureContext` and the nested-Behat harness in `BehatCliTrait`.
-- `scripts/lint-layers.php` - the enforced layer boundaries. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
+- `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
+- `scripts/lint-layers.php` and `scripts/lint-markers.php` - the enforced layer boundaries and trait markers. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.
 
 ## Diagram conventions

@@ -6,7 +6,7 @@ Feature: Behat CLI context
 
   - Assert that BehatCliContext context itself can be bootstrapped by Behat,
   including failed runs assertions.
-  - Assert that RawContext can be autoloaded by Behat and that it can bootstrap
+  - Assert that WebRawContext can be autoloaded by Behat and that it can bootstrap
   a Drupal site.
   - Assert that DrupalSteps trait can be autoloaded by Behat
 
@@ -15,9 +15,9 @@ Feature: Behat CLI context
       """
       <?php
       use Behat\Step\Given;
-      use DrevOps\BehatSteps\Behat\Context\RawContext;
+      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
       use DrevOps\BehatSteps\Steps\Web\PathTrait;
-      class FeatureContext extends RawContext {
+      class FeatureContext extends WebRawContext {
         use PathTrait;
 
         #[Given('I throw test exception with message :message')]
@@ -139,9 +139,9 @@ Feature: Behat CLI context
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
-      use DrevOps\BehatSteps\Behat\Context\RawContext;
+      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
       use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
-      class FeatureContext extends RawContext {
+      class FeatureContext extends WebRawContext {
         use ContentTrait;
       }
       """

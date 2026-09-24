@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -33,8 +34,9 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait FieldTrait {
 
   use JavascriptSupportTrait;
@@ -84,7 +86,7 @@ trait FieldTrait {
       return;
     }
 
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       return;
     }
 
@@ -136,7 +138,7 @@ trait FieldTrait {
       $this->fieldFormValidationRegistry[] = $selector;
     }
 
-    if ($this->javascriptSupportAvailable()) {
+    if ($this->isJavascriptSupported()) {
       $this->fieldDisableFormValidation($selector);
     }
   }
@@ -161,7 +163,7 @@ trait FieldTrait {
    */
   #[When('I fill in the multi-value field :field with the following values:')]
   public function fieldFillMultiValue(string $field, TableNode $table): void {
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       throw new UnsupportedDriverActionException('The "fill in the multi-value field" step requires a JavaScript-capable driver.', $this->getSession()->getDriver());
     }
 
@@ -285,8 +287,8 @@ JS;
    */
   #[When('I fill in the WYSIWYG field :field with the value :value')]
   public function fieldFillWysiwyg(string $field, string $value): void {
-    $field = $this->stringFixStepArgument($field);
-    $value = $this->stringFixStepArgument($value);
+    $field = $this->fixStepArgument($field);
+    $value = $this->fixStepArgument($value);
 
     $page = $this->getSession()->getPage();
     $element = $page->findField($field);
@@ -294,7 +296,7 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       $element->setValue($value);
       return;
     }
@@ -354,8 +356,8 @@ JS;
    */
   #[When('I unselect :option from :selector')]
   public function fieldUnselectOption(string $option, string $selector): void {
-    $option = $this->stringFixStepArgument($option);
-    $selector = $this->stringFixStepArgument($selector);
+    $option = $this->fixStepArgument($option);
+    $selector = $this->fixStepArgument($selector);
 
     $select_field = $this->getSession()->getPage()->findField($selector);
     if (!$select_field) {
@@ -412,7 +414,7 @@ JS;
    */
   #[When('I clear the select :selector')]
   public function fieldClearSelect(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $select_field = $this->getSession()->getPage()->findField($selector);
     if (!$select_field) {
@@ -442,7 +444,7 @@ JS;
    */
   #[When('I check the checkbox :selector')]
   public function fieldCheckboxCheck(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $this->getSession()->getPage()->checkField($selector);
   }
@@ -460,7 +462,7 @@ JS;
    */
   #[When('I uncheck the checkbox :selector')]
   public function fieldCheckboxUncheck(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $this->getSession()->getPage()->uncheckField($selector);
   }
@@ -478,7 +480,7 @@ JS;
    */
   #[When('I choose the radio button :selector')]
   public function fieldRadioSelect(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $page = $this->getSession()->getPage();
     $radio_button = $page->findField($selector);
@@ -871,7 +873,7 @@ JS;
    */
   #[Then('the radio button :selector should be selected')]
   public function fieldAssertRadioSelected(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $page = $this->getSession()->getPage();
     $radio_button = $page->findField($selector);
@@ -898,7 +900,7 @@ JS;
    */
   #[Then('the radio button :selector should not be selected')]
   public function fieldAssertRadioNotSelected(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $selector = $this->fixStepArgument($selector);
 
     $page = $this->getSession()->getPage();
     $radio_button = $page->findField($selector);

@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
 /**
- * Tests for TableTransposeTrait.
+ * Tests transposing a vertical Gherkin table into entity rows.
  */
-#[CoversTrait(TableTransposeTrait::class)]
-class TableTransposeTraitTest extends UnitTestCase {
+#[CoversTrait(DrupalApiTrait::class)]
+class DrupalApiTraitTablesTest extends UnitTestCase {
 
   /**
-   * A test implementation of TableTransposeTrait.
+   * A host composing the trait under test.
    */
-  protected TableTransposeTraitTestImplementation $testObject;
+  protected DrupalApiTraitTablesTestImplementation $testObject;
 
   /**
    * {@inheritdoc}
@@ -26,13 +28,13 @@ class TableTransposeTraitTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new TableTransposeTraitTestImplementation();
+    $this->testObject = new DrupalApiTraitTablesTestImplementation();
   }
 
   public function testTwoColumnTableYieldsOneEntity(): void {
     $table = new TableNode([['name', 'John'], ['age', '30']]);
 
-    $this->assertSame([['name' => 'John', 'age' => '30']], $this->testObject->callVertical($table));
+    $this->assertSame([['name' => 'John', 'age' => '30']], $this->testObject->transposeVerticalTable($table));
   }
 
   public function testThreeColumnTableYieldsOneEntityPerValueColumn(): void {
@@ -43,28 +45,28 @@ class TableTransposeTraitTest extends UnitTestCase {
       ['name' => 'Jane', 'age' => '25'],
     ];
 
-    $this->assertSame($expected, $this->testObject->callVertical($table));
+    $this->assertSame($expected, $this->testObject->transposeVerticalTable($table));
   }
 
   public function testSingleColumnTableIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Vertical table must have at least 2 columns (field name and value).');
 
-    $this->testObject->callVertical(new TableNode([['name']]));
+    $this->testObject->transposeVerticalTable(new TableNode([['name']]));
   }
 
   public function testRepeatedFieldNameIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Duplicate field names found: name.');
 
-    $this->testObject->callVertical(new TableNode([['name', 'John'], ['name', 'Jane']]));
+    $this->testObject->transposeVerticalTable(new TableNode([['name', 'John'], ['name', 'Jane']]));
   }
 
   public function testBlankFieldNameIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Field names cannot be empty.');
 
-    $this->testObject->callVertical(new TableNode([['name', 'John'], [' ', 'Jane']]));
+    $this->testObject->transposeVerticalTable(new TableNode([['name', 'John'], [' ', 'Jane']]));
   }
 
   public function testEntitiesAreRenderedAsHeaderRowAndValueRows(): void {
@@ -79,38 +81,16 @@ class TableTransposeTraitTest extends UnitTestCase {
       ['Jane', '25'],
     ];
 
-    $this->assertSame($expected, $this->testObject->callHorizontal($entities)->getRows());
+    $this->assertSame($expected, $this->testObject->buildHorizontalTable($entities)->getRows());
   }
 
 }
 
 /**
- * Test implementation of TableTransposeTrait.
- *
- * Exposes the protected helper methods under the test.
+ * Host composing the trait under test.
  */
-class TableTransposeTraitTestImplementation {
+class DrupalApiTraitTablesTestImplementation extends WebRawContext implements DrupalApiInterface {
 
-  use TableTransposeTrait;
-
-  /**
-   * Transpose a vertical table.
-   *
-   * @return array<int, array<string, string>>
-   *   One array of values per entity.
-   */
-  public function callVertical(TableNode $table): array {
-    return $this->tableTransposeVertical($table);
-  }
-
-  /**
-   * Render transposed entities as a horizontal table.
-   *
-   * @param array<int, array<string, string>> $entities
-   *   One array of values per entity.
-   */
-  public function callHorizontal(array $entities): TableNode {
-    return $this->tableTransposeHorizontal($entities);
-  }
+  use DrupalApiTrait;
 
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\RandomTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -66,7 +66,7 @@ class RandomTraitTest extends UnitTestCase {
 /**
  * Test implementation of RandomTrait.
  */
-class RandomTraitTestImplementation extends RawContext {
+class RandomTraitTestImplementation extends WebRawContext {
 
   use RandomTrait;
 

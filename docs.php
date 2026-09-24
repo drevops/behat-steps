@@ -25,9 +25,9 @@ declare(strict_types=1);
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Helper;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
@@ -77,12 +77,17 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
 ];
 
 /**
+ * Directory holding the helper traits, relative to the repository root.
+ */
+const HELPERS_DIRECTORY = 'src/Helper';
+
+/**
  * Classes published in the toolbox reference alongside the step traits.
  *
- * A context base class contributes the scenario lifecycle a domain step is
- * written against, so that lifecycle is part of the toolbox too.
+ * The root context contributes the driver access and the scenario plumbing a
+ * domain step is written against, so that surface is part of the toolbox too.
  */
-const TOOLBOX_CLASSES = [RawContext::class, WebRawContext::class, DrupalRawContext::class];
+const TOOLBOX_CLASSES = [WebRawContext::class];
 
 /**
  * File holding the toolbox reference, relative to the repository root.
@@ -259,6 +264,12 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
     $reflection = new \ReflectionClass($class_name);
 
     foreach ($reflection->getTraits() as $trait) {
+      // A context composes helper traits beside the vocabulary, and only the
+      // vocabulary belongs in the step reference.
+      if ($trait->getAttributes(Steps::class) === []) {
+        continue;
+      }
+
       $trait_name = $trait->getShortName();
 
       if (in_array($trait_name, $traits_files, TRUE)) {
@@ -286,6 +297,49 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 
   if (!empty($traits_files)) {
     throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+  }
+
+  uksort($collected, strcasecmp(...));
+
+  return $collected;
+}
+
+/**
+ * Collect the helper traits the package publishes.
+ *
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string, \ReflectionClass<object>>
+ *   The trait reflections, keyed by short name and sorted by that name.
+ *
+ * @throws \ReflectionException
+ */
+function collect_helper_traits(string $base_path = __DIR__): array {
+  $helpers_path = $base_path . DIRECTORY_SEPARATOR . HELPERS_DIRECTORY;
+  $collected = [];
+
+  if (!is_dir($helpers_path)) {
+    return $collected;
+  }
+
+  foreach (scandir($helpers_path) ?: [] as $file) {
+    $file_path = $helpers_path . DIRECTORY_SEPARATOR . $file;
+
+    if (!is_file($file_path) || !file_declares_trait($file_path)) {
+      continue;
+    }
+
+    $short_name = basename($file, '.php');
+    /** @var class-string $trait_name */
+    $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $short_name;
+    $trait = new \ReflectionClass($trait_name);
+
+    if ($trait->getAttributes(Helper::class) === []) {
+      throw new \Exception(sprintf('Trait %s does not carry the Helper attribute', $short_name));
+    }
+
+    $collected[$short_name] = $trait;
   }
 
   uksort($collected, strcasecmp(...));
@@ -883,11 +937,33 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $info[$trait_name] = $class_info;
   }
 
+  foreach (collect_helper_traits($base_path) as $trait_name => $trait) {
+    $helpers = collect_helper_methods($trait);
+    // @codeCoverageIgnoreStart
+    if ($helpers === []) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+    $class_info = [
+      'name' => $trait_name,
+      'name_contextual' => $trait_name,
+      'context' => 'Toolbox',
+      'source' => sprintf('%s/%s.php', HELPERS_DIRECTORY, $trait_name),
+      'steps_anchor' => NULL,
+      'helpers' => $helpers,
+    ];
+    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
+
+    $info[$trait_name] = $class_info;
+  }
+
   foreach (TOOLBOX_CLASSES as $toolbox_class) {
     $reflection = new \ReflectionClass($toolbox_class);
     $short_name = $reflection->getShortName();
 
-    $helpers = collect_helper_methods($reflection);
+    // A composed helper trait is published under its own name, so the context
+    // reports only what its own file declares.
+    $helpers = collect_helper_methods($reflection, NULL, (string) $reflection->getFileName());
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
@@ -896,7 +972,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $class_info = [
       'name' => $short_name,
       'name_contextual' => $short_name,
-      'context' => 'Context',
+      'context' => 'Toolbox',
       'source' => relative_source_path((string) $reflection->getFileName(), $base_path),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
@@ -921,15 +997,22 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
  * @param string|null $prefix
  *   Method name prefix to require, or NULL to take every method the class
  *   declares itself.
+ * @param string|null $source_file
+ *   Absolute path a method has to be declared in, or NULL to accept any. A
+ *   method flattened in from a trait keeps the trait's file name.
  *
  * @return array<int, array<string, string>>
  *   Helper entries with 'name', 'signature', 'description' and 'example',
  *   sorted by name.
  */
-function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
+function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL, ?string $source_file = NULL): array {
   $helpers = [];
 
   foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+    if ($source_file !== NULL && $method->getFileName() !== $source_file) {
+      continue;
+    }
+
     if ($prefix === NULL) {
       if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
         continue;

@@ -1,38 +1,38 @@
-Feature: Check that TableTransposeTrait works
+Feature: Check that DrupalApiTrait transposes tables
 
-  Ensures that TableTransposeTrait provides reusable helper methods for table
-  manipulation and processing, specifically the tableTransposeVertical() method.
+  Ensures that DrupalApiTrait provides reusable helper methods for table
+  manipulation and processing, specifically the transposeVerticalTable() method.
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical works with single entity (2 columns)
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable works with single entity (2 columns)
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John  |
         | age   | 30    |
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical works with multiple entities (3+ columns)
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable works with multiple entities (3+ columns)
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John      | Jane      |
         | age   | 30        | 25        |
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical throws exception for less than 2 columns
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable throws exception for less than 2 columns
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  |
       """
     When I run "behat --no-colors"
@@ -41,12 +41,12 @@ Feature: Check that TableTransposeTrait works
       Vertical table must have at least 2 columns (field name and value).
       """
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical throws exception for duplicate field names
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable throws exception for duplicate field names
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John  |
         | name  | Jane  |
       """
@@ -56,12 +56,12 @@ Feature: Check that TableTransposeTrait works
       Duplicate field names found: name
       """
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical throws exception for empty field names
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable throws exception for empty field names
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         |       | John  |
       """
     When I run "behat --no-colors"
@@ -70,24 +70,24 @@ Feature: Check that TableTransposeTrait works
       Field names cannot be empty.
       """
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical handles empty values in rows
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable handles empty values in rows
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John   | Jane   |
         | age   | 30     |        |
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical throws exception for single column table
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable throws exception for single column table
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | |
       """
     When I run "behat --no-colors"
@@ -96,35 +96,35 @@ Feature: Check that TableTransposeTrait works
       Vertical table must have at least 2 columns (field name and value).
       """
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical works with many entities (5+ columns)
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable works with many entities (5+ columns)
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John     | Jane     | Bob      | Alice    |
         | age   | 30       | 25       | 35       | 28       |
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical works with single field
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable works with single field
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | John  |
       """
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\TableTransposeTrait
-  Scenario: Assert tableTransposeVertical works with special characters in values
+  @trait:Helper\DrupalApiTrait
+  Scenario: Assert transposeVerticalTable works with special characters in values
     Given some behat configuration
     And scenario steps:
       """
-      When I call tableTransposeVertical with:
+      When I call transposeVerticalTable with:
         | name  | O'Brien                |
         | email | test@example.com       |
         | bio   | Line 1\nLine 2         |

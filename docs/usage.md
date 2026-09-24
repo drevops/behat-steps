@@ -10,54 +10,58 @@ A project uses this package by composing a context out of traits and pointing an
 
 [Configuration](configuration.md) is the reference for every option and tag. This page is the model those options sit in.
 
-## The 4 entry points
+## The 3 entry points
 
-The vocabulary is split in 2 halves, and each half has a step-free base class and a class that adds the whole half's steps. Every class is honest about what it drags in:
+The vocabulary sits on a single chain. Every class is honest about what it drags in, and a consumer extends exactly one of them:
 
 ```
-              Behat\MinkExtension\Context\RawMinkContext
-                                |
-                          RawContext
-              driver access, configuration, hook dispatch
-                                |
-            +-------------------+--------------------+
-            |                                        |
-       WebRawContext                          DrupalRawContext
-   web helpers, no steps                  entity lifecycle, login,
-                                          cleanup, no steps
-            |                                        |
-        WebContext                              DrupalContext
-     use Steps\Web\*  (28)                  use Steps\Drupal\*  (29)
+        Behat\MinkExtension\Context\RawMinkContext
+                          |
+                    WebRawContext
+       driver access, configuration, hook dispatch,
+             the 4 web helper traits, no steps
+                          |
+                     WebContext
+                use Steps\Web\*  (28)
+                          |
+                   DrupalContext
+             use DrupalApiTrait + Steps\Drupal\*  (29)
 ```
 
-| Extend or register | When |
+| Extend | When |
 | --- | --- |
-| `WebContext` / `DrupalContext` | The suite wants the vocabulary and only needs to override behavior |
-| `WebRawContext` | The project wants the web plumbing and picks its own traits |
-| `DrupalRawContext` | The project wants the Drupal entity lifecycle and picks its own traits |
-| `RawContext` | The project wants neither half's plumbing |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 steps |
+| `WebContext` | The suite tests a web page and wants the 28 web steps |
+| `WebRawContext` | The project picks its own traits, and composes `DrupalApiTrait` when it needs the Drupal lifecycle |
 
-`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal`. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
+`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
 
-## Register the halves side by side
+```php
+<?php
 
-`DrupalContext` does not extend `WebContext`. The 2 halves are siblings, registered independently:
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+
+class FeatureContext extends DrupalContext {}
+```
+
+## Register one context, not two
+
+`DrupalContext` extends `WebContext`, so a suite registering both would register the 28 web traits twice and die on a `RedundantStepException` naming an arbitrary step. `WebContext::assertOneContext()` runs on `BeforeSuite` and reports the real mistake instead. Register the class lowest in the chain and drop the rest:
 
 ```php
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(WebContext::class)
-  ->addContext(DrupalContext::class)
+  ->addContext(FeatureContext::class)
   ->addContext(MinkContext::class);
 ```
 
-That keeps each half replaceable: a project can register `DrupalContext` beside Mink's own `MinkContext` and skip this package's web vocabulary entirely, or pair it with a hand-composed context because it already has steps that would collide.
+A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
-It has one cost. A Drupal suite has to register both, because `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms live in the web half - `RandomTrait`, `MappingTrait` and `DateTrait` are all `Steps\Web` traits. A suite that registers only `DrupalContext` fails on its first navigation step.
+It costs one thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal steps without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 ## Compose your own context
 
-A context of your own is the raw context of the half you want plus the traits whose steps the suite needs.
+A context of your own is `WebRawContext` plus the traits whose steps the suite needs.
 
 ```php
 <?php
@@ -74,7 +78,29 @@ class UiContext extends WebRawContext {
 }
 ```
 
-Each raw context also composes the helper traits of its half, so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
+A suite that writes its own Drupal steps composes `DrupalApiTrait` and declares the contract its methods answer to:
+
+```php
+<?php
+
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+
+class SpecContext extends WebRawContext implements DrupalApiInterface {
+
+  use DrupalApiTrait;
+
+  #[When('I publish a page titled :title')]
+  public function publish(string $title): void {
+    $this->nodeCreate(new EntityStub('node', 'page', ['title' => $title]));
+  }
+
+}
+```
+
+`WebRawContext` also composes the 4 web helper traits, so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
 
 ## The rules that govern composition
 
