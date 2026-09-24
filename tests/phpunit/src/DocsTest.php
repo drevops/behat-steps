@@ -2663,7 +2663,7 @@ EOD,
     $this->assertContains('nodeCreate', array_column($actual['DrupalApiTrait']['helpers'], 'name'));
   }
 
-  public function testExtractHelpersResolvesATraitCommentAgainstItsContract(): void {
+  public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {
     $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
     $helpers = [];
 
