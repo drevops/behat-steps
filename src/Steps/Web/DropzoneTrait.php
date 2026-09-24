@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
-use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.

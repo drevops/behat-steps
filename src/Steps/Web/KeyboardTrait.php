@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
-use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Simulate keyboard interactions in Drupal browser testing.
