@@ -2662,6 +2662,15 @@ EOD,
     $this->assertSame([], collect_helper_traits(static::$tmp));
   }
 
+  public function testCollectHelperTraitsReadsOnlyTheTraitFiles(): void {
+    $helpers_path = static::$tmp . '/src/Helper';
+    mkdir($helpers_path, 0777, TRUE);
+    file_put_contents($helpers_path . '/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    file_put_contents($helpers_path . '/README.md', 'not code');
+
+    $this->assertSame(['StringTrait'], array_keys(collect_helper_traits(static::$tmp)));
+  }
+
   public function testCollectHelperMethodsTakesOnlyDeclaredMembers(): void {
     $actual = collect_helper_methods(new \ReflectionClass(InheritedChild::class));
 

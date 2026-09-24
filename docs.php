@@ -25,7 +25,6 @@ declare(strict_types=1);
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
@@ -307,6 +306,10 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 /**
  * Collect the helper traits the package publishes.
  *
+ * Every trait of the directory is published. 'scripts/lint-markers.php' holds
+ * each one to the 'Helper' marker, so the scan reads the directory rather
+ * than repeating that check.
+ *
  * @param string $base_path
  *   Base path for the repository.
  *
@@ -333,13 +336,8 @@ function collect_helper_traits(string $base_path = __DIR__): array {
     $short_name = basename($file, '.php');
     /** @var class-string $trait_name */
     $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $short_name;
-    $trait = new \ReflectionClass($trait_name);
 
-    if ($trait->getAttributes(Helper::class) === []) {
-      throw new \Exception(sprintf('Trait %s does not carry the Helper attribute', $short_name));
-    }
-
-    $collected[$short_name] = $trait;
+    $collected[$short_name] = new \ReflectionClass($trait_name);
   }
 
   uksort($collected, strcasecmp(...));
