@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\Core\File\FileExists;
@@ -29,11 +30,11 @@ use Symfony\Component\Filesystem\Filesystem;
  * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
  * `@behat-steps-skip:fileAfterScenario`
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait FileTrait {
-
-  use HelperTrait;
 
   /**
    * Unmanaged file URIs.

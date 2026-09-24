@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
@@ -15,11 +16,11 @@ use Drupal\node\NodeInterface;
 /**
  * Order items in the Drupal Draggable Views.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait DraggableviewsTrait {
-
-  use HelperTrait;
 
   /**
    * Save order of the Draggable Order items.
@@ -35,7 +36,7 @@ trait DraggableviewsTrait {
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
+    $this->assertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
 

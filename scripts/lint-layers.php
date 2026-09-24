@@ -4,24 +4,48 @@
  * @file
  * Layer dependency check.
  *
- * The driver layer is usable without Behat loaded, which only holds while it
- * references nothing from Behat or Mink. This script reads every file under
- * src/Driver and fails on any code reference into those namespaces.
+ * Two layers promise to run without a dependency loaded, and each promise
+ * holds only while the layer references nothing from the namespaces it
+ * excludes. This script reads every file of each layer and fails on any code
+ * reference into those namespaces.
  *
  * Run with --path=path/to/repo to check a tree other than this repository.
  */
 
 declare(strict_types=1);
 
-/**
- * Root namespaces the driver layer must not reference.
- */
-const LAYER_FORBIDDEN_ROOTS = ['Behat', 'Mink'];
+use Drupal\Component\Utility\Random;
 
 /**
- * Directory holding the driver layer, relative to the repository root.
+ * Layers to check, each with its paths, forbidden roots and allowances.
+ *
+ * A path is a directory that is walked or a single file. An allowance names
+ * one symbol under a forbidden root that the layer may still reference.
  */
-const LAYER_DIRECTORY = 'src/Driver';
+const LAYERS = [
+  [
+    'name' => 'src/Driver',
+    'paths' => ['src/Driver'],
+    'forbidden' => ['Behat', 'Mink'],
+    'allowed' => [],
+  ],
+  [
+    'name' => 'the web half',
+    'paths' => [
+      'src/Steps/Web',
+      'src/Behat/Context/WebRawContext.php',
+      'src/Behat/Context/WebContext.php',
+      'src/Helper/JavascriptSupportTrait.php',
+      'src/Helper/LastStepTrait.php',
+      'src/Helper/RequestHeadersTrait.php',
+      'src/Helper/StringTrait.php',
+    ],
+    'forbidden' => ['Drupal'],
+    // 'drupal/core-utility' ships the random generator and is a hard
+    // requirement of the package, Drupal site or not.
+    'allowed' => [Random::class],
+  ],
+];
 
 // Execute the entry function only when the script is run directly, not when
 // included.
@@ -33,7 +57,7 @@ if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
 // @codeCoverageIgnoreEnd
 
 /**
- * Reports every forbidden reference in the driver layer.
+ * Reports every forbidden reference in each declared layer.
  *
  * @param array<string, bool|string|array<int, string>> $options
  *   Command line options.
@@ -42,47 +66,57 @@ if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
  */
 function lint_layers(array $options = []): void {
   $base_path = is_string($options['path'] ?? NULL) ? $options['path'] : dirname(__DIR__);
-  $directory = $base_path . DIRECTORY_SEPARATOR . LAYER_DIRECTORY;
-
-  if (!is_dir($directory)) {
-    echo sprintf("Error: %s does not exist.\n", $directory);
-    exit(1);
-  }
-
-  $files = layer_files($directory);
   $violations = [];
+  $checked = 0;
 
-  foreach ($files as $file) {
-    foreach (layer_file_violations($file, LAYER_FORBIDDEN_ROOTS) as $violation) {
-      $relative = substr($file, strlen($base_path) + 1);
-      $violations[] = sprintf('%s:%d references %s', $relative, $violation['line'], $violation['symbol']);
+  foreach (LAYERS as $layer) {
+    foreach ($layer['paths'] as $path) {
+      $full_path = $base_path . DIRECTORY_SEPARATOR . $path;
+
+      if (!file_exists($full_path)) {
+        echo sprintf("Error: %s does not exist.\n", $full_path);
+        exit(1);
+      }
+
+      foreach (layer_files($full_path) as $file) {
+        $checked++;
+
+        foreach (layer_file_violations($file, $layer['forbidden'], $layer['allowed']) as $violation) {
+          $relative = substr($file, strlen($base_path) + 1);
+          $violations[] = sprintf('%s: %s:%d references %s', $layer['name'], $relative, $violation['line'], $violation['symbol']);
+        }
+      }
     }
   }
 
   if ($violations !== []) {
-    echo sprintf("The %s layer must not reference %s:\n\n", LAYER_DIRECTORY, implode(' or ', LAYER_FORBIDDEN_ROOTS));
+    echo "Layer boundaries crossed:\n\n";
     echo implode("\n", $violations) . "\n";
     exit(1);
   }
 
-  echo sprintf("%s references neither %s: %d files checked.\n", LAYER_DIRECTORY, implode(' nor ', LAYER_FORBIDDEN_ROOTS), count($files));
+  echo sprintf("Every layer holds its boundary: %d files checked.\n", $checked);
   exit(0);
 }
 
 // @codeCoverageIgnoreEnd
 
 /**
- * Lists the PHP files in a directory tree.
+ * Lists the PHP files a path covers.
  *
- * @param string $directory
- *   Absolute path to the directory to walk.
+ * @param string $path
+ *   Absolute path to a directory to walk or to a single file.
  *
  * @return array<int, string>
  *   Absolute file paths, sorted.
  */
-function layer_files(string $directory): array {
+function layer_files(string $path): array {
+  if (!is_dir($path)) {
+    return [$path];
+  }
+
   $files = [];
-  $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
+  $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS));
 
   foreach ($iterator as $file) {
     if ($file instanceof \SplFileInfo && $file->getExtension() === 'php') {
@@ -102,11 +136,13 @@ function layer_files(string $directory): array {
  *   Absolute path to the file to read.
  * @param array<int, string> $forbidden_roots
  *   Root namespaces that must not be referenced.
+ * @param array<int, string> $allowed
+ *   Symbols under a forbidden root that the layer may reference.
  *
  * @return array<int, array{line: int, symbol: string}>
  *   One row per reference, in source order.
  */
-function layer_file_violations(string $file, array $forbidden_roots): array {
+function layer_file_violations(string $file, array $forbidden_roots, array $allowed = []): array {
   $violations = [];
 
   foreach (token_get_all((string) file_get_contents($file)) as $token) {
@@ -120,9 +156,13 @@ function layer_file_violations(string $file, array $forbidden_roots): array {
       continue;
     }
 
-    $root = strtok(ltrim($symbol, '\\'), '\\');
+    $qualified = ltrim($symbol, '\\');
 
-    if (!in_array($root, $forbidden_roots, TRUE)) {
+    if (in_array($qualified, $allowed, TRUE)) {
+      continue;
+    }
+
+    if (!in_array(strtok($qualified, '\\'), $forbidden_roots, TRUE)) {
       continue;
     }
 

@@ -9,7 +9,9 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
 
 /**
  * Disable Drupal config overrides from settings.php during a scenario.
@@ -46,8 +48,10 @@ use DrevOps\BehatSteps\Behat\Tag;
  *   }
  *   @endcode
  *
- * The signal is also written to the shared request-header bag, so a trait
- * that issues its own HTTP requests - `RestTrait` - carries it too.
+ * The signal is also written to the request-header bag, so a trait that
+ * issues its own HTTP requests - `RestTrait` - carries it too. The bag is
+ * per context, so that reaches `RestTrait` only where one context composes
+ * both; the shipped `WebContext` and `DrupalContext` are separate objects.
  *
  * Example:
  * @code
@@ -60,11 +64,13 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait ConfigOverrideTrait {
 
-  use HelperTrait;
+  use RequestHeadersTrait;
 
   /**
    * Config names parsed from `@disable-config-override:*` tags.
@@ -138,7 +144,7 @@ trait ConfigOverrideTrait {
       $driver->setRequestHeader('X-Config-No-Override', $value);
     }
 
-    $this->helperSetRequestHeader('X-Config-No-Override', $value);
+    $this->setRequestHeader('X-Config-No-Override', $value);
 
     // A SUT invoked directly within the same process reads '$_SERVER'.
     $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
@@ -158,7 +164,7 @@ trait ConfigOverrideTrait {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
     putenv('HTTP_X_CONFIG_NO_OVERRIDE');
 
-    $this->helperUnsetRequestHeader('X-Config-No-Override');
+    $this->unsetRequestHeader('X-Config-No-Override');
   }
 
   /**

@@ -4,61 +4,88 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
+use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
+use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
 use DrevOps\BehatSteps\Steps\Drupal\CacheTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ConfigOverrideTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ConfigTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ContentBlockTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
+use DrevOps\BehatSteps\Steps\Drupal\DraggableviewsTrait;
+use DrevOps\BehatSteps\Steps\Drupal\DrushTrait;
+use DrevOps\BehatSteps\Steps\Drupal\EckTrait;
+use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Steps\Drupal\EntityTrait;
+use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Steps\Drupal\LanguageTrait;
+use DrevOps\BehatSteps\Steps\Drupal\MediaTrait;
+use DrevOps\BehatSteps\Steps\Drupal\MenuTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
+use DrevOps\BehatSteps\Steps\Drupal\ParagraphsTrait;
+use DrevOps\BehatSteps\Steps\Drupal\QueueTrait;
+use DrevOps\BehatSteps\Steps\Drupal\RedirectTrait;
+use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
+use DrevOps\BehatSteps\Steps\Drupal\StateTrait;
 use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait;
+use DrevOps\BehatSteps\Steps\Drupal\TimeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
-use DrevOps\BehatSteps\Steps\Generic\BasicAuthTrait;
-use DrevOps\BehatSteps\Steps\Generic\ElementTrait;
-use DrevOps\BehatSteps\Steps\Generic\FieldTrait;
-use DrevOps\BehatSteps\Steps\Generic\LinkTrait;
-use DrevOps\BehatSteps\Steps\Generic\MessageTrait;
-use DrevOps\BehatSteps\Steps\Generic\PathTrait;
-use DrevOps\BehatSteps\Steps\Generic\RegionTrait;
-use DrevOps\BehatSteps\Steps\Generic\ResponseTrait;
-use DrevOps\BehatSteps\Steps\Generic\TableTrait;
-use DrevOps\BehatSteps\Steps\Generic\WaitTrait;
+use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
+use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
 
 /**
- * Zero-config context carrying a curated slice of the vocabulary.
+ * Zero-config context carrying the whole vocabulary a Drupal suite needs.
  *
- * Registering this context in a suite is enough to write features without
- * writing any PHP. It defines no steps of its own: it is 'RawContext' plus the
- * traits that add vocabulary and nothing else.
+ * Extending this context is enough to write features against a Drupal site
+ * without writing any PHP: it is 'WebContext' plus 'DrupalApiTrait' plus
+ * every trait under 'Steps\Drupal', so a Drupal project extends one class
+ * and gets all 57 step traits.
  *
- * Traits that can fail a scenario for a reason it did not ask about are
- * deliberately absent - Watchdog fails on a logged PHP error, Javascript on a
- * console error, Accessibility runs axe scans, Diagnostics rewrites failure
- * messages, BigPipe inserts per-step waits. A project opts into those by
- * composing its own context from 'RawContext'.
+ * A trait for a contrib module resolves nothing until one of its steps runs,
+ * and then fails with a message naming the module, so composing all of them
+ * costs a project nothing.
  *
- * 'WaitTrait' is included even though it carries step hooks: those hooks only
- * wait for AJAX on a '@javascript' scenario, so they remove a race and add no
- * failure condition of their own.
+ * Registering this context beside 'WebContext' is fatal, because the 28 web
+ * traits would register their steps twice. 'WebContext::assertOneContext()'
+ * reports that rather than letting Behat name an arbitrary step.
  *
- * @see \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @see \DrevOps\BehatSteps\Behat\Context\WebContext
+ * @see \DrevOps\BehatSteps\Helper\DrupalApiTrait
  */
-class DrupalContext extends RawContext {
+class DrupalContext extends WebContext implements DrupalApiInterface {
 
-  use BasicAuthTrait;
+  use DrupalApiTrait;
+
   use BatchTrait;
+  use BigPipeTrait;
+  use BlockTrait;
   use CacheTrait;
+  use ConfigOverrideTrait;
+  use ConfigTrait;
+  use ContentBlockTrait;
   use ContentTrait;
-  use ElementTrait;
+  use DraggableviewsTrait;
+  use DrushTrait;
+  use EckTrait;
+  use EmailTrait;
   use EntityTrait;
-  use FieldTrait;
+  use FileTrait;
   use LanguageTrait;
-  use LinkTrait;
-  use MessageTrait;
-  use PathTrait;
-  use RegionTrait;
-  use ResponseTrait;
-  use TableTrait;
+  use MediaTrait;
+  use MenuTrait;
+  use ModuleTrait;
+  use ParagraphsTrait;
+  use QueueTrait;
+  use RedirectTrait;
+  use SearchApiTrait;
+  use StateTrait;
   use TaxonomyTrait;
+  use TestmodeTrait;
+  use TimeTrait;
   use UserTrait;
-  use WaitTrait;
+  use WatchdogTrait;
+  use WebformTrait;
 
 }

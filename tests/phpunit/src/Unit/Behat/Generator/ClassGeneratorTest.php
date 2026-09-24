@@ -51,7 +51,7 @@ class ClassGeneratorTest extends TestCase {
 
 namespace App\Tests\Behat;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Tester\Exception\PendingException;
@@ -59,7 +59,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawContext {
+class FeatureContext extends WebRawContext {
 
   /**
    * Initializes context.
@@ -67,8 +67,12 @@ class FeatureContext extends RawContext {
    * Every scenario gets its own context instance.
    * You can also pass arbitrary arguments to the
    * context constructor through the Behat configuration.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   Trait options the suite declares for this context.
    */
-  public function __construct() {
+  public function __construct(array $config = []) {
+    parent::__construct($config);
   }
 
 }
@@ -78,7 +82,7 @@ PHP;
     $rootless = <<<'PHP'
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Tester\Exception\PendingException;
@@ -86,7 +90,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawContext {
+class FeatureContext extends WebRawContext {
 
   /**
    * Initializes context.
@@ -94,8 +98,12 @@ class FeatureContext extends RawContext {
    * Every scenario gets its own context instance.
    * You can also pass arbitrary arguments to the
    * context constructor through the Behat configuration.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   Trait options the suite declares for this context.
    */
-  public function __construct() {
+  public function __construct(array $config = []) {
+    parent::__construct($config);
   }
 
 }

@@ -14,7 +14,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | --- | --- | --- |
 | `architecture.puml` | `architecture.svg` | The 3 library layers, the consuming project, and the runtime around them |
 | `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
-| `class-context.puml` | `class-context.svg` | The context lifecycle, the managers, both helpers, representative step traits, and the exceptions a failing step throws |
+| `class-context.puml` | `class-context.svg` | The context hierarchy, the managers, the helper traits, representative step traits, and the exceptions a failing step throws |
 | `class-drivers.puml` | `class-drivers.svg` | The Behat-free driver layer: the base contract, the capability interfaces, the 3 drivers, and the Core bridge |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
 | `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
@@ -36,13 +36,15 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the context base class, the entity-creation hooks.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the 3 context classes, the entity-creation hooks.
 
-**`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Generic` and `Steps\Drupal`. This is the only layer a consuming project mixes into its own `FeatureContext`.
+**`src/Helper/` - the shared internals.** 7 step-free traits, each named for one concern, composed by whichever step traits and contexts need them.
+
+**`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Web` and `Steps\Drupal`. This is the layer a consuming project registers, or mixes into a context of its own.
 
 ![Component architecture](architecture.svg)
 
-The layering rule is enforced, not just documented. `scripts/lint-layers.php` reads every file under `src/Driver` and fails on any reference to the `Behat` or `Mink` root namespaces, and `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector and gherkinlint. So the driver layer stays usable without Behat loaded, and the check catches the first import that would break that rather than the tenth.
+The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext`, `WebContext` and the 4 web helper traits may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-markers.php`, which holds every trait to exactly one `#[Steps]` or `#[Helper]` marker. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
 
 The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
 
@@ -68,14 +70,23 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 
-`RawContext` is the base class a consuming `FeatureContext` extends. It registers no step definitions of its own - it owns the scenario lifecycle:
+The context layer is one chain. `WebRawContext` is the root and registers no steps:
+
+- Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
+- Option resolution: `getOption()` reads a trait's option through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags.
+- Authentication delegation: `getAuthenticationManager()`, because `BasicAuthTrait` is a web trait and calls it.
+- The hook dispatcher and `skipTag()`.
+- The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.
+
+`WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext`, composes every trait under `src/Steps/Drupal`, and adds the Drupal scenario lifecycle by composing `DrupalApiTrait` and declaring `DrupalApiInterface`:
 
 - Entity creation (`nodeCreate`, `userCreate`, `termCreate`, `entityCreate`, `languageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `cleanEntities`, `cleanUsers` and `cleanRoles` run after the scenario and delete what it created, in reverse.
 - Authentication: `login`, `logout`, `loggedIn`, delegated to `AuthenticationManager`.
-- Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
 
-Note where cleanup lives now. It is the context's job, not a trait's - which is why a project gets it by extending `RawContext` rather than by remembering to mix a trait in.
+Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so a project gets it by extending `DrupalContext` rather than by remembering to mix a trait in. A suite that extends `WebContext` never runs those hooks at all.
+
+A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 
 ![Class detail: context, managers, helpers and step traits](class-context.svg)
 
@@ -83,24 +94,26 @@ Note where cleanup lives now. It is the context's job, not a trait's - which is 
 
 Traits live in 2 places, and the split is meaningful:
 
-- `src/Steps/Generic/` in `DrevOps\BehatSteps\Steps\Generic` - 29 traits that talk to Mink and know nothing about Drupal. `PathTrait`, `ElementTrait`, `JsonTrait`, `RegionTrait`, `CommandTrait` and friends.
-- `src/Steps/Drupal/` in `DrevOps\BehatSteps\Steps\Drupal` - 30 traits that go through the driver. `ContentTrait`, `UserTrait`, `MediaTrait`, `DrushTrait`, `WatchdogTrait`, and so on.
+- `src/Steps/Web/` in `DrevOps\BehatSteps\Steps\Web` - 28 traits that talk to Mink and know nothing about Drupal. `PathTrait`, `ElementTrait`, `JsonTrait`, `RegionTrait`, `CommandTrait` and friends.
+- `src/Steps/Drupal/` in `DrevOps\BehatSteps\Steps\Drupal` - 29 traits that go through the driver. `ContentTrait`, `UserTrait`, `MediaTrait`, `DrushTrait`, `WatchdogTrait`, and so on.
 
-That directory split isn't just tidiness. `docs.php` reads a trait's context straight off its subdirectory under `src/Steps`, so a file's location decides which index it lands in. The driver layer under `src/Driver/` is library code, not vocabulary, and is not scanned.
+That directory split isn't just tidiness. `docs.php` reads a trait's context straight off its subdirectory under `src/Steps`, so a file's location decides which index it lands in, and it also decides which shipped context has to compose the trait. The driver layer under `src/Driver/` and the helper traits under `src/Helper/` are library code, not vocabulary, and are not scanned.
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 34 name `RawContext` because they reach for the driver, and 18 name Mink's `RawMinkContext` because a session is all they touch. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `WebRawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. The 29 Drupal traits add `@phpstan-require-implements` naming `DrupalApiInterface`, because a trait cannot implement an interface but the class composing it can. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 
-Step traits never `use` other step traits. Shared logic goes in the step-free `HelperTrait` in each namespace - table transposition, whitespace normalisation, request headers, fixture-file resolution - and nowhere else.
+Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, and the whole Drupal scenario lifecycle - and nowhere else. Each one carries `#[Helper]` where a step trait carries `#[Steps]`, so the rule is a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
 
 ## Flow 1: a step runs
 
 Nothing in this library is invoked directly. Behat owns the loop, and the traits are just where the matching methods happen to live.
 
-When Behat starts, it instantiates the consuming project's `FeatureContext`, injects the managers through `DriverAwareInitializer`, and scans the class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
+When Behat starts, it instantiates every registered context, injects the managers through `DriverAwareInitializer`, and scans each class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
+
+Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why each class in the chain composes a trait the ones above it do not, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
 
 ![Data flow: a step runs](dataflow-step.svg)
 
@@ -121,9 +134,9 @@ Every reference document is generated, and `docs.php` is the only thing that gen
 
 One run writes 4 targets: `STEPS.md` and the step index in `README.md`, `HELPERS.md`, and the option and tag tables in `docs/configuration.md`. Each lands in a marked block of its file, and only the targets whose block actually changed are written.
 
-The trick is that it doesn't scan the filesystem for step definitions. It reflects over the test suite's own `FeatureContext`, which composes every trait in the library. That makes composition the source of truth: a trait file that exists but was never added to `FeatureContext` throws rather than being quietly skipped.
+The trick is that it doesn't scan the filesystem for step definitions. It reflects over `WebContext` and `DrupalContext`, which between them compose every trait in the library. That makes composition the source of truth, and it documents exactly what a project gets by registering them: a trait file that exists but was never added to its context throws rather than being quietly skipped.
 
-The same reflection pass yields both halves of the package, and visibility is what separates them. A public method carrying a `Behat\Step\*` attribute is vocabulary and goes to `STEPS.md`; a public method carrying no Behat attribute at all is toolbox and goes to `HELPERS.md`, unless its docblock withdraws it with `@internal`. A protected method is an implementation detail and appears in neither. On a trait both halves are filtered by the trait-name prefix every member already carries, so a method borrowed from elsewhere is not published under a trait that merely composes it. `TOOLBOX_CLASSES` adds `RawContext` to the toolbox half, because a project's own step definitions are written against its lifecycle methods as much as against a trait's helpers; a class is read without that prefix filter, since its methods carry no trait name.
+The same reflection pass yields both halves of the package, and visibility is what separates them. A public method carrying a `Behat\Step\*` attribute is vocabulary and goes to `STEPS.md`; a public method carrying no Behat attribute at all is toolbox and goes to `HELPERS.md`, unless its docblock withdraws it with `@internal`. A protected method is an implementation detail and appears in neither. On a trait both halves are filtered by the trait-name prefix every member already carries, so a method borrowed from elsewhere is not published under a trait that merely composes it. `TOOLBOX_CLASSES` adds the 3 raw contexts to the toolbox half, because a project's own step definitions are written against their lifecycle methods as much as against a trait's helpers; a class is read without that prefix filter, since its methods carry no trait name.
 
 ![Data flow: reference documentation generation](dataflow-docs.svg)
 
@@ -151,7 +164,7 @@ Behat then runs from inside `build/` but with the project-root `behat.php`, whic
 
 ### The suite
 
-`behat.php` wires up `FeatureContext` (all the library traits plus test-only overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
+`behat.php` wires up `FeatureContext` (`DrupalContext` plus the test-only steps and overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
 
 Default sessions run through BrowserKit. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
 
@@ -159,7 +172,7 @@ Default sessions run through BrowserKit. `@javascript` scenarios run through Sel
 
 Asserting that a step *fails correctly* is awkward from inside the same run: the failure would fail your own scenario. So scenarios tagged `@trait:SomeTrait` take a detour.
 
-`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `FeatureContext` composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
+`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `DrupalApiTrait`, because a tag names a trait from either half and a Drupal trait requires that lifecycle. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
 ![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)
 
@@ -171,13 +184,13 @@ The outer run writes `.logs/coverage/behat/`. Each nested subprocess drops its o
 
 That merged file is the real number. The `behat/` one only ever shows the direct scenarios, so it reads lower - which is exactly the kind of thing that sends someone off chasing coverage that already exists. `scripts/check-coverage.php` defaults to the merged file for that reason.
 
-Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, and the pure helper logic in the traits.
+Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, the helper traits, and the convention tests at the root of `tests/phpunit/src/` that hold the naming, member order, public surface, layer and context-composition rules.
 
 ## Continuous integration
 
 `.github/workflows/test.yml` has 2 jobs, both running inside the project's own Docker Compose stack so CI and local development execute the same commands.
 
-`lint` runs on PHP 8.4. It provisions the fixture site, checks that `composer.json` is normalized, and runs `ahoy lint` - `composer validate`, `parallel-lint`, PHP_CodeSniffer, PHPStan, Rector in dry-run mode, gherkinlint over the feature files, and `scripts/lint-layers.php` for the driver-layer boundary - followed by `ahoy lint-docs`, which is the `docs.php --fail-on-change` gate.
+`lint` runs on PHP 8.4. It provisions the fixture site, checks that `composer.json` is normalized, and runs `ahoy lint` - `composer validate`, `parallel-lint`, PHP_CodeSniffer, PHPStan, Rector in dry-run mode, gherkinlint over the feature files, and `scripts/lint-layers.php` for the driver-layer and web-half boundaries - followed by `ahoy lint-docs`, which is the `docs.php --fail-on-change` gate.
 
 The `test` matrix is PHP 8.3, 8.4 and 8.5 against Drupal 11, each run twice - once with `normal` dependency resolution and once with `lowest` - on Behat 3, and the same 6 combinations again on Behat 4, which the `behat` matrix key passes to `scripts/provision.sh` as `BEHAT`. 2 more legs run the Behat 3 suite through the `chrome_headless` profile, on PHP 8.3 and 8.5 with `normal` dependencies. Behat 4 has no Chrome leg, because the Chrome extension has no release that accepts Behat 4.
 
@@ -187,4 +200,4 @@ The unit and kernel suites run on every leg without a profile, since a profile c
 
 ## Regenerating this document
 
-After a structural change - a new layer or namespace, a change to how `RawContext` composes the lifecycle, a new driver or capability, a change to how `docs.php` discovers steps, a change to the fixture harness or the CI matrix - ask the AI agent to "update architecture docs". It re-traces the affected diagrams and prose from the current code via the `update-architecture-docs` skill, and re-renders the SVGs in the same pass.
+After a structural change - a new layer or namespace, a change to how a context composes the lifecycle, a new driver or capability, a change to how `docs.php` discovers steps, a change to the fixture harness or the CI matrix - ask the AI agent to "update architecture docs". It re-traces the affected diagrams and prose from the current code via the `update-architecture-docs` skill, and re-renders the SVGs in the same pass.

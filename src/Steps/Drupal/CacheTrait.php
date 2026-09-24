@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
@@ -19,8 +20,10 @@ use Drupal\Core\Database\Database;
  *   render cache.
  * - Run cron, which also flushes the caches cron itself invalidates.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait CacheTrait {
 
   /**

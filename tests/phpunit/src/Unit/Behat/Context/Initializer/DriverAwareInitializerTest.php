@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context\Initializer;
 use Behat\Behat\Context\Context;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
@@ -45,16 +46,31 @@ class DriverAwareInitializerTest extends UnitTestCase {
     $driver_manager = $this->createMock(DriverManagerInterface::class);
     $dispatcher = $this->createHookDispatcher();
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $user_manager = $this->createMock(UserManagerInterface::class);
 
     $context = $this->createMock(DriverAwareInterface::class);
     $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
     $context->expects($this->once())->method('setDriverManager')->with($driver_manager);
     $context->expects($this->once())->method('setDispatcher')->with($dispatcher);
     $context->expects($this->once())->method('setAuthenticationManager')->with($authentication_manager);
+
+    $initializer = new DriverAwareInitializer($driver_manager, self::PARAMETERS, $dispatcher, $authentication_manager, $this->createMock(UserManagerInterface::class));
+    $initializer->initializeContext($context);
+  }
+
+  public function testDrupalApiContextReceivesTheUserManager(): void {
+    $user_manager = $this->createMock(UserManagerInterface::class);
+
+    $context = $this->createMock(DrupalApiInterface::class);
     $context->expects($this->once())->method('setUserManager')->with($user_manager);
 
-    $initializer = new DriverAwareInitializer($driver_manager, self::PARAMETERS, $dispatcher, $authentication_manager, $user_manager);
+    $initializer = new DriverAwareInitializer(
+      $this->createMock(DriverManagerInterface::class),
+      self::PARAMETERS,
+      $this->createHookDispatcher(),
+      $this->createMock(AuthenticationManagerInterface::class),
+      $user_manager,
+    );
+
     $initializer->initializeContext($context);
   }
 

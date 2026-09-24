@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\HelperSampleTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\HelperSignatureTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\InheritedChild;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\MultiMethodTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\NoMatchTrait;
-use DrevOps\BehatSteps\Tests\Fixtures\Generic\SampleTrait;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\MultiMethodTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\NoMatchTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\SampleTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Config\Definition\ArrayNode;
@@ -44,6 +50,8 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('heading_anchor')]
 #[CoversFunction('extract_helpers')]
 #[CoversFunction('collect_helper_methods')]
+#[CoversFunction('collect_helper_traits')]
+#[CoversFunction('helper_trait_contracts')]
 #[CoversFunction('resolve_inherited_comment')]
 #[CoversFunction('relative_source_path')]
 #[CoversFunction('render_helpers')]
@@ -67,7 +75,7 @@ class DocsTest extends UnitTestCase {
     // Pre-load the fixture traits so they are available for eval(). Drupal
     // context traits are excluded because they are loaded from the test's
     // temporary directory to get the correct context.
-    $fixture_files = glob($this->getFixturesDir() . '/Generic/*.php');
+    $fixture_files = glob($this->getFixturesDir() . '/Web/*.php');
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
         require_once $fixture_file;
@@ -418,16 +426,16 @@ EOD,
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
     foreach ($info as $trait => $data) {
-      $context = $data['context'] ?? 'Generic';
+      $context = $data['context'] ?? 'Web';
 
       if (!isset($data['name_contextual'])) {
-        $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
+        $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
       }
 
       if ($trait !== 'MissingTrait') {
@@ -442,7 +450,7 @@ EOD,
     }
 
     if (isset($info['MissingTrait'])) {
-      @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Generic' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
+      @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
     }
 
     $actual = render_info($info, $base_path);
@@ -459,7 +467,7 @@ EOD,
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
-        $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Generic', $trait), $actual);
+        $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Web', $trait), $actual);
 
         if (isset($data['methods']) && is_array($data['methods'])) {
           foreach ($data['methods'] as $method) {
@@ -508,7 +516,7 @@ EOD,
         [
           'TestTrait' => [
             'name' => 'TestTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Test trait description',
             'description_full' => 'Test trait description',
             'methods' => [
@@ -525,10 +533,10 @@ EOD,
         <<<'EOD'
 | Class | Context | Description |
 | --- | --- | --- |
-| [TestTrait](#testtrait) | Generic | Test trait description |
+| [TestTrait](#testtrait) | Web | Test trait description |
 ## TestTrait
 
-[Source](src/Steps/Generic/TestTrait.php), [Example](tests/behat/features/test.feature)
+[Source](src/Steps/Web/TestTrait.php), [Example](tests/behat/features/test.feature)
 
 Test trait description
 
@@ -548,7 +556,7 @@ EOD,
         [
           'FirstTrait' => [
             'name' => 'FirstTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'First trait description',
             'description_full' => 'First trait description',
             'methods' => [
@@ -580,11 +588,11 @@ EOD,
         <<<'EOD'
 | Class | Context | Description |
 | --- | --- | --- |
-| [FirstTrait](#firsttrait) | Generic | First trait description |
+| [FirstTrait](#firsttrait) | Web | First trait description |
 | [SecondTrait](#secondtrait) | Drupal | Second trait description |
 ## FirstTrait
 
-[Source](src/Steps/Generic/FirstTrait.php), [Example](tests/behat/features/first.feature)
+[Source](src/Steps/Web/FirstTrait.php), [Example](tests/behat/features/first.feature)
 
 First trait description
 
@@ -619,7 +627,7 @@ EOD,
         [
           'MultiMethodTrait' => [
             'name' => 'MultiMethodTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Multi-method trait description',
             'description_full' => 'Multi-method trait description',
             'methods' => [
@@ -643,10 +651,10 @@ EOD,
         <<<'EOD'
 | Class | Context | Description |
 | --- | --- | --- |
-| [MultiMethodTrait](#multimethodtrait) | Generic | Multi-method trait description |
+| [MultiMethodTrait](#multimethodtrait) | Web | Multi-method trait description |
 ## MultiMethodTrait
 
-[Source](src/Steps/Generic/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
+[Source](src/Steps/Web/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
 
 Multi-method trait description
 
@@ -717,13 +725,13 @@ EOD,
       ],
       'empty info' => [
         [],
-        "### Index of Generic steps\n\n\n",
+        "### Index of Web steps\n\n\n",
       ],
       'with missing source file' => [
         [
           'MissingTrait' => [
             'name' => 'MissingTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Missing trait description',
             'description_full' => 'Missing trait description',
             'methods' => [
@@ -744,7 +752,7 @@ EOD,
         [
           'MultiParaTrait' => [
             'name' => 'MultiParaTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Multi-paragraph trait description',
             'description_full' => "Multi-paragraph trait description\n\nThis is a second paragraph.\n\nThis is a third paragraph.",
             'methods' => [
@@ -761,10 +769,10 @@ EOD,
         <<<'EOD'
 | Class | Context | Description |
 | --- | --- | --- |
-| [MultiParaTrait](#multiparatrait) | Generic | Multi-paragraph trait description |
+| [MultiParaTrait](#multiparatrait) | Web | Multi-paragraph trait description |
 ## MultiParaTrait
 
-[Source](src/Steps/Generic/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
+[Source](src/Steps/Web/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
 
 Multi-paragraph trait description
 
@@ -872,7 +880,7 @@ EOD,
         [
           'CodeBlockTrait' => [
             'name' => 'CodeBlockTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Code block trait description',
             'description_full' => "Code block trait description\n\n@code\nGiven I am on the homepage\nWhen I click \"Submit\"\n@endcode",
             'methods' => [
@@ -889,10 +897,10 @@ EOD,
         <<<'EOD'
 | Class | Context | Description |
 | --- | --- | --- |
-| [CodeBlockTrait](#codeblocktrait) | Generic | Code block trait description |
+| [CodeBlockTrait](#codeblocktrait) | Web | Code block trait description |
 ## CodeBlockTrait
 
-[Source](src/Steps/Generic/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
+[Source](src/Steps/Web/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
 
 >  Code block trait description
 >
@@ -924,16 +932,16 @@ EOD,
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
     $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
     foreach ($info as $trait => $data) {
-      $context = $data['context'] ?? 'Generic';
+      $context = $data['context'] ?? 'Web';
 
       if (!isset($data['name_contextual'])) {
-        $info[$trait]['name_contextual'] = ($context !== 'Generic' ? $context . '\\' : '') . $trait;
+        $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
       }
 
       file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
@@ -965,7 +973,7 @@ EOD,
         [
           'TestTrait' => [
             'name' => 'TestTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'Test trait description',
             'description_full' => 'Test trait description',
             'methods' => [
@@ -986,7 +994,7 @@ EOD,
         [
           'FirstTrait' => [
             'name' => 'FirstTrait',
-            'context' => 'Generic',
+            'context' => 'Web',
             'description' => 'First trait description',
             'description_full' => 'First trait description',
             'methods' => [
@@ -1610,7 +1618,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $result = extract_info($class_name, $exclude, $setup['base_path']);
+    $result = extract_info([$class_name], $exclude, $setup['base_path']);
 
     foreach ($expected_trait_names as $expected_trait) {
       if (!in_array($expected_trait, $exclude, TRUE)) {
@@ -1679,7 +1687,7 @@ EOD,
    * @return string
    *   The path to the copied file.
    */
-  protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Generic'): string {
+  protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Web'): string {
     $fixture_file = $this->getFixturesDir() . DIRECTORY_SEPARATOR . $context . DIRECTORY_SEPARATOR . $trait_name . '.php';
     $target_dir = $steps_dir . DIRECTORY_SEPARATOR . $context;
 
@@ -1749,7 +1757,7 @@ EOD,
   protected function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
     if (!class_exists($class_name, FALSE)) {
       $namespaced_traits = array_map(function ($trait_name): string {
-        $context = file_exists($this->getFixturesDir() . '/Drupal/' . $trait_name . '.php') ? 'Drupal' : 'Generic';
+        $context = file_exists($this->getFixturesDir() . '/Drupal/' . $trait_name . '.php') ? 'Drupal' : 'Web';
 
         return '\\DrevOps\\BehatSteps\\Tests\\Fixtures\\' . $context . '\\' . $trait_name;
       }, $trait_names);
@@ -1770,7 +1778,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $result = extract_info($class_name, [], $setup['base_path']);
+    $result = extract_info([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertIsArray($result[$trait_name]['methods']);
@@ -1815,7 +1823,7 @@ EOD,
     eval(sprintf('class %s {}', $class_name));
 
     /** @var class-string $class_name */
-    extract_info($class_name, [], $paths['base_path']);
+    extract_info([$class_name], [], $paths['base_path']);
   }
 
   /**
@@ -1827,7 +1835,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $result = extract_info($class_name, [], $setup['base_path']);
+    $result = extract_info([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey($trait_name, $result);
     $this->assertEquals('Drupal', $result[$trait_name]['context']);
@@ -1843,7 +1851,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $result = extract_info($class_name, [], $setup['base_path']);
+    $result = extract_info([$class_name], [], $setup['base_path']);
 
     // The trait is in the result with an empty methods array because none of
     // its methods match the naming convention.
@@ -2267,7 +2275,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    extract_info($class_name, [], $setup['base_path']);
+    extract_info([$class_name], [], $setup['base_path']);
   }
 
   public function testTagRegistry(): void {
@@ -2565,8 +2573,8 @@ EOD,
 
   public static function dataProviderRelativeSourcePath(): array {
     return [
-      'under the documented repository' => ['/repo/src/Behat/Context/RawContext.php', '/repo', 'src/Behat/Context/RawContext.php'],
-      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/RawContext.php', '/elsewhere', 'src/Behat/Context/RawContext.php'],
+      'under the documented repository' => ['/repo/src/Behat/Context/WebRawContext.php', '/repo', 'src/Behat/Context/WebRawContext.php'],
+      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/WebRawContext.php', '/elsewhere', 'src/Behat/Context/WebRawContext.php'],
     ];
   }
 
@@ -2575,7 +2583,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $actual = extract_helpers($class_name, [], $setup['base_path']);
+    $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey('HelperSampleTrait', $actual);
     $trait = $actual['HelperSampleTrait'];
@@ -2598,7 +2606,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $actual = extract_helpers($class_name, [], $setup['base_path']);
+    $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey('HelperDrupalTrait', $actual);
     $trait = $actual['HelperDrupalTrait'];
@@ -2615,7 +2623,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $actual = extract_helpers($class_name, [], $setup['base_path']);
+    $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayNotHasKey('SampleTrait', $actual);
   }
@@ -2625,20 +2633,84 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $actual = extract_helpers($class_name, [], $setup['base_path']);
+    $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
-    $this->assertArrayHasKey('RawContext', $actual);
-    $this->assertSame('Context', $actual['RawContext']['context']);
-    $this->assertNull($actual['RawContext']['steps_anchor']);
-    $this->assertSame('src/Behat/Context/RawContext.php', $actual['RawContext']['source']);
-    $this->assertNotEmpty($actual['RawContext']['helpers']);
+    $this->assertArrayHasKey('WebRawContext', $actual);
+    $this->assertSame('Toolbox', $actual['WebRawContext']['context']);
+    $this->assertNull($actual['WebRawContext']['steps_anchor']);
+    $this->assertSame('src/Behat/Context/WebRawContext.php', $actual['WebRawContext']['source']);
 
     // The injection points the initializer calls are withdrawn from the
     // published surface.
-    $names = array_column($actual['RawContext']['helpers'], 'name');
-    $this->assertContains('nodeCreate', $names);
+    $names = array_column($actual['WebRawContext']['helpers'], 'name');
+    $this->assertContains('driverFor', $names);
     $this->assertNotContains('setDriverManager', $names);
     $this->assertNotContains('setParameters', $names);
+
+    // A composed helper trait is published under its own name, so the context
+    // does not repeat it.
+    $this->assertNotContains('isJavascriptSupported', $names);
+  }
+
+  public function testExtractHelpersPublishesTheHelperTraits(): void {
+    $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
+
+    $this->assertSame('Toolbox', $actual['JavascriptSupportTrait']['context']);
+    $this->assertNull($actual['JavascriptSupportTrait']['steps_anchor']);
+    $this->assertSame('src/Helper/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
+    $this->assertSame(['isJavascriptSupported'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
+
+    $this->assertContains('nodeCreate', array_column($actual['DrupalApiTrait']['helpers'], 'name'));
+  }
+
+  public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {
+    $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
+    $helpers = [];
+
+    foreach ($actual['DrupalApiTrait']['helpers'] as $helper) {
+      $helpers[$helper['name']] = $helper['description'];
+    }
+
+    // A trait declares no interface of its own, so '{@inheritdoc}' resolves
+    // against the contract the composing context declares.
+    $this->assertSame('Returns the user manager.', $helpers['getUserManager']);
+
+    // The injection point is '@internal' on that same contract.
+    $this->assertArrayNotHasKey('setUserManager', $helpers);
+  }
+
+  /**
+   * Tests that a trait's contracts are read off the classes composing it.
+   *
+   * @param class-string $trait_name
+   *   The helper trait to inspect.
+   * @param array<int, string> $expected
+   *   The interfaces the trait is expected to answer to.
+   */
+  #[DataProvider('dataProviderHelperTraitContracts')]
+  public function testHelperTraitContracts(string $trait_name, array $expected): void {
+    $contracts = helper_trait_contracts(new \ReflectionClass($trait_name), [WebContext::class, DrupalContext::class]);
+    $names = array_map(static fn(\ReflectionClass $contract): string => $contract->getName(), $contracts);
+
+    $this->assertSame($expected, array_values(array_intersect($names, [DrupalApiInterface::class, DriverAwareInterface::class])));
+  }
+
+  public static function dataProviderHelperTraitContracts(): \Iterator {
+    yield 'composed by a documented context' => [DrupalApiTrait::class, [DriverAwareInterface::class, DrupalApiInterface::class]];
+    yield 'composed below the documented contexts' => [StringTrait::class, []];
+  }
+
+  public function testCollectHelperTraitsSkipsTheRepositoryWithoutThem(): void {
+    $this->assertSame([], collect_helper_traits(static::$tmp));
+  }
+
+  public function testCollectHelperTraitsReadsOnlyTheTraitFiles(): void {
+    $helpers_path = static::$tmp . '/src/Helper';
+    mkdir($helpers_path, 0777, TRUE);
+    file_put_contents($helpers_path . '/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    file_put_contents($helpers_path . '/README.md', 'not code');
+
+    $this->assertSame(['StringTrait'], array_keys(collect_helper_traits(static::$tmp)));
   }
 
   public function testCollectHelperMethodsTakesOnlyDeclaredMembers(): void {
@@ -2689,7 +2761,7 @@ EOD,
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
-    $actual = validate_helpers(extract_helpers($class_name, [], $setup['base_path']));
+    $actual = validate_helpers(extract_helpers([$class_name], [], $setup['base_path']));
 
     $this->assertNotEmpty($actual);
     $this->assertStringContainsString('HelperNoSummaryTrait::helperNoSummaryValue', $actual[0]);
@@ -2698,17 +2770,17 @@ EOD,
   public function testRenderHelpers(): void {
     $base_path = static::$tmp;
     $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Generic', 0777, TRUE);
+    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
     mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
-    file_put_contents($steps_dir . '/Generic/SomeTrait.php', '<?php');
+    file_put_contents($steps_dir . '/Web/SomeTrait.php', '<?php');
     file_put_contents($steps_dir . '/Drupal/OtherTrait.php', '<?php');
 
     $info = [
       'SomeTrait' => [
         'name' => 'SomeTrait',
         'name_contextual' => 'SomeTrait',
-        'context' => 'Generic',
-        'source' => 'src/Steps/Generic/SomeTrait.php',
+        'context' => 'Web',
+        'source' => 'src/Steps/Web/SomeTrait.php',
         'steps_anchor' => 'sometrait',
         'description' => 'Do the generic thing.',
         'helpers' => [
@@ -2730,14 +2802,14 @@ EOD,
 
     $actual = render_helpers($info, $base_path);
 
-    $this->assertStringContainsString('### Index of Generic helpers', $actual);
+    $this->assertStringContainsString('### Index of Web helpers', $actual);
     $this->assertStringContainsString('### Index of Drupal helpers', $actual);
     $this->assertStringContainsString('| [SomeTrait](#sometrait) | 1 | Do the generic thing. |', $actual);
     $this->assertStringContainsString('| [Drupal\\OtherTrait](#drupalothertrait) | 1 | Do the Drupal thing. |', $actual);
 
     // A trait that contributes steps links to them; one that does not links
     // only to its source.
-    $this->assertStringContainsString('[Source](src/Steps/Generic/SomeTrait.php), [Steps](STEPS.md#sometrait)', $actual);
+    $this->assertStringContainsString('[Source](src/Steps/Web/SomeTrait.php), [Steps](STEPS.md#sometrait)', $actual);
     $this->assertStringContainsString('[Source](src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
 
     $this->assertStringContainsString('<summary><code>protected function someValue(): string</code></summary>', $actual);
@@ -2756,8 +2828,8 @@ EOD,
       'SomeTrait' => [
         'name' => 'SomeTrait',
         'name_contextual' => 'SomeTrait',
-        'context' => 'Generic',
-        'source' => 'src/Steps/Generic/MissingTrait.php',
+        'context' => 'Web',
+        'source' => 'src/Steps/Web/MissingTrait.php',
         'steps_anchor' => 'sometrait',
         'description' => 'Do the thing.',
         'helpers' => [],

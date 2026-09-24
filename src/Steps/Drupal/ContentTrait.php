@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
@@ -34,18 +35,18 @@ use Drupal\workflows\Entity\Workflow;
  * contrib `pathauto` module is enabled, automatic alias generation is switched
  * off for the content so that the provided alias is preserved.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait ContentTrait {
-
-  use HelperTrait;
 
   /**
    * Expand fixture file paths for file/image fields on nodes.
    */
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $this->helperExpandEntityFieldsFixtures('node', $scope->getStub());
+    $this->expandEntityFieldsFixtures('node', $scope->getStub());
   }
 
   /**
@@ -81,7 +82,7 @@ trait ContentTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->helperLoadNodeIds($content_type, $node_hash);
+      $nids = $this->loadNodeIds($content_type, $node_hash);
 
       $storage = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $storage->loadMultiple($nids);
@@ -109,8 +110,8 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content with fields exist:')]
   public function contentCreateWithFields(string $content_type, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
     $this->contentCreate($content_type, $horizontal_table);
   }
 
@@ -322,7 +323,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
-    $nids = $this->helperLoadNodeIds($content_type, ['title' => $title]);
+    $nids = $this->loadNodeIds($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
@@ -401,7 +402,7 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
     }
 
-    $nids = $this->helperLoadNodeIds($content_type, [
+    $nids = $this->loadNodeIds($content_type, [
       'title' => $title,
     ]);
 

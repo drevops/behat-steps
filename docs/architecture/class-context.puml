@@ -1,10 +1,11 @@
 @startuml
-' drevops/behat-steps - the context lifecycle, its managers, the helpers and
-' 3 representative step traits, plus the exceptions a failing step throws.
-' Traced from src/Behat/Context/RawContext.php, DrupalContext.php,
-' DriverAwareInterface.php, src/Behat/Manager/, src/Steps/Generic/HelperTrait.php,
-' src/Steps/Drupal/HelperTrait.php, src/Steps/Generic/PathTrait.php,
-' src/Steps/Generic/CommandTrait.php, src/Exception/AssertionException.php.
+' drevops/behat-steps - the context chain, its managers, the helper traits
+' and 3 representative step traits, plus the exceptions a failing step throws.
+' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
+' DrupalContext.php, DriverAwareInterface.php, DrupalApiInterface.php,
+' src/Behat/Manager/, src/Helper/, src/Steps/Web/PathTrait.php,
+' src/Steps/Web/CommandTrait.php, src/Steps/Drupal/ContentTrait.php,
+' src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -14,31 +15,37 @@ skinparam classAttributeIconSize 0
 title Class detail: context, managers, helpers and step traits
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
-  class RawContext {
-    +cleanEntities(scope) : void
-    +cleanUsers(scope) : void
-    +cleanRoles(scope) : void
-    +clearStaticCaches() : void
-    --
+  class WebRawContext {
     +getDriver(name) : DriverInterface
     +driverFor(capability) : object
+    +getRandom() : Random
+    +getOption(group, key, scope) : mixed
     --
-    +nodeCreate(stub) : EntityStubInterface
-    +userCreate(stub) : EntityStubInterface
-    +termCreate(stub) : EntityStubInterface
-    +entityCreate(stub) : EntityStubInterface
-    +languageCreate(stub) : EntityStubInterface|false
-    +entityRegister(entity) : void
-    --
-    +login(user) : void
-    +logout(fast) : void
-    +loggedIn() : bool
-    --
-    #dispatchHooks(scopeClass, stub) : void
+    #skipTag(name, scope) : bool
     #shouldCleanup() : bool
+    #contextConfigDeclarations() : array
+    --
+    composes the 4 web helper traits
   }
-  class DrupalContext
-  RawContext <|-- DrupalContext
+
+  class WebContext {
+    use every Steps\\Web trait
+    --
+    +assertOneContext(scope) : void
+  }
+
+  class DrupalContext {
+    use DrupalApiTrait
+    use every Steps\\Drupal trait
+  }
+
+  interface DrupalApiInterface {
+    the public half of DrupalApiTrait
+  }
+
+  WebRawContext <|-- WebContext
+  WebContext <|-- DrupalContext
+  DrupalApiInterface <|.. DrupalContext
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
@@ -64,55 +71,96 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   }
 }
 
-RawContext o--> DriverManagerInterface
-RawContext o--> AuthenticationManagerInterface
-RawContext o--> UserManagerInterface
+WebRawContext o--> DriverManagerInterface
+WebRawContext o--> AuthenticationManagerInterface
+DrupalContext o--> UserManagerInterface
 
-package "Steps\\Generic" #E8F5E9 {
+package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
+  class RequestHeadersTrait <<trait>> {
+    +setRequestHeader(name, value) : void
+    #unsetRequestHeader(name) : void
+    #getRequestHeaders() : array
+    #resetRequestHeaders() : void
+  }
+  class StringTrait <<trait>> {
+    #fixStepArgument(argument) : string
+    #normalizeWhitespace(text) : string
+    #splitCommaSeparated(text) : array
+    #slug(value) : string
+  }
+  class LastStepTrait <<trait>> {
+    #setLastStepLine(scope) : void
+    #isLastStep(scope) : bool
+  }
+  class JavascriptSupportTrait <<trait>> {
+    +isJavascriptSupported() : bool
+  }
+  class DrupalApiTrait <<trait>> {
+    +nodeCreate(stub) : EntityStubInterface
+    +userCreate(stub) : EntityStubInterface
+    +termCreate(stub) : EntityStubInterface
+    +entityCreate(stub) : EntityStubInterface
+    +languageCreate(stub) : EntityStubInterface|false
+    +entityRegister(entity) : void
+    --
+    +cleanEntities(scope) : void
+    +cleanUsers(scope) : void
+    +cleanRoles(scope) : void
+    +clearStaticCaches() : void
+    --
+    +login(user) : void
+    +logout(fast) : void
+    +loggedIn() : bool
+    --
+    +loadNodeIds(content_type, conditions) : array
+    +assertModuleEnabled(module, package) : void
+    +expandEntityFieldsFixtures(entity_type, stub) : void
+    +transposeVerticalTable(table) : array
+    +buildHorizontalTable(entities) : TableNode
+    --
+    #dispatchHooks(scopeClass, stub) : void
+  }
+
+  RequestHeadersTrait -[hidden]down- StringTrait
+  StringTrait -[hidden]down- LastStepTrait
+  LastStepTrait -[hidden]down- JavascriptSupportTrait
+  JavascriptSupportTrait -[hidden]down- DrupalApiTrait
+}
+
+package "Steps\\Web" #E8F5E9 {
   class PathTrait <<trait>> {
-    +pathSetBasicAuth(username, password) : void
     +pathVisit(path) : void
     +pathGoBack() : void
     +pathAssertCurrent(path) : void
-    +pathAssertNotCurrent(path) : bool
     +pathAssertUrlHasParameter(param) : void
-    +pathAssertUrlNotHasParameter(param) : void
   }
 
   class CommandTrait <<trait>> {
-    +commandBeforeScenario(scope) : void
     +commandRun(command) : void
     +commandAssertSuccess() : void
-    +commandAssertFailure() : void
     +commandAssertExitCode(code) : void
     +commandAssertOutputContains(text) : void
-  }
-
-  class HelperTrait <<trait>> #F3E5F5 {
-    #helperSetRequestHeader(name, value) : void
-    #helperGetRequestHeaders() : array
-    #helperIsLastStep(scope) : bool
-    #helperTransposeVerticalTable(table) : array
-    #helperBuildHorizontalTable(entities) : TableNode
-    #helperNormalizeWhitespace(text) : string
-    #helperSplitCommaSeparated(text) : array
-    #helperSlug(value) : string
-    #helperIsJavascriptSupported() : bool
   }
 }
 
 package "Steps\\Drupal" #E3F2FD {
   class ContentTrait <<trait>>
-
-  class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5 {
-    #helperExpandEntityFieldsFixtures(entity_type, stub) : void
-    #helperExpandCompoundCellFixtures(value, fixture_path) : string
-    #helperResolveFixtureFile(value, fixture_path) : ?string
-    #helperManagedFileExists(basename) : bool
-    #helperLoadNodeIds(content_type, conditions) : array
-    #helperAssertModuleEnabled(module, package) : void
-  }
 }
+
+WebRawContext ..> RequestHeadersTrait : composes
+WebRawContext ..> StringTrait : composes
+WebRawContext ..> LastStepTrait : composes
+WebRawContext ..> JavascriptSupportTrait : composes
+DrupalContext ..> DrupalApiTrait : composes
+
+PathTrait ..> WebRawContext : requires
+ContentTrait ..> WebRawContext : requires
+ContentTrait ..> DrupalApiInterface : requires
+
+PathTrait ..> ExpectationException : throws
+ContentTrait ..> ExpectationException : throws
+CommandTrait ..> AssertionException : throws
+CommandTrait ..> RuntimeException : throws
 
 package "Thrown on failure" #FFEBEE {
   class ExpectationException {
@@ -137,16 +185,6 @@ package "Thrown on failure" #FFEBEE {
   ExpectationException <|-- ElementNotFoundException
 }
 
-PathTrait ..> RawContext : requires
-ContentTrait ..> RawContext : requires
-PathTrait ..> HelperTrait
-ContentTrait ..> DrupalHelperTrait
-
-PathTrait ..> ExpectationException : throws
-ContentTrait ..> ExpectationException : throws
-CommandTrait ..> AssertionException : throws
-CommandTrait ..> RuntimeException : throws
-
 note right of CommandTrait
   Never calls getSession(), so it cannot
   pass a driver to ExpectationException.
@@ -154,14 +192,20 @@ note right of CommandTrait
   and declares only RawMinkContext.
 end note
 
-note bottom of RawContext
+note bottom of DrupalApiTrait
   Entity, user and role cleanup live here,
-  not in a trait: the context owns the whole
-  scenario lifecycle and dispatches the
+  not in a step trait: this trait owns the whole
+  Drupal scenario lifecycle and dispatches the
   before/after entity-create hooks.
 
   A step names a capability through driverFor()
   and never a driver, so the vocabulary carries
   over to a driver a project registers itself.
+end note
+
+note bottom of RequestHeadersTrait
+  A helper trait composed by a step trait and by
+  the context under it holds one property slot,
+  so both reach the same state.
 end note
 @enduml

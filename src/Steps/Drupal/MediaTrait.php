@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\media\Entity\Media;
@@ -23,11 +24,11 @@ use Drupal\media\MediaInterface;
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait MediaTrait {
-
-  use HelperTrait;
 
   /**
    * Remove media type.
@@ -85,8 +86,8 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media with fields exist:')]
   public function mediaCreateWithFields(string $media_type, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
 
     $this->mediaDelete($media_type, $horizontal_table);
 
@@ -340,7 +341,7 @@ trait MediaTrait {
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
-    $this->helperExpandEntityFieldsFixtures('media', $stub);
+    $this->expandEntityFieldsFixtures('media', $stub);
   }
 
   /**

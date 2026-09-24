@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Context whose declaration lists its tags as a scalar.
  */
-class MistaggedConfigContext extends RawContext {
+class MistaggedConfigContext extends WebRawContext {
 
   /**
    * Declares an option whose tags are not a map.

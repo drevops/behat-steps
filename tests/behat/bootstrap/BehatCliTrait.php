@@ -28,10 +28,17 @@ trait BehatCliTrait {
    * @var array<int, string>
    */
   protected const BEHAT_CLI_BASELINE_TRAITS = [
-    'Generic\PathTrait',
+    'Web\PathTrait',
     'Drupal\ContentTrait',
     'Drupal\UserTrait',
   ];
+
+  /**
+   * Traits the generated class composes whatever the tag names.
+   *
+   * @var array<int, string>
+   */
+  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\DrupalApiTrait'];
 
   /**
    * Message selectors every generated configuration declares.
@@ -123,16 +130,18 @@ trait BehatCliTrait {
 
     foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
       // A tag names the trait's context and short name, as in
-      // 'Drupal\ModuleTrait'. A tag with no context names a generic trait.
-      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Generic\\' . $trait;
+      // 'Drupal\ModuleTrait'. A tag with no context names a web trait.
+      $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Web\\' . $trait;
     }
 
-    foreach (array_unique($qualified_traits) as $qualified) {
+    foreach (array_diff(array_unique($qualified_traits), static::BEHAT_CLI_INHERENT_TRAITS) as $qualified) {
       // Two contexts can hold the same short name, so each import carries a
       // context-qualified alias and one tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
+      // A 'Helper\' tag names a trait outside the vocabulary subtree.
+      $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use DrevOps\\BehatSteps\\Steps\\%s as %s;' . PHP_EOL, $qualified, $alias);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf('use %s%s as %s;' . PHP_EOL, $root, $qualified, $alias);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
     }
 
@@ -141,11 +150,18 @@ trait BehatCliTrait {
 
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 {{USE_DECLARATION}}
 
-class FeatureContext extends RawContext {
+// A trait tag names a trait from either half, and the generated class composes
+// only the traits under test, so it starts from the step-free root and adds the
+// Drupal lifecycle a Drupal trait requires.
+class FeatureContext extends WebRawContext implements DrupalApiInterface {
+  use DrupalApiTrait;
+
   {{USE_IN_CLASS}}
 
   use FeatureContextTrait;
@@ -174,12 +190,13 @@ EOL;
     $filename = 'features/bootstrap/FeatureContext.php';
     $this->createFileInWorkingDir($filename, $content);
 
-    $feature_context_trait_content = file_get_contents(__DIR__ . '/FeatureContextTrait.php');
-    if ($feature_context_trait_content === FALSE) {
+    $trait_content = file_get_contents(__DIR__ . '/FeatureContextTrait.php');
+
+    if ($trait_content === FALSE) {
       throw new \RuntimeException(sprintf('Unable to access file "%s"', __DIR__ . '/FeatureContextTrait.php'));
     }
-    $feature_context_trait = 'features/bootstrap/FeatureContextTrait.php';
-    $this->createFileInWorkingDir($feature_context_trait, $feature_context_trait_content);
+
+    $this->createFileInWorkingDir('features/bootstrap/FeatureContextTrait.php', $trait_content);
 
     if (static::behatCliIsDebug()) {
       static::behatCliPrintFileContents($filename, 'FeatureContext.php');

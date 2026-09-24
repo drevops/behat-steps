@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
@@ -18,11 +19,11 @@ use Drupal\system\MenuInterface;
  * - Create and remove menu links, including parent-child hierarchies.
  * - Created menus and menu links are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait MenuTrait {
-
-  use HelperTrait;
 
   /**
    * Remove a single menu by its label if it exists.
@@ -82,7 +83,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
-    $this->helperAssertModuleEnabled('menu_link_content');
+    $this->assertModuleEnabled('menu_link_content');
 
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->menuLoadLinkByTitle($title, $menu_name);
@@ -106,7 +107,7 @@ trait MenuTrait {
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('menu_link_content');
+    $this->assertModuleEnabled('menu_link_content');
 
     $menu = $this->menuLoadByLabel($menu_name);
 

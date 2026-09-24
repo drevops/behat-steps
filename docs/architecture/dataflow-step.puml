@@ -1,7 +1,8 @@
 @startuml
 ' drevops/behat-steps - data flow for a step running in a consuming project.
-' Traced from src/Steps/Generic/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
-' src/Behat/Context/RawContext.php, src/Behat/Manager/DriverManager.php,
+' Traced from src/Steps/Web/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
+' src/Behat/Context/WebRawContext.php, WebContext.php, src/Helper/DrupalApiTrait.php,
+' DrupalContext.php, src/Behat/Manager/DriverManager.php,
 ' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -12,7 +13,7 @@ title Data flow: a step runs
 
 participant "Feature file" as Feature
 participant "Behat" as Behat
-participant "FeatureContext\nextends RawContext" as Ctx
+participant "WebContext\nDrupalContext" as Ctx
 participant "Step trait method" as Trait
 participant "DriverListener" as Listener
 participant "DriverManager" as DM
@@ -25,7 +26,7 @@ Listener -> Listener: take the configured drivers list,\npromote every "@driver:
 Listener -> DM: setScenarioDrivers(order)
 deactivate Listener
 
-Behat -> Ctx: instantiate, inject managers via DriverAwareInitializer
+Behat -> Ctx: instantiate each registered context,\ninject managers via DriverAwareInitializer
 activate Ctx
 Behat -> Ctx: scan the Given, When and Then step attributes
 note right of Behat: attributes inherited\nthrough "use" are\nfound too
@@ -70,7 +71,7 @@ deactivate Behat
 
 Behat -> Ctx: AfterScenario
 activate Ctx
-Ctx -> Ctx: cleanEntities, cleanUsers, cleanRoles
+Ctx -> Ctx: DrupalApiTrait runs cleanEntities,\ncleanUsers and cleanRoles
 Ctx -> Driver: delete what the scenario created
 deactivate Ctx
 @enduml

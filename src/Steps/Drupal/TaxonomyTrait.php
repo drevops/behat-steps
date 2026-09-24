@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -20,11 +21,11 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Navigate to term pages
  * - Verify vocabulary configurations.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait TaxonomyTrait {
-
-  use HelperTrait;
 
   /**
    * Create taxonomy terms with vertical field format.
@@ -45,8 +46,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms with fields exist:')]
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
     $this->taxonomyCreate($vocabulary, $horizontal_table);
   }
 

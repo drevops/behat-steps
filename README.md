@@ -54,7 +54,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 
 ## Available steps
 
-### Index of Generic steps
+### Index of Web steps
 
 | Class | Description |
 | --- | --- |
@@ -150,32 +150,37 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 
 ## 🚀 Quick start
 
-### 1. Compose the vocabulary you need
+### 1. Register the vocabulary you need
 
-Add required traits to your
-`FeatureContext.php` ([example](tests/behat/bootstrap/FeatureContext.php)):
+The vocabulary sits on one chain. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly one of them:
+
+```php
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(DrupalContext::class);
+```
+
+Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice.
+
+That needs no PHP of your own. To pick your own traits instead, extend the root context and compose them ([example](tests/behat/bootstrap/FeatureContext.php)):
 
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
-use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawContext {
+class FeatureContext extends WebRawContext {
 
   use CookieTrait;
 
 }
 ```
 
-`RawContext` registers no steps of its own: it owns the scenario lifecycle -
-driver access, authentication, entity creation and cleanup - and you compose the
-vocabulary you want on top. For a suite that needs no PHP at all, register
-`DrevOps\BehatSteps\Behat\Context\DrupalContext` instead, which is `RawContext`
-plus a curated set of the broadly-safe traits.
+`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and the 4 web helper traits. A context that wants the Drupal entity lifecycle, login and cleanup without the Drupal vocabulary composes `DrupalApiTrait` and declares `DrupalApiInterface`. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 
@@ -190,11 +195,12 @@ use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(FeatureContext::class);
+  ->addContext(DrupalContext::class);
 
 $profile = (new Profile('default'))
   ->withSuite($suite)
@@ -296,7 +302,7 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Generic\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 
@@ -347,10 +353,10 @@ To keep only entities of a **named type**, add
 This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
-- **Helpers** - every public method the step traits and `RawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
+- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
 - **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
-- **Context base classes** - `RawContext` and `DrupalContext`, which a project extends.
+- **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
 Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Driver` and `src/Behat` that none of the surfaces above exposes.
 

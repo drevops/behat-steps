@@ -1,8 +1,8 @@
 @startuml
-' drevops/behat-steps - the step vocabulary and the context it mixes into.
-' Traced from src/Steps/Generic/, src/Steps/Drupal/,
-' src/Behat/Context/RawContext.php, src/Behat/Context/DrupalContext.php,
-' src/Behat/Context/DriverAwareInterface.php,
+' drevops/behat-steps - the step vocabulary and the contexts it mixes into.
+' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/,
+' src/Behat/Context/WebRawContext.php, WebContext.php, DrupalContext.php,
+' DriverAwareInterface.php, DrupalApiInterface.php,
 ' tests/behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -23,54 +23,61 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   interface DriverAwareInterface
-  class RawContext {
-    scenario lifecycle
+  interface DrupalApiInterface
+  class WebRawContext {
+    driver access, configuration,
+    the 4 web helper traits, no steps
   }
-  class DrupalContext
+  class WebContext {
+    use every Steps\\Web trait
+  }
+  class DrupalContext {
+    use DrupalApiTrait
+    use every Steps\\Drupal trait
+  }
 }
 
-class FeatureContext #FFF3E0 {
+class "Own context" as Consumer #FFF3E0 {
   written by the consuming project
   --
   use <any of the traits below>
 }
 
-RawMinkContext <|-- RawContext
-DriverAwareInterface <|.. RawContext
-RawContext <|-- DrupalContext
-RawContext <|-- FeatureContext
+RawMinkContext <|-- WebRawContext
+DriverAwareInterface <|.. WebRawContext
+DrupalApiInterface <|.. DrupalContext
+WebRawContext <|-- WebContext
+WebContext <|-- DrupalContext
+WebRawContext <|-- Consumer
 
-package "DrevOps\\BehatSteps\\Steps\\Generic" #E8F5E9 {
-  class HelperTrait <<trait>> #F3E5F5
-
+package "DrevOps\\BehatSteps\\Steps\\Web" #E8F5E9 {
   class AccessibilityTrait <<trait>>
   class BasicAuthTrait <<trait>>
   class CommandTrait <<trait>>
   class CookieTrait <<trait>>
   class DateTrait <<trait>>
   class DiagnosticsTrait <<trait>>
-
   class DropzoneTrait <<trait>>
+
   class ElementTrait <<trait>>
   class FieldTrait <<trait>>
   class FileDownloadTrait <<trait>>
   class IframeTrait <<trait>>
   class JavascriptTrait <<trait>>
-
   class JsonTrait <<trait>>
   class KeyboardTrait <<trait>>
+
   class LinkTrait <<trait>>
   class MappingTrait <<trait>>
   class MessageTrait <<trait>>
   class MetatagTrait <<trait>>
-
   class ModalTrait <<trait>>
   class PathTrait <<trait>>
   class RandomTrait <<trait>>
+
   class RegionTrait <<trait>>
   class ResponseTrait <<trait>>
   class ResponsiveTrait <<trait>>
-
   class RestTrait <<trait>>
   class TableTrait <<trait>>
   class WaitTrait <<trait>>
@@ -81,34 +88,31 @@ package "DrevOps\\BehatSteps\\Steps\\Generic" #E8F5E9 {
   CommandTrait -[hidden]down- CookieTrait
   CookieTrait -[hidden]down- DateTrait
   DateTrait -[hidden]down- DiagnosticsTrait
+  DiagnosticsTrait -[hidden]down- DropzoneTrait
 
-  DropzoneTrait -[hidden]down- ElementTrait
   ElementTrait -[hidden]down- FieldTrait
   FieldTrait -[hidden]down- FileDownloadTrait
   FileDownloadTrait -[hidden]down- IframeTrait
   IframeTrait -[hidden]down- JavascriptTrait
-
+  JavascriptTrait -[hidden]down- JsonTrait
   JsonTrait -[hidden]down- KeyboardTrait
-  KeyboardTrait -[hidden]down- LinkTrait
+
   LinkTrait -[hidden]down- MappingTrait
   MappingTrait -[hidden]down- MessageTrait
   MessageTrait -[hidden]down- MetatagTrait
-
+  MetatagTrait -[hidden]down- ModalTrait
   ModalTrait -[hidden]down- PathTrait
   PathTrait -[hidden]down- RandomTrait
-  RandomTrait -[hidden]down- RegionTrait
+
   RegionTrait -[hidden]down- ResponseTrait
   ResponseTrait -[hidden]down- ResponsiveTrait
-
+  ResponsiveTrait -[hidden]down- RestTrait
   RestTrait -[hidden]down- TableTrait
   TableTrait -[hidden]down- WaitTrait
   WaitTrait -[hidden]down- XmlTrait
-  XmlTrait -[hidden]down- HelperTrait
 }
 
 package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
-  class "HelperTrait" as DrupalHelperTrait <<trait>> #F3E5F5
-
   class BatchTrait <<trait>>
   class BigPipeTrait <<trait>>
   class BlockTrait <<trait>>
@@ -171,16 +175,33 @@ package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
   TimeTrait -[hidden]down- UserTrait
   UserTrait -[hidden]down- WatchdogTrait
   WatchdogTrait -[hidden]down- WebformTrait
-  WebformTrait -[hidden]down- DrupalHelperTrait
 }
 
-note bottom of FeatureContext
-  A consuming project mixes in only the traits it needs.
-  Each trait declares what it needs from its host with
-  @phpstan-require-extends: RawContext for the driver,
-  RawMinkContext for a Mink session only.
+package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
+  class LastStepTrait <<trait>>
+  class RequestHeadersTrait <<trait>>
+  class StringTrait <<trait>>
+  class JavascriptSupportTrait <<trait>>
+  class DrupalApiTrait <<trait>>
 
-  Step traits never use other step traits. Each namespace
-  has its own step-free HelperTrait for shared logic.
+  LastStepTrait -[hidden]down- RequestHeadersTrait
+  RequestHeadersTrait -[hidden]down- StringTrait
+  StringTrait -[hidden]down- JavascriptSupportTrait
+  JavascriptSupportTrait -[hidden]down- DrupalApiTrait
+}
+
+note bottom of Consumer
+  A consuming project extends DrupalContext or WebContext for
+  the whole vocabulary, or extends WebRawContext and mixes in
+  only the traits it needs. Each trait declares what it needs
+  from its host with @phpstan-require-extends: WebRawContext
+  for the driver, RawMinkContext for a Mink session only, and
+  a Drupal trait adds @phpstan-require-implements naming
+  DrupalApiInterface.
+
+  Step traits never use other step traits. Shared logic lives
+  in the concern-named helper traits, composed by whichever
+  step traits and contexts need it. A #[Steps] marker names a
+  trait that registers Gherkin and #[Helper] one that does not.
 end note
 @enduml

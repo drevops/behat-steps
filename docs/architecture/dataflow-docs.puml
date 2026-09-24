@@ -17,23 +17,23 @@ title Data flow: reference documentation generation
 participant "ahoy update-docs\nahoy lint-docs" as Dev
 participant "docs.php main()" as Main
 participant "collect_step_traits()" as Collect
-participant "Test FeatureContext" as Ctx
+participant "WebContext\nDrupalContext" as Ctx
 participant "extract_info()\nextract_helpers()" as Extract
 participant "validate()\nvalidate_helpers()\nvalidate_tags()\nvalidate_env_vars()" as Validate
 participant "render_info()\nrender_helpers()\nrender_extension_options()\nrender_tag_reference()" as Render
 
 Dev -> Main: php docs.php [~--fail-on-change]
 activate Main
-Main -> Main: require build/vendor/autoload.php\nand the FeatureContext bootstrap
+Main -> Main: require build/vendor/autoload.php
 
-Main -> Collect: collect_step_traits(FeatureContext::class)
+Main -> Collect: collect_step_traits([WebContext::class, DrupalContext::class])
 activate Collect
-Collect -> Ctx: ReflectionClass::getTraits()
+Collect -> Ctx: ReflectionClass::getTraits() on each
 activate Ctx
 Ctx --> Collect: every composed trait
 deactivate Ctx
 Collect -> Collect: scan src/Steps/<context>/ for files\nthat declare a trait, and match them off
-Collect -> Collect: derive Generic or Drupal\nfrom the src/Steps subdirectory
+Collect -> Collect: derive Web or Drupal\nfrom the src/Steps subdirectory
 
 alt a trait file was never composed in
   Collect -> Main: throw Exception(not found in the class)

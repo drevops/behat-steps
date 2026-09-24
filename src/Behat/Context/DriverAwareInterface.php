@@ -8,7 +8,6 @@ use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 
 /**
@@ -41,19 +40,6 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    *   Injection point called by the context initializer.
    */
   public function setDispatcher(HookDispatcher $dispatcher): void;
-
-  /**
-   * Sets the user manager.
-   *
-   * @internal
-   *   Injection point called by the context initializer.
-   */
-  public function setUserManager(UserManagerInterface $user_manager): void;
-
-  /**
-   * Returns the user manager.
-   */
-  public function getUserManager(): UserManagerInterface;
 
   /**
    * Sets the authentication manager.

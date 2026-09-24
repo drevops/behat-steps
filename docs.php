@@ -25,7 +25,10 @@ declare(strict_types=1);
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Attribute\Steps;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -52,6 +55,14 @@ const FIRST_PERSON = '/\b(I|[Mm]y|[Mm]e|[Mm]yself|[Ww]e|[Uu]s|[Oo]ur)\b/';
 const STEPS_DIRECTORY = 'src/Steps';
 
 /**
+ * Context whose traits are named and sorted without their context prefix.
+ *
+ * Its traits head the index and their example features carry no name prefix,
+ * so the documents read for the steps a suite reaches first.
+ */
+const DEFAULT_CONTEXT = 'Web';
+
+/**
  * Attribute namespaces that mark a method as registered with Behat.
  *
  * A method carrying one of these is a step, a hook or a transformation, so it
@@ -65,12 +76,17 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
 ];
 
 /**
+ * Directory holding the helper traits, relative to the repository root.
+ */
+const HELPERS_DIRECTORY = 'src/Helper';
+
+/**
  * Classes published in the toolbox reference alongside the step traits.
  *
- * A context base class contributes the scenario lifecycle a domain step is
- * written against, so that lifecycle is part of the toolbox too.
+ * The root context contributes the driver access and the scenario plumbing a
+ * domain step is written against, so that surface is part of the toolbox too.
  */
-const TOOLBOX_CLASSES = [RawContext::class];
+const TOOLBOX_CLASSES = [WebRawContext::class];
 
 /**
  * File holding the toolbox reference, relative to the repository root.
@@ -103,12 +119,10 @@ function main(array $options = []): void {
   $base_path = is_string($options['path'] ?? NULL) ? $options['path'] : __DIR__;
 
   require_once $base_path . '/build/vendor/autoload.php';
-  require_once $base_path . '/tests/behat/bootstrap/FeatureContextTrait.php';
-  require_once $base_path . '/tests/behat/bootstrap/FeatureContext.php';
 
-  $exclude = [FeatureContextTrait::class, 'HelperTrait'];
-  $info = extract_info(FeatureContext::class, $exclude, $base_path);
-  $helpers = extract_helpers(FeatureContext::class, $exclude, $base_path);
+  $contexts = [WebContext::class, DrupalContext::class];
+  $info = extract_info($contexts, [], $base_path);
+  $helpers = extract_helpers($contexts, [], $base_path);
 
   $errors = validate($info);
   $errors = array_merge($errors, validate_helpers($helpers));
@@ -201,26 +215,26 @@ function file_declares_trait(string $file_path): bool {
 }
 
 /**
- * Collect the vocabulary traits composed into a class.
+ * Collect the vocabulary traits composed into the given classes.
  *
  * Every trait declared under the vocabulary directory has to be composed into
- * the class, so that a reference document covers the whole vocabulary rather
- * than the part one context happens to use.
+ * one of the classes, so that a reference document covers the whole vocabulary
+ * rather than the part one context happens to use.
  *
- * @param class-string $class_name
- *   The class name.
+ * @param array<int, class-string> $class_names
+ *   The classes documenting the vocabulary, one per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string, array{reflection: \ReflectionClass<object>, context: string}>
- *   The trait reflection and its context, keyed by trait short name and sorted
- *   by that name.
+ * @return array<string, array{reflection: \ReflectionClass<object>, context: string, host: class-string}>
+ *   The trait reflection, its context and the class composing it, keyed by
+ *   trait short name and sorted by that name.
  *
  * @throws \ReflectionException
  */
-function collect_step_traits(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
+function collect_step_traits(array $class_names, array $exclude = [], string $base_path = __DIR__): array {
   $traits_path = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
   $traits_files = [];
 
@@ -243,51 +257,99 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
     sort($traits_files);
   }
 
-  $reflection = new \ReflectionClass($class_name);
-  $traits = $reflection->getTraits();
-  usort(
-    $traits,
-    static fn(\ReflectionClass $a, \ReflectionClass $b): int => strcasecmp($a->getShortName(), $b->getShortName())
-  );
-
   $collected = [];
-  foreach ($traits as $trait) {
-    $trait_name = $trait->getShortName();
 
-    if (in_array($trait_name, $traits_files, TRUE)) {
-      unset($traits_files[array_search($trait_name, $traits_files, TRUE)]);
+  foreach ($class_names as $class_name) {
+    $reflection = new \ReflectionClass($class_name);
+
+    foreach ($reflection->getTraits() as $trait) {
+      // A context composes helper traits beside the vocabulary, and only the
+      // vocabulary belongs in the step reference.
+      if ($trait->getAttributes(Steps::class) === []) {
+        continue;
+      }
+
+      $trait_name = $trait->getShortName();
+
+      if (in_array($trait_name, $traits_files, TRUE)) {
+        unset($traits_files[array_search($trait_name, $traits_files, TRUE)]);
+      }
+
+      if (in_array($trait_name, $exclude, TRUE)) {
+        continue;
+      }
+
+      $trait_file_path = $trait->getFileName();
+
+      // @codeCoverageIgnoreStart
+      if (!$trait_file_path) {
+        throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
+      }
+      // @codeCoverageIgnoreEnd
+      $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
+      // The directory a trait sits in under the vocabulary root is its context.
+      $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
+
+      $collected[$trait_name] = ['reflection' => $trait, 'context' => $context, 'host' => $class_name];
     }
-
-    if (in_array($trait_name, $exclude, TRUE)) {
-      continue;
-    }
-
-    $trait_file_path = $trait->getFileName();
-
-    // @codeCoverageIgnoreStart
-    if (!$trait_file_path) {
-      throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
-    }
-    // @codeCoverageIgnoreEnd
-    $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
-    // The directory a trait sits in under the vocabulary root is its context.
-    $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
-
-    $collected[$trait_name] = ['reflection' => $trait, 'context' => $context];
   }
 
   if (!empty($traits_files)) {
     throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
   }
 
+  uksort($collected, strcasecmp(...));
+
   return $collected;
 }
 
 /**
- * Parse info from the class.
+ * Collect the helper traits the package publishes.
  *
- * @param class-string $class_name
- *   The class name.
+ * Every trait of the directory is published. 'scripts/lint-markers.php' holds
+ * each one to the 'Helper' marker, so the scan reads the directory rather
+ * than repeating that check.
+ *
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string, \ReflectionClass<object>>
+ *   The trait reflections, keyed by short name and sorted by that name.
+ *
+ * @throws \ReflectionException
+ */
+function collect_helper_traits(string $base_path = __DIR__): array {
+  $helpers_path = $base_path . DIRECTORY_SEPARATOR . HELPERS_DIRECTORY;
+  $collected = [];
+
+  if (!is_dir($helpers_path)) {
+    return $collected;
+  }
+
+  foreach (scandir($helpers_path) ?: [] as $file) {
+    $file_path = $helpers_path . DIRECTORY_SEPARATOR . $file;
+
+    if (!is_file($file_path) || !file_declares_trait($file_path)) {
+      continue;
+    }
+
+    $short_name = basename($file, '.php');
+    /** @var class-string $trait_name */
+    $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $short_name;
+
+    $collected[$short_name] = new \ReflectionClass($trait_name);
+  }
+
+  uksort($collected, strcasecmp(...));
+
+  return $collected;
+}
+
+/**
+ * Parse info from the classes.
+ *
+ * @param array<int, class-string> $class_names
+ *   The classes documenting the vocabulary, one per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
@@ -299,19 +361,19 @@ function collect_step_traits(string $class_name, array $exclude = [], string $ba
  *
  * @throws \ReflectionException
  */
-function extract_info(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
+function extract_info(array $class_names, array $exclude = [], string $base_path = __DIR__): array {
   $info = [];
 
-  foreach (collect_step_traits($class_name, $exclude, $base_path) as $trait_name => $collected) {
+  foreach (collect_step_traits($class_names, $exclude, $base_path) as $trait_name => $collected) {
     $trait = $collected['reflection'];
     $context = $collected['context'];
 
     $class_info = [
       'name' => $trait_name,
-      'name_contextual' => ($context !== 'Generic' ? $context . '\\' : '') . $trait_name,
+      'name_contextual' => ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name,
       'context' => $context,
       'methods' => [],
-      'options' => extract_trait_options($class_name, $trait_name),
+      'options' => extract_trait_options($collected['host'], $trait_name),
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
@@ -833,8 +895,8 @@ function heading_anchor(string $name): string {
  * A helper is a method a project calls from its own domain steps: one carrying
  * no Behat attribute and no '@internal' tag.
  *
- * @param class-string $class_name
- *   The class name.
+ * @param array<int, class-string> $class_names
+ *   The classes documenting the vocabulary, one per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
@@ -846,10 +908,10 @@ function heading_anchor(string $name): string {
  *
  * @throws \ReflectionException
  */
-function extract_helpers(string $class_name, array $exclude = [], string $base_path = __DIR__): array {
+function extract_helpers(array $class_names, array $exclude = [], string $base_path = __DIR__): array {
   $info = [];
 
-  foreach (collect_step_traits($class_name, $exclude, $base_path) as $trait_name => $collected) {
+  foreach (collect_step_traits($class_names, $exclude, $base_path) as $trait_name => $collected) {
     $trait = $collected['reflection'];
     $context = $collected['context'];
 
@@ -858,7 +920,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
       continue;
     }
 
-    $name_contextual = ($context !== 'Generic' ? $context . '\\' : '') . $trait_name;
+    $name_contextual = ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name;
 
     $class_info = [
       'name' => $trait_name,
@@ -873,11 +935,33 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
     $info[$trait_name] = $class_info;
   }
 
+  foreach (collect_helper_traits($base_path) as $trait_name => $trait) {
+    $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
+    // @codeCoverageIgnoreStart
+    if ($helpers === []) {
+      continue;
+    }
+    // @codeCoverageIgnoreEnd
+    $class_info = [
+      'name' => $trait_name,
+      'name_contextual' => $trait_name,
+      'context' => 'Toolbox',
+      'source' => sprintf('%s/%s.php', HELPERS_DIRECTORY, $trait_name),
+      'steps_anchor' => NULL,
+      'helpers' => $helpers,
+    ];
+    $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
+
+    $info[$trait_name] = $class_info;
+  }
+
   foreach (TOOLBOX_CLASSES as $toolbox_class) {
     $reflection = new \ReflectionClass($toolbox_class);
     $short_name = $reflection->getShortName();
 
-    $helpers = collect_helper_methods($reflection);
+    // A composed helper trait is published under its own name, so the context
+    // reports only what its own file declares.
+    $helpers = collect_helper_methods($reflection, NULL, (string) $reflection->getFileName());
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
@@ -886,7 +970,7 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
     $class_info = [
       'name' => $short_name,
       'name_contextual' => $short_name,
-      'context' => 'Context',
+      'context' => 'Toolbox',
       'source' => relative_source_path((string) $reflection->getFileName(), $base_path),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
@@ -897,6 +981,41 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
   }
 
   return $info;
+}
+
+/**
+ * List the contracts a helper trait answers to.
+ *
+ * A trait cannot implement an interface, so the class composing it declares
+ * the contract instead. A trait method carrying '{@inheritdoc}' is documented
+ * on that interface rather than on the trait.
+ *
+ * @param \ReflectionClass<object> $trait
+ *   The helper trait.
+ * @param array<int, class-string> $class_names
+ *   The classes documenting the vocabulary.
+ *
+ * @return array<int, \ReflectionClass<object>>
+ *   The interfaces of every given class composing the trait.
+ *
+ * @throws \ReflectionException
+ */
+function helper_trait_contracts(\ReflectionClass $trait, array $class_names): array {
+  $contracts = [];
+
+  foreach ($class_names as $class_name) {
+    $reflection = new \ReflectionClass($class_name);
+
+    if (!isset($reflection->getTraits()[$trait->getName()])) {
+      continue;
+    }
+
+    foreach ($reflection->getInterfaces() as $interface) {
+      $contracts[$interface->getName()] = $interface;
+    }
+  }
+
+  return array_values($contracts);
 }
 
 /**
@@ -911,15 +1030,25 @@ function extract_helpers(string $class_name, array $exclude = [], string $base_p
  * @param string|null $prefix
  *   Method name prefix to require, or NULL to take every method the class
  *   declares itself.
+ * @param string|null $source_file
+ *   Absolute path a method has to be declared in, or NULL to accept any. A
+ *   method flattened in from a trait keeps the trait's file name.
+ * @param array<int, \ReflectionClass<object>> $contracts
+ *   Interfaces to resolve an inherited docblock against. A trait declares no
+ *   interface of its own, so its contract has to be named from outside.
  *
  * @return array<int, array<string, string>>
  *   Helper entries with 'name', 'signature', 'description' and 'example',
  *   sorted by name.
  */
-function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL): array {
+function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL, ?string $source_file = NULL, array $contracts = []): array {
   $helpers = [];
 
   foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+    if ($source_file !== NULL && $method->getFileName() !== $source_file) {
+      continue;
+    }
+
     if ($prefix === NULL) {
       if ($method->getDeclaringClass()->getName() !== $reflection->getName()) {
         continue;
@@ -933,7 +1062,7 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
       continue;
     }
 
-    $comment = resolve_inherited_comment($method);
+    $comment = resolve_inherited_comment($method, $contracts);
     if (comment_is_internal($comment)) {
       continue;
     }
@@ -957,12 +1086,15 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
  *
  * @param \ReflectionMethod $method
  *   The reflection method.
+ * @param array<int, \ReflectionClass<object>> $contracts
+ *   Further classes or interfaces to search, ahead of the ones the declaring
+ *   class states itself.
  *
  * @return string
  *   The docblock that carries the description, or the method's own when the
  *   declaration it inherits from has none.
  */
-function resolve_inherited_comment(\ReflectionMethod $method): string {
+function resolve_inherited_comment(\ReflectionMethod $method, array $contracts = []): string {
   $comment = (string) $method->getDocComment();
 
   if (stripos($comment, '{@inheritdoc}') === FALSE) {
@@ -970,7 +1102,7 @@ function resolve_inherited_comment(\ReflectionMethod $method): string {
   }
 
   $declaring = $method->getDeclaringClass();
-  $candidates = array_values($declaring->getInterfaces());
+  $candidates = array_merge($contracts, array_values($declaring->getInterfaces()));
 
   $parent = $declaring->getParentClass();
   if ($parent instanceof \ReflectionClass) {
@@ -1042,10 +1174,9 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     }
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-    // @phpstan-ignore-next-line
-    $prefix = strtolower($context) !== 'generic'
+    $prefix = $context !== DEFAULT_CONTEXT
       // @phpstan-ignore-next-line
-      ? strtolower($context) . '_'
+      ? strtolower((string) $context) . '_'
       : '';
     $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
     $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
@@ -1171,10 +1302,10 @@ EOT;
     }
   }
 
-  $index_rows['Generic'] ??= [];
+  $index_rows[DEFAULT_CONTEXT] ??= [];
   $index_rows = array_merge(
-    ['Generic' => $index_rows['Generic']],
-    array_diff_key($index_rows, ['Generic' => []])
+    [DEFAULT_CONTEXT => $index_rows[DEFAULT_CONTEXT]],
+    array_diff_key($index_rows, [DEFAULT_CONTEXT => []])
   );
 
   $index_output = '';
@@ -1184,10 +1315,10 @@ EOT;
     $index_output .= array_to_markdown_table(['Class', 'Description'], $index_rows_contextual) . PHP_EOL . PHP_EOL;
   }
 
-  $content_output['Generic'] ??= '';
+  $content_output[DEFAULT_CONTEXT] ??= '';
   $content_output = array_merge(
-    ['Generic' => $content_output['Generic']],
-    array_diff_key($content_output, ['Generic' => []])
+    [DEFAULT_CONTEXT => $content_output[DEFAULT_CONTEXT]],
+    array_diff_key($content_output, [DEFAULT_CONTEXT => []])
   );
   $content_output = implode(PHP_EOL . PHP_EOL, $content_output);
 
@@ -1263,8 +1394,8 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     ];
   }
 
-  $index_rows['Generic'] ??= [];
-  $index_rows = array_merge(['Generic' => $index_rows['Generic']], array_diff_key($index_rows, ['Generic' => []]));
+  $index_rows[DEFAULT_CONTEXT] ??= [];
+  $index_rows = array_merge([DEFAULT_CONTEXT => $index_rows[DEFAULT_CONTEXT]], array_diff_key($index_rows, [DEFAULT_CONTEXT => []]));
 
   $output = '';
   foreach ($index_rows as $index_context => $rows) {
@@ -1272,8 +1403,8 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $rows) . PHP_EOL . PHP_EOL;
   }
 
-  $content_output['Generic'] ??= '';
-  $content_output = array_merge(['Generic' => $content_output['Generic']], array_diff_key($content_output, ['Generic' => []]));
+  $content_output[DEFAULT_CONTEXT] ??= '';
+  $content_output = array_merge([DEFAULT_CONTEXT => $content_output[DEFAULT_CONTEXT]], array_diff_key($content_output, [DEFAULT_CONTEXT => []]));
 
   $output .= '---' . PHP_EOL . PHP_EOL;
   $output .= implode('', $content_output);
