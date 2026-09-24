@@ -936,7 +936,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
   }
 
   foreach (collect_helper_traits($base_path) as $trait_name => $trait) {
-    $helpers = collect_helper_methods($trait);
+    $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
@@ -984,6 +984,41 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
 }
 
 /**
+ * List the contracts a helper trait answers to.
+ *
+ * A trait cannot implement an interface, so the class composing it declares
+ * the contract instead. A trait method carrying '{@inheritdoc}' is documented
+ * on that interface rather than on the trait.
+ *
+ * @param \ReflectionClass<object> $trait
+ *   The helper trait.
+ * @param array<int, class-string> $class_names
+ *   The classes documenting the vocabulary.
+ *
+ * @return array<int, \ReflectionClass<object>>
+ *   The interfaces of every given class composing the trait.
+ *
+ * @throws \ReflectionException
+ */
+function helper_trait_contracts(\ReflectionClass $trait, array $class_names): array {
+  $contracts = [];
+
+  foreach ($class_names as $class_name) {
+    $reflection = new \ReflectionClass($class_name);
+
+    if (!isset($reflection->getTraits()[$trait->getName()])) {
+      continue;
+    }
+
+    foreach ($reflection->getInterfaces() as $interface) {
+      $contracts[$interface->getName()] = $interface;
+    }
+  }
+
+  return array_values($contracts);
+}
+
+/**
  * Collect the toolbox methods a class or trait contributes.
  *
  * Visibility is the marker: a public method that Behat does not register is
@@ -998,12 +1033,15 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
  * @param string|null $source_file
  *   Absolute path a method has to be declared in, or NULL to accept any. A
  *   method flattened in from a trait keeps the trait's file name.
+ * @param array<int, \ReflectionClass<object>> $contracts
+ *   Interfaces to resolve an inherited docblock against. A trait declares no
+ *   interface of its own, so its contract has to be named from outside.
  *
  * @return array<int, array<string, string>>
  *   Helper entries with 'name', 'signature', 'description' and 'example',
  *   sorted by name.
  */
-function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL, ?string $source_file = NULL): array {
+function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = NULL, ?string $source_file = NULL, array $contracts = []): array {
   $helpers = [];
 
   foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
@@ -1024,7 +1062,7 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
       continue;
     }
 
-    $comment = resolve_inherited_comment($method);
+    $comment = resolve_inherited_comment($method, $contracts);
     if (comment_is_internal($comment)) {
       continue;
     }
@@ -1048,12 +1086,15 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
  *
  * @param \ReflectionMethod $method
  *   The reflection method.
+ * @param array<int, \ReflectionClass<object>> $contracts
+ *   Further classes or interfaces to search, ahead of the ones the declaring
+ *   class states itself.
  *
  * @return string
  *   The docblock that carries the description, or the method's own when the
  *   declaration it inherits from has none.
  */
-function resolve_inherited_comment(\ReflectionMethod $method): string {
+function resolve_inherited_comment(\ReflectionMethod $method, array $contracts = []): string {
   $comment = (string) $method->getDocComment();
 
   if (stripos($comment, '{@inheritdoc}') === FALSE) {
@@ -1061,7 +1102,7 @@ function resolve_inherited_comment(\ReflectionMethod $method): string {
   }
 
   $declaring = $method->getDeclaringClass();
-  $candidates = array_values($declaring->getInterfaces());
+  $candidates = array_merge($contracts, array_values($declaring->getInterfaces()));
 
   $parent = $declaring->getParentClass();
   if ($parent instanceof \ReflectionClass) {

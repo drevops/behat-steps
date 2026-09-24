@@ -41,7 +41,7 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * Extending this context is enough to write features against a Drupal site
  * without writing any PHP: it is 'WebContext' plus 'DrupalApiTrait' plus
  * every trait under 'Steps\Drupal', so a Drupal project extends one class
- * and gets all 57 steps.
+ * and gets all 57 step traits.
  *
  * A trait for a contrib module resolves nothing until one of its steps runs,
  * and then fails with a message naming the module, so composing all of them

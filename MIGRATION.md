@@ -686,15 +686,15 @@ use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 steps |
-| `WebContext` | The suite tests a web page and wants the 28 web steps |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits |
+| `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits, and composes `DrupalApiTrait` when it needs the Drupal lifecycle |
 
 A context that extended `RawContext` extends `WebRawContext` instead:
 
 ```php
 // Before.
-class UiContext extends WebRawContext {
+class UiContext extends RawContext {
 
   use JavascriptTrait;
   use WaitTrait;
@@ -728,13 +728,13 @@ class SpecContext extends WebRawContext implements DrupalApiInterface {
 
 ### One context registers, not two
 
-`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 steps.
+`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 step traits.
 
 Registering `WebContext` beside `DrupalContext` is fatal, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names the real mistake rather than letting Behat report a `RedundantStepException` about an arbitrary step.
 
 Registering either context beside a hand-composed context that already carries one of the same traits is a `RedundantStepException` too: two registered contexts cannot compose the same trait. Drop the trait from the hand-composed context, or register the shipped context instead of it.
 
-There is no way to remove an inherited step, so a Drupal project cannot take the Drupal steps without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+There is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
 

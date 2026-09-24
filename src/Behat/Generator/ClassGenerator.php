@@ -40,8 +40,12 @@ class {className} extends WebRawContext {
    * Every scenario gets its own context instance.
    * You can also pass arbitrary arguments to the
    * context constructor through the Behat configuration.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   Trait options the suite declares for this context.
    */
-  public function __construct() {
+  public function __construct(array $config = []) {
+    parent::__construct($config);
   }
 
 }

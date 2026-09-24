@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\StringTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
@@ -47,6 +51,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('extract_helpers')]
 #[CoversFunction('collect_helper_methods')]
 #[CoversFunction('collect_helper_traits')]
+#[CoversFunction('helper_trait_contracts')]
 #[CoversFunction('resolve_inherited_comment')]
 #[CoversFunction('relative_source_path')]
 #[CoversFunction('render_helpers')]
@@ -2656,6 +2661,43 @@ EOD,
     $this->assertSame(['isJavascriptSupported'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
 
     $this->assertContains('nodeCreate', array_column($actual['DrupalApiTrait']['helpers'], 'name'));
+  }
+
+  public function testExtractHelpersResolvesATraitCommentAgainstItsContract(): void {
+    $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
+    $helpers = [];
+
+    foreach ($actual['DrupalApiTrait']['helpers'] as $helper) {
+      $helpers[$helper['name']] = $helper['description'];
+    }
+
+    // A trait declares no interface of its own, so '{@inheritdoc}' resolves
+    // against the contract the composing context declares.
+    $this->assertSame('Returns the user manager.', $helpers['getUserManager']);
+
+    // The injection point is '@internal' on that same contract.
+    $this->assertArrayNotHasKey('setUserManager', $helpers);
+  }
+
+  /**
+   * Tests that a trait's contracts are read off the classes composing it.
+   *
+   * @param class-string $trait_name
+   *   The helper trait to inspect.
+   * @param array<int, string> $expected
+   *   The interfaces the trait is expected to answer to.
+   */
+  #[DataProvider('dataProviderHelperTraitContracts')]
+  public function testHelperTraitContracts(string $trait_name, array $expected): void {
+    $contracts = helper_trait_contracts(new \ReflectionClass($trait_name), [WebContext::class, DrupalContext::class]);
+    $names = array_map(static fn(\ReflectionClass $contract): string => $contract->getName(), $contracts);
+
+    $this->assertSame($expected, array_values(array_intersect($names, [DrupalApiInterface::class, DriverAwareInterface::class])));
+  }
+
+  public static function dataProviderHelperTraitContracts(): \Iterator {
+    yield 'composed by a documented context' => [DrupalApiTrait::class, [DriverAwareInterface::class, DrupalApiInterface::class]];
+    yield 'composed below the documented contexts' => [StringTrait::class, []];
   }
 
   public function testCollectHelperTraitsSkipsTheRepositoryWithoutThem(): void {
