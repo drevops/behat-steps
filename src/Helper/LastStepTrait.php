@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
-use DrevOps\BehatSteps\Attribute\Helper;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use DrevOps\BehatSteps\Attribute\Helper;
 
 /**
  * Identifies the last step of the running scenario.
