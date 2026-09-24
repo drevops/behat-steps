@@ -71,12 +71,15 @@ class AccessibilityTraitTest extends UnitTestCase {
     file_put_contents($path, 'ENGINE');
     $this->testObject->engineUrl = $path;
 
-    $this->assertSame('ENGINE', $this->testObject->testGetJs());
+    $initial = $this->testObject->testGetJs();
 
     // A second call is served from the process cache, so the source is read
     // only once even though the getter would return the same path.
     file_put_contents($path, 'CHANGED');
-    $this->assertSame('ENGINE', $this->testObject->testGetJs());
+    $cached = $this->testObject->testGetJs();
+
+    $this->assertSame('ENGINE', $initial);
+    $this->assertSame('ENGINE', $cached);
     $this->assertSame(1, $this->testObject->engineReads);
   }
 
