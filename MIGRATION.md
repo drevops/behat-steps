@@ -728,15 +728,7 @@ class SpecContext extends WebRawContext implements DrupalApiInterface {
 
 ### One context registers, not two
 
-`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones, and it was a sibling of `WebContext` rather than a subclass. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so a Drupal suite registers it alone:
-
-```php
-// Before.
-$suite->addContext(DrupalContext::class);
-
-// After.
-$suite->addContext(DrupalContext::class);
-```
+`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 steps.
 
 Registering `WebContext` beside `DrupalContext` is fatal, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names the real mistake rather than letting Behat report a `RedundantStepException` about an arbitrary step.
 
