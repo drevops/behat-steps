@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
 use Behat\Behat\Context\Context;
-use Behat\Testwork\Call\Callee;
 use Behat\Testwork\Call\CallCenter;
+use Behat\Testwork\Call\Callee;
 use Behat\Testwork\Call\Handler\RuntimeCallHandler;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
@@ -30,20 +31,25 @@ use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests the Drupal scenario lifecycle a context composes.
+ *
+ * The cleanup hooks read the opt-out and the skip tags from the host context,
+ * so the run covers that class too.
  */
 #[CoversTrait(DrupalApiTrait::class)]
+#[CoversClass(WebRawContext::class)]
 class DrupalApiTraitTest extends UnitTestCase {
 
   /**
