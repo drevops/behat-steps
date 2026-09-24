@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
@@ -11,7 +12,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -21,11 +21,11 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Navigate to term pages
  * - Verify vocabulary configurations.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait TaxonomyTrait {
-
-  use TableTransposeTrait;
 
   /**
    * Create taxonomy terms with vertical field format.
@@ -46,8 +46,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms with fields exist:')]
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
     $this->taxonomyCreate($vocabulary, $horizontal_table);
   }
 

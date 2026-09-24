@@ -7,10 +7,12 @@ namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * A trait with multiple methods to test sorting.
  */
+#[Steps]
 trait MultiMethodTrait {
 
   /**

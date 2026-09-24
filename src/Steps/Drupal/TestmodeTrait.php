@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\testmode\Testmode;
 
 /**
@@ -22,11 +22,11 @@ use Drupal\testmode\Testmode;
  * Special tags:
  * - `@testmode` - enable for scenario
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait TestmodeTrait {
-
-  use DrupalQueryTrait;
 
   /**
    * Enable test mode before a scenario tagged with @testmode.
@@ -39,7 +39,7 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->assertModuleEnabled('testmode', 'drupal/testmode');
 
     static::testmodeEnableTestMode();
   }
@@ -55,7 +55,7 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->drupalQueryAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->assertModuleEnabled('testmode', 'drupal/testmode');
 
     static::testmodeDisableTestMode();
   }

@@ -14,7 +14,7 @@
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
-| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -56,13 +56,14 @@
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 2 | Manage Drupal webforms. |
 
-### Index of Context helpers
+### Index of Toolbox helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [RawContext](#rawcontext) | 10 | Base context carrying the plumbing both halves of the library share. |
-| [WebRawContext](#webrawcontext) | 2 | Base context carrying the web plumbing. |
-| [DrupalRawContext](#drupalrawcontext) | 12 | Base context carrying the Drupal scenario lifecycle. |
+| [DrupalApiTrait](#drupalapitrait) | 17 | Carries the Drupal scenario lifecycle. |
+| [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
+| [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
+| [WebRawContext](#webrawcontext) | 7 | Root context carrying the plumbing every suite needs. |
 
 ---
 
@@ -576,21 +577,6 @@ Download file
 <br/>
 Assert that no JavaScript errors were collected
 <br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
-
-<br/>
-Check if JavaScript is supported by the current driver
-<br/><br/>
-
-```
-if (!$this->javascriptSupportAvailable()) {
-  return;
-}
-```
 
 </details>
 
@@ -1875,141 +1861,29 @@ Load all webform templates whose title contains the given string
 
 </details>
 
-## RawContext
+## DrupalApiTrait
 
-[Source](src/Behat/Context/RawContext.php)
+[Source](src/Helper/DrupalApiTrait.php)
 
-> Base context carrying the plumbing both halves of the library share.
+> Carries the Drupal scenario lifecycle.
 
 <details>
-  <summary><code>public function __construct(array $config = [])</code></summary>
+  <summary><code>public function assertModuleEnabled(string $module, string $package = ''): void</code></summary>
 
 <br/>
-Constructs a RawContext object
+Assert that a module backing a set of steps is enabled
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function driverFor(string $capability): object</code></summary>
+  <summary><code>public function buildHorizontalTable(array $entities): TableNode</code></summary>
 
 <br/>
-Returns the highest-priority driver providing the given capability
+Convert vertical format entities to horizontal TableNode
 <br/><br/>
 
 </details>
-
-<details>
-  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
-
-<br/>
-Returns the authentication manager
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDriver(string $name): DriverInterface</code></summary>
-
-<br/>
-Returns a driver of this scenario by the name its suite gave it
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDriverManager(): DriverManagerInterface</code></summary>
-
-<br/>
-Returns the driver manager
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDrupalSelector(string $name): string</code></summary>
-
-<br/>
-Returns a specific CSS selector
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDrupalText(string $name): string</code></summary>
-
-<br/>
-Returns a specific Drupal text value
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed</code></summary>
-
-<br/>
-Returns a trait option resolved for this context
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getParameter(string $name): mixed</code></summary>
-
-<br/>
-Returns a specific extension parameter
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getRandom(): Random</code></summary>
-
-<br/>
-Returns the driver's random generator
-<br/><br/>
-
-</details>
-
-## WebRawContext
-
-[Source](src/Behat/Context/WebRawContext.php)
-
-> Base context carrying the web plumbing.
-
-<details>
-  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
-
-<br/>
-Check if JavaScript is supported by the current driver
-<br/><br/>
-
-```
-if (!$this->javascriptSupportAvailable()) {
-  return;
-}
-```
-
-</details>
-
-<details>
-  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
-
-<br/>
-Set a request header for subsequent requests
-<br/><br/>
-
-```
-$this->requestHeadersSet('X-Acme-Token', 'secret');
-```
-
-</details>
-
-## DrupalRawContext
-
-[Source](src/Behat/Context/DrupalRawContext.php)
-
-> Base context carrying the Drupal scenario lifecycle.
 
 <details>
   <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
@@ -2030,10 +1904,19 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
+  <summary><code>public function expandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void</code></summary>
+
+<br/>
+Expand fixture file paths for file/image fields on an entity stub
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
 
 <br/>
-Returns the user manager
+{@inheritdoc}
 <br/><br/>
 
 </details>
@@ -2043,6 +1926,15 @@ Returns the user manager
 
 <br/>
 Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function loadNodeIds(string $content_type, array $conditions = []): array</code></summary>
+
+<br/>
+Load the ids of the nodes of a content type matching the conditions
 <br/><br/>
 
 </details>
@@ -2093,15 +1985,11 @@ Expands a stub's raw Gherkin values into the storage field shape
 </details>
 
 <details>
-  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
+  <summary><code>public function setUserManager(UserManagerInterface $user_manager): void</code></summary>
 
 <br/>
-Set a request header for subsequent requests
+{@inheritdoc}
 <br/><br/>
-
-```
-$this->requestHeadersSet('X-Acme-Token', 'secret');
-```
 
 </details>
 
@@ -2115,10 +2003,128 @@ Creates a taxonomy term
 </details>
 
 <details>
+  <summary><code>public function transposeVerticalTable(TableNode $table): array</code></summary>
+
+<br/>
+Transpose a vertical table format (field/value columns) to entity arrays
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function userCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a user
+<br/><br/>
+
+</details>
+
+## JavascriptSupportTrait
+
+[Source](src/Helper/JavascriptSupportTrait.php)
+
+> Reports whether the running driver evaluates JavaScript.
+
+<details>
+  <summary><code>public function isJavascriptSupported(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->isJavascriptSupported()) {
+  return;
+}
+```
+
+</details>
+
+## RequestHeadersTrait
+
+[Source](src/Helper/RequestHeadersTrait.php)
+
+> Holds the request headers shared by the traits that issue HTTP requests.
+
+<details>
+  <summary><code>public function setRequestHeader(string $name, string $value): void</code></summary>
+
+<br/>
+Set a request header for subsequent requests
+<br/><br/>
+
+```
+$this->setRequestHeader('X-Acme-Token', 'secret');
+```
+
+</details>
+
+## WebRawContext
+
+[Source](src/Behat/Context/WebRawContext.php)
+
+> Root context carrying the plumbing every suite needs.
+
+<details>
+  <summary><code>public function __construct(array $config = [])</code></summary>
+
+<br/>
+Constructs a WebRawContext object
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function driverFor(string $capability): object</code></summary>
+
+<br/>
+Returns the highest-priority driver providing the given capability
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
+
+<br/>
+Returns the authentication manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDriver(string $name): DriverInterface</code></summary>
+
+<br/>
+Returns a driver of this scenario by the name its suite gave it
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getDriverManager(): DriverManagerInterface</code></summary>
+
+<br/>
+Returns the driver manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed</code></summary>
+
+<br/>
+Returns a trait option resolved for this context
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getRandom(): Random</code></summary>
+
+<br/>
+Returns the driver's random generator
 <br/><br/>
 
 </details>

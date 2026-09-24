@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Context composing no trait that declares an option.
  */
-class BareConfigContext extends RawContext {
+class BareConfigContext extends WebRawContext {
 
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
@@ -29,8 +30,9 @@ use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait WaitTrait {
 
   use JavascriptSupportTrait;
@@ -118,7 +120,7 @@ trait WaitTrait {
   public function waitForAjax(string|int $seconds): void {
     $seconds = (int) $seconds;
 
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $this->getSession()->getDriver());
     }
 

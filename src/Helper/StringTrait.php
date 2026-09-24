@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
+use DrevOps\BehatSteps\Attribute\Helper;
+
 /**
  * String shaping shared across the step vocabulary.
  *
  * This is an internal trait and should not be used directly in step
  * definitions.
  */
+#[Helper]
 trait StringTrait {
 
   /**
@@ -23,7 +26,7 @@ trait StringTrait {
    * @return string
    *   The unescaped argument.
    */
-  protected function stringFixStepArgument(string $argument): string {
+  protected function fixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
   }
 
@@ -39,7 +42,7 @@ trait StringTrait {
    * @return string
    *   The normalized text.
    */
-  protected function stringNormalizeWhitespace(string $text): string {
+  protected function normalizeWhitespace(string $text): string {
     return trim((string) preg_replace('/\s+/', ' ', $text));
   }
 
@@ -55,7 +58,7 @@ trait StringTrait {
    * @return array<int, string>
    *   Array of trimmed values.
    */
-  protected function stringSplitCommaSeparated(string $text): array {
+  protected function splitCommaSeparated(string $text): array {
     return array_map(trim(...), explode(',', $text));
   }
 
@@ -72,7 +75,7 @@ trait StringTrait {
    * @return string
    *   The slugified string.
    */
-  protected function stringSlug(string $value): string {
+  protected function slug(string $value): string {
     $value = strtolower(trim($value));
     $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Context whose declarations carry no description.
  */
-class UndocumentedConfigContext extends RawContext {
+class UndocumentedConfigContext extends WebRawContext {
 
   /**
    * Declares an option without a description.

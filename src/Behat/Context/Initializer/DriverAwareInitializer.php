@@ -8,7 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
@@ -50,7 +50,7 @@ class DriverAwareInitializer implements ContextInitializer {
       $context->setParameters($this->parameters);
     }
 
-    if ($context instanceof UserAwareInterface) {
+    if ($context instanceof DrupalApiInterface) {
       $context->setUserManager($this->userManager);
     }
 

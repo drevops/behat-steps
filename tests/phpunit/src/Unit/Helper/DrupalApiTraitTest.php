@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Call\Callee;
@@ -12,9 +12,7 @@ use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
@@ -34,27 +32,24 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Tests the Drupal scenario lifecycle the base context owns.
- *
- * The cleanup hooks read the opt-out and the skip tags from 'RawContext', so
- * the run covers both classes.
+ * Tests the Drupal scenario lifecycle a context composes.
  */
-#[CoversClass(DrupalRawContext::class)]
-#[CoversClass(RawContext::class)]
-class DrupalRawContextTest extends UnitTestCase {
+#[CoversTrait(DrupalApiTrait::class)]
+class DrupalApiTraitTest extends UnitTestCase {
 
   /**
    * A directory carrying the entry file the Drupal driver requires.
    */
-  protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/driver/drupal-root';
+  protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/driver/drupal-root';
 
   /**
    * The cleanup opt-out value to restore, NULL when it was unset.
@@ -76,15 +71,15 @@ class DrupalRawContextTest extends UnitTestCase {
     }
   }
 
-  public function testImplementsUserAwareInterface(): void {
-    $this->assertInstanceOf(UserAwareInterface::class, new DrupalRawContext());
+  public function testImplementsDrupalApiInterface(): void {
+    $this->assertInstanceOf(DrupalApiInterface::class, new TestableRawContext());
   }
 
   public function testUninitializedContextNamesTheMissingUserManager(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The user manager is available only after Behat has initialized the context.');
 
-    (new DrupalRawContext())->getUserManager();
+    (new TestableRawContext())->getUserManager();
   }
 
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
@@ -580,7 +575,7 @@ class DrupalRawContextTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext($this->createDrupalContentDriver());
 
-    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
   }
@@ -596,7 +591,7 @@ class DrupalRawContextTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
     $context = $this->createContext($this->createDrupalContentDriver());
 
-    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame($value, $stub->getValue('created'));
   }
@@ -614,14 +609,14 @@ class DrupalRawContextTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
 
-    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
   }
 
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
 
-    DrupalRawContext::alterNodeParameters($scope);
+    TestableRawContext::alterNodeParameters($scope);
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -630,7 +625,7 @@ class DrupalRawContextTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createMock(DriverInterface::class));
 
-    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -639,7 +634,7 @@ class DrupalRawContextTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createContentDriver());
 
-    DrupalRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }

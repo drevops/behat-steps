@@ -7,10 +7,12 @@ namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Then;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Sample trait carrying helpers for testing.
  */
+#[Steps]
 trait HelperSampleTrait {
 
   /**

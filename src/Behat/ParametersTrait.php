@@ -12,7 +12,7 @@ namespace DrevOps\BehatSteps\Behat;
  * installation such as CSS selectors, interface text or region maps.
  *
  * This is the consumption point for parameter, text, and selector access from
- * any context, regardless of whether it inherits from 'RawContext'. A context
+ * any context, regardless of whether it inherits from 'WebRawContext'. A context
  * only needs to implement 'ParametersAwareInterface' and 'use' this trait;
  * 'DriverAwareInitializer' injects the parameter array via 'setParameters()'
  * before any scenario runs. No driver bootstrap is required.

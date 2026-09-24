@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
@@ -19,6 +20,7 @@ use Behat\Step\When;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
+#[Steps]
 trait KeyboardTrait {
 
   /**

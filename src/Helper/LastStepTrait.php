@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
+use DrevOps\BehatSteps\Attribute\Helper;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
@@ -16,6 +17,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
  * This is an internal trait and should not be used directly in step
  * definitions.
  */
+#[Helper]
 trait LastStepTrait {
 
   /**
@@ -29,7 +31,7 @@ trait LastStepTrait {
    * Step scopes expose no scenario, so the line is resolved here and compared
    * later.
    */
-  protected function lastStepCapture(BeforeScenarioScope $scope): void {
+  protected function setLastStepLine(BeforeScenarioScope $scope): void {
     $steps = $scope->getScenario()->getSteps();
     $last = end($steps);
 
@@ -42,7 +44,7 @@ trait LastStepTrait {
    * Outline examples reuse the outline's step lines and a background runs as a
    * separate step container, so the line identifies the step in both.
    */
-  protected function lastStepReached(AfterStepScope $scope): bool {
+  protected function isLastStep(AfterStepScope $scope): bool {
     return $this->lastStepLine !== 0 && $scope->getStep()->getLine() === $this->lastStepLine;
   }
 

@@ -94,11 +94,11 @@ class LastStepTraitTestImplementation {
   use LastStepTrait;
 
   public function callCapture(BeforeScenarioScope $scope): void {
-    $this->lastStepCapture($scope);
+    $this->setLastStepLine($scope);
   }
 
   public function callReached(AfterStepScope $scope): bool {
-    return $this->lastStepReached($scope);
+    return $this->isLastStep($scope);
   }
 
 }

@@ -107,15 +107,15 @@ class StringTraitTestImplementation {
   use StringTrait;
 
   public function callSlug(string $value): string {
-    return $this->stringSlug($value);
+    return $this->slug($value);
   }
 
   public function callFixStepArgument(string $value): string {
-    return $this->stringFixStepArgument($value);
+    return $this->fixStepArgument($value);
   }
 
   public function callNormalizeWhitespace(string $value): string {
-    return $this->stringNormalizeWhitespace($value);
+    return $this->normalizeWhitespace($value);
   }
 
   /**
@@ -125,7 +125,7 @@ class StringTraitTestImplementation {
    *   The trimmed values.
    */
   public function callSplitCommaSeparated(string $value): array {
-    return $this->stringSplitCommaSeparated($value);
+    return $this->splitCommaSeparated($value);
   }
 
 }

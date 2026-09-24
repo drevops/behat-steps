@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Context whose declaration method returns something other than an array.
@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Behat\Context\RawContext;
  * The shipped traits declare an `array` return type, which a consuming
  * project's own trait need not.
  */
-class UntypedConfigContext extends RawContext {
+class UntypedConfigContext extends WebRawContext {
 
   /**
    * Declares nothing usable.

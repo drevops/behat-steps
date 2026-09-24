@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -45,8 +46,9 @@ use DrevOps\BehatSteps\Helper\LastStepTrait;
  *   Given I visit "/legacy-page"
  * @endcode
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
+#[Steps]
 trait JavascriptTrait {
 
   use JavascriptSupportTrait;
@@ -98,7 +100,7 @@ trait JavascriptTrait {
     // the step hook to read.
     $this->javascriptBypassErrors = $this->getOption('javascript', 'fail_on_errors', $scope) === FALSE;
 
-    $this->lastStepCapture($scope);
+    $this->setLastStepLine($scope);
   }
 
   /**
@@ -148,7 +150,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -184,7 +186,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->isJavascriptSupported()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -202,7 +204,7 @@ trait JavascriptTrait {
     catch (\Exception) {
     }
     // @codeCoverageIgnoreEnd
-    if ($this->javascriptBypassErrors || !$this->lastStepReached($scope)) {
+    if ($this->javascriptBypassErrors || !$this->isLastStep($scope)) {
       return;
     }
 

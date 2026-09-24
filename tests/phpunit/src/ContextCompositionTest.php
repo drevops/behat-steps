@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\Attribute\Helper;
+use DrevOps\BehatSteps\Attribute\Steps;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\LastStepTrait;
 use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\StringTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareMinkContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,9 +23,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts what the shipped contexts compose.
  *
- * A project registering a shipped context gets the whole half it names, and
- * a project composing its own gets the helpers on '$this' without a second
- * copy of their state.
+ * A project extending a shipped context gets the whole vocabulary that
+ * context names, and a project composing its own gets the helpers on '$this'
+ * without a second copy of their state.
  */
 #[CoversNothing]
 class ContextCompositionTest extends UnitTestCase {
@@ -30,6 +37,31 @@ class ContextCompositionTest extends UnitTestCase {
     'Web' => WebContext::class,
     'Drupal' => DrupalContext::class,
   ];
+
+  /**
+   * The shipped chain, from the root down.
+   */
+  protected const CHAIN = [WebRawContext::class, WebContext::class, DrupalContext::class];
+
+  /**
+   * Assert that each context extends the one above it.
+   */
+  public function testTheChainIsLinear(): void {
+    $parents = [];
+
+    foreach (static::CHAIN as $class) {
+      $parent = (new \ReflectionClass($class))->getParentClass();
+      $parents[$class] = $parent instanceof \ReflectionClass ? $parent->getName() : NULL;
+    }
+
+    $expected = [
+      WebRawContext::class => RawMinkContext::class,
+      WebContext::class => WebRawContext::class,
+      DrupalContext::class => WebContext::class,
+    ];
+
+    $this->assertSame($expected, $parents);
+  }
 
   /**
    * Assert that a context composes every trait of its own directory.
@@ -51,7 +83,7 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that a context composes nothing beyond its own directory.
+   * Assert that a context composes no vocabulary beyond its own directory.
    *
    * @param string $directory
    *   The vocabulary directory under 'src/Steps'.
@@ -60,7 +92,7 @@ class ContextCompositionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderContextComposesNothingElse')]
   public function testContextComposesNothingElse(string $directory, string $context): void {
-    $extra = array_values(array_diff(static::composedTraits($context), static::directoryTraits($directory)));
+    $extra = array_values(array_diff(static::composedTraits($context, Steps::class), static::directoryTraits($directory)));
 
     $this->assertSame([], $extra, sprintf('%s composes a trait from outside src/Steps/%s.', $context, $directory));
   }
@@ -70,44 +102,75 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that neither vocabulary context registers its sibling's steps.
+   * Assert that no context re-composes a trait one above it already has.
+   *
+   * A subclass re-composing an inherited trait registers each of its steps a
+   * second time, which Behat rejects with a 'RedundantStepException'.
    */
-  public function testTheTwoHalvesShareNoTrait(): void {
-    $shared = array_values(array_intersect(static::composedTraits(WebContext::class), static::composedTraits(DrupalContext::class)));
+  public function testTheChainComposesEachTraitOnce(): void {
+    $seen = [];
+    $repeated = [];
 
-    $this->assertSame([], $shared, 'Two registered contexts composing the same trait register its steps twice.');
+    foreach (static::CHAIN as $class) {
+      foreach (static::composedTraits($class) as $trait) {
+        if (in_array($trait, $seen, TRUE)) {
+          $repeated[] = $trait;
+        }
+
+        $seen[] = $trait;
+      }
+    }
+
+    $this->assertSame([], $repeated);
   }
 
   /**
-   * Assert that each raw context carries no step vocabulary.
-   *
-   * @param class-string $context
-   *   The raw context to inspect.
+   * Assert that the root context carries the plumbing and no vocabulary.
    */
-  #[DataProvider('dataProviderRawContextsComposeNoVocabulary')]
-  public function testRawContextsComposeNoVocabulary(string $context): void {
-    $vocabulary = array_values(array_filter(static::composedTraits($context), static fn(string $trait): bool => str_contains($trait, '\\Steps\\')));
+  public function testTheRootContextComposesTheWebHelpersOnly(): void {
+    $expected = [JavascriptSupportTrait::class, LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
+    $composed = static::composedTraits(WebRawContext::class, Helper::class);
 
-    $this->assertSame([], $vocabulary, sprintf('%s registers no steps of its own.', $context));
+    $this->assertSame($expected, $composed);
+    $this->assertSame([], static::composedTraits(WebRawContext::class, Steps::class), sprintf('%s registers no steps of its own.', WebRawContext::class));
   }
 
-  public static function dataProviderRawContextsComposeNoVocabulary(): array {
-    return [
-      'web' => [WebRawContext::class],
-      'drupal' => [DrupalRawContext::class],
-    ];
+  /**
+   * Assert that the Drupal context declares the contract its traits require.
+   */
+  public function testTheDrupalContextCarriesTheDrupalApi(): void {
+    $this->assertContains(DrupalApiTrait::class, static::composedTraits(DrupalContext::class, Helper::class));
+    $this->assertContains(DrupalApiInterface::class, class_implements(DrupalContext::class));
+  }
+
+  /**
+   * Assert that every Drupal step trait states what it needs from its host.
+   */
+  public function testEveryDrupalTraitRequiresTheDrupalApi(): void {
+    $unstated = [];
+
+    foreach (static::directoryTraits('Drupal') as $trait) {
+      /** @var class-string $trait */
+      $comment = (string) (new \ReflectionClass($trait))->getDocComment();
+
+      if (!str_contains($comment, '@phpstan-require-implements \\' . DrupalApiInterface::class)) {
+        $unstated[] = $trait;
+      }
+    }
+
+    $this->assertSame([], $unstated);
   }
 
   /**
    * Assert that a helper trait composed twice holds one slot of state.
    *
-   * A step trait composes the helper it needs and the raw context composes it
-   * too, so both reach the same bag rather than a copy each.
+   * A step trait composes the helper it needs and the root context composes
+   * it too, so both reach the same bag rather than a copy each.
    */
   public function testHelperComposedTwiceSharesItsState(): void {
     $context = new HelperStateSubject();
 
-    $context->requestHeadersSet('X-A', '1');
+    $context->setRequestHeader('X-A', '1');
     $context->setThroughTrait('X-B', '2');
 
     $this->assertSame(['X-A' => '1', 'X-B' => '2'], $context->readThroughTrait());
@@ -191,15 +254,23 @@ class ContextCompositionTest extends UnitTestCase {
    *
    * @param class-string $class
    *   The class to inspect.
+   * @param class-string|null $marker
+   *   The marker attribute a trait has to carry, or NULL for every trait.
    *
    * @return array<int, string>
    *   Fully qualified trait names, sorted.
    */
-  protected static function composedTraits(string $class): array {
-    $traits = array_keys((new \ReflectionClass($class))->getTraits());
-    sort($traits);
+  protected static function composedTraits(string $class, ?string $marker = NULL): array {
+    $traits = (new \ReflectionClass($class))->getTraits();
 
-    return $traits;
+    if ($marker !== NULL) {
+      $traits = array_filter($traits, static fn(\ReflectionClass $trait): bool => $trait->getAttributes($marker) !== []);
+    }
+
+    $names = array_keys($traits);
+    sort($names);
+
+    return $names;
   }
 
 }
@@ -221,7 +292,7 @@ trait HelperStateStepTrait {
   use RequestHeadersTrait;
 
   public function setThroughTrait(string $name, string $value): void {
-    $this->requestHeadersSet($name, $value);
+    $this->setRequestHeader($name, $value);
   }
 
   /**
@@ -231,7 +302,7 @@ trait HelperStateStepTrait {
    *   Header values keyed by header name.
    */
   public function readThroughTrait(): array {
-    return $this->requestHeadersAll();
+    return $this->getRequestHeaders();
   }
 
 }

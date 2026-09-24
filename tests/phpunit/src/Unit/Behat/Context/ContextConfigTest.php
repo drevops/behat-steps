@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableSubContext;
@@ -20,7 +20,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 /**
  * Tests the option resolution the base context owns.
  */
-#[CoversClass(RawContext::class)]
+#[CoversClass(WebRawContext::class)]
 class ContextConfigTest extends UnitTestCase {
 
   public function testDeclarationsAreDiscoveredByReflection(): void {

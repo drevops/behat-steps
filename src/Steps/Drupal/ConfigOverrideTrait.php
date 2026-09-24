@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
@@ -63,8 +64,10 @@ use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
  * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait ConfigOverrideTrait {
 
   use RequestHeadersTrait;
@@ -141,7 +144,7 @@ trait ConfigOverrideTrait {
       $driver->setRequestHeader('X-Config-No-Override', $value);
     }
 
-    $this->requestHeadersSet('X-Config-No-Override', $value);
+    $this->setRequestHeader('X-Config-No-Override', $value);
 
     // A SUT invoked directly within the same process reads '$_SERVER'.
     $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
@@ -161,7 +164,7 @@ trait ConfigOverrideTrait {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
     putenv('HTTP_X_CONFIG_NO_OVERRIDE');
 
-    $this->requestHeadersUnset('X-Config-No-Override');
+    $this->unsetRequestHeader('X-Config-No-Override');
   }
 
   /**

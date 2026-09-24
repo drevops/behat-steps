@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
@@ -19,6 +20,7 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
+#[Steps]
 trait LinkTrait {
 
   use StringTrait;
@@ -32,7 +34,7 @@ trait LinkTrait {
    */
   #[When('I click on the link with the title :title')]
   public function linkClickWithTitle(string $title): void {
-    $title = $this->stringFixStepArgument($title);
+    $title = $this->fixStepArgument($title);
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if (!$element) {
@@ -158,7 +160,7 @@ trait LinkTrait {
    */
   #[Then('the link with the title :title should exist')]
   public function linkAssertWithTitleExists(string $title): void {
-    $title = $this->stringFixStepArgument($title);
+    $title = $this->fixStepArgument($title);
 
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
@@ -176,7 +178,7 @@ trait LinkTrait {
    */
   #[Then('the link with the title :title should not exist')]
   public function linkAssertWithTitleNotExists(string $title): void {
-    $title = $this->stringFixStepArgument($title);
+    $title = $this->fixStepArgument($title);
 
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 

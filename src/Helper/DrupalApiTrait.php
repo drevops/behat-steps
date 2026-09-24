@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\Context;
+namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\ScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Attribute\Helper;
+use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterLanguageCreateScope;
@@ -35,39 +38,29 @@ use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
 use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
-use DrevOps\BehatSteps\Helper\StringTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
- * Base context carrying the Drupal scenario lifecycle.
+ * Carries the Drupal scenario lifecycle.
  *
- * Owns entity creation and its hooks, the login flow, and the teardown that
- * removes the entities, users and roles a scenario created. It registers no
- * step definitions.
+ * Owns entity creation and its hooks, the login flow, the teardown that
+ * removes the entities, users and roles a scenario created, and the
+ * Drupal-side helpers the step traits read: fixture-path expansion, node id
+ * queries and the vertical table transform.
  *
- * Extend this to compose a Drupal context out of a chosen set of traits;
- * register 'DrupalContext' instead to get the whole Drupal vocabulary.
+ * A class composing this trait implements 'DrupalApiInterface', which is what
+ * a Drupal step trait names in its '@phpstan-require-implements' annotation.
+ * 'DrupalContext' does both; a project that wants the plumbing without the
+ * vocabulary composes this trait onto its own 'WebRawContext' subclass.
  *
- * The helper traits it composes are on '$this' for a consuming project's own
- * step definitions, and composing one again in a step trait shares the same
- * state rather than duplicating it.
- *
+ * @see \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  * @see \DrevOps\BehatSteps\Behat\Context\DrupalContext
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-class DrupalRawContext extends RawContext implements UserAwareInterface {
-
-  use DrupalQueryTrait;
-  use FixtureFileTrait;
-  use LastStepTrait;
-  use RequestHeadersTrait;
-  use StringTrait;
-  use TableTransposeTrait;
+#[Helper]
+trait DrupalApiTrait {
 
   /**
    * User manager.
@@ -717,6 +710,365 @@ class DrupalRawContext extends RawContext implements UserAwareInterface {
    */
   protected function getContentDriver(): ContentCapabilityInterface {
     return $this->driverFor(ContentCapabilityInterface::class);
+  }
+
+  /**
+   * Transpose a vertical table format (field/value columns) to entity arrays.
+   *
+   * Supports both single and multiple entity creation:
+   *
+   * Single entity (2 columns):
+   *   | name  | John  |
+   *   | age   | 30    |
+   *
+   * Multiple entities (3+ columns):
+   *   | name  | John      | Jane      |
+   *   | age   | 30        | 25        |
+   *
+   * Returns:
+   *   Single entity: [['name' => 'John', 'age' => '30']]
+   *   Multiple entities: [['name' => 'John', 'age' => '30'], ['name' => 'Jane', 'age' => '25']]
+   *
+   * @param \Behat\Gherkin\Node\TableNode $table
+   *   The vertical format table.
+   *
+   * @return array<int, array<string, string>>
+   *   Array of entity data arrays. Each entity is an associative array.
+   *
+   * @throws \RuntimeException
+   *   If table doesn't have at least 2 columns or has no rows.
+   */
+  public function transposeVerticalTable(TableNode $table): array {
+    $rows = $table->getRows();
+
+    $first_row = $rows[0];
+    if (count($first_row) < 2) {
+      throw new \RuntimeException('Vertical table must have at least 2 columns (field name and value).');
+    }
+
+    $field_names = array_column($rows, 0);
+    $duplicate_fields = array_filter(array_count_values($field_names), fn(int $count): bool => $count > 1);
+
+    if (!empty($duplicate_fields)) {
+      throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));
+    }
+
+    foreach ($field_names as $field_name) {
+      if (trim((string) $field_name) === '') {
+        throw new \RuntimeException('Field names cannot be empty.');
+      }
+    }
+
+    $num_entities = count($first_row) - 1;
+
+    $entities = array_fill(0, $num_entities, []);
+
+    foreach ($rows as $row) {
+      $field_name = array_shift($row);
+
+      foreach ($row as $index => $value) {
+        $entities[$index][$field_name] = $value;
+      }
+    }
+
+    return $entities;
+  }
+
+  /**
+   * Convert vertical format entities to horizontal TableNode.
+   *
+   * @param array<int, array<string, string>> $entities
+   *   Array of entity data arrays from transposeVerticalTable().
+   *
+   * @return \Behat\Gherkin\Node\TableNode
+   *   TableNode in horizontal format (first row is headers, subsequent rows
+   *   are values). Returns empty TableNode if input is empty.
+   */
+  public function buildHorizontalTable(array $entities): TableNode {
+    // @codeCoverageIgnoreStart
+    if (empty($entities)) {
+      return new TableNode([]);
+    }
+    // @codeCoverageIgnoreEnd
+    $field_names = array_keys($entities[0]);
+    $rows = [$field_names];
+
+    foreach ($entities as $entity) {
+      $rows[] = array_values($entity);
+    }
+
+    return new TableNode($rows);
+  }
+
+  /**
+   * Expand fixture file paths for file/image fields on an entity stub.
+   *
+   * Rewrites fixture paths on 'file' and 'image' field types to absolute
+   * paths under the Mink 'files_path' so drupal-driver's FileHandler can read
+   * and upload them during entity creation. A path is taken relative to the
+   * fixtures directory, so both 'document.pdf' and 'images/photo.png'
+   * resolve. Skips expansion when a managed file with the same basename
+   * already exists in public:// or private://, so existing files take
+   * precedence.
+   *
+   * @param string $entity_type
+   *   The entity type machine name (e.g. 'node', 'media').
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   *   The entity stub mutated in place.
+   */
+  public function expandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
+    $files_path = $this->getMinkParameter('files_path');
+
+    if (empty($files_path)) {
+      return;
+    }
+
+    $resolved_files_path = realpath((string) $files_path);
+
+    if ($resolved_files_path === FALSE || !is_dir($resolved_files_path)) {
+      return;
+    }
+
+    $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+    if (!$this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
+      return;
+    }
+
+    $field_types = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
+
+    foreach ($stub->getValues() as $name => $value) {
+      if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {
+        continue;
+      }
+
+      // A stub not yet parsed by 'parseEntityFields()' still holds the raw
+      // compound cell as written in the Behat table
+      // (e.g. 'target_id:"foo.jpg", alt:"A"').
+      if (is_string($value) && $this->looksLikeCompoundCell($value)) {
+        $rewritten = $this->expandCompoundCellFixtures($value, $fixture_path);
+
+        if ($rewritten !== $value) {
+          $stub->setValue($name, $rewritten);
+        }
+
+        continue;
+      }
+
+      // Parsed shapes produced by 'EntityFieldParser' or the legacy parser:
+      // - scalar: 'foo.jpg' (treated as single-value)
+      // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
+      // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A'] (single compound)
+      // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...] (multi-value compound)
+      //
+      // Numerically-indexed arrays (lists) are iterated element-by-element so
+      // every delta is resolved. Keyed records and bare scalars are wrapped
+      // in a single-element list, processed once, and unwrapped when written
+      // back to the stub.
+      $is_list = is_array($value) && array_is_list($value);
+      $records = $is_list ? $value : [$value];
+      $mutated = FALSE;
+
+      foreach ($records as $index => $record) {
+        $path = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
+
+        if (!is_string($path) || $path === '') {
+          continue;
+        }
+
+        if ($this->managedFileExists($path)) {
+          continue;
+        }
+
+        $resolved = $this->resolveFixtureFile($path, $fixture_path);
+
+        if ($resolved === NULL) {
+          continue;
+        }
+
+        if (is_array($record)) {
+          if (array_key_exists('target_id', $record)) {
+            $records[$index]['target_id'] = $resolved;
+          }
+          else {
+            $records[$index][0] = $resolved;
+          }
+        }
+        else {
+          $records[$index] = $resolved;
+        }
+
+        $mutated = TRUE;
+      }
+
+      if (!$mutated) {
+        continue;
+      }
+
+      $stub->setValue($name, $is_list ? $records : $records[0]);
+    }
+  }
+
+  /**
+   * Detect a raw compound cell string of the shape 'key:"..."' or 'key:[...]'.
+   *
+   * Mirrors the top-level pattern 'EntityFieldParser' uses to enter compound
+   * mode.
+   */
+  protected function looksLikeCompoundCell(string $value): bool {
+    return preg_match('/^\s*[a-z_][a-z0-9_]*\s*:\s*[\"\[]/i', $value) === 1;
+  }
+
+  /**
+   * Rewrite each 'target_id:"path"' segment to embed the fixture path.
+   *
+   * Only the 'target_id' key is touched and only when the quoted value is not
+   * backed by an existing managed file and resolves to a real file under the
+   * fixtures dir. Other compound columns (e.g. 'alt', 'description') are left
+   * untouched so the parser can still process them.
+   */
+  protected function expandCompoundCellFixtures(string $value, string $fixture_path): string {
+    $callback = function (array $matches) use ($fixture_path): string {
+      $path = $matches[2];
+
+      if ($this->managedFileExists($path)) {
+        return $matches[0];
+      }
+
+      $resolved = $this->resolveFixtureFile($path, $fixture_path);
+
+      return $resolved === NULL ? $matches[0] : $matches[1] . $resolved . $matches[3];
+    };
+
+    return (string) preg_replace_callback('/(target_id\s*:\s*")([^"\\\\]+)(")/i', $callback, $value);
+  }
+
+  /**
+   * Resolve a field value against the fixtures directory.
+   *
+   * @param string $value
+   *   The raw field value: a path relative to the fixtures directory, a
+   *   stream URI or an absolute filesystem path.
+   * @param string $fixture_path
+   *   The resolved fixtures directory, with a trailing separator.
+   *
+   * @return string|null
+   *   The absolute path to the fixture file, or NULL when the value does not
+   *   resolve to a file inside the fixtures directory.
+   */
+  protected function resolveFixtureFile(string $value, string $fixture_path): ?string {
+    // drupal-driver resolves stream URIs and absolute paths itself.
+    if (str_contains($value, '://')) {
+      return NULL;
+    }
+
+    if (str_starts_with($value, '/') || str_starts_with($value, '\\') || preg_match('#^[a-z]:[\\\\/]#i', $value) === 1) {
+      return NULL;
+    }
+
+    if (!is_file($fixture_path . $value)) {
+      return NULL;
+    }
+
+    $resolved = realpath($fixture_path . $value);
+
+    // is_file() also succeeds for a '..' path that resolves outside the
+    // fixtures directory.
+    if ($resolved === FALSE || !str_starts_with($resolved, $fixture_path)) {
+      return NULL;
+    }
+
+    return $resolved;
+  }
+
+  /**
+   * Check whether a managed file with the given basename already exists.
+   *
+   * Mirrors drupal-driver FileHandler::resolveExistingFile() for bare
+   * basenames so the driver's own lookup is not pre-empted.
+   *
+   * @param string $basename
+   *   Candidate basename (no path separators).
+   *
+   * @return bool
+   *   TRUE when a managed file exists at public://basename or
+   *   private://basename.
+   */
+  protected function managedFileExists(string $basename): bool {
+    $this->driverFor(CoreCapabilityInterface::class);
+
+    if (str_contains($basename, '/') || str_contains($basename, '\\')) {
+      return FALSE;
+    }
+
+    $storage = \Drupal::entityTypeManager()->getStorage('file');
+
+    foreach (['public', 'private'] as $scheme) {
+      if ($storage->loadByProperties(['uri' => $scheme . '://' . $basename])) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Load the ids of the nodes of a content type matching the conditions.
+   *
+   * @param string $content_type
+   *   The content type machine name.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   *
+   * @return array<int, string>
+   *   Array of node ids.
+   */
+  public function loadNodeIds(string $content_type, array $conditions = []): array {
+    $this->driverFor(CoreCapabilityInterface::class);
+
+    $query = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', $content_type);
+
+    foreach ($conditions as $field => $value) {
+      $and = $query->andConditionGroup();
+      $and->condition($field, $value);
+      $query->condition($and);
+    }
+
+    return $query->execute();
+  }
+
+  /**
+   * Assert that a module backing a set of steps is enabled.
+   *
+   * Without the check, a step against a missing module fails with a fatal on
+   * an unresolvable class or a raw database error, not a message naming the
+   * module.
+   *
+   * @param string $module
+   *   The module machine name.
+   * @param string $package
+   *   Optional Composer package to name in the message. Pass an empty string
+   *   for a module that ships with Drupal core.
+   *
+   * @throws \RuntimeException
+   *   When the module is not enabled.
+   */
+  public function assertModuleEnabled(string $module, string $package = ''): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
+    // @codeCoverageIgnoreStart
+    if (\Drupal::moduleHandler()->moduleExists($module)) {
+      return;
+    }
+
+    $remedy = $package === ''
+      ? 'Enable it as part of the site setup; it ships with Drupal core.'
+      : sprintf('Add "%s" to the consumer project\'s composer.json and enable the module as part of the site setup.', $package);
+
+    throw new \RuntimeException(sprintf('The "%s" module is not enabled. %s', $module, $remedy));
+    // @codeCoverageIgnoreEnd
   }
 
 }

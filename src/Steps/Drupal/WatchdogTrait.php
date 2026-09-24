@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -32,8 +33,10 @@ use Drupal\Core\Database\Database;
  * - `@error` - add to scenarios that are expected to trigger an error. The
  *   errors are still read and cleared; the scenario is not failed.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait WatchdogTrait {
 
   use LastStepTrait;
@@ -88,7 +91,7 @@ trait WatchdogTrait {
 
     $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
 
-    $this->lastStepCapture($scope);
+    $this->setLastStepLine($scope);
   }
 
   /**
@@ -101,7 +104,7 @@ trait WatchdogTrait {
    */
   #[AfterStep]
   public function watchdogAfterStep(AfterStepScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->lastStepReached($scope)) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->isLastStep($scope)) {
       return;
     }
 

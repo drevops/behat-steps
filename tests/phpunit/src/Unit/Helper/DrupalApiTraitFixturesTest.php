@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
-use DrevOps\BehatSteps\Behat\Context\DrupalRawContext;
+use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
@@ -12,21 +13,21 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests for FixtureFileTrait.
+ * Tests resolving a fixture file path for a file or image field.
  */
-#[CoversTrait(FixtureFileTrait::class)]
-class FixtureFileTraitTest extends UnitTestCase {
+#[CoversTrait(DrupalApiTrait::class)]
+class DrupalApiTraitFixturesTest extends UnitTestCase {
 
   /**
-   * A test implementation of FixtureFileTrait.
+   * A host composing the trait under test.
    */
-  protected FixtureFileTraitTestImplementation $testObject;
+  protected DrupalApiTraitFixturesTestImplementation $testObject;
 
   /**
    * Per-test fixtures directory, with trailing separator.
@@ -39,7 +40,7 @@ class FixtureFileTraitTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new FixtureFileTraitTestImplementation();
+    $this->testObject = new DrupalApiTraitFixturesTestImplementation();
     $this->fixturesPath = static::$tmp . DIRECTORY_SEPARATOR;
   }
 
@@ -356,18 +357,18 @@ class FixtureFileTraitTest extends UnitTestCase {
 }
 
 /**
- * Test implementation of FixtureFileTrait.
+ * Host composing the trait under test.
  *
  * Exposes the protected helper methods under the test and stubs the
- * Drupal-dependent 'fixtureFileManagedExists()' so unit tests can simulate
+ * Drupal-dependent 'managedFileExists()' so unit tests can simulate
  * pre-existing managed files without bootstrapping Drupal.
  */
-class FixtureFileTraitTestImplementation extends DrupalRawContext {
+class DrupalApiTraitFixturesTestImplementation extends WebRawContext implements DrupalApiInterface {
 
-  use FixtureFileTrait;
+  use DrupalApiTrait;
 
   /**
-   * Basenames the stubbed 'fixtureFileManagedExists()' should report as managed.
+   * Basenames the stubbed 'managedFileExists()' should report as managed.
    *
    * @var string[]
    */
@@ -384,15 +385,15 @@ class FixtureFileTraitTestImplementation extends DrupalRawContext {
   public ?DriverInterface $driver = NULL;
 
   public function callHelperLooksLikeCompoundCell(string $value): bool {
-    return $this->fixtureFileLooksLikeCompoundCell($value);
+    return $this->looksLikeCompoundCell($value);
   }
 
   public function callHelperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
-    return $this->fixtureFileExpandCompoundCell($value, $fixture_path);
+    return $this->expandCompoundCellFixtures($value, $fixture_path);
   }
 
   public function callHelperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
-    $this->fixtureFileExpandEntityFields($entity_type, $stub);
+    $this->expandEntityFieldsFixtures($entity_type, $stub);
   }
 
   public function getMinkParameter(mixed $name): mixed {
@@ -421,7 +422,7 @@ class FixtureFileTraitTestImplementation extends DrupalRawContext {
    *
    * Overridden to avoid bootstrapping Drupal in unit tests.
    */
-  protected function fixtureFileManagedExists(string $basename): bool {
+  protected function managedFileExists(string $basename): bool {
     return in_array($basename, $this->managedBasenames, TRUE);
   }
 

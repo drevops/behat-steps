@@ -82,7 +82,7 @@ class UiContext extends WebRawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
 
-`RawContext` declares one argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between two contexts of the same profile:
+`WebRawContext` declares one argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between two contexts of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
@@ -92,7 +92,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`; `watchdog`, `big_pipe`, `cache`, `queue` and `email` belong to `DrupalContext`. Setting a group on the context of the other half is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`; `DrupalContext` extends it and adds `watchdog`, `big_pipe`, `cache`, `queue` and `email` on top. Setting a group no trait in the chain declares is an error at construction, naming what that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
@@ -327,7 +327,7 @@ These vary a run without changing any committed configuration. Nothing else in t
 
 | Variable | Read by | Effect |
 | --- | --- | --- |
-| `BEHAT_STEPS_DISABLE_CLEANUP` | `RawContext` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
+| `BEHAT_STEPS_DISABLE_CLEANUP` | `DrupalApiTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any value other than `0` to print a one-line accessibility summary per page to the console. |
 | `COMPOSER_BIN_DIR` | `DrushDriver` | Names the directory the Drush binary is resolved from, before the driver falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
 

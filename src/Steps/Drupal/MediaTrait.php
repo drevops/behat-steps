@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
@@ -11,8 +12,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -25,12 +24,11 @@ use Drupal\media\MediaInterface;
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait MediaTrait {
-
-  use FixtureFileTrait;
-  use TableTransposeTrait;
 
   /**
    * Remove media type.
@@ -88,8 +86,8 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media with fields exist:')]
   public function mediaCreateWithFields(string $media_type, TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
+    $entities = $this->transposeVerticalTable($table);
+    $horizontal_table = $this->buildHorizontalTable($entities);
 
     $this->mediaDelete($media_type, $horizontal_table);
 
@@ -343,7 +341,7 @@ trait MediaTrait {
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
-    $this->fixtureFileExpandEntityFields('media', $stub);
+    $this->expandEntityFieldsFixtures('media', $stub);
   }
 
   /**

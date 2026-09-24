@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -681,7 +681,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 /**
  * Test implementation of AccessibilityTrait.
  */
-class AccessibilityTraitTestImplementation extends RawContext {
+class AccessibilityTraitTestImplementation extends WebRawContext {
 
   use AccessibilityTrait;
 
@@ -804,7 +804,7 @@ class AccessibilityTraitTestImplementation extends RawContext {
 /**
  * A test implementation that keeps the trait's own engine fetch defaults.
  */
-class AccessibilityTraitFetchDefaultsTestImplementation extends RawContext {
+class AccessibilityTraitFetchDefaultsTestImplementation extends WebRawContext {
 
   use AccessibilityTrait;
 
@@ -821,7 +821,7 @@ class AccessibilityTraitFetchDefaultsTestImplementation extends RawContext {
 /**
  * A test implementation that counts reads and controls their outcome.
  */
-class AccessibilityTraitRetryTestImplementation extends RawContext {
+class AccessibilityTraitRetryTestImplementation extends WebRawContext {
 
   use AccessibilityTrait;
 

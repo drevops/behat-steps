@@ -10,7 +10,7 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\ElementTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -67,7 +67,7 @@ class ElementTraitTest extends UnitTestCase {
 /**
  * Test implementation of ElementTrait.
  */
-class ElementTraitTestImplementation extends RawContext {
+class ElementTraitTestImplementation extends WebRawContext {
 
   use ElementTrait;
 

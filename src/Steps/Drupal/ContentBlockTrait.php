@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
+use DrevOps\BehatSteps\Attribute\Steps;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
@@ -11,7 +12,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 
@@ -22,11 +22,11 @@ use Drupal\block_content\Entity\BlockContent;
  * - Create, edit, and verify block_content entities by type and description.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
+#[Steps]
 trait ContentBlockTrait {
-
-  use TableTransposeTrait;
 
   /**
    * Remove content blocks of a specified type with the given descriptions.
@@ -109,7 +109,7 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks with fields exist:')]
   public function contentBlockCreateWithFields(string $content_block_type, TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
+    $entities = $this->transposeVerticalTable($table);
 
     foreach ($entities as $entity_data) {
       $this->contentBlockCreateSingle($content_block_type, $entity_data);

@@ -120,7 +120,8 @@ commands:
       ahoy cli "DRUPAL_ROOT=build/web DRUPAL_VENDOR_ROOT=build/vendor vendor/bin/phpstan" && \
       ahoy cli "vendor/bin/rector --dry-run" && \
       ahoy cli "vendor/bin/gherkinlint lint tests/behat/features" && \
-      ahoy cli "php scripts/lint-layers.php"
+      ahoy cli "php scripts/lint-layers.php" && \
+      ahoy cli "php scripts/lint-markers.php"
 
   lint-fix:
     usage: Fix code.
