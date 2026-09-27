@@ -77,7 +77,7 @@ trait QueueTrait {
    * Process all items from a queue.
    *
    * @code
-   * When I process all items from the "myqueue" queue
+   * When I process the "myqueue" queue
    * @endcode
    */
   #[When('I process the :queue queue')]
