@@ -14,7 +14,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('marker_file_facts')]
 #[CoversFunction('marker_name')]
 #[CoversFunction('marker_violations')]
-#[CoversFunction('marker_is_hook')]
 class LintMarkersTest extends UnitTestCase {
 
   /**
