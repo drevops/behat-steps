@@ -29,24 +29,30 @@ Feature: Check that QueueTrait works
 
   @api @queue
   Scenario: Assert "When I process :count item(s) from the :queue queue" processes the requested number of items
-    Given the "behat_test" queue is empty
-    And I add 5 items to the "behat_test" queue
-    When I process 2 items from the "behat_test" queue
-    Then the "behat_test" queue should have 3 items
+    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    And the "behat_test" queue is empty
+    And I add 7 items to the "behat_test" queue
+    When I process 3 items from the "behat_test" queue
+    Then the "behat_test" queue should have 4 items
+    And the config "mysite_core.settings" key "queue_budget" should have the value "17"
 
   @api @queue
   Scenario: Assert "When I process :count item(s) from the :queue queue" works with singular
-    Given the "behat_test" queue is empty
-    And I add 2 items to the "behat_test" queue
+    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    And the "behat_test" queue is empty
+    And I add 6 items to the "behat_test" queue
     When I process 1 item from the "behat_test" queue
-    Then the "behat_test" queue should have 1 item
+    Then the "behat_test" queue should have 5 items
+    And the config "mysite_core.settings" key "queue_budget" should have the value "19"
 
   @api @queue
   Scenario: Assert "When I process the :queue queue" processes all items
-    Given the "behat_test" queue is empty
-    And I add 3 items to the "behat_test" queue
+    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    And the "behat_test" queue is empty
+    And I add 4 items to the "behat_test" queue
     When I process the "behat_test" queue
     Then the "behat_test" queue should be empty
+    And the config "mysite_core.settings" key "queue_budget" should have the value "16"
 
   @api @trait:Drupal\QueueTrait
   Scenario: Assert negative assertion for "Then the :queue queue should have :count items" works with wrong count
