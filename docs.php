@@ -714,11 +714,11 @@ function validate(array $info): array {
  * Validate that every documented step matches exactly one definition.
  *
  * Behat resolves definitions per step text while a scenario runs, so a pattern
- * that shadows another one reaches a release unnoticed: nothing reports the
- * clash until someone writes a scenario using the shadowed step.
+ * that shadows another one is only reported once a scenario uses the shadowed
+ * step.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
- *   Array of info items with 'name', 'from', and 'to' keys.
+ *   Array of trait info keyed by trait name.
  *
  * @return array<string>
  *   Array of errors.
@@ -780,7 +780,7 @@ function validate_step_patterns(array $info): array {
     }
   }
 
-  // A pattern no example matches is a pattern nothing has ever exercised.
+  // Catch a renamed pattern whose example was left behind.
   foreach ($steps as $step) {
     $documented = FALSE;
 
