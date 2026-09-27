@@ -7,6 +7,8 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 
 /**
  * Manage Drupal webforms.
@@ -18,10 +20,12 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  * Requires `drupal/webform` module.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait WebformTrait {
+
+  use DrupalQueryTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Remove all webforms with a title containing the given string.

@@ -14,6 +14,10 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -36,10 +40,14 @@ use Drupal\workflows\Entity\Workflow;
  * off for the content so that the provided alias is preserved.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait ContentTrait {
+
+  use DrupalQueryTrait;
+  use EntityLifecycleTrait;
+  use FixtureFileTrait;
+  use TableTransposeTrait;
 
   /**
    * Expand fixture file paths for file/image fields on nodes.

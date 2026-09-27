@@ -327,7 +327,7 @@ These vary a run without changing any committed configuration. Nothing else in t
 
 | Variable | Read by | Effect |
 | --- | --- | --- |
-| `BEHAT_STEPS_DISABLE_CLEANUP` | `DrupalApiTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
+| `BEHAT_STEPS_DISABLE_CLEANUP` | `EntityLifecycleTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any value other than `0` to print a one-line accessibility summary per page to the console. |
 | `COMPOSER_BIN_DIR` | `DrushDriver` | Names the directory the Drush binary is resolved from, before the driver falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
 

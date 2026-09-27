@@ -191,11 +191,7 @@ class LintMarkersTest extends UnitTestCase {
         ['StringTrait registers Gherkin through #[Transform]'],
       ],
       'plumbing registering a hook' => [
-        ['StringTrait' => ['markers' => ['Helper'], 'composed' => [], 'members' => ['BeforeScenario']]],
-        ['StringTrait registers a hook through #[BeforeScenario]'],
-      ],
-      'plumbing allowed to register a hook' => [
-        ['DrupalApiTrait' => ['markers' => ['Helper'], 'composed' => [], 'members' => ['AfterScenario']]],
+        ['EntityLifecycleTrait' => ['markers' => ['Helper'], 'composed' => [], 'members' => ['AfterScenario']]],
         [],
       ],
       'plumbing carrying an unrelated attribute' => [

@@ -48,7 +48,6 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * @endcode
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait ConfigTrait {

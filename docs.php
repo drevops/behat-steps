@@ -1008,7 +1008,7 @@ function helper_trait_contracts(\ReflectionClass $trait, array $class_names): ar
   foreach ($class_names as $class_name) {
     $reflection = new \ReflectionClass($class_name);
 
-    if (!isset($reflection->getTraits()[$trait->getName()])) {
+    if (!composes_trait($reflection, $trait->getName())) {
       continue;
     }
 
@@ -1018,6 +1018,32 @@ function helper_trait_contracts(\ReflectionClass $trait, array $class_names): ar
   }
 
   return array_values($contracts);
+}
+
+/**
+ * Determine whether a class reaches a trait through any depth of composition.
+ *
+ * 'getTraits()' reports only what a class composes itself, and a helper trait
+ * is reached through the step trait that needs it.
+ *
+ * @param \ReflectionClass<object> $reflection
+ *   The class or trait to walk.
+ * @param string $trait_name
+ *   Fully qualified name of the trait to look for.
+ *
+ * @return bool
+ *   TRUE when the trait is composed at any depth.
+ */
+function composes_trait(\ReflectionClass $reflection, string $trait_name): bool {
+  foreach ($reflection->getTraits() as $composed) {
+    if ($composed->getName() === $trait_name || composes_trait($composed, $trait_name)) {
+      return TRUE;
+    }
+  }
+
+  $parent = $reflection->getParentClass();
+
+  return $parent instanceof \ReflectionClass && composes_trait($parent, $trait_name);
 }
 
 /**

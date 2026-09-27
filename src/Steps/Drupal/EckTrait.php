@@ -11,6 +11,8 @@ use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -21,10 +23,12 @@ use Drupal\Core\Entity\EntityInterface;
  * - Created entities are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait EckTrait {
+
+  use DrupalQueryTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Create eck entities.

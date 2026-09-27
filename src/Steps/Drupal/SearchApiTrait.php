@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\node\Entity\Node;
 
 /**
@@ -16,10 +17,11 @@ use Drupal\node\Entity\Node;
  * - Run indexing for a specific number of items.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait SearchApiTrait {
+
+  use DrupalQueryTrait;
 
   /**
    * Index a node of a specific content type with a specific title.

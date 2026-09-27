@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use Drupal\block\Entity\Block;
 
 /**
@@ -20,10 +21,11 @@ use Drupal\block\Entity\Block;
  * - Created blocks are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait BlockTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Create a block instance.

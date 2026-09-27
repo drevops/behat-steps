@@ -22,7 +22,6 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  * - Assert queue item counts.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait QueueTrait {

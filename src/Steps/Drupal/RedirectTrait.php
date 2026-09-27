@@ -10,6 +10,8 @@ use Behat\Step\Then;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -26,10 +28,12 @@ use Drupal\redirect\Entity\Redirect;
  * module as part of the site's standard setup (e.g. in `core.extension.yml`).
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait RedirectTrait {
+
+  use DrupalQueryTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Allowed HTTP status codes for redirects.

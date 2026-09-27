@@ -16,7 +16,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  * assertion would otherwise read the progress screen rather than the result.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait BatchTrait {

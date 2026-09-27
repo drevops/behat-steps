@@ -12,6 +12,8 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -22,10 +24,12 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Verify vocabulary configurations.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait TaxonomyTrait {
+
+  use EntityLifecycleTrait;
+  use TableTransposeTrait;
 
   /**
    * Create taxonomy terms with vertical field format.

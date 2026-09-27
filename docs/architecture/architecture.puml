@@ -24,7 +24,7 @@ package "drevops/behat-steps" {
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
-    component "5 concern traits\nlast step, request headers,\nstrings, JavaScript support,\nDrupalApiTrait: entity creation,\ncleanup, login, hooks" as Helpers
+    component "10 concern traits\nlast step, request headers,\nstrings, JavaScript support,\nentity lifecycle, authentication,\nstatic cache, table transpose,\nfixture files, Drupal queries" as Helpers
   }
 
   package "Integration - src/Behat" #F3E5F5 {

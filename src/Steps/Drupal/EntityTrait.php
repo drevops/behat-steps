@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 
 /**
  * Create entities of a type that has no dedicated trait.
@@ -23,10 +24,11 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * `@behat-steps-entity-cleanup-skip:commerce_product`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait EntityTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Create entities of a type from a table of field values.

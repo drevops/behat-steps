@@ -38,7 +38,7 @@ trait BehatCliTrait {
    *
    * @var array<int, string>
    */
-  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\DrupalApiTrait'];
+  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\AuthenticationTrait', 'Helper\StaticCacheTrait'];
 
   /**
    * Message selectors every generated configuration declares.
@@ -150,17 +150,19 @@ trait BehatCliTrait {
 
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\AuthenticationTrait;
+use DrevOps\BehatSteps\Helper\StaticCacheTrait;
 {{USE_DECLARATION}}
 
 // A trait tag names a trait from either half, and the generated class composes
 // only the traits under test, so it starts from the step-free root and adds the
 // Drupal lifecycle a Drupal trait requires.
-class FeatureContext extends WebRawContext implements DrupalApiInterface {
-  use DrupalApiTrait;
+class FeatureContext extends WebRawContext implements UserAwareInterface {
+  use AuthenticationTrait;
+  use StaticCacheTrait;
 
   {{USE_IN_CLASS}}
 

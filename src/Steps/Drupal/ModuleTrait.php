@@ -29,7 +29,6 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * - `@module:!module_name` - disable module for scenario
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait ModuleTrait {

@@ -8,6 +8,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -20,10 +22,12 @@ use Drupal\system\MenuInterface;
  * - Created menus and menu links are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait MenuTrait {
+
+  use DrupalQueryTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Remove a single menu by its label if it exists.

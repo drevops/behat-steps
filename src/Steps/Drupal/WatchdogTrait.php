@@ -34,10 +34,11 @@ use Drupal\Core\Database\Database;
  *   errors are still read and cleared; the scenario is not failed.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait WatchdogTrait {
+
+  use LastStepTrait;
 
   use LastStepTrait;
 

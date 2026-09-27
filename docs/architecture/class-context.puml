@@ -2,7 +2,7 @@
 ' drevops/behat-steps - the context chain, its managers, the helper traits
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
-' DrupalContext.php, DriverAwareInterface.php, DrupalApiInterface.php,
+' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
 ' src/Behat/Manager/, src/Helper/, src/Steps/Web/PathTrait.php,
 ' src/Steps/Web/CommandTrait.php, src/Steps/Drupal/ContentTrait.php,
 ' src/Exception/AssertionException.php.
@@ -35,17 +35,17 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   }
 
   class DrupalContext {
-    use DrupalApiTrait
     use every Steps\\Drupal trait
   }
 
-  interface DrupalApiInterface {
-    the public half of DrupalApiTrait
+  interface UserAwareInterface {
+    +setUserManager(manager) : void
+    +getUserManager() : UserManagerInterface
   }
 
   WebRawContext <|-- WebContext
   WebContext <|-- DrupalContext
-  DrupalApiInterface <|.. DrupalContext
+  UserAwareInterface <|.. DrupalContext
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
@@ -73,7 +73,7 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
 
 WebRawContext o--> DriverManagerInterface
 WebRawContext o--> AuthenticationManagerInterface
-DrupalContext o--> UserManagerInterface
+AuthenticationTrait o--> UserManagerInterface
 
 package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
@@ -95,36 +95,50 @@ package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
   class JavascriptSupportTrait <<trait>> {
     +isJavascriptSupported() : bool
   }
-  class DrupalApiTrait <<trait>> {
+  class EntityLifecycleTrait <<trait>> {
     +nodeCreate(stub) : EntityStubInterface
-    +userCreate(stub) : EntityStubInterface
     +termCreate(stub) : EntityStubInterface
     +entityCreate(stub) : EntityStubInterface
     +languageCreate(stub) : EntityStubInterface|false
     +entityRegister(entity) : void
     --
     +cleanEntities(scope) : void
-    +cleanUsers(scope) : void
-    +cleanRoles(scope) : void
-    +clearStaticCaches() : void
     --
+    #dispatchHooks(scopeClass, stub) : void
+  }
+
+  class AuthenticationTrait <<trait>> {
+    +userCreate(stub) : EntityStubInterface
     +login(user) : void
     +logout(fast) : void
     +loggedIn() : bool
     --
-    +loadNodeIds(content_type, conditions) : array
-    +assertModuleEnabled(module, package) : void
-    +expandEntityFieldsFixtures(entity_type, stub) : void
+    +cleanUsers(scope) : void
+    +cleanRoles(scope) : void
+  }
+
+  class StaticCacheTrait <<trait>> {
+    +clearStaticCaches() : void
+  }
+
+  class TableTransposeTrait <<trait>> {
     +transposeVerticalTable(table) : array
     +buildHorizontalTable(entities) : TableNode
-    --
-    #dispatchHooks(scopeClass, stub) : void
+  }
+
+  class FixtureFileTrait <<trait>> {
+    +expandEntityFieldsFixtures(entity_type, stub) : void
+  }
+
+  class DrupalQueryTrait <<trait>> {
+    +loadNodeIds(content_type, conditions) : array
+    +assertModuleEnabled(module, package) : void
   }
 
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- LastStepTrait
   LastStepTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- DrupalApiTrait
+  JavascriptSupportTrait -[hidden]down- EntityLifecycleTrait
 }
 
 package "Steps\\Web" #E8F5E9 {
@@ -151,11 +165,14 @@ WebRawContext ..> RequestHeadersTrait : composes
 WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
 WebRawContext ..> JavascriptSupportTrait : composes
-DrupalContext ..> DrupalApiTrait : composes
+AuthenticationTrait ..> EntityLifecycleTrait : composes
 
 PathTrait ..> WebRawContext : requires
 ContentTrait ..> WebRawContext : requires
-ContentTrait ..> DrupalApiInterface : requires
+ContentTrait ..> EntityLifecycleTrait : composes
+ContentTrait ..> DrupalQueryTrait : composes
+ContentTrait ..> FixtureFileTrait : composes
+ContentTrait ..> TableTransposeTrait : composes
 
 PathTrait ..> ExpectationException : throws
 ContentTrait ..> ExpectationException : throws
@@ -192,11 +209,12 @@ note right of CommandTrait
   and declares only RawMinkContext.
 end note
 
-note bottom of DrupalApiTrait
-  Entity, user and role cleanup live here,
-  not in a step trait: this trait owns the whole
-  Drupal scenario lifecycle and dispatches the
-  before/after entity-create hooks.
+note bottom of EntityLifecycleTrait
+  Entity cleanup lives with the concern that
+  creates entities. Every step trait that creates
+  one composes this, and trait flattening is
+  idempotent, so there is still one registry and
+  one reverse-order deletion pass.
 
   A step names a capability through driverFor()
   and never a driver, so the vocabulary carries

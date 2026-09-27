@@ -15,6 +15,7 @@ use Behat\Step\Then;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
@@ -31,10 +32,11 @@ use Symfony\Component\Filesystem\Filesystem;
  * `@behat-steps-skip:fileAfterScenario`
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait FileTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Unmanaged file URIs.

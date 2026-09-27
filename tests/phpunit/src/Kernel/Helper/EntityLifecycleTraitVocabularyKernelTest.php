@@ -9,7 +9,7 @@ use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
@@ -31,10 +31,10 @@ use PHPUnit\Framework\MockObject\MockObject;
  *
  * @group behat
  */
-#[CoversTrait(DrupalApiTrait::class)]
+#[CoversTrait(EntityLifecycleTrait::class)]
 #[Group('behat')]
 #[RunTestsInSeparateProcesses]
-class DrupalApiTraitVocabularyKernelTest extends KernelTestBase {
+class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}

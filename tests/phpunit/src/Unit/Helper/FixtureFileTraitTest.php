@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
@@ -13,7 +12,7 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\FixtureFileTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -21,13 +20,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests resolving a fixture file path for a file or image field.
  */
-#[CoversTrait(DrupalApiTrait::class)]
-class DrupalApiTraitFixturesTest extends UnitTestCase {
+#[CoversTrait(FixtureFileTrait::class)]
+class FixtureFileTraitTest extends UnitTestCase {
 
   /**
    * A host composing the trait under test.
    */
-  protected DrupalApiTraitFixturesTestImplementation $testObject;
+  protected FixtureFileTraitTestImplementation $testObject;
 
   /**
    * Per-test fixtures directory, with trailing separator.
@@ -40,7 +39,7 @@ class DrupalApiTraitFixturesTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new DrupalApiTraitFixturesTestImplementation();
+    $this->testObject = new FixtureFileTraitTestImplementation();
     $this->fixturesPath = static::$tmp . DIRECTORY_SEPARATOR;
   }
 
@@ -363,9 +362,9 @@ class DrupalApiTraitFixturesTest extends UnitTestCase {
  * Drupal-dependent 'managedFileExists()' so unit tests can simulate
  * pre-existing managed files without bootstrapping Drupal.
  */
-class DrupalApiTraitFixturesTestImplementation extends WebRawContext implements DrupalApiInterface {
+class FixtureFileTraitTestImplementation extends WebRawContext {
 
-  use DrupalApiTrait;
+  use FixtureFileTrait;
 
   /**
    * Basenames the stubbed 'managedFileExists()' should report as managed.

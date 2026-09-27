@@ -25,14 +25,14 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
                 use Steps\Web\*  (28)
                           |
                    DrupalContext
-             use DrupalApiTrait + Steps\Drupal\*  (29)
+                use Steps\Drupal\*  (29)
 ```
 
 | Extend | When |
 | --- | --- |
 | `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits |
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
-| `WebRawContext` | The project picks its own traits, and composes `DrupalApiTrait` when it needs the Drupal lifecycle |
+| `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
 `WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
 
@@ -78,20 +78,19 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A suite that writes its own Drupal steps composes `DrupalApiTrait` and declares the contract its methods answer to:
+A suite that writes its own Drupal steps composes the helper for the concern it touches. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 
 ```php
 <?php
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 
-class SpecContext extends WebRawContext implements DrupalApiInterface {
+class SpecContext extends WebRawContext {
 
-  use DrupalApiTrait;
+  use EntityLifecycleTrait;
 
   #[When('I publish a page titled :title')]
   public function publish(string $title): void {

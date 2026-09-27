@@ -42,7 +42,6 @@ use DrevOps\BehatSteps\Behat\Tag;
  * `$bigPipeWaitTimeout` to override it for one scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait BigPipeTrait {

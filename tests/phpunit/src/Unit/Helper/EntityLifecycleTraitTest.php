@@ -12,7 +12,7 @@ use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
@@ -31,7 +31,9 @@ use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\AuthenticationTrait;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\StaticCacheTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
@@ -43,14 +45,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Tests the Drupal scenario lifecycle a context composes.
+ * Tests the Drupal scenario lifecycle the step traits compose.
  *
  * The cleanup hooks read the opt-out and the skip tags from the host context,
  * so the run covers that class too.
  */
-#[CoversTrait(DrupalApiTrait::class)]
+#[CoversTrait(AuthenticationTrait::class)]
+#[CoversTrait(EntityLifecycleTrait::class)]
+#[CoversTrait(StaticCacheTrait::class)]
 #[CoversClass(WebRawContext::class)]
-class DrupalApiTraitTest extends UnitTestCase {
+class EntityLifecycleTraitTest extends UnitTestCase {
 
   /**
    * A directory carrying the entry file the Drupal driver requires.
@@ -77,8 +81,8 @@ class DrupalApiTraitTest extends UnitTestCase {
     }
   }
 
-  public function testImplementsDrupalApiInterface(): void {
-    $this->assertInstanceOf(DrupalApiInterface::class, new TestableRawContext());
+  public function testImplementsUserAwareInterface(): void {
+    $this->assertInstanceOf(UserAwareInterface::class, new TestableRawContext());
   }
 
   public function testUninitializedContextNamesTheMissingUserManager(): void {

@@ -78,7 +78,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 - The hook dispatcher and `skipTag()`.
 - The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.
 
-`WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext`, composes every trait under `src/Steps/Drupal`, and adds the Drupal scenario lifecycle by composing `DrupalApiTrait` and declaring `DrupalApiInterface`:
+`WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext` and composes every trait under `src/Steps/Drupal`. The Drupal scenario lifecycle does not sit on the context: each step trait composes the helper traits it needs, so the lifecycle arrives with the traits that use it:
 
 - Entity creation (`nodeCreate`, `userCreate`, `termCreate`, `entityCreate`, `languageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `cleanEntities`, `cleanUsers` and `cleanRoles` run after the scenario and delete what it created, in reverse.
@@ -101,7 +101,7 @@ That directory split isn't just tidiness. `docs.php` reads a trait's context str
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `WebRawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. The 29 Drupal traits add `@phpstan-require-implements` naming `DrupalApiInterface`, because a trait cannot implement an interface but the class composing it can. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `WebRawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 
@@ -174,7 +174,7 @@ Default sessions run through BrowserKit. `@javascript` scenarios run through Sel
 
 Asserting that a step *fails correctly* is awkward from inside the same run: the failure would fail your own scenario. So scenarios tagged `@trait:SomeTrait` take a detour.
 
-`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `DrupalApiTrait`, because a tag names a trait from either half and a Drupal trait requires that lifecycle. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
+`BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `AuthenticationTrait` and `StaticCacheTrait`, the two helpers no step trait body calls into, because a tag names a trait from either half. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
 ![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)
 

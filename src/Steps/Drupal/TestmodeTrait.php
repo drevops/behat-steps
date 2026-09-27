@@ -11,6 +11,7 @@ use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\testmode\Testmode;
 
 /**
@@ -23,10 +24,11 @@ use Drupal\testmode\Testmode;
  * - `@testmode` - enable for scenario
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait TestmodeTrait {
+
+  use DrupalQueryTrait;
 
   /**
    * Enable test mode before a scenario tagged with @testmode.

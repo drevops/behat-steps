@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
+use DrevOps\BehatSteps\Helper\StaticCacheTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 
@@ -21,10 +22,11 @@ use Drupal\Core\Database\Database;
  * - Run cron, which also flushes the caches cron itself invalidates.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait CacheTrait {
+
+  use StaticCacheTrait;
 
   /**
    * Clear every cache bin.

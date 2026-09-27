@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\AuthenticationTrait;
 use DrevOps\BehatSteps\Helper\StringTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
@@ -54,6 +54,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('collect_helper_methods')]
 #[CoversFunction('collect_helper_traits')]
 #[CoversFunction('helper_trait_contracts')]
+#[CoversFunction('composes_trait')]
 #[CoversFunction('resolve_inherited_comment')]
 #[CoversFunction('relative_source_path')]
 #[CoversFunction('render_helpers')]
@@ -2783,14 +2784,14 @@ EOD,
     $this->assertSame('src/Helper/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
     $this->assertSame(['isJavascriptSupported'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
 
-    $this->assertContains('nodeCreate', array_column($actual['DrupalApiTrait']['helpers'], 'name'));
+    $this->assertContains('nodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
   }
 
   public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {
     $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
     $helpers = [];
 
-    foreach ($actual['DrupalApiTrait']['helpers'] as $helper) {
+    foreach ($actual['AuthenticationTrait']['helpers'] as $helper) {
       $helpers[$helper['name']] = $helper['description'];
     }
 
@@ -2815,12 +2816,16 @@ EOD,
     $contracts = helper_trait_contracts(new \ReflectionClass($trait_name), [WebContext::class, DrupalContext::class]);
     $names = array_map(static fn(\ReflectionClass $contract): string => $contract->getName(), $contracts);
 
-    $this->assertSame($expected, array_values(array_intersect($names, [DrupalApiInterface::class, DriverAwareInterface::class])));
+    $this->assertSame($expected, array_values(array_intersect($names, [UserAwareInterface::class, DriverAwareInterface::class])));
   }
 
   public static function dataProviderHelperTraitContracts(): \Iterator {
-    yield 'composed by a documented context' => [DrupalApiTrait::class, [DriverAwareInterface::class, DrupalApiInterface::class]];
-    yield 'composed below the documented contexts' => [StringTrait::class, []];
+    yield 'reached through a composed step trait' => [AuthenticationTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
+    yield 'reached through the root context' => [StringTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
+  }
+
+  public function testHelperTraitContractsSkipsTheClassComposingNothing(): void {
+    $this->assertSame([], helper_trait_contracts(new \ReflectionClass(StringTrait::class), [\stdClass::class]));
   }
 
   public function testCollectHelperTraitsSkipsTheRepositoryWithoutThem(): void {

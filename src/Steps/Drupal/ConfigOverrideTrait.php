@@ -65,10 +65,11 @@ use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
  * and `@behat-steps-skip:configOverrideBeforeStep`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait ConfigOverrideTrait {
+
+  use RequestHeadersTrait;
 
   use RequestHeadersTrait;
 

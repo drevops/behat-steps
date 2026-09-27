@@ -10,6 +10,9 @@
  * vocabulary trait composes another one, or when a plumbing trait registers
  * Gherkin.
  *
+ * A plumbing trait may register a hook: a helper that owns a scenario's
+ * teardown carries the hook that ends it.
+ *
  * Run with --path=path/to/repo to check a tree other than this repository.
  */
 
@@ -34,14 +37,6 @@ const MARKER_HELPER = 'Helper';
  * Attributes registering Gherkin against a method.
  */
 const MARKER_VOCABULARY_ATTRIBUTES = ['Given', 'When', 'Then', 'Transform'];
-
-/**
- * Plumbing traits allowed to register a hook.
- *
- * A scenario that creates Drupal content has to clean it up again, so the
- * trait carrying that lifecycle carries the hooks that close it.
- */
-const MARKER_HOOK_ALLOWED = ['DrupalApiTrait'];
 
 // Execute the entry function only when the script is run directly, not when
 // included.
@@ -241,33 +236,9 @@ function marker_violations(array $traits): array {
     foreach ($facts['members'] as $member) {
       if (in_array($member, MARKER_VOCABULARY_ATTRIBUTES, TRUE)) {
         $violations[] = sprintf('%s registers Gherkin through #[%s]', $name, $member);
-
-        continue;
       }
-
-      if (!marker_is_hook($member) || in_array($name, MARKER_HOOK_ALLOWED, TRUE)) {
-        continue;
-      }
-
-      $violations[] = sprintf('%s registers a hook through #[%s]', $name, $member);
     }
   }
 
   return $violations;
-}
-
-/**
- * Determines whether an attribute name registers a hook.
- *
- * Behat and this package both name a hook attribute after the point it fires
- * at, so the prefix identifies one without a list to maintain.
- *
- * @param string $name
- *   The attribute short name.
- *
- * @return bool
- *   TRUE when the attribute registers a hook.
- */
-function marker_is_hook(string $name): bool {
-  return str_starts_with($name, 'Before') || str_starts_with($name, 'After');
 }

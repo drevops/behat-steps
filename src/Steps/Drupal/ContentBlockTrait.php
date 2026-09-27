@@ -12,6 +12,8 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 
@@ -23,10 +25,12 @@ use Drupal\block_content\Entity\BlockContent;
  * - Created entities are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait ContentBlockTrait {
+
+  use EntityLifecycleTrait;
+  use TableTransposeTrait;
 
   /**
    * Remove content blocks of a specified type with the given descriptions.

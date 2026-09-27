@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Context;
 
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -39,9 +38,10 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * Zero-config context carrying the whole vocabulary a Drupal suite needs.
  *
  * Extending this context is enough to write features against a Drupal site
- * without writing any PHP: it is 'WebContext' plus 'DrupalApiTrait' plus
- * every trait under 'Steps\Drupal', so a Drupal project extends one class
- * and gets all 57 step traits.
+ * without writing any PHP: it is 'WebContext' plus every trait under
+ * 'Steps\Drupal', so a Drupal project extends one class and gets all 57 step
+ * traits. Each of those traits brings the helpers it needs, so the entity
+ * teardown arrives with the traits that create entities.
  *
  * A trait for a contrib module resolves nothing until one of its steps runs,
  * and then fails with a message naming the module, so composing all of them
@@ -52,11 +52,9 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * reports that rather than letting Behat name an arbitrary step.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
- * @see \DrevOps\BehatSteps\Helper\DrupalApiTrait
+ * @see \DrevOps\BehatSteps\Helper\EntityLifecycleTrait
  */
-class DrupalContext extends WebContext implements DrupalApiInterface {
-
-  use DrupalApiTrait;
+class DrupalContext extends WebContext implements UserAwareInterface {
 
   use BatchTrait;
   use BigPipeTrait;

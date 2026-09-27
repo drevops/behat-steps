@@ -35,10 +35,11 @@ use Drupal\Core\Database\StatementInterface;
  * - `@debug` (enable detailed logs)
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait EmailTrait {
+
+  use StringTrait;
 
   use StringTrait;
 

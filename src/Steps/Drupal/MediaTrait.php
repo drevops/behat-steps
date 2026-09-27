@@ -12,6 +12,9 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -25,10 +28,13 @@ use Drupal\media\MediaInterface;
  * - Created entities are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait MediaTrait {
+
+  use EntityLifecycleTrait;
+  use FixtureFileTrait;
+  use TableTransposeTrait;
 
   /**
    * Remove media type.

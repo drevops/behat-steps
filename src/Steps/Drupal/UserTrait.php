@@ -15,7 +15,9 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Helper\AuthenticationTrait;
 use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -32,10 +34,13 @@ use Drupal\user\UserInterface;
  * - Assert user account status (active/inactive).
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait UserTrait {
+
+  use AuthenticationTrait;
+  use StringTrait;
+  use TableTransposeTrait;
 
   use StringTrait;
 

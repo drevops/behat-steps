@@ -5,22 +5,21 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Helper;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
+use DrevOps\BehatSteps\Helper\TableTransposeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
 /**
  * Tests transposing a vertical Gherkin table into entity rows.
  */
-#[CoversTrait(DrupalApiTrait::class)]
-class DrupalApiTraitTablesTest extends UnitTestCase {
+#[CoversTrait(TableTransposeTrait::class)]
+class TableTransposeTraitTest extends UnitTestCase {
 
   /**
    * A host composing the trait under test.
    */
-  protected DrupalApiTraitTablesTestImplementation $testObject;
+  protected TableTransposeTraitTestImplementation $testObject;
 
   /**
    * {@inheritdoc}
@@ -28,7 +27,7 @@ class DrupalApiTraitTablesTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new DrupalApiTraitTablesTestImplementation();
+    $this->testObject = new TableTransposeTraitTestImplementation();
   }
 
   public function testTwoColumnTableYieldsOneEntity(): void {
@@ -89,8 +88,8 @@ class DrupalApiTraitTablesTest extends UnitTestCase {
 /**
  * Host composing the trait under test.
  */
-class DrupalApiTraitTablesTestImplementation extends WebRawContext implements DrupalApiInterface {
+class TableTransposeTraitTestImplementation extends WebRawContext {
 
-  use DrupalApiTrait;
+  use TableTransposeTrait;
 
 }

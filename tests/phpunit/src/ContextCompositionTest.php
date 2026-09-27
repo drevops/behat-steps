@@ -7,11 +7,10 @@ namespace DrevOps\BehatSteps\Tests;
 use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Attribute\Steps;
-use DrevOps\BehatSteps\Behat\Context\DrupalApiInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\DrupalApiTrait;
 use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\LastStepTrait;
 use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
@@ -136,29 +135,87 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that the Drupal context declares the contract its traits require.
+   * Assert that the Drupal context declares the user-manager contract.
    */
-  public function testTheDrupalContextCarriesTheDrupalApi(): void {
-    $this->assertContains(DrupalApiTrait::class, static::composedTraits(DrupalContext::class, Helper::class));
-    $this->assertContains(DrupalApiInterface::class, class_implements(DrupalContext::class));
+  public function testTheDrupalContextIsUserAware(): void {
+    $this->assertContains(UserAwareInterface::class, class_implements(DrupalContext::class));
   }
 
   /**
-   * Assert that every Drupal step trait states what it needs from its host.
+   * Assert that a step trait composes every helper member its body calls.
+   *
+   * A step trait brings its own plumbing, so a member reached through '$this'
+   * that no composed helper declares would only fail once the step ran.
+   *
+   * @param string $directory
+   *   The vocabulary directory under 'src/Steps'.
    */
-  public function testEveryDrupalTraitRequiresTheDrupalApi(): void {
-    $unstated = [];
+  #[DataProvider('dataProviderStepTraitsComposeWhatTheyCall')]
+  public function testStepTraitsComposeWhatTheyCall(string $directory): void {
+    $owners = static::helperMembers();
+    $missing = [];
 
-    foreach (static::directoryTraits('Drupal') as $trait) {
+    foreach (static::directoryTraits($directory) as $trait) {
       /** @var class-string $trait */
-      $comment = (string) (new \ReflectionClass($trait))->getDocComment();
+      $reflection = new \ReflectionClass($trait);
+      $body = (string) file_get_contents((string) $reflection->getFileName());
+      $composed = static::composedMembers($reflection);
 
-      if (!str_contains($comment, '@phpstan-require-implements \\' . DrupalApiInterface::class)) {
-        $unstated[] = $trait;
+      foreach ($owners as $member => $owner) {
+        $called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
+
+        if ($called && !in_array($member, $composed, TRUE)) {
+          $missing[] = sprintf('%s calls %s() without composing %s', $reflection->getShortName(), $member, $owner);
+        }
       }
     }
 
-    $this->assertSame([], $unstated);
+    $this->assertSame([], $missing);
+  }
+
+  public static function dataProviderStepTraitsComposeWhatTheyCall(): \Iterator {
+    yield 'web' => ['Web'];
+    yield 'drupal' => ['Drupal'];
+  }
+
+  /**
+   * Map every public and protected helper member to the trait declaring it.
+   *
+   * @return array<string, string>
+   *   Helper trait short name, keyed by member name.
+   */
+  protected static function helperMembers(): array {
+    $owners = [];
+
+    foreach (glob(dirname(__DIR__, 3) . '/src/Helper/*.php') ?: [] as $file) {
+      /** @var class-string $trait */
+      $trait = 'DrevOps\\BehatSteps\\Helper\\' . basename($file, '.php');
+
+      foreach ((new \ReflectionClass($trait))->getMethods() as $method) {
+        $owners[$method->getName()] = basename($file, '.php');
+      }
+    }
+
+    return $owners;
+  }
+
+  /**
+   * List the member names a trait reaches through its own composition.
+   *
+   * @param \ReflectionClass<object> $reflection
+   *   The trait to walk.
+   *
+   * @return array<int, string>
+   *   Method names, including the trait's own.
+   */
+  protected static function composedMembers(\ReflectionClass $reflection): array {
+    $members = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), $reflection->getMethods());
+
+    foreach ($reflection->getTraits() as $composed) {
+      $members = array_merge($members, static::composedMembers($composed));
+    }
+
+    return array_values(array_unique($members));
   }
 
   /**

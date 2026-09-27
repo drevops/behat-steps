@@ -37,7 +37,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  * state rather than duplicating it.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
- * @see \DrevOps\BehatSteps\Helper\DrupalApiTrait
+ * @see \DrevOps\BehatSteps\Behat\Context\DrupalContext
  */
 class WebRawContext extends RawMinkContext implements DriverAwareInterface {
 

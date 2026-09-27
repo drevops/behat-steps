@@ -180,7 +180,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and the 4 web helper traits. A context that wants the Drupal entity lifecycle, login and cleanup without the Drupal vocabulary composes `DrupalApiTrait` and declares `DrupalApiInterface`. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
+`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and the 4 web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 

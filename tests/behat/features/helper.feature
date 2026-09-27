@@ -1,9 +1,9 @@
-Feature: Check that DrupalApiTrait transposes tables
+Feature: Check that TableTransposeTrait transposes tables
 
-  Ensures that DrupalApiTrait provides reusable helper methods for table
+  Ensures that TableTransposeTrait provides reusable helper methods for table
   manipulation and processing, specifically the transposeVerticalTable() method.
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable works with single entity (2 columns)
     Given some behat configuration
     And scenario steps:
@@ -15,7 +15,7 @@ Feature: Check that DrupalApiTrait transposes tables
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable works with multiple entities (3+ columns)
     Given some behat configuration
     And scenario steps:
@@ -27,7 +27,7 @@ Feature: Check that DrupalApiTrait transposes tables
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable throws exception for less than 2 columns
     Given some behat configuration
     And scenario steps:
@@ -41,7 +41,7 @@ Feature: Check that DrupalApiTrait transposes tables
       Vertical table must have at least 2 columns (field name and value).
       """
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable throws exception for duplicate field names
     Given some behat configuration
     And scenario steps:
@@ -56,7 +56,7 @@ Feature: Check that DrupalApiTrait transposes tables
       Duplicate field names found: name
       """
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable throws exception for empty field names
     Given some behat configuration
     And scenario steps:
@@ -70,7 +70,7 @@ Feature: Check that DrupalApiTrait transposes tables
       Field names cannot be empty.
       """
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable handles empty values in rows
     Given some behat configuration
     And scenario steps:
@@ -82,7 +82,7 @@ Feature: Check that DrupalApiTrait transposes tables
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable throws exception for single column table
     Given some behat configuration
     And scenario steps:
@@ -96,7 +96,7 @@ Feature: Check that DrupalApiTrait transposes tables
       Vertical table must have at least 2 columns (field name and value).
       """
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable works with many entities (5+ columns)
     Given some behat configuration
     And scenario steps:
@@ -108,7 +108,7 @@ Feature: Check that DrupalApiTrait transposes tables
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable works with single field
     Given some behat configuration
     And scenario steps:
@@ -119,7 +119,7 @@ Feature: Check that DrupalApiTrait transposes tables
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Helper\DrupalApiTrait
+  @trait:Helper\TableTransposeTrait
   Scenario: Assert transposeVerticalTable works with special characters in values
     Given some behat configuration
     And scenario steps:

@@ -22,7 +22,6 @@ use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
  * other driver as long as the suite lists a Drush-capable one.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait DrushTrait {

@@ -9,6 +9,7 @@ use Behat\Step\Given;
 use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
 
 /**
  * Create the languages a scenario needs.
@@ -22,10 +23,11 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * run in no guaranteed order.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
- * @phpstan-require-implements \DrevOps\BehatSteps\Behat\Context\DrupalApiInterface
  */
 #[Steps]
 trait LanguageTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Create the listed languages.
