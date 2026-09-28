@@ -36,7 +36,7 @@ class DateTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderDateRelativeProcessValue')]
   public function testDateRelativeProcessValue(string $input, string $expected, ?int $now = NULL): void {
     $result = $this->testObject::dateRelativeProcessValue($input, $now);
-    $this->assertEquals($expected, $result);
+    $this->assertSame($expected, $result);
   }
 
   public static function dataProviderDateRelativeProcessValue(): array {

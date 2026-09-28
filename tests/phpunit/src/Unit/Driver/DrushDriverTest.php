@@ -37,7 +37,7 @@ class DrushDriverTest extends TestCase {
    */
   public function testWithAlias(): void {
     $driver = new DrushDriver('alias');
-    $this->assertEquals('alias', $driver->alias, 'The drush alias was not properly set.');
+    $this->assertSame('alias', $driver->alias, 'The drush alias was not properly set.');
   }
 
   /**
@@ -45,7 +45,7 @@ class DrushDriverTest extends TestCase {
    */
   public function testWithAliasPrefix(): void {
     $driver = new DrushDriver('@alias');
-    $this->assertEquals('alias', $driver->alias, 'The drush alias did not remove the "@" prefix.');
+    $this->assertSame('alias', $driver->alias, 'The drush alias did not remove the "@" prefix.');
   }
 
   /**
@@ -55,7 +55,7 @@ class DrushDriverTest extends TestCase {
     // Bit of a hack here to use the path to this file, but all the driver cares
     // about during initialization is that the root be a directory.
     $driver = new DrushDriver('', __FILE__);
-    $this->assertEquals(__FILE__, $driver->root);
+    $this->assertSame(__FILE__, $driver->root);
   }
 
   /**

@@ -95,7 +95,7 @@ class DocsTest extends UnitTestCase {
 
     $actual = parse_method_comment($comment);
 
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderParseMethodComment(): array {
@@ -237,33 +237,33 @@ EOD,
     $trait = new \ReflectionClass(SampleTrait::class);
     $method = $trait->getMethod('sampleAssertTest');
     $steps = extract_method_steps($method);
-    $this->assertEquals(['@Then the test should pass'], $steps);
+    $this->assertSame(['@Then the test should pass'], $steps);
   }
 
   public function testExtractMethodStepsMultiple(): void {
     $trait = new \ReflectionClass(MultiMethodTrait::class);
 
     $given_method = $trait->getMethod('multimethodGivenItems');
-    $this->assertEquals(['@Given the following items:'], extract_method_steps($given_method));
+    $this->assertSame(['@Given the following items:'], extract_method_steps($given_method));
 
     $when_method = $trait->getMethod('multimethodClickButton');
-    $this->assertEquals(['@When I click on :button'], extract_method_steps($when_method));
+    $this->assertSame(['@When I click on :button'], extract_method_steps($when_method));
 
     $then_method = $trait->getMethod('multimethodAssertResultVisible');
-    $this->assertEquals(['@Then the result should be visible'], extract_method_steps($then_method));
+    $this->assertSame(['@Then the result should be visible'], extract_method_steps($then_method));
   }
 
   public function testExtractMethodStepsNoAttributes(): void {
     $trait = new \ReflectionClass(NoMatchTrait::class);
     $method = $trait->getMethod('otherMethod');
     $steps = extract_method_steps($method);
-    $this->assertEquals([], $steps);
+    $this->assertSame([], $steps);
   }
 
   #[DataProvider('dataProviderCamelToSnake')]
   public function testCamelToSnake(string $input, string $expected, string $separator = '_'): void {
     $actual = camel_to_snake($input, $separator);
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderCamelToSnake(): array {
@@ -336,7 +336,7 @@ EOD,
   #[DataProvider('dataProviderArrayToMarkdownTable')]
   public function testArrayToMarkdownTable(array $headers, array $rows, string $expected): void {
     $actual = array_to_markdown_table($headers, $rows);
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderArrayToMarkdownTable(): array {
@@ -1025,7 +1025,7 @@ EOD,
     sort($expected);
     sort($actual);
 
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderValidate(): array {
@@ -1519,7 +1519,7 @@ EOD,
     sort($expected);
     sort($actual);
 
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderValidateStepPatterns(): array {
@@ -1648,7 +1648,7 @@ EOD,
     }
 
     $actual = replace_content($haystack, $start, $end, $replacement);
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderReplaceContent(): array {
@@ -1747,7 +1747,7 @@ EOD,
     foreach ($expected_trait_names as $expected_trait) {
       if (!in_array($expected_trait, $exclude, TRUE)) {
         $this->assertArrayHasKey($expected_trait, $result);
-        $this->assertEquals($expected_trait, $result[$expected_trait]['name']);
+        $this->assertSame($expected_trait, $result[$expected_trait]['name']);
       }
       else {
         $this->assertArrayNotHasKey($expected_trait, $result);
@@ -1920,11 +1920,11 @@ EOD,
     $pystring_method = $result[$trait_name]['methods'][4];
     $this->assertIsString($pystring_method['example']);
     $this->assertStringContainsString('"""', $pystring_method['example']);
-    $this->assertEquals('@Then the content should contain:', $pystring_method['steps'][0]);
+    $this->assertSame('@Then the content should contain:', $pystring_method['steps'][0]);
 
     // Check table example preserves indentation.
     $table_method = $result[$trait_name]['methods'][1];
-    $this->assertEquals('@Given the following items exist:', $table_method['steps'][0]);
+    $this->assertSame('@Given the following items exist:', $table_method['steps'][0]);
     $this->assertIsString($table_method['example']);
     $this->assertStringContainsString('| name  | value |', $table_method['example']);
     $this->assertStringContainsString('  | name  | value |', $table_method['example']);
@@ -1962,8 +1962,8 @@ EOD,
     $result = extract_info([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey($trait_name, $result);
-    $this->assertEquals('Drupal', $result[$trait_name]['context']);
-    $this->assertEquals('Drupal\\' . $trait_name, $result[$trait_name]['name_contextual']);
+    $this->assertSame('Drupal', $result[$trait_name]['context']);
+    $this->assertSame('Drupal\\' . $trait_name, $result[$trait_name]['name_contextual']);
   }
 
   /**
@@ -2019,7 +2019,7 @@ EOD,
     }
 
     $actual = parse_class_comment($trait_name, $comment);
-    $this->assertEquals($expected, $actual);
+    $this->assertSame($expected, $actual);
   }
 
   public static function dataProviderParseClassComment(): array {

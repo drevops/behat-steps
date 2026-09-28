@@ -42,7 +42,7 @@ class ResponsiveTraitTest extends UnitTestCase {
     }
 
     $result = $this->testObject->testResponsiveExtractDimensions($dimensions);
-    $this->assertEquals($expected, $result);
+    $this->assertSame($expected, $result);
   }
 
   public static function dataProviderExtractDimensions(): array {
@@ -136,7 +136,7 @@ class ResponsiveTraitTest extends UnitTestCase {
     }
 
     $result = $this->testObject->testResponsiveGetBreakpoint($name);
-    $this->assertEquals($expected, $result);
+    $this->assertSame($expected, $result);
   }
 
   public static function dataProviderGetBreakpoint(): array {
@@ -196,7 +196,7 @@ class ResponsiveTraitTest extends UnitTestCase {
     }
 
     $result = $this->testObject->testResponsiveGetAllBreakpoints();
-    $this->assertEquals($expected, $result);
+    $this->assertSame($expected, $result);
   }
 
   public static function dataProviderGetAllBreakpoints(): array {
@@ -265,7 +265,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       else {
         foreach ($breakpoints as $name => $dimensions) {
           $result = $this->testObject->testResponsiveGetBreakpoint($name);
-          $this->assertEquals($dimensions, $result);
+          $this->assertSame($dimensions, $result);
         }
       }
     }
