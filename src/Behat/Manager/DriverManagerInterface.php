@@ -39,8 +39,8 @@ interface DriverManagerInterface {
    * Sets the driver order the current scenario resolves against.
    *
    * Resolution walks this order, so the first entry wins any capability it
-   * provides. Setting the order also forgets which drivers the previous
-   * scenario resolved.
+   * provides. Setting the order also clears the record of which drivers the
+   * previous scenario resolved.
    *
    * @param array<string, string> $drivers
    *   Ordered map of tag name to registered driver name.
@@ -94,7 +94,7 @@ interface DriverManagerInterface {
   /**
    * Determines whether any driver in the scenario's order has a capability.
    *
-   * Bootstraps nothing, so a hook can ask before a scenario has touched the
+   * Bootstraps nothing, so a hook can call it before a scenario has used the
    * site.
    *
    * @param class-string $capability
@@ -105,9 +105,9 @@ interface DriverManagerInterface {
   /**
    * Returns a driver with the capability that this scenario already resolved.
    *
-   * Answers "did a step reach for this capability", which is a narrower
-   * question than 'hasCapability()': a suite may list a cache-capable driver
-   * that no step in this scenario ever asked for.
+   * Reports whether a step in this scenario resolved the capability, which is
+   * narrower than 'hasCapability()': a suite may list a cache-capable driver
+   * that no step in this scenario resolved.
    *
    * @param class-string<T> $capability
    *   The capability interface to look for.

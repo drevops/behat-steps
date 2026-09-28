@@ -36,9 +36,6 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
    */
   protected const TEST_BROWSER_PATH = '/core/tests/Drupal/Tests/DrupalTestBrowser.php';
 
-  /**
-   * Class name of Drupal's test browser.
-   */
   protected const TEST_BROWSER_CLASS = DrupalTestBrowser::class;
 
   /**

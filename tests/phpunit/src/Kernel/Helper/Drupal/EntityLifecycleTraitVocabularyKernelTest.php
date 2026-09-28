@@ -74,7 +74,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests that an unknown identifier is handed back for the driver to reject.
+   * Tests that an unknown identifier is returned for the driver to reject.
    */
   public function testAnUnknownIdentifierIsReturnedUnchanged(): void {
     $this->assertSame('Unknown', $this->context->callResolveVocabularyMachineName('Unknown'));

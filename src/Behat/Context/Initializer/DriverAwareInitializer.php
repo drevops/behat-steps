@@ -30,7 +30,7 @@ class DriverAwareInitializer implements ContextInitializer {
    * @param \Behat\Testwork\Hook\HookDispatcher $hookDispatcher
    *   The hook dispatcher.
    * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface $basicAuthManager
-   *   Applies webserver-level basic auth, which no Drupal site is needed for.
+   *   Applies webserver-level basic auth, which needs no Drupal site.
    * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface $authenticationManager
    *   Logs a user in and out of the site under test.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface $userManager

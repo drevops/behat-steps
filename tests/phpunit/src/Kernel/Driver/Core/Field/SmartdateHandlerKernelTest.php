@@ -13,10 +13,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for SmartdateHandler via the Core driver.
  *
  * SmartdateHandler emits a six-column payload ('value', 'end_value',
- * 'duration', 'rrule', 'rrule_index', 'timezone'). The kernel test's
- * value is proving the driver resolves SmartdateHandler for type
- * 'smartdate' and that the multi-column storage accepts what the handler
- * emits. The 'smartdate' field type is provided by drupal/smart_date.
+ * 'duration', 'rrule', 'rrule_index', 'timezone'). This test proves the
+ * driver resolves SmartdateHandler for type 'smartdate' and that the
+ * multi-column storage accepts what the handler emits. The 'smartdate' field
+ * type is provided by drupal/smart_date.
  */
 #[CoversClass(SmartdateHandler::class)]
 #[Group('fields')]

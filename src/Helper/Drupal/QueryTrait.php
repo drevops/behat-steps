@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 /**
  * Reads Drupal state a step asserts on without going through a driver.
  *
- * Both members run in the site's own process, so a step calling one resolves
+ * Both members run in the site's own process, so each resolves
  * 'CoreCapabilityInterface' first.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext

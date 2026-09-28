@@ -19,7 +19,7 @@ use Drupal\Component\Utility\Random;
 class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInterface {
 
   /**
-   * Track whether Drupal has been bootstrapped.
+   * Whether Drupal has been bootstrapped.
    */
   protected bool $bootstrapped = FALSE;
 
@@ -39,7 +39,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   protected int $version;
 
   /**
-   * Set Drupal root and URI.
+   * Sets the Drupal root and URI.
    *
    * @param string $drupal_root
    *   The Drupal root path.
@@ -97,7 +97,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Automatically set the core from the current version.
+   * Sets the core from the current version.
    *
    * Walks from the detected Drupal version down to the default Core class,
    * using the first class that exists in the lookup chain:
@@ -463,8 +463,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
    *
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   Thrown when the active Core does not implement the authentication
-   *   capability. Returning without acting reports a login that never
-   *   happened.
+   *   capability.
    */
   protected function getAuthCore(): AuthenticationCapabilityInterface {
     $core = $this->getCore();

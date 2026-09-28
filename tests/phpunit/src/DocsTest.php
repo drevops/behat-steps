@@ -75,9 +75,9 @@ class DocsTest extends UnitTestCase {
 
     require_once __DIR__ . '/../../../docs.php';
 
-    // Pre-load the fixture traits so they are available for eval(). Drupal
-    // context traits are excluded because they are loaded from the test's
-    // temporary directory to get the correct context.
+    // The fixture traits are loaded up front so they are available to
+    // eval(). Drupal context traits are excluded because they are loaded
+    // from the test's temporary directory to get the correct context.
     $fixture_files = glob($this->getFixturesDir() . '/Web/*.php');
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
@@ -1845,8 +1845,6 @@ EOD,
   /**
    * Setup a complete extract_info test environment.
    *
-   * Sets up directories, copies fixtures, and creates test context.
-   *
    * @param array<string> $trait_names
    *   Array of trait names to use.
    * @param string|null $context
@@ -1859,7 +1857,8 @@ EOD,
 
     if ($context && count($trait_names) === 1) {
       $target_file = $this->copyFixtureTrait($trait_names[0], $paths['steps_dir'], $context);
-      // Load the trait from test directory for correct path reflection.
+      // The trait is loaded from the test directory so reflection reports
+      // that path.
       require_once $target_file;
     }
     else {
@@ -1922,7 +1921,7 @@ EOD,
     $this->assertStringContainsString('"""', $pystring_method['example']);
     $this->assertSame('@Then the content should contain:', $pystring_method['steps'][0]);
 
-    // Check table example preserves indentation.
+    // The table example keeps its indentation.
     $table_method = $result[$trait_name]['methods'][1];
     $this->assertSame('@Given the following items exist:', $table_method['steps'][0]);
     $this->assertIsString($table_method['example']);
@@ -2387,8 +2386,8 @@ EOD,
   /**
    * Test extract_info with empty class comment.
    *
-   * This test verifies that an exception is thrown when a trait has a class
-   * docblock comment but all lines are empty after filtering.
+   * The fixture trait has a class docblock whose lines are all empty after
+   * filtering, so extract_info() throws.
    */
   public function testExtractInfoEmptyClassComment(): void {
     $this->expectException(\Exception::class);
@@ -2809,7 +2808,7 @@ EOD,
    * @param class-string $trait_name
    *   The helper trait to inspect.
    * @param array<int, string> $expected
-   *   The interfaces the trait is expected to answer to.
+   *   The interfaces expected among the trait's contracts.
    */
   #[DataProvider('dataProviderHelperTraitContracts')]
   public function testHelperTraitContracts(string $trait_name, array $expected): void {

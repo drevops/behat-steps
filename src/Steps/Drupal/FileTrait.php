@@ -114,7 +114,8 @@ trait FileTrait {
   /**
    * Delete managed files defined by provided properties/fields.
    *
-   * Example: filename, uri, status, uid and more.
+   * The column header names a file entity property, such as filename, uri,
+   * status or uid.
    *
    * @see Drupal\file\Entity\File
    *

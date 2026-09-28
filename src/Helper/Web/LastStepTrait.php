@@ -10,9 +10,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 /**
  * Identifies the last step of the running scenario.
  *
- * A trait that reports once per scenario from an 'AfterStep' hook composes
- * this to tell the final step from the rest.
- *
  * This is an internal trait and should not be used directly in step
  * definitions.
  */

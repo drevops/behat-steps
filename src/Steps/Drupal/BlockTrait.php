@@ -221,9 +221,6 @@ trait BlockTrait {
   /**
    * Remove a visibility condition from the specified block.
    *
-   * This step removes any existing visibility restrictions of the specified
-   * type from the block.
-   *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition

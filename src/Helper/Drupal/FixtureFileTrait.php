@@ -10,8 +10,8 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 /**
  * Resolves a fixture file path for a file or image field.
  *
- * A feature names a fixture by its basename, and the value reaching storage
- * has to be a path the site can read.
+ * A feature names a fixture by its basename, and the stored value has to be
+ * a path the site can read.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -21,12 +21,13 @@ trait FixtureFileTrait {
    * Expand fixture file paths for file/image fields on an entity stub.
    *
    * Rewrites fixture paths on 'file' and 'image' field types to absolute
-   * paths under the Mink 'files_path' so drupal-driver's FileHandler can read
-   * and upload them during entity creation. A path is taken relative to the
-   * fixtures directory, so both 'document.pdf' and 'images/photo.png'
-   * resolve. Skips expansion when a managed file with the same basename
-   * already exists in public:// or private://, so existing files take
-   * precedence.
+   * paths under the Mink 'files_path'. With an absolute path, drupal-driver's
+   * FileHandler can read and upload the file during entity creation.
+   *
+   * A path is taken relative to the fixtures directory, so both
+   * 'document.pdf' and 'images/photo.png' resolve. Expansion is skipped when
+   * a managed file with the same basename already exists in public:// or
+   * private://, so existing files take precedence.
    *
    * @param string $entity_type
    *   The entity type machine name (e.g. 'node', 'media').
@@ -139,10 +140,12 @@ trait FixtureFileTrait {
   /**
    * Rewrite each 'target_id:"path"' segment to embed the fixture path.
    *
-   * Only the 'target_id' key is touched and only when the quoted value is not
-   * backed by an existing managed file and resolves to a real file under the
-   * fixtures dir. Other compound columns (e.g. 'alt', 'description') are left
-   * untouched so the parser can still process them.
+   * Only the 'target_id' key is rewritten. A value backed by an existing
+   * managed file, or one that does not resolve to a real file under the
+   * fixtures directory, is left as written.
+   *
+   * Other compound columns such as 'alt' and 'description' are left untouched
+   * so the parser can still process them.
    */
   protected function fixtureFileExpandCompoundCell(string $value, string $fixture_path): string {
     $callback = function (array $matches) use ($fixture_path): string {

@@ -24,7 +24,7 @@ final class EntityStub implements EntityStubInterface {
   protected string $bundleKey = self::DEFAULT_BUNDLE_KEY;
 
   /**
-   * Set up the stub.
+   * Sets up the stub.
    *
    * @param string $entityType
    *   The entity type ID (e.g. 'node', 'taxonomy_term', 'user').

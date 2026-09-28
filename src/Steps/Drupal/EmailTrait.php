@@ -167,9 +167,8 @@ trait EmailTrait {
   /**
    * Follow the first link containing a fragment in an email.
    *
-   * Searches every collected message for a link whose URL contains the
-   * fragment. A one-time login or confirmation link can be followed without
-   * knowing its position in the body.
+   * A one-time login or confirmation link can be followed without knowing its
+   * position in the body.
    *
    * @code
    * When I follow the link containing "user/reset" in the email
@@ -318,8 +317,7 @@ trait EmailTrait {
   /**
    * Assert the number of emails sent.
    *
-   * Counts every collected message, so clear the queue first to count only
-   * the messages a later action produced.
+   * Counts every collected message since the queue was last cleared.
    *
    * @code
    * Then the number of sent emails should be 2

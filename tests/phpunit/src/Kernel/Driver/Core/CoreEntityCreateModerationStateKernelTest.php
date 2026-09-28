@@ -20,9 +20,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Regression test for 'moderation_state' on a stub.
  *
  * When a stub carries a computed-writable base field such as
- * 'moderation_state', the driver must skip it entirely so the scalar reaches
- * 'Node::create()' untouched and the content_moderation save-hook captures
- * it.
+ * 'moderation_state', the driver must skip it entirely. The scalar then
+ * reaches 'Node::create()' untouched and the content_moderation save-hook
+ * captures it.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

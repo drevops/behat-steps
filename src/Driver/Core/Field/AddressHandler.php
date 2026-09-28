@@ -53,10 +53,9 @@ class AddressHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    // 'available_countries' is empty when the field accepts every country;
-    // 'reset([])' returns FALSE, which would land a boolean in storage.
-    // Leave 'country_code' unset in that case so the field's own default
-    // wins instead.
+    // 'available_countries' is empty when the field accepts every country,
+    // and 'reset([])' returns FALSE, which would store a boolean. In that
+    // case 'country_code' stays unset and the field's own default applies.
     $available = $this->fieldConfig->getSettings()['available_countries'] ?? [];
 
     foreach ($records as &$record) {
@@ -96,7 +95,7 @@ class AddressHandler extends AbstractHandler {
         continue;
       }
 
-      // Convert camelCase override keys to snake_case field names.
+      // Override keys are camelCase; field names are snake_case.
       $snake_key = strtolower((string) preg_replace('/([A-Z])/', '_$1', (string) $key));
       $index = array_search($snake_key, $fields, TRUE);
 

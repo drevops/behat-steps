@@ -35,9 +35,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * Creates Drupal entities and removes them when the scenario ends.
  *
  * Holds the one registry every entity creation writes to, so the teardown
- * walks it in reverse and deletes a node before the term it references. A
- * step trait that creates an entity composes this; a context that composes
- * none runs no teardown at all.
+ * walks it in reverse and deletes a node before the term it references.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -46,10 +44,8 @@ trait EntityLifecycleTrait {
   /**
    * Tracks every entity stub created during a scenario for cleanup.
    *
-   * Users are tracked separately via the user manager because they need
-   * lookup-by-name. Everything else (nodes, terms, languages, generic
-   * entities) is stored here and removed in reverse order, so a dependent
-   * entity is deleted before the entity it references.
+   * Users are tracked in the user manager instead, because a user is looked
+   * up by name.
    *
    * @var array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
    */
@@ -107,8 +103,9 @@ trait EntityLifecycleTrait {
    * Walks 'createdStubs' in reverse order, so a dependent entity such as a
    * node referencing a term is deleted before the entity it references.
    *
-   * Skip the whole pass with '@behat-steps-skip:entityCleanAll', or one entity
-   * type with '@behat-steps-entity-cleanup-skip:<entity_type_id>'.
+   * '@behat-steps-skip:entityCleanAll' skips the whole pass, and
+   * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips one entity
+   * type.
    */
   #[AfterScenario]
   public function entityCleanAll(AfterScenarioScope $scope): void {
@@ -173,9 +170,9 @@ trait EntityLifecycleTrait {
    *   The same stub, now flagged as saved.
    */
   public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface {
-    // The driver loads vocabularies by machine name only, so resolve a human
-    // label to one first. The resolution is best-effort - the driver reports
-    // a clearer failure than this could.
+    // The driver loads vocabularies by machine name only, so a human label is
+    // resolved to one first. The driver reports a clearer failure than this
+    // code could, so the resolution is best-effort.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
     if (!empty($vocabulary) && $this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
@@ -183,8 +180,9 @@ trait EntityLifecycleTrait {
     }
 
     // The driver resolves 'parent' as a term name in the same vocabulary, so
-    // pass it through unchanged. An empty value is removed, because the field
-    // pipeline would try to expand the empty string as an entity reference.
+    // it is passed through unchanged. An empty value is removed, because the
+    // field pipeline would try to expand the empty string as an entity
+    // reference.
     if ($stub->hasValue('parent') && empty($stub->getValue('parent'))) {
       $stub->removeValue('parent');
     }
@@ -212,8 +210,8 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub joins 'createdStubs', so 'entityCleanAll()' removes it after the
-   * scenario through the driver's 'entityDelete()' fallback.
+   * The stub is added to 'createdStubs', so 'entityCleanAll()' removes it
+   * after the scenario through the driver's 'entityDelete()' fallback.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub.
@@ -273,9 +271,10 @@ trait EntityLifecycleTrait {
   /**
    * Registers an entity saved outside the create pipeline for cleanup.
    *
-   * An entity saved through Drupal's API rather than the driver joins the
-   * same reverse-order teardown. Only the type and id are kept, so cleanup
-   * reloads the entity and tolerates a row the scenario already deleted.
+   * An entity saved through Drupal's API rather than the driver is added to
+   * the same reverse-order teardown. Only the type and id are kept, so
+   * cleanup reloads the entity and tolerates a row the scenario already
+   * deleted.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The saved entity.
@@ -294,9 +293,9 @@ trait EntityLifecycleTrait {
   /**
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
-   * A table cell is passed as written - a bare scalar, a comma-separated
-   * list, or a compound 'key:"value"' cell - and the parser resolves each
-   * against the field's own definition before the driver saves the entity.
+   * A table cell is passed as written: a bare scalar, a comma-separated list,
+   * or a compound 'key:"value"' cell. The parser resolves each against the
+   * field's own definition before the driver saves the entity.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -380,7 +379,7 @@ trait EntityLifecycleTrait {
    * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Scope\BaseEntityScope> $scope_class
    *   The fully-qualified scope class name.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
-   *   The entity stub flowing through the create pipeline.
+   *   The entity stub in the create pipeline.
    *
    * @throws \RuntimeException
    *   When the context has not been initialized by Behat.
@@ -399,8 +398,8 @@ trait EntityLifecycleTrait {
     $scope = new $scope_class($environment, $this, $stub);
     $call_results = $this->dispatcher->dispatchScopeHooks($scope);
 
-    // The dispatcher collects exceptions rather than raising them, so surface
-    // the first one here.
+    // The dispatcher collects exceptions rather than raising them, so the
+    // first one is rethrown here.
     foreach ($call_results as $call_result) {
       $exception = $call_result->getException();
 
@@ -414,9 +413,11 @@ trait EntityLifecycleTrait {
    * Expands a stub's values during creation, when the driver can classify them.
    *
    * Classification reads the site's field definitions, which only a driver
-   * with Drupal bootstrapped exposes. A driver that passes the values to the
-   * command line takes them as written, so they are left unparsed instead of
-   * failing a creation the driver can perform.
+   * with Drupal bootstrapped exposes.
+   *
+   * A driver that passes the values to the command line takes them as
+   * written, so they are left unparsed. Parsing them would fail a creation
+   * the driver can perform.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -436,7 +437,8 @@ trait EntityLifecycleTrait {
   /**
    * Builds the entity-field parser for one parsing call.
    *
-   * Override in the consuming context to swap in a custom implementation.
+   * A consuming context overrides this method to supply its own
+   * implementation.
    *
    * @param string $entity_type
    *   The entity type the values belong to.
@@ -477,9 +479,8 @@ trait EntityLifecycleTrait {
    *
    * The driver runs base fields through the field-handler pipeline during
    * create, which casts scalar values such as 'title', 'name', 'mail' or
-   * 'pass' to single-element arrays. Downstream code (user manager indexing,
-   * login flow, stub matching) expects scalars, so the values are captured
-   * before the driver call and restored after it.
+   * 'pass' to single-element arrays. Downstream code expects scalars, so the
+   * values are captured before the driver call and restored after it.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub to inspect.

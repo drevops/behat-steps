@@ -13,8 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for BooleanHandler via the Core driver.
  *
  * Asserts that scenarios can populate boolean fields with human-readable
- * words ('Yes', 'Published') instead of 1/0, and that unrecognised values
- * raise a clear error rather than silently coercing to FALSE.
+ * words ('Yes', 'Published') instead of 1/0. It also asserts that
+ * unrecognised values raise a clear error rather than silently coercing to
+ * FALSE.
  */
 #[CoversClass(BooleanHandler::class)]
 #[Group('fields')]

@@ -67,7 +67,7 @@ trait ParagraphsTrait {
    * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
    *   Entity to attach the paragraphs item to.
    * @param string $parent_field
-   *   Field name on the entity that refers paragraphs item.
+   *   Field name on the entity that references the paragraphs item.
    * @param string $paragraph_type
    *   Paragraphs item bundle name.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub

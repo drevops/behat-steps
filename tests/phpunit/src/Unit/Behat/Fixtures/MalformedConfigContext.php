@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
- * Context whose declarations omit what every declaration needs.
+ * Context whose declarations omit a required key.
  */
 class MalformedConfigContext extends WebRawContext {
 

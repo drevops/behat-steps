@@ -790,8 +790,8 @@ trait XmlTrait {
    * code path.
    *
    * External references are not resolved during validation, so a `SYSTEM`
-   * entity declared in the DTD reaches neither a local path nor the network.
-   * Validation fails with a resolver error if a DTD references one.
+   * entity declared in the DTD is loaded from neither a local path nor the
+   * network. Validation fails with a resolver error if a DTD references one.
    *
    * DTDs are namespace-unaware, so a namespaced response is validated verbatim
    * and its `xmlns` attributes must be declared in the DTD. This matches

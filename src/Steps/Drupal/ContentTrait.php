@@ -234,11 +234,6 @@ trait ContentTrait {
   /**
    * Rebuild node access grants for a content with the specified title.
    *
-   * Loads the node by content type and exact title match, then acquires
-   * grants for it via the node access control handler. Useful after test
-   * fixtures are created to ensure access grants are populated for
-   * modules relying on the node access system.
-   *
    * @code
    * When I rebuild the access grants for the "article" content with the title "My article"
    * @endcode
@@ -263,10 +258,6 @@ trait ContentTrait {
 
   /**
    * Rebuild node access grants for all content.
-   *
-   * Triggers a non-batched rebuild of node access grants for every node
-   * in the system. Useful after enabling or reconfiguring a node access
-   * module during a scenario.
    *
    * @code
    * When I rebuild the access grants for all content

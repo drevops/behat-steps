@@ -4,10 +4,10 @@
  * @file
  * Layer dependency check.
  *
- * Two layers promise to run without a dependency loaded, and each promise
- * holds only while the layer references nothing from the namespaces it
- * excludes. This script reads every file of each layer and fails on any code
- * reference into those namespaces.
+ * Two layers are guaranteed to run without a dependency loaded, and the
+ * guarantee holds only while the layer references nothing from the
+ * namespaces it excludes. This script reads every file of each layer and
+ * fails on any code reference into those namespaces.
  *
  * Run with --path=path/to/repo to check a tree other than this repository.
  */
@@ -44,8 +44,8 @@ const LAYERS = [
   ],
 ];
 
-// Execute the entry function only when the script is run directly, not when
-// included.
+// The entry function runs only when the script is run directly, not when it
+// is included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
   $options = getopt('', ['path::']);

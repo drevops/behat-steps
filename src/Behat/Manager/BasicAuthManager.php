@@ -11,10 +11,9 @@ use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 /**
  * Applies webserver-level HTTP Basic authentication to the Mink session.
  *
- * This is not user authentication: it carries no user, reads no site
- * configuration and needs nothing beyond the Mink session and the configured
- * base URL, so a suite that tests a site behind basic auth uses it without a
- * Drupal site being involved at all.
+ * This is not user authentication. It carries no user, reads no site
+ * configuration and needs only the Mink session and the configured base URL,
+ * so a suite for a site behind basic auth uses it without any Drupal site.
  */
 class BasicAuthManager implements BasicAuthInterface {
 

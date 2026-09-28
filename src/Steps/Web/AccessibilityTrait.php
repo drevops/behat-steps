@@ -84,11 +84,11 @@ trait AccessibilityTrait {
    * Working directory captured before any test bootstrap can chdir().
    *
    * The default report directory anchors to this rather than a live
-   * `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a
-   * live `getcwd()` would move reports out of the path-anchored location
-   * used by the rest of the run. Captured once at `@BeforeSuite`, before
-   * the first scenario, so it records the directory the run was launched
-   * from.
+   * `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a live
+   * `getcwd()` would resolve the report directory outside the path-anchored
+   * location used by the rest of the run. Captured once at `@BeforeSuite`,
+   * before the first scenario, so it records the directory the run was
+   * launched from.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 
@@ -218,8 +218,8 @@ trait AccessibilityTrait {
    *
    * Behat composes a step teardown into that step's result, so a gate failure
    * raised here marks the scenario as failed for the rerun cache. Gating on
-   * the last step rather than on every step lets every page the scenario
-   * visited reach the report before the gate is applied.
+   * the last step rather than on every step puts every page the scenario
+   * visited in the report before the gate is applied.
    */
   #[AfterStep]
   public function accessibilityAutoAssess(AfterStepScope $scope): void {
@@ -426,8 +426,8 @@ trait AccessibilityTrait {
    * Read the engine source once from the given location.
    *
    * Default: a single read bounded by the given timeout, returning FALSE
-   * when the read fails. Override to fetch through an HTTP client of your
-   * own; accessibilityGetJs() supplies the retries around it.
+   * when the read fails. Override to fetch through a different HTTP client;
+   * accessibilityGetJs() supplies the retries around it.
    *
    * @param string $url
    *   Location the engine source is read from.
@@ -627,9 +627,11 @@ trait AccessibilityTrait {
    * default engine's native shape happens to share field names with the
    * canonical shape, so this default mostly copies values straight across.
    * Each field is still named at the call site, so the method also serves
-   * as a template for overrides. Override when wiring a different engine
-   * to map its native output (e.g. pa11y's `issues[]`, Lighthouse's
-   * `audits`) into the canonical structure.
+   * as a template for overrides.
+   *
+   * Override when wiring a different engine to map its native output (e.g.
+   * pa11y's `issues[]`, Lighthouse's `audits`) into the canonical
+   * structure.
    *
    * @param array<string, mixed> $raw
    *   Raw result from `accessibilityRunEngine()`.
@@ -866,10 +868,12 @@ trait AccessibilityTrait {
    * page path (`/contact`) rather than the internal host and port
    * (`http://nginx:8080/contact`). The absolute form is noise and makes
    * reports non-portable. The base URL itself maps to `/` and the query
-   * string is kept. Only the known `base_url` is stripped: a genuinely
-   * cross-origin URL captured during assessment stays absolute, so it
-   * remains distinguishable. Override to keep the absolute URL or to format
-   * it differently.
+   * string is kept.
+   *
+   * Only the known `base_url` is stripped: a genuinely cross-origin URL
+   * captured during assessment stays absolute, so it remains
+   * distinguishable. Override to keep the absolute URL or to format it
+   * differently.
    */
   protected function accessibilityFormatUrl(string $url): string {
     $base = rtrim((string) $this->getMinkParameter('base_url'), '/');
@@ -1041,11 +1045,12 @@ HTML;
    * the pass/fail gate is: only violations meeting the threshold are
    * serialised as `<failure>` cases. An advisory run (threshold `never`)
    * therefore writes a report with zero failures instead of one that fails
-   * a JUnit-consuming CI check. Violations below the threshold are recorded
-   * as passing cases carrying the finding in `<system-out>`, so they stay
-   * visible without failing the report. The `tests` and `failures` counts
-   * reflect the actual emitted `<testcase>` elements, one per affected
-   * node.
+   * a JUnit-consuming CI check.
+   *
+   * Violations below the threshold are recorded as passing cases carrying
+   * the finding in `<system-out>`, so they stay visible without failing the
+   * report. The `tests` and `failures` counts reflect the actual emitted
+   * `<testcase>` elements, one per affected node.
    */
   protected function accessibilityRenderJunit(): string {
     $threshold = $this->accessibilityEffectiveThreshold();
@@ -1136,8 +1141,8 @@ HTML;
       'scenario' => $this->accessibilityScenarioName,
       'threshold' => $this->accessibilityEffectiveThreshold(),
       'failOnIncomplete' => $this->accessibilityEffectiveFailOnIncomplete(),
-      // The suite renderer is static and cannot reach an override, so the
-      // impact list the scenario was gated under travels with its results.
+      // The suite renderer is static and cannot call an override, so the
+      // impact list the scenario was gated under is stored with its results.
       'impacts' => $this->accessibilityGetImpacts(),
       'results' => $results,
     ];
@@ -1297,9 +1302,10 @@ HTML;
   /**
    * Assemble every value the renderer needs into one data array.
    *
-   * All calculation lives here and in the methods it calls - de-duplication,
-   * severity tallies, sorting, counting, and target flattening - so the single
-   * renderer only has to turn ready values into markup.
+   * All calculation happens here and in the methods it calls -
+   * de-duplication, severity tallies, sorting, counting, and target
+   * flattening - so the single renderer only has to turn ready values into
+   * markup.
    *
    * @param array<int, array<string, mixed>> $aggregate
    *   The accumulated per-scenario results.

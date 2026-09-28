@@ -60,8 +60,8 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
    * Tests that moduleInstall and moduleUninstall flip module state.
    *
    * 'syslog' is chosen because installing it does not create dependent
-   * config (unlike 'filter', which creates filter plugins referenced by the
-   * default format and blocks later uninstall in kernel tests).
+   * config. 'filter', by contrast, creates filter plugins referenced by the
+   * default format and blocks later uninstall in kernel tests.
    */
   public function testModuleInstallAndUninstall(): void {
     $this->assertFalse(\Drupal::moduleHandler()->moduleExists('syslog'), 'syslog is not installed at setUp.');

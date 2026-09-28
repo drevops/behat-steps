@@ -120,8 +120,8 @@ trait FieldTrait {
   /**
    * Disable browser validation for the form for validating errors.
    *
-   * The form selector is registered and validation disabling will be
-   * automatically applied after each step when the form becomes available.
+   * The form selector is registered, so validation is disabled after each
+   * step once the form is available.
    *
    * @code
    * Given the browser validation for the form "#node-article-form" is disabled

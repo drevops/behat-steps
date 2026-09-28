@@ -60,8 +60,8 @@ trait DrushTrait {
   /**
    * Run a Drush command that is expected to fail.
    *
-   * The command runs without aborting the step on a non-zero exit, capturing
-   * its error output for the assertion steps below.
+   * A non-zero exit does not abort the step; the error output is kept in
+   * '$drushOutput' for later assertions.
    *
    * @code
    * When I run the failing drush command "pm:uninstall no_such_module"
@@ -136,8 +136,8 @@ trait DrushTrait {
     $output = $this->drushReadOutput();
     $result = @preg_match($pattern, $output);
 
-    // A malformed pattern also returns FALSE, which would otherwise read as a
-    // command whose output simply did not match.
+    // A malformed pattern also returns FALSE, so it is reported apart from an
+    // output that did not match.
     if ($result === FALSE) {
       throw new \RuntimeException(sprintf('"%s" is not a valid regular expression: %s.', $pattern, preg_last_error_msg()));
     }
@@ -186,8 +186,8 @@ trait DrushTrait {
     $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
     $result = $this->drushDriver()->drushResult($command, $args);
 
-    // Prefer stdout and fall back to stderr, matching the success path, which
-    // returns whatever the command wrote.
+    // Prefer stdout and fall back to stderr. The success path returns whatever
+    // the command wrote, and the failure path matches it.
     $output = $result->output === '' ? $result->errorOutput : $result->output;
     $this->drushOutput = $output;
 

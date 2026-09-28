@@ -61,7 +61,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
    * Tests that the consumer override replaces the library's 'text_long'.
    *
    * Input differs from the handler's marker so the assertion only passes
-   * when the consumer handler actually ran - a pass-through handler would
+   * when the consumer handler actually ran. A pass-through handler would
    * leave the raw input in storage and fail the comparison.
    */
   public function testConsumerCoreOverridesLibraryHandler(): void {

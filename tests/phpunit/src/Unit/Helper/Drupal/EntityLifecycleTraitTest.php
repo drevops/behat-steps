@@ -716,9 +716,9 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createContext(DriverInterface $driver, ?UserManagerInterface $user_manager = NULL, ?AuthenticationManagerInterface $authentication_manager = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
     $environment = $this->createMock(Environment::class);
-    // A real environment binds a callee to the context instance it holds; the
-    // fixture hooks are static, so handing back the callee's own callable is
-    // enough for the dispatcher to invoke them.
+    // A real environment binds a callee to the context instance it holds. The
+    // fixture hooks are static, so the callee's own callable is enough for
+    // the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
     $driver_manager = new DriverManager(['test' => $driver]);

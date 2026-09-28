@@ -58,8 +58,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Tracks original configuration values.
    *
-   * This is necessary since configurations modified here are actually saved so
-   * that they persist values across bootstraps.
+   * Configuration modified here is saved, so its values persist across
+   * bootstraps.
    *
    * @var array<string, mixed>
    *   An array of data, keyed by configuration name.
@@ -89,7 +89,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   protected ?FieldShapeClassifierInterface $fieldShapeClassifier = NULL;
 
   /**
-   * Set up the Core implementation.
+   * Sets up the Core implementation.
    *
    * @param string $drupal_root
    *   The absolute path to the Drupal root directory.
@@ -414,7 +414,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    *
    * Executed only in consumer code that boots Drupal from outside a test,
-   * so coverage is not measurable: kernel tests already have Drupal booted
+   * so coverage is not measurable. Kernel tests already have Drupal booted,
    * and re-entering this path would tear the kernel down.
    *
    * @codeCoverageIgnore
@@ -468,9 +468,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
-    // 'Node::create()' reads the bundle from the 'type' values key, so make
-    // sure it carries the resolved bundle even when the caller only set it
-    // through the typed 'bundle' constructor argument.
+    // 'Node::create()' reads the bundle from the 'type' values key, so a
+    // bundle set only through the typed 'bundle' constructor argument is
+    // copied there.
     if (!$stub->hasValue('type')) {
       $stub->setValue('type', $type);
     }
@@ -664,7 +664,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * Retrieve all permissions.
+   * Retrieves all permissions.
    *
    * @return array<string, mixed>
    *   Array of all defined permissions.
@@ -678,7 +678,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * Convert any permission labels to machine name.
+   * Converts any permission labels to machine names.
    *
    * @param array<string> &$permissions
    *   Array of permission names.
@@ -687,9 +687,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $all_permissions = $this->getAllPermissions();
 
     foreach ($all_permissions as $name => $definition) {
-      // Cast the title to string: Drupal returns TranslatableMarkup objects
-      // for permission titles, which would never strictly equal the plain
-      // string labels supplied by callers.
+      // Permission titles are TranslatableMarkup objects, which never
+      // strictly equal the plain string labels supplied by callers.
       $key = array_search((string) $definition['title'], $permissions, TRUE);
 
       if ($key === FALSE) {
@@ -701,7 +700,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * Check to make sure that the array of permissions are valid.
+   * Checks that every permission in the array is valid.
    *
    * @param array<string> $permissions
    *   Permissions to check.
@@ -723,8 +722,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function userDelete(EntityStubInterface $stub): void {
     user_cancel([], (int) $this->resolveUid($stub), 'user_cancel_delete');
-    // user_cancel() schedules the deletion via batch; drive the batch to
-    // completion so callers see synchronous deletion.
+    // user_cancel() schedules the deletion via batch, so the batch runs to
+    // completion here and the deletion is synchronous.
     $this->processBatch();
   }
 
@@ -732,7 +731,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function userAddRole(EntityStubInterface $stub, string $role): void {
-    // Allow both machine and human role names.
+    // Both machine and human role names are accepted.
     $query = \Drupal::entityQuery('user_role');
     $conditions = $query->orConditionGroup()
       ->condition('id', $role)
@@ -802,15 +801,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    *
-   * Called exclusively from 'bootstrap()' during an in-process Drupal boot,
-   * which the kernel test framework cannot exercise end-to-end. Excluded
-   * from coverage to avoid a false negative on a genuinely untestable path.
+   * Runs only during an in-process Drupal boot, which the kernel test
+   * framework cannot exercise end-to-end, so coverage is not measurable.
    *
    * @codeCoverageIgnore
    */
   public function validateDrupalSite(): void {
     if ('default' !== $this->uri) {
-      // Fake the necessary HTTP headers that Drupal needs:
+      // The HTTP headers Drupal needs are faked from the URI.
       $drupal_base_url = parse_url($this->uri);
 
       if ($drupal_base_url === FALSE) {
@@ -908,8 +906,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function blockPlace(EntityStubInterface $stub): EntityStubInterface {
     // Block config entities require an id, so one is generated when the
-    // caller did not supply it. This matches the 'nodeCreate' and
-    // 'roleCreate' convention of tolerating id-less stubs.
+    // caller did not supply it.
     if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
       $stub->setValue('id', strtolower($this->random->name(8, TRUE)));
     }
@@ -1124,8 +1121,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
     }
 
-    // Sync the typed bundle property into the values bag so
-    // storage->create() picks it up under the entity type's own bundle key.
+    // storage->create() reads the bundle under the entity type's own bundle
+    // key, so the typed bundle property is copied into the values bag there.
     if ($bundle_key && !$stub->hasValue($bundle_key) && $stub->getBundle() !== NULL) {
       $stub->setValue($bundle_key, $stub->getBundle());
     }
@@ -1144,9 +1141,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $created_entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create($stub->getValues());
     $created_entity->save();
 
-    // Mutate the stub under the entity type's own id key ('uid' for user,
+    // The id is stored under the entity type's own id key ('uid' for user,
     // 'nid' for node, 'tid' for term, 'id' for entity_test and others), so
-    // callers can round-trip it back through entityDelete().
+    // the stub round-trips through entityDelete().
     $stub->setValue($id_key, $created_entity->id());
     $stub->markSaved($created_entity);
 
@@ -1240,7 +1237,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function mailGet(): array {
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
-    // Discard cancelled mail.
+    // Cancelled mail carries a false 'send' flag.
     $mail = array_values(array_filter($mail, fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }
@@ -1256,7 +1253,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function mailSend(string $body, string $subject, string $to, string $langcode, array $attachments = []): bool {
-    // Send the mail, via the system module's hook_mail.
+    // The mail is sent via the system module's hook_mail().
     $params['context']['message'] = $body;
     $params['context']['subject'] = $subject;
 
@@ -1270,7 +1267,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * If the Mail System module is enabled, collect that mail too.
+   * Collects mail from the Mail System module too, when it is enabled.
    *
    * @see MailsystemManager::getPluginInstance()
    */
@@ -1315,7 +1312,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * If the Mail System module is enabled, stop collecting those mails.
+   * Stops collecting mail from the Mail System module, when it is enabled.
    */
   protected function stopCollectingSystemMail(): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
@@ -1343,7 +1340,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function logout(): void {
     // AccountSwitcher::switchBack() throws RuntimeException when the stack is
-    // empty. Loop until that happens to ensure all stacked accounts are popped.
+    // empty, so the loop runs until it does and every stacked account is
+    // popped.
     try {
       for (;;) {
         \Drupal::service('account_switcher')->switchBack();
@@ -1354,7 +1352,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
-   * Store the original value for a piece of configuration.
+   * Stores the original value for a piece of configuration.
    *
    * If an original value has previously been stored, it is not updated.
    *

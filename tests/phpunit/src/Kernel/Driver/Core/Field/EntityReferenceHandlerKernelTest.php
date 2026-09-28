@@ -82,8 +82,8 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
    * A delta may use the field-item shape of file, image or
    * entity_reference_revisions values, e.g. '['target_id' => 'alice',
    * 'display' => 1]'. The handler treats the main property value as the
-   * lookup label, resolves it to an id, and preserves the original array
-   * shape so any extra item properties round-trip through to storage.
+   * lookup label and resolves it to an id. The original array shape is
+   * preserved so any extra item properties round-trip through to storage.
    */
   public function testUserReferenceResolvesAssociativeArrayDelta(): void {
     $this->attachField('field_owner', 'entity_reference', [

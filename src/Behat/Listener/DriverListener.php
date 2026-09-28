@@ -48,7 +48,7 @@ class DriverListener implements EventSubscriberInterface {
   }
 
   /**
-   * Hands the manager the driver order for the scenario about to run.
+   * Passes the manager the driver order for the scenario about to run.
    *
    * The configured list is both the allow-list and the precedence order. A
    * '@driver:NAME' tag moves NAME to the front of that order for this

@@ -15,8 +15,6 @@ trait StringTrait {
   /**
    * Unescape quoted strings in step arguments.
    *
-   * Converts `\"` back to `"` in Behat step arguments.
-   *
    * @param string $argument
    *   The step argument to process.
    *
@@ -29,9 +27,6 @@ trait StringTrait {
 
   /**
    * Normalize whitespace in text for comparison.
-   *
-   * Collapses multiple whitespace characters (spaces, tabs, newlines) into
-   * single spaces and trims leading/trailing whitespace.
    *
    * @param string $text
    *   The text to normalize.
@@ -46,9 +41,6 @@ trait StringTrait {
   /**
    * Split comma-separated string and trim values.
    *
-   * Splits a comma-separated string into an array and trims whitespace
-   * from each value.
-   *
    * @param string $text
    *   The comma-separated string.
    *
@@ -61,10 +53,6 @@ trait StringTrait {
 
   /**
    * Convert an arbitrary string into a filesystem-safe slug.
-   *
-   * Lowercases the input and collapses any run of non-alphanumeric
-   * characters to a single hyphen. Trims leading and trailing hyphens and
-   * falls back to `untitled` when the result would otherwise be empty.
    *
    * @param string $value
    *   The string to slugify.

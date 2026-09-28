@@ -298,10 +298,10 @@ class AuthenticationManagerTest extends TestCase {
   /**
    * Tests that loggedIn() polls for the logout link when login_wait > 0.
    *
-   * Simulates the Critical CSS / late JS race: the logged-in selector
-   * never appears, the login form is absent (the user is logged in), and
-   * the logout link appears only after several polls. With login_wait > 0,
-   * the third-resort check must keep polling.
+   * Simulates the Critical CSS / late JS race: the logged-in selector never
+   * appears, and the login form is absent because the user is logged in. The
+   * logout link appears only after several polls, so with login_wait > 0 the
+   * third-resort check keeps polling.
    */
   public function testLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
     $link = $this->createMock(NodeElement::class);
@@ -642,7 +642,7 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
 
-    // No login_wait is configured; this is the race condition scenario.
+    // No login_wait is configured.
     $manager = $this->createManager($session);
 
     $this->expectException(\Exception::class);

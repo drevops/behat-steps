@@ -17,9 +17,9 @@ class DatetimeHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    // Fresh Drupal installs leave system.date:timezone.default NULL until the
-    // installer writes a value; fall back to UTC so the handler never passes
-    // NULL to DateTimeZone.
+    // A fresh Drupal install leaves system.date:timezone.default NULL until
+    // the installer writes a value, so UTC is the fallback and DateTimeZone
+    // never receives NULL.
     $site_timezone = new \DateTimeZone(\Drupal::config('system.date')->get('timezone.default') ?: 'UTC');
     $storage_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $formatted = [];

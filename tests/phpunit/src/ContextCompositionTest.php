@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Asserts what the shipped contexts compose.
  *
  * A project extending a shipped context gets the whole vocabulary that
- * context names, and a project composing its own gets the helpers on '$this'
+ * context names. A project composing its own gets the helpers on '$this'
  * without a second copy of their state.
  */
 #[CoversNothing]
@@ -122,7 +122,7 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that the root context carries the plumbing and no vocabulary.
+   * Assert that the root context composes the web helpers and no step trait.
    */
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
     $expected = [JavascriptSupportTrait::class, LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
@@ -142,8 +142,8 @@ class ContextCompositionTest extends UnitTestCase {
   /**
    * Assert that a step trait composes every helper member its body calls.
    *
-   * A step trait brings its own plumbing, so a member reached through '$this'
-   * that no composed helper declares would only fail once the step ran.
+   * A step trait composes the helpers it calls, so a member reached through
+   * '$this' that no composed helper declares fails only when the step runs.
    *
    * @param string $directory
    *   The vocabulary directory under 'src/Steps'.
@@ -220,7 +220,7 @@ class ContextCompositionTest extends UnitTestCase {
    * Assert that a helper trait composed twice holds one slot of state.
    *
    * A step trait composes the helper it needs and the root context composes
-   * it too, so both reach the same bag rather than a copy each.
+   * it too, so both read and write the same state rather than a copy each.
    */
   public function testHelperComposedTwiceSharesItsState(): void {
     $context = new HelperStateSubject();
@@ -237,10 +237,11 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that every trait promising a bare Mink host still composes on one.
+   * Assert that every trait annotated for a bare Mink host composes on one.
    *
-   * The fixture proves the composition compiles; this holds the fixture
-   * against the annotations, so a trait whose requirement tightens is caught.
+   * The fixture proves the composition compiles; this test compares the
+   * fixture with the annotations, so a trait whose requirement tightens is
+   * caught.
    */
   public function testTheBareMinkFixtureMatchesTheAnnotatedTraits(): void {
     $annotated = [];
@@ -332,7 +333,7 @@ class ContextCompositionTest extends UnitTestCase {
 }
 
 /**
- * Base context composing the shared header bag.
+ * Base context composing 'RequestHeadersTrait'.
  */
 class HelperStateBase {
 
@@ -341,7 +342,7 @@ class HelperStateBase {
 }
 
 /**
- * Step trait composing the same header bag as its host.
+ * Step trait composing the same 'RequestHeadersTrait' as its host.
  */
 trait HelperStateStepTrait {
 
@@ -352,7 +353,7 @@ trait HelperStateStepTrait {
   }
 
   /**
-   * Read the bag the trait writes to.
+   * Read the headers the trait writes.
    *
    * @return array<string, string>
    *   Header values keyed by header name.
@@ -364,7 +365,7 @@ trait HelperStateStepTrait {
 }
 
 /**
- * Context reaching the header bag from both levels of composition.
+ * Context composing 'RequestHeadersTrait' at both levels.
  */
 class HelperStateSubject extends HelperStateBase {
 

@@ -17,14 +17,15 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel test exercising 'entityCreate()' on a 'commerce_product' stub.
  *
  * A stub sets 'commerce_product.variations', a base entity_reference field
- * targeting 'commerce_product_variation', and expects the driver to resolve
- * each referenced variation and attach it to the product on save. Without
- * the base-field auto-detection in 'expandEntityFields()', variations are
- * filtered out of the field-handler pipeline and reach entity storage in raw
- * scalar form. The product is then saved with no variations attached.
+ * targeting 'commerce_product_variation'. The driver must resolve each
+ * referenced variation and attach it to the product on save.
  *
- * Both the variation and the product are created via 'Core::entityCreate()',
- * then the product is loaded back via the entity type manager to assert the
+ * Without the base-field auto-detection in 'expandEntityFields()', variations
+ * are filtered out of the field-handler pipeline and reach entity storage in
+ * raw scalar form. The product is then saved with no variations attached.
+ *
+ * Both the variation and the product are created via 'Core::entityCreate()'.
+ * The product is then loaded back via the entity type manager to assert the
  * resolved relationship.
  */
 #[CoversClass(Core::class)]
@@ -68,10 +69,10 @@ class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // On Drupal 12 the 'text_with_summary' field type, which the
-    // commerce_product configuration uses, is provided by its own module
-    // rather than by 'text', so it is enabled before the configuration that
-    // reads it.
+    // On Drupal 12 the 'text_with_summary' field type is provided by its own
+    // module rather than by 'text'. The commerce_product configuration uses
+    // that type, so the module is enabled before the configuration that reads
+    // it.
     if (\Drupal::service('extension.list.module')->exists('text_with_summary')) {
       $this->enableModules(['text_with_summary']);
     }
