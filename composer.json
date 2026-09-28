@@ -42,7 +42,7 @@
         "drevops/phpcs-standard": "^1.0",
         "drupal/coder": "^9.0.1",
         "dvdoug/behat-code-coverage": "^5.3.7",
-        "ergebnis/composer-normalize": "^2.53.0",
+        "ergebnis/composer-normalize": "^2.54.0",
         "justinrainbow/json-schema": "^6.6.1",
         "lullabot/mink-selenium2-driver": "^1.7.4",
         "mglaman/phpstan-drupal": "^2.2.2",
@@ -50,7 +50,7 @@
         "phpcompatibility/php-compatibility": "^10.0@alpha",
         "phpspec/prophecy-phpunit": "^2.5.0",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.2.15",
+        "phpstan/phpstan": "^2.2.16",
         "phpunit/phpunit": "^12.5.34",
         "rector/rector": "^2.6.6",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
