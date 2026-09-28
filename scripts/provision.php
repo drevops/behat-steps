@@ -408,19 +408,15 @@ function provision_merge_composer(array $package, array $fixture): array {
   $merged_require_dev = array_merge($merged_require_dev, array_intersect_key($require_dev, array_flip(PROVISION_TEST_RUNNER_PACKAGES)));
   unset($merged_require_dev['php']);
 
+  // Only the package's own paths are rebased. A path the fixture declares is
+  // already relative to the build, so the merge runs after the rebase.
   $filtered = [
     'require-dev' => $merged_require_dev,
-    'autoload' => provision_section($package, 'autoload'),
+    'autoload' => provision_rebase_psr4(provision_section($package, 'autoload')),
     'autoload-dev' => ['psr-4' => ['DrevOps\\BehatSteps\\' => '../src/']],
   ];
 
-  $merged = array_replace_recursive($filtered, $fixture);
-
-  // The fixture can bring an "autoload" section of its own, so the package's
-  // paths are rebased after the merge rather than before it.
-  $merged['autoload'] = provision_rebase_psr4(provision_section($merged, 'autoload'));
-
-  return $merged;
+  return array_replace_recursive($filtered, $fixture);
 }
 
 /**
@@ -428,6 +424,7 @@ function provision_merge_composer(array $package, array $fixture): array {
  *
  * The build sits one level below the package root, so a path the package
  * declares relative to itself only resolves from the build with the prefix.
+ * A namespace may map to a list of directories rather than to one.
  *
  * @param array<array-key, mixed> $autoload
  *   An "autoload" section.
@@ -443,10 +440,35 @@ function provision_rebase_psr4(array $autoload): array {
   }
 
   foreach ($psr4 as $namespace => $path) {
-    $psr4[$namespace] = '../' . (is_string($path) ? $path : '');
+    if (!is_array($path)) {
+      $psr4[$namespace] = provision_rebase_path($path);
+
+      continue;
+    }
+
+    $directories = [];
+
+    foreach ($path as $key => $directory) {
+      $directories[$key] = provision_rebase_path($directory);
+    }
+
+    $psr4[$namespace] = $directories;
   }
 
   $autoload['psr-4'] = $psr4;
 
   return $autoload;
+}
+
+/**
+ * Rebases one autoload path on the package root.
+ *
+ * @param mixed $path
+ *   A path declared relative to the package root.
+ *
+ * @return string
+ *   The path, relative to the build directory.
+ */
+function provision_rebase_path(mixed $path): string {
+  return '../' . (is_string($path) ? $path : '');
 }

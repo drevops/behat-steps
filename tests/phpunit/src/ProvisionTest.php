@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('provision_env')]
 #[CoversFunction('provision_merge_composer')]
 #[CoversFunction('provision_read_json')]
+#[CoversFunction('provision_rebase_path')]
 #[CoversFunction('provision_rebase_psr4')]
 #[CoversFunction('provision_section')]
 #[CoversFunction('provision_with_env')]
@@ -212,6 +213,36 @@ class ProvisionTest extends UnitTestCase {
     $autoload = ['classmap' => ['scripts/composer/']];
 
     $this->assertSame($autoload, provision_rebase_psr4($autoload));
+  }
+
+  /**
+   * Assert that a namespace mapped to a list keeps its shape.
+   */
+  public function testRebasePsr4RebasesEveryDirectoryOfList(): void {
+    $autoload = ['psr-4' => ['DrevOps\\BehatSteps\\' => ['src/', 'lib/']]];
+    $expected = ['psr-4' => ['DrevOps\\BehatSteps\\' => ['../src/', '../lib/']]];
+
+    $this->assertSame($expected, provision_rebase_psr4($autoload));
+  }
+
+  /**
+   * Assert that a PSR-4 path the fixture declares is not rebased.
+   *
+   * The fixture's own paths are already relative to the build directory, so
+   * prefixing them would push them outside it.
+   */
+  public function testMergeComposerLeavesTheFixturePsr4Alone(): void {
+    $fixture = static::fixture();
+    $fixture['autoload'] = ['psr-4' => ['Fixture\\Site\\' => 'web/modules/custom/']];
+
+    $merged = provision_merge_composer(static::package(), $fixture);
+
+    $expected = [
+      'DrevOps\\BehatSteps\\' => '../src/',
+      'Fixture\\Site\\' => 'web/modules/custom/',
+    ];
+
+    $this->assertSame($expected, $merged['autoload']['psr-4']);
   }
 
   /**
