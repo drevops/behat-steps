@@ -106,7 +106,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    */
   protected function normalize(mixed $values): array {
     if ($this->mainProperty === NULL) {
-      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
+      throw new \RuntimeException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
     }
 
     if (!is_array($values)) {

@@ -139,7 +139,7 @@ final class EntityStub implements EntityStubInterface {
    */
   public function getSavedEntity(): object {
     if ($this->entity === NULL) {
-      throw new \LogicException(sprintf('EntityStub for "%s" has not been saved yet.', $this->entityType));
+      throw new \RuntimeException(sprintf('EntityStub for "%s" has not been saved yet.', $this->entityType));
     }
 
     return $this->entity;

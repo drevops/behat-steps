@@ -143,7 +143,7 @@ class EntityStubTest extends TestCase {
   public function testGetSavedEntityThrowsWhenUnsaved(): void {
     $stub = new EntityStub('node', 'article');
 
-    $this->expectException(\LogicException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/EntityStub for "node" has not been saved/');
 
     $stub->getSavedEntity();

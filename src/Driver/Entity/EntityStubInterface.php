@@ -110,7 +110,7 @@ interface EntityStubInterface {
    * @return object
    *   The entity supplied to 'markSaved()'.
    *
-   * @throws \LogicException
+   * @throws \RuntimeException
    *   When 'markSaved()' has not yet been called.
    */
   public function getSavedEntity(): object;
