@@ -107,7 +107,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the path should not be :path')]
-  public function pathAssertNotCurrent(string $path): bool {
+  public function pathAssertNotCurrent(string $path): void {
     $current_path = $this->getSession()->getCurrentUrl();
 
     // @codeCoverageIgnoreStart
@@ -128,8 +128,6 @@ trait PathTrait {
     if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
       throw new ExpectationException(sprintf('Current path should not be "%s".', $path), $this->getSession()->getDriver());
     }
-
-    return TRUE;
   }
 
   /**
