@@ -107,12 +107,12 @@ trait EntityLifecycleTrait {
    * Walks 'createdStubs' in reverse order, so a dependent entity such as a
    * node referencing a term is deleted before the entity it references.
    *
-   * Skip the whole pass with '@behat-steps-skip:cleanEntities', or one entity
+   * Skip the whole pass with '@behat-steps-skip:entityCleanAll', or one entity
    * type with '@behat-steps-entity-cleanup-skip:<entity_type_id>'.
    */
   #[AfterScenario]
   public function entityCleanAll(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('cleanEntities', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag('entityCleanAll', $scope)) {
       return;
     }
 
@@ -212,7 +212,7 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub joins 'createdStubs', so 'cleanEntities()' removes it after the
+   * The stub joins 'createdStubs', so 'entityCleanAll()' removes it after the
    * scenario through the driver's 'entityDelete()' fallback.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub

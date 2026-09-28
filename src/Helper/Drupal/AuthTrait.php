@@ -59,7 +59,7 @@ trait AuthTrait {
    */
   #[AfterScenario]
   public function authCleanUsers(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('cleanUsers', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag('authCleanUsers', $scope)) {
       return;
     }
 
@@ -97,7 +97,7 @@ trait AuthTrait {
    */
   #[AfterScenario]
   public function authCleanRoles(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('cleanRoles', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag('authCleanRoles', $scope)) {
       return;
     }
 

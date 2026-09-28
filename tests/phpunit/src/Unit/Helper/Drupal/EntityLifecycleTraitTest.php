@@ -526,8 +526,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderTheSkipTagDisablesEntityCleanup(): \Iterator {
-    yield 'on the scenario' => [['behat-steps-skip:cleanEntities'], []];
-    yield 'on the feature' => [[], ['behat-steps-skip:cleanEntities']];
+    yield 'on the scenario' => [['behat-steps-skip:entityCleanAll'], []];
+    yield 'on the feature' => [[], ['behat-steps-skip:entityCleanAll']];
   }
 
   public function testTheSkipTagDisablesUserCleanup(): void {
@@ -543,7 +543,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:cleanUsers']));
+    $this->createContext($driver, $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:authCleanUsers']));
 
     $this->assertTrue($user_manager->hasUsers());
   }
@@ -555,7 +555,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:cleanRoles']));
+    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:authCleanRoles']));
 
     $this->assertSame(['editor'], $context->getRoles());
   }

@@ -340,9 +340,10 @@ A step of your own registers what it saved:
 $this->entityRegister($entity);
 ```
 
-To keep **all** entities after a scenario, add `@behat-steps-skip:cleanEntities`
-to the scenario or feature. `@behat-steps-skip:cleanUsers` and
-`@behat-steps-skip:cleanRoles` do the same for users and roles.
+To keep **all** entities after a scenario, add
+`@behat-steps-skip:entityCleanAll` to the scenario or feature.
+`@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles` do the
+same for users and roles.
 
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example
