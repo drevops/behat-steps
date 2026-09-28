@@ -144,7 +144,7 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Be
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
 - **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver, authentication, user and mail managers, `Context/` holds the 3 context classes, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator.
-- **`src/Helper`** holds the step-free traits a step trait and a context both compose - last-step tracking, the request header bag, string shaping, JavaScript support detection, and the whole Drupal scenario lifecycle. They register no Gherkin, so composing one twice shares its state instead of registering a step twice.
+- **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
 `Context/` is one chain. `WebRawContext` carries the plumbing, composes the 4 web helper traits and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice.
@@ -242,8 +242,8 @@ classes from there. Run `ahoy build` first.
 Tests live under `tests/phpunit/src/` in a directory named after their suite:
 `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite.
 Inside a suite directory the path mirrors `src/`, so
-`src/Helper/StringTrait.php` is tested by
-`tests/phpunit/src/Unit/Helper/StringTraitTest.php`. Tests with no
+`src/Helper/Web/StringTrait.php` is tested by
+`tests/phpunit/src/Unit/Helper/Web/StringTraitTest.php`. Tests with no
 counterpart in `src/` - the docs generator, the layer linter and the
 convention tests - sit at the root of `tests/phpunit/src/`.
 

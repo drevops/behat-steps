@@ -253,7 +253,7 @@ trait FeatureContextTrait {
     }
 
     try {
-      $this->getUserManager()->getUser($name);
+      $this->authGetUserManager()->getUser($name);
     }
     catch (\Exception) {
       throw new \Exception(sprintf('User "%s" exists in DB, but does not exist in test variables', $name));
@@ -273,7 +273,7 @@ trait FeatureContextTrait {
     }
 
     try {
-      $this->getUserManager()->getUser($name);
+      $this->authGetUserManager()->getUser($name);
     }
     catch (\Exception) {
       return;
@@ -523,7 +523,7 @@ trait FeatureContextTrait {
    */
   #[When('I call transposeVerticalTable with:')]
   public function testCallTableTransposeVertical(TableNode $table): void {
-    $result = $this->transposeVerticalTable($table);
+    $result = $this->tableTransposeVertical($table);
 
     if (empty($result)) {
       throw new \Exception('transposeVerticalTable returned empty result.');

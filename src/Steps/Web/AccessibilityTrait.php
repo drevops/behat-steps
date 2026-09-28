@@ -17,8 +17,8 @@ use Behat\Step\Then;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Assess accessibility of rendered pages.
@@ -205,7 +205,7 @@ trait AccessibilityTrait {
       return;
     }
 
-    $this->setLastStepLine($scope);
+    $this->lastStepSetLine($scope);
 
     $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
     $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
@@ -250,7 +250,7 @@ trait AccessibilityTrait {
     // would report a violation found on a page the step left incomplete. The
     // gate is applied whether or not this step assessed a new page, because a
     // last step that navigates nowhere still ends the scenario.
-    if (!$scope->getTestResult()->isPassed() || !$this->isLastStep($scope)) {
+    if (!$scope->getTestResult()->isPassed() || !$this->lastStepReached($scope)) {
       return;
     }
 
@@ -283,7 +283,7 @@ trait AccessibilityTrait {
     if (!is_dir($dir)) {
       mkdir($dir, 0777, TRUE);
     }
-    $slug = $this->slug($this->accessibilityFeatureName) . '__' . $this->slug($this->accessibilityScenarioName);
+    $slug = $this->stringSlug($this->accessibilityFeatureName) . '__' . $this->stringSlug($this->accessibilityScenarioName);
     file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 

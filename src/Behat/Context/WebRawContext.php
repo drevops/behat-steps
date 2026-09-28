@@ -13,10 +13,10 @@ use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Component\Utility\Random;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 

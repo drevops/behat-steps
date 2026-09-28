@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Web;
 
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -107,15 +107,15 @@ class StringTraitTestImplementation {
   use StringTrait;
 
   public function callSlug(string $value): string {
-    return $this->slug($value);
+    return $this->stringSlug($value);
   }
 
   public function callFixStepArgument(string $value): string {
-    return $this->fixStepArgument($value);
+    return $this->stringFixStepArgument($value);
   }
 
   public function callNormalizeWhitespace(string $value): string {
-    return $this->normalizeWhitespace($value);
+    return $this->stringNormalizeWhitespace($value);
   }
 
   /**
@@ -125,7 +125,7 @@ class StringTraitTestImplementation {
    *   The trimmed values.
    */
   public function callSplitCommaSeparated(string $value): array {
-    return $this->splitCommaSeparated($value);
+    return $this->stringSplitCommaSeparated($value);
   }
 
 }

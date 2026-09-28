@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Web;
 
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
@@ -33,22 +33,22 @@ class RequestHeadersTraitTest extends UnitTestCase {
   }
 
   public function testHeaderIsReadBackUnderItsName(): void {
-    $this->testObject->setRequestHeader('X-A', '1');
-    $this->testObject->setRequestHeader('X-B', '2');
+    $this->testObject->requestHeadersSet('X-A', '1');
+    $this->testObject->requestHeadersSet('X-B', '2');
 
     $this->assertSame(['X-A' => '1', 'X-B' => '2'], $this->testObject->callAll());
   }
 
   public function testSettingTheSameNameReplacesTheValue(): void {
-    $this->testObject->setRequestHeader('X-A', '1');
-    $this->testObject->setRequestHeader('X-A', '2');
+    $this->testObject->requestHeadersSet('X-A', '1');
+    $this->testObject->requestHeadersSet('X-A', '2');
 
     $this->assertSame(['X-A' => '2'], $this->testObject->callAll());
   }
 
   public function testUnsetDropsOnlyTheNamedHeader(): void {
-    $this->testObject->setRequestHeader('X-A', '1');
-    $this->testObject->setRequestHeader('X-B', '2');
+    $this->testObject->requestHeadersSet('X-A', '1');
+    $this->testObject->requestHeadersSet('X-B', '2');
 
     $this->testObject->callUnset('X-A');
 
@@ -56,7 +56,7 @@ class RequestHeadersTraitTest extends UnitTestCase {
   }
 
   public function testUnsettingAnAbsentHeaderLeavesTheBagAlone(): void {
-    $this->testObject->setRequestHeader('X-A', '1');
+    $this->testObject->requestHeadersSet('X-A', '1');
 
     $this->testObject->callUnset('X-Missing');
 
@@ -64,7 +64,7 @@ class RequestHeadersTraitTest extends UnitTestCase {
   }
 
   public function testResetEmptiesTheBag(): void {
-    $this->testObject->setRequestHeader('X-A', '1');
+    $this->testObject->requestHeadersSet('X-A', '1');
 
     $this->testObject->callReset();
 
@@ -89,15 +89,15 @@ class RequestHeadersTraitTestImplementation {
    *   Header values keyed by header name.
    */
   public function callAll(): array {
-    return $this->getRequestHeaders();
+    return $this->requestHeadersAll();
   }
 
   public function callUnset(string $name): void {
-    $this->unsetRequestHeader($name);
+    $this->requestHeadersUnset($name);
   }
 
   public function callReset(): void {
-    $this->resetRequestHeaders();
+    $this->requestHeadersReset();
   }
 
 }

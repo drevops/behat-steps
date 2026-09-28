@@ -312,13 +312,15 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
  * Collect the helper traits the package publishes.
  *
  * Every trait of the directory is published, and the directory is what makes
- * it plumbing rather than vocabulary.
+ * it plumbing rather than vocabulary. The half it sits in says which context
+ * reaches it, so the reference groups them the way the steps are grouped.
  *
  * @param string $base_path
  *   Base path for the repository.
  *
- * @return array<string, \ReflectionClass<object>>
- *   The trait reflections, keyed by short name and sorted by that name.
+ * @return array<string, array{reflection: \ReflectionClass<object>, context: string}>
+ *   The trait reflection and its half, keyed by short name and sorted by that
+ *   name.
  *
  * @throws \ReflectionException
  */
@@ -330,18 +332,26 @@ function collect_helper_traits(string $base_path = __DIR__): array {
     return $collected;
   }
 
-  foreach (scandir($helpers_path) ?: [] as $file) {
-    $file_path = $helpers_path . DIRECTORY_SEPARATOR . $file;
+  foreach (scandir($helpers_path) ?: [] as $half) {
+    $half_path = $helpers_path . DIRECTORY_SEPARATOR . $half;
 
-    if (!is_file($file_path) || !file_declares_trait($file_path)) {
+    if ($half === '.' || $half === '..' || !is_dir($half_path)) {
       continue;
     }
 
-    $short_name = basename($file, '.php');
-    /** @var class-string $trait_name */
-    $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $short_name;
+    foreach (scandir($half_path) ?: [] as $file) {
+      $file_path = $half_path . DIRECTORY_SEPARATOR . $file;
 
-    $collected[$short_name] = new \ReflectionClass($trait_name);
+      if (!is_file($file_path) || !file_declares_trait($file_path)) {
+        continue;
+      }
+
+      $short_name = basename($file, '.php');
+      /** @var class-string $trait_name */
+      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $half . '\\' . $short_name;
+
+      $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $half];
+    }
   }
 
   uksort($collected, strcasecmp(...));
@@ -939,18 +949,21 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $info[$trait_name] = $class_info;
   }
 
-  foreach (collect_helper_traits($base_path) as $trait_name => $trait) {
+  foreach (collect_helper_traits($base_path) as $trait_name => $collected) {
+    $trait = $collected['reflection'];
+    $half = $collected['context'];
     $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
     }
     // @codeCoverageIgnoreEnd
+    $name_contextual = ($half !== DEFAULT_CONTEXT ? $half . '\\' : '') . $trait_name;
     $class_info = [
       'name' => $trait_name,
-      'name_contextual' => $trait_name,
-      'context' => 'Toolbox',
-      'source' => sprintf('%s/%s.php', HELPERS_DIRECTORY, $trait_name),
+      'name_contextual' => $name_contextual,
+      'context' => $half,
+      'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $half, $trait_name),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
     ];

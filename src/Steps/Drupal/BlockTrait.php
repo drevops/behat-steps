@@ -9,7 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\block\Entity\Block;
 
 /**

@@ -170,7 +170,7 @@ class LintTraitsTest extends UnitTestCase {
       ],
       'helper composing a helper' => [
         [
-          'AuthenticationTrait' => ['kind' => 'helper', 'composed' => ['EntityLifecycleTrait'], 'members' => []],
+          'AuthTrait' => ['kind' => 'helper', 'composed' => ['EntityLifecycleTrait'], 'members' => []],
           'EntityLifecycleTrait' => $helper,
         ],
         [],

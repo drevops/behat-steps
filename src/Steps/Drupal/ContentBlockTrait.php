@@ -11,8 +11,8 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 
@@ -111,7 +111,7 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks with fields exist:')]
   public function contentBlockCreateWithFields(string $content_block_type, TableNode $table): void {
-    $entities = $this->transposeVerticalTable($table);
+    $entities = $this->tableTransposeVertical($table);
 
     foreach ($entities as $entity_data) {
       $this->contentBlockCreateSingle($content_block_type, $entity_data);
@@ -186,7 +186,7 @@ trait ContentBlockTrait {
 
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
 
     /** @var \Drupal\block_content\Entity\BlockContent $entity */
     $entity = BlockContent::create($stub->getValues());

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\node\Entity\Node;
 
 /**
@@ -19,7 +19,7 @@ use Drupal\node\Entity\Node;
  */
 trait SearchApiTrait {
 
-  use DrupalQueryTrait;
+  use QueryTrait;
 
   /**
    * Index a node of a specific content type with a specific title.
@@ -32,9 +32,9 @@ trait SearchApiTrait {
   public function searchApiIndexContent(string $content_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('search_api', 'drupal/search_api');
+    $this->queryAssertModuleEnabled('search_api', 'drupal/search_api');
 
-    $nids = $this->loadNodeIds($content_type, [
+    $nids = $this->queryNodeIds($content_type, [
       'title' => $title,
     ]);
 
@@ -63,7 +63,7 @@ trait SearchApiTrait {
   public function searchApiDoIndex(string|int $count): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('search_api', 'drupal/search_api');
+    $this->queryAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $count = (int) $count;
 
@@ -96,7 +96,7 @@ trait SearchApiTrait {
   public function searchApiRunCron(): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('search_api', 'drupal/search_api');
+    $this->queryAssertModuleEnabled('search_api', 'drupal/search_api');
 
     \Drupal::moduleHandler()->invoke('search_api', 'cron');
   }
@@ -116,7 +116,7 @@ trait SearchApiTrait {
   public function searchApiRunSolrCron(): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('search_api', 'drupal/search_api');
+    $this->queryAssertModuleEnabled('search_api', 'drupal/search_api');
 
     $module_handler = \Drupal::moduleHandler();
 

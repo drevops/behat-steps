@@ -14,7 +14,7 @@ use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 
 /**
  * Wait for a period of time or for AJAX to finish.
@@ -118,7 +118,7 @@ trait WaitTrait {
   public function waitForAjax(string|int $seconds): void {
     $seconds = (int) $seconds;
 
-    if (!$this->isJavascriptSupported()) {
+    if (!$this->javascriptSupportAvailable()) {
       throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $this->getSession()->getDriver());
     }
 

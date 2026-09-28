@@ -8,8 +8,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
@@ -26,7 +26,7 @@ use Drupal\paragraphs\ParagraphInterface;
  */
 trait ParagraphsTrait {
 
-  use DrupalQueryTrait;
+  use QueryTrait;
   use EntityLifecycleTrait;
 
   /**
@@ -44,7 +44,7 @@ trait ParagraphsTrait {
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->queryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
@@ -55,7 +55,7 @@ trait ParagraphsTrait {
     }
 
     $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
     $this->paragraphsExpandEntityFields($stub);
 
     $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $stub);
@@ -83,7 +83,7 @@ trait ParagraphsTrait {
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->queryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
 
     $values = $stub->getValues();
     $values['type'] = $paragraph_type;

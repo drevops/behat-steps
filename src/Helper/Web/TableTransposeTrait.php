@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Web;
 
 use Behat\Gherkin\Node\TableNode;
 
@@ -43,7 +43,7 @@ trait TableTransposeTrait {
    * @throws \RuntimeException
    *   If table doesn't have at least 2 columns or has no rows.
    */
-  public function transposeVerticalTable(TableNode $table): array {
+  public function tableTransposeVertical(TableNode $table): array {
     $rows = $table->getRows();
 
     $first_row = $rows[0];
@@ -89,7 +89,7 @@ trait TableTransposeTrait {
    *   TableNode in horizontal format (first row is headers, subsequent rows
    *   are values). Returns empty TableNode if input is empty.
    */
-  public function buildHorizontalTable(array $entities): TableNode {
+  public function tableTransposeHorizontal(array $entities): TableNode {
     // @codeCoverageIgnoreStart
     if (empty($entities)) {
       return new TableNode([]);

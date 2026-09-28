@@ -52,7 +52,7 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * reports that rather than letting Behat name an arbitrary step.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
- * @see \DrevOps\BehatSteps\Helper\EntityLifecycleTrait
+ * @see \DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait
  */
 class DrupalContext extends WebContext implements UserAwareInterface {
 

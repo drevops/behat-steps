@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Drupal;
 
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-trait DrupalQueryTrait {
+trait QueryTrait {
 
   /**
    * Load the ids of the nodes of a content type matching the conditions.
@@ -27,7 +27,7 @@ trait DrupalQueryTrait {
    * @return array<int, string>
    *   Array of node ids.
    */
-  public function loadNodeIds(string $content_type, array $conditions = []): array {
+  public function queryNodeIds(string $content_type, array $conditions = []): array {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery('node')
@@ -59,7 +59,7 @@ trait DrupalQueryTrait {
    * @throws \RuntimeException
    *   When the module is not enabled.
    */
-  public function assertModuleEnabled(string $module, string $package = ''): void {
+  public function queryAssertModuleEnabled(string $module, string $package = ''): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
     // @codeCoverageIgnoreStart

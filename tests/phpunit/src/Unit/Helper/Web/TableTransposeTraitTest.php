@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Web;
 
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
@@ -33,7 +33,7 @@ class TableTransposeTraitTest extends UnitTestCase {
   public function testTwoColumnTableYieldsOneEntity(): void {
     $table = new TableNode([['name', 'John'], ['age', '30']]);
 
-    $this->assertSame([['name' => 'John', 'age' => '30']], $this->testObject->transposeVerticalTable($table));
+    $this->assertSame([['name' => 'John', 'age' => '30']], $this->testObject->tableTransposeVertical($table));
   }
 
   public function testThreeColumnTableYieldsOneEntityPerValueColumn(): void {
@@ -44,28 +44,28 @@ class TableTransposeTraitTest extends UnitTestCase {
       ['name' => 'Jane', 'age' => '25'],
     ];
 
-    $this->assertSame($expected, $this->testObject->transposeVerticalTable($table));
+    $this->assertSame($expected, $this->testObject->tableTransposeVertical($table));
   }
 
   public function testSingleColumnTableIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Vertical table must have at least 2 columns (field name and value).');
 
-    $this->testObject->transposeVerticalTable(new TableNode([['name']]));
+    $this->testObject->tableTransposeVertical(new TableNode([['name']]));
   }
 
   public function testRepeatedFieldNameIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Duplicate field names found: name.');
 
-    $this->testObject->transposeVerticalTable(new TableNode([['name', 'John'], ['name', 'Jane']]));
+    $this->testObject->tableTransposeVertical(new TableNode([['name', 'John'], ['name', 'Jane']]));
   }
 
   public function testBlankFieldNameIsRefused(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Field names cannot be empty.');
 
-    $this->testObject->transposeVerticalTable(new TableNode([['name', 'John'], [' ', 'Jane']]));
+    $this->testObject->tableTransposeVertical(new TableNode([['name', 'John'], [' ', 'Jane']]));
   }
 
   public function testEntitiesAreRenderedAsHeaderRowAndValueRows(): void {
@@ -80,7 +80,7 @@ class TableTransposeTraitTest extends UnitTestCase {
       ['Jane', '25'],
     ];
 
-    $this->assertSame($expected, $this->testObject->buildHorizontalTable($entities)->getRows());
+    $this->assertSame($expected, $this->testObject->tableTransposeHorizontal($entities)->getRows());
   }
 
 }

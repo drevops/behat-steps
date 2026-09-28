@@ -182,21 +182,21 @@ package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
   class StringTrait <<trait>>
   class JavascriptSupportTrait <<trait>>
   class EntityLifecycleTrait <<trait>>
-  class AuthenticationTrait <<trait>>
+  class AuthTrait <<trait>>
   class StaticCacheTrait <<trait>>
   class TableTransposeTrait <<trait>>
   class FixtureFileTrait <<trait>>
-  class DrupalQueryTrait <<trait>>
+  class QueryTrait <<trait>>
 
   LastStepTrait -[hidden]down- RequestHeadersTrait
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- JavascriptSupportTrait
   JavascriptSupportTrait -[hidden]down- EntityLifecycleTrait
-  EntityLifecycleTrait -[hidden]down- AuthenticationTrait
-  AuthenticationTrait -[hidden]down- StaticCacheTrait
+  EntityLifecycleTrait -[hidden]down- AuthTrait
+  AuthTrait -[hidden]down- StaticCacheTrait
   StaticCacheTrait -[hidden]down- TableTransposeTrait
   TableTransposeTrait -[hidden]down- FixtureFileTrait
-  FixtureFileTrait -[hidden]down- DrupalQueryTrait
+  FixtureFileTrait -[hidden]down- QueryTrait
 }
 
 note bottom of Consumer

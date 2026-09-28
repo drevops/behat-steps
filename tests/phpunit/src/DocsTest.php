@@ -9,8 +9,8 @@ use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Helper\AuthenticationTrait;
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
@@ -2779,28 +2779,28 @@ EOD,
   public function testExtractHelpersPublishesTheHelperTraits(): void {
     $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
 
-    $this->assertSame('Toolbox', $actual['JavascriptSupportTrait']['context']);
+    $this->assertSame('Web', $actual['JavascriptSupportTrait']['context']);
     $this->assertNull($actual['JavascriptSupportTrait']['steps_anchor']);
-    $this->assertSame('src/Helper/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
-    $this->assertSame(['isJavascriptSupported'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
+    $this->assertSame('src/Helper/Web/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
+    $this->assertSame(['javascriptSupportAvailable'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
 
-    $this->assertContains('nodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
+    $this->assertContains('entityNodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
   }
 
   public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {
     $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
     $helpers = [];
 
-    foreach ($actual['AuthenticationTrait']['helpers'] as $helper) {
+    foreach ($actual['AuthTrait']['helpers'] as $helper) {
       $helpers[$helper['name']] = $helper['description'];
     }
 
     // A trait declares no interface of its own, so '{@inheritdoc}' resolves
     // against the contract the composing context declares.
-    $this->assertSame('Returns the user manager.', $helpers['getUserManager']);
+    $this->assertSame('Returns the user manager.', $helpers['authGetUserManager']);
 
     // The injection point is '@internal' on that same contract.
-    $this->assertArrayNotHasKey('setUserManager', $helpers);
+    $this->assertArrayNotHasKey('authSetUserManager', $helpers);
   }
 
   /**
@@ -2820,7 +2820,7 @@ EOD,
   }
 
   public static function dataProviderHelperTraitContracts(): \Iterator {
-    yield 'reached through a composed step trait' => [AuthenticationTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
+    yield 'reached through a composed step trait' => [AuthTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
     yield 'reached through the root context' => [StringTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
   }
 
@@ -2833,12 +2833,16 @@ EOD,
   }
 
   public function testCollectHelperTraitsReadsOnlyTheTraitFiles(): void {
-    $helpers_path = static::$tmp . '/src/Helper';
+    $helpers_path = static::$tmp . '/src/Helper/Web';
     mkdir($helpers_path, 0777, TRUE);
     file_put_contents($helpers_path . '/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
     file_put_contents($helpers_path . '/README.md', 'not code');
+    file_put_contents(dirname($helpers_path) . '/Loose.php', "<?php\n\ntrait Loose {}\n");
 
-    $this->assertSame(['StringTrait'], array_keys(collect_helper_traits(static::$tmp)));
+    $collected = collect_helper_traits(static::$tmp);
+
+    $this->assertSame(['StringTrait'], array_keys($collected));
+    $this->assertSame('Web', $collected['StringTrait']['context']);
   }
 
   public function testCollectHelperMethodsTakesOnlyDeclaredMembers(): void {

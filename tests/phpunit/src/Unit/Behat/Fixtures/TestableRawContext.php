@@ -6,15 +6,15 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\AuthenticationTrait;
-use DrevOps\BehatSteps\Helper\StaticCacheTrait;
+use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 
 /**
  * Context exposing the registries and helpers the step vocabulary fills.
  */
 class TestableRawContext extends WebRawContext implements UserAwareInterface {
 
-  use AuthenticationTrait;
+  use AuthTrait;
   use StaticCacheTrait;
 
   /**
@@ -61,7 +61,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * Public bridge to the protected vocabulary resolver.
    */
   public function callResolveVocabularyMachineName(string $identifier): string {
-    return $this->resolveVocabularyMachineName($identifier);
+    return $this->entityResolveVocabularyMachineName($identifier);
   }
 
 }

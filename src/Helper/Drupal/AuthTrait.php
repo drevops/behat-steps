@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
@@ -27,7 +27,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-trait AuthenticationTrait {
+trait AuthTrait {
 
   use EntityLifecycleTrait;
 
@@ -58,12 +58,12 @@ trait AuthenticationTrait {
    * Later scenarios in the same run inherit that login.
    */
   #[AfterScenario]
-  public function cleanUsers(AfterScenarioScope $scope): void {
+  public function authCleanUsers(AfterScenarioScope $scope): void {
     if (!$this->shouldCleanup() || $this->skipTag('cleanUsers', $scope)) {
       return;
     }
 
-    $user_manager = $this->getUserManager();
+    $user_manager = $this->authGetUserManager();
 
     // Resolving a driver bootstraps it, so a scenario that created no users
     // never boots one on the way out.
@@ -84,11 +84,11 @@ trait AuthenticationTrait {
     // Reset auth state even when the scenario created no users: a scenario
     // may log in as a pre-existing user without calling userCreate(), leaving
     // stale session state for the next scenario.
-    if ($this->getAuthenticationManager() instanceof FastLogoutInterface) {
-      $this->logout(TRUE);
+    if ($this->authGetManager() instanceof FastLogoutInterface) {
+      $this->authLogout(TRUE);
     }
     elseif (!$user_manager->currentUserIsAnonymous()) {
-      $this->logout();
+      $this->authLogout();
     }
   }
 
@@ -96,7 +96,7 @@ trait AuthenticationTrait {
    * Removes any created roles.
    */
   #[AfterScenario]
-  public function cleanRoles(AfterScenarioScope $scope): void {
+  public function authCleanRoles(AfterScenarioScope $scope): void {
     if (!$this->shouldCleanup() || $this->skipTag('cleanRoles', $scope)) {
       return;
     }
@@ -121,21 +121,21 @@ trait AuthenticationTrait {
   /**
    * {@inheritdoc}
    */
-  public function setUserManager(UserManagerInterface $user_manager): void {
+  public function authSetUserManager(UserManagerInterface $user_manager): void {
     $this->userManager = $user_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void {
+  public function authSetManager(AuthenticationManagerInterface $authentication_manager): void {
     $this->authenticationManager = $authentication_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAuthenticationManager(): AuthenticationManagerInterface {
+  public function authGetManager(): AuthenticationManagerInterface {
     if (!$this->authenticationManager instanceof AuthenticationManagerInterface) {
       throw new \RuntimeException('The authentication manager is available only after Behat has initialized the context.');
     }
@@ -146,7 +146,7 @@ trait AuthenticationTrait {
   /**
    * {@inheritdoc}
    */
-  public function getUserManager(): UserManagerInterface {
+  public function authGetUserManager(): UserManagerInterface {
     if (!$this->userManager instanceof UserManagerInterface) {
       throw new \RuntimeException('The user manager is available only after Behat has initialized the context.');
     }
@@ -166,23 +166,23 @@ trait AuthenticationTrait {
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order can create users.
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->dispatchHooks(BeforeUserCreateScope::class, $stub);
-    $this->dispatchHooks(BeforeEntityCreateScope::class, $stub);
+  public function authUserCreate(EntityStubInterface $stub): EntityStubInterface {
+    $this->entityDispatchHooks(BeforeUserCreateScope::class, $stub);
+    $this->entityDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $driver = $this->driverFor(UserCapabilityInterface::class);
-    $this->parseCreatedEntityFields($stub, $driver, ['role']);
+    $this->entityParseCreatedFields($stub, $driver, ['role']);
 
-    $scalars = $this->captureScalarBaseFields($stub);
+    $scalars = $this->entityCaptureScalarBaseFields($stub);
     $driver->userCreate($stub);
-    $this->restoreScalarBaseFields($stub, $scalars);
+    $this->entityRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the user behind, and cleanup removes only registered stubs.
-    $this->getUserManager()->addUser($stub);
+    $this->authGetUserManager()->addUser($stub);
 
-    $this->dispatchHooks(AfterUserCreateScope::class, $stub);
-    $this->dispatchHooks(AfterEntityCreateScope::class, $stub);
+    $this->entityDispatchHooks(AfterUserCreateScope::class, $stub);
+    $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }
@@ -193,8 +193,8 @@ trait AuthenticationTrait {
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $user
    *   The user stub to log in.
    */
-  public function login(EntityStubInterface $user): void {
-    $this->getAuthenticationManager()->logIn($user);
+  public function authLogin(EntityStubInterface $user): void {
+    $this->authGetManager()->logIn($user);
   }
 
   /**
@@ -203,8 +203,8 @@ trait AuthenticationTrait {
    * @param bool $fast
    *   Reset the session directly where the manager supports it.
    */
-  public function logout(bool $fast = FALSE): void {
-    $authentication_manager = $this->getAuthenticationManager();
+  public function authLogout(bool $fast = FALSE): void {
+    $authentication_manager = $this->authGetManager();
 
     if ($fast && $authentication_manager instanceof FastLogoutInterface) {
       $authentication_manager->fastLogout();
@@ -217,8 +217,8 @@ trait AuthenticationTrait {
   /**
    * Determines whether a user is logged in for this session.
    */
-  public function loggedIn(): bool {
-    return $this->getAuthenticationManager()->loggedIn();
+  public function authLoggedIn(): bool {
+    return $this->authGetManager()->loggedIn();
   }
 
 }

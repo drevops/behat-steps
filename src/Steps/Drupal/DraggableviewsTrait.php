@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
@@ -20,7 +20,7 @@ use Drupal\node\NodeInterface;
  */
 trait DraggableviewsTrait {
 
-  use DrupalQueryTrait;
+  use QueryTrait;
 
   /**
    * Save order of the Draggable Order items.
@@ -36,7 +36,7 @@ trait DraggableviewsTrait {
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('draggableviews', 'drupal/draggableviews');
+    $this->queryAssertModuleEnabled('draggableviews', 'drupal/draggableviews');
 
     $database = Database::getConnection();
 

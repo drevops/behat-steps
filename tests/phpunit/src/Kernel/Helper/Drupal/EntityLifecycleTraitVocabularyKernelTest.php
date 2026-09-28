@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Kernel\Helper;
+namespace DrevOps\BehatSteps\Tests\Kernel\Helper\Drupal;
 
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
@@ -97,7 +97,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setDriverManager($this->createDriverManager($driver));
 
-    $this->context->termCreate($stub);
+    $this->context->entityTermCreate($stub);
 
     $this->assertSame('tags', $stub->getValue('vocabulary_machine_name'));
   }
@@ -118,7 +118,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setDriverManager($this->createDriverManager($driver));
 
-    $this->context->termCreate($stub);
+    $this->context->entityTermCreate($stub);
 
     $this->assertSame('Tags', $stub->getValue('vocabulary_machine_name'));
   }

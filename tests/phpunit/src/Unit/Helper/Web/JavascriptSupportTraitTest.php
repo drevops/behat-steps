@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Web;
 
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
-use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -26,7 +26,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->expects($this->never())->method('start');
     $driver->expects($this->once())->method('evaluateScript')->with('true');
 
-    $this->assertTrue($this->createContext($driver)->isJavascriptSupported());
+    $this->assertTrue($this->createContext($driver)->javascriptSupportAvailable());
   }
 
   public function testStoppedDriverIsStartedBeforeTheCheck(): void {
@@ -35,7 +35,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->expects($this->once())->method('start');
     $driver->expects($this->once())->method('evaluateScript')->with('true');
 
-    $this->assertTrue($this->createContext($driver)->isJavascriptSupported());
+    $this->assertTrue($this->createContext($driver)->javascriptSupportAvailable());
   }
 
   public function testDriverRefusingToEvaluateIsNotSupported(): void {
@@ -43,7 +43,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->method('isStarted')->willReturn(TRUE);
     $driver->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('no scripting', $driver));
 
-    $this->assertFalse($this->createContext($driver)->isJavascriptSupported());
+    $this->assertFalse($this->createContext($driver)->javascriptSupportAvailable());
   }
 
   public function testDriverThatFailsToStartIsNotSupported(): void {
@@ -51,7 +51,7 @@ class JavascriptSupportTraitTest extends UnitTestCase {
     $driver->method('isStarted')->willReturn(FALSE);
     $driver->method('start')->willThrowException(new \RuntimeException('no browser'));
 
-    $this->assertFalse($this->createContext($driver)->isJavascriptSupported());
+    $this->assertFalse($this->createContext($driver)->javascriptSupportAvailable());
   }
 
   /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Drupal;
 
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -384,15 +384,15 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   public ?DriverInterface $driver = NULL;
 
   public function callHelperLooksLikeCompoundCell(string $value): bool {
-    return $this->looksLikeCompoundCell($value);
+    return $this->fixtureFileLooksLikeCompoundCell($value);
   }
 
   public function callHelperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
-    return $this->expandCompoundCellFixtures($value, $fixture_path);
+    return $this->fixtureFileExpandCompoundCell($value, $fixture_path);
   }
 
   public function callHelperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
-    $this->expandEntityFieldsFixtures($entity_type, $stub);
+    $this->fixtureFileExpandEntityFields($entity_type, $stub);
   }
 
   public function getMinkParameter(mixed $name): mixed {
@@ -421,7 +421,7 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
    *
    * Overridden to avoid bootstrapping Drupal in unit tests.
    */
-  protected function managedFileExists(string $basename): bool {
+  protected function fixtureFileManagedExists(string $basename): bool {
     return in_array($basename, $this->managedBasenames, TRUE);
   }
 

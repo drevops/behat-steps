@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Web;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 
@@ -22,12 +22,12 @@ trait JavascriptSupportTrait {
    *   TRUE if JavaScript is supported, FALSE otherwise.
    *
    * @code
-   * if (!$this->isJavascriptSupported()) {
+   * if (!$this->javascriptSupportAvailable()) {
    *   return;
    * }
    * @endcode
    */
-  public function isJavascriptSupported(): bool {
+  public function javascriptSupportAvailable(): bool {
     try {
       $driver = $this->getSession()->getDriver();
       if (!$driver->isStarted()) {

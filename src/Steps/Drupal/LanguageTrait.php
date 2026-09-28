@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
  * Create the languages a scenario needs.
@@ -48,7 +48,7 @@ trait LanguageTrait {
         throw new \RuntimeException('Each row must carry a non-empty "langcode" value.');
       }
 
-      $this->languageCreate(new EntityStub('language', NULL, ['langcode' => $langcode]));
+      $this->entityLanguageCreate(new EntityStub('language', NULL, ['langcode' => $langcode]));
     }
   }
 

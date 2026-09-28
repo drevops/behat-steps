@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Web;
 
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -11,7 +11,7 @@ use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Testwork\Environment\Environment;
 use Behat\Behat\Tester\Result\StepResult;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
@@ -94,11 +94,11 @@ class LastStepTraitTestImplementation {
   use LastStepTrait;
 
   public function callCapture(BeforeScenarioScope $scope): void {
-    $this->setLastStepLine($scope);
+    $this->lastStepSetLine($scope);
   }
 
   public function callReached(AfterStepScope $scope): bool {
-    return $this->isLastStep($scope);
+    return $this->lastStepReached($scope);
   }
 
 }

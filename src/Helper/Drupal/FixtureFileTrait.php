@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Drupal;
 
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
@@ -33,7 +33,7 @@ trait FixtureFileTrait {
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub mutated in place.
    */
-  public function expandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
+  public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
     $files_path = $this->getMinkParameter('files_path');
 
     if (empty($files_path)) {
@@ -62,8 +62,8 @@ trait FixtureFileTrait {
       // A stub not yet parsed by 'parseEntityFields()' still holds the raw
       // compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
-      if (is_string($value) && $this->looksLikeCompoundCell($value)) {
-        $rewritten = $this->expandCompoundCellFixtures($value, $fixture_path);
+      if (is_string($value) && $this->fixtureFileLooksLikeCompoundCell($value)) {
+        $rewritten = $this->fixtureFileExpandCompoundCell($value, $fixture_path);
 
         if ($rewritten !== $value) {
           $stub->setValue($name, $rewritten);
@@ -93,11 +93,11 @@ trait FixtureFileTrait {
           continue;
         }
 
-        if ($this->managedFileExists($path)) {
+        if ($this->fixtureFileManagedExists($path)) {
           continue;
         }
 
-        $resolved = $this->resolveFixtureFile($path, $fixture_path);
+        $resolved = $this->fixtureFileResolve($path, $fixture_path);
 
         if ($resolved === NULL) {
           continue;
@@ -132,7 +132,7 @@ trait FixtureFileTrait {
    * Mirrors the top-level pattern 'EntityFieldParser' uses to enter compound
    * mode.
    */
-  protected function looksLikeCompoundCell(string $value): bool {
+  protected function fixtureFileLooksLikeCompoundCell(string $value): bool {
     return preg_match('/^\s*[a-z_][a-z0-9_]*\s*:\s*[\"\[]/i', $value) === 1;
   }
 
@@ -144,15 +144,15 @@ trait FixtureFileTrait {
    * fixtures dir. Other compound columns (e.g. 'alt', 'description') are left
    * untouched so the parser can still process them.
    */
-  protected function expandCompoundCellFixtures(string $value, string $fixture_path): string {
+  protected function fixtureFileExpandCompoundCell(string $value, string $fixture_path): string {
     $callback = function (array $matches) use ($fixture_path): string {
       $path = $matches[2];
 
-      if ($this->managedFileExists($path)) {
+      if ($this->fixtureFileManagedExists($path)) {
         return $matches[0];
       }
 
-      $resolved = $this->resolveFixtureFile($path, $fixture_path);
+      $resolved = $this->fixtureFileResolve($path, $fixture_path);
 
       return $resolved === NULL ? $matches[0] : $matches[1] . $resolved . $matches[3];
     };
@@ -173,7 +173,7 @@ trait FixtureFileTrait {
    *   The absolute path to the fixture file, or NULL when the value does not
    *   resolve to a file inside the fixtures directory.
    */
-  protected function resolveFixtureFile(string $value, string $fixture_path): ?string {
+  protected function fixtureFileResolve(string $value, string $fixture_path): ?string {
     // drupal-driver resolves stream URIs and absolute paths itself.
     if (str_contains($value, '://')) {
       return NULL;
@@ -211,7 +211,7 @@ trait FixtureFileTrait {
    *   TRUE when a managed file exists at public://basename or
    *   private://basename.
    */
-  protected function managedFileExists(string $basename): bool {
+  protected function fixtureFileManagedExists(string $basename): bool {
     $this->driverFor(CoreCapabilityInterface::class);
 
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {

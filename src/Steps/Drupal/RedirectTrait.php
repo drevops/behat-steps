@@ -9,8 +9,8 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -30,7 +30,7 @@ use Drupal\redirect\Entity\Redirect;
  */
 trait RedirectTrait {
 
-  use DrupalQueryTrait;
+  use QueryTrait;
   use EntityLifecycleTrait;
 
   /**
@@ -62,7 +62,7 @@ trait RedirectTrait {
   public function redirectCreate(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('redirect', 'drupal/redirect');
+    $this->queryAssertModuleEnabled('redirect', 'drupal/redirect');
 
     foreach ($table->getHash() as $row) {
       $from = isset($row['from']) ? trim($row['from']) : '';
@@ -103,7 +103,7 @@ trait RedirectTrait {
   public function redirectDelete(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('redirect', 'drupal/redirect');
+    $this->queryAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
 
@@ -147,7 +147,7 @@ trait RedirectTrait {
   public function redirectAssertExist(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('redirect', 'drupal/redirect');
+    $this->queryAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $missing = [];
@@ -200,7 +200,7 @@ trait RedirectTrait {
   public function redirectAssertNotExist(TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->assertModuleEnabled('redirect', 'drupal/redirect');
+    $this->queryAssertModuleEnabled('redirect', 'drupal/redirect');
 
     $storage = \Drupal::entityTypeManager()->getStorage('redirect');
     $present = [];

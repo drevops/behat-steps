@@ -12,11 +12,11 @@ use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
  * Contract for a context that logs users in and tracks the ones it creates.
  *
  * A trait cannot implement an interface, so a context composing
- * 'AuthenticationTrait' declares this one to receive the user manager. The
+ * 'AuthTrait' declares this one to receive the user manager. The
  * context initializer injects into nothing else, so a suite that creates no
  * users never builds one.
  *
- * @see \DrevOps\BehatSteps\Helper\AuthenticationTrait
+ * @see \DrevOps\BehatSteps\Helper\Drupal\AuthTrait
  */
 interface UserAwareInterface extends Context {
 
@@ -26,12 +26,12 @@ interface UserAwareInterface extends Context {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setUserManager(UserManagerInterface $user_manager): void;
+  public function authSetUserManager(UserManagerInterface $user_manager): void;
 
   /**
    * Returns the user manager.
    */
-  public function getUserManager(): UserManagerInterface;
+  public function authGetUserManager(): UserManagerInterface;
 
   /**
    * Sets the manager that logs a user in and out.
@@ -39,11 +39,11 @@ interface UserAwareInterface extends Context {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void;
+  public function authSetManager(AuthenticationManagerInterface $authentication_manager): void;
 
   /**
    * Returns the manager that logs a user in and out.
    */
-  public function getAuthenticationManager(): AuthenticationManagerInterface;
+  public function authGetManager(): AuthenticationManagerInterface;
 
 }

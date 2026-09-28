@@ -86,7 +86,7 @@ A suite that writes its own Drupal steps composes the helper for the concern it 
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 class SpecContext extends WebRawContext {
 
@@ -94,7 +94,7 @@ class SpecContext extends WebRawContext {
 
   #[When('I publish a page titled :title')]
   public function publish(string $title): void {
-    $this->nodeCreate(new EntityStub('node', 'page', ['title' => $title]));
+    $this->entityNodeCreate(new EntityStub('node', 'page', ['title' => $title]));
   }
 
 }

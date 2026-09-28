@@ -35,10 +35,7 @@ const LAYERS = [
       'src/Steps/Web',
       'src/Behat/Context/WebRawContext.php',
       'src/Behat/Context/WebContext.php',
-      'src/Helper/JavascriptSupportTrait.php',
-      'src/Helper/LastStepTrait.php',
-      'src/Helper/RequestHeadersTrait.php',
-      'src/Helper/StringTrait.php',
+      'src/Helper/Web',
     ],
     'forbidden' => ['Drupal'],
     // 'drupal/core-utility' ships the random generator and is a hard

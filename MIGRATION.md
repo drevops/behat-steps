@@ -633,7 +633,7 @@ Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchan
 
 ## Unified entity cleanup
 
-Every entity a creation step or the driver creates is registered on `Helper\EntityLifecycleTrait` and deleted in reverse creation order by one `cleanEntities` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the driver creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `cleanEntities` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -717,11 +717,11 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | Helper | Holds | Composed by |
 | --- | --- | --- |
 | `EntityLifecycleTrait` | `nodeCreate()`, `termCreate()`, `entityCreate()`, `languageCreate()`, `entityRegister()`, `parseEntityFields()`, `cleanEntities()`, `alterNodeParameters()` | the 14 step traits that create entities |
-| `AuthenticationTrait` | `userCreate()`, `login()`, `logout()`, `loggedIn()`, `getUserManager()`, `setUserManager()`, `cleanUsers()`, `cleanRoles()` | `Steps\Drupal\UserTrait` |
+| `AuthTrait` | `userCreate()`, `login()`, `logout()`, `loggedIn()`, `getUserManager()`, `setUserManager()`, `cleanUsers()`, `cleanRoles()` | `Steps\Drupal\UserTrait` |
 | `StaticCacheTrait` | `clearStaticCaches()` | `Steps\Drupal\CacheTrait` |
 | `TableTransposeTrait` | `transposeVerticalTable()`, `buildHorizontalTable()` | 5 step traits |
 | `FixtureFileTrait` | the 5 fixture-path methods | `ContentTrait`, `MediaTrait` |
-| `DrupalQueryTrait` | `loadNodeIds()`, `assertModuleEnabled()` | 9 step traits |
+| `QueryTrait` | `loadNodeIds()`, `assertModuleEnabled()` | 9 step traits |
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -735,7 +735,7 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`UserAwareInterface` now declares only `getUserManager()` and `setUserManager()`. A context composing `AuthenticationTrait` declares it so the context initializer injects the user manager; a context that creates no users declares nothing and no user manager is built.
+`UserAwareInterface` now declares only `getUserManager()` and `setUserManager()`. A context composing `AuthTrait` declares it so the context initializer injects the user manager; a context that creates no users declares nothing and no user manager is built.
 
 ### One context registers, not two
 
@@ -767,8 +767,8 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper`,
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\DrupalQueryTrait::loadNodeIds()` |
-| `Steps\Web\RestTrait` | `$restHeaders` | `Helper\RequestHeadersTrait::$requestHeaders`, read and written through `setRequestHeader()`, `unsetRequestHeader()`, `getRequestHeaders()` and `resetRequestHeaders()` |
+| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\Drupal\QueryTrait::loadNodeIds()` |
+| `Steps\Web\RestTrait` | `$restHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders`, read and written through `setRequestHeader()`, `unsetRequestHeader()`, `getRequestHeaders()` and `resetRequestHeaders()` |
 
 `Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now reads `loadNodeIds()` off its host and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
 
@@ -782,28 +782,28 @@ A helper trait composed by a step trait and by the context under it holds one sl
 
 | Old member | New member |
 | --- | --- |
-| `helperSetLastStepLine()` | `Helper\LastStepTrait::setLastStepLine()` |
-| `helperIsLastStep()` | `Helper\LastStepTrait::isLastStep()` |
-| `$helperLastStepLine` | `Helper\LastStepTrait::$lastStepLine` |
-| `helperSetRequestHeader()` | `Helper\RequestHeadersTrait::setRequestHeader()` |
-| `helperUnsetRequestHeader()` | `Helper\RequestHeadersTrait::unsetRequestHeader()` |
-| `helperGetRequestHeaders()` | `Helper\RequestHeadersTrait::getRequestHeaders()` |
-| `helperResetRequestHeaders()` | `Helper\RequestHeadersTrait::resetRequestHeaders()` |
-| `$helperRequestHeaders` | `Helper\RequestHeadersTrait::$requestHeaders` |
-| `helperFixStepArgument()` | `Helper\StringTrait::fixStepArgument()` |
-| `helperNormalizeWhitespace()` | `Helper\StringTrait::normalizeWhitespace()` |
-| `helperSplitCommaSeparated()` | `Helper\StringTrait::splitCommaSeparated()` |
-| `helperSlug()` | `Helper\StringTrait::slug()` |
-| `helperIsJavascriptSupported()` | `Helper\JavascriptSupportTrait::isJavascriptSupported()` |
-| `helperTransposeVerticalTable()` | `Helper\TableTransposeTrait::transposeVerticalTable()` |
-| `helperBuildHorizontalTable()` | `Helper\TableTransposeTrait::buildHorizontalTable()` |
-| `helperExpandEntityFieldsFixtures()` | `Helper\FixtureFileTrait::expandEntityFieldsFixtures()` |
-| `helperLooksLikeCompoundCell()` | `Helper\FixtureFileTrait::looksLikeCompoundCell()` |
-| `helperExpandCompoundCellFixtures()` | `Helper\FixtureFileTrait::expandCompoundCellFixtures()` |
-| `helperResolveFixtureFile()` | `Helper\FixtureFileTrait::resolveFixtureFile()` |
-| `helperManagedFileExists()` | `Helper\FixtureFileTrait::managedFileExists()` |
-| `helperLoadNodeIds()` | `Helper\DrupalQueryTrait::loadNodeIds()` |
-| `helperAssertModuleEnabled()` | `Helper\DrupalQueryTrait::assertModuleEnabled()` |
+| `helperSetLastStepLine()` | `Helper\Web\LastStepTrait::setLastStepLine()` |
+| `helperIsLastStep()` | `Helper\Web\LastStepTrait::isLastStep()` |
+| `$helperLastStepLine` | `Helper\Web\LastStepTrait::$lastStepLine` |
+| `helperSetRequestHeader()` | `Helper\Web\RequestHeadersTrait::setRequestHeader()` |
+| `helperUnsetRequestHeader()` | `Helper\Web\RequestHeadersTrait::unsetRequestHeader()` |
+| `helperGetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::getRequestHeaders()` |
+| `helperResetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::resetRequestHeaders()` |
+| `$helperRequestHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders` |
+| `helperFixStepArgument()` | `Helper\Web\StringTrait::fixStepArgument()` |
+| `helperNormalizeWhitespace()` | `Helper\Web\StringTrait::normalizeWhitespace()` |
+| `helperSplitCommaSeparated()` | `Helper\Web\StringTrait::splitCommaSeparated()` |
+| `helperSlug()` | `Helper\Web\StringTrait::slug()` |
+| `helperIsJavascriptSupported()` | `Helper\Web\JavascriptSupportTrait::isJavascriptSupported()` |
+| `helperTransposeVerticalTable()` | `Helper\Web\TableTransposeTrait::transposeVerticalTable()` |
+| `helperBuildHorizontalTable()` | `Helper\Web\TableTransposeTrait::buildHorizontalTable()` |
+| `helperExpandEntityFieldsFixtures()` | `Helper\Drupal\FixtureFileTrait::expandEntityFieldsFixtures()` |
+| `helperLooksLikeCompoundCell()` | `Helper\Drupal\FixtureFileTrait::looksLikeCompoundCell()` |
+| `helperExpandCompoundCellFixtures()` | `Helper\Drupal\FixtureFileTrait::expandCompoundCellFixtures()` |
+| `helperResolveFixtureFile()` | `Helper\Drupal\FixtureFileTrait::resolveFixtureFile()` |
+| `helperManagedFileExists()` | `Helper\Drupal\FixtureFileTrait::managedFileExists()` |
+| `helperLoadNodeIds()` | `Helper\Drupal\QueryTrait::loadNodeIds()` |
+| `helperAssertModuleEnabled()` | `Helper\Drupal\QueryTrait::assertModuleEnabled()` |
 
 A context that composed a `HelperTrait` to reach one of these composes the trait holding it instead:
 
@@ -812,7 +812,7 @@ A context that composed a `HelperTrait` to reach one of these composes the trait
 use DrevOps\BehatSteps\Steps\Web\HelperTrait;
 
 // After.
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 ```
 
 Extending `WebRawContext` needs no `use` statement for the 4 web helper traits, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
@@ -827,7 +827,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityRegister()` | `Helper\EntityLifecycleTrait::entityRegister()` |
+| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |

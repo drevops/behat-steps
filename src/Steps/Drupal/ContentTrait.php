@@ -13,10 +13,10 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -42,7 +42,7 @@ use Drupal\workflows\Entity\Workflow;
  */
 trait ContentTrait {
 
-  use DrupalQueryTrait;
+  use QueryTrait;
   use EntityLifecycleTrait;
   use FixtureFileTrait;
   use TableTransposeTrait;
@@ -52,7 +52,7 @@ trait ContentTrait {
    */
   #[BeforeNodeCreate]
   public function contentBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $this->expandEntityFieldsFixtures('node', $scope->getStub());
+    $this->fixtureFileExpandEntityFields('node', $scope->getStub());
   }
 
   /**
@@ -88,7 +88,7 @@ trait ContentTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->loadNodeIds($content_type, $node_hash);
+      $nids = $this->queryNodeIds($content_type, $node_hash);
 
       $storage = \Drupal::entityTypeManager()->getStorage('node');
       $entities = $storage->loadMultiple($nids);
@@ -116,8 +116,8 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content with fields exist:')]
   public function contentCreateWithFields(string $content_type, TableNode $table): void {
-    $entities = $this->transposeVerticalTable($table);
-    $horizontal_table = $this->buildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->contentCreate($content_type, $horizontal_table);
   }
 
@@ -136,7 +136,7 @@ trait ContentTrait {
   #[Given('the following :content_type content exist:')]
   public function contentCreate(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
-      $this->nodeCreate(new EntityStub('node', $content_type, $values));
+      $this->entityNodeCreate(new EntityStub('node', $content_type, $values));
     }
   }
 
@@ -329,7 +329,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
-    $nids = $this->loadNodeIds($content_type, ['title' => $title]);
+    $nids = $this->queryNodeIds($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
@@ -408,7 +408,7 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
     }
 
-    $nids = $this->loadNodeIds($content_type, [
+    $nids = $this->queryNodeIds($content_type, [
       'title' => $title,
     ]);
 

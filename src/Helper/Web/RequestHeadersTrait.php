@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Web;
 
 /**
  * Holds the request headers shared by the traits that issue HTTP requests.
@@ -28,17 +28,17 @@ trait RequestHeadersTrait {
    *   The header value.
    *
    * @code
-   *   $this->setRequestHeader('X-Acme-Token', 'secret');
+   *   $this->requestHeadersSet('X-Acme-Token', 'secret');
    * @endcode
    */
-  public function setRequestHeader(string $name, string $value): void {
+  public function requestHeadersSet(string $name, string $value): void {
     $this->requestHeaders[$name] = $value;
   }
 
   /**
    * Drop a request header from subsequent requests.
    */
-  protected function unsetRequestHeader(string $name): void {
+  protected function requestHeadersUnset(string $name): void {
     unset($this->requestHeaders[$name]);
   }
 
@@ -48,14 +48,14 @@ trait RequestHeadersTrait {
    * @return array<string, string>
    *   Header values keyed by header name.
    */
-  protected function getRequestHeaders(): array {
+  protected function requestHeadersAll(): array {
     return $this->requestHeaders;
   }
 
   /**
    * Drop every accumulated request header.
    */
-  protected function resetRequestHeaders(): void {
+  protected function requestHeadersReset(): void {
     $this->requestHeaders = [];
   }
 

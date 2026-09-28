@@ -7,17 +7,17 @@ This repository contains Behat step definitions for PHP projects (with specializ
 
 Source files are located in the `src` directory. Each trait is organized into a separate file, and the steps are defined within those files.
 
-The step vocabulary lives under `src/Steps/`, split into `Web/` (`DrevOps\BehatSteps\Steps\Web`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The driver layer under `src/Driver/` and the helper traits under `src/Helper/` are library code, not vocabulary.
+The step vocabulary lives under `src/Steps/`, split into `Web/` (`DrevOps\BehatSteps\Steps\Web`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The helper traits under `src/Helper/` split the same way, into `Web/` and `Drupal/`, so a trait's half is legible from its path. The driver layer under `src/Driver/` and both helper halves are library code, not vocabulary.
 
 `src/Behat/Context/` is one chain: `WebRawContext` carries the plumbing and the 4 web helper traits without registering steps, `WebContext` extends it and composes every trait under `src/Steps/Web/`, and `DrupalContext` extends that and composes every trait under `src/Steps/Drupal/`.
 
-A step trait composes the helper traits it needs itself, so a trait that creates entities brings the teardown that removes them and a context composing no such trait runs no teardown. `src/Helper/` is a library of concerns, not a catch-all: `EntityLifecycleTrait`, `AuthenticationTrait`, `StaticCacheTrait`, `TableTransposeTrait`, `FixtureFileTrait` and `DrupalQueryTrait` on the Drupal side, `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait` on the web side.
+A step trait composes the helper traits it needs itself, so a trait that creates entities brings the teardown that removes them and a context composing no such trait runs no teardown. `src/Helper/` is a library of concerns, not a catch-all: `Drupal/` holds `EntityLifecycleTrait`, `AuthTrait`, `StaticCacheTrait`, `FixtureFileTrait` and `QueryTrait`; `Web/` holds `LastStepTrait`, `RequestHeadersTrait`, `StringTrait`, `JavascriptSupportTrait` and `TableTransposeTrait`. Every helper member carries its trait's prefix, so a name cannot collide once flattened into a context.
 
 Step traits never `use` other step traits. Shared logic belongs in a helper trait under `src/Helper/` named for its concern, composed by whichever step traits and contexts need it.
 
 A trait's directory says what it is: `src/Steps/` registers Gherkin, `src/Helper/` registers none. `scripts/lint-traits.php` holds a step trait to composing no other step trait, and a helper trait to registering no Gherkin. A helper may register a hook, because the trait that owns a teardown carries the hook that runs it.
 
-Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches the driver or the extension configuration. A trait that calls nothing outside itself carries none. A context that composes `AuthenticationTrait` declares `\DrevOps\BehatSteps\Behat\Context\UserAwareInterface` so the initializer injects the user manager.
+Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches the driver or the extension configuration. A trait that calls nothing outside itself carries none. A context that composes `AuthTrait` declares `\DrevOps\BehatSteps\Behat\Context\UserAwareInterface` so the initializer injects the user manager.
 
 
 ## Installation & Requirements for cosnuming this library

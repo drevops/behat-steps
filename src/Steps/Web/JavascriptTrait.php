@@ -13,8 +13,8 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
+use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 
 /**
  * Automatically detect JavaScript errors during test execution.
@@ -98,7 +98,7 @@ trait JavascriptTrait {
     // the step hook to read.
     $this->javascriptBypassErrors = $this->getOption('javascript', 'fail_on_errors', $scope) === FALSE;
 
-    $this->setLastStepLine($scope);
+    $this->lastStepSetLine($scope);
   }
 
   /**
@@ -148,7 +148,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->isJavascriptSupported()) {
+    if (!$this->javascriptSupportAvailable()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -184,7 +184,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->isJavascriptSupported()) {
+    if (!$this->javascriptSupportAvailable()) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -202,7 +202,7 @@ trait JavascriptTrait {
     catch (\Exception) {
     }
     // @codeCoverageIgnoreEnd
-    if ($this->javascriptBypassErrors || !$this->isLastStep($scope)) {
+    if ($this->javascriptBypassErrors || !$this->lastStepReached($scope)) {
       return;
     }
 

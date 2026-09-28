@@ -73,7 +73,7 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
 
 WebRawContext o--> DriverManagerInterface
 WebRawContext o--> AuthenticationManagerInterface
-AuthenticationTrait o--> UserManagerInterface
+AuthTrait o--> UserManagerInterface
 
 package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
@@ -107,7 +107,7 @@ package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
     #dispatchHooks(scopeClass, stub) : void
   }
 
-  class AuthenticationTrait <<trait>> {
+  class AuthTrait <<trait>> {
     +userCreate(stub) : EntityStubInterface
     +login(user) : void
     +logout(fast) : void
@@ -130,7 +130,7 @@ package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
     +expandEntityFieldsFixtures(entity_type, stub) : void
   }
 
-  class DrupalQueryTrait <<trait>> {
+  class QueryTrait <<trait>> {
     +loadNodeIds(content_type, conditions) : array
     +assertModuleEnabled(module, package) : void
   }
@@ -165,12 +165,12 @@ WebRawContext ..> RequestHeadersTrait : composes
 WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
 WebRawContext ..> JavascriptSupportTrait : composes
-AuthenticationTrait ..> EntityLifecycleTrait : composes
+AuthTrait ..> EntityLifecycleTrait : composes
 
 PathTrait ..> WebRawContext : requires
 ContentTrait ..> WebRawContext : requires
 ContentTrait ..> EntityLifecycleTrait : composes
-ContentTrait ..> DrupalQueryTrait : composes
+ContentTrait ..> QueryTrait : composes
 ContentTrait ..> FixtureFileTrait : composes
 ContentTrait ..> TableTransposeTrait : composes
 

@@ -63,8 +63,8 @@ class DriverAwareInitializerTest extends UnitTestCase {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
 
     $context = $this->createMock(UserAwareInterface::class);
-    $context->expects($this->once())->method('setUserManager')->with($user_manager);
-    $context->expects($this->once())->method('setAuthenticationManager')->with($authentication_manager);
+    $context->expects($this->once())->method('authSetUserManager')->with($user_manager);
+    $context->expects($this->once())->method('authSetManager')->with($authentication_manager);
 
     $initializer = new DriverAwareInitializer(
       $this->createMock(DriverManagerInterface::class),

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper;
+namespace DrevOps\BehatSteps\Helper\Web;
 
 /**
  * String shaping shared across the step vocabulary.
@@ -23,7 +23,7 @@ trait StringTrait {
    * @return string
    *   The unescaped argument.
    */
-  protected function fixStepArgument(string $argument): string {
+  protected function stringFixStepArgument(string $argument): string {
     return str_replace('\\"', '"', $argument);
   }
 
@@ -39,7 +39,7 @@ trait StringTrait {
    * @return string
    *   The normalized text.
    */
-  protected function normalizeWhitespace(string $text): string {
+  protected function stringNormalizeWhitespace(string $text): string {
     return trim((string) preg_replace('/\s+/', ' ', $text));
   }
 
@@ -55,7 +55,7 @@ trait StringTrait {
    * @return array<int, string>
    *   Array of trimmed values.
    */
-  protected function splitCommaSeparated(string $text): array {
+  protected function stringSplitCommaSeparated(string $text): array {
     return array_map(trim(...), explode(',', $text));
   }
 
@@ -72,7 +72,7 @@ trait StringTrait {
    * @return string
    *   The slugified string.
    */
-  protected function slug(string $value): string {
+  protected function stringSlug(string $value): string {
     $value = strtolower(trim($value));
     $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
 

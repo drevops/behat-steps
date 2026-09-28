@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
  * Create entities of a type that has no dedicated trait.

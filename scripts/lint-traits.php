@@ -5,9 +5,10 @@
  * Trait composition check.
  *
  * A trait's directory says what it is: 'src/Steps' holds the step vocabulary
- * and 'src/Helper' holds the plumbing several step traits draw on. This
- * script reads both directories and fails when a step trait composes another
- * step trait, or when a helper trait registers Gherkin.
+ * and 'src/Helper' holds the plumbing several step traits draw on, each
+ * split into a 'Web' and a 'Drupal' half. This script reads both trees and
+ * fails when a step trait composes another step trait, or when a helper trait
+ * registers Gherkin.
  *
  * A helper may register a hook: the trait that owns a teardown carries the
  * hook that runs it.

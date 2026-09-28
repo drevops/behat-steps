@@ -12,7 +12,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
 /**
  * Lightweight REST API testing with no Drupal dependencies.
@@ -38,7 +38,7 @@ trait RestTrait {
       return;
     }
 
-    $this->resetRequestHeaders();
+    $this->requestHeadersReset();
   }
 
   /**
@@ -51,7 +51,7 @@ trait RestTrait {
    */
   #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
-    $this->setRequestHeader($name, $value);
+    $this->requestHeadersSet($name, $value);
   }
 
   /**
@@ -164,7 +164,7 @@ trait RestTrait {
   protected function restCreateServerArray(): array {
     $server = [];
 
-    foreach ($this->getRequestHeaders() as $name => $value) {
+    foreach ($this->requestHeadersAll() as $name => $value) {
       $key = strtoupper(str_replace('-', '_', $name));
 
       if ($key !== 'CONTENT_TYPE' && $key !== 'CONTENT_LENGTH') {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Helper;
+namespace DrevOps\BehatSteps\Tests\Unit\Helper\Drupal;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Call\CallCenter;
@@ -31,9 +31,9 @@ use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
-use DrevOps\BehatSteps\Helper\AuthenticationTrait;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\StaticCacheTrait;
+use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
@@ -50,7 +50,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  * The cleanup hooks read the opt-out and the skip tags from the host context,
  * so the run covers that class too.
  */
-#[CoversTrait(AuthenticationTrait::class)]
+#[CoversTrait(AuthTrait::class)]
 #[CoversTrait(EntityLifecycleTrait::class)]
 #[CoversTrait(StaticCacheTrait::class)]
 #[CoversClass(WebRawContext::class)]
@@ -59,7 +59,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   /**
    * A directory carrying the entry file the Drupal driver requires.
    */
-  protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/driver/drupal-root';
+  protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/driver/drupal-root';
 
   /**
    * The cleanup opt-out value to restore, NULL when it was unset.
@@ -89,7 +89,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The user manager is available only after Behat has initialized the context.');
 
-    (new TestableRawContext())->getUserManager();
+    (new TestableRawContext())->authGetUserManager();
   }
 
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
@@ -99,7 +99,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = $this->createContext($driver);
 
-    $this->assertSame($stub, $context->nodeCreate($stub));
+    $this->assertSame($stub, $context->entityNodeCreate($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
@@ -110,7 +110,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = $this->createContext($driver);
 
-    $this->assertSame($stub, $context->termCreate($stub));
+    $this->assertSame($stub, $context->entityTermCreate($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
@@ -119,7 +119,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'parent' => '']);
     $driver->method('termCreate')->willReturn($stub);
 
-    $this->createContext($driver)->termCreate($stub);
+    $this->createContext($driver)->entityTermCreate($stub);
 
     $this->assertFalse($stub->hasValue('parent'));
   }
@@ -129,7 +129,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'parent' => 'Another term']);
     $driver->method('termCreate')->willReturn($stub);
 
-    $this->createContext($driver)->termCreate($stub);
+    $this->createContext($driver)->entityTermCreate($stub);
 
     $this->assertSame('Another term', $stub->getValue('parent'));
   }
@@ -156,7 +156,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
       return $stub;
     });
 
-    $this->createContext($driver)->nodeCreate($stub);
+    $this->createContext($driver)->entityNodeCreate($stub);
 
     $this->assertSame('A title', $stub->getValue('title'));
   }
@@ -169,7 +169,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $context = $this->createContext($driver, $user_manager);
 
-    $this->assertSame($stub, $context->userCreate($stub));
+    $this->assertSame($stub, $context->authUserCreate($stub));
     $this->assertSame($stub, $user_manager->getUser('alice'));
   }
 
@@ -180,7 +180,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = $this->createContext($driver);
 
-    $this->assertSame($stub, $context->languageCreate($stub));
+    $this->assertSame($stub, $context->entityLanguageCreate($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
@@ -190,7 +190,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = $this->createContext($driver);
 
-    $this->assertFalse($context->languageCreate(new EntityStub('language', NULL, ['langcode' => 'fr'])));
+    $this->assertFalse($context->entityLanguageCreate(new EntityStub('language', NULL, ['langcode' => 'fr'])));
     $this->assertSame([], $context->getCreatedStubs());
   }
 
@@ -215,11 +215,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderCreationRefusesIncapableDriver(): \Iterator {
-    yield 'node' => ['nodeCreate', new EntityStub('node'), ContentCapabilityInterface::class];
-    yield 'term' => ['termCreate', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
+    yield 'node' => ['entityNodeCreate', new EntityStub('node'), ContentCapabilityInterface::class];
+    yield 'term' => ['entityTermCreate', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
     yield 'entity' => ['entityCreate', new EntityStub('block_content'), ContentCapabilityInterface::class];
-    yield 'user' => ['userCreate', new EntityStub('user'), UserCapabilityInterface::class];
-    yield 'language' => ['languageCreate', new EntityStub('language'), LanguageCapabilityInterface::class];
+    yield 'user' => ['authUserCreate', new EntityStub('user'), UserCapabilityInterface::class];
+    yield 'language' => ['entityLanguageCreate', new EntityStub('language'), LanguageCapabilityInterface::class];
   }
 
   public function testHookExceptionSurfacesFromDispatcher(): void {
@@ -236,7 +236,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The hook failed.');
 
-    $context->nodeCreate(new EntityStub('node', 'page', ['title' => 'A title']));
+    $context->entityNodeCreate(new EntityStub('node', 'page', ['title' => 'A title']));
   }
 
   public function testHooksCannotBeDispatchedBeforeInitialization(): void {
@@ -285,7 +285,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([$term, $node, $block]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
 
     $this->assertSame(['entity', 'node', 'term'], $deleted);
     $this->assertSame([], $context->getCreatedStubs());
@@ -306,7 +306,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
   }
 
   public static function dataProviderLanguageIsRemovedThroughLanguageCapability(): \Iterator {
@@ -322,7 +322,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('node', 'page'), new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -334,7 +334,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -343,7 +343,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -352,7 +352,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $driver = $this->createContentDriver();
     $driver->expects($this->never())->method('entityDelete');
 
-    $this->createContext($driver)->cleanEntities($this->createAfterScenarioScope());
+    $this->createContext($driver)->entityCleanAll($this->createAfterScenarioScope());
   }
 
   public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
@@ -363,7 +363,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($driver, $user_manager)->authCleanUsers($this->createAfterScenarioScope());
 
     $this->assertFalse($user_manager->hasUsers());
   }
@@ -372,7 +372,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->authCleanUsers($this->createAfterScenarioScope());
 
     $this->assertTrue($user_manager->hasUsers());
   }
@@ -382,7 +382,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
     $authentication_manager->expects($this->once())->method('fastLogout');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
@@ -392,14 +392,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testCreatedRolesAreDeleted(): void {
@@ -409,7 +409,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor', 'reviewer']);
 
-    $context->cleanRoles($this->createAfterScenarioScope());
+    $context->authCleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getRoles());
   }
@@ -418,7 +418,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles($this->createAfterScenarioScope());
+    $context->authCleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -427,7 +427,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $driver = $this->createDriver([RoleCapabilityInterface::class]);
     $driver->expects($this->never())->method('roleDelete');
 
-    $this->createContext($driver)->cleanRoles($this->createAfterScenarioScope());
+    $this->createContext($driver)->authCleanRoles($this->createAfterScenarioScope());
   }
 
   public function testStaticCachesAreClearedOnDriverTheScenarioReached(): void {
@@ -437,20 +437,20 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->driverFor(CacheCapabilityInterface::class);
 
-    $context->clearStaticCaches();
+    $context->staticCacheClear();
   }
 
   public function testStaticCachesAreSkippedOnDriverTheScenarioNeverReached(): void {
     $driver = $this->createDriver([CacheCapabilityInterface::class]);
     $driver->expects($this->never())->method('cacheClearStatic');
 
-    $this->createContext($driver)->clearStaticCaches();
+    $this->createContext($driver)->staticCacheClear();
   }
 
   public function testStaticCachesAreSkippedOnAnIncapableDriver(): void {
     $this->expectNotToPerformAssertions();
 
-    $this->createContext($this->createMock(DriverInterface::class))->clearStaticCaches();
+    $this->createContext($this->createMock(DriverInterface::class))->staticCacheClear();
   }
 
   /**
@@ -471,7 +471,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities($this->createAfterScenarioScope());
+    $context->entityCleanAll($this->createAfterScenarioScope());
   }
 
   public static function dataProviderCleanupOptOut(): \Iterator {
@@ -490,7 +490,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->cleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testTheOptOutAlsoSkipsRoleCleanup(): void {
@@ -499,7 +499,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(DriverInterface::class));
     $context->setRoles(['editor']);
 
-    $context->cleanRoles($this->createAfterScenarioScope());
+    $context->authCleanRoles($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -520,7 +520,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->cleanEntities($this->createAfterScenarioScope($scenario_tags, $feature_tags));
+    $context->entityCleanAll($this->createAfterScenarioScope($scenario_tags, $feature_tags));
 
     $this->assertCount(1, $context->getCreatedStubs());
   }
@@ -543,7 +543,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_manager = new UserManager();
     $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager, $authentication_manager)->cleanUsers($this->createAfterScenarioScope(['behat-steps-skip:cleanUsers']));
+    $this->createContext($driver, $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:cleanUsers']));
 
     $this->assertTrue($user_manager->hasUsers());
   }
@@ -555,7 +555,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor']);
 
-    $context->cleanRoles($this->createAfterScenarioScope(['behat-steps-skip:cleanRoles']));
+    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:cleanRoles']));
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -576,7 +576,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
 
-    $context->cleanEntities($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
+    $context->entityCleanAll($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
 
     $this->assertSame(['term'], $deleted);
   }
@@ -585,7 +585,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext($this->createDrupalContentDriver());
 
-    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
   }
@@ -601,7 +601,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
     $context = $this->createContext($this->createDrupalContentDriver());
 
-    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame($value, $stub->getValue('created'));
   }
@@ -619,14 +619,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
 
-    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
   }
 
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
 
-    TestableRawContext::alterNodeParameters($scope);
+    TestableRawContext::entityAlterNodeParameters($scope);
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -635,7 +635,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createMock(DriverInterface::class));
 
-    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -644,7 +644,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createContentDriver());
 
-    TestableRawContext::alterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -669,14 +669,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->once())->method('logIn')->with($user);
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->login($user);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogin($user);
   }
 
   public function testLogoutDelegatesToTheAuthenticationManager(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->once())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->logout();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout();
   }
 
   public function testFastLogoutIsUsedWhenAskedForAndSupported(): void {
@@ -685,21 +685,21 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authentication_manager->expects($this->once())->method('fastLogout');
     $authentication_manager->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->logout(TRUE);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout(TRUE);
   }
 
   public function testFastLogoutFallsBackWhenUnsupported(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->expects($this->once())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->logout(TRUE);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout(TRUE);
   }
 
   public function testLoggedInDelegatesToTheAuthenticationManager(): void {
     $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
     $authentication_manager->method('loggedIn')->willReturn(TRUE);
 
-    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->loggedIn());
+    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLoggedIn());
   }
 
   /**
@@ -728,8 +728,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = new TestableRawContext();
     $context->setDriverManager($driver_manager);
     $context->setDispatcher($dispatcher ?? $this->createHookDispatcher());
-    $context->setUserManager($user_manager ?? new UserManager());
-    $context->setAuthenticationManager($authentication_manager ?? $this->createMock(AuthenticationManagerInterface::class));
+    $context->authSetUserManager($user_manager ?? new UserManager());
+    $context->authSetManager($authentication_manager ?? $this->createMock(AuthenticationManagerInterface::class));
 
     return $context;
   }

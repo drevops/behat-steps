@@ -10,7 +10,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Driver\Selenium2Driver;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
 /**
  * Disable Drupal config overrides from settings.php during a scenario.
@@ -143,7 +143,7 @@ trait ConfigOverrideTrait {
       $driver->setRequestHeader('X-Config-No-Override', $value);
     }
 
-    $this->setRequestHeader('X-Config-No-Override', $value);
+    $this->requestHeadersSet('X-Config-No-Override', $value);
 
     // A SUT invoked directly within the same process reads '$_SERVER'.
     $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
@@ -163,7 +163,7 @@ trait ConfigOverrideTrait {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
     putenv('HTTP_X_CONFIG_NO_OVERRIDE');
 
-    $this->unsetRequestHeader('X-Config-No-Override');
+    $this->requestHeadersUnset('X-Config-No-Override');
   }
 
   /**

@@ -10,7 +10,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.
@@ -437,7 +437,7 @@ trait MetatagTrait {
       return [];
     }
 
-    return array_values(array_filter($this->splitCommaSeparated(strtolower($content)), static fn(string $directive): bool => $directive !== ''));
+    return array_values(array_filter($this->stringSplitCommaSeparated(strtolower($content)), static fn(string $directive): bool => $directive !== ''));
   }
 
   /**

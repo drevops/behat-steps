@@ -14,7 +14,7 @@
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
-| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -28,6 +28,9 @@
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
+| [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
+| [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
+| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
 
 ### Index of Drupal helpers
 
@@ -43,9 +46,8 @@
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 2 | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 3 | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](#drupalentitytrait) | 2 | Create entities of a type that has no dedicated trait. |
+| [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
-| [Drupal\LanguageTrait](#drupallanguagetrait) | 1 | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 4 | Enable and disable Drupal modules with automatic state restoration. |
@@ -54,21 +56,18 @@
 | [Drupal\StateTrait](#drupalstatetrait) | 1 | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 2 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
-| [Drupal\UserTrait](#drupalusertrait) | 9 | Manage Drupal users with role and permission assignments. |
+| [Drupal\UserTrait](#drupalusertrait) | 8 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 2 | Manage Drupal webforms. |
+| [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
 
 ### Index of Toolbox helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AuthenticationTrait](#authenticationtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
-| [DrupalQueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
-| [EntityLifecycleTrait](#entitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
-| [FixtureFileTrait](#fixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
-| [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
-| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
 | [WebRawContext](#webrawcontext) | 7 | Root context carrying the plumbing every suite needs. |
 
 ---
@@ -583,6 +582,21 @@ Download file
 <br/>
 Assert that no JavaScript errors were collected
 <br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
 
 </details>
 
@@ -1240,6 +1254,70 @@ Validate the response against an XSD schema
 
 </details>
 
+## JavascriptSupportTrait
+
+[Source](src/Helper/Web/JavascriptSupportTrait.php)
+
+> Reports whether the running driver evaluates JavaScript.
+
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
+
+</details>
+
+## RequestHeadersTrait
+
+[Source](src/Helper/Web/RequestHeadersTrait.php)
+
+> Holds the request headers shared by the traits that issue HTTP requests.
+
+<details>
+  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
+
+<br/>
+Set a request header for subsequent requests
+<br/><br/>
+
+```
+$this->requestHeadersSet('X-Acme-Token', 'secret');
+```
+
+</details>
+
+## TableTransposeTrait
+
+[Source](src/Helper/Web/TableTransposeTrait.php)
+
+> Reads a vertical Gherkin table as one set of values per entity.
+
+<details>
+  <summary><code>public function tableTransposeHorizontal(array $entities): TableNode</code></summary>
+
+<br/>
+Convert vertical format entities to horizontal TableNode
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function tableTransposeVertical(TableNode $table): array</code></summary>
+
+<br/>
+Transpose a vertical table format (field/value columns) to entity arrays
+<br/><br/>
+
+</details>
+
 ## Drupal\BigPipeTrait
 
 [Source](src/Steps/Drupal/BigPipeTrait.php), [Steps](STEPS.md#drupalbigpipetrait)
@@ -1505,10 +1583,46 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -1542,21 +1656,6 @@ Create a single managed file
 
 <br/>
 Load multiple files with specified conditions
-<br/><br/>
-
-</details>
-
-## Drupal\LanguageTrait
-
-[Source](src/Steps/Drupal/LanguageTrait.php), [Steps](STEPS.md#drupallanguagetrait)
-
-> Create the languages a scenario needs.
-
-<details>
-  <summary><code>public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
-
-<br/>
-Creates a language
 <br/><br/>
 
 </details>
@@ -1805,15 +1904,6 @@ Build a user stub with a random name, password and email
 </details>
 
 <details>
-  <summary><code>public function userCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a user
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function userCreateAndLogIn(string $roles, array $extra_fields = []): void</code></summary>
 
 <br/>
@@ -1915,17 +2005,98 @@ Load all webform templates whose title contains the given string
 
 </details>
 
-## AuthenticationTrait
+## Drupal\AuthTrait
 
-[Source](src/Helper/AuthenticationTrait.php)
+[Source](src/Helper/Drupal/AuthTrait.php)
 
 > Creates users and roles, logs them in, and removes them afterwards.
+
+<details>
+  <summary><code>public function authGetManager(): AuthenticationManagerInterface</code></summary>
+
+<br/>
+Returns the manager that logs a user in and out
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authGetUserManager(): UserManagerInterface</code></summary>
+
+<br/>
+Returns the user manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLoggedIn(): bool</code></summary>
+
+<br/>
+Determines whether a user is logged in for this session
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLogin(EntityStubInterface $user): void</code></summary>
+
+<br/>
+Logs the given user in
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLogout(bool $fast = FALSE): void</code></summary>
+
+<br/>
+Logs the current user out
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authUserCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a user
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates an entity of a type that has no dedicated method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
 <br/><br/>
 
 </details>
@@ -1940,79 +2111,7 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
-
-<br/>
-Returns the manager that logs a user in and out
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
-
-<br/>
-Returns the user manager
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function loggedIn(): bool</code></summary>
-
-<br/>
-Determines whether a user is logged in for this session
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function login(EntityStubInterface $user): void</code></summary>
-
-<br/>
-Logs the given user in
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function logout(bool $fast = FALSE): void</code></summary>
-
-<br/>
-Logs the current user out
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function nodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function termCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a taxonomy term
@@ -2020,42 +2119,9 @@ Creates a taxonomy term
 
 </details>
 
-<details>
-  <summary><code>public function userCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+## Drupal\EntityLifecycleTrait
 
-<br/>
-Creates a user
-<br/><br/>
-
-</details>
-
-## DrupalQueryTrait
-
-[Source](src/Helper/DrupalQueryTrait.php)
-
-> Reads Drupal state a step asserts on without going through a driver.
-
-<details>
-  <summary><code>public function assertModuleEnabled(string $module, string $package = ''): void</code></summary>
-
-<br/>
-Assert that a module backing a set of steps is enabled
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function loadNodeIds(string $content_type, array $conditions = []): array</code></summary>
-
-<br/>
-Load the ids of the nodes of a content type matching the conditions
-<br/><br/>
-
-</details>
-
-## EntityLifecycleTrait
-
-[Source](src/Helper/EntityLifecycleTrait.php)
+[Source](src/Helper/Drupal/EntityLifecycleTrait.php)
 
 > Creates Drupal entities and removes them when the scenario ends.
 
@@ -2069,6 +2135,33 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
@@ -2078,34 +2171,7 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function nodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function termCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a taxonomy term
@@ -2113,14 +2179,14 @@ Creates a taxonomy term
 
 </details>
 
-## FixtureFileTrait
+## Drupal\FixtureFileTrait
 
-[Source](src/Helper/FixtureFileTrait.php)
+[Source](src/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
 
 <details>
-  <summary><code>public function expandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void</code></summary>
+  <summary><code>public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void</code></summary>
 
 <br/>
 Expand fixture file paths for file/image fields on an entity stub
@@ -2128,66 +2194,26 @@ Expand fixture file paths for file/image fields on an entity stub
 
 </details>
 
-## JavascriptSupportTrait
+## Drupal\QueryTrait
 
-[Source](src/Helper/JavascriptSupportTrait.php)
+[Source](src/Helper/Drupal/QueryTrait.php)
 
-> Reports whether the running driver evaluates JavaScript.
-
-<details>
-  <summary><code>public function isJavascriptSupported(): bool</code></summary>
-
-<br/>
-Check if JavaScript is supported by the current driver
-<br/><br/>
-
-```
-if (!$this->isJavascriptSupported()) {
-  return;
-}
-```
-
-</details>
-
-## RequestHeadersTrait
-
-[Source](src/Helper/RequestHeadersTrait.php)
-
-> Holds the request headers shared by the traits that issue HTTP requests.
+> Reads Drupal state a step asserts on without going through a driver.
 
 <details>
-  <summary><code>public function setRequestHeader(string $name, string $value): void</code></summary>
+  <summary><code>public function queryAssertModuleEnabled(string $module, string $package = ''): void</code></summary>
 
 <br/>
-Set a request header for subsequent requests
-<br/><br/>
-
-```
-$this->setRequestHeader('X-Acme-Token', 'secret');
-```
-
-</details>
-
-## TableTransposeTrait
-
-[Source](src/Helper/TableTransposeTrait.php)
-
-> Reads a vertical Gherkin table as one set of values per entity.
-
-<details>
-  <summary><code>public function buildHorizontalTable(array $entities): TableNode</code></summary>
-
-<br/>
-Convert vertical format entities to horizontal TableNode
+Assert that a module backing a set of steps is enabled
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function transposeVerticalTable(TableNode $table): array</code></summary>
+  <summary><code>public function queryNodeIds(string $content_type, array $conditions = []): array</code></summary>
 
 <br/>
-Transpose a vertical table format (field/value columns) to entity arrays
+Load the ids of the nodes of a content type matching the conditions
 <br/><br/>
 
 </details>

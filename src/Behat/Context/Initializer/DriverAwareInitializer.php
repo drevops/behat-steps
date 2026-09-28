@@ -55,8 +55,8 @@ class DriverAwareInitializer implements ContextInitializer {
     }
 
     if ($context instanceof UserAwareInterface) {
-      $context->setUserManager($this->userManager);
-      $context->setAuthenticationManager($this->authenticationManager);
+      $context->authSetUserManager($this->userManager);
+      $context->authSetManager($this->authenticationManager);
     }
 
     if (!$context instanceof DriverAwareInterface) {

@@ -14,7 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
@@ -278,7 +278,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
 

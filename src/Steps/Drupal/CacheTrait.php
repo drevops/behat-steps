@@ -9,7 +9,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
-use DrevOps\BehatSteps\Helper\StaticCacheTrait;
+use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
 

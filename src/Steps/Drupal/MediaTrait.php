@@ -11,9 +11,9 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\FixtureFileTrait;
-use DrevOps\BehatSteps\Helper\TableTransposeTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -90,8 +90,8 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media with fields exist:')]
   public function mediaCreateWithFields(string $media_type, TableNode $table): void {
-    $entities = $this->transposeVerticalTable($table);
-    $horizontal_table = $this->buildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
 
     $this->mediaDelete($media_type, $horizontal_table);
 
@@ -279,7 +279,7 @@ trait MediaTrait {
    *   The created media item.
    */
   public function mediaCreateSingle(EntityStub $stub): MediaInterface {
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
     $entity = $this->mediaCreateEntity($stub);
     $this->entityRegister($entity);
 
@@ -345,7 +345,7 @@ trait MediaTrait {
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
-    $this->expandEntityFieldsFixtures('media', $stub);
+    $this->fixtureFileExpandEntityFields('media', $stub);
   }
 
   /**

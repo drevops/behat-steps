@@ -9,10 +9,10 @@ use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
-use DrevOps\BehatSteps\Helper\LastStepTrait;
-use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
-use DrevOps\BehatSteps\Helper\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareMinkContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -225,7 +225,7 @@ class ContextCompositionTest extends UnitTestCase {
   public function testHelperComposedTwiceSharesItsState(): void {
     $context = new HelperStateSubject();
 
-    $context->setRequestHeader('X-A', '1');
+    $context->requestHeadersSet('X-A', '1');
     $context->setThroughTrait('X-B', '2');
 
     $this->assertSame(['X-A' => '1', 'X-B' => '2'], $context->readThroughTrait());
@@ -348,7 +348,7 @@ trait HelperStateStepTrait {
   use RequestHeadersTrait;
 
   public function setThroughTrait(string $name, string $value): void {
-    $this->setRequestHeader($name, $value);
+    $this->requestHeadersSet($name, $value);
   }
 
   /**
@@ -358,7 +358,7 @@ trait HelperStateStepTrait {
    *   Header values keyed by header name.
    */
   public function readThroughTrait(): array {
-    return $this->getRequestHeaders();
+    return $this->requestHeadersAll();
   }
 
 }
