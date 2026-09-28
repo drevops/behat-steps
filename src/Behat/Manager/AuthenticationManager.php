@@ -9,7 +9,6 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
@@ -17,9 +16,13 @@ use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
- * Default implementation of the authentication manager service.
+ * Logs a user in and out of the site under test.
+ *
+ * Takes a basic-auth applier rather than applying basic auth itself: a
+ * session reset drops request headers, so the credentials have to go back on
+ * afterwards, and that is the only overlap between the two concerns.
  */
-class AuthenticationManager implements AuthenticationManagerInterface, FastLogoutInterface, BasicAuthInterface {
+class AuthenticationManager implements AuthenticationManagerInterface, FastLogoutInterface {
 
   use MinkAwareTrait;
   use ParametersTrait;
@@ -33,6 +36,8 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    *   The user manager.
    * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
    *   The driver manager.
+   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface $basicAuthManager
+   *   Reapplies basic auth after a session reset clears the request headers.
    * @param array<string, mixed> $mink_parameters
    *   Mink configuration parameters.
    * @param array<string, mixed> $parameters
@@ -42,6 +47,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
     Mink $mink,
     protected UserManagerInterface $userManager,
     protected DriverManagerInterface $driverManager,
+    protected BasicAuthInterface $basicAuthManager,
     array $mink_parameters,
     array $parameters,
   ) {
@@ -203,7 +209,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
       $session->reset();
       // Resetting clears request headers, including basic auth, so requests
       // after the reset would 401 on sites behind webserver-level basic auth.
-      $this->applyBasicAuth();
+      $this->basicAuthManager->applyBasicAuth();
     }
 
     $this->userManager->setCurrentUser(FALSE);
@@ -212,56 +218,10 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function applyBasicAuth(): void {
-    $credentials = $this->resolveBasicAuth();
-    if ($credentials === NULL) {
-      return;
-    }
-
-    try {
-      $this->getSession()->setBasicAuth($credentials['username'], $credentials['password']);
-    }
-    catch (UnsupportedDriverActionException) {
-      // The active driver cannot set basic auth headers (a JavaScript driver,
-      // for example); those receive credentials via the 'base_url' userinfo.
-    }
-  }
-
-  /**
    * Returns the logout element from the page.
    */
   public function getLogoutElement(): ?NodeElement {
     return $this->getSession()->getPage()->findLink($this->getDrupalText('log_out'));
-  }
-
-  /**
-   * Resolves the HTTP Basic authentication credentials to apply.
-   *
-   * Credentials are derived from the 'base_url' userinfo
-   * ('http://user:pass@host').
-   *
-   * @return array{username: string, password: string}|null
-   *   The resolved credentials, or NULL when the 'base_url' carries no
-   *   username.
-   */
-  protected function resolveBasicAuth(): ?array {
-    $base_url = (string) $this->getMinkParameter('base_url');
-    $name = parse_url($base_url, PHP_URL_USER);
-    if (is_string($name) && $name !== '') {
-      $pass = parse_url($base_url, PHP_URL_PASS);
-
-      return [
-        // Userinfo is RFC 3986 encoded, where '+' is a literal plus and
-        // spaces are '%20', so decode with rawurldecode() rather than
-        // urldecode() (which would turn a literal '+' into a space).
-        'username' => rawurldecode($name),
-        'password' => is_string($pass) ? rawurldecode($pass) : '',
-      ];
-    }
-
-    return NULL;
   }
 
   /**

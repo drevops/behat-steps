@@ -8,7 +8,9 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
@@ -27,8 +29,10 @@ class DriverAwareInitializer implements ContextInitializer {
    *   Configuration parameters.
    * @param \Behat\Testwork\Hook\HookDispatcher $hookDispatcher
    *   The hook dispatcher.
+   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface $basicAuthManager
+   *   Applies webserver-level basic auth, which no Drupal site is needed for.
    * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface $authenticationManager
-   *   The authentication manager.
+   *   Logs a user in and out of the site under test.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface $userManager
    *   The user manager.
    */
@@ -36,6 +40,7 @@ class DriverAwareInitializer implements ContextInitializer {
     protected readonly DriverManagerInterface $driverManager,
     protected readonly array $parameters,
     protected readonly HookDispatcher $hookDispatcher,
+    protected readonly BasicAuthInterface $basicAuthManager,
     protected readonly AuthenticationManagerInterface $authenticationManager,
     protected readonly UserManagerInterface $userManager,
   ) {
@@ -49,14 +54,18 @@ class DriverAwareInitializer implements ContextInitializer {
       $context->setParameters($this->parameters);
     }
 
+    if ($context instanceof UserAwareInterface) {
+      $context->authSetUserManager($this->userManager);
+      $context->authSetManager($this->authenticationManager);
+    }
+
     if (!$context instanceof DriverAwareInterface) {
       return;
     }
 
     $context->setDriverManager($this->driverManager);
     $context->setDispatcher($this->hookDispatcher);
-    $context->setAuthenticationManager($this->authenticationManager);
-    $context->setUserManager($this->userManager);
+    $context->setBasicAuthManager($this->basicAuthManager);
   }
 
 }

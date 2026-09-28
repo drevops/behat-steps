@@ -11,6 +11,8 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -20,11 +22,12 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * - Navigate to term pages
  * - Verify vocabulary configurations.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait TaxonomyTrait {
 
-  use HelperTrait;
+  use EntityLifecycleTrait;
+  use TableTransposeTrait;
 
   /**
    * Create taxonomy terms with vertical field format.
@@ -45,8 +48,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms with fields exist:')]
   public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->taxonomyCreate($vocabulary, $horizontal_table);
   }
 
@@ -66,7 +69,7 @@ trait TaxonomyTrait {
   public function taxonomyCreate(string $vocabulary, TableNode $table): void {
     foreach ($table->getHash() as $values) {
       $values['vocabulary_machine_name'] = $vocabulary;
-      $this->termCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
+      $this->entityTermCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
     }
   }
 

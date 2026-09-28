@@ -10,6 +10,8 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -19,11 +21,12 @@ use Drupal\Core\Entity\EntityInterface;
  * - Visit and edit ECK entity pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait EckTrait {
 
-  use HelperTrait;
+  use QueryTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Create eck entities.
@@ -39,7 +42,7 @@ trait EckTrait {
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
     $filtered_table = TableNode::fromList($table->getColumn(0));
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
@@ -59,7 +62,7 @@ trait EckTrait {
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
     foreach ($table->getHash() as $entity_hash) {
       $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
@@ -83,7 +86,7 @@ trait EckTrait {
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -112,7 +115,7 @@ trait EckTrait {
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('eck', 'drupal/eck');
+    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
@@ -180,7 +183,7 @@ trait EckTrait {
    * Create a single content entity.
    */
   public function eckCreateEntity(EntityStub $stub): void {
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
 
     $this->driverFor(ContentCapabilityInterface::class)->entityCreate($stub);
 

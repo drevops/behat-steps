@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Context composing two traits that declare options.
  */
-class ConfigurableContext extends RawContext {
+class ConfigurableContext extends WebRawContext {
 
   use OtherSampleConfigTrait;
   use SampleConfigTrait;

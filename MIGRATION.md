@@ -40,13 +40,13 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 
 The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay where they are: a container service reads them. A `selectors: messages:` left behind fails the container build with a message naming its new path, because the `selectors` node keeps the keys it does not declare and would otherwise accept it and never read it.
 
-### `RawContext` takes a `config` argument
+### `WebRawContext` takes a `config` argument
 
-`RawContext::__construct(array $config = [])` is the new constructor, and every shipped and consuming context inherits it without redeclaring one. A context that already declares a constructor adds the parameter and forwards it:
+`WebRawContext::__construct(array $config = [])` is the new constructor, and every shipped and consuming context inherits it without redeclaring one. A context that already declares a constructor adds the parameter and forwards it:
 
 ```php
 // Before.
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   public function __construct(protected string $fixtures_path) {
   }
@@ -54,7 +54,7 @@ class UiContext extends RawContext {
 }
 
 // After.
-class UiContext extends RawContext {
+class UiContext extends WebRawContext {
 
   public function __construct(protected string $fixtures_path, array $config = []) {
     parent::__construct($config);
@@ -92,9 +92,9 @@ The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is
 
 `RandomTrait`, `MappingTrait` and `DateTrait` register suite-wide `#[Transform]` callbacks, which used to rewrite every matching step argument and table cell in the run with no way to opt out. `@behat-steps-skip:RandomTrait` silently did nothing; it now suppresses the transform, as do `@behat-steps-skip:MappingTrait` and `@behat-steps-skip:DateTrait` and the matching `enabled` option.
 
-Each of the three resolves that decision in a `BeforeScenario` hook, so all three now require the composing context to extend `RawContext`. `DateTrait` and `RandomTrait` previously composed into any class.
+Each of the three resolves that decision in a `BeforeScenario` hook, so all three now require the composing context to extend `WebRawContext`. `DateTrait` and `RandomTrait` previously composed into any class.
 
-`ModalTrait`, `TableTrait`, `ElementTrait` and `CommandTrait` require `RawContext` for the same reason: they read a declared option.
+`ModalTrait`, `TableTrait`, `ElementTrait` and `CommandTrait` require `WebRawContext` for the same reason: they read a declared option.
 
 ### `BigPipeTrait` reads its timeout from configuration
 
@@ -629,11 +629,11 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Given I wait for AJAX to finish` | `When I wait for AJAX to finish` |
 | `When (I )break` | dropped; use a debugger or `When I print last response` (Mink) |
 
-Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Generic\RandomTrait` and `Steps\Generic\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
+Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Web\RandomTrait` and `Steps\Web\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
 
 ## Unified entity cleanup
 
-Every entity a creation step or the driver creates is registered on `RawContext` and deleted in reverse creation order by one `cleanEntities` hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the driver creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -650,13 +650,13 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 | `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
 | `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:cleanEntities`. The companion hooks take `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles`.
+To skip cleanup of every registered entity at once, use `@behat-steps-skip:entityCleanAll`. The companion hooks take `@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles`.
 
 `FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
 ## Trait namespaces re-rooted under `Steps`
 
-The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Generic\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:
+The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Web\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:
 
 ```php
 // Before.
@@ -664,30 +664,195 @@ use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\Drupal\ContentTrait;
 
 // After.
-use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
+use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 ```
 
 `DrevOps\BehatSteps\Exception\AssertionException` did not move.
 
-## Traits declare the context class they need
+## The context layer is one chain
 
-Every trait that reaches beyond its own methods carries a `@phpstan-require-extends` annotation naming the base class it needs: `Behat\MinkExtension\Context\RawMinkContext` for traits that only use the Mink session, and `DrevOps\BehatSteps\Behat\Context\RawContext` for traits that use the driver, the entity lifecycle or the extension configuration. Traits that call nothing outside themselves carry no annotation.
+`RawContext` used to carry the Drupal entity lifecycle, so a non-Drupal project extending it inherited a class that knew about taxonomy vocabularies. It is gone. `WebRawContext` is the root, and each class below it adds one half of the vocabulary:
 
-Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class that trait needs. The fix is to extend the named class, which is what the trait already assumed.
+```
+        Behat\MinkExtension\Context\RawMinkContext
+                          |
+                    WebRawContext
+                          |
+                     WebContext
+                          |
+                   DrupalContext
+```
+
+| Extend | When |
+| --- | --- |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits |
+| `WebContext` | The suite tests a web page and wants the 28 web step traits |
+| `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
+
+A context that extended `RawContext` extends `WebRawContext` instead:
+
+```php
+// Before.
+class UiContext extends RawContext {
+
+  use JavascriptTrait;
+  use WaitTrait;
+
+}
+
+// After.
+class UiContext extends WebRawContext {
+
+  use JavascriptTrait;
+  use WaitTrait;
+
+}
+```
+
+### The Drupal lifecycle moved into concern-named helpers
+
+Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\Helper\Drupal`, split by concern rather than gathered into one class. Every member carries its trait's prefix:
+
+| Helper | Holds | Composed by |
+| --- | --- | --- |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityNodeCreate()`, `entityTermCreate()`, `entityCreate()`, `entityLanguageCreate()`, `entityRegister()`, `entityParseFields()`, `entityCleanAll()`, `entityAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
+| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserManager()`, `authSetUserManager()`, `authGetManager()`, `authSetManager()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
+| `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
+| `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
+| `Helper\Drupal\QueryTrait` | `queryNodeIds()`, `queryAssertModuleEnabled()` | 9 step traits |
+
+The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names nothing Drupal:
+
+| Helper | Holds | Composed by |
+| --- | --- | --- |
+| `Helper\Web\JavascriptSupportTrait` | `javascriptSupportAvailable()` | `WebRawContext` and 3 step traits |
+| `Helper\Web\LastStepTrait` | `lastStepSetLine()`, `lastStepReached()` | `WebRawContext` and 3 step traits |
+| `Helper\Web\RequestHeadersTrait` | `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()`, `requestHeadersReset()` | `WebRawContext` and 2 step traits |
+| `Helper\Web\StringTrait` | `stringFixStepArgument()`, `stringNormalizeWhitespace()`, `stringSplitCommaSeparated()`, `stringSlug()` | `WebRawContext` and 6 step traits |
+| `Helper\Web\TableTransposeTrait` | `tableTransposeVertical()`, `tableTransposeHorizontal()` | 5 step traits |
+
+A call or an override in a consumer context is renamed:
+
+| Old `RawContext` member | New member |
+| --- | --- |
+| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityNodeCreate()` |
+| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityTermCreate()` |
+| `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityCreate()` |
+| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLanguageCreate()` |
+| `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityRegister()` |
+| `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityParseFields()` |
+| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityCleanAll()` |
+| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityAlterNodeParameters()` |
+| `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
+| `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
+| `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
+| `loggedIn()` | `Helper\Drupal\AuthTrait::authLoggedIn()` |
+| `getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserManager()` |
+| `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserManager()` |
+| `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
+| `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
+| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
+
+Three of those names are also skip tags, and the tags follow the methods: `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:entityCleanAll`, `@behat-steps-skip:cleanUsers` becomes `@behat-steps-skip:authCleanUsers`, and `@behat-steps-skip:cleanRoles` becomes `@behat-steps-skip:authCleanRoles`.
+
+A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
+
+A context that wants one concern without the Drupal vocabulary composes that helper alone:
+
+```php
+class SpecContext extends WebRawContext {
+
+  use EntityLifecycleTrait;
+
+}
+```
+
+`UserAwareInterface` declares the four accessors `AuthTrait` implements: `authSetUserManager()`, `authGetUserManager()`, `authSetManager()` and `authGetManager()`. A context composing `AuthTrait` declares the interface so the context initializer injects both managers; a context that creates no users declares nothing and neither manager is built.
+
+Basic authentication is a separate manager, because applying credentials to a request needs Mink and a base URL and knows nothing about a Drupal session. `WebRawContext` carries `BasicAuthInterface` through `setBasicAuthManager()` and `getBasicAuthManager()`, and `AuthenticationManager` takes that manager as a constructor argument to reapply the credentials after a fast logout.
+
+### One context registers, not two
+
+`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 step traits.
+
+Registering `WebContext` beside `DrupalContext` is fatal, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names the real mistake rather than letting Behat report a `RedundantStepException` about an arbitrary step.
+
+Registering either context beside a hand-composed context that already carries one of the same traits is a `RedundantStepException` too: two registered contexts cannot compose the same trait. Drop the trait from the hand-composed context, or register the shipped context instead of it.
+
+There is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+
+Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
+
+## Traits declare the host they need
+
+Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads the driver or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.
+
+Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
+
+## A trait's directory classifies it
+
+A trait's directory is its classification: `src/Steps` registers Gherkin and `src/Helper` registers none. `scripts/lint-traits.php` fails a step trait composing another step trait, and a helper trait registering a step or a transform. A helper may register a hook, because the trait that owns a teardown carries the hook that runs it.
+
+A consuming project keeps its own traits wherever it likes; the rule applies to this package's own tree, and it is what routes the reference documentation.
 
 ## Step traits no longer compose other step traits
 
-Shared logic lives in the step-free `HelperTrait` pair, so that composing one trait cannot pull in another trait's steps.
+Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each named for one concern, so that composing one trait cannot pull in another trait's steps.
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Steps\Drupal\HelperTrait::helperLoadNodeIds()` |
-| `Steps\Generic\RestTrait` | `$restHeaders` | `Steps\Generic\HelperTrait::$helperRequestHeaders`, read and written through `helperSetRequestHeader()`, `helperUnsetRequestHeader()`, `helperGetRequestHeaders()` and `helperResetRequestHeaders()` |
+| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
+| `Steps\Web\RestTrait` | `$restHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders`, read and written through `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()` and `requestHeadersReset()` |
 
-`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Steps\Drupal\HelperTrait` and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
+`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now reads `queryNodeIds()` off its host and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
 
-`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the shared header bag instead, so the signal reaches `RestTrait` whether or not the context composes it.
+`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the header bag instead. The bag is per context, so a suite that wants the signal on `RestTrait`'s own requests composes both traits into one context rather than registering the two shipped ones; the browser header, the `$_SERVER` entry and the environment variable reach the site either way.
+
+A helper trait composed by a step trait and by the context under it holds one slot of state, so both reach the same bag.
+
+### The two `HelperTrait`s became 10 concern-named traits
+
+`Steps\Web\HelperTrait` and `Steps\Drupal\HelperTrait` are gone. Their members live under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each trait named for the one concern it holds, and every method carries its own trait's prefix in place of the shared `helper` one:
+
+| Old member | New member |
+| --- | --- |
+| `helperSetLastStepLine()` | `Helper\Web\LastStepTrait::lastStepSetLine()` |
+| `helperIsLastStep()` | `Helper\Web\LastStepTrait::lastStepReached()` |
+| `$helperLastStepLine` | `Helper\Web\LastStepTrait::$lastStepLine` |
+| `helperSetRequestHeader()` | `Helper\Web\RequestHeadersTrait::requestHeadersSet()` |
+| `helperUnsetRequestHeader()` | `Helper\Web\RequestHeadersTrait::requestHeadersUnset()` |
+| `helperGetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::requestHeadersAll()` |
+| `helperResetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::requestHeadersReset()` |
+| `$helperRequestHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders` |
+| `helperFixStepArgument()` | `Helper\Web\StringTrait::stringFixStepArgument()` |
+| `helperNormalizeWhitespace()` | `Helper\Web\StringTrait::stringNormalizeWhitespace()` |
+| `helperSplitCommaSeparated()` | `Helper\Web\StringTrait::stringSplitCommaSeparated()` |
+| `helperSlug()` | `Helper\Web\StringTrait::stringSlug()` |
+| `helperIsJavascriptSupported()` | `Helper\Web\JavascriptSupportTrait::javascriptSupportAvailable()` |
+| `helperTransposeVerticalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeVertical()` |
+| `helperBuildHorizontalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeHorizontal()` |
+| `helperExpandEntityFieldsFixtures()` | `Helper\Drupal\FixtureFileTrait::fixtureFileExpandEntityFields()` |
+| `helperLooksLikeCompoundCell()` | `Helper\Drupal\FixtureFileTrait::fixtureFileLooksLikeCompoundCell()` |
+| `helperExpandCompoundCellFixtures()` | `Helper\Drupal\FixtureFileTrait::fixtureFileExpandCompoundCell()` |
+| `helperResolveFixtureFile()` | `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` |
+| `helperManagedFileExists()` | `Helper\Drupal\FixtureFileTrait::fixtureFileManagedExists()` |
+| `helperLoadNodeIds()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
+| `helperAssertModuleEnabled()` | `Helper\Drupal\QueryTrait::queryAssertModuleEnabled()` |
+
+A context that composed a `HelperTrait` to reach one of these composes the trait holding it instead:
+
+```php
+// Before.
+use DrevOps\BehatSteps\Steps\Web\HelperTrait;
+
+// After.
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
+```
+
+Extending `WebRawContext` needs no `use` statement for the 4 web helper traits, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
+
+`requestHeadersSet()`, `javascriptSupportAvailable()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
 
 ## Trait methods prefixed with their trait name
 
@@ -697,7 +862,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityRegister()` | `Behat\Context\RawContext::entityRegister()` |
+| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
@@ -707,7 +872,7 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 
 | Old tag | New tag |
 | --- | --- |
-| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:cleanEntities` |
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:entityCleanAll` |
 
 ## Query parameter presence
 
@@ -847,7 +1012,7 @@ PHP treats two composed traits declaring the same constant name as a fatal error
 `FieldTrait` composed `KeyboardTrait` without calling it, so a context composing only `FieldTrait` silently received every keyboard step. That composition is gone. If your context relies on those steps, compose the trait directly:
 
 ```php
-use DrevOps\BehatSteps\Steps\Generic\KeyboardTrait;
+use DrevOps\BehatSteps\Steps\Web\KeyboardTrait;
 
 class FeatureContext extends DrupalContext {
 

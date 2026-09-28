@@ -26,7 +26,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * cleared unconditionally before and after the scenario to prevent state
  * leaking into subsequent scenarios.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait StateTrait {
 

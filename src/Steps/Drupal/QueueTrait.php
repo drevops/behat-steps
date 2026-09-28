@@ -20,7 +20,7 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  * - Process queue items during tests.
  * - Assert queue item counts.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait QueueTrait {
 

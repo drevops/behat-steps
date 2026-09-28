@@ -46,7 +46,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *   And the config "system.site" key "name" should have the effective value "My overridden site"
  * @endcode
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait ConfigTrait {
 

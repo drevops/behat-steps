@@ -10,6 +10,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\testmode\Testmode;
 
 /**
@@ -21,11 +22,11 @@ use Drupal\testmode\Testmode;
  * Special tags:
  * - `@testmode` - enable for scenario
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait TestmodeTrait {
 
-  use HelperTrait;
+  use QueryTrait;
 
   /**
    * Enable test mode before a scenario tagged with @testmode.
@@ -38,9 +39,9 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->queryAssertModuleEnabled('testmode', 'drupal/testmode');
 
-    self::testmodeEnableTestMode();
+    static::testmodeEnableTestMode();
   }
 
   /**
@@ -54,9 +55,9 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->helperAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->queryAssertModuleEnabled('testmode', 'drupal/testmode');
 
-    self::testmodeDisableTestMode();
+    static::testmodeDisableTestMode();
   }
 
   /**

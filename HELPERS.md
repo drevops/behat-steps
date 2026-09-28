@@ -1,6 +1,6 @@
 # Available helpers
 
-### Index of Generic helpers
+### Index of Web helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
@@ -14,7 +14,7 @@
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
-| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -28,6 +28,9 @@
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
+| [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
+| [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
+| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
 
 ### Index of Drupal helpers
 
@@ -43,6 +46,7 @@
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 2 | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 3 | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menu systems and menu link rendering. |
@@ -55,18 +59,22 @@
 | [Drupal\UserTrait](#drupalusertrait) | 8 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 2 | Manage Drupal webforms. |
+| [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
 
-### Index of Context helpers
+### Index of Toolbox helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [RawContext](#rawcontext) | 21 | Base context carrying the scenario lifecycle. |
+| [WebRawContext](#webrawcontext) | 7 | Root context carrying the plumbing every suite needs. |
 
 ---
 
 ## AccessibilityTrait
 
-[Source](src/Steps/Generic/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
+[Source](src/Steps/Web/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
 
 > Assess accessibility of rendered pages.
 
@@ -207,7 +215,7 @@ Execute the engine against the current page and return raw results
 
 ## BasicAuthTrait
 
-[Source](src/Steps/Generic/BasicAuthTrait.php), [Steps](STEPS.md#basicauthtrait)
+[Source](src/Steps/Web/BasicAuthTrait.php), [Steps](STEPS.md#basicauthtrait)
 
 > Keep HTTP basic authentication applied across session resets.
 
@@ -222,7 +230,7 @@ Apply the resolved credentials to the session
 
 ## CommandTrait
 
-[Source](src/Steps/Generic/CommandTrait.php), [Steps](STEPS.md#commandtrait)
+[Source](src/Steps/Web/CommandTrait.php), [Steps](STEPS.md#commandtrait)
 
 > Run local shell commands and assert on their result.
 
@@ -237,7 +245,7 @@ The maximum time, in seconds, a command may run before it is terminated
 
 ## CookieTrait
 
-[Source](src/Steps/Generic/CookieTrait.php), [Steps](STEPS.md#cookietrait)
+[Source](src/Steps/Web/CookieTrait.php), [Steps](STEPS.md#cookietrait)
 
 > Verify and inspect browser cookies.
 
@@ -279,7 +287,7 @@ Assert that a cookie does not exist
 
 ## DateTrait
 
-[Source](src/Steps/Generic/DateTrait.php), [Steps](STEPS.md#datetrait)
+[Source](src/Steps/Web/DateTrait.php), [Steps](STEPS.md#datetrait)
 
 > Convert relative date expressions into timestamps or formatted dates.
 
@@ -318,7 +326,7 @@ Assert that string has a token
 
 ## DiagnosticsTrait
 
-[Source](src/Steps/Generic/DiagnosticsTrait.php), [Steps](STEPS.md#diagnosticstrait)
+[Source](src/Steps/Web/DiagnosticsTrait.php), [Steps](STEPS.md#diagnosticstrait)
 
 > Append on-failure diagnostics to the failure message of any failed step.
 
@@ -432,7 +440,7 @@ Return the current page URL, or NULL when it cannot be determined
 
 ## DropzoneTrait
 
-[Source](src/Steps/Generic/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
+[Source](src/Steps/Web/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
 
 > Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 
@@ -447,7 +455,7 @@ Resolve a fixture path against the Mink `files_path` parameter
 
 ## ElementTrait
 
-[Source](src/Steps/Generic/ElementTrait.php), [Steps](STEPS.md#elementtrait)
+[Source](src/Steps/Web/ElementTrait.php), [Steps](STEPS.md#elementtrait)
 
 > Interact with HTML elements using CSS selectors and DOM attributes.
 
@@ -489,7 +497,7 @@ Check whether an element is displayed within the viewport
 
 ## FieldTrait
 
-[Source](src/Steps/Generic/FieldTrait.php), [Steps](STEPS.md#fieldtrait)
+[Source](src/Steps/Web/FieldTrait.php), [Steps](STEPS.md#fieldtrait)
 
 > Manipulate form fields and verify widget functionality.
 
@@ -531,7 +539,7 @@ Check if a given field element is marked as required
 
 ## FileDownloadTrait
 
-[Source](src/Steps/Generic/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
+[Source](src/Steps/Web/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
 
 > Test file download functionality with content verification.
 
@@ -564,7 +572,7 @@ Download file
 
 ## JavascriptTrait
 
-[Source](src/Steps/Generic/JavascriptTrait.php), [Steps](STEPS.md#javascripttrait)
+[Source](src/Steps/Web/JavascriptTrait.php), [Steps](STEPS.md#javascripttrait)
 
 > Automatically detect JavaScript errors during test execution.
 
@@ -577,9 +585,24 @@ Assert that no JavaScript errors were collected
 
 </details>
 
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
+
+</details>
+
 ## JsonTrait
 
-[Source](src/Steps/Generic/JsonTrait.php), [Steps](STEPS.md#jsontrait)
+[Source](src/Steps/Web/JsonTrait.php), [Steps](STEPS.md#jsontrait)
 
 > Assert JSON responses with path and schema checks.
 
@@ -639,7 +662,7 @@ Validate the response body against a JSON schema
 
 ## MappingTrait
 
-[Source](src/Steps/Generic/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
+[Source](src/Steps/Web/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
 
 > Replace `{{ Key }}` tokens in step arguments and table cells.
 
@@ -663,7 +686,7 @@ Substitutes every mapping token found in a single string
 
 ## MessageTrait
 
-[Source](src/Steps/Generic/MessageTrait.php), [Steps](STEPS.md#messagetrait)
+[Source](src/Steps/Web/MessageTrait.php), [Steps](STEPS.md#messagetrait)
 
 > Assert status, error, warning and success messages rendered on the page.
 
@@ -696,7 +719,7 @@ Resolve the configured CSS selector for a message type
 
 ## MetatagTrait
 
-[Source](src/Steps/Generic/MetatagTrait.php), [Steps](STEPS.md#metatagtrait)
+[Source](src/Steps/Web/MetatagTrait.php), [Steps](STEPS.md#metatagtrait)
 
 > Assert `<meta>` tags and head/SEO markup in page markup.
 
@@ -801,7 +824,7 @@ The Twitter Card tags required by "the Twitter Card tags should be valid"
 
 ## ModalTrait
 
-[Source](src/Steps/Generic/ModalTrait.php), [Steps](STEPS.md#modaltrait)
+[Source](src/Steps/Web/ModalTrait.php), [Steps](STEPS.md#modaltrait)
 
 > Interact with and assert modals.
 
@@ -861,7 +884,7 @@ Get the timeout in seconds for waiting for the modal to appear
 
 ## PathTrait
 
-[Source](src/Steps/Generic/PathTrait.php), [Steps](STEPS.md#pathtrait)
+[Source](src/Steps/Web/PathTrait.php), [Steps](STEPS.md#pathtrait)
 
 > Navigate and verify paths with URL validation.
 
@@ -876,7 +899,7 @@ Get the query parameters of the current URL
 
 ## RandomTrait
 
-[Source](src/Steps/Generic/RandomTrait.php), [Steps](STEPS.md#randomtrait)
+[Source](src/Steps/Web/RandomTrait.php), [Steps](STEPS.md#randomtrait)
 
 > Replace random-value tokens in step arguments and table cells.
 
@@ -972,7 +995,7 @@ Applies 'randomSubstitute()' across every cell in '$table'
 
 ## RegionTrait
 
-[Source](src/Steps/Generic/RegionTrait.php), [Steps](STEPS.md#regiontrait)
+[Source](src/Steps/Web/RegionTrait.php), [Steps](STEPS.md#regiontrait)
 
 > Interact with and assert against named page regions.
 
@@ -996,7 +1019,7 @@ Return a named region on the current page
 
 ## ResponsiveTrait
 
-[Source](src/Steps/Generic/ResponsiveTrait.php), [Steps](STEPS.md#responsivetrait)
+[Source](src/Steps/Web/ResponsiveTrait.php), [Steps](STEPS.md#responsivetrait)
 
 > Test responsive layouts with viewport control.
 
@@ -1056,7 +1079,7 @@ Set custom breakpoints
 
 ## RestTrait
 
-[Source](src/Steps/Generic/RestTrait.php), [Steps](STEPS.md#resttrait)
+[Source](src/Steps/Web/RestTrait.php), [Steps](STEPS.md#resttrait)
 
 > Lightweight REST API testing with no Drupal dependencies.
 
@@ -1080,7 +1103,7 @@ Resolve a relative URL against the Mink base URL
 
 ## TableTrait
 
-[Source](src/Steps/Generic/TableTrait.php), [Steps](STEPS.md#tabletrait)
+[Source](src/Steps/Web/TableTrait.php), [Steps](STEPS.md#tabletrait)
 
 > Interact with HTML table elements and assert their content.
 
@@ -1158,7 +1181,7 @@ Get the body rows from a table element
 
 ## WaitTrait
 
-[Source](src/Steps/Generic/WaitTrait.php), [Steps](STEPS.md#waittrait)
+[Source](src/Steps/Web/WaitTrait.php), [Steps](STEPS.md#waittrait)
 
 > Wait for a period of time or for AJAX to finish.
 
@@ -1173,7 +1196,7 @@ Return the configured AJAX timeout, in seconds
 
 ## XmlTrait
 
-[Source](src/Steps/Generic/XmlTrait.php), [Steps](STEPS.md#xmltrait)
+[Source](src/Steps/Web/XmlTrait.php), [Steps](STEPS.md#xmltrait)
 
 > Assert XML responses with element and attribute checks.
 
@@ -1227,6 +1250,70 @@ Validate the response as an RSS 2.0 feed
 
 <br/>
 Validate the response against an XSD schema
+<br/><br/>
+
+</details>
+
+## JavascriptSupportTrait
+
+[Source](src/Helper/Web/JavascriptSupportTrait.php)
+
+> Reports whether the running driver evaluates JavaScript.
+
+<details>
+  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
+
+<br/>
+Check if JavaScript is supported by the current driver
+<br/><br/>
+
+```
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+```
+
+</details>
+
+## RequestHeadersTrait
+
+[Source](src/Helper/Web/RequestHeadersTrait.php)
+
+> Holds the request headers shared by the traits that issue HTTP requests.
+
+<details>
+  <summary><code>public function requestHeadersSet(string $name, string $value): void</code></summary>
+
+<br/>
+Set a request header for subsequent requests
+<br/><br/>
+
+```
+$this->requestHeadersSet('X-Acme-Token', 'secret');
+```
+
+</details>
+
+## TableTransposeTrait
+
+[Source](src/Helper/Web/TableTransposeTrait.php)
+
+> Reads a vertical Gherkin table as one set of values per entity.
+
+<details>
+  <summary><code>public function tableTransposeHorizontal(array $entities): TableNode</code></summary>
+
+<br/>
+Convert vertical format entities to horizontal TableNode
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function tableTransposeVertical(TableNode $table): array</code></summary>
+
+<br/>
+Transpose a vertical table format (field/value columns) to entity arrays
 <br/><br/>
 
 </details>
@@ -1476,6 +1563,66 @@ Find an email message whose field contains a value
 
 <br/>
 Get email messages collected during the test
+<br/><br/>
+
+</details>
+
+## Drupal\EntityTrait
+
+[Source](src/Steps/Drupal/EntityTrait.php), [Steps](STEPS.md#drupalentitytrait)
+
+> Create entities of a type that has no dedicated trait.
+
+<details>
+  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates an entity of a type that has no dedicated method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+
+<br/>
+Registers an entity saved outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -1858,26 +2005,62 @@ Load all webform templates whose title contains the given string
 
 </details>
 
-## RawContext
+## Drupal\AuthTrait
 
-[Source](src/Behat/Context/RawContext.php)
+[Source](src/Helper/Drupal/AuthTrait.php)
 
-> Base context carrying the scenario lifecycle.
+> Creates users and roles, logs them in, and removes them afterwards.
 
 <details>
-  <summary><code>public function __construct(array $config = [])</code></summary>
+  <summary><code>public function authGetManager(): AuthenticationManagerInterface</code></summary>
 
 <br/>
-Constructs a RawContext object
+Returns the manager that logs a user in and out
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function driverFor(string $capability): object</code></summary>
+  <summary><code>public function authGetUserManager(): UserManagerInterface</code></summary>
 
 <br/>
-Returns the highest-priority driver providing the given capability
+Returns the user manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLoggedIn(): bool</code></summary>
+
+<br/>
+Determines whether a user is logged in for this session
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLogin(EntityStubInterface $user): void</code></summary>
+
+<br/>
+Logs the given user in
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authLogout(bool $fast = FALSE): void</code></summary>
+
+<br/>
+Logs the current user out
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function authUserCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a user
 <br/><br/>
 
 </details>
@@ -1892,6 +2075,33 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
@@ -1901,10 +2111,142 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
-Returns the authentication manager
+Creates a taxonomy term
+<br/><br/>
+
+</details>
+
+## Drupal\EntityLifecycleTrait
+
+[Source](src/Helper/Drupal/EntityLifecycleTrait.php)
+
+> Creates Drupal entities and removes them when the scenario ends.
+
+<details>
+  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates an entity of a type that has no dedicated method
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+
+<br/>
+Creates a language
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+
+<br/>
+Expands a stub's raw Gherkin values into the storage field shape
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+
+<br/>
+Registers an entity saved outside the create pipeline for cleanup
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
+<br/><br/>
+
+</details>
+
+## Drupal\FixtureFileTrait
+
+[Source](src/Helper/Drupal/FixtureFileTrait.php)
+
+> Resolves a fixture file path for a file or image field.
+
+<details>
+  <summary><code>public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void</code></summary>
+
+<br/>
+Expand fixture file paths for file/image fields on an entity stub
+<br/><br/>
+
+</details>
+
+## Drupal\QueryTrait
+
+[Source](src/Helper/Drupal/QueryTrait.php)
+
+> Reads Drupal state a step asserts on without going through a driver.
+
+<details>
+  <summary><code>public function queryAssertModuleEnabled(string $module, string $package = ''): void</code></summary>
+
+<br/>
+Assert that a module backing a set of steps is enabled
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function queryNodeIds(string $content_type, array $conditions = []): array</code></summary>
+
+<br/>
+Load the ids of the nodes of a content type matching the conditions
+<br/><br/>
+
+</details>
+
+## WebRawContext
+
+[Source](src/Behat/Context/WebRawContext.php)
+
+> Root context carrying the plumbing every suite needs.
+
+<details>
+  <summary><code>public function __construct(array $config = [])</code></summary>
+
+<br/>
+Constructs a WebRawContext object
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function driverFor(string $capability): object</code></summary>
+
+<br/>
+Returns the highest-priority driver providing the given capability
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getBasicAuthManager(): BasicAuthInterface</code></summary>
+
+<br/>
+Returns the basic authentication manager
 <br/><br/>
 
 </details>
@@ -1928,24 +2270,6 @@ Returns the driver manager
 </details>
 
 <details>
-  <summary><code>public function getDrupalSelector(string $name): string</code></summary>
-
-<br/>
-Returns a specific CSS selector
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDrupalText(string $name): string</code></summary>
-
-<br/>
-Returns a specific Drupal text value
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed</code></summary>
 
 <br/>
@@ -1955,100 +2279,10 @@ Returns a trait option resolved for this context
 </details>
 
 <details>
-  <summary><code>public function getParameter(string $name): mixed</code></summary>
-
-<br/>
-Returns a specific extension parameter
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function getRandom(): Random</code></summary>
 
 <br/>
 Returns the driver's random generator
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
-
-<br/>
-Returns the user manager
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function loggedIn(): bool</code></summary>
-
-<br/>
-Determines whether a user is logged in for this session
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function login(EntityStubInterface $user): void</code></summary>
-
-<br/>
-Logs the given user in
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function logout(bool $fast = FALSE): void</code></summary>
-
-<br/>
-Logs the current user out
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function nodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function termCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function userCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a user
 <br/><br/>
 
 </details>

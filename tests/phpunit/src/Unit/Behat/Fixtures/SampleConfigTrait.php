@@ -30,6 +30,18 @@ trait SampleConfigTrait {
         'default' => 7,
         'description' => 'An integer option.',
       ],
+      'ratio' => [
+        'default' => 0.5,
+        'description' => 'A float option.',
+      ],
+      'selectors' => [
+        'default' => ['.sample'],
+        'description' => 'An array option.',
+      ],
+      'anything' => [
+        'default' => NULL,
+        'description' => 'An option whose declaration names no type.',
+      ],
     ];
   }
 

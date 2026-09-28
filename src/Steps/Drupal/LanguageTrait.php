@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
  * Create the languages a scenario needs.
@@ -20,9 +21,11 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
  * run in no guaranteed order.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait LanguageTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Create the listed languages.
@@ -45,7 +48,7 @@ trait LanguageTrait {
         throw new \RuntimeException('Each row must carry a non-empty "langcode" value.');
       }
 
-      $this->languageCreate(new EntityStub('language', NULL, ['langcode' => $langcode]));
+      $this->entityLanguageCreate(new EntityStub('language', NULL, ['langcode' => $langcode]));
     }
   }
 

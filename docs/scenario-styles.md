@@ -31,7 +31,7 @@ The declarative version has no shipped step behind it. The project writes each d
 ```php
 #[When('I publish a page titled :title')]
 public function publishPage(string $title): void {
-  $this->nodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
+  $this->entityNodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
 }
 ```
 

@@ -14,6 +14,9 @@ use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -29,11 +32,15 @@ use Drupal\user\UserInterface;
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait UserTrait {
 
-  use HelperTrait;
+  use AuthTrait;
+  use StringTrait;
+  use TableTransposeTrait;
+
+  use StringTrait;
 
   /**
    * Remove users specified in a table.
@@ -66,7 +73,7 @@ trait UserTrait {
 
       foreach ($users as $user) {
         $user->delete();
-        $this->getUserManager()->removeUser($user->getAccountName());
+        $this->authGetUserManager()->removeUser($user->getAccountName());
       }
     }
   }
@@ -89,8 +96,8 @@ trait UserTrait {
    */
   #[Given('the following users with fields exist:')]
   public function userCreateWithFields(TableNode $table): void {
-    $entities = $this->helperTransposeVerticalTable($table);
-    $horizontal_table = $this->helperBuildHorizontalTable($entities);
+    $entities = $this->tableTransposeVertical($table);
+    $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->userCreateMultiple($horizontal_table);
   }
 
@@ -126,7 +133,7 @@ trait UserTrait {
       }
 
       $stub = new EntityStub('user', NULL, $values);
-      $this->userCreate($stub);
+      $this->authUserCreate($stub);
 
       $this->userAssignRoles($driver, $stub, $roles);
     }
@@ -141,7 +148,7 @@ trait UserTrait {
    */
   #[Given('the user is anonymous')]
   public function userLogOutSession(): void {
-    $this->logout(TRUE);
+    $this->authLogout(TRUE);
   }
 
   /**
@@ -221,7 +228,7 @@ trait UserTrait {
   public function userCreateRole(string $role_name, string $permissions): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $permissions = $this->helperSplitCommaSeparated($permissions);
+    $permissions = $this->stringSplitCommaSeparated($permissions);
 
     $rid = strtolower($role_name);
     $role_name = trim($role_name);
@@ -316,11 +323,11 @@ trait UserTrait {
     $this->roles[] = $role;
 
     $stub = $this->userBuildStub();
-    $this->userCreate($stub);
+    $this->authUserCreate($stub);
 
     $this->driverFor(UserCapabilityInterface::class)->userAddRole($stub, $role);
 
-    $this->login($stub);
+    $this->authLogin($stub);
   }
 
   /**
@@ -332,7 +339,7 @@ trait UserTrait {
    */
   #[When('I log in as the user :name')]
   public function userLogInAs(string $name): void {
-    $this->login($this->getUserManager()->getUser($name));
+    $this->authLogin($this->authGetUserManager()->getUser($name));
   }
 
   /**
@@ -344,7 +351,7 @@ trait UserTrait {
    */
   #[When('I log out')]
   public function userLogOut(): void {
-    $this->logout(TRUE);
+    $this->authLogout(TRUE);
   }
 
   /**
@@ -442,7 +449,7 @@ trait UserTrait {
    */
   #[When('I visit my own password reset link')]
   public function userVisitOwnPasswordResetLink(): void {
-    $current_user = $this->getUserManager()->getCurrentUser();
+    $current_user = $this->authGetUserManager()->getCurrentUser();
 
     if (!$current_user instanceof EntityStubInterface) {
       throw new \RuntimeException('Current user is not logged in.');
@@ -463,7 +470,7 @@ trait UserTrait {
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = $this->helperSplitCommaSeparated($roles);
+    $roles = $this->stringSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
       throw new ExpectationException(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
@@ -481,7 +488,7 @@ trait UserTrait {
   public function userAssertNotHasRoles(string $name, string $roles): void {
     $user = $this->userLoadByName($name);
 
-    $roles = $this->helperSplitCommaSeparated($roles);
+    $roles = $this->stringSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
       throw new ExpectationException(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
@@ -567,11 +574,11 @@ trait UserTrait {
     $driver = $this->driverFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub($extra_fields);
-    $this->userCreate($stub);
+    $this->authUserCreate($stub);
 
     $this->userAssignRoles($driver, $stub, $roles);
 
-    $this->login($stub);
+    $this->authLogin($stub);
   }
 
   /**
@@ -722,7 +729,7 @@ trait UserTrait {
    */
   public function userVisitActionPage(string $name, string $action_subpath = ''): void {
     if ($name === 'current') {
-      $user = $this->getUserManager()->getCurrentUser();
+      $user = $this->authGetUserManager()->getCurrentUser();
 
       if (!$user instanceof EntityStubInterface) {
         throw new \RuntimeException('Current user is not logged in.');

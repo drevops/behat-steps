@@ -8,7 +8,7 @@ use Behat\Behat\Context\ContextClass\ClassGenerator as UpstreamClassGenerator;
 use Behat\Testwork\Suite\Suite;
 
 /**
- * Generates a starting context class that extends 'RawContext'.
+ * Generates a starting context class that extends 'WebRawContext'.
  *
  * Replaces Behat's own generator behind the
  * 'context.class_generator.simple' service.
@@ -24,7 +24,7 @@ class ClassGenerator implements UpstreamClassGenerator {
   protected static string $template = <<<'PHP'
 <?php
 
-{namespace}use DrevOps\BehatSteps\Behat\Context\RawContext;
+{namespace}use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Tester\Exception\PendingException;
@@ -32,7 +32,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 /**
  * Defines application features from the specific context.
  */
-class {className} extends RawContext {
+class {className} extends WebRawContext {
 
   /**
    * Initializes context.
@@ -40,8 +40,12 @@ class {className} extends RawContext {
    * Every scenario gets its own context instance.
    * You can also pass arbitrary arguments to the
    * context constructor through the Behat configuration.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   Trait options the suite declares for this context.
    */
-  public function __construct() {
+  public function __construct(array $config = []) {
+    parent::__construct($config);
   }
 
 }

@@ -8,10 +8,10 @@ use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManager;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthManager;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
@@ -291,7 +291,7 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $this->assertFalse($manager->loggedIn());
   }
 
@@ -408,7 +408,7 @@ class AuthenticationManagerTest extends TestCase {
     $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
     $driver_manager = $this->createDriverManagerMock();
-    $manager = new AuthenticationManager($mink, $user_manager, $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, $user_manager, $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $manager->fastLogout();
 
     $this->assertFalse($user_manager->getCurrentUser());
@@ -423,7 +423,7 @@ class AuthenticationManagerTest extends TestCase {
     $mink->setDefaultSessionName('default');
 
     $driver_manager = $this->createDriverManagerMock();
-    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $manager->fastLogout();
   }
 
@@ -442,58 +442,8 @@ class AuthenticationManagerTest extends TestCase {
     $driver_manager->method('getDriverFor')->willReturn($auth_driver);
     $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $manager->fastLogout();
-  }
-
-  /**
-   * Tests that applyBasicAuth() applies credentials parsed from base_url.
-   *
-   * @param string $base_url
-   *   The configured Mink 'base_url'.
-   * @param array{0: string, 1: string}|null $expected
-   *   The [username, password] expected to be applied, or NULL when basic
-   *   auth should not be applied at all.
-   */
-  #[DataProvider('dataProviderApplyBasicAuth')]
-  public function testApplyBasicAuth(string $base_url, ?array $expected): void {
-    $session = $this->createMock(Session::class);
-
-    if ($expected === NULL) {
-      $session->expects($this->never())->method('setBasicAuth');
-    }
-    else {
-      $session->expects($this->once())->method('setBasicAuth')->with($expected[0], $expected[1]);
-    }
-
-    $mink = new Mink(['default' => $session]);
-    $mink->setDefaultSessionName('default');
-
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => $base_url], self::EXTENSION_PARAMS);
-    $manager->applyBasicAuth();
-  }
-
-  public static function dataProviderApplyBasicAuth(): \Iterator {
-    yield 'base_url userinfo is used' => [
-      'http://bob:s3cret@localhost',
-      ['bob', 's3cret'],
-    ];
-    yield 'base_url user without password uses empty password' => [
-      'http://bob@localhost',
-      ['bob', ''],
-    ];
-    yield 'url-encoded userinfo is decoded' => [
-      'http://bob%40corp:p%40ss@localhost',
-      ['bob@corp', 'p@ss'],
-    ];
-    yield 'literal plus in userinfo is preserved' => [
-      'http://bob+corp:p+ss@localhost',
-      ['bob+corp', 'p+ss'],
-    ];
-    yield 'no credentials is a no-op' => [
-      'http://localhost',
-      NULL,
-    ];
   }
 
   public function testFastLogoutReappliesBasicAuth(): void {
@@ -505,7 +455,7 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
     $manager->fastLogout();
   }
 
@@ -522,25 +472,8 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
     $manager->fastLogout();
-  }
-
-  /**
-   * Tests that applyBasicAuth() swallows an unsupported-driver exception.
-   *
-   * JavaScript drivers cannot set basic auth headers and throw; the call must
-   * be a no-op for them rather than aborting the scenario.
-   */
-  public function testApplyBasicAuthIgnoresUnsupportedDriver(): void {
-    $session = $this->createMock(Session::class);
-    $session->expects($this->once())->method('setBasicAuth')->willThrowException(new UnsupportedDriverActionException('Basic auth setup is not supported by %s', $this->createMock(MinkDriverInterface::class)));
-
-    $mink = new Mink(['default' => $session]);
-    $mink->setDefaultSessionName('default');
-
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
-    $manager->applyBasicAuth();
   }
 
   public function testGetLogoutElement(): void {
@@ -801,6 +734,7 @@ class AuthenticationManagerTest extends TestCase {
           $mink,
           $user_manager ?? new UserManager(),
           $driver_manager ?? $this->createDriverManagerMock(),
+          new BasicAuthManager($mink, self::MINK_PARAMS),
           self::MINK_PARAMS,
           $parameters ?? self::EXTENSION_PARAMS
       );

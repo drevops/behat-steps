@@ -25,13 +25,18 @@ class LintLayersTest extends UnitTestCase {
   }
 
   /**
-   * Assert that the shipped driver layer holds the rule.
+   * Assert that every shipped layer holds its rule.
    */
-  public function testShippedDriverLayerIsClean(): void {
+  public function testShippedLayersAreClean(): void {
+    $root = dirname(__DIR__, 3);
     $violations = [];
 
-    foreach (layer_files(dirname(__DIR__, 3) . '/' . LAYER_DIRECTORY) as $file) {
-      $violations = array_merge($violations, layer_file_violations($file, LAYER_FORBIDDEN_ROOTS));
+    foreach (LAYERS as $layer) {
+      foreach ($layer['paths'] as $path) {
+        foreach (layer_files($root . '/' . $path) as $file) {
+          $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden'], $layer['allowed']));
+        }
+      }
     }
 
     $this->assertSame([], $violations);
@@ -54,18 +59,29 @@ class LintLayersTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a path naming one file collects that file alone.
+   */
+  public function testFilesCollectsSingleFile(): void {
+    $file = $this->writeFixture('Only.php', '<?php');
+
+    $this->assertSame([$file], layer_files($file));
+  }
+
+  /**
    * Assert that a file is reported against the forbidden roots.
    *
    * @param string $code
    *   The file contents to scan.
    * @param array<int, array{line: int, symbol: string}> $expected
    *   The expected violations.
+   * @param array<int, string> $allowed
+   *   Symbols the layer may reference.
    */
   #[DataProvider('dataProviderFileViolations')]
-  public function testFileViolations(string $code, array $expected): void {
+  public function testFileViolations(string $code, array $expected, array $allowed = []): void {
     $file = $this->writeFixture('Subject.php', $code);
 
-    $this->assertSame($expected, layer_file_violations($file, ['Behat', 'Mink']));
+    $this->assertSame($expected, layer_file_violations($file, ['Behat', 'Mink'], $allowed));
   }
 
   /**
@@ -116,6 +132,16 @@ class LintLayersTest extends UnitTestCase {
       'unqualified name' => [
         "<?php\n\nclass Behat {}\n",
         [],
+      ],
+      'allowed symbol under a forbidden root' => [
+        "<?php\n\nuse Behat\\Mink\\FakeSession;\n",
+        [],
+        ['Behat\\Mink\\FakeSession'],
+      ],
+      'allowance does not cover a sibling symbol' => [
+        "<?php\n\nuse Behat\\Mink\\OtherSession;\n",
+        [['line' => 3, 'symbol' => 'Behat\\Mink\\OtherSession']],
+        ['Behat\\Mink\\FakeSession'],
       ],
     ];
   }

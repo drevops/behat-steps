@@ -1,6 +1,7 @@
 parameters:
   behat_steps.driver_manager.class: DrevOps\BehatSteps\Behat\Manager\DriverManager
   behat_steps.authentication_manager.class: DrevOps\BehatSteps\Behat\Manager\AuthenticationManager
+  behat_steps.basic_auth_manager.class: DrevOps\BehatSteps\Behat\Manager\BasicAuthManager
   behat_steps.user_manager.class: DrevOps\BehatSteps\Behat\Manager\UserManager
   behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
@@ -15,12 +16,18 @@ services:
     class: "%behat_steps.driver_manager.class%"
     arguments:
       - {}
+  behat_steps.basic_auth_manager:
+    class: "%behat_steps.basic_auth_manager.class%"
+    arguments:
+      - "@mink"
+      - "%mink.parameters%"
   behat_steps.authentication_manager:
     class: "%behat_steps.authentication_manager.class%"
     arguments:
       - "@mink"
       - "@behat_steps.user_manager"
       - "@behat_steps.driver_manager"
+      - "@behat_steps.basic_auth_manager"
       - "%mink.parameters%"
       - "%behat_steps.parameters%"
   behat_steps.user_manager:
@@ -31,6 +38,7 @@ services:
       - "@behat_steps.driver_manager"
       - "%behat_steps.parameters%"
       - "@hook.dispatcher"
+      - "@behat_steps.basic_auth_manager"
       - "@behat_steps.authentication_manager"
       - "@behat_steps.user_manager"
     tags:

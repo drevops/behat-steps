@@ -21,7 +21,7 @@ Feature: Check that automatic entity cleanup works
     Then the following redirects should not exist:
       | /entity-cleanup-auto |
 
-  @behat-steps-skip:cleanEntities
+  @behat-steps-skip:entityCleanAll
   Scenario: The cleanup skip tag keeps all registered entities
     Given the following redirects exist:
       | from                     | to          |

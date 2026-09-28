@@ -14,6 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
@@ -29,11 +30,11 @@ use Symfony\Component\Filesystem\Filesystem;
  * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
  * `@behat-steps-skip:fileAfterScenario`
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait FileTrait {
 
-  use HelperTrait;
+  use EntityLifecycleTrait;
 
   /**
    * Unmanaged file URIs.
@@ -277,7 +278,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
-    $this->parseEntityFields($stub);
+    $this->entityParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
 

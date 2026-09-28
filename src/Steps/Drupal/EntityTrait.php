@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
  * Create entities of a type that has no dedicated trait.
@@ -21,9 +22,11 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
  * Skip cleanup for one type with tag:
  * `@behat-steps-entity-cleanup-skip:commerce_product`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait EntityTrait {
+
+  use EntityLifecycleTrait;
 
   /**
    * Create entities of a type from a table of field values.

@@ -14,6 +14,7 @@ use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
+use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
 /**
@@ -31,11 +32,13 @@ use Drupal\Core\Database\Database;
  * - `@error` - add to scenarios that are expected to trigger an error. The
  *   errors are still read and cleared; the scenario is not failed.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\RawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait WatchdogTrait {
 
-  use HelperTrait;
+  use LastStepTrait;
+
+  use LastStepTrait;
 
   /**
    * Start time for each scenario.
@@ -87,7 +90,7 @@ trait WatchdogTrait {
 
     $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
 
-    $this->helperSetLastStepLine($scope);
+    $this->lastStepSetLine($scope);
   }
 
   /**
@@ -100,7 +103,7 @@ trait WatchdogTrait {
    */
   #[AfterStep]
   public function watchdogAfterStep(AfterStepScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->helperIsLastStep($scope)) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->lastStepReached($scope)) {
       return;
     }
 
