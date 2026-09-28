@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversClass(SupportedImageHandler::class)]
 #[Group('fields')]
-class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
+class SupportedImageHandlerTest extends FileBackedHandlerTestBase {
 
   /**
    * Absolute path to the bundled fixture file.
@@ -37,14 +37,6 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
     $container = new ContainerBuilder();
     $container->set('file.repository', $this->createFileRepository(self::UPLOADED_FILE_ID));
     \Drupal::setContainer($container);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function tearDown(): void {
-    \Drupal::unsetContainer();
-    parent::tearDown();
   }
 
   /**
@@ -116,50 +108,6 @@ class SupportedImageHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Error reading file /nonexistent/missing-supported-image.jpg.',
     ];
-  }
-
-  /**
-   * Builds a fake File entity exposing 'id()'.
-   */
-  protected static function createFakeFile(int $id): object {
-    return new readonly class($id) {
-
-      public function __construct(protected int $id) {}
-
-      /**
-       * Returns the configured file entity id.
-       */
-      public function id(): int {
-        return $this->id;
-      }
-
-      /**
-       * Saves the file entity (no-op in the test double).
-       */
-      public function save(): void {
-      }
-
-    };
-  }
-
-  /**
-   * Builds a file.repository stub returning a fresh File on writeData().
-   */
-  protected function createFileRepository(int $upload_id): object {
-    $file = self::createFakeFile($upload_id);
-
-    return new readonly class($file) {
-
-      public function __construct(protected object $file) {}
-
-      /**
-       * Returns the configured file entity for any write.
-       */
-      public function writeData(string $data, string $destination): object {
-        return $this->file;
-      }
-
-    };
   }
 
 }
