@@ -143,7 +143,7 @@ trait XmlTrait {
   public function xmlAssertResponseXml(): void {
     $parsed = $this->xmlParse($this->xmlResolveContent());
 
-    if (!$parsed['loaded']) {
+    if (!$parsed['loaded'] || $parsed['errors'] !== []) {
       throw new ExpectationException(sprintf('The response is not valid XML: %s.', $this->xmlFormatErrors($parsed['errors'])), $this->getSession()->getDriver());
     }
   }
