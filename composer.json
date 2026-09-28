@@ -33,7 +33,6 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^1.2.0",
-        "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "dmore/behat-chrome-extension": "^1.4.1",
@@ -80,7 +79,6 @@
     },
     "config": {
         "allow-plugins": {
-            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
@@ -96,12 +94,5 @@
             }
         },
         "sort-packages": true
-    },
-    "extra": {
-        "patches": {
-            "mglaman/phpstan-drupal": {
-                "Support for custom Drupal root": "patches/phpstan-drupal-custom-drupal-root.patch"
-            }
-        }
     }
 }

@@ -13,6 +13,30 @@ BEHAT="${BEHAT:-3}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site on Behat ${BEHAT}."
 
+# 'mglaman/phpstan-drupal' reads the Drupal root through 'DrupalFinder', which
+# resolves this package rather than the fixture site under 'build'. The patch
+# makes it honour 'DRUPAL_ROOT' and 'DRUPAL_VENDOR_ROOT', which is how 'ahoy
+# lint' points the analyser at the fixture. Upstream pull request 873 is closed,
+# so the patch is permanent.
+#
+# It is applied here rather than through Composer so that 'composer.json'
+# declares no patches: a patch declared there is read by the Composer Patches
+# 'Dependencies' resolver in any project that requires this package, which
+# would resolve the path against that project's own root.
+phpstan_drupal_patch="/app/patches/phpstan-drupal-custom-drupal-root.patch"
+phpstan_drupal_dir="/app/vendor/mglaman/phpstan-drupal"
+
+if [ -f "${phpstan_drupal_patch}" ] && [ -d "${phpstan_drupal_dir}" ]; then
+  echo "  > Patching 'mglaman/phpstan-drupal' to honour DRUPAL_ROOT."
+  # A patch that reverses cleanly is already applied, so provisioning twice
+  # over one vendor directory is a no-op rather than a failure.
+  if patch -p1 -d "${phpstan_drupal_dir}" -R --dry-run --force <"${phpstan_drupal_patch}" >/dev/null 2>&1; then
+    echo "    Already applied."
+  else
+    patch -p1 -d "${phpstan_drupal_dir}" <"${phpstan_drupal_patch}"
+  fi
+fi
+
 echo "  > Removing existing build assets."
 chmod -Rf 777 /app/build || true; rm -Rf /app/build/.* || true; rm -Rf /app/build/* || true;
 
