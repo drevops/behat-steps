@@ -18,7 +18,6 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\StringTrait;
@@ -36,7 +35,6 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait FieldTrait {
 
   use JavascriptSupportTrait;

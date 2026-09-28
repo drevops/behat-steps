@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\node\Entity\Node;
@@ -18,7 +17,6 @@ use Drupal\node\Entity\Node;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait SearchApiTrait {
 
   use DrupalQueryTrait;

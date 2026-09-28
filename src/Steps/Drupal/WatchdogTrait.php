@@ -11,7 +11,6 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
@@ -35,7 +34,6 @@ use Drupal\Core\Database\Database;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait WatchdogTrait {
 
   use LastStepTrait;

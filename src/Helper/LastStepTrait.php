@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use DrevOps\BehatSteps\Attribute\Helper;
 
 /**
  * Identifies the last step of the running scenario.
@@ -17,7 +16,6 @@ use DrevOps\BehatSteps\Attribute\Helper;
  * This is an internal trait and should not be used directly in step
  * definitions.
  */
-#[Helper]
 trait LastStepTrait {
 
   /**

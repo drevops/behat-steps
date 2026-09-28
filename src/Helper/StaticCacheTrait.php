@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Hook\AfterScenario;
-use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 
 /**
@@ -16,7 +15,6 @@ use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Helper]
 trait StaticCacheTrait {
 
   /**

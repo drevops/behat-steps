@@ -11,7 +11,6 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 
 /**
@@ -59,7 +58,6 @@ use DrevOps\BehatSteps\Behat\Tag;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait ResponsiveTrait {
 
   /**

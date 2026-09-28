@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
-use DrevOps\BehatSteps\Attribute\Helper;
-
 /**
  * Holds the request headers shared by the traits that issue HTTP requests.
  *
  * One bag serves every composer, so a header set by one trait reaches the
  * trait that sends the request whether or not the context composes both.
  */
-#[Helper]
 trait RequestHeadersTrait {
 
   /**

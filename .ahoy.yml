@@ -121,7 +121,7 @@ commands:
       ahoy cli "vendor/bin/rector --dry-run" && \
       ahoy cli "vendor/bin/gherkinlint lint tests/behat/features" && \
       ahoy cli "php scripts/lint-layers.php" && \
-      ahoy cli "php scripts/lint-markers.php"
+      ahoy cli "php scripts/lint-traits.php"
 
   lint-fix:
     usage: Fix code.

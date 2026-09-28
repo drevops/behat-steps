@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
 use Behat\Mink\Element\NodeElement;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Sample trait carrying every signature shape the renderer handles.
  */
-#[Steps]
 trait HelperSignatureTrait {
 
   /**

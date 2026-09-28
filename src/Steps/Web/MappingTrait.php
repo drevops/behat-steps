@@ -8,7 +8,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Attribute\Steps;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
@@ -31,7 +30,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait MappingTrait {
 
   /**

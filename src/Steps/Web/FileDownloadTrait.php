@@ -16,7 +16,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -35,7 +34,6 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait FileDownloadTrait {
 
   /**

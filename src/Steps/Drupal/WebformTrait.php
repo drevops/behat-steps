@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
@@ -21,7 +20,6 @@ use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait WebformTrait {
 
   use DrupalQueryTrait;

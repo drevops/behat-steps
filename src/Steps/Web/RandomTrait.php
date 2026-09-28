@@ -10,7 +10,6 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Attribute\Steps;
 use Drupal\Component\Utility\Random;
 
 /**
@@ -30,7 +29,6 @@ use Drupal\Component\Utility\Random;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait RandomTrait {
 
   protected const RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';

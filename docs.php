@@ -26,7 +26,6 @@ use Behat\Behat\Definition\Pattern\Policy\TurnipPatternPolicy;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
@@ -259,19 +258,23 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
     sort($traits_files);
   }
 
+  // The scan above is consumed as each trait is found, so the membership test
+  // below reads a copy taken before that.
+  $vocabulary = $traits_files;
   $collected = [];
 
   foreach ($class_names as $class_name) {
     $reflection = new \ReflectionClass($class_name);
 
     foreach ($reflection->getTraits() as $trait) {
+      $trait_name = $trait->getShortName();
+
       // A context composes helper traits beside the vocabulary, and only the
-      // vocabulary belongs in the step reference.
-      if ($trait->getAttributes(Steps::class) === []) {
+      // vocabulary belongs in the step reference. The directory a trait sits
+      // in is what says which it is.
+      if (!in_array($trait_name, $vocabulary, TRUE)) {
         continue;
       }
-
-      $trait_name = $trait->getShortName();
 
       if (in_array($trait_name, $traits_files, TRUE)) {
         unset($traits_files[array_search($trait_name, $traits_files, TRUE)]);
@@ -308,9 +311,8 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 /**
  * Collect the helper traits the package publishes.
  *
- * Every trait of the directory is published. 'scripts/lint-markers.php' holds
- * each one to the 'Helper' marker, so the scan reads the directory rather
- * than repeating that check.
+ * Every trait of the directory is published, and the directory is what makes
+ * it plumbing rather than vocabulary.
  *
  * @param string $base_path
  *   Base path for the repository.

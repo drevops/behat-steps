@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Test fixture for method without step annotations.
@@ -12,7 +11,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  * This is used to test line 203 in docs.php where sorting returns PHP_INT_MAX
  * for methods that don't have @Given/@When/@Then annotations.
  */
-#[Steps]
 trait NoStepAnnotationTrait {
 
   /**

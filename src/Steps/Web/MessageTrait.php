@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Assert status, error, warning and success messages rendered on the page.
@@ -22,7 +21,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait MessageTrait {
 
   /**

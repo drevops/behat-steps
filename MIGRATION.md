@@ -755,11 +755,11 @@ Every trait that reaches beyond its own methods states what it needs from its ho
 
 Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
 
-## Every trait carries a marker
+## A trait's directory classifies it
 
-`DrevOps\BehatSteps\Attribute\Steps` marks a trait that registers Gherkin, and `DrevOps\BehatSteps\Attribute\Helper` marks one that registers none. Every trait under `src/Steps` carries `#[Steps]`, every trait under `src/Helper` carries `#[Helper]`, and `scripts/lint-markers.php` fails a trait that carries neither, a `#[Steps]` trait composing another `#[Steps]` trait, or a `#[Helper]` trait registering a step.
+A trait's directory is its classification: `src/Steps` registers Gherkin and `src/Helper` registers none. `scripts/lint-traits.php` fails a step trait composing another step trait, and a helper trait registering a step or a transform. A helper may register a hook, because the trait that owns a teardown carries the hook that runs it.
 
-A consuming project does not have to mark its own traits. The markers route the reference documentation and hold the rules that `CONTRIBUTING.md` used to state in prose.
+A consuming project keeps its own traits wherever it likes; the rule applies to this package's own tree, and it is what routes the reference documentation.
 
 ## Step traits no longer compose other step traits
 

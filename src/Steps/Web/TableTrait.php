@@ -10,7 +10,6 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Interact with HTML table elements and assert their content.
@@ -25,7 +24,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait TableTrait {
 
   /**

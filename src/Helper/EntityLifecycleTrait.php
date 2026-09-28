@@ -9,7 +9,6 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
-use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
@@ -42,7 +41,6 @@ use Drupal\taxonomy\Entity\Vocabulary;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Helper]
 trait EntityLifecycleTrait {
 
   /**

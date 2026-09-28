@@ -9,7 +9,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
@@ -41,7 +40,6 @@ use Drupal\workflows\Entity\Workflow;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait ContentTrait {
 
   use DrupalQueryTrait;

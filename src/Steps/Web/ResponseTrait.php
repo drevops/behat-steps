@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Verify HTTP responses with status code and header checks.
@@ -15,7 +14,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait ResponseTrait {
 
   /**

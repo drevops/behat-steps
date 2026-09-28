@@ -9,7 +9,6 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Simulate keyboard interactions in Drupal browser testing.
@@ -20,7 +19,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait KeyboardTrait {
 
   /**

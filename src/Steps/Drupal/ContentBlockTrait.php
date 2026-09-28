@@ -9,7 +9,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
@@ -26,7 +25,6 @@ use Drupal\block_content\Entity\BlockContent;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait ContentBlockTrait {
 
   use EntityLifecycleTrait;

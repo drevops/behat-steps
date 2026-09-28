@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  *
  *
  *
  */
-#[Steps]
 trait EmptyCommentTrait {
 
   /**

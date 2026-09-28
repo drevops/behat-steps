@@ -57,7 +57,7 @@ The project is 3 layers, and the boundary between them is the architecture. Read
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
 - `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
-- `scripts/lint-layers.php` and `scripts/lint-markers.php` - the enforced layer boundaries and trait markers. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
+- `scripts/lint-layers.php` and `scripts/lint-traits.php` - the enforced layer boundaries and trait composition rules. `scripts/provision.sh` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
 - `.ahoy.yml` and `.github/workflows/test.yml` - the developer and CI entry points.
 
 ## Diagram conventions

@@ -10,7 +10,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
@@ -21,7 +20,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait ElementTrait {
 
   /**

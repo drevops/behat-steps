@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
-use DrevOps\BehatSteps\Attribute\Helper;
-
 /**
  * String shaping shared across the step vocabulary.
  *
  * This is an internal trait and should not be used directly in step
  * definitions.
  */
-#[Helper]
 trait StringTrait {
 
   /**

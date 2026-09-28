@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
@@ -28,7 +27,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait DropzoneTrait {
 
   /**

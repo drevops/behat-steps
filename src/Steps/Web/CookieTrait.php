@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Verify and inspect browser cookies.
@@ -17,7 +16,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait CookieTrait {
 
   /**

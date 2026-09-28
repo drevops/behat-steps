@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Attribute\Helper;
 
 /**
  * Reads a vertical Gherkin table as one set of values per entity.
@@ -16,7 +15,6 @@ use DrevOps\BehatSteps\Attribute\Helper;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Helper]
 trait TableTransposeTrait {
 
   /**

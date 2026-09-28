@@ -62,7 +62,7 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AuthenticationTrait](#authenticationtrait) | 11 | Creates users and roles, logs them in, and removes them afterwards. |
+| [AuthenticationTrait](#authenticationtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
 | [DrupalQueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
 | [EntityLifecycleTrait](#entitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
 | [FixtureFileTrait](#fixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
@@ -1940,6 +1940,15 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
+  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
+
+<br/>
+Returns the manager that logs a user in and out
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function getUserManager(): UserManagerInterface</code></summary>
 
 <br/>
@@ -2208,10 +2217,10 @@ Returns the highest-priority driver providing the given capability
 </details>
 
 <details>
-  <summary><code>public function getAuthenticationManager(): AuthenticationManagerInterface</code></summary>
+  <summary><code>public function getBasicAuthManager(): BasicAuthInterface</code></summary>
 
 <br/>
-Returns the authentication manager
+Returns the basic authentication manager
 <br/><br/>
 
 </details>

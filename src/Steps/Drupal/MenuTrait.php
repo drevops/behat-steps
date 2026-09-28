@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
@@ -23,7 +22,6 @@ use Drupal\system\MenuInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait MenuTrait {
 
   use DrupalQueryTrait;

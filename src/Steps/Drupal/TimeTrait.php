@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
@@ -23,7 +22,6 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait TimeTrait {
 
   /**

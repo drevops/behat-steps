@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Wait for Drupal's Batch API to finish.
@@ -17,7 +16,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait BatchTrait {
 
   /**

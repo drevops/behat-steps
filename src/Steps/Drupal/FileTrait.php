@@ -12,7 +12,6 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\EntityLifecycleTrait;
@@ -33,7 +32,6 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait FileTrait {
 
   use EntityLifecycleTrait;

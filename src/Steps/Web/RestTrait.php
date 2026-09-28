@@ -12,7 +12,6 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
 
 /**
@@ -26,7 +25,6 @@ use DrevOps\BehatSteps\Helper\RequestHeadersTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait RestTrait {
 
   use RequestHeadersTrait;

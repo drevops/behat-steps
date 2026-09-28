@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
 
 /**
@@ -23,7 +22,6 @@ use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait DrushTrait {
 
   /**

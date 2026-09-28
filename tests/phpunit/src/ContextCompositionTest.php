@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use Behat\MinkExtension\Context\RawMinkContext;
-use DrevOps\BehatSteps\Attribute\Helper;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
@@ -91,7 +89,7 @@ class ContextCompositionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderContextComposesNothingElse')]
   public function testContextComposesNothingElse(string $directory, string $context): void {
-    $extra = array_values(array_diff(static::composedTraits($context, Steps::class), static::directoryTraits($directory)));
+    $extra = array_values(array_diff(static::composedTraits($context, 'Steps'), static::directoryTraits($directory)));
 
     $this->assertSame([], $extra, sprintf('%s composes a trait from outside src/Steps/%s.', $context, $directory));
   }
@@ -128,10 +126,10 @@ class ContextCompositionTest extends UnitTestCase {
    */
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
     $expected = [JavascriptSupportTrait::class, LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
-    $composed = static::composedTraits(WebRawContext::class, Helper::class);
+    $composed = static::composedTraits(WebRawContext::class, 'Helper');
 
     $this->assertSame($expected, $composed);
-    $this->assertSame([], static::composedTraits(WebRawContext::class, Steps::class), sprintf('%s registers no steps of its own.', WebRawContext::class));
+    $this->assertSame([], static::composedTraits(WebRawContext::class, 'Steps'), sprintf('%s registers no steps of its own.', WebRawContext::class));
   }
 
   /**
@@ -311,17 +309,18 @@ class ContextCompositionTest extends UnitTestCase {
    *
    * @param class-string $class
    *   The class to inspect.
-   * @param class-string|null $marker
-   *   The marker attribute a trait has to carry, or NULL for every trait.
+   * @param string|null $directory
+   *   The 'src' subdirectory a trait has to sit in, or NULL for every trait.
    *
    * @return array<int, string>
    *   Fully qualified trait names, sorted.
    */
-  protected static function composedTraits(string $class, ?string $marker = NULL): array {
+  protected static function composedTraits(string $class, ?string $directory = NULL): array {
     $traits = (new \ReflectionClass($class))->getTraits();
 
-    if ($marker !== NULL) {
-      $traits = array_filter($traits, static fn(\ReflectionClass $trait): bool => $trait->getAttributes($marker) !== []);
+    if ($directory !== NULL) {
+      $path = dirname(__DIR__, 3) . '/src/' . $directory . '/';
+      $traits = array_filter($traits, static fn(\ReflectionClass $trait): bool => str_starts_with((string) $trait->getFileName(), $path));
     }
 
     $names = array_keys($traits);

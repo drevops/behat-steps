@@ -13,7 +13,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
 
@@ -32,7 +31,6 @@ use JsonSchema\Validator;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait JsonTrait {
 
   /**

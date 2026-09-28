@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
@@ -25,7 +24,6 @@ use Drupal\paragraphs\ParagraphInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait ParagraphsTrait {
 
   use DrupalQueryTrait;

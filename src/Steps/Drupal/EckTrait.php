@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
@@ -24,7 +23,6 @@ use Drupal\Core\Entity\EntityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait EckTrait {
 
   use DrupalQueryTrait;

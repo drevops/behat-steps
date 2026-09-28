@@ -16,7 +16,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\LastStepTrait;
 use DrevOps\BehatSteps\Helper\StringTrait;
@@ -55,7 +54,6 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait AccessibilityTrait {
 
   use LastStepTrait;

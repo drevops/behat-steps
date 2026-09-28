@@ -12,7 +12,6 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\StringTrait;
@@ -36,7 +35,6 @@ use Drupal\Core\Database\StatementInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait EmailTrait {
 
   use StringTrait;

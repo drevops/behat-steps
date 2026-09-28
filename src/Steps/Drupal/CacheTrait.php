@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
@@ -23,7 +22,6 @@ use Drupal\Core\Database\Database;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait CacheTrait {
 
   use StaticCacheTrait;

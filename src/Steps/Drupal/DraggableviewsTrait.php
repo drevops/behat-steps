@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
 use Drupal\Core\Cache\Cache;
@@ -19,7 +18,6 @@ use Drupal\node\NodeInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait DraggableviewsTrait {
 
   use DrupalQueryTrait;

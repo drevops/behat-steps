@@ -9,7 +9,6 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 
 /**
@@ -43,7 +42,6 @@ use DrevOps\BehatSteps\Behat\Tag;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait BigPipeTrait {
 
   /**

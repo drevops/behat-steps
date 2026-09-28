@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
@@ -29,7 +28,6 @@ use Drupal\redirect\Entity\Redirect;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait RedirectTrait {
 
   use DrupalQueryTrait;

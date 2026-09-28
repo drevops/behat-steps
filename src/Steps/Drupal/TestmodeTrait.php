@@ -8,7 +8,6 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\DrupalQueryTrait;
@@ -25,7 +24,6 @@ use Drupal\testmode\Testmode;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait TestmodeTrait {
 
   use DrupalQueryTrait;

@@ -11,7 +11,6 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
@@ -29,7 +28,6 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait StateTrait {
 
   /**

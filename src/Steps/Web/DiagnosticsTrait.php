@@ -9,7 +9,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Testwork\Tester\Result\ExceptionResult;
-use DrevOps\BehatSteps\Attribute\Steps;
 
 /**
  * Append on-failure diagnostics to the failure message of any failed step.
@@ -48,7 +47,6 @@ use DrevOps\BehatSteps\Attribute\Steps;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait DiagnosticsTrait {
 
   /**

@@ -153,7 +153,7 @@ A trait names the host it needs with `@phpstan-require-extends`, and composes th
 
 That is what keeps `src/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
 
-Every trait carries exactly one marker: `#[Steps]` for a trait that registers Gherkin, `#[Helper]` for one that registers none. [scripts/lint-markers.php](scripts/lint-markers.php) fails a trait that carries neither, a `#[Steps]` trait composing another `#[Steps]` trait, and a `#[Helper]` trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Helper` named for its concern, composed by whoever needs it.
+A trait's directory is its classification, so nothing has to be declared twice: `src/Steps` registers Gherkin and `src/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Helper` named for its concern, composed by whoever needs it.
 
 ## What a trait needs from the driver
 
@@ -328,7 +328,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ### Lint
 
-1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint`, [scripts/lint-layers.php](scripts/lint-layers.php) and [scripts/lint-markers.php](scripts/lint-markers.php), and `ahoy lint-docs` checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
+1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint`, [scripts/lint-layers.php](scripts/lint-layers.php) and [scripts/lint-traits.php](scripts/lint-traits.php), and `ahoy lint-docs` checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
 
 ### Test matrix
 

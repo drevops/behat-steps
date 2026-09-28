@@ -10,7 +10,6 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Helper\StringTrait;
 
 /**
@@ -24,7 +23,6 @@ use DrevOps\BehatSteps\Helper\StringTrait;
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Steps]
 trait MetatagTrait {
 
   use StringTrait;

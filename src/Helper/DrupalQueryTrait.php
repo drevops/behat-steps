@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper;
 
-use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
@@ -15,7 +14,6 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Helper]
 trait DrupalQueryTrait {
 
   /**

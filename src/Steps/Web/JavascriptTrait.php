@@ -13,7 +13,6 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\LastStepTrait;
 
@@ -48,7 +47,6 @@ use DrevOps\BehatSteps\Helper\LastStepTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait JavascriptTrait {
 
   use JavascriptSupportTrait;

@@ -13,7 +13,6 @@ use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Attribute\Steps;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
 
@@ -32,7 +31,6 @@ use DrevOps\BehatSteps\Helper\JavascriptSupportTrait;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait WaitTrait {
 
   use JavascriptSupportTrait;

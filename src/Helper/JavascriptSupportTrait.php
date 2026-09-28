@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-use DrevOps\BehatSteps\Attribute\Helper;
 
 /**
  * Reports whether the running driver evaluates JavaScript.
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
-#[Helper]
 trait JavascriptSupportTrait {
 
   /**
