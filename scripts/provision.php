@@ -157,7 +157,11 @@ function provision(): void {
   $github_token = provision_env('GITHUB_TOKEN', '');
 
   if ($github_token !== '') {
-    file_put_contents(PROVISION_BUILD_DIR . '/auth.json', (string) json_encode(['github-oauth' => ['github.com' => $github_token]]));
+    $auth_file = PROVISION_BUILD_DIR . '/auth.json';
+    file_put_contents($auth_file, (string) json_encode(['github-oauth' => ['github.com' => $github_token]]));
+    // The file holds a credential, and the build directory is world-writable
+    // for the duration of the next cleanup.
+    chmod($auth_file, 0600);
   }
 
   if ($behat === '4') {
@@ -562,6 +566,9 @@ function provision_rebase_psr4(array $autoload): array {
  *
  * @return int
  *   The number of extensions widened.
+ *
+ * @throws \RuntimeException
+ *   When an extension cannot be written.
  */
 function provision_widen_core_version_requirement(string $directory): int {
   if (!is_dir($directory)) {
@@ -583,7 +590,10 @@ function provision_widen_core_version_requirement(string $directory): int {
       continue;
     }
 
-    file_put_contents($file->getPathname(), $updated);
+    if (file_put_contents($file->getPathname(), $updated) === FALSE) {
+      throw new \RuntimeException('Unable to widen the core version requirement in ' . $file->getPathname());
+    }
+
     $widened++;
   }
 
