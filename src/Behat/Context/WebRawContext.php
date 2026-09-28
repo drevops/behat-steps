@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
-use Behat\Gherkin\Node\TaggedNodeInterface;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
@@ -534,15 +533,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
       return $value;
     }
 
-    $scenario = $scope->getScenario();
-    $lines = [Tag::on($scope->getFeature())];
-    $lines[] = $scenario instanceof TaggedNodeInterface ? Tag::on($scenario) : [];
-
-    foreach ($lines as $line) {
-      foreach ($line as $tag) {
-        if (array_key_exists($tag, $tags)) {
-          $value = $tags[$tag];
-        }
+    foreach (Tag::all($scope) as $tag) {
+      if (array_key_exists($tag, $tags)) {
+        $value = $tags[$tag];
       }
     }
 
