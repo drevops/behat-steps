@@ -202,6 +202,8 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
     if (!@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
     }
@@ -216,6 +218,8 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
     if (@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
     }
