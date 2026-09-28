@@ -56,7 +56,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:26.8.1@sha256:2783128e419c6e05f0c74fc2f829c9862392805cba8014b880e25aa93424b68e
+    image: uselagoon/nginx-drupal:26.9.0@sha256:4f6c21710ffad0fa7ef0509178e00a1b79a8ce013a0f4f9470f4ab04ef8e15c0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -67,7 +67,7 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-10.11-drupal:26.8.1@sha256:de40aea8f7ec09fc5d1719afb6119c44b56a7caacd669e58efa86e4e853195c4
+    image: uselagoon/mariadb-10.11-drupal:26.9.0@sha256:12de8f70404103bd12ef555c43db36add1852258d36203e9c58953db927f41bc
     environment:
       <<: *default-environment
     ports:
