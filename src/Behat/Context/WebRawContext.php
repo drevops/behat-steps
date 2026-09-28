@@ -8,7 +8,7 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Gherkin\Node\TaggedNodeInterface;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Tag;
@@ -58,9 +58,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   protected ?HookDispatcher $dispatcher = NULL;
 
   /**
-   * Authentication manager.
+   * Applies webserver-level basic auth to the session.
    */
-  protected ?AuthenticationManagerInterface $authenticationManager = NULL;
+  protected ?BasicAuthInterface $basicAuthManager = NULL;
 
   /**
    * Per-context option overrides, as the suite declared them.
@@ -135,19 +135,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void {
-    $this->authenticationManager = $authentication_manager;
+  public function setBasicAuthManager(BasicAuthInterface $basic_auth_manager): void {
+    $this->basicAuthManager = $basic_auth_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAuthenticationManager(): AuthenticationManagerInterface {
-    if (!$this->authenticationManager instanceof AuthenticationManagerInterface) {
-      throw new \RuntimeException('The authentication manager is available only after Behat has initialized the context.');
+  public function getBasicAuthManager(): BasicAuthInterface {
+    if (!$this->basicAuthManager instanceof BasicAuthInterface) {
+      throw new \RuntimeException('The basic authentication manager is available only after Behat has initialized the context.');
     }
 
-    return $this->authenticationManager;
+    return $this->basicAuthManager;
   }
 
   /**

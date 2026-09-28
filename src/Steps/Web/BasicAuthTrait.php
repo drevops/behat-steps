@@ -8,8 +8,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use DrevOps\BehatSteps\Attribute\Steps;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
 
 /**
  * Keep HTTP basic authentication applied across session resets.
@@ -25,7 +23,6 @@ use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Steps]
 trait BasicAuthTrait {
 
   /**
@@ -63,11 +60,7 @@ trait BasicAuthTrait {
    * Apply the resolved credentials to the session.
    */
   public function basicAuthApply(): void {
-    $manager = $this->getAuthenticationManager();
-
-    if ($manager instanceof BasicAuthInterface) {
-      $manager->applyBasicAuth();
-    }
+    $this->getBasicAuthManager()->applyBasicAuth();
   }
 
   /**

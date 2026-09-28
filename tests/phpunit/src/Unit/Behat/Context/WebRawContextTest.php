@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManager;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
@@ -46,7 +46,7 @@ class WebRawContextTest extends UnitTestCase {
 
   public static function dataProviderUninitializedContextNamesMissingCollaborator(): \Iterator {
     yield 'driver manager' => ['getDriverManager', 'The driver manager is available only after Behat has initialized the context.'];
-    yield 'authentication manager' => ['getAuthenticationManager', 'The authentication manager is available only after Behat has initialized the context.'];
+    yield 'basic authentication manager' => ['getBasicAuthManager', 'The basic authentication manager is available only after Behat has initialized the context.'];
   }
 
   public function testTheDriverComesFromTheManager(): void {
@@ -102,7 +102,7 @@ class WebRawContextTest extends UnitTestCase {
     $context = new WebRawContext();
     $context->setDriverManager($driver_manager);
     $context->setDispatcher($this->createHookDispatcher());
-    $context->setAuthenticationManager($this->createMock(AuthenticationManagerInterface::class));
+    $context->setBasicAuthManager($this->createMock(BasicAuthInterface::class));
 
     return $context;
   }

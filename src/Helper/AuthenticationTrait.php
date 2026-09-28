@@ -6,11 +6,11 @@ namespace DrevOps\BehatSteps\Helper;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
-use DrevOps\BehatSteps\Attribute\Helper;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterUserCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeUserCreateScope;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
@@ -27,7 +27,6 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
-#[Helper]
 trait AuthenticationTrait {
 
   use EntityLifecycleTrait;
@@ -36,6 +35,11 @@ trait AuthenticationTrait {
    * User manager.
    */
   protected ?UserManagerInterface $userManager = NULL;
+
+  /**
+   * Logs a user in and out of the site under test.
+   */
+  protected ?AuthenticationManagerInterface $authenticationManager = NULL;
 
   /**
    * Roles created during a scenario, so they can be removed after it.
@@ -119,6 +123,24 @@ trait AuthenticationTrait {
    */
   public function setUserManager(UserManagerInterface $user_manager): void {
     $this->userManager = $user_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAuthenticationManager(AuthenticationManagerInterface $authentication_manager): void {
+    $this->authenticationManager = $authentication_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAuthenticationManager(): AuthenticationManagerInterface {
+    if (!$this->authenticationManager instanceof AuthenticationManagerInterface) {
+      throw new \RuntimeException('The authentication manager is available only after Behat has initialized the context.');
+    }
+
+    return $this->authenticationManager;
   }
 
   /**
