@@ -276,6 +276,12 @@ Most contrib modules have no release declaring `drupal/core ^12`, so `d12/compos
 
 `minimum-stability` is `dev` with `prefer-stable` because `drush/drush` has no tagged release that accepts Symfony 8, so the fixture takes `^14@dev`.
 
+`twig/twig` is capped below 3.30 through the `conflict` block. Twig 3.30 compiles the `escape` filter through a new `EscapeFilter` node whose `compile()` targets `EscaperRuntime::escape()` rather than the callable the filter carries. Drupal declares its own escape filter `needs_environment`, so the compiled call passes the environment as the first argument, every later argument shifts 1 position left, and `EscaperRuntime::escape()` receives `NULL` for its `bool $autoescape` parameter. The resulting `TypeError` is raised on every page render, and `WatchdogTrait` fails a scenario on any logged PHP error, so the failure reaches features that have nothing to do with each other.
+
+Drupal answers this by registering its own `escape` and `e` filters, which compiles them through the default filter node and keeps the real callable. That landed in 11.4.8 and on the 12.0.x development branch. `12.0.0-alpha1` predates it and still rewrites the node callable to `drupal_escape` in `TwigNodeVisitor`, which Twig 3.30 ignores, and `12.0.0-alpha1` is the only tagged Drupal 12 release, so it is what `~12.0.0-alpha1` resolves to under `prefer-stable` on both the normal and the `--prefer-lowest` solve.
+
+The cap sits in `conflict` rather than `require` because the fixture has no direct Twig dependency, and because Renovate reads only `require` and `require-dev`, so a cap in `require` would be raised again and automerged. It is removed once a tagged Drupal 12 release carries the filter registration that 11.4.8 shipped.
+
 ## Testing Flow
 
 1. **Fixture build**: `ahoy build` installs Drupal in `build/` using fixtures

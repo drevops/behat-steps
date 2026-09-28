@@ -618,8 +618,11 @@ class RawContextTest extends UnitTestCase {
 
     $context = $this->createContext($driver);
 
-    $this->assertSame($driver, $context->driverFor(CoreCapabilityInterface::class));
-    $this->assertSame($driver, $context->driverFor(CoreCapabilityInterface::class));
+    $first = $context->driverFor(CoreCapabilityInterface::class);
+    $second = $context->driverFor(CoreCapabilityInterface::class);
+
+    $this->assertSame($driver, $first);
+    $this->assertSame($driver, $second);
   }
 
   public function testStringTimestampIsConvertedForInProcessDriver(): void {
