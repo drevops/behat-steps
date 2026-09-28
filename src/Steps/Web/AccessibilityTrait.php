@@ -1136,6 +1136,9 @@ HTML;
       'scenario' => $this->accessibilityScenarioName,
       'threshold' => $this->accessibilityEffectiveThreshold(),
       'failOnIncomplete' => $this->accessibilityEffectiveFailOnIncomplete(),
+      // The suite renderer is static and cannot reach an override, so the
+      // impact list the scenario was gated under travels with its results.
+      'impacts' => $this->accessibilityGetImpacts(),
       'results' => $results,
     ];
   }
@@ -1216,18 +1219,41 @@ HTML;
   }
 
   /**
+   * Read the impact list the scenarios were gated under.
+   *
+   * @param array<int, array<string, mixed>> $aggregate
+   *   The accumulated per-scenario results.
+   *
+   * @return array<int, string>
+   *   Impact identifiers ordered from most severe to least, empty when no
+   *   entry carries a list.
+   */
+  protected static function accessibilityAggregateImpacts(array $aggregate): array {
+    foreach ($aggregate as $entry) {
+      if (is_array($entry['impacts'] ?? NULL) && $entry['impacts'] !== []) {
+        return array_values(array_map(strval(...), $entry['impacts']));
+      }
+    }
+
+    return [];
+  }
+
+  /**
    * Roll violations up by rule and tally totals by impact.
    *
    * Rules are sorted highest-impact first, then by affected-element count.
    *
    * @param array<string, array<string, mixed>> $pages
    *   Per-URL rollup from accessibilityAggregatePages().
+   * @param array<int, string> $impacts
+   *   Impact identifiers ordered from most severe to least. Defaults to the
+   *   static list when the aggregate carries none.
    *
    * @return array{rules: array<string, array<string, mixed>>, totals: array<string, int>}
    *   Severity-sorted rules and per-impact totals.
    */
-  protected static function accessibilityAggregateRollup(array $pages): array {
-    $impacts = static::accessibilityGetDefaultImpacts();
+  protected static function accessibilityAggregateRollup(array $pages, array $impacts = []): array {
+    $impacts = $impacts === [] ? static::accessibilityGetDefaultImpacts() : $impacts;
     $rank = array_flip($impacts);
     $rules = [];
     $totals = array_fill_keys($impacts, 0);
@@ -1286,7 +1312,7 @@ HTML;
    */
   protected static function accessibilityAggregateData(array $aggregate, string $generated): array {
     $deduped = static::accessibilityAggregatePages($aggregate);
-    $rollup = static::accessibilityAggregateRollup($deduped);
+    $rollup = static::accessibilityAggregateRollup($deduped, static::accessibilityAggregateImpacts($aggregate));
     $totals = $rollup['totals'];
     $blank = static::accessibilityBlankUrls();
 
