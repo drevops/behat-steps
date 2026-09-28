@@ -306,7 +306,7 @@ trait MediaTrait {
     }
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
-    if (!in_array($bundle, array_keys($bundles))) {
+    if (!array_key_exists($bundle, $bundles)) {
       throw new \RuntimeException(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
     }
     // @codeCoverageIgnoreEnd

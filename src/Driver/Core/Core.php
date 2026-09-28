@@ -464,7 +464,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $bundle_info = \Drupal::service('entity_type.bundle.info');
     $bundles = $bundle_info->getBundleInfo('node');
 
-    if (!in_array($type, array_keys($bundles))) {
+    if (!array_key_exists($type, $bundles)) {
       throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
@@ -710,7 +710,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $available = array_keys($this->getAllPermissions());
 
     foreach ($permissions as $permission) {
-      if (in_array($permission, $available)) {
+      if (in_array($permission, $available, TRUE)) {
         continue;
       }
 
@@ -1135,7 +1135,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $bundle_info = \Drupal::service('entity_type.bundle.info');
       $bundles = $bundle_info->getBundleInfo($entity_type);
 
-      if (!in_array($stub->getValue($bundle_key), array_keys($bundles))) {
+      if (!array_key_exists((string) $stub->getValue($bundle_key), $bundles)) {
         throw new \RuntimeException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
       }
     }
@@ -1241,7 +1241,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
     // Discard cancelled mail.
-    $mail = array_values(array_filter($mail, fn(array $mail_item): bool => $mail_item['send'] == TRUE));
+    $mail = array_values(array_filter($mail, fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }
 
