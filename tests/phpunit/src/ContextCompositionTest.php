@@ -185,9 +185,9 @@ class ContextCompositionTest extends UnitTestCase {
   protected static function helperMembers(): array {
     $owners = [];
 
-    foreach (glob(dirname(__DIR__, 3) . '/src/Helper/*.php') ?: [] as $file) {
+    foreach (glob(dirname(__DIR__, 3) . '/src/Helper/*/*.php') ?: [] as $file) {
       /** @var class-string $trait */
-      $trait = 'DrevOps\\BehatSteps\\Helper\\' . basename($file, '.php');
+      $trait = 'DrevOps\\BehatSteps\\Helper\\' . basename(dirname($file)) . '\\' . basename($file, '.php');
 
       foreach ((new \ReflectionClass($trait))->getMethods() as $method) {
         $owners[$method->getName()] = basename($file, '.php');
