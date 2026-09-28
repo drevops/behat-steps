@@ -6779,14 +6779,14 @@ When I process 1 item from the "myqueue" queue
 </details>
 
 <details>
-  <summary><code>@When I process all items from the :queue queue</code></summary>
+  <summary><code>@When I process the :queue queue</code></summary>
 
 <br/>
 Process all items from a queue
 <br/><br/>
 
 ```gherkin
-When I process all items from the "myqueue" queue
+When I process the "myqueue" queue
 
 ```
 
