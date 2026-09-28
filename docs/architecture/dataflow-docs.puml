@@ -4,7 +4,8 @@
 ' HELPERS_FILE, CONFIGURATION_FILE and functions main, collect_step_traits,
 ' extract_info, extract_helpers, collect_helper_methods, file_declares_trait,
 ' parse_class_comment, parse_method_comment, extract_method_steps,
-' resolve_inherited_comment, validate, validate_helpers, validate_tags,
+' resolve_inherited_comment, validate, validate_step_patterns,
+' extract_step_examples, validate_helpers, validate_tags,
 ' validate_env_vars, tag_registry, render_info, render_helpers,
 ' render_extension_options, render_tag_reference, replace_content.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -19,7 +20,7 @@ participant "docs.php main()" as Main
 participant "collect_step_traits()" as Collect
 participant "Test FeatureContext" as Ctx
 participant "extract_info()\nextract_helpers()" as Extract
-participant "validate()\nvalidate_helpers()\nvalidate_tags()\nvalidate_env_vars()" as Validate
+participant "validate()\nvalidate_step_patterns()\nvalidate_helpers()\nvalidate_tags()\nvalidate_env_vars()" as Validate
 participant "render_info()\nrender_helpers()\nrender_extension_options()\nrender_tag_reference()" as Render
 
 Dev -> Main: php docs.php [~--fail-on-change]
@@ -56,9 +57,11 @@ note right of Validate
   When needs "I ", Then needs "should"
   and an Assert method name, one step
   attribute per method, an example is
-  mandatory, every published helper needs
-  a summary, tags must match tag_registry(),
-  every getenv() name must be documented
+  mandatory and must match its own step
+  and no other, every published helper
+  needs a summary, tags must match
+  tag_registry(), every getenv() name
+  must be documented
 end note
 alt errors found
   Validate --> Main: error list
