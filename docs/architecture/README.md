@@ -38,13 +38,13 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the 3 context classes, the entity-creation hooks.
 
-**`src/Helper/` - the shared internals.** 7 step-free traits, each named for one concern, composed by whichever step traits and contexts need them.
+**`src/Helper/` - the shared internals.** 10 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
 
 **`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Web` and `Steps\Drupal`. This is the layer a consuming project registers, or mixes into a context of its own.
 
 ![Component architecture](architecture.svg)
 
-The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext`, `WebContext` and the 4 web helper traits may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-traits.php`, which holds a step trait to composing no other step trait and a helper trait to registering no Gherkin. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
+The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext`, `WebContext` and every trait under `src/Helper/Web` may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-traits.php`, which holds a step trait to composing no other step trait and a helper trait to registering no Gherkin. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
 
 The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
 
@@ -80,11 +80,15 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 `WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext` and composes every trait under `src/Steps/Drupal`. The Drupal scenario lifecycle does not sit on the context: each step trait composes the helper traits it needs, so the lifecycle arrives with the traits that use it:
 
-- Entity creation (`nodeCreate`, `userCreate`, `termCreate`, `entityCreate`, `languageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
-- Cleanup: `cleanEntities`, `cleanUsers` and `cleanRoles` run after the scenario and delete what it created, in reverse.
-- Authentication: `login`, `logout`, `loggedIn`, delegated to `AuthenticationManager`.
+- Entity creation (`entityNodeCreate`, `authUserCreate`, `entityTermCreate`, `entityCreate`, `entityLanguageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
+- Cleanup: `entityCleanAll`, `authCleanUsers` and `authCleanRoles` run after the scenario and delete what it created, in reverse.
+- Authentication: `authLogin`, `authLogout`, `authLoggedIn`, delegated to `AuthenticationManager`.
 
-Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so a project gets it by extending `DrupalContext` rather than by remembering to mix a trait in. A suite that extends `WebContext` never runs those hooks at all.
+Every helper member carries its trait's prefix, so two helpers mixed into one context cannot collide and a reader can tell from a call site which trait has to be composed.
+
+Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so it arrives with whichever step traits create the thing being torn down. A suite that extends `WebContext`, or composes no entity-creating trait, never runs those hooks at all.
+
+Authentication splits along the same line. `AuthenticationManager` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthManager` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthManager()` and a suite with no Drupal site still gets basic auth.
 
 A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 
@@ -97,7 +101,7 @@ Traits live in 2 places, and the split is meaningful:
 - `src/Steps/Web/` in `DrevOps\BehatSteps\Steps\Web` - 28 traits that talk to Mink and know nothing about Drupal. `PathTrait`, `ElementTrait`, `JsonTrait`, `RegionTrait`, `CommandTrait` and friends.
 - `src/Steps/Drupal/` in `DrevOps\BehatSteps\Steps\Drupal` - 29 traits that go through the driver. `ContentTrait`, `UserTrait`, `MediaTrait`, `DrushTrait`, `WatchdogTrait`, and so on.
 
-That directory split isn't just tidiness. `docs.php` reads a trait's context straight off its subdirectory under `src/Steps`, so a file's location decides which index it lands in, and it also decides which shipped context has to compose the trait. The driver layer under `src/Driver/` and the helper traits under `src/Helper/` are library code, not vocabulary, and are not scanned.
+That directory split isn't just tidiness. `docs.php` reads a trait's context straight off its subdirectory under `src/Steps`, so a file's location decides which index it lands in, and it also decides which shipped context has to compose the trait. The driver layer under `src/Driver/` and the helper traits under `src/Helper/Web/` and `src/Helper/Drupal/` are library code, not vocabulary, and are documented in `HELPERS.md` instead.
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
@@ -105,7 +109,7 @@ Every trait declares what it needs from its host with `@phpstan-require-extends`
 
 ![Class structure: step traits](class-traits.svg)
 
-Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, and the whole Drupal scenario lifecycle - and nowhere else. Each one carries `#[Helper]` where a step trait carries `#[Steps]`, so the rule is a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
+Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition, and the whole Drupal scenario lifecycle - and nowhere else. A trait's directory is its classification: `src/Steps` registers Gherkin, `src/Helper` registers none, and `scripts/lint-traits.php` makes that a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
 
 ## Flow 1: a step runs
 

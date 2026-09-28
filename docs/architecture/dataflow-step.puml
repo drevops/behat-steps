@@ -1,7 +1,8 @@
 @startuml
 ' drevops/behat-steps - data flow for a step running in a consuming project.
 ' Traced from src/Steps/Web/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
-' src/Behat/Context/WebRawContext.php, WebContext.php, src/Helper/EntityLifecycleTrait.php,
+' src/Behat/Context/WebRawContext.php, WebContext.php,
+' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
 ' DrupalContext.php, src/Behat/Manager/DriverManager.php,
 ' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -71,7 +72,7 @@ deactivate Behat
 
 Behat -> Ctx: AfterScenario
 activate Ctx
-Ctx -> Ctx: EntityLifecycleTrait runs cleanEntities,\nAuthenticationTrait cleanUsers and cleanRoles
+Ctx -> Ctx: EntityLifecycleTrait runs entityCleanAll,\nAuthTrait authCleanUsers and authCleanRoles
 Ctx -> Driver: delete what the scenario created
 deactivate Ctx
 @enduml

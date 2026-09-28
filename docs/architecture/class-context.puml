@@ -3,9 +3,9 @@
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
-' src/Behat/Manager/, src/Helper/, src/Steps/Web/PathTrait.php,
-' src/Steps/Web/CommandTrait.php, src/Steps/Drupal/ContentTrait.php,
-' src/Exception/AssertionException.php.
+' src/Behat/Manager/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
+' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -20,6 +20,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +driverFor(capability) : object
     +getRandom() : Random
     +getOption(group, key, scope) : mixed
+    +getBasicAuthManager() : BasicAuthInterface
     --
     #skipTag(name, scope) : bool
     #shouldCleanup() : bool
@@ -39,8 +40,10 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   }
 
   interface UserAwareInterface {
-    +setUserManager(manager) : void
-    +getUserManager() : UserManagerInterface
+    +authSetUserManager(manager) : void
+    +authGetUserManager() : UserManagerInterface
+    +authSetManager(manager) : void
+    +authGetManager() : AuthenticationManagerInterface
   }
 
   WebRawContext <|-- WebContext
@@ -53,6 +56,9 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
     +getDriverFor(capability) : object
     +hasCapability(capability) : bool
     +setScenarioDrivers(drivers) : void
+  }
+  interface BasicAuthInterface {
+    +applyBasicAuth() : void
   }
   interface AuthenticationManagerInterface {
     +logIn(user) : void
@@ -72,73 +78,81 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
 }
 
 WebRawContext o--> DriverManagerInterface
-WebRawContext o--> AuthenticationManagerInterface
+WebRawContext o--> BasicAuthInterface
 AuthTrait o--> UserManagerInterface
+AuthTrait o--> AuthenticationManagerInterface
 
-package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
-    +setRequestHeader(name, value) : void
-    #unsetRequestHeader(name) : void
-    #getRequestHeaders() : array
-    #resetRequestHeaders() : void
+    +requestHeadersSet(name, value) : void
+    #requestHeadersUnset(name) : void
+    #requestHeadersAll() : array
+    #requestHeadersReset() : void
   }
   class StringTrait <<trait>> {
-    #fixStepArgument(argument) : string
-    #normalizeWhitespace(text) : string
-    #splitCommaSeparated(text) : array
-    #slug(value) : string
+    #stringFixStepArgument(argument) : string
+    #stringNormalizeWhitespace(text) : string
+    #stringSplitCommaSeparated(text) : array
+    #stringSlug(value) : string
   }
   class LastStepTrait <<trait>> {
-    #setLastStepLine(scope) : void
-    #isLastStep(scope) : bool
+    #lastStepSetLine(scope) : void
+    #lastStepReached(scope) : bool
   }
   class JavascriptSupportTrait <<trait>> {
-    +isJavascriptSupported() : bool
+    +javascriptSupportAvailable() : bool
   }
-  class EntityLifecycleTrait <<trait>> {
-    +nodeCreate(stub) : EntityStubInterface
-    +termCreate(stub) : EntityStubInterface
-    +entityCreate(stub) : EntityStubInterface
-    +languageCreate(stub) : EntityStubInterface|false
-    +entityRegister(entity) : void
-    --
-    +cleanEntities(scope) : void
-    --
-    #dispatchHooks(scopeClass, stub) : void
-  }
-
-  class AuthTrait <<trait>> {
-    +userCreate(stub) : EntityStubInterface
-    +login(user) : void
-    +logout(fast) : void
-    +loggedIn() : bool
-    --
-    +cleanUsers(scope) : void
-    +cleanRoles(scope) : void
-  }
-
-  class StaticCacheTrait <<trait>> {
-    +clearStaticCaches() : void
-  }
-
   class TableTransposeTrait <<trait>> {
-    +transposeVerticalTable(table) : array
-    +buildHorizontalTable(entities) : TableNode
-  }
-
-  class FixtureFileTrait <<trait>> {
-    +expandEntityFieldsFixtures(entity_type, stub) : void
-  }
-
-  class QueryTrait <<trait>> {
-    +loadNodeIds(content_type, conditions) : array
-    +assertModuleEnabled(module, package) : void
+    +tableTransposeVertical(table) : array
+    +tableTransposeHorizontal(entities) : TableNode
   }
 
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- LastStepTrait
   LastStepTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- EntityLifecycleTrait
+  JavascriptSupportTrait -[hidden]down- TableTransposeTrait
+}
+
+package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
+  class EntityLifecycleTrait <<trait>> {
+    +entityNodeCreate(stub) : EntityStubInterface
+    +entityTermCreate(stub) : EntityStubInterface
+    +entityCreate(stub) : EntityStubInterface
+    +entityLanguageCreate(stub) : EntityStubInterface|false
+    +entityRegister(entity) : void
+    --
+    +entityCleanAll(scope) : void
+    --
+    #entityDispatchHooks(scopeClass, stub) : void
+  }
+
+  class AuthTrait <<trait>> {
+    +authUserCreate(stub) : EntityStubInterface
+    +authLogin(user) : void
+    +authLogout(fast) : void
+    +authLoggedIn() : bool
+    --
+    +authCleanUsers(scope) : void
+    +authCleanRoles(scope) : void
+  }
+
+  class StaticCacheTrait <<trait>> {
+    +staticCacheClear() : void
+  }
+
+  class FixtureFileTrait <<trait>> {
+    +fixtureFileExpandEntityFields(entity_type, stub) : void
+  }
+
+  class QueryTrait <<trait>> {
+    +queryNodeIds(content_type, conditions) : array
+    +queryAssertModuleEnabled(module, package) : void
+  }
+
+  EntityLifecycleTrait -[hidden]down- AuthTrait
+  AuthTrait -[hidden]down- StaticCacheTrait
+  StaticCacheTrait -[hidden]down- FixtureFileTrait
+  FixtureFileTrait -[hidden]down- QueryTrait
 }
 
 package "Steps\\Web" #E8F5E9 {
@@ -225,5 +239,12 @@ note bottom of RequestHeadersTrait
   A helper trait composed by a step trait and by
   the context under it holds one property slot,
   so both reach the same state.
+end note
+
+note right of BasicAuthInterface
+  Applying credentials to a request needs Mink and
+  a base URL, so BasicAuthManager is separate from
+  the Drupal session managers and WebRawContext
+  carries only this one.
 end note
 @enduml

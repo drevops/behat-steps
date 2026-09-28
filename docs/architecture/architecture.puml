@@ -1,6 +1,7 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
-' Traced from composer.json, src/Steps/, src/Helper/, src/Behat/, src/Driver/,
+' Traced from composer.json, src/Steps/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Behat/, src/Driver/,
 ' behat.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -24,7 +25,8 @@ package "drevops/behat-steps" {
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
-    component "10 concern traits\nlast step, request headers,\nstrings, JavaScript support,\nentity lifecycle, authentication,\nstatic cache, table transpose,\nfixture files, Drupal queries" as Helpers
+    component "Helper\\Web\n5 traits: last step,\nrequest headers, strings,\nJavaScript support,\ntable transpose" as WebHelpers
+    component "Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
   }
 
   package "Integration - src/Behat" #F3E5F5 {
@@ -62,11 +64,12 @@ WebSteps --> Vocabularies : composed by
 DrupalSteps --> Vocabularies : composed by
 WebSteps --> Consumer : mixed into
 DrupalSteps --> Consumer : mixed into
-WebSteps ..> Helpers : composes
-DrupalSteps ..> Helpers : composes
-WebRawCtx ..> Helpers : composes
-Vocabularies ..> Helpers : composes
-Consumer ..> Helpers : composes
+WebSteps ..> WebHelpers : composes
+DrupalSteps ..> WebHelpers : composes
+DrupalSteps ..> DrupalHelpers : composes
+WebRawCtx ..> WebHelpers : composes
+Consumer ..> WebHelpers : composes
+Consumer ..> DrupalHelpers : composes
 
 Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx

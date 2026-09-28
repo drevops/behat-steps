@@ -1,6 +1,7 @@
 @startuml
 ' drevops/behat-steps - the step vocabulary and the contexts it mixes into.
-' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/,
+' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/Web/,
+' src/Helper/Drupal/,
 ' src/Behat/Context/WebRawContext.php, WebContext.php, DrupalContext.php,
 ' DriverAwareInterface.php, UserAwareInterface.php,
 ' tests/behat/bootstrap/FeatureContext.php.
@@ -176,26 +177,29 @@ package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
   WatchdogTrait -[hidden]down- WebformTrait
 }
 
-package "DrevOps\\BehatSteps\\Helper" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   class LastStepTrait <<trait>>
   class RequestHeadersTrait <<trait>>
   class StringTrait <<trait>>
   class JavascriptSupportTrait <<trait>>
-  class EntityLifecycleTrait <<trait>>
-  class AuthTrait <<trait>>
-  class StaticCacheTrait <<trait>>
   class TableTransposeTrait <<trait>>
-  class FixtureFileTrait <<trait>>
-  class QueryTrait <<trait>>
 
   LastStepTrait -[hidden]down- RequestHeadersTrait
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- EntityLifecycleTrait
+  JavascriptSupportTrait -[hidden]down- TableTransposeTrait
+}
+
+package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
+  class EntityLifecycleTrait <<trait>>
+  class AuthTrait <<trait>>
+  class StaticCacheTrait <<trait>>
+  class FixtureFileTrait <<trait>>
+  class QueryTrait <<trait>>
+
   EntityLifecycleTrait -[hidden]down- AuthTrait
   AuthTrait -[hidden]down- StaticCacheTrait
-  StaticCacheTrait -[hidden]down- TableTransposeTrait
-  TableTransposeTrait -[hidden]down- FixtureFileTrait
+  StaticCacheTrait -[hidden]down- FixtureFileTrait
   FixtureFileTrait -[hidden]down- QueryTrait
 }
 
@@ -209,7 +213,9 @@ note bottom of Consumer
 
   Step traits never use other step traits. Shared logic lives
   in the concern-named helper traits, composed by whichever
-  step traits and contexts need it. A #[Steps] marker names a
-  trait that registers Gherkin and #[Helper] one that does not.
+  step traits and contexts need it. A trait's directory is its
+  classification: src/Steps registers Gherkin, src/Helper does
+  not, and the Web and Drupal halves say which context a
+  helper serves.
 end note
 @enduml
