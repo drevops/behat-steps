@@ -27,6 +27,8 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('array_to_markdown_table')]
 #[CoversFunction('render_info')]
 #[CoversFunction('validate')]
+#[CoversFunction('validate_step_patterns')]
+#[CoversFunction('extract_step_examples')]
 #[CoversFunction('replace_content')]
 #[CoversFunction('extract_info')]
 #[CoversFunction('parse_class_comment')]
@@ -1492,6 +1494,127 @@ EOD,
                 'steps' => '@Given some step',
                 'description' => 'Test method description',
                 'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+    ];
+  }
+
+  #[DataProvider('dataProviderValidateStepPatterns')]
+  public function testValidateStepPatterns(array $info, array $expected): void {
+    $actual = validate_step_patterns($info);
+
+    sort($expected);
+    sort($actual);
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public static function dataProviderValidateStepPatterns(): array {
+    return [
+      'empty info' => [
+        [],
+        [],
+      ],
+      'method without a step pattern' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'name' => 'testWithoutPattern',
+                'steps' => '',
+                'description' => 'Test method description',
+                'example' => '',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'distinct patterns' => [
+        [
+          'QueueTrait' => [
+            'name' => 'QueueTrait',
+            'methods' => [
+              [
+                'name' => 'queueProcessItems',
+                'steps' => ['@When I process :count item(s) from the :queue queue'],
+                'description' => 'Process a specific number of items from a queue.',
+                'example' => 'When I process 5 items from the "myqueue" queue',
+              ],
+              [
+                'name' => 'queueProcessAll',
+                'steps' => ['@When I process the :queue queue'],
+                'description' => 'Process all items from a queue.',
+                'example' => 'When I process the "myqueue" queue',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'pattern shadowed by a sibling pattern' => [
+        [
+          'QueueTrait' => [
+            'name' => 'QueueTrait',
+            'methods' => [
+              [
+                'name' => 'queueProcessItems',
+                'steps' => ['@When I process :count item(s) from the :queue queue'],
+                'description' => 'Process a specific number of items from a queue.',
+                'example' => 'When I process 5 items from the "myqueue" queue',
+              ],
+              [
+                'name' => 'queueProcessAll',
+                'steps' => ['@When I process all items from the :queue queue'],
+                'description' => 'Process all items from a queue.',
+                'example' => 'When I process all items from the "myqueue" queue',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  QueueTrait::queueProcessAll - Step "I process all items from the "myqueue" queue" matches more than one definition: queueProcessItems() as "I process :count item(s) from the :queue queue", queueProcessAll() as "I process all items from the :queue queue"' . PHP_EOL,
+        ],
+      ],
+      'example left behind by a renamed pattern' => [
+        [
+          'QueueTrait' => [
+            'name' => 'QueueTrait',
+            'methods' => [
+              [
+                'name' => 'queueProcessAll',
+                'steps' => ['@When I process the :queue queue'],
+                'description' => 'Process all items from a queue.',
+                'example' => 'When I process all items from the "myqueue" queue',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  QueueTrait::queueProcessAll - No example matches the step "I process the :queue queue"' . PHP_EOL,
+        ],
+      ],
+      'example reusing another step as setup' => [
+        [
+          'CommandTrait' => [
+            'name' => 'CommandTrait',
+            'methods' => [
+              [
+                'name' => 'commandRun',
+                'steps' => ['@When I run the command :command'],
+                'description' => 'Run a command.',
+                'example' => 'When I run the command "echo hello"',
+              ],
+              [
+                'name' => 'commandAssertOutputContains',
+                'steps' => ['@Then the command output should contain :text'],
+                'description' => 'Assert that the command output contains a text.',
+                'example' => 'When I run the command "echo hello"' . PHP_EOL . 'And the command output should contain "hello"',
               ],
             ],
           ],
