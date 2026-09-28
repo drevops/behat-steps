@@ -131,6 +131,8 @@ The option and tag tables come from the code rather than from the reflection pas
 
 The validation half matters more than the rendering half. It's where the project's conventions stop being a style guide and start being enforced: a `@When` step without `I `, a `@Then` step whose method name lacks `Assert`, a method with 2 step attributes, a step with no `@code` example, a published helper with no summary, a `getenv()` name that `docs/configuration.md` never mentions - each is a hard error. `tag_registry()` does the same job for tags, guarding against separator drift so that `@module:views` never quietly becomes `@module-views`.
 
+One of those checks is less obvious than the rest. `validate_step_patterns()` compiles every registered pattern through Behat's own `TurnipPatternPolicy` and runs each documented `@code` example past all of them. An example that matches 2 definitions is a hard error, and so is a step whose own example no longer matches it. That catches the failure Behat itself won't: a pattern like `I process all items from the :queue queue` also satisfies `I process :count item(s) from the :queue queue`, and Behat only notices when a scenario actually runs the shadowed step.
+
 Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates the blocks in memory and exits non-zero if they don't match what's committed, naming the targets that drifted and writing nothing. So the documentation can't drift, because a drifted build is a red build.
 
 ## Flow 3: how the library tests itself
