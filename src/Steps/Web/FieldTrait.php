@@ -823,7 +823,7 @@ JS;
     ]);
 
     if (!$option_field) {
-      throw new ExpectationException(sprintf('No option is selected in the %s select on the page %s.', $selector, $path), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
     }
 
     if (!$option_field->isSelected()) {

@@ -10,7 +10,6 @@ use DrevOps\BehatSteps\Steps\Web\MappingTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * Tests for MappingTrait.
@@ -100,7 +99,7 @@ class MappingTraitTest extends UnitTestCase {
       ],
     ]);
 
-    $this->expectException(InvalidConfigurationException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Duplicate mapping key "Home" found in groups "paths" and "pages" under "mapping.groups".');
 
     $this->testObject->mappingTransformValue('{{ Home }}');
