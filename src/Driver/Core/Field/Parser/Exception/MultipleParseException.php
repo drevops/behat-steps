@@ -8,8 +8,7 @@ namespace DrevOps\BehatSteps\Driver\Core\Field\Parser\Exception;
  * Container for multiple parse errors detected in a single cell.
  *
  * Parsers collect all errors detected in one cell before throwing, so the
- * test author sees every problem at once instead of fixing one, re-running,
- * and discovering the next.
+ * test author sees every problem at once.
  */
 class MultipleParseException extends ParseException {
 
@@ -28,8 +27,8 @@ class MultipleParseException extends ParseException {
       throw new \RuntimeException('MultipleParseException requires at least one error.');
     }
 
-    // Read the first by iteration order: a caller that filtered its errors
-    // hands over a list with gaps in its keys.
+    // 'reset()' reads the first error by iteration order, because a caller
+    // that filtered its errors passes a list with gaps in its keys.
     $first = reset($errors);
 
     parent::__construct($first->errorCode, $first->offset, $cell, $this->buildDescription($errors), NULL, $previous);
@@ -45,7 +44,7 @@ class MultipleParseException extends ParseException {
     $count = count($errors);
 
     if ($count === 1) {
-      return $errors[0]->description;
+      return reset($errors)->description;
     }
 
     $codes = array_map(fn(ParseException $error): string => $error->errorCode, $errors);
