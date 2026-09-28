@@ -96,12 +96,5 @@
             }
         },
         "sort-packages": true
-    },
-    "extra": {
-        "patches": {
-            "mglaman/phpstan-drupal": {
-                "Support for custom Drupal root": "patches/phpstan-drupal-custom-drupal-root.patch"
-            }
-        }
     }
 }

@@ -1051,6 +1051,16 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 | `Drupal\WatchdogTrait::$watchdogScenarioStartTime` | `?int` |
 | `FileDownloadTrait::$fileDownloadDownloadedFileInfo` | `array` |
 
+## Relative-date transform placeholder renamed
+
+`DateTrait` registers its relative-date transform against the placeholder names a step argument can carry. One of those names was camel case, which no other placeholder in the library uses and which the snake case placeholder rule forbids.
+
+| Before | After |
+| --- | --- |
+| `#[Transform(':expectedValue')]` | `#[Transform(':expected_value')]` |
+
+No step shipped by this library declares `:expectedValue`, so the shipped vocabulary is unaffected. A project whose own step declares an `:expectedValue` argument and relies on `[relative:...]` tokens being expanded in it renames that argument to `:expected_value`. The `:datetime` and `:value` placeholders are unchanged.
+
 ## One shape per naming idea
 
 Method names carried six shapes for "assert the negative", two spellings of "normalize", and two shapes for a consumer override point. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.

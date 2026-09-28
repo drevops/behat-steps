@@ -13,6 +13,54 @@ BEHAT="${BEHAT:-3}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site on Behat ${BEHAT}."
 
+# A patch declared in 'composer.json' is read by the Composer Patches
+# 'Dependencies' resolver in every project that requires this package, which
+# resolves the path against that project's own root. So the declaration is
+# written here, over the package's own 'composer.json', and reverted once
+# Composer has applied it.
+#
+# The patches apply to this package's own vendor directory, not to the fixture
+# site: 'ahoy lint' runs the root 'vendor/bin/phpstan', and 'mglaman/phpstan-
+# drupal' reads 'DRUPAL_ROOT' and 'DRUPAL_VENDOR_ROOT' only once patched.
+#
+# A patch file lives at 'patches/<vendor>/<package>/<name>.patch', so the
+# package it applies to is its own directory.
+if [ -n "$(find /app/patches -name '*.patch' -type f 2>/dev/null)" ]; then
+  echo "  > Applying the package's own patches through Composer Patches."
+
+  cp -f /app/composer.json /app/composer.json.provision
+  trap 'mv -f /app/composer.json.provision /app/composer.json 2>/dev/null || true' EXIT
+
+  php -r '
+$composer = json_decode(file_get_contents("/app/composer.json"), TRUE);
+$patches = [];
+
+foreach (glob("/app/patches/*/*/*.patch") as $patch) {
+  $package = basename(dirname(dirname($patch))) . "/" . basename(dirname($patch));
+  $description = str_replace("-", " ", basename($patch, ".patch"));
+  $patches[$package][$description] = substr($patch, strlen("/app/"));
+}
+
+ksort($patches);
+$composer["extra"]["patches"] = $patches;
+
+file_put_contents("/app/composer.json", json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+
+foreach ($patches as $package => $entries) {
+  echo "    " . $package . ": " . count($entries) . " patch(es)\n";
+}
+'
+
+  # 'install' applies a patch only while it installs the package it belongs to,
+  # and the dependencies are already in place by this point, so the packages
+  # carrying a patch are re-fetched and re-patched explicitly.
+  COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app --ansi --no-interaction patches-relock
+  COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app --ansi --no-interaction patches-repatch
+
+  mv -f /app/composer.json.provision /app/composer.json
+  trap - EXIT
+fi
+
 echo "  > Removing existing build assets."
 chmod -Rf 777 /app/build || true; rm -Rf /app/build/.* || true; rm -Rf /app/build/* || true;
 
