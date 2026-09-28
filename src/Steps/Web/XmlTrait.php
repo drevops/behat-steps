@@ -214,19 +214,7 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should be equal to :value')]
   public function xmlAssertElementEquals(string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
-    if (!$node instanceof \DOMNode) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
-      // @codeCoverageIgnoreEnd
-    }
+    $node = $this->xmlFindFirstNode($element);
 
     $actual_text = trim($node->textContent);
     if ($actual_text !== $value) {
@@ -244,19 +232,7 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should not be equal to :value')]
   public function xmlAssertElementNotEquals(string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
-    if (!$node instanceof \DOMNode) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
-      // @codeCoverageIgnoreEnd
-    }
+    $node = $this->xmlFindFirstNode($element);
 
     $actual_text = trim($node->textContent);
     if ($actual_text === $value) {
@@ -274,19 +250,7 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should contain :value')]
   public function xmlAssertElementContains(string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
-    if (!$node instanceof \DOMNode) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
-      // @codeCoverageIgnoreEnd
-    }
+    $node = $this->xmlFindFirstNode($element);
 
     $actual_text = $node->textContent;
     if (!str_contains($actual_text, $value)) {
@@ -304,19 +268,7 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should not contain :value')]
   public function xmlAssertElementNotContains(string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
-    if (!$node instanceof \DOMNode) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
-      // @codeCoverageIgnoreEnd
-    }
+    $node = $this->xmlFindFirstNode($element);
 
     $actual_text = $node->textContent;
     if (str_contains($actual_text, $value)) {
@@ -334,14 +286,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should exist')]
   public function xmlAssertAttributeExists(string $attribute, string $element): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -357,14 +302,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should not exist')]
   public function xmlAssertAttributeNotExists(string $attribute, string $element): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if ($node instanceof \DOMElement && $node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was found, but it should not exist.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -380,14 +318,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should be equal to :value')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -408,14 +339,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should not be equal to :value')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -436,14 +360,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should contain :value')]
   public function xmlAssertAttributeContains(string $attribute, string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -464,14 +381,7 @@ trait XmlTrait {
    */
   #[Then('the XML attribute :attribute on element :element should not contain :value')]
   public function xmlAssertAttributeNotContains(string $attribute, string $element, string $value): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $node = $nodes->item(0);
+    $node = $this->xmlFindFirstNode($element);
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -492,19 +402,7 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
-    $this->xmlEnsureDocument();
-
-    $nodes = $this->xmlXpath->query($element);
-    if ($nodes === FALSE || $nodes->length === 0) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
-    }
-
-    $parent_node = $nodes->item(0);
-    if (!$parent_node instanceof \DOMNode) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
-      // @codeCoverageIgnoreEnd
-    }
+    $parent_node = $this->xmlFindFirstNode($element);
 
     $child_elements = 0;
 
@@ -1040,6 +938,36 @@ trait XmlTrait {
     }
 
     return $matches;
+  }
+
+  /**
+   * Find the first node matching an XPath expression.
+   *
+   * @param string $element
+   *   The XPath expression.
+   *
+   * @return \DOMNode
+   *   The first matching node.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If no node matches the expression.
+   */
+  protected function xmlFindFirstNode(string $element): \DOMNode {
+    $this->xmlEnsureDocument();
+
+    $nodes = $this->xmlXpath->query($element);
+    if ($nodes === FALSE || $nodes->length === 0) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
+    }
+
+    $node = $nodes->item(0);
+    if (!$node instanceof \DOMNode) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));
+      // @codeCoverageIgnoreEnd
+    }
+
+    return $node;
   }
 
 }
