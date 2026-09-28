@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 
 /**
  * Manage Drupal webforms.
