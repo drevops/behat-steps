@@ -39,7 +39,7 @@ final class BehatTestQueueWorker extends QueueWorkerBase implements ContainerFac
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The configuration factory.
    */
-  public function __construct(array $configuration, string $plugin_id, mixed $plugin_definition, private readonly ConfigFactoryInterface $configFactory) {
+  public function __construct(array $configuration, string $plugin_id, mixed $plugin_definition, protected ConfigFactoryInterface $configFactory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
