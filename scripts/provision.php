@@ -1,0 +1,628 @@
+<?php
+
+/**
+ * @file
+ * Fixture site provisioning.
+ *
+ * Builds the throwaway Drupal site under build/ that the Behat and PHPUnit
+ * suites run against. 3 environment variables shape the build: DRUPAL_VERSION
+ * picks the core major and the fixture directory it copies from, BEHAT picks
+ * the Behat major, and DEPS switches Composer between its newest and its
+ * lowest resolution.
+ *
+ * Run with: php scripts/provision.php
+ */
+
+declare(strict_types=1);
+
+/**
+ * Absolute path to the package root inside the container.
+ */
+const PROVISION_PACKAGE_ROOT = '/app';
+
+/**
+ * Absolute path to the throwaway build the fixture site is installed into.
+ */
+const PROVISION_BUILD_DIR = PROVISION_PACKAGE_ROOT . '/build';
+
+/**
+ * Absolute path to the fixture site's docroot.
+ */
+const PROVISION_WEB_ROOT = PROVISION_BUILD_DIR . '/web';
+
+/**
+ * Absolute path to the Drush the build installs.
+ */
+const PROVISION_DRUSH = PROVISION_BUILD_DIR . '/vendor/bin/drush';
+
+/**
+ * The URI the fixture site answers on.
+ */
+const PROVISION_SITE_URI = 'http://nginx';
+
+/**
+ * The database the fixture site installs into.
+ */
+const PROVISION_DB_URL = 'mysql://drupal:drupal@mariadb/drupal';
+
+/**
+ * Packages that run the test suites rather than the code under test.
+ *
+ * They sit in the package's "require-dev" without a matching "suggest" entry,
+ * so the suggest intersection does not reach them.
+ */
+const PROVISION_TEST_RUNNER_PACKAGES = [
+  'alexskrypnyk/phpunit-helpers',
+  'drevops/behat-phpserver',
+  'drevops/behat-screenshot',
+  'dvdoug/behat-code-coverage',
+];
+
+/**
+ * Drupal test namespaces that no Composer entry maps.
+ *
+ * Drupal maps them from its PHPUnit bootstrap, so a tool that loads only the
+ * autoloader cannot resolve a class such as "KernelTestBase". Registering
+ * them makes the site autoloader complete on its own.
+ */
+const PROVISION_DRUPAL_TEST_NAMESPACES = [
+  'BuildTests',
+  'FunctionalJavascriptTests',
+  'FunctionalTests',
+  'KernelTests',
+  'TestSite',
+  'Tests',
+  'TestTools',
+];
+
+/**
+ * Config overrides appended to the fixture site's settings.php.
+ *
+ * They mimic the environment-specific overrides a real site sets, so
+ * ConfigOverrideTrait has stored values to read back through
+ * ImmutableConfig::getOriginal().
+ */
+const PROVISION_SETTINGS_OVERRIDES = <<<'PHP'
+
+// Fixture config overrides used by ConfigOverrideTrait tests. These mimic
+// environment-specific overrides that a real site would set in settings.php,
+// so tests can verify that @disable-config-override:<name> tags let the SUT
+// read the stored (original) values via ImmutableConfig::getOriginal().
+$config['system.site']['name'] = 'Overridden Site Name';
+$config['system.site']['slogan'] = 'Overridden Slogan';
+
+PHP;
+
+// The entry function runs only when the script is run directly, not when it
+// is included.
+// @codeCoverageIgnoreStart
+if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'provision.php') {
+  try {
+    provision();
+  }
+  catch (\Throwable $exception) {
+    echo 'ERROR: ' . $exception->getMessage() . PHP_EOL;
+    exit(1);
+  }
+}
+// @codeCoverageIgnoreEnd
+
+/**
+ * Installs the fixture site.
+ *
+ * @throws \RuntimeException
+ *   When a step fails.
+ *
+ * @codeCoverageIgnoreStart
+ */
+function provision(): void {
+  $drupal_version = provision_env('DRUPAL_VERSION', '11');
+  $deps = provision_env('DEPS', 'normal');
+  $behat = provision_env('BEHAT', '3');
+
+  $fixture_dir = PROVISION_PACKAGE_ROOT . '/tests/behat/fixtures_drupal/d' . $drupal_version;
+  $drush = PROVISION_DRUSH . ' -r ' . PROVISION_WEB_ROOT . ' --uri=' . PROVISION_SITE_URI;
+
+  echo sprintf('==> Starting provisioning of fixture Drupal %s site on Behat %s.%s', $drupal_version, $behat, PHP_EOL);
+
+  provision_step('Removing existing build assets.');
+  provision_run('chmod -Rf 777 ' . PROVISION_BUILD_DIR, [], TRUE);
+  provision_run('rm -Rf ' . PROVISION_BUILD_DIR . '/.*', [], TRUE);
+  provision_run('rm -Rf ' . PROVISION_BUILD_DIR . '/*', [], TRUE);
+
+  if (!is_dir(PROVISION_BUILD_DIR) && !mkdir(PROVISION_BUILD_DIR, 0777, TRUE)) {
+    throw new \RuntimeException('Unable to create ' . PROVISION_BUILD_DIR);
+  }
+
+  if (!chdir(PROVISION_BUILD_DIR)) {
+    throw new \RuntimeException('Unable to enter ' . PROVISION_BUILD_DIR);
+  }
+
+  provision_step('Copying fixture files to the build dir.');
+  provision_run('cp -Rf ' . escapeshellarg($fixture_dir . '/.') . ' ./');
+
+  provision_step('Validating fixture Composer configuration.');
+  provision_run('composer validate --ansi --no-check-all');
+
+  provision_step("Merging configuration from module's composer.json.");
+  provision_write_merged_composer(PROVISION_PACKAGE_ROOT . '/composer.json', PROVISION_BUILD_DIR . '/composer.json');
+
+  provision_step('Show compiled composer.json.');
+  echo (string) file_get_contents(PROVISION_BUILD_DIR . '/composer.json');
+
+  provision_step('Validating merged fixture Composer configuration.');
+  provision_run('composer validate --ansi --no-check-all');
+
+  provision_step('Creating GitHub authentication token if provided.');
+  $github_token = provision_env('GITHUB_TOKEN', '');
+
+  if ($github_token !== '') {
+    file_put_contents(PROVISION_BUILD_DIR . '/auth.json', (string) json_encode(['github-oauth' => ['github.com' => $github_token]]));
+  }
+
+  if ($behat === '4') {
+    provision_step('Removing packages that cannot be installed alongside Behat 4.');
+    // 'dmore/behat-chrome-extension' has no release that accepts Behat 4.
+    provision_run('composer remove --dev --no-update dmore/behat-chrome-extension');
+
+    if ((int) $drupal_version < 12) {
+      // Every 'dvdoug/behat-code-coverage' release that accepts Behat 4 needs
+      // 'phpunit/php-code-coverage' 12, which PHPUnit 11 rules out. Drupal 12
+      // brings PHPUnit 12 in 'drupal/core-dev'.
+      provision_run('composer remove --dev --no-update dvdoug/behat-code-coverage');
+    }
+  }
+
+  if ((int) $drupal_version >= 12) {
+    // A plugin only shapes a solve that it is already installed for, and the
+    // fixture has no solution until this one relaxes the contrib core
+    // constraints. Composer loads globally installed plugins for local
+    // projects, so installing it outside the build breaks that circle.
+    provision_step('Installing the Composer plugin that relaxes contrib core constraints.');
+    $lenient_constraint = provision_constraint($fixture_dir . '/composer.json', 'mglaman/composer-drupal-lenient');
+    provision_run('composer global config --no-interaction allow-plugins.mglaman/composer-drupal-lenient true');
+    provision_run('composer global require --no-interaction ' . escapeshellarg('mglaman/composer-drupal-lenient:' . $lenient_constraint));
+  }
+
+  // The constraint in composer.json allows both Behat majors, and '--with'
+  // narrows it to the one this build runs on.
+  provision_step('Installing Composer dependencies inside the build dir.');
+  $resolution = $deps === 'lowest' ? '--prefer-lowest --prefer-stable' : '--prefer-dist';
+  provision_run('composer update ' . $resolution . ' --with=' . escapeshellarg('behat/behat:^' . $behat), ['COMPOSER_MEMORY_LIMIT' => '-1']);
+
+  if ((int) $drupal_version >= 12) {
+    // Composer installs the contrib code, but Drupal reads
+    // 'core_version_requirement' from each extension and refuses to enable one
+    // that excludes the running major. No contrib release declares Drupal 12,
+    // so the fixture widens what it received.
+    provision_step('Widening the core version requirement of the installed contrib extensions.');
+    $widened = provision_widen_core_version_requirement(PROVISION_WEB_ROOT . '/modules/contrib');
+    echo sprintf('    Widened %d extension(s).%s', $widened, PHP_EOL);
+  }
+
+  provision_step('Running post-install-cmd.');
+  provision_run('composer run-script post-install-cmd');
+
+  provision_step('Installing Drupal site.');
+  $install_arguments = [
+    'si standard -y',
+    '--db-url=' . PROVISION_DB_URL,
+    '--account-name=admin',
+    '--account-pass=admin',
+    'install_configure_form.enable_update_status_module=NULL',
+    'install_configure_form.enable_update_status_emails=NULL',
+    '--uri=' . PROVISION_SITE_URI,
+  ];
+  provision_run(PROVISION_DRUSH . ' -r ' . PROVISION_WEB_ROOT . ' ' . implode(' ', $install_arguments), ['PHP_OPTIONS' => '-d sendmail_path=/bin/true']);
+
+  provision_step('Appending fixture $config overrides to settings.php for ConfigOverrideTrait tests.');
+  provision_append_settings(PROVISION_WEB_ROOT . '/sites/default/settings.php');
+
+  provision_step('Running post-install commands defined in the composer.json for each specific fixture.');
+  provision_run('composer run-script drupal-post-install');
+
+  // 'drush cim' can enable the modules, abort on a fatal raised while the
+  // config entities are being created, and still exit 0. The site then boots
+  // with none of the content types, fields or entity types the suite asserts
+  // on, so the import is confirmed against a config entity only the fixture
+  // defines.
+  provision_step('Verifying the fixture configuration was imported.');
+  provision_confirm($drush . ' config:get node.type.landing_page type --format=string', NULL, 'Fixture configuration was not imported');
+
+  provision_step('Copying test fixtures.');
+  provision_run('cp -Rf ' . PROVISION_PACKAGE_ROOT . '/tests/behat/fixtures/. ' . PROVISION_WEB_ROOT . '/sites/default/files/');
+
+  provision_step('Bootstrapping site.');
+  provision_confirm($drush . ' status --fields=bootstrap', 'Successful', 'Unable to bootstrap a site');
+
+  if (!chdir(PROVISION_PACKAGE_ROOT)) {
+    throw new \RuntimeException('Unable to return to ' . PROVISION_PACKAGE_ROOT);
+  }
+
+  echo sprintf('==> Finished provisioning of fixture Drupal %s site.%s', $drupal_version, PHP_EOL);
+}
+
+// @codeCoverageIgnoreEnd
+
+/**
+ * Reads an environment variable, falling back when it is unset or empty.
+ *
+ * @param string $name
+ *   The variable to read.
+ * @param string $default
+ *   The value to use when the variable carries none.
+ *
+ * @return string
+ *   The resolved value.
+ */
+function provision_env(string $name, string $default): string {
+  $value = getenv($name);
+
+  return is_string($value) && $value !== '' ? $value : $default;
+}
+
+/**
+ * Prints a step heading.
+ *
+ * @param string $message
+ *   The heading text.
+ *
+ * @codeCoverageIgnore
+ */
+function provision_step(string $message): void {
+  echo sprintf('  > %s%s', $message, PHP_EOL);
+}
+
+/**
+ * Prefixes a command with per-command environment variables.
+ *
+ * @param string $command
+ *   The command to run.
+ * @param array<string, string> $env
+ *   Variables to set for this command alone.
+ *
+ * @return string
+ *   The command, prefixed when there are variables to set.
+ */
+function provision_with_env(string $command, array $env): string {
+  if ($env === []) {
+    return $command;
+  }
+
+  $assignments = [];
+
+  foreach ($env as $name => $value) {
+    $assignments[] = $name . '=' . escapeshellarg($value);
+  }
+
+  return '/usr/bin/env ' . implode(' ', $assignments) . ' ' . $command;
+}
+
+/**
+ * Runs a command, streaming its output.
+ *
+ * @param string $command
+ *   The command to run.
+ * @param array<string, string> $env
+ *   Variables to set for this command alone.
+ * @param bool $tolerate_failure
+ *   Whether a non-zero exit leaves provisioning running.
+ *
+ * @throws \RuntimeException
+ *   When the command exits non-zero and the failure is not tolerated.
+ *
+ * @codeCoverageIgnore
+ */
+function provision_run(string $command, array $env = [], bool $tolerate_failure = FALSE): void {
+  $prefixed = provision_with_env($command, $env);
+
+  if (provision_env('DREVOPS_DEBUG', '') !== '') {
+    echo '+ ' . $prefixed . PHP_EOL;
+  }
+
+  $exit_code = 0;
+  passthru($prefixed, $exit_code);
+
+  if ($exit_code !== 0 && !$tolerate_failure) {
+    throw new \RuntimeException(sprintf('Command exited with code %d: %s', $exit_code, $prefixed));
+  }
+}
+
+/**
+ * Confirms a command succeeds, and optionally that its output carries a value.
+ *
+ * @param string $command
+ *   The command to run.
+ * @param string|null $expected
+ *   Text the output has to contain, or NULL to check the exit code alone.
+ * @param string $failure
+ *   The message to fail with.
+ *
+ * @throws \RuntimeException
+ *   When the command exits non-zero or its output lacks the expected text.
+ *
+ * @codeCoverageIgnore
+ */
+function provision_confirm(string $command, ?string $expected, string $failure): void {
+  $output = [];
+  $exit_code = 0;
+  exec($command . ' 2>&1', $output, $exit_code);
+  $text = implode(PHP_EOL, $output);
+
+  if ($exit_code !== 0 || ($expected !== NULL && !str_contains($text, $expected))) {
+    echo $text . PHP_EOL;
+
+    throw new \RuntimeException($failure);
+  }
+
+  echo '    Success' . PHP_EOL;
+}
+
+/**
+ * Appends the fixture config overrides to a settings file.
+ *
+ * Drupal leaves the installed settings.php read-only, so the write is opened
+ * and closed around.
+ *
+ * @param string $file
+ *   Absolute path to the settings file.
+ *
+ * @throws \RuntimeException
+ *   When the file cannot be written.
+ */
+function provision_append_settings(string $file): void {
+  if (!is_file($file) || !chmod($file, 0666)) {
+    throw new \RuntimeException('Unable to open ' . $file . ' for writing');
+  }
+
+  if (file_put_contents($file, PROVISION_SETTINGS_OVERRIDES, FILE_APPEND) === FALSE) {
+    throw new \RuntimeException('Unable to append the fixture config overrides to ' . $file);
+  }
+
+  chmod($file, 0444);
+}
+
+/**
+ * Reads a package's constraint from a composer.json.
+ *
+ * @param string $file
+ *   Absolute path to the composer.json to read.
+ * @param string $package
+ *   The package to look up.
+ *
+ * @return string
+ *   The constraint.
+ *
+ * @throws \RuntimeException
+ *   When the file carries no constraint for the package.
+ */
+function provision_constraint(string $file, string $package): string {
+  $constraint = provision_section(provision_read_json($file), 'require')[$package] ?? NULL;
+
+  if (!is_string($constraint)) {
+    throw new \RuntimeException(sprintf('%s declares no constraint for %s', $file, $package));
+  }
+
+  return $constraint;
+}
+
+/**
+ * Reads and decodes a JSON file.
+ *
+ * @param string $file
+ *   Absolute path to the file.
+ *
+ * @return array<array-key, mixed>
+ *   The decoded contents.
+ *
+ * @throws \RuntimeException
+ *   When the file is missing or does not decode to an object.
+ */
+function provision_read_json(string $file): array {
+  if (!is_file($file)) {
+    throw new \RuntimeException('Unable to read ' . $file);
+  }
+
+  $contents = (string) file_get_contents($file);
+
+  $decoded = json_decode($contents, TRUE);
+
+  if (!is_array($decoded)) {
+    throw new \RuntimeException('Unable to decode ' . $file);
+  }
+
+  return $decoded;
+}
+
+/**
+ * Reads a top-level section of a decoded composer.json.
+ *
+ * @param array<array-key, mixed> $config
+ *   Decoded composer.json contents.
+ * @param string $key
+ *   The section to read.
+ *
+ * @return array<array-key, mixed>
+ *   The section, empty when it is absent or is not an object.
+ */
+function provision_section(array $config, string $key): array {
+  $section = $config[$key] ?? NULL;
+
+  return is_array($section) ? $section : [];
+}
+
+/**
+ * Merges the package's Composer configuration into the fixture's, and writes.
+ *
+ * @param string $package_file
+ *   Absolute path to the package's composer.json.
+ * @param string $fixture_file
+ *   Absolute path to the fixture's composer.json, which is overwritten.
+ *
+ * @throws \RuntimeException
+ *   When either file cannot be read, or the result cannot be written.
+ */
+function provision_write_merged_composer(string $package_file, string $fixture_file): void {
+  $merged = provision_merge_composer(provision_read_json($package_file), provision_read_json($fixture_file));
+
+  if (file_put_contents($fixture_file, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === FALSE) {
+    throw new \RuntimeException('Unable to write ' . $fixture_file);
+  }
+}
+
+/**
+ * Merges the package's Composer configuration into the fixture's.
+ *
+ * The fixture site exercises every trait at once, so what a consumer opts
+ * into package by package is all required here: the package's own runtime
+ * requirements, the "require-dev" entries that back a "suggest" entry, and
+ * the packages that run the test suites.
+ *
+ * @param array<array-key, mixed> $package
+ *   Decoded contents of the package's composer.json.
+ * @param array<array-key, mixed> $fixture
+ *   Decoded contents of the fixture's composer.json.
+ *
+ * @return array<array-key, mixed>
+ *   The merged configuration.
+ */
+function provision_merge_composer(array $package, array $fixture): array {
+  $require = provision_section($package, 'require');
+  $require_dev = provision_section($package, 'require-dev');
+  $suggest = provision_section($package, 'suggest');
+
+  $merged_require_dev = array_merge($require, array_intersect_key($require_dev, $suggest));
+  $merged_require_dev = array_merge($merged_require_dev, array_intersect_key($require_dev, array_flip(PROVISION_TEST_RUNNER_PACKAGES)));
+  unset($merged_require_dev['php']);
+
+  $autoload_dev = ['DrevOps\\BehatSteps\\' => '../src/'];
+
+  // The build sits one level below the package root, so every package-relative
+  // autoload path gains a "../" prefix. The driver test suites run from the
+  // build and resolve the package, its tests and their fixtures through these
+  // entries.
+  foreach (provision_section(provision_section($package, 'autoload-dev'), 'psr-4') as $namespace => $path) {
+    $autoload_dev[$namespace] = '../' . (is_string($path) ? $path : '');
+  }
+
+  foreach (PROVISION_DRUPAL_TEST_NAMESPACES as $test_namespace) {
+    $autoload_dev['Drupal\\' . $test_namespace . '\\'] = 'web/core/tests/Drupal/' . $test_namespace . '/';
+  }
+
+  $filtered = [
+    'require-dev' => $merged_require_dev,
+    'autoload' => provision_section($package, 'autoload'),
+    'autoload-dev' => ['psr-4' => $autoload_dev],
+  ];
+
+  $merged = array_replace_recursive($filtered, $fixture);
+
+  // A package named in both sections resolves to the lower of the two
+  // constraints under "--prefer-lowest", which can fall outside the range the
+  // fixture pins, so the fixture constraint is the one that survives.
+  $merged['require-dev'] = array_diff_key(provision_section($merged, 'require-dev'), provision_section($merged, 'require'));
+
+  // The fixture can bring an "autoload" section of its own, so the package's
+  // paths are rebased after the merge rather than before it.
+  $merged['autoload'] = provision_rebase_psr4(provision_section($merged, 'autoload'));
+
+  return $merged;
+}
+
+/**
+ * Prefixes every PSR-4 path of an autoload section with "../".
+ *
+ * @param array<array-key, mixed> $autoload
+ *   An "autoload" section.
+ *
+ * @return array<array-key, mixed>
+ *   The section, with its PSR-4 paths rebased on the package root.
+ */
+function provision_rebase_psr4(array $autoload): array {
+  $psr4 = provision_section($autoload, 'psr-4');
+
+  if ($psr4 === []) {
+    return $autoload;
+  }
+
+  foreach ($psr4 as $namespace => $path) {
+    $psr4[$namespace] = '../' . (is_string($path) ? $path : '');
+  }
+
+  $autoload['psr-4'] = $psr4;
+
+  return $autoload;
+}
+
+/**
+ * Widens the core version requirement of every extension under a directory.
+ *
+ * @param string $directory
+ *   Absolute path to the directory to walk.
+ *
+ * @return int
+ *   The number of extensions widened.
+ */
+function provision_widen_core_version_requirement(string $directory): int {
+  if (!is_dir($directory)) {
+    return 0;
+  }
+
+  $widened = 0;
+  $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS));
+
+  foreach ($files as $file) {
+    if (!$file instanceof \SplFileInfo || !str_ends_with($file->getFilename(), '.info.yml')) {
+      continue;
+    }
+
+    $text = (string) file_get_contents($file->getPathname());
+    $updated = provision_widen_info_text($text);
+
+    if ($updated === $text) {
+      continue;
+    }
+
+    file_put_contents($file->getPathname(), $updated);
+    $widened++;
+  }
+
+  return $widened;
+}
+
+/**
+ * Widens the core version requirement declared in one info file.
+ *
+ * @param string $text
+ *   The info file contents.
+ *
+ * @return string
+ *   The contents, with "|| ^12" appended to a constraint that excludes it.
+ */
+function provision_widen_info_text(string $text): string {
+  $widened = preg_replace_callback("/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m", provision_widen_constraint(...), $text);
+
+  return $widened ?? $text;
+}
+
+/**
+ * Widens one matched core version requirement line.
+ *
+ * @param array<int, string> $matches
+ *   The whole line, the declared constraint, and a trailing comment.
+ *
+ * @return string
+ *   The line, rewritten unless the constraint is empty or already accepts
+ *   Drupal 12.
+ */
+function provision_widen_constraint(array $matches): string {
+  $constraint = trim($matches[1], " \"'");
+
+  if ($constraint === '' || str_contains($constraint, '^12')) {
+    return $matches[0];
+  }
+
+  $comment = ($matches[2] ?? '') === '' ? '' : ' ' . $matches[2];
+
+  return "core_version_requirement: '" . $constraint . " || ^12'" . $comment;
+}

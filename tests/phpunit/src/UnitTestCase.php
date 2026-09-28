@@ -28,6 +28,31 @@ use Behat\Testwork\Tester\Result\TestResult;
 abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   /**
+   * Write a file below the per-test temporary directory.
+   *
+   * @param string $path
+   *   Path relative to the temporary directory. Missing parent directories
+   *   are created.
+   * @param string $contents
+   *   The file contents.
+   *
+   * @return string
+   *   The absolute path written.
+   */
+  protected function writeFixture(string $path, string $contents): string {
+    $full_path = static::$tmp . DIRECTORY_SEPARATOR . $path;
+    $directory = dirname($full_path);
+
+    if (!is_dir($directory)) {
+      mkdir($directory, 0777, TRUE);
+    }
+
+    file_put_contents($full_path, $contents);
+
+    return $full_path;
+  }
+
+  /**
    * Indicates whether a path under `src/` holds step vocabulary.
    *
    * The conventions the discovery-driven tests hold describe traits mixed
