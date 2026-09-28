@@ -401,9 +401,9 @@ Feature: Check that FieldTrait works
       Then the option "INVALID_OPTION" should be selected within the select element "date_default_timezone"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
+    Then it should fail with an error:
       """
-      No option is selected in the date_default_timezone select on the page /admin/config/regional/settings.
+      Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
   @trait:FieldTrait
