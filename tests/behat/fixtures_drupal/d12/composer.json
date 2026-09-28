@@ -50,7 +50,8 @@
         "phpunit/php-code-coverage": "^12.0"
     },
     "conflict": {
-        "drupal/core": "^7.0"
+        "drupal/core": "^7.0",
+        "twig/twig": ">=3.30"
     },
     "repositories": {
         "drupal": {

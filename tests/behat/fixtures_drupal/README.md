@@ -276,6 +276,10 @@ Most contrib modules have no release declaring `drupal/core ^12`, so `d12/compos
 
 `minimum-stability` is `dev` with `prefer-stable` because `drush/drush` has no tagged release that accepts Symfony 8, so the fixture takes `^14@dev`.
 
+`twig/twig` is capped below 3.30 through the `conflict` block. Twig 3.30 compiles the `escape` filter through a new node class that calls `EscaperRuntime::escape()` directly rather than the callable the filter carries. Drupal declares its own escape filter `needs_environment`, so the compiled call passes the environment as the first argument and every later argument shifts 1 position left, raising a `TypeError` on every page render. Drupal 11 is unaffected because it swaps the filter callable to `drupal_escape`. Drupal 12 re-registers a filter named `escape` instead, and that registration does not displace the node class.
+
+The cap sits in `conflict` rather than `require` because the fixture has no direct Twig dependency, and because Renovate reads only `require` and `require-dev`, so a cap in `require` would be raised again and automerged. It is removed once a Drupal 12 release wires its escape filter to match Twig 3.30.
+
 ## Testing Flow
 
 1. **Fixture build**: `ahoy build` installs Drupal in `build/` using fixtures
