@@ -700,14 +700,14 @@ trait UserTrait {
    * @param string $name
    *   The user name.
    *
-   * @return \Drupal\user\UserInterface|null
+   * @return \Drupal\user\UserInterface
    *   The loaded user object. A missing user raises an exception rather than
    *   returning NULL.
    *
    * @throws \RuntimeException
    *   When no user with the specified name exists.
    */
-  public function userLoadByName(string $name): ?UserInterface {
+  public function userLoadByName(string $name): UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {
