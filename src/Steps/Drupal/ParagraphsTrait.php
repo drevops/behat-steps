@@ -123,14 +123,7 @@ trait ParagraphsTrait {
    *   Found entity or NULL if not found.
    */
   public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery($entity_type)
-      ->accessCheck(FALSE)
-      ->condition($entity_type === 'taxonomy_term' ? 'vid' : 'type', $bundle)
-      ->condition($field_name, $field_value);
-
-    $entity_ids = $query->execute();
+    $entity_ids = $this->queryEntityIds($entity_type, [$field_name => $field_value], $bundle);
 
     if (empty($entity_ids)) {
       return NULL;

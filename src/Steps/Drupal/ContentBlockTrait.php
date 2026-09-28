@@ -12,6 +12,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
@@ -28,6 +29,7 @@ use Drupal\block_content\Entity\BlockContent;
 trait ContentBlockTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
   use TableTransposeTrait;
 
   /**
@@ -209,19 +211,7 @@ trait ContentBlockTrait {
    *   Array of block content ids.
    */
   public function contentBlockLoadMultiple(string $type, array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('block_content')
-      ->accessCheck(FALSE)
-      ->condition('type', $type);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->queryEntityIds('block_content', $conditions, $type);
   }
 
 }

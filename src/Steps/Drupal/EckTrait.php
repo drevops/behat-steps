@@ -147,19 +147,7 @@ trait EckTrait {
    *   Array of entity ids.
    */
   public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery($entity_type)
-      ->accessCheck(FALSE)
-      ->condition('type', $bundle);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->queryEntityIds($entity_type, $conditions, $bundle);
   }
 
   /**

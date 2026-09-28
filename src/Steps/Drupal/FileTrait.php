@@ -16,6 +16,7 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\FileInterface;
@@ -36,6 +37,7 @@ use Symfony\Component\Filesystem\Filesystem;
 trait FileTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Unmanaged file URIs.
@@ -362,17 +364,7 @@ trait FileTrait {
    *   Array of file ids.
    */
   public function fileLoadMultiple(array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('file')->accessCheck(FALSE);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->queryEntityIds('file', $conditions);
   }
 
   /**
