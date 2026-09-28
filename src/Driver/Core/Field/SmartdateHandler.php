@@ -23,9 +23,7 @@ class SmartdateHandler extends AbstractHandler {
       $values = [$values];
     }
 
-    $is_list_of_records = array_is_list($values) && is_array($values[0]);
-
-    if (!$is_list_of_records) {
+    if (!$this->isListOfRecords($values)) {
       $values = [$values];
     }
 

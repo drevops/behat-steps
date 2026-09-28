@@ -200,6 +200,40 @@ class AbstractHandlerNormalizeTest extends TestCase {
   }
 
   /**
+   * Tests how isListOfRecords() classifies each array shape.
+   *
+   * @param array<int|string, mixed> $values
+   *   The array to classify.
+   * @param bool $expected
+   *   Whether the array holds a delta per element.
+   */
+  #[DataProvider('dataProviderIsListOfRecords')]
+  public function testIsListOfRecords(array $values, bool $expected): void {
+    $handler = $this->createHandler('value');
+
+    $method = new \ReflectionMethod(AbstractHandler::class, 'isListOfRecords');
+
+    $this->assertSame($expected, $method->invoke($handler, $values));
+  }
+
+  /**
+   * Data provider for testIsListOfRecords().
+   *
+   * @return \Iterator<string, array{array<int|string, mixed>, bool}>
+   *   Each case pairs an array shape with the expected classification.
+   */
+  public static function dataProviderIsListOfRecords(): \Iterator {
+    yield 'list of arrays is a list of records' => [[['value' => 1], ['value' => 2]], TRUE];
+    yield 'positional pair is a single record' => [['start', 'end'], FALSE];
+    yield 'keyed array is a single record' => [['value' => 'start'], FALSE];
+    yield 'mixed list leading with a scalar is a single record' => [['start', ['value' => 1]], FALSE];
+    // A list with no element 0 exists only as the empty array, which every
+    // caller rejects earlier; the guard keeps the helper safe for a caller
+    // that does not.
+    yield 'empty array is a single record' => [[], FALSE];
+  }
+
+  /**
    * Invokes the protected normalize() method on the given handler.
    *
    * @return array<int, array<string, mixed>>

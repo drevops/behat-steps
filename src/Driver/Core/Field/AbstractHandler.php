@@ -169,6 +169,23 @@ abstract class AbstractHandler implements FieldHandlerInterface {
   }
 
   /**
+   * Whether a value holds several deltas rather than 1 positional record.
+   *
+   * A positional record such as '['start', 'end']' is itself a list, so a
+   * handler that reads positions cannot iterate a list directly: only a list
+   * whose first element is an array holds a delta per element.
+   *
+   * @param array<int|string, mixed> $values
+   *   The value to classify.
+   *
+   * @return bool
+   *   TRUE when each element is a delta, FALSE for a single record.
+   */
+  protected function isListOfRecords(array $values): bool {
+    return array_is_list($values) && is_array($values[0] ?? NULL);
+  }
+
+  /**
    * Transforms canonical records into the storage shape.
    *
    * @param array<int, array<string, mixed>> $records
