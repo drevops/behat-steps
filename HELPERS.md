@@ -1634,7 +1634,7 @@ Creates a taxonomy term
 > Manage Drupal file entities with upload and storage operations.
 
 <details>
-  <summary><code>public function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
 
 <br/>
 Create file entity
@@ -1643,7 +1643,7 @@ Create file entity
 </details>
 
 <details>
-  <summary><code>public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateManagedSingle(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
 
 <br/>
 Create a single managed file
@@ -1667,7 +1667,7 @@ Load multiple files with specified conditions
 > Manage Drupal media entities with type-specific field handling.
 
 <details>
-  <summary><code>public function mediaCreateEntity(EntityStub $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface</code></summary>
 
 <br/>
 Create media entity
@@ -1676,7 +1676,7 @@ Create media entity
 </details>
 
 <details>
-  <summary><code>public function mediaCreateSingle(EntityStub $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreateSingle(EntityStubInterface $stub): MediaInterface</code></summary>
 
 <br/>
 Create a single media item
@@ -1922,7 +1922,7 @@ Check whether a user with the given email address exists
 </details>
 
 <details>
-  <summary><code>public function userLoadByName(string $name): ?UserInterface</code></summary>
+  <summary><code>public function userLoadByName(string $name): UserInterface</code></summary>
 
 <br/>
 Load a user by name
