@@ -32,6 +32,13 @@
             "enabled": false
         },
         {
+            "description": "The root 'require' constraints are the support window consumers inherit, so raising a lower bound would lock them out of versions that still work.",
+            "matchManagers": ["composer"],
+            "matchFileNames": ["composer.json"],
+            "matchDepTypes": ["require"],
+            "enabled": false
+        },
+        {
             "matchDepNames": ["php"],
             "matchManagers": ["composer"],
             "enabled": false
