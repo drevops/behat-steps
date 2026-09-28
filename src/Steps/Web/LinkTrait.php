@@ -127,8 +127,8 @@ trait LinkTrait {
     if ($selector) {
       $element = $page->find('css', $selector);
 
-      // A missing container is an unusable assertion rather than a passing
-      // one, so it fails here as it does in the positive assertion.
+      // A missing container is an error rather than a pass, so it fails
+      // here as the positive assertion does.
       if (!$element) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }

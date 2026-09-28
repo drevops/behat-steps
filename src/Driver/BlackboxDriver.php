@@ -20,7 +20,7 @@ class BlackboxDriver implements BlackboxDriverInterface {
   protected readonly Random $random;
 
   /**
-   * Set up the driver with an optional random generator.
+   * Sets up the driver with an optional random generator.
    */
   public function __construct(?Random $random = NULL) {
     $this->random = $random ?? new Random();

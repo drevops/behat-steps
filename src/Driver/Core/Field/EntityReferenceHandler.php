@@ -21,7 +21,8 @@ class EntityReferenceHandler extends AbstractHandler {
       throw new \RuntimeException(sprintf("Cannot resolve a reference to '%s' because it declares no id key.", $entity_type_id));
     }
 
-    // User entities return FALSE for getKey('label'), so use 'name' directly.
+    // User entities return FALSE for getKey('label'), so 'name' is used
+    // directly.
     $label_key = $entity_type_id !== 'user' ? $entity_definition->getKey('label') : 'name';
 
     $target_bundles = $this->getTargetBundles();
@@ -48,9 +49,9 @@ class EntityReferenceHandler extends AbstractHandler {
       $query->accessCheck(FALSE);
 
       if ($label_key) {
-        // A numeric-string lookup is ambiguous - the caller may be passing
-        // an entity id that Drupal serialised as a string, or a label that
-        // happens to be digits. Match either side with an OR-group so the
+        // A numeric-string lookup is ambiguous: the caller may be passing an
+        // entity id that Drupal serialised as a string, or a label that
+        // happens to be digits. An OR-group matches either side, and the
         // entity layer's first hit wins.
         $is_numeric_id = is_string($lookup) && ctype_digit($lookup);
         $or = $query->orConditionGroup();

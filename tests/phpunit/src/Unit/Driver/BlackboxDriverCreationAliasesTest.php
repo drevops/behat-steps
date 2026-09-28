@@ -11,15 +11,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests that 'BlackboxDriver' opts out of the creation-alias capability.
+ * Tests that 'BlackboxDriver' lacks the creation-alias capability.
  *
  * The driver declares no capabilities, so it does not implement
- * 'CreationAliasCapabilityInterface'; consumers must 'instanceof'-check
+ * 'CreationAliasCapabilityInterface'. Consumers must 'instanceof'-check
  * before calling 'getCreationAliases()'.
- *
- * @group drivers
- * @group blackbox
- * @group aliases
  */
 #[CoversClass(BlackboxDriver::class)]
 #[Group('drivers')]

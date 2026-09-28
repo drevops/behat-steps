@@ -54,8 +54,9 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     $entity_field_manager = \Drupal::service('entity_field.manager');
     $storage_definitions = $entity_field_manager->getFieldStorageDefinitions($entity_type);
 
-    // Resolve the bundle: bundle key value > typed bundle > entity type
-    // (single-bundle entities like 'user' use the entity type as the bundle).
+    // Bundle precedence is bundle key value, then typed bundle, then entity
+    // type (single-bundle entities like 'user' use the entity type as the
+    // bundle).
     $bundle_key = \Drupal::entityTypeManager()->getDefinition($entity_type)->getKey('bundle');
     $bundle = $entity_type;
 
@@ -106,7 +107,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    */
   protected function normalize(mixed $values): array {
     if ($this->mainProperty === NULL) {
-      throw new \LogicException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
+      throw new \RuntimeException(sprintf('Handler "%s" has no main property and cannot use the default normalize(); override normalize() in the handler subclass.', static::class));
     }
 
     if (!is_array($values)) {
@@ -119,7 +120,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
 
     // '['foo.jpg', 'alt' => 'A']' is ambiguous: 'foo.jpg' could be the main
     // value with 'alt' as an extra, or two separate deltas with one of them
-    // named. Reject rather than silently picking one.
+    // named. The mixed shape is rejected.
     $has_int_key = FALSE;
     $has_string_key = FALSE;
 
@@ -150,10 +151,10 @@ abstract class AbstractHandler implements FieldHandlerInterface {
       }
     }
 
-    // Every record must carry the main property key. A record without it
-    // is almost always a caller mistake (omitted the path/value/uri and
-    // left only the extras like 'alt' or 'format'); flag it here so the
-    // handler does not silently dispatch on missing data.
+    // A record without the main property is almost always a caller mistake:
+    // the path, value or uri is missing and only extras like 'alt' or
+    // 'format' remain. Rejecting it here stops a handler dispatching on
+    // missing data.
     foreach ($records as $record) {
       if (!array_key_exists($this->mainProperty, $record)) {
         throw new \RuntimeException(sprintf(

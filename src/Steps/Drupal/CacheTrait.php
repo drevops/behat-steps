@@ -132,8 +132,8 @@ trait CacheTrait {
   /**
    * Get the cache bin used for the page cache.
    *
-   * Override in the consuming `FeatureContext` if the site uses a custom
-   * internal page cache bin name.
+   * A consuming `FeatureContext` overrides this method when the site uses a
+   * custom internal page cache bin name.
    */
   public function cacheGetPageCacheBin(): string {
     return (string) $this->getOption('cache', 'page_cache_bin');

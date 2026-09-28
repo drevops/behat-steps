@@ -14,8 +14,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for Core::watchdogFetch().
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -77,8 +75,6 @@ class CoreWatchdogMethodsKernelTest extends KernelTestBase {
    *   Severity name passed to 'watchdogFetch()'.
    * @param int $expected_level
    *   The log level that should appear in the output line.
-   *
-   * @dataProvider dataProviderWatchdogFetchFiltersBySymbolicSeverity
    */
   #[DataProvider('dataProviderWatchdogFetchFiltersBySymbolicSeverity')]
   public function testWatchdogFetchFiltersBySymbolicSeverity(string $severity, int $expected_level): void {

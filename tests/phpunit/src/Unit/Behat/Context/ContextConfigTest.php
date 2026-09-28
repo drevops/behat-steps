@@ -325,7 +325,7 @@ class ContextConfigTest extends UnitTestCase {
     yield 'a disabled group skips a trait-named hook' => ['SampleTrait', [], ['sample' => ['enabled' => FALSE]], TRUE];
 
     // 'sampleExtraBeforeScenario' matches both 'sample' and 'sample_extra', so
-    // the longer group owns the name and the shorter one does not claim it.
+    // the longer group owns the name and the shorter one does not.
     yield 'the longest matching prefix owns the hook' => ['sampleExtraBeforeScenario', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
     yield 'the shorter prefix does not claim a longer group' => ['sampleExtraBeforeScenario', [], ['sample' => ['enabled' => FALSE]], FALSE];
 

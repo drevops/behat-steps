@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
@@ -272,13 +273,13 @@ trait MediaTrait {
   /**
    * Create a single media item.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The media item properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media item.
    */
-  public function mediaCreateSingle(EntityStub $stub): MediaInterface {
+  public function mediaCreateSingle(EntityStubInterface $stub): MediaInterface {
     $this->entityParseFields($stub);
     $entity = $this->mediaCreateEntity($stub);
     $this->entityRegister($entity);
@@ -289,13 +290,13 @@ trait MediaTrait {
   /**
    * Create media entity.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The media entity properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media entity.
    */
-  public function mediaCreateEntity(EntityStub $stub): MediaInterface {
+  public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $bundle = $stub->getBundle();
@@ -306,7 +307,7 @@ trait MediaTrait {
     }
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
-    if (!in_array($bundle, array_keys($bundles))) {
+    if (!array_key_exists($bundle, $bundles)) {
       throw new \RuntimeException(sprintf("Cannot create media because provided bundle '%s' does not exist.", $bundle));
     }
     // @codeCoverageIgnoreEnd
@@ -326,10 +327,10 @@ trait MediaTrait {
    *
    * Reuses the protected expansion provided by the Drupal driver core.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub.
    */
-  protected function mediaExpandEntityFields(EntityStub $stub): void {
+  protected function mediaExpandEntityFields(EntityStubInterface $stub): void {
     $core = $this->driverFor(CoreCapabilityInterface::class)->getCore();
 
     $class = new \ReflectionClass($core::class);
@@ -341,10 +342,10 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub.
    */
-  protected function mediaExpandEntityFieldsFixtures(EntityStub $stub): void {
+  protected function mediaExpandEntityFieldsFixtures(EntityStubInterface $stub): void {
     $this->fixtureFileExpandEntityFields('media', $stub);
   }
 

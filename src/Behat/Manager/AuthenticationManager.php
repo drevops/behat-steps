@@ -19,7 +19,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  * Logs a user in and out of the site under test.
  *
  * Takes a basic-auth applier rather than applying basic auth itself: a
- * session reset drops request headers, so the credentials have to go back on
+ * session reset drops request headers, so the credentials are reapplied
  * afterwards, and that is the only overlap between the two concerns.
  */
 class AuthenticationManager implements AuthenticationManagerInterface, FastLogoutInterface {

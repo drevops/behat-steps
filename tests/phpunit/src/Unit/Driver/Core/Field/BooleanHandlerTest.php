@@ -13,8 +13,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the BooleanHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(BooleanHandler::class)]
 #[Group('fields')]

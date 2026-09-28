@@ -38,8 +38,6 @@ trait WatchdogTrait {
 
   use LastStepTrait;
 
-  use LastStepTrait;
-
   /**
    * Start time for each scenario.
    */
@@ -239,7 +237,7 @@ trait WatchdogTrait {
       define('WATCHDOG_WARNING', 4);
     }
 
-    // Remove entries below severity threshold.
+    // Remove entries less severe than a warning.
     foreach ($entries as $k => $error) {
       if ($error->severity > WATCHDOG_WARNING) {
         unset($entries[$k]);

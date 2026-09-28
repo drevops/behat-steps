@@ -20,8 +20,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * per-component keyed structure. It also honours the field's
  * 'components' setting: positional input skips disabled components and
  * named input throws if it targets one.
- *
- * @group fields
  */
 #[CoversClass(NameHandler::class)]
 #[Group('fields')]

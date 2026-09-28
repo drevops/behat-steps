@@ -69,8 +69,6 @@ trait ConfigOverrideTrait {
 
   use RequestHeadersTrait;
 
-  use RequestHeadersTrait;
-
   /**
    * Config names parsed from `@disable-config-override:*` tags.
    *
@@ -120,14 +118,15 @@ trait ConfigOverrideTrait {
   /**
    * Apply the `X-Config-No-Override` signal before every step.
    *
-   * This runs on every step because some steps reset headers set earlier in
-   * the scenario (for example, Drupal Extension login steps).
+   * Some steps reset the request headers set earlier in the scenario, so the
+   * signal is applied again before each one.
    */
   #[BeforeStep]
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideSkipBeforeStep || $this->configOverrideDisabledNames === []) {
-      // Nothing to propagate. The process-level signal outlives the scenario
-      // that set it, so it is cleared here as well as the driver-level header.
+      // Nothing to propagate. The process-level signal persists beyond the
+      // scenario that set it, so it is cleared here along with the
+      // driver-level header.
       $this->configOverrideClearSignal();
       $this->configOverrideClearDriverHeader();
 

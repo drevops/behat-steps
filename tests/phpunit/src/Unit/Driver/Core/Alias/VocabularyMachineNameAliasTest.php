@@ -14,8 +14,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'VocabularyMachineNameAlias' creation alias.
- *
- * @group aliases
  */
 #[CoversClass(VocabularyMachineNameAlias::class)]
 #[Group('aliases')]
@@ -43,8 +41,6 @@ class VocabularyMachineNameAliasTest extends TestCase {
    * @param string|null $expected_vid
    *   The expected 'vid' value after the alias runs, or NULL when 'vid'
    *   should remain absent.
-   *
-   * @dataProvider dataProviderApplyToStub
    */
   #[DataProvider('dataProviderApplyToStub')]
   public function testApplyToStub(?string $bundle, array $values, ?string $expected_vid): void {

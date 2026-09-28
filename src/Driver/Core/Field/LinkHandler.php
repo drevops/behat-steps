@@ -21,8 +21,8 @@ class LinkHandler extends AbstractHandler {
       return [];
     }
 
-    // Reject top-level mixed positional/named keys so a single-keyed
-    // record cannot be confused with a list of positional ones.
+    // Mixed positional and named keys at the top level are rejected, so a
+    // single keyed record cannot be confused with a list of positional ones.
     $has_int_key = FALSE;
     $has_string_key = FALSE;
 
@@ -94,8 +94,8 @@ class LinkHandler extends AbstractHandler {
         'options' => [],
       ], fn ($v): bool => $v !== NULL);
 
-      // 'options' must be an array; UnroutedUrlAssembler::assemble()
-      // rejects string values. Accept query-string shorthand and parse it.
+      // UnroutedUrlAssembler::assemble() rejects a string 'options' value, so
+      // query-string shorthand is parsed into an array.
       $options = $record['options'] ?? NULL;
 
       if (is_string($options) && $options !== '') {

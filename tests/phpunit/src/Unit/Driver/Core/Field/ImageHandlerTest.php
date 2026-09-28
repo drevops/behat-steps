@@ -13,8 +13,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the ImageHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]

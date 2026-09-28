@@ -11,8 +11,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the LinkHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(LinkHandler::class)]
 #[Group('fields')]

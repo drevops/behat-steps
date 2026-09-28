@@ -12,8 +12,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the DateRecurHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(DateRecurHandler::class)]
 #[Group('fields')]

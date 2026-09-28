@@ -14,6 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -113,7 +114,8 @@ trait FileTrait {
   /**
    * Delete managed files defined by provided properties/fields.
    *
-   * Example: filename, uri, status, uid and more.
+   * The column header names a file entity property, such as filename, uri,
+   * status or uid.
    *
    * @see Drupal\file\Entity\File
    *
@@ -201,6 +203,8 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
     if (!@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
     }
@@ -215,6 +219,8 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
     if (@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
     }
@@ -269,7 +275,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -277,7 +283,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManagedSingle(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->entityParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -292,7 +298,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   Entity fields stub.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -300,7 +306,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');

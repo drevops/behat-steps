@@ -11,8 +11,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel round-trip test for ListFloatHandler via the Core driver.
- *
- * @group fields
  */
 #[CoversClass(ListFloatHandler::class)]
 #[Group('fields')]

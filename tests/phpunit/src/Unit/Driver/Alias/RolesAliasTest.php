@@ -15,8 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'RolesAlias' creation alias.
- *
- * @group aliases
  */
 #[CoversClass(RolesAlias::class)]
 #[Group('aliases')]
@@ -54,8 +52,6 @@ class RolesAliasTest extends TestCase {
    *
    * @param mixed $roles
    *   The 'roles' value placed on the stub.
-   *
-   * @dataProvider dataProviderApplyAfterCreateIgnoresNonArrayValues
    */
   #[DataProvider('dataProviderApplyAfterCreateIgnoresNonArrayValues')]
   public function testApplyAfterCreateIgnoresNonArrayValues(mixed $roles): void {

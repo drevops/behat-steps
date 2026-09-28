@@ -21,8 +21,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Exercises Core::nodeCreate and Core::nodeDelete end-to-end: bundle
  * validation, optional 'author' → 'uid' remapping, expandEntityFields
  * (no fields attached here, so it's a noop), save, and delete.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

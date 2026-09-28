@@ -120,8 +120,8 @@ trait FieldTrait {
   /**
    * Disable browser validation for the form for validating errors.
    *
-   * The form selector is registered and validation disabling will be
-   * automatically applied after each step when the form becomes available.
+   * The form selector is registered, so validation is disabled after each
+   * step once the form is available.
    *
    * @code
    * Given the browser validation for the form "#node-article-form" is disabled
@@ -256,7 +256,7 @@ trait FieldTrait {
    * @endcode
    */
   #[When('I fill in the color field :field with the value :value')]
-  public function fieldFillColor(string $field, ?string $value = NULL): mixed {
+  public function fieldFillColor(string $field, ?string $value = NULL): void {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
     $script = <<<JS
@@ -270,7 +270,7 @@ trait FieldTrait {
         element.dispatchEvent(event);
       })();
 JS;
-    return $this->getSession()->evaluateScript($script);
+    $this->getSession()->evaluateScript($script);
   }
 
   /**
@@ -823,7 +823,7 @@ JS;
     ]);
 
     if (!$option_field) {
-      throw new ExpectationException(sprintf('No option is selected in the %s select on the page %s.', $selector, $path), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
     }
 
     if (!$option_field->isSelected()) {

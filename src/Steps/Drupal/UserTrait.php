@@ -40,8 +40,6 @@ trait UserTrait {
   use StringTrait;
   use TableTransposeTrait;
 
-  use StringTrait;
-
   /**
    * Remove users specified in a table.
    *
@@ -594,8 +592,8 @@ trait UserTrait {
    */
   public function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void {
     foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
-      // Having an account already carries 'authenticated', and the role is not
-      // assignable in its own right.
+      // Every account carries 'authenticated', and the role is not assignable
+      // in its own right.
       if (in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
         continue;
       }
@@ -702,14 +700,13 @@ trait UserTrait {
    * @param string $name
    *   The user name.
    *
-   * @return \Drupal\user\UserInterface|null
-   *   The loaded user object. A missing user raises an exception rather than
-   *   returning NULL.
+   * @return \Drupal\user\UserInterface
+   *   The loaded user object.
    *
    * @throws \RuntimeException
    *   When no user with the specified name exists.
    */
-  public function userLoadByName(string $name): ?UserInterface {
+  public function userLoadByName(string $name): UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {

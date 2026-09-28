@@ -13,11 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for DaterangeHandler via the Core driver.
  *
  * DaterangeHandler extends DatetimeHandler and emits a multi-property payload
- * ({value, end_value}). The kernel test's value is proving the driver
- * resolves DaterangeHandler for type 'daterange' and that the dual-column
- * storage accepts what the handler emits.
- *
- * @group fields
+ * ({value, end_value}). This test proves the driver resolves DaterangeHandler
+ * for type 'daterange' and that the dual-column storage accepts what the
+ * handler emits.
  */
 #[CoversClass(DaterangeHandler::class)]
 #[Group('fields')]

@@ -8,7 +8,6 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * Replace `{{ Key }}` tokens in step arguments and table cells.
@@ -142,7 +141,7 @@ trait MappingTrait {
    * @return array<string, string>
    *   Mapped values keyed by mapping key.
    *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   * @throws \RuntimeException
    *   When the same key appears in more than one group.
    */
   protected function mappingGetFlattened(): array {
@@ -153,7 +152,7 @@ trait MappingTrait {
     foreach (is_array($groups) ? $groups : [] as $group => $entries) {
       foreach (is_array($entries) ? $entries : [] as $key => $value) {
         if (isset($origins[$key])) {
-          throw new InvalidConfigurationException(sprintf('Duplicate mapping key "%s" found in groups "%s" and "%s" under "mapping.groups". Mapping keys must be unique across all groups.', $key, $origins[$key], $group));
+          throw new \RuntimeException(sprintf('Duplicate mapping key "%s" found in groups "%s" and "%s" under "mapping.groups". Mapping keys must be unique across all groups.', $key, $origins[$key], $group));
         }
 
         $origins[$key] = $group;

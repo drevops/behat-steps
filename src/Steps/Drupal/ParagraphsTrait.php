@@ -8,8 +8,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\ParagraphInterface;
@@ -67,7 +67,7 @@ trait ParagraphsTrait {
    * @param \Drupal\Core\Entity\ContentEntityInterface $parent_entity
    *   Entity to attach the paragraphs item to.
    * @param string $parent_field
-   *   Field name on the entity that refers paragraphs item.
+   *   Field name on the entity that references the paragraphs item.
    * @param string $paragraph_type
    *   Paragraphs item bundle name.
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub

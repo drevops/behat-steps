@@ -16,10 +16,6 @@ use PHPUnit\Framework\TestCase;
  * Tests creation-alias discovery on 'DrushDriver'.
  *
  * Drush owns 'RolesAlias' (post-create) and nothing else by default.
- *
- * @group drivers
- * @group drush
- * @group aliases
  */
 #[CoversClass(DrushDriver::class)]
 #[Group('drivers')]

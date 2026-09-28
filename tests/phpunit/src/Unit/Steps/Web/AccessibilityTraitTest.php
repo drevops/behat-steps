@@ -332,7 +332,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $name = AccessibilityTraitTestImplementation::testAggregateFilename(1750000000);
 
     $this->assertMatchesRegularExpression('/^accessibility_report_\d{8}_\d{6}\.html$/', $name);
-    // A different moment yields a different filename, proving the timestamp is used.
+    // A different timestamp yields a different filename.
     $this->assertNotSame($name, AccessibilityTraitTestImplementation::testAggregateFilename(1750086400));
   }
 

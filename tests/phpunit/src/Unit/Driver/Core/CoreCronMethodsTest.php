@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Tests for 'Core::cronRun()' on the default Drupal core.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

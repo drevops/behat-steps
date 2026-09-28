@@ -227,9 +227,6 @@ class BehatStepsExtension implements ExtensionInterface {
   /**
    * Loads test parameters.
    *
-   * Exposes the configured region map under the 'behat_steps.regions' container
-   * parameter and surfaces it through the 'region' Mink selector.
-   *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
    * @param array<string, mixed> $config
@@ -251,18 +248,18 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Rejects a key that a trait now declares as an option.
+   * Rejects a 'selectors' key that a trait declares as an option.
    *
    * The 'selectors' node keeps the keys it does not declare, so that a project
-   * can add named selectors of its own and read them back. That also means a
-   * 'selectors: messages:' left over from before the move is accepted and never
-   * read, and the message steps would fail one by one for a missing selector.
+   * can add named selectors of its own and read them back. A stray
+   * 'selectors: messages:' is therefore accepted and never read, and the
+   * message steps would fail one by one for a missing selector.
    *
    * @param array<string, mixed> $config
    *   The extension configuration.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When the configuration carries the key at its former path.
+   *   When the configuration carries 'selectors: messages:'.
    */
   protected function rejectMovedKeys(array $config): void {
     if (isset($config['selectors']['messages'])) {

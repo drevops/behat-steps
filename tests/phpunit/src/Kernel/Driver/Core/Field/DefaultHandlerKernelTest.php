@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * the passthrough output round-trips through real storage. The 'string' field
  * type has no DrupalDriver handler, so the lookup chain lands on
  * DefaultHandler.
- *
- * @group fields
  */
 #[CoversClass(DefaultHandler::class)]
 #[Group('fields')]

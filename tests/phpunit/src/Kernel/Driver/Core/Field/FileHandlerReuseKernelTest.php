@@ -18,8 +18,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Complements FileHandlerKernelTest (upload path): referencing a pre-created
  * managed file by URI or by bare basename reuses that file's id without
  * re-uploading the contents.
- *
- * @group fields
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]

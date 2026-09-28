@@ -43,9 +43,9 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
  * web page without writing any PHP. It defines no steps of its own: it is
  * 'WebRawContext' plus every trait under 'Steps\Web'.
  *
- * A trait that can fail a scenario for a reason it did not ask about carries
- * an 'enabled' option, so a project switches it off through configuration
- * rather than by composing its own context.
+ * A trait that can fail a scenario on a check the scenario did not ask for
+ * carries an 'enabled' option, so a project switches it off through
+ * configuration rather than by composing its own context.
  *
  * A Drupal suite extends 'DrupalContext', which extends this class, so it
  * gets the web vocabulary too. Registering both is fatal.

@@ -4,9 +4,9 @@
  * @file
  * Trait composition check.
  *
- * A trait's directory says what it is: 'src/Steps' holds the step vocabulary
- * and 'src/Helper' holds the plumbing several step traits draw on, each
- * split into a 'Web' and a 'Drupal' half. This script reads both trees and
+ * A trait's directory determines its kind: 'src/Steps' holds the step
+ * vocabulary and 'src/Helper' holds the plumbing shared by step traits. Each
+ * is split into a 'Web' and a 'Drupal' half. This script reads both trees and
  * fails when a step trait composes another step trait, or when a helper trait
  * registers Gherkin.
  *
@@ -33,8 +33,8 @@ const TRAITS_HELPER_DIRECTORY = 'src/Helper';
  */
 const TRAITS_VOCABULARY_ATTRIBUTES = ['Given', 'When', 'Then', 'Transform'];
 
-// Execute the entry function only when the script is run directly, not when
-// included.
+// The entry function runs only when the script is run directly, not when it
+// is included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-traits.php') {
   $options = getopt('', ['path::']);

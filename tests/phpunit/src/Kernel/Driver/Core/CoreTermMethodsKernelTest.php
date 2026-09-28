@@ -18,8 +18,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Exercises Core::termCreate (with optional parent lookup by name) and
  * Core::termDelete against real taxonomy_term storage.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

@@ -49,7 +49,7 @@ class FileHandler extends AbstractHandler {
   /**
    * Reads the id from a saved file entity.
    *
-   * The file arrives as a bare object so a unit-test double can stand in
+   * The parameter is typed 'object' so a unit-test double can stand in
    * without implementing Drupal's File entity contract. The 'id()' call is
    * therefore unchecked until here.
    *

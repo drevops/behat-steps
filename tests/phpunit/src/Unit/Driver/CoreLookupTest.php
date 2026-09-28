@@ -13,9 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests DrupalDriver::setCoreFromVersion() lookup chain.
- *
- * @group drivers
- * @group drupal
  */
 #[CoversClass(Core::class)]
 #[Group('drivers')]

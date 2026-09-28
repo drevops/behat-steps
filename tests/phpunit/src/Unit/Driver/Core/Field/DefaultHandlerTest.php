@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\Group;
  * storage unchanged. 'Core' rejects fields the default cannot marshal before it
  * resolves this handler, so that classification is exercised in FieldClassifier
  * and Core, not here.
- *
- * @group fields
  */
 #[CoversClass(DefaultHandler::class)]
 #[Group('fields')]

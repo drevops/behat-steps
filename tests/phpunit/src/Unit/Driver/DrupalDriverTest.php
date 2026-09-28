@@ -31,9 +31,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Class-level conformance only; runtime behaviour requires a real Drupal
  * bootstrap and is exercised by the Kernel test suite.
- *
- * @group drivers
- * @group drupal
  */
 #[CoversClass(DrupalDriver::class)]
 #[Group('drivers')]
@@ -61,8 +58,6 @@ class DrupalDriverTest extends TestCase {
  *
  * @param string $capability_class
  *   The capability interface name.
- *
- * @dataProvider dataProviderImplementsCapability
  */
   #[DataProvider('dataProviderImplementsCapability')]
   public function testImplementsCapability(string $capability_class): void {
@@ -131,8 +126,6 @@ class DrupalDriverTest extends TestCase {
    *   The entry file the root carries, relative to it.
    * @param string $missing
    *   The entry file the root lacks, named in the expected message.
-   *
-   * @dataProvider dataProviderDetectMajorVersionRejectsPartialRoot
    */
   #[DataProvider('dataProviderDetectMajorVersionRejectsPartialRoot')]
   public function testDetectMajorVersionRejectsPartialRoot(string $present, string $missing): void {

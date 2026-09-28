@@ -118,10 +118,10 @@ trait ResponsiveTrait {
 
     $breakpoint = substr($tag, strlen('breakpoint:'));
 
-    // Validate the breakpoint exists.
+    // The lookup throws when the breakpoint does not exist.
     $this->responsiveGetBreakpoint($breakpoint);
 
-    // Store for deferred resize in beforeStep when session is ready.
+    // responsiveBeforeStep() applies the resize once the session is ready.
     $this->responsiveBreakpointFromTag = $breakpoint;
   }
 
@@ -242,7 +242,7 @@ trait ResponsiveTrait {
    */
   public function responsiveSetBreakpoints(array $breakpoints): void {
     foreach ($breakpoints as $name => $dimensions) {
-      // Validate format by extracting dimensions.
+      // The extraction throws on an invalid format.
       $this->responsiveExtractDimensions($dimensions, $name);
       $this->responsiveCustomBreakpoints[$name] = $dimensions;
     }
@@ -373,7 +373,7 @@ trait ResponsiveTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Silently fail if resize not supported.
+      // A driver without resize support throws; the exception is ignored.
     }
     // @codeCoverageIgnoreEnd
   }

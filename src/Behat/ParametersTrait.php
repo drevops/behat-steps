@@ -7,15 +7,15 @@ namespace DrevOps\BehatSteps\Behat;
 /**
  * Provides access to the extension parameters.
  *
- * These parameters are placed in the Behat configuration under the
- * extension's config key and define commonly customized aspects of the Drupal
- * installation such as CSS selectors, interface text or region maps.
+ * The Behat configuration holds these parameters under the extension's config
+ * key. They define commonly customized aspects of the Drupal installation,
+ * such as CSS selectors, interface text or region maps.
  *
- * This is the consumption point for parameter, text, and selector access from
- * any context, regardless of whether it inherits from 'WebRawContext'. A context
- * only needs to implement 'ParametersAwareInterface' and 'use' this trait;
- * 'DriverAwareInitializer' injects the parameter array via 'setParameters()'
- * before any scenario runs. No driver bootstrap is required.
+ * Any context reads parameters, text and selectors through this trait, whether
+ * or not it extends 'WebRawContext'. A context implements
+ * 'ParametersAwareInterface' and composes this trait; 'DriverAwareInitializer'
+ * then injects the parameter array through 'setParameters()' before any
+ * scenario runs. No driver bootstrap is required.
  *
  * @see \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension
  */

@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 
 /**
  * Manage Drupal webforms.
@@ -52,9 +52,6 @@ trait WebformTrait {
 
   /**
    * Clone a webform template into a new webform with the given title.
-   *
-   * Finds a webform template whose title contains the given string,
-   * duplicates it as a non-template webform, and tracks it for cleanup.
    *
    * @param string $title
    *   The title for the new webform.

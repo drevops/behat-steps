@@ -19,9 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * test framework already has on disk. That path contains an 'autoload.php'
  * and a 'core/includes/bootstrap.inc', so the internal version detection
  * runs end-to-end instead of being bypassed via reflection.
- *
- * @group drivers
- * @group drupal
  */
 #[CoversClass(DrupalDriver::class)]
 #[Group('drivers')]

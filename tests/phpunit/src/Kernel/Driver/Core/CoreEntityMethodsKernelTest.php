@@ -21,8 +21,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Covers 'entityCreate()' and 'entityDelete()' (both the stub-object branch
  * and the loaded-entity branch). Base-field expansion is exercised
  * implicitly by any 'entityCreate()' call whose stub sets a base field.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -58,9 +56,9 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests 'entityCreate()' followed by 'entityDelete()' using a stub object.
    *
    * The user entity type's id key is 'uid', so entityCreate should populate
-   * the stub under 'uid' (not the generic 'id' property), and entityDelete
-   * should load by that same key. nodeCreate/nodeDelete (nid), userCreate
-   * (uid) and termCreate/termDelete (tid) follow the same convention.
+   * the stub under 'uid' (not the generic 'id' property). entityDelete should
+   * load by that same key. nodeCreate/nodeDelete (nid), userCreate (uid) and
+   * termCreate/termDelete (tid) follow the same convention.
    */
   public function testEntityCreateAndDeleteWithStub(): void {
     $stub = new EntityStub('user', NULL, [
@@ -87,7 +85,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
   /**
    * Tests 'entityCreate()' auto-expands base fields set on the stub.
    *
-   * 'name' is a base field on the user entity type, and base fields are not
+   * 'name' is a base field on the user entity type. Base fields are not
    * registered field storage configs, so the handler pipeline reaches them
    * only through auto-detection. DefaultHandler then wraps the scalar value
    * into the array form the field API expects, which is observable on the
@@ -119,8 +117,8 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests base entity-reference fields round-trip through entityCreate().
    *
    * 'user.roles' is a base entity_reference field targeting the user_role
-   * config entity type: a stub sets it by label or id and expects the driver
-   * to resolve and attach the reference. This test pins the end-to-end
+   * config entity type. A stub sets it by label or id, and the driver must
+   * resolve and attach the reference. This test pins the end-to-end
    * round-trip: stub -> driver -> storage -> reload -> assertion.
    */
   public function testEntityCreateExpandsBaseEntityReferenceFieldOnStub(): void {

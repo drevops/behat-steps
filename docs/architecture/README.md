@@ -105,7 +105,7 @@ That directory split isn't just tidiness. `docs.php` reads a trait's context str
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 45 name `WebRawContext` because they reach for the driver, and 12 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes those 12 into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 44 name `WebRawContext` because they reach for the driver, and 13 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes the 12 web ones into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 

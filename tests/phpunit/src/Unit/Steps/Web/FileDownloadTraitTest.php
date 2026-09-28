@@ -35,7 +35,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderIsRegex')]
   public function testIsRegex(string $input, bool $expected): void {
     $result = $this->testObject->fileDownloadIsRegex($input);
-    $this->assertEquals($expected, $result);
+    $this->assertSame($expected, $result);
   }
 
   public static function dataProviderIsRegex(): array {

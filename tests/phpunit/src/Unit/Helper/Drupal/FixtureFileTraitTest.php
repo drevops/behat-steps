@@ -402,8 +402,8 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   /**
    * {@inheritdoc}
    *
-   * Serves the stubbed driver from a manager holding it as the only one, so
-   * the helper resolves through the same capability walk it uses in a run.
+   * Serves the stubbed driver from a one-driver manager, so the helper
+   * resolves through the same capability walk it uses in a run.
    */
   public function getDriverManager(): DriverManagerInterface {
     if (!$this->driver instanceof DriverInterface) {

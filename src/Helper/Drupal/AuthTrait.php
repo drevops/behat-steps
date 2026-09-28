@@ -52,10 +52,8 @@ trait AuthTrait {
    * Removes any created users.
    *
    * The early-return guard also skips the logout below, because
-   * 'BEHAT_STEPS_DISABLE_CLEANUP' is there to leave the failing scenario's
-   * state intact, session included.
-   *
-   * Later scenarios in the same run inherit that login.
+   * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves the failing scenario's state intact,
+   * session included. Later scenarios in the same run inherit that login.
    */
   #[AfterScenario]
   public function authCleanUsers(AfterScenarioScope $scope): void {
@@ -66,7 +64,7 @@ trait AuthTrait {
     $user_manager = $this->authGetUserManager();
 
     // Resolving a driver bootstraps it, so a scenario that created no users
-    // never boots one on the way out.
+    // never boots one during teardown.
     if ($user_manager->hasUsers() && $this->getDriverManager()->hasCapability(UserCapabilityInterface::class)) {
       $driver = $this->driverFor(UserCapabilityInterface::class);
 

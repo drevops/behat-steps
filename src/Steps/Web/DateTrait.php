@@ -58,7 +58,7 @@ trait DateTrait {
    */
   #[Transform(':datetime')]
   #[Transform(':value')]
-  #[Transform(':expectedValue')]
+  #[Transform(':expected_value')]
   public function dateRelativeTransformValue(string $value): string {
     if (!$this->dateEnabled) {
       return $value;
@@ -72,7 +72,6 @@ trait DateTrait {
    */
   #[Transform('table:*')]
   public function dateRelativeTransformTable(TableNode $table): TableNode {
-    // A cheap substring check skips tables without tokens.
     if (!$this->dateEnabled || !static::dateRelativeStringHasToken($table->getTableAsString())) {
       return $table;
     }
@@ -117,7 +116,6 @@ trait DateTrait {
    * that relative time within a day use max of 12 hours offset.
    */
   public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
-    // A cheap substring check skips values without tokens.
     if (!static::dateRelativeStringHasToken($value)) {
       return $value;
     }

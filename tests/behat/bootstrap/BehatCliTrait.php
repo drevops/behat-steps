@@ -359,7 +359,8 @@ EOL;
     $coverage_extension = '';
 
     if (static::behatCliIsCoverageEnabled()) {
-      // Generate unique coverage filename for this subprocess to avoid conflicts.
+      // Each subprocess writes its own coverage file, so the names cannot
+      // collide.
       $coverage_id = md5($this->workingDir);
       $coverage_extension = PHP_EOL . sprintf("  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
     }
@@ -382,10 +383,10 @@ EOL;
   #[Then('it should fail with an error:')]
   public function behatCliAssertFailWithError(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
-    // Enforce assertion exceptions: ExpectationException and its
+    // An assertion failure is an ExpectationException or its
     // ElementNotFoundException subclass where a Mink session is available,
-    // AssertionException where it is not. Non-assertion failures should be
-    // thrown as \RuntimeException.
+    // and an AssertionException where it is not. A non-assertion failure is
+    // a \RuntimeException.
     $output = $this->getOutput();
     $has_valid_exception = str_contains((string) $output, ' (Behat\Mink\Exception\ExpectationException)')
       || str_contains((string) $output, ' (Behat\Mink\Exception\ElementNotFoundException)')
@@ -401,8 +402,8 @@ EOL;
   #[Then('it should fail with an exception:')]
   public function behatCliAssertFailWithException(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
-    // Enforce \RuntimeException for all non-assertion failures. Assertion
-    // failures should be thrown as an assertion exception.
+    // A non-assertion failure is a \RuntimeException. An assertion failure
+    // is an assertion exception.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
     }
@@ -474,7 +475,7 @@ EOL;
       $dst = $this->workingDir . DIRECTORY_SEPARATOR . $fixture_path;
       mkdir($dst, 0777, TRUE);
       foreach (glob($fixture_path_abs . '/*') as $file) {
-        // @note Only copy files for speed.
+        // Subdirectories are skipped for speed.
         if (is_file($file)) {
           $filename = basename($file);
           copy($file, $dst . DIRECTORY_SEPARATOR . $filename);

@@ -17,9 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests 'getEntityFieldTypes()' against the classifier-backed predicates.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

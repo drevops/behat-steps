@@ -36,7 +36,7 @@ class LintTraitsTest extends UnitTestCase {
   }
 
   /**
-   * Assert that a trait's directory decides what it is.
+   * Assert that a trait's kind is read from its directory.
    */
   public function testCollectReadsBothDirectories(): void {
     $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
@@ -52,7 +52,7 @@ class LintTraitsTest extends UnitTestCase {
   }
 
   /**
-   * Assert that a repository missing a directory reads the rest.
+   * Assert that collection skips a missing directory and reads the rest.
    */
   public function testCollectSkipsMissingDirectory(): void {
     $this->writeFixture('src/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");

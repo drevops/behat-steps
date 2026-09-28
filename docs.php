@@ -58,7 +58,7 @@ const STEPS_DIRECTORY = 'src/Steps';
  * Context whose traits are named and sorted without their context prefix.
  *
  * Its traits head the index and their example features carry no name prefix,
- * so the documents read for the steps a suite reaches first.
+ * so the documents lead with the steps a suite uses first.
  */
 const DEFAULT_CONTEXT = 'Web';
 
@@ -98,8 +98,8 @@ const HELPERS_FILE = 'HELPERS.md';
  */
 const CONFIGURATION_FILE = 'docs/configuration.md';
 
-// Execute the main function only when the script is run directly, not when
-// included.
+// The main function runs only when the script is run directly, not when it
+// is included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
   $options = getopt('', ['fail-on-change', 'path::']);
@@ -219,8 +219,8 @@ function file_declares_trait(string $file_path): bool {
  * Collect the vocabulary traits composed into the given classes.
  *
  * Every trait declared under the vocabulary directory has to be composed into
- * one of the classes, so that a reference document covers the whole vocabulary
- * rather than the part one context happens to use.
+ * one of the classes, so a reference document covers the whole vocabulary
+ * rather than the part one context uses.
  *
  * @param array<int, class-string> $class_names
  *   The classes documenting the vocabulary, one per context.
@@ -271,7 +271,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 
       // A context composes helper traits beside the vocabulary, and only the
       // vocabulary belongs in the step reference. The directory a trait sits
-      // in is what says which it is.
+      // in determines which it is.
       if (!in_array($trait_name, $vocabulary, TRUE)) {
         continue;
       }
@@ -292,7 +292,6 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
       }
       // @codeCoverageIgnoreEnd
       $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
-      // The directory a trait sits in under the vocabulary root is its context.
       $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
 
       $collected[$trait_name] = ['reflection' => $trait, 'context' => $context, 'host' => $class_name];
@@ -311,9 +310,10 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 /**
  * Collect the helper traits the package publishes.
  *
- * Every trait of the directory is published, and the directory is what makes
- * it plumbing rather than vocabulary. The half it sits in says which context
- * reaches it, so the reference groups them the way the steps are grouped.
+ * Every trait of the directory is published, and the directory marks it as
+ * plumbing rather than vocabulary. The half it sits in names the context it
+ * is available to, so the reference groups helpers the way the steps are
+ * grouped.
  *
  * @param string $base_path
  *   Base path for the repository.
@@ -505,8 +505,8 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  // Remove docblock asterisk and up to one space, but preserve remaining
-  // indentation.
+  // Strips the docblock asterisk and at most one space, so any further
+  // indentation is preserved.
   $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
 
   if (count($lines) > 1 && empty($lines[0])) {
@@ -516,7 +516,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  // Trim lines, but preserve indentation within @code blocks.
+  // Lines are trimmed except inside @code blocks, where indentation is kept.
   $in_code_block = FALSE;
   $lines = array_map(static function (string $line) use (&$in_code_block): string {
     if (str_starts_with(trim($line), '@code')) {
@@ -633,7 +633,7 @@ function parse_method_comment(string $comment): ?array {
   $return['description'] = trim($return['description']);
 
   if (!empty($return['example'])) {
-    // Remove indentation from the example, using the first line as a
+    // Indentation is removed from the example, with the first line as the
     // reference.
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
@@ -1039,7 +1039,7 @@ function helper_trait_contracts(\ReflectionClass $trait, array $class_names): ar
  * Determine whether a class reaches a trait through any depth of composition.
  *
  * 'getTraits()' reports only what a class composes itself, and a helper trait
- * is reached through the step trait that needs it.
+ * is composed by the step trait that uses it.
  *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait to walk.
@@ -1550,8 +1550,8 @@ function validate(array $info): array {
         }
       }
 
-      // Match names that the snake_case rule rejects too, so a violation is
-      // reported rather than truncated to a legal prefix.
+      // The pattern also matches names the snake_case rule rejects, so a
+      // violation is reported rather than truncated to a legal prefix.
       preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $placeholders);
 
       foreach ($placeholders[1] as $placeholder) {
@@ -1615,7 +1615,7 @@ function validate_step_patterns(array $info): array {
     }
   }
 
-  // Collect every documented step text once, keeping the step that owns it.
+  // Every documented step text is collected once, with the step that owns it.
   $examples = [];
   foreach ($steps as $step) {
     foreach ($step['examples'] as $example) {
@@ -1643,7 +1643,7 @@ function validate_step_patterns(array $info): array {
     }
   }
 
-  // Catch a renamed pattern whose example was left behind.
+  // A renamed pattern whose example was not updated is reported here.
   foreach ($steps as $step) {
     $documented = FALSE;
 
@@ -1687,7 +1687,7 @@ function extract_step_examples(string $example): array {
  * Validate that every declared option carries a default and a description.
  *
  * The option table is generated from the declarations, so an option without a
- * description would reach the reference as an empty cell.
+ * description would render in the reference as an empty cell.
  *
  * @param string $trait_name
  *   The short trait name, for the error message.
@@ -1724,9 +1724,10 @@ function validate_trait_options(string $trait_name, mixed $options): array {
  * Placeholder names that name a value's type instead of its role.
  *
  * A placeholder is the only description a step gives of what a consumer must
- * pass, so it names the thing (`:tolerance`, `:selector`, `:count`) rather than
- * the PHP type it arrives as or the bare category it belongs to. Add a name
- * here to keep it out of step patterns.
+ * pass. It names the thing (`:tolerance`, `:selector`, `:count`) rather than
+ * its PHP type or bare category.
+ *
+ * A name listed here is rejected in step patterns.
  *
  * @return array<int, string>
  *   List of rejected placeholder names, without the leading colon.
@@ -1757,8 +1758,8 @@ function non_descriptive_placeholders(): array {
  * words inside a tag name (e.g. `@disable-form-validation`). A `flag` tag
  * stands alone and takes no value.
  *
- * Add every new special tag here so that validate_tags() can guard its format
- * and prevent separator drift.
+ * Every special tag is registered here, so validate_tags() can guard its
+ * format and keep the separator consistent.
  *
  * @return array<string, array{form: string, description: string}>
  *   Map of tag prefix to its form, one of 'parametrized' or 'flag', and the
@@ -2062,8 +2063,9 @@ function extract_tags(string $text): array {
  */
 function validate_tag(string $tag, array $registry): ?string {
   $prefixes = array_keys($registry);
-  // Longest prefix first so a prefix that shares a leading segment with a
-  // shorter one is matched against its full, most specific form.
+  // The longest prefix is tried first, so a prefix that shares a leading
+  // segment with a shorter one is matched against its full, most specific
+  // form.
   usort($prefixes, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
 
   foreach ($prefixes as $prefix) {
@@ -2091,7 +2093,7 @@ function validate_tag(string $tag, array $registry): ?string {
  * Scans every trait description, every step example, and every feature file for
  * tag tokens, then checks each against the registry. A parametrized tag written
  * with a `-` separator instead of a `:` is reported so the documented format
- * cannot drift apart from the established convention.
+ * stays consistent with the established convention.
  *
  * @param array<string, mixed> $info
  *   The extracted trait info from extract_info().

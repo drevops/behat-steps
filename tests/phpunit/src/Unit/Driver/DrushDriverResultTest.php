@@ -15,9 +15,6 @@ use Symfony\Component\Process\Process;
 
 /**
  * Tests the non-throwing 'drushResult()' executor and the 'DrushResult' VO.
- *
- * @group drivers
- * @group drush
  */
 #[CoversClass(DrushDriver::class)]
 #[CoversClass(DrushResult::class)]
@@ -34,8 +31,6 @@ class DrushDriverResultTest extends TestCase {
    *   The standard output to construct with.
    * @param string $error_output
    *   The standard error output to construct with.
-   *
-   * @dataProvider dataProviderDrushResultExposesValues
    */
   #[DataProvider('dataProviderDrushResultExposesValues')]
   public function testDrushResultExposesValues(int $exit_code, string $output, string $error_output): void {
@@ -66,8 +61,6 @@ class DrushDriverResultTest extends TestCase {
    *   The process standard error output.
    * @param int $expected_exit_code
    *   The exit code expected on the resulting 'DrushResult'.
-   *
-   * @dataProvider dataProviderDrushResultMapsProcess
    */
   #[DataProvider('dataProviderDrushResultMapsProcess')]
   public function testDrushResultMapsProcess(?int $exit_code, string $output, string $error_output, int $expected_exit_code): void {
@@ -113,8 +106,6 @@ class DrushDriverResultTest extends TestCase {
    *   The process standard error output.
    * @param string $expected
    *   The value 'drush()' is expected to return.
-   *
-   * @dataProvider dataProviderDrushStdoutElseStderrFallback
    */
   #[DataProvider('dataProviderDrushStdoutElseStderrFallback')]
   public function testDrushStdoutElseStderrFallback(string $output, string $error_output, string $expected): void {

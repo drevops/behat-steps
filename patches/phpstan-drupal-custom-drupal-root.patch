@@ -1,0 +1,15 @@
+diff --git a/src/Drupal/DrupalAutoloader.php b/src/Drupal/DrupalAutoloader.php
+index 89d5ddb3..7d1aacaf 100644
+--- a/src/Drupal/DrupalAutoloader.php
++++ b/src/Drupal/DrupalAutoloader.php
+@@ -95,8 +95,8 @@ public function register(Container $container): void
+         }
+ 
+         $finder = new DrupalFinderComposerRuntime();
+-        $drupalRoot = $finder->getDrupalRoot();
+-        $drupalVendorRoot = $finder->getVendorDir();
++        $drupalRoot = getenv('DRUPAL_ROOT') ?: $finder->getDrupalRoot();
++        $drupalVendorRoot = getenv('DRUPAL_VENDOR_ROOT') ?: $finder->getVendorDir();
+         if (!(is_string($drupalRoot) && is_string($drupalVendorRoot))) {
+             throw new RuntimeException("Unable to detect Drupal with webflo/drupal-finder.");
+         }

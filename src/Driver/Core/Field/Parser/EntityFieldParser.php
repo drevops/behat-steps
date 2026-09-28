@@ -34,7 +34,7 @@ use DrevOps\BehatSteps\Driver\Core\Field\Parser\Exception\ParseException;
  *
  * Errors detected while parsing a single cell are collected and thrown
  * together via 'MultipleParseException' so authors see every problem at
- * once instead of fixing them one at a time.
+ * once.
  */
 class EntityFieldParser implements EntityFieldParserInterface {
 
@@ -55,9 +55,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
    * @param string|null $bundle
    *   The bundle for the stub being parsed, or NULL for entity types
    *   without bundles. When provided, bundle-scoped fields (F6-F9) are
-   *   accepted as known fields rather than triggering the unknown-field
-   *   guard; their values are passed to the entity unchanged for the
-   *   bundle's field item-list class to handle at save.
+   *   accepted as known fields, and their values are passed to the entity
+   *   unchanged for the bundle's field item-list class to handle at save.
    */
   public function __construct(
     protected readonly string $entityType,
@@ -128,12 +127,11 @@ class EntityFieldParser implements EntityFieldParserInterface {
       }
       else {
         // The classifier splits base fields across F1-F4 (standard, computed
-        // read-only, computed writable, custom storage). All four predicates
-        // must be checked so computed and custom-storage base fields like
-        // 'moderation_state' do not trip the unknown-field guard. When the
-        // bundle is known, also accept F6-F9 (bundle-scoped fields) so that
-        // fields contributed via 'hook_entity_bundle_field_info()' are
-        // recognised.
+        // read-only, computed writable, custom storage), so all four
+        // predicates are checked and a computed or custom-storage base field
+        // like 'moderation_state' is not flagged unknown. When the bundle is
+        // known, F6-F9 (bundle-scoped fields) count as known too, so fields
+        // contributed via 'hook_entity_bundle_field_info()' are recognised.
         $is_known = $this->fieldClassifier->fieldIsBaseStandard($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedReadOnly($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedWritable($this->entityType, $field_name)
@@ -199,9 +197,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
    *
    * Compound mode is detected by the presence of a top-level
    * 'key:"...' or 'key:[...]' pattern - i.e. an identifier, optional
-   * whitespace, ':', optional whitespace, then '"' or '[' - with the
-   * scan respecting quoted strings and bracketed tokens so an embedded
-   * pattern inside a quoted scalar does not trigger compound mode.
+   * whitespace, ':', optional whitespace, then '"' or '['. The scan
+   * respects quoted strings and bracketed tokens, so an embedded pattern
+   * inside a quoted scalar does not trigger compound mode.
    */
   protected function detectCompoundMode(string $cell): bool {
     $length = strlen($cell);

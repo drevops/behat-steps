@@ -318,8 +318,8 @@ trait RandomTrait {
   /**
    * Dispatches to the type-specific generator.
    *
-   * Args are validated by 'randomNormalizeArgs()' before reaching this method,
-   * so the casts are safe and not a fallback.
+   * 'randomNormalizeArgs()' has already validated the args, so the casts are
+   * safe and not a fallback.
    *
    * @param string $type
    *   The generator type extracted from the token.

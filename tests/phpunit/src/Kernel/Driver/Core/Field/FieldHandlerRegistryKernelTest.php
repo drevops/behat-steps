@@ -15,13 +15,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test asserting a consumer-registered handler wins end-to-end.
  *
- * The unit tests cover registry semantics in isolation; this test proves
- * that a class registered via 'Core::registerFieldHandler()' is actually
- * the one instantiated when 'entityCreate()' expands a field, by observing
- * the stored value differs from what the fallback handler would produce.
- *
- * @group core
- * @group fields
+ * The unit tests cover registry semantics in isolation. This test proves
+ * that a class registered via 'Core::registerFieldHandler()' is the one
+ * instantiated when 'entityCreate()' expands a field. The stored value is
+ * observed to differ from what the fallback handler would produce.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

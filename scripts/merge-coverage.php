@@ -21,8 +21,8 @@ use SebastianBergmann\CodeCoverage\Report\Cobertura;
 use SebastianBergmann\CodeCoverage\Report\Html\Facade;
 
 // The coverage files are serialised by the fixture site's php-code-coverage,
-// and only unserialise against that same installation, so prefer the fixture's
-// autoloader over the project's own.
+// and only unserialise against that same installation, so the fixture's
+// autoloader is preferred over the project's own.
 $autoloader = __DIR__ . '/../build/vendor/autoload.php';
 if (!file_exists($autoloader)) {
   $autoloader = __DIR__ . '/../vendor/autoload.php';

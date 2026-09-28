@@ -16,8 +16,6 @@ use PHPUnit\Framework\TestCase;
  *
  * 'DefaultHandler' is the simplest concrete subclass and is used here to
  * exercise the base class error branches.
- *
- * @group fields
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
@@ -45,7 +43,7 @@ class AbstractHandlerErrorPathsTest extends TestCase {
     $main_property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
     $main_property->setValue($handler, NULL);
 
-    $this->expectException(\LogicException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Handler ".+DefaultHandler" has no main property/');
 
     $handler->expand('value');

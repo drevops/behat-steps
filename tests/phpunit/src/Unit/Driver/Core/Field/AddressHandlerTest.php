@@ -12,8 +12,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the AddressHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(AddressHandler::class)]
 #[Group('fields')]

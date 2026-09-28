@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
-use Behat\Gherkin\Node\TaggedNodeInterface;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
@@ -163,10 +162,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Returns the highest-priority driver providing the given capability.
    *
-   * A step names the capability it needs and never a driver, which is what
-   * keeps the shipped vocabulary portable: a project that registers its own
-   * driver gets the step working the moment that driver implements the
-   * interface.
+   * A step names the capability it needs and never a driver, so the shipped
+   * vocabulary stays portable: a project that registers its own driver gets
+   * the step working as soon as that driver implements the interface.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
@@ -231,10 +229,10 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Determines whether scenario cleanup should run.
    *
-   * Set 'BEHAT_STEPS_DISABLE_CLEANUP' to '1', 'true', 'yes', or 'on'
-   * (case-insensitive) to skip the AfterScenario teardown of entities, users
-   * and roles. Useful for inspecting state left behind by a failing scenario;
-   * not intended for CI runs.
+   * 'BEHAT_STEPS_DISABLE_CLEANUP' set to '1', 'true', 'yes' or 'on'
+   * (case-insensitive) skips the AfterScenario teardown of entities, users
+   * and roles, so the state a failing scenario leaves behind can be
+   * inspected. The variable is not intended for CI runs.
    */
   protected function shouldCleanup(): bool {
     $env = getenv('BEHAT_STEPS_DISABLE_CLEANUP');
@@ -282,9 +280,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Collects the option declarations of every trait this context composes.
    *
-   * A trait declares its options in a '<prefix>ConfigSchema()' method named by
-   * the same prefix its other methods carry, so the group name falls out of the
-   * method name and a consuming project's own trait participates without being
+   * A trait declares its options in a '<prefix>ConfigSchema()' method, named
+   * by the prefix its other methods carry. The group name derives from the
+   * method name, so a consuming project's own trait participates without being
    * registered anywhere.
    *
    * @return array<string, array<string, array<string, mixed>>>
@@ -335,9 +333,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Resolves every option against the extension and this context's overrides.
    *
-   * The extension's 'steps' section arrives through 'setParameters()', which
+   * The extension's 'steps' section is set through 'setParameters()', which
    * Behat calls after it has constructed the context, so the resolution is
-   * deferred to the first read and memoised from there.
+   * deferred to the first read and memoised.
    *
    * @return array<string, array<string, mixed>>
    *   Resolved values keyed by group name and then by option name.
@@ -534,15 +532,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
       return $value;
     }
 
-    $scenario = $scope->getScenario();
-    $lines = [Tag::on($scope->getFeature())];
-    $lines[] = $scenario instanceof TaggedNodeInterface ? Tag::on($scenario) : [];
-
-    foreach ($lines as $line) {
-      foreach ($line as $tag) {
-        if (array_key_exists($tag, $tags)) {
-          $value = $tags[$tag];
-        }
+    foreach (Tag::all($scope) as $tag) {
+      if (array_key_exists($tag, $tags)) {
+        $value = $tags[$tag];
       }
     }
 

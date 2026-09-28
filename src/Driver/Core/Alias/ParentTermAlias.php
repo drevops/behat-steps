@@ -118,8 +118,8 @@ class ParentTermAlias implements PreCreateAliasInterface {
       throw new CreationAliasResolutionException(sprintf("Cannot resolve parent term '%s' in vocabulary '%s' because the lookup returned an invalid tid.", $parent_name, $vid));
     }
 
-    // Cast to int so the downstream entity-reference handler treats the
-    // value as a pre-resolved tid and skips its own validation query.
+    // The downstream entity-reference handler treats an integer as a
+    // pre-resolved tid and skips its own validation query.
     $stub->setValue('parent', (int) $tid);
   }
 

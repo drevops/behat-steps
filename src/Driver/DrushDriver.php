@@ -21,7 +21,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   use CreationAliasRegistryTrait;
 
   /**
-   * Store a drush alias.
+   * The drush alias.
    */
   public string $alias;
 
@@ -33,12 +33,12 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   public string $root;
 
   /**
-   * Store the path to drush binary.
+   * The path to the drush binary.
    */
   public string $binary;
 
   /**
-   * Track bootstrapping.
+   * Whether the driver has been bootstrapped.
    */
   protected bool $bootstrapped = FALSE;
 
@@ -53,7 +53,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   protected string $arguments = '';
 
   /**
-   * Set drush alias or root path.
+   * Sets the drush alias or root path.
    *
    * @param string $alias
    *   A drush alias.
@@ -177,9 +177,8 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function configGetOriginal(string $name, string $key = ''): mixed {
-    // Drush persists every 'configSet' change to the active store; there is
-    // no separate "original" layer to read, so this returns the same value
-    // as 'configGet'.
+    // Drush persists every 'configSet' change to the active store, so there
+    // is no separate "original" layer to read.
     return $this->configGet($name, $key);
   }
 
@@ -294,8 +293,8 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function watchdogFetch(int $count = 10, ?string $type = NULL, ?string $severity = NULL): string {
-    // parseArguments() maps NULL values to bare --flag, so only include
-    // filters that have been explicitly set.
+    // parseArguments() maps a NULL value to a bare --flag, so only filters
+    // that are explicitly set are passed.
     $options = ['count' => (string) $count];
 
     if ($type !== NULL) {
@@ -320,7 +319,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Get common drush arguments.
+   * Gets common drush arguments.
    */
   public function getArguments(): string {
     return $this->arguments;
@@ -343,7 +342,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Execute a drush command, returning its result without throwing on failure.
+   * Executes a drush command, returning its result without throwing on failure.
    *
    * The command runs without a shell, so no value passed here is subject to
    * shell interpretation.
@@ -378,7 +377,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Execute a drush command.
+   * Executes a drush command.
    *
    * @param string $command
    *   The Drush command to execute.
@@ -464,7 +463,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Parse user id from drush user-information output.
+   * Parses the user id from drush user-information output.
    *
    * Supports both the legacy key-value format ("User ID : 123") and the
    * Drush 12+ table format where the ID is the first numeric value in the
@@ -479,7 +478,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
       $lines = explode("\n", trim($info));
 
       foreach ($lines as $line) {
-        // Skip header, separator, and empty lines.
         $trimmed = trim($line, " \t\n\r\0\x0B-");
 
         if ($trimmed === '') {
@@ -500,7 +498,7 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * Parse options into individual argv entries.
+   * Parses options into individual argv entries.
    *
    * @param array<string, string|bool|null> $arguments
    *   An array of option names to values. A NULL value yields a bare flag.

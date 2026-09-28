@@ -15,9 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests value-shape classification by stored property definitions.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(FieldShapeClassifier::class)]
 #[Group('core')]
@@ -34,12 +31,10 @@ class FieldShapeClassifierTest extends TestCase {
       'target_id' => DataReferenceTargetDefinition::create('integer'),
     ])));
 
-    // A plain scalar is not a reference.
     $this->assertFalse($classifier->fieldIsEntityReference($this->storageWithProperties([
       'value' => DataDefinition::create('string'),
     ])));
 
-    // A datetime column is a scalar, not a reference.
     $this->assertFalse($classifier->fieldIsEntityReference($this->storageWithProperties([
       'value' => DataDefinition::create('datetime_iso8601'),
     ])));
@@ -63,7 +58,6 @@ class FieldShapeClassifierTest extends TestCase {
       'options' => MapDataDefinition::create(),
     ])));
 
-    // Plain scalars are not complex.
     $this->assertFalse($classifier->fieldIsComplexValue($this->storageWithProperties([
       'value' => DataDefinition::create('string'),
       'format' => DataDefinition::create('string'),

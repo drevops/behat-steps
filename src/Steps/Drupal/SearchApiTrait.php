@@ -85,9 +85,6 @@ trait SearchApiTrait {
   /**
    * Run the Search API module cron hook.
    *
-   * Triggers the `search_api` module's `hook_cron` implementation, which
-   * processes the tracker and indexes pending items as a real cron job would.
-   *
    * @code
    * When I run the Search API cron
    * @endcode
@@ -104,9 +101,8 @@ trait SearchApiTrait {
   /**
    * Run the Search API Solr module cron hook.
    *
-   * Triggers the `search_api_solr` module's `hook_cron` implementation. This
-   * is a no-op when the `search_api_solr` module is not enabled, but requires
-   * the parent `search_api` module to be enabled.
+   * The step is a no-op when `search_api_solr` is not enabled, but still
+   * requires `search_api` to be enabled.
    *
    * @code
    * When I run the Search API Solr cron

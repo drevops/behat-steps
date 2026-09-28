@@ -10,10 +10,8 @@ use Behat\Gherkin\Node\TableNode;
  * Reads a vertical Gherkin table as one set of values per entity.
  *
  * A vertical table names a field per row and carries one column of values
- * per entity, which reads better than a wide horizontal table when an
- * entity has many fields.
- *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * per entity. It reads better than a wide horizontal table when an entity
+ * has many fields.
  */
 trait TableTransposeTrait {
 
