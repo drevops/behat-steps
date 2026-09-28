@@ -19,6 +19,7 @@
 
 declare(strict_types=1);
 
+use Behat\Behat\Definition\Pattern\Policy\TurnipPatternPolicy;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -49,6 +50,7 @@ function main(array $options = []): void {
   $info = extract_info(FeatureContext::class, [FeatureContextTrait::class, 'HelperTrait'], $base_path);
 
   $errors = validate($info);
+  $errors = array_merge($errors, validate_step_patterns($info));
   $errors = array_merge($errors, validate_tags($info, $base_path));
 
   if (!empty($errors)) {
@@ -706,6 +708,116 @@ function validate(array $info): array {
   }
 
   return $errors;
+}
+
+/**
+ * Validate that every documented step matches exactly one definition.
+ *
+ * Behat resolves definitions per step text while a scenario runs, so a pattern
+ * that shadows another one is only reported once a scenario uses the shadowed
+ * step.
+ *
+ * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
+ *   Array of trait info keyed by trait name.
+ *
+ * @return array<string>
+ *   Array of errors.
+ */
+function validate_step_patterns(array $info): array {
+  $errors = [];
+  $policy = new TurnipPatternPolicy();
+  $steps = [];
+
+  foreach ($info as $class_info) {
+    $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
+
+    // @phpstan-ignore-next-line
+    foreach ($class_info['methods'] as $method) {
+      $method_steps = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
+      $method_name = is_string($method['name']) ? $method['name'] : '';
+      $method_example = is_string($method['example']) ? $method['example'] : '';
+      $pattern = (string) preg_replace('/^@(?:Given|When|Then)\s+/', '', (string) ($method_steps[0] ?? ''));
+
+      if ($pattern === '') {
+        continue;
+      }
+
+      $steps[$method_name . '|' . $pattern] = [
+        'label' => $class_name . '::' . $method_name,
+        'method' => $method_name,
+        'pattern' => $pattern,
+        'regex' => $policy->transformPatternToRegex($pattern),
+        'examples' => extract_step_examples($method_example),
+      ];
+    }
+  }
+
+  // Collect every documented step text once, keeping the step that owns it.
+  $examples = [];
+  foreach ($steps as $step) {
+    foreach ($step['examples'] as $example) {
+      $examples[$example] ??= $step['label'];
+    }
+  }
+
+  foreach ($examples as $example => $label) {
+    $matched = [];
+
+    foreach ($steps as $step) {
+      if (preg_match($step['regex'], (string) $example) === 1) {
+        $matched[$step['method']] = $step['pattern'];
+      }
+    }
+
+    if (count($matched) > 1) {
+      $conflicts = [];
+
+      foreach ($matched as $matched_method => $matched_pattern) {
+        $conflicts[] = sprintf('%s() as "%s"', $matched_method, $matched_pattern);
+      }
+
+      $errors[] = sprintf('  %s - Step "%s" matches more than one definition: %s' . PHP_EOL, $label, $example, implode(', ', $conflicts));
+    }
+  }
+
+  // Catch a renamed pattern whose example was left behind.
+  foreach ($steps as $step) {
+    $documented = FALSE;
+
+    foreach ($step['examples'] as $example) {
+      if (preg_match($step['regex'], $example) === 1) {
+        $documented = TRUE;
+        break;
+      }
+    }
+
+    if (!$documented) {
+      $errors[] = sprintf('  %s - No example matches the step "%s"' . PHP_EOL, $step['label'], $step['pattern']);
+    }
+  }
+
+  return $errors;
+}
+
+/**
+ * Extract Gherkin step texts from a documented example.
+ *
+ * @param string $example
+ *   The example block.
+ *
+ * @return array<int, string>
+ *   Array of step texts with the Gherkin keyword removed.
+ */
+function extract_step_examples(string $example): array {
+  $steps = [];
+
+  foreach (explode(PHP_EOL, $example) as $line) {
+    if (preg_match('/^\s*(?:Given|When|Then|And|But)\s+(.+)$/', $line, $matches) === 1) {
+      $steps[] = trim($matches[1]);
+    }
+  }
+
+  return $steps;
 }
 
 /**
