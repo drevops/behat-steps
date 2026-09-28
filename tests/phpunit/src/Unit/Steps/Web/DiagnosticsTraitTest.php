@@ -175,7 +175,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
   }
 
   public function testGetJsErrorsReadsRegistryAndDeduplicates(): void {
-    $object = new DiagnosticsTraitJsRegistryImplementation();
+    $object = new DiagnosticsTraitJsRegistryTestImplementation();
     $object->javascriptErrorRegistry = [
       'http://example.com/a' => [['message' => 'TypeError: a'], ['no-message' => 'skip']],
       'http://example.com/b' => 'not-an-array',
@@ -323,7 +323,7 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
 /**
  * Test implementation that also exposes a JavascriptTrait-style registry.
  */
-class DiagnosticsTraitJsRegistryImplementation extends DiagnosticsTraitTestImplementation {
+class DiagnosticsTraitJsRegistryTestImplementation extends DiagnosticsTraitTestImplementation {
 
   /**
    * Mimics the registry property maintained by JavascriptTrait.
