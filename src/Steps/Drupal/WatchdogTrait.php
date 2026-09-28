@@ -38,8 +38,6 @@ trait WatchdogTrait {
 
   use LastStepTrait;
 
-  use LastStepTrait;
-
   /**
    * Start time for each scenario.
    */

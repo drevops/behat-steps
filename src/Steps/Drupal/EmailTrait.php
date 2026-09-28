@@ -39,8 +39,6 @@ trait EmailTrait {
 
   use StringTrait;
 
-  use StringTrait;
-
   /**
    * List of email handler types.
    *

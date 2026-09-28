@@ -69,8 +69,6 @@ trait ConfigOverrideTrait {
 
   use RequestHeadersTrait;
 
-  use RequestHeadersTrait;
-
   /**
    * Config names parsed from `@disable-config-override:*` tags.
    *

@@ -40,8 +40,6 @@ trait UserTrait {
   use StringTrait;
   use TableTransposeTrait;
 
-  use StringTrait;
-
   /**
    * Remove users specified in a table.
    *
