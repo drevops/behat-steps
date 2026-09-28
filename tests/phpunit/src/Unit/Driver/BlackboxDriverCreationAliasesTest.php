@@ -16,10 +16,6 @@ use PHPUnit\Framework\TestCase;
  * The driver declares no capabilities, so it does not implement
  * 'CreationAliasCapabilityInterface'; consumers must 'instanceof'-check
  * before calling 'getCreationAliases()'.
- *
- * @group drivers
- * @group blackbox
- * @group aliases
  */
 #[CoversClass(BlackboxDriver::class)]
 #[Group('drivers')]

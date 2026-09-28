@@ -18,8 +18,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * the integration proof: Core::entityCreate resolves DatetimeHandler through
  * its lookup chain, the handler's output is accepted by real datetime field
  * storage, and the stored value round-trips unchanged.
- *
- * @group fields
  */
 #[CoversClass(DatetimeHandler::class)]
 #[Group('fields')]

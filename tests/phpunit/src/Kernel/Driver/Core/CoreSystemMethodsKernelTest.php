@@ -19,8 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Covers module install/uninstall, language create/delete, module list
  * retrieval, and the account switcher login/logout pair in a single class
  * to amortise per-method KernelTestBase bootstrap cost.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

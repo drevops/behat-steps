@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the UnsupportedDriverActionException.
- *
- * @group exception
  */
 #[CoversClass(UnsupportedDriverActionException::class)]
 #[Group('exception')]

@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * file.repository service, saves a managed File entity, and emits a reference
  * payload (target_id, display, description). This kernel test runs the whole
  * chain against real storage and asserts the reference round-trips.
- *
- * @group fields
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]

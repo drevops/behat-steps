@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the EntityStub typed envelope.
- *
- * @group entity
  */
 #[CoversClass(EntityStub::class)]
 #[Group('entity')]

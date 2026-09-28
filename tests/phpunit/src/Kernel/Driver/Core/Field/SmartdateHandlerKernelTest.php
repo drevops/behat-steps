@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * value is proving the driver resolves SmartdateHandler for type
  * 'smartdate' and that the multi-column storage accepts what the handler
  * emits. The 'smartdate' field type is provided by drupal/smart_date.
- *
- * @group fields
  */
 #[CoversClass(SmartdateHandler::class)]
 #[Group('fields')]

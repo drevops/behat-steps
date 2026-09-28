@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests permission label and machine name conversion in the Drupal 8+ driver.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

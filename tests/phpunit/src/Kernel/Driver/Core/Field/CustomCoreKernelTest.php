@@ -27,9 +27,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *    from 'DefaultHandler', which serves the type when nothing is registered.
  *  - 'ConsumerProject\Driver\Field\StringLongHandler' does the same for
  *    'string_long'.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

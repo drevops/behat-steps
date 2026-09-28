@@ -12,8 +12,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the TimeHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(TimeHandler::class)]
 #[Group('fields')]

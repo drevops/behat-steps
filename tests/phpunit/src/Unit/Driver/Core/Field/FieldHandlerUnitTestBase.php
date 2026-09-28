@@ -46,8 +46,6 @@ abstract class FieldHandlerUnitTestBase extends TestCase {
    *   The expected exception class, or NULL for the happy path.
    * @param string|null $exception_message
    *   Substring the exception message must contain, or NULL.
-   *
-   * @dataProvider dataProviderExpand
    */
   #[DataProvider('dataProviderExpand')]
   public function testExpand(mixed $input, mixed $expected, ?string $exception, ?string $exception_message): void {

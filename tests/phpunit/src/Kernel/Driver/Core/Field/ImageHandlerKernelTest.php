@@ -18,8 +18,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * ['target_id' => X, 'alt' => Y, 'title' => Z]. The base helper's
  * normalisation handles that shape, so the assertion is identical to the
  * other multi-property handlers.
- *
- * @group fields
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]

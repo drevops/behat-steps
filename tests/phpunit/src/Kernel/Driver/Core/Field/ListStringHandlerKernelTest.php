@@ -19,8 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * setting. This test exercises that translation end-to-end: the driver
  * receives a label, the handler swaps it for the key, storage accepts the
  * key, and the round-trip returns the key unchanged.
- *
- * @group fields
  */
 #[CoversClass(ListStringHandler::class)]
 #[Group('fields')]

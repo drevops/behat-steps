@@ -19,8 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Complements ImageHandlerKernelTest (upload path): referencing a pre-created
  * image by URI or bare basename reuses its file id without uploading a new
  * copy.
- *
- * @group fields
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]

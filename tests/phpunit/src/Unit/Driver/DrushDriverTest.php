@@ -16,9 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the Drush driver.
- *
- * @group drivers
- * @group drush
  */
 #[CoversClass(DrushDriver::class)]
 #[Group('drivers')]
@@ -71,8 +68,6 @@ class DrushDriverTest extends TestCase {
 
   /**
    * Tests 'parseUserId()' correctly extracts UID from drush output.
- *
- * @dataProvider dataProviderParseUserId
  */
   #[DataProvider('dataProviderParseUserId')]
   public function testParseUserId(string $drush_output, ?int $expected): void {

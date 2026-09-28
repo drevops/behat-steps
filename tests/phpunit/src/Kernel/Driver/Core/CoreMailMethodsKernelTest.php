@@ -12,8 +12,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for mail-related methods on Core via the driver.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

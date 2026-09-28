@@ -19,8 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * storage accepts what the handler emits. The 'infinite' column is derived
  * from the rrule by the field type's preSave(), so it is left out of the
  * asserted round-trip.
- *
- * @group fields
  */
 #[CoversClass(DateRecurHandler::class)]
 #[Group('fields')]

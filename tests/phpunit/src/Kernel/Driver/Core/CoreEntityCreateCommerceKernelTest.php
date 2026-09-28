@@ -26,8 +26,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Both the variation and the product are created via 'Core::entityCreate()',
  * then the product is loaded back via the entity type manager to assert the
  * resolved relationship.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

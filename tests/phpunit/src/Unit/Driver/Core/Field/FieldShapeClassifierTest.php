@@ -15,9 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests value-shape classification by stored property definitions.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(FieldShapeClassifier::class)]
 #[Group('core')]

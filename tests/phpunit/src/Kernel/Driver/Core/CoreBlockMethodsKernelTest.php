@@ -22,9 +22,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *    (placement in a region of a theme).
  *  - 'blockContentCreate()' / 'blockContentDelete()' round-trip a
  *    'block_content' content entity (the reusable block body).
- *
- * @group core
- * @group block
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

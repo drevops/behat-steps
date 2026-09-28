@@ -19,10 +19,6 @@ use PHPUnit\Framework\TestCase;
  *
  * The driver delegates to its 'Core' instance; behaviour here pins the
  * delegation contract without booting Drupal.
- *
- * @group drivers
- * @group drupal
- * @group aliases
  */
 #[CoversClass(DrupalDriver::class)]
 #[Group('drivers')]

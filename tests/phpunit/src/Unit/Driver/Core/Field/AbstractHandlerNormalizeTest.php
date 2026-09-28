@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests AbstractHandler::normalize() across every accepted input shape.
- *
- * @group fields
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
@@ -33,8 +31,6 @@ class AbstractHandlerNormalizeTest extends TestCase {
    *   The expected exception class, or NULL for the happy path.
    * @param string|null $exception_message
    *   Substring the exception message must contain, or NULL.
-   *
-   * @dataProvider dataProviderNormalize
    */
   #[DataProvider('dataProviderNormalize')]
   public function testNormalize(mixed $input, string $main_property, ?array $expected, ?string $exception, ?string $exception_message): void {

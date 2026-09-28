@@ -17,8 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for standalone error branches on 'Core' that need no Drupal kernel.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -49,8 +47,6 @@ class CoreErrorPathsTest extends TestCase {
    *   Severity passed to 'resolveSeverityLevel()'.
    * @param int $expected
    *   Expected RFC 5424 log level.
-   *
-   * @dataProvider dataProviderResolveSeverityLevel
    */
   #[DataProvider('dataProviderResolveSeverityLevel')]
   public function testResolveSeverityLevel(string $input, int $expected): void {
@@ -121,8 +117,6 @@ class CoreErrorPathsTest extends TestCase {
    *   The 'Core' method to call.
    * @param array<string, mixed> $values
    *   Values to seed the language stub with.
-   *
-   * @dataProvider dataProviderLanguageMethodsRejectMissingLangcode
    */
   #[DataProvider('dataProviderLanguageMethodsRejectMissingLangcode')]
   public function testLanguageMethodsRejectMissingLangcode(string $method, array $values): void {
@@ -165,8 +159,6 @@ class CoreErrorPathsTest extends TestCase {
    *
    * @param mixed $id
    *   The value stored under the entity type's id key.
-   *
-   * @dataProvider dataProviderEntityDeleteRejectsEmptyId
    */
   #[DataProvider('dataProviderEntityDeleteRejectsEmptyId')]
   public function testEntityDeleteRejectsEmptyId(mixed $id): void {

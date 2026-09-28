@@ -15,8 +15,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Asserts that scenarios can populate boolean fields with human-readable
  * words ('Yes', 'Published') instead of 1/0, and that unrecognised values
  * raise a clear error rather than silently coercing to FALSE.
- *
- * @group fields
  */
 #[CoversClass(BooleanHandler::class)]
 #[Group('fields')]

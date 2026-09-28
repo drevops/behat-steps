@@ -16,9 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the classifier against all nine F-row categories.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(FieldClassifier::class)]
 #[Group('core')]

@@ -25,8 +25,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * To actually run this test, see the bootstrap/env notes in
  * DatetimeHandlerKernelTest.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

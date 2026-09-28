@@ -12,8 +12,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the NameHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(NameHandler::class)]
 #[Group('fields')]

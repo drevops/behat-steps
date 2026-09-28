@@ -11,8 +11,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the SmartdateHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(SmartdateHandler::class)]
 #[Group('fields')]

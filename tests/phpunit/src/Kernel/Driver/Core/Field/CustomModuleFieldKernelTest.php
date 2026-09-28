@@ -24,9 +24,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *  - 'driver_test_reference' (an entity-reference target column) is refused at
  *    handler resolution with the actionable "register a dedicated handler"
  *    exception, rather than persisting a bogus id.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

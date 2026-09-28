@@ -27,9 +27,6 @@ use PHPUnit\Framework\TestCase;
  * These tests cover the three tiers: default (constructor-registered),
  * consumer override, and fallback to 'DefaultHandler' for unknown field
  * types.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

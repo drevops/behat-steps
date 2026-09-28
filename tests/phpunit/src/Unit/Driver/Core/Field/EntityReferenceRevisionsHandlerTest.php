@@ -21,8 +21,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests the EntityReferenceRevisionsHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(EntityReferenceRevisionsHandler::class)]
 #[Group('fields')]

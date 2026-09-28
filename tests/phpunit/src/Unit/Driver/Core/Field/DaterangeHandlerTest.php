@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the DaterangeHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(DaterangeHandler::class)]
 #[Group('fields')]

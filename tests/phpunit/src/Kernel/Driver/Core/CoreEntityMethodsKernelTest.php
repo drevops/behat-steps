@@ -21,8 +21,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Covers 'entityCreate()' and 'entityDelete()' (both the stub-object branch
  * and the loaded-entity branch). Base-field expansion is exercised
  * implicitly by any 'entityCreate()' call whose stub sets a base field.
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

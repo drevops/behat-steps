@@ -16,8 +16,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * the base class helper handles associative-array deltas correctly and that
  * LinkHandler's output - including the enforced empty 'options' array -
  * round-trips through real storage.
- *
- * @group fields
  */
 #[CoversClass(LinkHandler::class)]
 #[Group('fields')]

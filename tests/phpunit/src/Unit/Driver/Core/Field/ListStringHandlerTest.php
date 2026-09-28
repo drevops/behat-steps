@@ -13,8 +13,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the ListStringHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(ListStringHandler::class)]
 #[Group('fields')]

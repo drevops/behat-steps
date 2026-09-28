@@ -15,8 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'ParentTermAlias' creation alias.
- *
- * @group aliases
  */
 #[CoversClass(ParentTermAlias::class)]
 #[Group('aliases')]
@@ -112,8 +110,6 @@ class ParentTermAliasTest extends TestCase {
    *
    * @param mixed $parent
    *   The empty-ish value placed on the stub.
-   *
-   * @dataProvider dataProviderApplyToStubNoOpsOnEmptyParent
    */
   #[DataProvider('dataProviderApplyToStubNoOpsOnEmptyParent')]
   public function testApplyToStubNoOpsOnEmptyParent(mixed $parent): void {

@@ -14,8 +14,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for Core::login() and Core::logout().
- *
- * @group core
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

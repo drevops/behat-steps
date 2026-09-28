@@ -27,8 +27,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * If a type falls into none of these buckets the test fails with the type
  * name, forcing the contributor to add a handler, confirm DefaultHandler is
  * safe, or record a SKIP entry with a reason.
- *
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('fields')]

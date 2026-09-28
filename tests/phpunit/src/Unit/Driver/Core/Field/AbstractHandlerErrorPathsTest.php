@@ -16,8 +16,6 @@ use PHPUnit\Framework\TestCase;
  *
  * 'DefaultHandler' is the simplest concrete subclass and is used here to
  * exercise the base class error branches.
- *
- * @group fields
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]

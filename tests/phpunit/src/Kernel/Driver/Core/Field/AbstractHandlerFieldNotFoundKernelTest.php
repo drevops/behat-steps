@@ -19,8 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * constructs a handler directly (e.g. via custom Core subclasses). This test
  * exercises that direct-construction path against a real entity_field.manager
  * service.
- *
- * @group fields
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]

@@ -17,8 +17,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Covers the target-bundles restriction path and the no-label-key path that
  * the main EntityReferenceHandlerKernelTest does not reach.
- *
- * @group fields
  */
 #[CoversClass(EntityReferenceHandler::class)]
 #[Group('fields')]

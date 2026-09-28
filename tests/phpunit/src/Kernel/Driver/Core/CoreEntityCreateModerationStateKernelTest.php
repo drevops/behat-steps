@@ -23,9 +23,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * 'moderation_state', the driver must skip it entirely so the scalar reaches
  * 'Node::create()' untouched and the content_moderation save-hook captures
  * it.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

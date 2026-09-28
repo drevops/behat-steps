@@ -13,8 +13,6 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the FileHandler field handler.
- *
- * @group fields
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]

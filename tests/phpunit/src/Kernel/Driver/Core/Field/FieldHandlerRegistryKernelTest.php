@@ -19,9 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * that a class registered via 'Core::registerFieldHandler()' is actually
  * the one instantiated when 'entityCreate()' expands a field, by observing
  * the stored value differs from what the fallback handler would produce.
- *
- * @group core
- * @group fields
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

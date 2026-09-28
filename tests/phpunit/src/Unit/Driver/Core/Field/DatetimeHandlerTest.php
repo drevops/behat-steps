@@ -22,8 +22,6 @@ use PHPUnit\Framework\Attributes\Group;
  * Full date parsing exercises 'DrupalDateTime' which needs the
  * 'language_manager' service and a real Drupal container, so only the
  * empty/NULL early-return cases are asserted here.
- *
- * @group fields
  */
 #[CoversClass(DatetimeHandler::class)]
 #[Group('fields')]
