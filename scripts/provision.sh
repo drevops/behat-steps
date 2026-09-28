@@ -13,28 +13,52 @@ BEHAT="${BEHAT:-3}"
 
 echo "==> Starting provisioning of fixture Drupal ${DRUPAL_VERSION} site on Behat ${BEHAT}."
 
-# 'mglaman/phpstan-drupal' reads the Drupal root through 'DrupalFinder', which
-# resolves this package rather than the fixture site under 'build'. The patch
-# makes it honour 'DRUPAL_ROOT' and 'DRUPAL_VENDOR_ROOT', which is how 'ahoy
-# lint' points the analyser at the fixture. Upstream pull request 873 is closed,
-# so the patch is permanent.
+# A patch declared in 'composer.json' is read by the Composer Patches
+# 'Dependencies' resolver in every project that requires this package, which
+# resolves the path against that project's own root. So the declaration is
+# written here, over the package's own 'composer.json', and reverted once
+# Composer has applied it.
 #
-# It is applied here rather than through Composer so that 'composer.json'
-# declares no patches: a patch declared there is read by the Composer Patches
-# 'Dependencies' resolver in any project that requires this package, which
-# would resolve the path against that project's own root.
-phpstan_drupal_patch="/app/patches/phpstan-drupal-custom-drupal-root.patch"
-phpstan_drupal_dir="/app/vendor/mglaman/phpstan-drupal"
+# The patches apply to this package's own vendor directory, not to the fixture
+# site: 'ahoy lint' runs the root 'vendor/bin/phpstan', and 'mglaman/phpstan-
+# drupal' reads 'DRUPAL_ROOT' and 'DRUPAL_VENDOR_ROOT' only once patched.
+#
+# A patch file lives at 'patches/<vendor>/<package>/<name>.patch', so the
+# package it applies to is its own directory.
+if [ -n "$(find /app/patches -name '*.patch' -type f 2>/dev/null)" ]; then
+  echo "  > Applying the package's own patches through Composer Patches."
 
-if [ -f "${phpstan_drupal_patch}" ] && [ -d "${phpstan_drupal_dir}" ]; then
-  echo "  > Patching 'mglaman/phpstan-drupal' to honour DRUPAL_ROOT."
-  # A patch that reverses cleanly is already applied, so provisioning twice
-  # over one vendor directory is a no-op rather than a failure.
-  if patch -p1 -d "${phpstan_drupal_dir}" -R --dry-run --force <"${phpstan_drupal_patch}" >/dev/null 2>&1; then
-    echo "    Already applied."
-  else
-    patch -p1 -d "${phpstan_drupal_dir}" <"${phpstan_drupal_patch}"
-  fi
+  cp -f /app/composer.json /app/composer.json.provision
+  trap 'mv -f /app/composer.json.provision /app/composer.json 2>/dev/null || true' EXIT
+
+  php -r '
+$composer = json_decode(file_get_contents("/app/composer.json"), TRUE);
+$patches = [];
+
+foreach (glob("/app/patches/*/*/*.patch") as $patch) {
+  $package = basename(dirname(dirname($patch))) . "/" . basename(dirname($patch));
+  $description = str_replace("-", " ", basename($patch, ".patch"));
+  $patches[$package][$description] = substr($patch, strlen("/app/"));
+}
+
+ksort($patches);
+$composer["extra"]["patches"] = $patches;
+
+file_put_contents("/app/composer.json", json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+
+foreach ($patches as $package => $entries) {
+  echo "    " . $package . ": " . count($entries) . " patch(es)\n";
+}
+'
+
+  # 'install' applies a patch only while it installs the package it belongs to,
+  # and the dependencies are already in place by this point, so the packages
+  # carrying a patch are re-fetched and re-patched explicitly.
+  COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app --ansi --no-interaction patches-relock
+  COMPOSER_MEMORY_LIMIT=-1 composer --working-dir=/app --ansi --no-interaction patches-repatch
+
+  mv -f /app/composer.json.provision /app/composer.json
+  trap - EXIT
 fi
 
 echo "  > Removing existing build assets."
