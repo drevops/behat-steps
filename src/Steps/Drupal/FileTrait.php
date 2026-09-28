@@ -14,6 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -269,7 +270,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -277,7 +278,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateManagedSingle(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManagedSingle(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->entityParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -292,7 +293,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   Entity fields stub.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -300,7 +301,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateEntity(string $path, EntityStub $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');
