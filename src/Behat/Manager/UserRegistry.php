@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Behat\Manager;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
- * Default implementation of the user manager service.
+ * Default implementation of the user registry service.
  */
-class UserManager implements UserManagerInterface {
+class UserRegistry implements UserRegistryInterface {
 
   /**
    * The user stub representing the currently logged in user.

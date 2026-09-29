@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 /**
  * Interface for classes that authenticate users during tests.
  */
-interface AuthenticationManagerInterface {
+interface AuthenticatorInterface {
 
   /**
    * Logs in as the given user.

@@ -10,9 +10,9 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterUserCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeUserCreateScope;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 /**
  * Creates users and roles, logs them in, and removes them afterwards.
  *
- * The user manager holds the created users rather than the entity registry,
+ * The user registry holds the created users rather than the entity registry,
  * because a user is looked up by name. Roles are tracked separately for the
  * same reason.
  *
@@ -32,14 +32,14 @@ trait AuthTrait {
   use EntityLifecycleTrait;
 
   /**
-   * User manager.
+   * User registry.
    */
-  protected ?UserManagerInterface $userManager = NULL;
+  protected ?UserRegistryInterface $userRegistry = NULL;
 
   /**
    * Logs a user in and out of the site under test.
    */
-  protected ?AuthenticationManagerInterface $authenticationManager = NULL;
+  protected ?AuthenticatorInterface $authenticator = NULL;
 
   /**
    * Roles created during a scenario, so they can be removed after it.
@@ -61,14 +61,14 @@ trait AuthTrait {
       return;
     }
 
-    $user_manager = $this->authGetUserManager();
+    $user_registry = $this->authGetUserRegistry();
 
     // Resolving a driver bootstraps it, so a scenario that created no users
     // never boots one during teardown.
-    if ($user_manager->hasUsers() && $this->getDriverManager()->hasCapability(UserCapabilityInterface::class)) {
+    if ($user_registry->hasUsers() && $this->getDriverRegistry()->hasCapability(UserCapabilityInterface::class)) {
       $driver = $this->driverFor(UserCapabilityInterface::class);
 
-      foreach ($user_manager->getUsers() as $user) {
+      foreach ($user_registry->getUsers() as $user) {
         $driver->userDelete($user);
       }
 
@@ -76,16 +76,16 @@ trait AuthTrait {
         $driver->processBatch();
       }
 
-      $user_manager->clearUsers();
+      $user_registry->clearUsers();
     }
 
     // Reset auth state even when the scenario created no users: a scenario
     // may log in as a pre-existing user without calling userCreate(), leaving
     // stale session state for the next scenario.
-    if ($this->authGetManager() instanceof FastLogoutInterface) {
+    if ($this->authGetAuthenticator() instanceof FastLogoutInterface) {
       $this->authLogout(TRUE);
     }
-    elseif (!$user_manager->currentUserIsAnonymous()) {
+    elseif (!$user_registry->currentUserIsAnonymous()) {
       $this->authLogout();
     }
   }
@@ -103,7 +103,7 @@ trait AuthTrait {
       return;
     }
 
-    if (!$this->getDriverManager()->hasCapability(RoleCapabilityInterface::class)) {
+    if (!$this->getDriverRegistry()->hasCapability(RoleCapabilityInterface::class)) {
       return;
     }
 
@@ -119,37 +119,37 @@ trait AuthTrait {
   /**
    * {@inheritdoc}
    */
-  public function authSetUserManager(UserManagerInterface $user_manager): void {
-    $this->userManager = $user_manager;
+  public function authSetUserRegistry(UserRegistryInterface $user_registry): void {
+    $this->userRegistry = $user_registry;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function authSetManager(AuthenticationManagerInterface $authentication_manager): void {
-    $this->authenticationManager = $authentication_manager;
+  public function authSetAuthenticator(AuthenticatorInterface $authenticator): void {
+    $this->authenticator = $authenticator;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function authGetManager(): AuthenticationManagerInterface {
-    if (!$this->authenticationManager instanceof AuthenticationManagerInterface) {
-      throw new \RuntimeException('The authentication manager is available only after Behat has initialized the context.');
+  public function authGetAuthenticator(): AuthenticatorInterface {
+    if (!$this->authenticator instanceof AuthenticatorInterface) {
+      throw new \RuntimeException('The authenticator is available only after Behat has initialized the context.');
     }
 
-    return $this->authenticationManager;
+    return $this->authenticator;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function authGetUserManager(): UserManagerInterface {
-    if (!$this->userManager instanceof UserManagerInterface) {
-      throw new \RuntimeException('The user manager is available only after Behat has initialized the context.');
+  public function authGetUserRegistry(): UserRegistryInterface {
+    if (!$this->userRegistry instanceof UserRegistryInterface) {
+      throw new \RuntimeException('The user registry is available only after Behat has initialized the context.');
     }
 
-    return $this->userManager;
+    return $this->userRegistry;
   }
 
   /**
@@ -177,7 +177,7 @@ trait AuthTrait {
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the user behind, and cleanup removes only registered stubs.
-    $this->authGetUserManager()->addUser($stub);
+    $this->authGetUserRegistry()->addUser($stub);
 
     $this->entityDispatchHooks(AfterUserCreateScope::class, $stub);
     $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
@@ -192,23 +192,23 @@ trait AuthTrait {
    *   The user stub to log in.
    */
   public function authLogin(EntityStubInterface $user): void {
-    $this->authGetManager()->logIn($user);
+    $this->authGetAuthenticator()->logIn($user);
   }
 
   /**
    * Logs the current user out.
    *
    * @param bool $fast
-   *   Reset the session directly where the manager supports it.
+   *   Reset the session directly where the authenticator supports it.
    */
   public function authLogout(bool $fast = FALSE): void {
-    $authentication_manager = $this->authGetManager();
+    $authenticator = $this->authGetAuthenticator();
 
-    if ($fast && $authentication_manager instanceof FastLogoutInterface) {
-      $authentication_manager->fastLogout();
+    if ($fast && $authenticator instanceof FastLogoutInterface) {
+      $authenticator->fastLogout();
     }
     else {
-      $authentication_manager->logOut();
+      $authenticator->logOut();
     }
   }
 
@@ -216,7 +216,7 @@ trait AuthTrait {
    * Determines whether a user is logged in for this session.
    */
   public function authLoggedIn(): bool {
-    return $this->authGetManager()->loggedIn();
+    return $this->authGetAuthenticator()->loggedIn();
   }
 
 }

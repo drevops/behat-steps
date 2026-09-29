@@ -11,7 +11,7 @@ use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Listener\DriverListener;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -43,14 +43,14 @@ class DriverListenerTest extends TestCase {
    * @param list<string> $scenario_tags
    *   Tags declared on the scenario.
    * @param array<string, string> $expected
-   *   The order the manager is expected to receive.
+   *   The order the registry is expected to receive.
    */
   #[DataProvider('dataProviderDriverOrder')]
   public function testDriverOrder(array $feature_tags, array $scenario_tags, array $expected): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->expects($this->once())->method('setScenarioDrivers')->with($expected);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($expected);
 
-    $listener = new DriverListener($driver_manager, self::DRIVERS);
+    $listener = new DriverListener($driver_registry, self::DRIVERS);
     $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags));
   }
 
@@ -93,35 +93,35 @@ class DriverListenerTest extends TestCase {
   }
 
   public function testAnAliasedEntryNamesTheDriverBehindIt(): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_manager, ['blackbox', 'api' => 'drupal']);
+    $listener = new DriverListener($driver_registry, ['blackbox', 'api' => 'drupal']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api']));
   }
 
   public function testTagNameIsMatchedWithoutRegardToCase(): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_manager, ['API' => 'drupal', 'blackbox']);
+    $listener = new DriverListener($driver_registry, ['API' => 'drupal', 'blackbox']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:API']));
   }
 
   public function testConfigurationWithoutListGetsEveryRegisteredDriver(): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getDrivers')->willReturn([
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('getDrivers')->willReturn([
       'blackbox' => $this->createMock(DriverInterface::class),
       'drupal' => $this->createMock(DriverInterface::class),
     ]);
-    $driver_manager->expects($this->once())->method('setScenarioDrivers')->with(['blackbox' => 'blackbox', 'drupal' => 'drupal']);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['blackbox' => 'blackbox', 'drupal' => 'drupal']);
 
-    $listener = new DriverListener($driver_manager);
+    $listener = new DriverListener($driver_registry);
     $listener->prepareScenarioDrivers($this->createEvent([], []));
   }
 
   public function testTagNamingUnlistedDriverIsReported(): void {
-    $listener = new DriverListener($this->createMock(DriverManagerInterface::class), self::DRIVERS);
+    $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), self::DRIVERS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, drush, blackbox. The tag reorders that list; it never adds to it.');
@@ -132,10 +132,10 @@ class DriverListenerTest extends TestCase {
   public function testTheEnvironmentIsHandedToTheManager(): void {
     $event = $this->createEvent([], []);
 
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
 
-    $listener = new DriverListener($driver_manager, self::DRIVERS);
+    $listener = new DriverListener($driver_registry, self::DRIVERS);
     $listener->prepareScenarioDrivers($event);
   }
 

@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Behat\Context;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Tag;
@@ -46,9 +46,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   use StringTrait;
 
   /**
-   * Driver manager.
+   * Driver registry.
    */
-  protected ?DriverManagerInterface $driverManager = NULL;
+  protected ?DriverRegistryInterface $driverRegistry = NULL;
 
   /**
    * Resolves what the session's browser driver can do.
@@ -63,7 +63,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * Applies webserver-level basic auth to the session.
    */
-  protected ?BasicAuthInterface $basicAuthManager = NULL;
+  protected ?BasicAuthenticatorInterface $basicAuthenticator = NULL;
 
   /**
    * Per-context option overrides, as the suite declared them.
@@ -113,19 +113,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setDriverManager(DriverManagerInterface $driver_manager): void {
-    $this->driverManager = $driver_manager;
+  public function setDriverRegistry(DriverRegistryInterface $driver_registry): void {
+    $this->driverRegistry = $driver_registry;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDriverManager(): DriverManagerInterface {
-    if (!$this->driverManager instanceof DriverManagerInterface) {
-      throw new \RuntimeException('The driver manager is available only after Behat has initialized the context.');
+  public function getDriverRegistry(): DriverRegistryInterface {
+    if (!$this->driverRegistry instanceof DriverRegistryInterface) {
+      throw new \RuntimeException('The driver registry is available only after Behat has initialized the context.');
     }
 
-    return $this->driverManager;
+    return $this->driverRegistry;
   }
 
   /**
@@ -138,19 +138,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setBasicAuthManager(BasicAuthInterface $basic_auth_manager): void {
-    $this->basicAuthManager = $basic_auth_manager;
+  public function setBasicAuthenticator(BasicAuthenticatorInterface $basic_authenticator): void {
+    $this->basicAuthenticator = $basic_authenticator;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBasicAuthManager(): BasicAuthInterface {
-    if (!$this->basicAuthManager instanceof BasicAuthInterface) {
-      throw new \RuntimeException('The basic authentication manager is available only after Behat has initialized the context.');
+  public function getBasicAuthenticator(): BasicAuthenticatorInterface {
+    if (!$this->basicAuthenticator instanceof BasicAuthenticatorInterface) {
+      throw new \RuntimeException('The basic authenticator is available only after Behat has initialized the context.');
     }
 
-    return $this->basicAuthManager;
+    return $this->basicAuthenticator;
   }
 
   /**
@@ -160,7 +160,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   The tag name the suite lists the driver under.
    */
   public function getDriver(string $name): DriverInterface {
-    return $this->getDriverManager()->getDriver($name);
+    return $this->getDriverRegistry()->getDriver($name);
   }
 
   /**
@@ -182,7 +182,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * @template T of object
    */
   public function driverFor(string $capability): object {
-    return $this->getDriverManager()->getDriverFor($capability);
+    return $this->getDriverRegistry()->getDriverFor($capability);
   }
 
   /**

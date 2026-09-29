@@ -10,8 +10,8 @@ use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Behat\Manager\DriverManager;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
@@ -55,7 +55,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
 
     $this->context = new TestableRawContext();
-    $this->context->setDriverManager($this->createDriverManager($this->createInProcessDriver()));
+    $this->context->setDriverRegistry($this->createDriverRegistry($this->createInProcessDriver()));
     $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }
 
@@ -93,7 +93,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
       return $stub;
     });
 
-    $this->context->setDriverManager($this->createDriverManager($driver));
+    $this->context->setDriverRegistry($this->createDriverRegistry($driver));
 
     $this->context->entityTermCreate($stub);
 
@@ -114,7 +114,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
       return $stub;
     });
 
-    $this->context->setDriverManager($this->createDriverManager($driver));
+    $this->context->setDriverRegistry($this->createDriverRegistry($driver));
 
     $this->context->entityTermCreate($stub);
 
@@ -145,20 +145,20 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Builds a driver manager holding the given driver as the only one.
+   * Builds a driver registry holding the given driver as the only one.
    *
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
    *   The driver the scenario resolves against.
    *
-   * @return \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface
-   *   The driver manager.
+   * @return \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface
+   *   The driver registry.
    */
-  protected function createDriverManager(DriverInterface $driver): DriverManagerInterface {
-    $driver_manager = new DriverManager(['test' => $driver]);
-    $driver_manager->setScenarioDrivers(['test' => 'test']);
-    $driver_manager->setEnvironment($this->createMock(Environment::class));
+  protected function createDriverRegistry(DriverInterface $driver): DriverRegistryInterface {
+    $driver_registry = new DriverRegistry(['test' => $driver]);
+    $driver_registry->setScenarioDrivers(['test' => 'test']);
+    $driver_registry->setEnvironment($this->createMock(Environment::class));
 
-    return $driver_manager;
+    return $driver_registry;
   }
 
 }

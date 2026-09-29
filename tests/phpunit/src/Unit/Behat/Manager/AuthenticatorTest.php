@@ -10,13 +10,13 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManager;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthManager;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\Authenticator;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManager;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
@@ -29,8 +29,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests the login, logout and basic-auth flows against a stubbed session.
  */
-#[CoversClass(AuthenticationManager::class)]
-class AuthenticationManagerTest extends TestCase {
+#[CoversClass(Authenticator::class)]
+class AuthenticatorTest extends TestCase {
 
   protected const EXTENSION_PARAMS = [
     'text' => [
@@ -53,9 +53,9 @@ class AuthenticationManagerTest extends TestCase {
   ];
 
   public function testImplementsInterfaces(): void {
-    $manager = $this->createManager();
-    $this->assertInstanceOf(AuthenticationManagerInterface::class, $manager);
-    $this->assertInstanceOf(FastLogoutInterface::class, $manager);
+    $authenticator = $this->createAuthenticator();
+    $this->assertInstanceOf(AuthenticatorInterface::class, $authenticator);
+    $this->assertInstanceOf(FastLogoutInterface::class, $authenticator);
   }
 
   public function testLogInSuccess(): void {
@@ -70,13 +70,13 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $user_manager = new UserManager();
-    $driver_manager = $this->createDriverManagerMock();
-    $manager = $this->createManager($session, $user_manager, $driver_manager);
+    $user_registry = new UserRegistry();
+    $driver_registry = $this->createDriverRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
 
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']);
-    $manager->logIn($user);
-    $this->assertSame($user, $user_manager->getCurrentUser());
+    $authenticator->logIn($user);
+    $this->assertSame($user, $user_registry->getCurrentUser());
   }
 
   #[DataProvider('dataProviderLogInFieldValue')]
@@ -100,9 +100,9 @@ class AuthenticationManagerTest extends TestCase {
       $params['login_field'] = $login_field;
     }
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'mail' => 'admin@example.com', 'pass' => 'password']);
-    $manager->logIn($user);
+    $authenticator->logIn($user);
 
     $this->assertSame($expected_value, $filled['Username'] ?? NULL);
   }
@@ -123,11 +123,11 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
 
-    $manager = $this->createManager($session);
+    $authenticator = $this->createAuthenticator($session);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Submit button matching css "login form" not found.');
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
   }
 
   #[DataProvider('dataProviderLogInThrowsWhenNotLoggedIn')]
@@ -143,11 +143,11 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $manager = $this->createManager($session);
+    $authenticator = $this->createAuthenticator($session);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
-    $manager->logIn($user);
+    $authenticator->logIn($user);
   }
 
   public static function dataProviderLogInThrowsWhenNotLoggedIn(): \Iterator {
@@ -175,13 +175,13 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver = $this->createAuthDriverMock();
     $auth_driver->expects($this->once())->method('login');
 
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('hasCapability')->willReturn(TRUE);
-    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
-    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('hasCapability')->willReturn(TRUE);
+    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
+    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
 
-    $manager = $this->createManager($session, NULL, $driver_manager);
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+    $authenticator = $this->createAuthenticator($session, NULL, $driver_registry);
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
   }
 
   public function testLogout(): void {
@@ -193,13 +193,13 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout');
 
-    $user_manager = new UserManager();
-    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+    $user_registry = new UserRegistry();
+    $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
-    $driver_manager = $this->createDriverManagerMock();
-    $manager = $this->createManager($session, $user_manager, $driver_manager);
-    $manager->logOut();
-    $this->assertFalse($user_manager->getCurrentUser());
+    $driver_registry = $this->createDriverRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
+    $authenticator->logOut();
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   public function testLogoutWithConfirmationPage(): void {
@@ -213,11 +213,11 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout/confirm');
 
-    $user_manager = new UserManager();
-    $driver_manager = $this->createDriverManagerMock();
-    $manager = $this->createManager($session, $user_manager, $driver_manager);
-    $manager->logOut();
-    $this->assertFalse($user_manager->getCurrentUser());
+    $user_registry = new UserRegistry();
+    $driver_registry = $this->createDriverRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
+    $authenticator->logOut();
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   public function testLogoutWithConfirmationPageThrowsWhenNoButton(): void {
@@ -228,11 +228,11 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout/confirm');
 
-    $manager = $this->createManager($session);
+    $authenticator = $this->createAuthenticator($session);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Logout button matching css "logout confirmation page" not found.');
-    $manager->logOut();
+    $authenticator->logOut();
   }
 
   public function testLogoutCallsBackendDriver(): void {
@@ -244,13 +244,13 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver = $this->createAuthDriverMock();
     $auth_driver->expects($this->once())->method('logout');
 
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('hasCapability')->willReturn(TRUE);
-    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
-    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('hasCapability')->willReturn(TRUE);
+    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
+    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
 
-    $manager = $this->createManager($session, NULL, $driver_manager);
-    $manager->logOut();
+    $authenticator = $this->createAuthenticator($session, NULL, $driver_registry);
+    $authenticator->logOut();
   }
 
   #[DataProvider('dataProviderLoggedIn')]
@@ -271,8 +271,8 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn($session_started);
 
-    $manager = $this->createManager($session);
-    $this->assertSame($expected, $manager->loggedIn());
+    $authenticator = $this->createAuthenticator($session);
+    $this->assertSame($expected, $authenticator->loggedIn());
   }
 
   public static function dataProviderLoggedIn(): \Iterator {
@@ -291,8 +291,8 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
-    $this->assertFalse($manager->loggedIn());
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $this->assertFalse($authenticator->loggedIn());
   }
 
   /**
@@ -321,8 +321,8 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 2;
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
-    $this->assertTrue($manager->loggedIn());
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $this->assertTrue($authenticator->loggedIn());
     $this->assertGreaterThanOrEqual(3, $call_count);
   }
 
@@ -348,8 +348,8 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 0;
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
-    $this->assertFalse($manager->loggedIn());
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $this->assertFalse($authenticator->loggedIn());
     $this->assertSame(1, $call_count);
   }
 
@@ -371,9 +371,9 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 1;
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $start = microtime(TRUE);
-    $this->assertFalse($manager->loggedIn());
+    $this->assertFalse($authenticator->loggedIn());
     $elapsed = microtime(TRUE) - $start;
     $this->assertGreaterThanOrEqual(1.0, $elapsed);
   }
@@ -391,9 +391,9 @@ class AuthenticationManagerTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $manager = $this->createManager($session);
+    $authenticator = $this->createAuthenticator($session);
     // The login form is found, so the call returns FALSE rather than throwing.
-    $this->assertFalse($manager->loggedIn());
+    $this->assertFalse($authenticator->loggedIn());
   }
 
   public function testFastLogoutResetsSession(): void {
@@ -404,14 +404,14 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $user_manager = new UserManager();
-    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+    $user_registry = new UserRegistry();
+    $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
-    $driver_manager = $this->createDriverManagerMock();
-    $manager = new AuthenticationManager($mink, $user_manager, $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
-    $manager->fastLogout();
+    $driver_registry = $this->createDriverRegistryMock();
+    $authenticator = new Authenticator($mink, $user_registry, $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator->fastLogout();
 
-    $this->assertFalse($user_manager->getCurrentUser());
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   public function testFastLogoutSkipsResetWhenNotStarted(): void {
@@ -422,9 +422,9 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $driver_manager = $this->createDriverManagerMock();
-    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
-    $manager->fastLogout();
+    $driver_registry = $this->createDriverRegistryMock();
+    $authenticator = new Authenticator($mink, new UserRegistry(), $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator->fastLogout();
   }
 
   public function testFastLogoutCallsBackendDriver(): void {
@@ -437,13 +437,13 @@ class AuthenticationManagerTest extends TestCase {
     $auth_driver = $this->createAuthDriverMock();
     $auth_driver->expects($this->once())->method('logout');
 
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('hasCapability')->willReturn(TRUE);
-    $driver_manager->method('getDriverFor')->willReturn($auth_driver);
-    $driver_manager->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('hasCapability')->willReturn(TRUE);
+    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
+    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $driver_manager, new BasicAuthManager($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
-    $manager->fastLogout();
+    $authenticator = new Authenticator($mink, new UserRegistry(), $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator->fastLogout();
   }
 
   public function testFastLogoutReappliesBasicAuth(): void {
@@ -455,8 +455,8 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
-    $manager->fastLogout();
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator->fastLogout();
   }
 
   /**
@@ -472,8 +472,8 @@ class AuthenticationManagerTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $manager = new AuthenticationManager($mink, new UserManager(), $this->createDriverManagerMock(), new BasicAuthManager($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
-    $manager->fastLogout();
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator->fastLogout();
   }
 
   public function testGetLogoutElement(): void {
@@ -482,8 +482,8 @@ class AuthenticationManagerTest extends TestCase {
     $page->method('findLink')->with('Log out')->willReturn($link);
 
     $session = $this->createSessionMock($page);
-    $manager = $this->createManager($session);
-    $this->assertSame($link, $manager->getLogoutElement());
+    $authenticator = $this->createAuthenticator($session);
+    $this->assertSame($link, $authenticator->getLogoutElement());
   }
 
   protected function createSessionMock(?DocumentElement $page = NULL): Session {
@@ -509,13 +509,13 @@ class AuthenticationManagerTest extends TestCase {
     return $driver;
   }
 
-  protected function createDriverManagerMock(): DriverManagerInterface {
+  protected function createDriverRegistryMock(): DriverRegistryInterface {
     $driver = $this->createMock(DriverInterface::class);
     $driver->method('isBootstrapped')->willReturn(TRUE);
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('hasCapability')->willReturn(FALSE);
-    $driver_manager->method('getDriver')->willReturn($driver);
-    return $driver_manager;
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('hasCapability')->willReturn(FALSE);
+    $driver_registry->method('getDriver')->willReturn($driver);
+    return $driver_registry;
   }
 
   public function testLogInSkipsWaitWhenLoginWaitIsZero(): void {
@@ -535,8 +535,8 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 0;
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
   public function testLogInWaitsForLoggedInSelector(): void {
@@ -576,11 +576,11 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 1;
 
-    $user_manager = new UserManager();
-    $manager = $this->createManager($session, $user_manager, NULL, $params);
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $user_registry = new UserRegistry();
+    $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
 
-    $this->assertNotFalse($user_manager->getCurrentUser());
+    $this->assertNotFalse($user_registry->getCurrentUser());
   }
 
   /**
@@ -615,8 +615,8 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['login_wait'] = 2;
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
 
     $this->assertGreaterThanOrEqual(3, $find_count);
   }
@@ -643,11 +643,11 @@ class AuthenticationManagerTest extends TestCase {
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
 
     // No login_wait is configured.
-    $manager = $this->createManager($session);
+    $authenticator = $this->createAuthenticator($session);
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage("Unable to determine if logged in");
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
   public function testLogInVisitsConfiguredLoginUrl(): void {
@@ -666,8 +666,8 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['text']['login_url'] = '/custom-login';
 
-    $manager = $this->createManager($session, NULL, NULL, $params);
-    $manager->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
   public function testLogoutVisitsConfiguredLogoutUrl(): void {
@@ -682,12 +682,12 @@ class AuthenticationManagerTest extends TestCase {
     $params = self::EXTENSION_PARAMS;
     $params['text']['logout_url'] = '/custom-logout';
 
-    $user_manager = new UserManager();
-    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
+    $user_registry = new UserRegistry();
+    $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
-    $manager = $this->createManager($session, $user_manager, NULL, $params);
-    $manager->logOut();
-    $this->assertFalse($user_manager->getCurrentUser());
+    $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
+    $authenticator->logOut();
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   public function testLogoutConfirmUsesConfiguredUrls(): void {
@@ -707,34 +707,34 @@ class AuthenticationManagerTest extends TestCase {
     $params['text']['logout_url'] = '/custom-logout';
     $params['text']['logout_confirm_url'] = '/custom-logout/confirm';
 
-    $user_manager = new UserManager();
-    $manager = $this->createManager($session, $user_manager, NULL, $params);
-    $manager->logOut();
-    $this->assertFalse($user_manager->getCurrentUser());
+    $user_registry = new UserRegistry();
+    $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
+    $authenticator->logOut();
+    $this->assertFalse($user_registry->getCurrentUser());
   }
 
   /**
-   * Creates a AuthenticationManager with optional overrides.
+   * Creates a Authenticator with optional overrides.
    *
    * @param \Behat\Mink\Session|null $session
    *   Optional Mink session override.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface|null $user_manager
-   *   Optional user manager override.
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface|null $driver_manager
-   *   Optional driver manager override.
+   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
+   *   Optional user registry override.
+   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface|null $driver_registry
+   *   Optional driver registry override.
    * @param array<string, mixed>|null $parameters
    *   Optional Drupal parameters override.
    */
-  protected function createManager(?Session $session = NULL, ?UserManagerInterface $user_manager = NULL, ?DriverManagerInterface $driver_manager = NULL, ?array $parameters = NULL): AuthenticationManager {
+  protected function createAuthenticator(?Session $session = NULL, ?UserRegistryInterface $user_registry = NULL, ?DriverRegistryInterface $driver_registry = NULL, ?array $parameters = NULL): Authenticator {
     $session ??= $this->createSessionMock();
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    return new AuthenticationManager(
+    return new Authenticator(
           $mink,
-          $user_manager ?? new UserManager(),
-          $driver_manager ?? $this->createDriverManagerMock(),
-          new BasicAuthManager($mink, self::MINK_PARAMS),
+          $user_registry ?? new UserRegistry(),
+          $driver_registry ?? $this->createDriverRegistryMock(),
+          new BasicAuthenticator($mink, self::MINK_PARAMS),
           self::MINK_PARAMS,
           $parameters ?? self::EXTENSION_PARAMS
       );

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Manager;
 
 /**
- * Interface for authentication managers that support fast logout.
+ * Interface for authenticators that support fast logout.
  */
 interface FastLogoutInterface {
 

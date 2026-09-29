@@ -156,7 +156,7 @@ trait FeatureContextTrait {
    */
   #[Then('the scenario driver order should be :order')]
   public function testAssertDriverOrder(string $order): void {
-    $actual = implode(', ', array_keys($this->getDriverManager()->getScenarioDrivers()));
+    $actual = implode(', ', array_keys($this->getDriverRegistry()->getScenarioDrivers()));
 
     if ($actual !== $order) {
       throw new \RuntimeException(sprintf('Expected the driver order "%s", but it was "%s".', $order, $actual));
@@ -253,7 +253,7 @@ trait FeatureContextTrait {
     }
 
     try {
-      $this->authGetUserManager()->getUser($name);
+      $this->authGetUserRegistry()->getUser($name);
     }
     catch (\Exception) {
       throw new \Exception(sprintf('User "%s" exists in DB, but does not exist in test variables', $name));
@@ -273,7 +273,7 @@ trait FeatureContextTrait {
     }
 
     try {
-      $this->authGetUserManager()->getUser($name);
+      $this->authGetUserRegistry()->getUser($name);
     }
     catch (\Exception) {
       return;

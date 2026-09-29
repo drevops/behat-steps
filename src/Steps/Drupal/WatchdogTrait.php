@@ -70,7 +70,7 @@ trait WatchdogTrait {
    */
   #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !$this->getDriverManager()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if ($this->skipTag(__FUNCTION__, $scope) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
       return;
     }
 
@@ -134,7 +134,7 @@ trait WatchdogTrait {
    */
   #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->getDriverManager()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
       return;
     }
 

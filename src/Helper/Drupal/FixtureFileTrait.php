@@ -49,7 +49,7 @@ trait FixtureFileTrait {
 
     $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-    if (!$this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!$this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       return;
     }
 

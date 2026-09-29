@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Helper\Drupal;
 
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\DriverManager;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
@@ -405,12 +405,12 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
    * Serves the stubbed driver from a one-driver manager, so the helper
    * resolves through the same capability walk it uses in a run.
    */
-  public function getDriverManager(): DriverManagerInterface {
+  public function getDriverRegistry(): DriverRegistryInterface {
     if (!$this->driver instanceof DriverInterface) {
       throw new \RuntimeException('Set the driver double before the helper reaches it.');
     }
 
-    $manager = new DriverManager(['drupal' => $this->driver]);
+    $manager = new DriverRegistry(['drupal' => $this->driver]);
     $manager->setScenarioDrivers(['drupal' => 'drupal']);
 
     return $manager;

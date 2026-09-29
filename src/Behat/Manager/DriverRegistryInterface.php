@@ -8,14 +8,14 @@ use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 
 /**
- * Interface for managing the drivers registered with a suite.
+ * Holds the drivers registered with a suite and resolves one by name.
  *
  * Two name spaces meet here. A driver is registered under the name the
  * extension builds it with ('drupal', 'drush', 'blackbox'), and a suite maps
  * a Gherkin-facing tag name onto one of those. Every method below that takes a
  * name takes the tag name, because that is the name a test author writes.
  */
-interface DriverManagerInterface {
+interface DriverRegistryInterface {
 
   /**
    * Registers a new driver.

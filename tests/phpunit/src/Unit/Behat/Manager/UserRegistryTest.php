@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
 
-use DrevOps\BehatSteps\Behat\Manager\UserManager;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,75 +15,75 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests the register of users a scenario created.
  */
-#[CoversClass(UserManager::class)]
-class UserManagerTest extends TestCase {
+#[CoversClass(UserRegistry::class)]
+class UserRegistryTest extends TestCase {
 
   public function testImplementsInterface(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
 
-    $this->assertInstanceOf(UserManagerInterface::class, $manager);
+    $this->assertInstanceOf(UserRegistryInterface::class, $registry);
   }
 
   public function testCurrentUserDefaultsToFalse(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
 
-    $this->assertFalse($manager->getCurrentUser());
+    $this->assertFalse($registry->getCurrentUser());
   }
 
   public function testSetAndGetCurrentUser(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
     $user = self::userStub(['name' => 'admin']);
 
-    $manager->setCurrentUser($user);
+    $registry->setCurrentUser($user);
 
-    $this->assertSame($user, $manager->getCurrentUser());
+    $this->assertSame($user, $registry->getCurrentUser());
   }
 
   public function testSetCurrentUserToFalse(): void {
-    $manager = new UserManager();
-    $manager->setCurrentUser(self::userStub(['name' => 'admin']));
+    $registry = new UserRegistry();
+    $registry->setCurrentUser(self::userStub(['name' => 'admin']));
 
-    $manager->setCurrentUser(FALSE);
+    $registry->setCurrentUser(FALSE);
 
-    $this->assertFalse($manager->getCurrentUser());
+    $this->assertFalse($registry->getCurrentUser());
   }
 
   public function testAddAndGetUser(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
     $user = self::userStub(['name' => 'editor']);
 
-    $manager->addUser($user);
+    $registry->addUser($user);
 
-    $this->assertSame($user, $manager->getUser('editor'));
+    $this->assertSame($user, $registry->getUser('editor'));
   }
 
   public function testGetUserThrowsForUnknown(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No user with ghost name is registered with the driver.');
 
-    $manager->getUser('ghost');
+    $registry->getUser('ghost');
   }
 
   public function testRemoveUser(): void {
-    $manager = new UserManager();
-    $manager->addUser(self::userStub(['name' => 'editor']));
+    $registry = new UserRegistry();
+    $registry->addUser(self::userStub(['name' => 'editor']));
 
-    $manager->removeUser('editor');
+    $registry->removeUser('editor');
 
     $this->expectException(\RuntimeException::class);
-    $manager->getUser('editor');
+    $registry->getUser('editor');
   }
 
   public function testGetUsersReturnsAll(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
     $user_a = self::userStub(['name' => 'alice']);
     $user_b = self::userStub(['name' => 'bob']);
-    $manager->addUser($user_a);
-    $manager->addUser($user_b);
+    $registry->addUser($user_a);
+    $registry->addUser($user_b);
 
-    $users = $manager->getUsers();
+    $users = $registry->getUsers();
 
     $this->assertCount(2, $users);
     $this->assertSame($user_a, $users['alice']);
@@ -91,38 +91,38 @@ class UserManagerTest extends TestCase {
   }
 
   public function testGetUsersReturnsEmptyByDefault(): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
 
-    $this->assertSame([], $manager->getUsers());
+    $this->assertSame([], $registry->getUsers());
   }
 
   public function testClearUsers(): void {
-    $manager = new UserManager();
-    $manager->setCurrentUser(self::userStub(['name' => 'admin']));
-    $manager->addUser(self::userStub(['name' => 'editor']));
+    $registry = new UserRegistry();
+    $registry->setCurrentUser(self::userStub(['name' => 'admin']));
+    $registry->addUser(self::userStub(['name' => 'editor']));
 
-    $manager->clearUsers();
+    $registry->clearUsers();
 
-    $this->assertFalse($manager->getCurrentUser());
-    $this->assertSame([], $manager->getUsers());
+    $this->assertFalse($registry->getCurrentUser());
+    $this->assertSame([], $registry->getUsers());
   }
 
   /**
-   * Tests whether the manager reports holding any users.
+   * Tests whether the registry reports holding any users.
    *
    * @param array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface> $users
-   *   Users to add to the manager.
+   *   Users to add to the registry.
    * @param bool $expected
    *   Expected hasUsers() result.
    */
   #[DataProvider('dataProviderHasUsers')]
   public function testHasUsers(array $users, bool $expected): void {
-    $manager = new UserManager();
+    $registry = new UserRegistry();
     foreach ($users as $user) {
-      $manager->addUser($user);
+      $registry->addUser($user);
     }
 
-    $this->assertSame($expected, $manager->hasUsers());
+    $this->assertSame($expected, $registry->hasUsers());
   }
 
   public static function dataProviderHasUsers(): \Iterator {
@@ -133,10 +133,10 @@ class UserManagerTest extends TestCase {
 
   #[DataProvider('dataProviderCurrentUserIsAnonymous')]
   public function testCurrentUserIsAnonymous(EntityStubInterface|false $user, bool $expected): void {
-    $manager = new UserManager();
-    $manager->setCurrentUser($user);
+    $registry = new UserRegistry();
+    $registry->setCurrentUser($user);
 
-    $this->assertSame($expected, $manager->currentUserIsAnonymous());
+    $this->assertSame($expected, $registry->currentUserIsAnonymous());
   }
 
   public static function dataProviderCurrentUserIsAnonymous(): \Iterator {
@@ -146,10 +146,10 @@ class UserManagerTest extends TestCase {
 
   #[DataProvider('dataProviderCurrentUserHasRole')]
   public function testCurrentUserHasRole(EntityStubInterface|false $user, string $role, bool $expected): void {
-    $manager = new UserManager();
-    $manager->setCurrentUser($user);
+    $registry = new UserRegistry();
+    $registry->setCurrentUser($user);
 
-    $this->assertSame($expected, $manager->currentUserHasRole($role));
+    $this->assertSame($expected, $registry->currentUserHasRole($role));
   }
 
   public static function dataProviderCurrentUserHasRole(): \Iterator {

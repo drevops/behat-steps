@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Manager;
 
 /**
- * Interface for authentication managers that apply HTTP Basic auth.
+ * Interface for authenticators that apply HTTP Basic auth.
  */
-interface BasicAuthInterface {
+interface BasicAuthenticatorInterface {
 
   /**
    * Applies configured HTTP Basic authentication credentials to the session.

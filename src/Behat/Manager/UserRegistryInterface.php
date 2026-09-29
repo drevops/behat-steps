@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Behat\Manager;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
- * Interface for classes that manage users created during tests.
+ * Interface for classes that hold the users created during tests.
  */
-interface UserManagerInterface {
+interface UserRegistryInterface {
 
   /**
    * Returns the currently logged in user.

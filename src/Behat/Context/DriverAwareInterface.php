@@ -6,32 +6,32 @@ namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\HookDispatcher;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 
 /**
- * Contract for contexts wired to the driver manager and its collaborators.
+ * Contract for contexts wired to the driver registry and its collaborators.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
  */
 interface DriverAwareInterface extends Context, ParametersAwareInterface {
 
   /**
-   * Sets the driver manager.
+   * Sets the driver registry.
    *
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setDriverManager(DriverManagerInterface $driver_manager): void;
+  public function setDriverRegistry(DriverRegistryInterface $driver_registry): void;
 
   /**
-   * Returns the driver manager.
+   * Returns the driver registry.
    *
    * @throws \RuntimeException
    *   When the context has not been initialized by Behat yet.
    */
-  public function getDriverManager(): DriverManagerInterface;
+  public function getDriverRegistry(): DriverRegistryInterface;
 
   /**
    * Sets the hook dispatcher.
@@ -42,16 +42,16 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
   public function setDispatcher(HookDispatcher $dispatcher): void;
 
   /**
-   * Sets the basic authentication manager.
+   * Sets the basic authenticator.
    *
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setBasicAuthManager(BasicAuthInterface $basic_auth_manager): void;
+  public function setBasicAuthenticator(BasicAuthenticatorInterface $basic_authenticator): void;
 
   /**
-   * Returns the basic authentication manager.
+   * Returns the basic authenticator.
    */
-  public function getBasicAuthManager(): BasicAuthInterface;
+  public function getBasicAuthenticator(): BasicAuthenticatorInterface;
 
 }

@@ -8,7 +8,7 @@ use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Gherkin\Node\TaggedNodeInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -25,14 +25,14 @@ class DriverListener implements EventSubscriberInterface {
   /**
    * Constructs a DriverListener.
    *
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
-   *   The driver manager.
+   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface $driverRegistry
+   *   The driver registry.
    * @param array<array-key, string> $drivers
    *   The configured driver list, as ordered pairs of tag name to registered
    *   driver name. A bare entry carries an integer key and names both.
    */
   public function __construct(
-    protected readonly DriverManagerInterface $driverManager,
+    protected readonly DriverRegistryInterface $driverRegistry,
     protected readonly array $drivers = [],
   ) {
   }
@@ -48,7 +48,7 @@ class DriverListener implements EventSubscriberInterface {
   }
 
   /**
-   * Passes the manager the driver order for the scenario about to run.
+   * Passes the registry the driver order for the scenario about to run.
    *
    * The configured list is both the allow-list and the precedence order. A
    * '@driver:NAME' tag moves NAME to the front of that order for this
@@ -72,8 +72,8 @@ class DriverListener implements EventSubscriberInterface {
       $order[$name] = $configured[$name];
     }
 
-    $this->driverManager->setScenarioDrivers($order + $configured);
-    $this->driverManager->setEnvironment($event->getEnvironment());
+    $this->driverRegistry->setScenarioDrivers($order + $configured);
+    $this->driverRegistry->setEnvironment($event->getEnvironment());
   }
 
   /**
@@ -89,7 +89,7 @@ class DriverListener implements EventSubscriberInterface {
    */
   protected function configuredDrivers(): array {
     if ($this->drivers === []) {
-      $names = array_keys($this->driverManager->getDrivers());
+      $names = array_keys($this->driverRegistry->getDrivers());
 
       return array_combine($names, $names);
     }

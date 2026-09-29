@@ -9,9 +9,9 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 
 /**
- * Default implementation of the driver manager service.
+ * Default implementation of the driver registry service.
  */
-class DriverManager implements DriverManagerInterface {
+class DriverRegistry implements DriverRegistryInterface {
 
   /**
    * All registered drivers, keyed by their lowercased registered name.
@@ -40,7 +40,7 @@ class DriverManager implements DriverManagerInterface {
   protected ?Environment $environment = NULL;
 
   /**
-   * Initializes the driver manager.
+   * Initializes the driver registry.
    *
    * @param array<string, \DrevOps\BehatSteps\Driver\DriverInterface> $drivers
    *   Drivers to register, keyed by name.

@@ -127,9 +127,9 @@ class BehatStepsExtensionTest extends TestCase {
   public function testServicesFileIsLoaded(): void {
     $container = $this->load([]);
 
-    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
-    $this->assertTrue($container->hasDefinition('behat_steps.authentication_manager'));
-    $this->assertTrue($container->hasDefinition('behat_steps.user_manager'));
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_registry'));
+    $this->assertTrue($container->hasDefinition('behat_steps.authenticator'));
+    $this->assertTrue($container->hasDefinition('behat_steps.user_registry'));
     $this->assertTrue($container->hasDefinition('behat_steps.context.initializer'));
     $this->assertTrue($container->hasDefinition('behat_steps.context.attribute_reader'));
     $this->assertTrue($container->hasDefinition('behat_steps.listener.driver'));
@@ -329,7 +329,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
+    $calls = $container->getDefinition('behat_steps.driver_registry')->getMethodCalls();
     $names = array_map(static fn(array $call): string => $call[0], $calls);
 
     $this->assertSame(['registerDriver', 'registerDriver'], $names);
@@ -358,7 +358,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_registry'));
   }
 
   public static function dataProviderProcessAcceptsValidDriverList(): \Iterator {
@@ -409,7 +409,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_registry'));
   }
 
   public function testProcessSkipsValidationWithoutTheDriversParameter(): void {
@@ -419,7 +419,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_registry'));
   }
 
   public function testProcessSkipsValidationWhenTheParameterIsNotList(): void {
@@ -429,7 +429,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $this->assertTrue($container->hasDefinition('behat_steps.driver_manager'));
+    $this->assertTrue($container->hasDefinition('behat_steps.driver_registry'));
   }
 
   public function testTheSchemaRefusesDriverListThatIsNotList(): void {
