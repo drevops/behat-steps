@@ -797,14 +797,10 @@ function render_value(mixed $value): string {
  *   The table, or an empty string when the trait declares no option.
  */
 function render_trait_options(string $trait_name, mixed $options): string {
-  if (!is_array($options) || $options === []) {
-    return '';
-  }
-
   $group = trait_option_group($trait_name);
   $rows = [];
 
-  foreach ($options as $option) {
+  foreach (is_array($options) ? $options : [] as $option) {
     if (!$option instanceof Option) {
       continue;
     }
@@ -824,6 +820,10 @@ function render_trait_options(string $trait_name, mixed $options): string {
       $tags === [] ? '-' : implode(', ', $tags),
       str_replace('|', '\\|', $option->description),
     ];
+  }
+
+  if ($rows === []) {
+    return '';
   }
 
   return '### Options' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
