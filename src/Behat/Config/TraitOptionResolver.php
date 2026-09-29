@@ -87,7 +87,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function bool(string $group, string $key): bool {
     $value = $this->raw($group, $key);
 
-    return is_bool($value) ? $value : throw $this->mistyped($group, $key, 'a boolean', $value);
+    return is_bool($value) ? $value : throw $this->mistyped($group, $key, Option::TYPE_NAMES['bool'], $value);
   }
 
   /**
@@ -96,7 +96,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function int(string $group, string $key): int {
     $value = $this->raw($group, $key);
 
-    return is_int($value) ? $value : throw $this->mistyped($group, $key, 'an integer', $value);
+    return is_int($value) ? $value : throw $this->mistyped($group, $key, Option::TYPE_NAMES['int'], $value);
   }
 
   /**
@@ -105,7 +105,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function float(string $group, string $key): float {
     $value = $this->raw($group, $key);
 
-    return is_float($value) ? $value : throw $this->mistyped($group, $key, 'a float', $value);
+    return is_float($value) ? $value : throw $this->mistyped($group, $key, Option::TYPE_NAMES['float'], $value);
   }
 
   /**
@@ -114,7 +114,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function string(string $group, string $key): string {
     $value = $this->raw($group, $key);
 
-    return is_string($value) ? $value : throw $this->mistyped($group, $key, 'a string', $value);
+    return is_string($value) ? $value : throw $this->mistyped($group, $key, Option::TYPE_NAMES['string'], $value);
   }
 
   /**
@@ -123,7 +123,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function array(string $group, string $key): array {
     $value = $this->raw($group, $key);
 
-    return is_array($value) ? $value : throw $this->mistyped($group, $key, 'a map', $value);
+    return is_array($value) ? $value : throw $this->mistyped($group, $key, Option::TYPE_NAMES['array'], $value);
   }
 
   /**
