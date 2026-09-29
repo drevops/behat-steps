@@ -57,6 +57,42 @@ Feature: Check that StateTrait works
   Scenario: Verify previous scenario state change was reverted to seeded value
     Then the state "behat_steps_test.persistent" should have the value "seeded"
 
+  # The steps below resolve the State capability instead of bootstrapping
+  # Drupal, so the '@driver:drush' tag runs the same step text against a site
+  # this process never boots.
+  @driver:drush
+  Scenario: Set and assert state values of every type over Drush
+    Given the following state values exist:
+      | name                          | value       |
+      | behat_steps_test.drush_string | hello world |
+      | behat_steps_test.drush_int    | 42          |
+      | behat_steps_test.drush_bool   | true        |
+      | behat_steps_test.drush_array  | [1,2,3]     |
+    Then the state "behat_steps_test.drush_string" should have the value "hello world"
+    And the state "behat_steps_test.drush_int" should have the value "42"
+    And the state "behat_steps_test.drush_bool" should have the value "true"
+    And the state "behat_steps_test.drush_array" should have the value "[1,2,3]"
+
+  @driver:drush
+  Scenario: Delete a state value over Drush
+    Given the state "behat_steps_test.drush_doomed" has the value "present"
+    And the state "behat_steps_test.drush_doomed" does not exist
+    Then the state "behat_steps_test.drush_doomed" should not exist
+
+  @behat-steps-skip:stateAfterScenario @driver:drush
+  Scenario: Seed a state value over Drush without auto-revert
+    Given the state "behat_steps_test.drush_persistent" has the value "seeded"
+    Then the state "behat_steps_test.drush_persistent" should have the value "seeded"
+
+  @driver:drush
+  Scenario: State values set over Drush are reverted after scenario
+    Given the state "behat_steps_test.drush_persistent" has the value "overridden"
+    Then the state "behat_steps_test.drush_persistent" should have the value "overridden"
+
+  @driver:drush
+  Scenario: Verify the Drush revert restored the seeded state value
+    Then the state "behat_steps_test.drush_persistent" should have the value "seeded"
+
   @trait:Drupal\StateTrait
   Scenario: Assert negative assertion for "Then the state :name should have the value :value" fails when key is missing
     Given some behat configuration

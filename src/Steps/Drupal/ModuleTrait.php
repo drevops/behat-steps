@@ -12,7 +12,8 @@ use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -234,9 +235,7 @@ trait ModuleTrait {
    *   TRUE if the module is enabled, FALSE otherwise.
    */
   public function moduleIsEnabled(string $module): bool {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    return \Drupal::moduleHandler()->moduleExists($module);
+    return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled($module);
   }
 
   /**
@@ -246,8 +245,6 @@ trait ModuleTrait {
    *   The module machine name.
    */
   public function moduleEnable(string $module): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     // @codeCoverageIgnoreStart
     if ($this->moduleIsEnabled($module)) {
       return;
@@ -259,8 +256,10 @@ trait ModuleTrait {
 
     // @codeCoverageIgnoreStart
     try {
-      \Drupal::service('module_installer')->install([$module]);
-      drupal_flush_all_caches();
+      $this->driverFor(ModuleCapabilityInterface::class)->moduleInstall($module);
+      // An install leaves the running container holding the pre-install
+      // service and route definitions.
+      $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
@@ -275,8 +274,6 @@ trait ModuleTrait {
    *   The module machine name.
    */
   public function moduleDisable(string $module): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     // @codeCoverageIgnoreStart
     if (!$this->moduleIsEnabled($module)) {
       return;
@@ -284,8 +281,10 @@ trait ModuleTrait {
     // @codeCoverageIgnoreEnd
     // @codeCoverageIgnoreStart
     try {
-      \Drupal::service('module_installer')->uninstall([$module]);
-      drupal_flush_all_caches();
+      $this->driverFor(ModuleCapabilityInterface::class)->moduleUninstall($module);
+      // An uninstall leaves the running container holding the pre-uninstall
+      // service and route definitions.
+      $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
@@ -303,10 +302,7 @@ trait ModuleTrait {
    *   TRUE if the module's code is present, FALSE otherwise.
    */
   public function moduleIsPresent(string $module): bool {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $module_list = \Drupal::service('extension.list.module')->getList();
-    return isset($module_list[$module]);
+    return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
   }
 
   /**
