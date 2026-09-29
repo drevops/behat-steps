@@ -35,6 +35,30 @@ class OptionTest extends UnitTestCase {
     $this->assertSame(['slow' => 30000], $option->tags);
   }
 
+  /**
+   * Tests that the option switching a trait off has to default to a boolean.
+   *
+   * @param mixed $default
+   *   The declared default.
+   */
+  #[DataProvider('dataProviderSwitchDefaultsToBoolean')]
+  public function testSwitchDefaultsToBoolean(mixed $default): void {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('The "enabled" option switches its trait on and off, so it defaults to a boolean.');
+
+    new Option('enabled', default: $default, description: 'Whether the hook runs.');
+  }
+
+  public static function dataProviderSwitchDefaultsToBoolean(): \Iterator {
+    yield 'an integer' => [1];
+    yield 'a string' => ['yes'];
+    yield 'no type at all' => [NULL];
+  }
+
+  public function testAnotherOptionTakesAnyDefault(): void {
+    $this->assertSame(1, (new Option('limit', default: 1, description: 'An integer option.'))->default);
+  }
+
   public function testTagValueOfTheWrongTypeIsRejected(): void {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('The "slow" tag of the "wait_timeout" option sets a value of the wrong type. The "wait_timeout" option expects an integer, but a string was given.');

@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Behat\Context;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
@@ -429,7 +430,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
 
     $group = $this->getOptionResolver()->groupFor($name);
 
-    return $group !== NULL && !$this->getOptionBool($group, TagOverrides::ENABLED_OPTION);
+    return $group !== NULL && !$this->getOptionBool($group, Option::ENABLED);
   }
 
 }

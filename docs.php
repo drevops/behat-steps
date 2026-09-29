@@ -26,8 +26,10 @@ use Behat\Behat\Definition\Pattern\Policy\TurnipPatternPolicy;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\GroupName;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
@@ -449,9 +451,9 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
 /**
  * Read the option declarations of one trait.
  *
- * A trait declares its options in a '<prefix>ConfigSchema()' method. The method
- * returns a literal, so it is invoked on an instance built without running any
- * constructor.
+ * Discovery goes through the reader the runtime uses, so the generator rejects
+ * a malformed declaration with the same message rather than documenting an
+ * incomplete option table.
  *
  * @param string $class_name
  *   The context class composing the trait.
@@ -462,25 +464,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
  *   Options keyed by name, empty when the trait declares none.
  */
 function extract_trait_options(string $class_name, string $trait_name): array {
-  $method = GroupName::schemaMethod($trait_name);
-
-  /** @var class-string $class_name */
-  $reflection = new \ReflectionClass($class_name);
-
-  if (!$reflection->hasMethod($method)) {
-    return [];
-  }
-
-  $declarations = $reflection->getMethod($method)->invoke($reflection->newInstanceWithoutConstructor());
-  $options = [];
-
-  foreach (is_array($declarations) ? $declarations : [] as $declaration) {
-    if ($declaration instanceof Option) {
-      $options[$declaration->name] = $declaration;
-    }
-  }
-
-  return $options;
+  return (new ConfigSchemaReader())->read($class_name)[trait_option_group($trait_name)] ?? [];
 }
 
 /**
@@ -827,8 +811,8 @@ function render_trait_options(string $trait_name, mixed $options): string {
 
     $tags = array_keys($option->tags);
 
-    if ($option->name === 'enabled') {
-      $tags[] = 'behat-steps-skip:' . $trait_name;
+    if ($option->name === Option::ENABLED) {
+      $tags[] = TagOverrides::SKIP_TAG_PREFIX . $trait_name;
     }
 
     $tags = array_map(static fn(string $tag): string => '`@' . $tag . '`', $tags);

@@ -27,6 +27,10 @@ final class GroupName {
   /**
    * Converts a camel case method prefix to its group name.
    *
+   * A run of capitals is one word, so the group a trait name derives to is the
+   * group its method prefix derives to: 'APIClient' and 'apiClient' both give
+   * 'api_client'.
+   *
    * @param string $prefix
    *   The prefix the declaring method carries, such as 'bigPipe'.
    *
@@ -34,7 +38,7 @@ final class GroupName {
    *   The group name, such as 'big_pipe'.
    */
   public static function fromMethodPrefix(string $prefix): string {
-    return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $prefix));
+    return strtolower((string) preg_replace('/(?<=[a-z0-9])[A-Z]|(?<!^)[A-Z](?=[a-z])/', '_$0', $prefix));
   }
 
   /**

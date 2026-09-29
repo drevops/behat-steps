@@ -130,7 +130,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    * {@inheritdoc}
    */
   public function groupFor(string $name): ?string {
-    $groups = array_keys(array_filter($this->declarations, static fn(array $options): bool => isset($options[TagOverrides::ENABLED_OPTION])));
+    $groups = array_keys(array_filter($this->declarations, static fn(array $options): bool => isset($options[Option::ENABLED])));
 
     if (str_ends_with($name, GroupName::TRAIT_SUFFIX)) {
       $group = GroupName::fromTraitName($name);

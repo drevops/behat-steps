@@ -19,11 +19,6 @@ class TagOverrides {
   public const SKIP_TAG_PREFIX = 'behat-steps-skip:';
 
   /**
-   * Name of the option the skip tag switches off.
-   */
-  public const ENABLED_OPTION = 'enabled';
-
-  /**
    * Replaces a resolved value with whatever the last matching tag sets.
    *
    * @param string $group
@@ -74,7 +69,7 @@ class TagOverrides {
 
     // An 'enabled' option is also switched off by the library's one skip tag,
     // named after the trait the group belongs to.
-    if ($option->name === self::ENABLED_OPTION) {
+    if ($option->name === Option::ENABLED) {
       $bindings[self::SKIP_TAG_PREFIX . GroupName::toTraitName($group)] = FALSE;
     }
 

@@ -18,6 +18,11 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 final readonly class Option {
 
   /**
+   * Name of the option that switches its trait on and off.
+   */
+  public const string ENABLED = 'enabled';
+
+  /**
    * How each type reads in a failure message.
    */
   public const array TYPE_NAMES = [
@@ -64,6 +69,13 @@ final readonly class Option {
 
     if (trim($description) === '') {
       throw new \InvalidArgumentException(sprintf('The "%s" option declares a description.', $name));
+    }
+
+    // Every hook of the trait is switched on this one option, and the skip tag
+    // binds it to FALSE, so a declaration naming another type would fail at the
+    // hook that read it rather than here.
+    if ($name === self::ENABLED && !is_bool($default)) {
+      throw new \InvalidArgumentException(sprintf('The "%s" option switches its trait on and off, so it defaults to a boolean.', $name));
     }
 
     $bindings = [];

@@ -61,6 +61,19 @@ class GroupNameTest extends UnitTestCase {
   }
 
   /**
+   * Tests that a run of capitals reads as one word.
+   *
+   * A trait carrying an acronym has to derive the same group from its name as
+   * from the prefix its declaring method carries, or the option that switches
+   * it off cannot be reached by the trait name.
+   */
+  public function testAcronymDerivesOneGroupFromBothNames(): void {
+    $this->assertSame('api_client', GroupName::fromTraitName('APIClientTrait'));
+    $this->assertSame('api_client', GroupName::fromMethodPrefix('apiClient'));
+    $this->assertSame('http_cache', GroupName::fromMethodPrefix('HTTPCache'));
+  }
+
+  /**
    * Tests that a trait name names the method it declares its options in.
    *
    * @param string $trait_name
