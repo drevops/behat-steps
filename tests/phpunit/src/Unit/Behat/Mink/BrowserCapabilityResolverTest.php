@@ -42,6 +42,8 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAdapterForDriver')]
   public function testAdapterForDriver(string $driver_class, string $expected): void {
+    $this->skipWithoutDriver($driver_class);
+
     $driver = $this->createMock($driver_class);
 
     $this->assertInstanceOf($expected, (new BrowserCapabilityResolver())->resolve($driver, CookieCapabilityInterface::class));
@@ -66,6 +68,8 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeclaredCapabilities')]
   public function testDeclaredCapabilities(string $driver_class, array $expected): void {
+    $this->skipWithoutDriver($driver_class);
+
     $driver = $this->createMock($driver_class);
     $resolver = new BrowserCapabilityResolver();
 
@@ -167,10 +171,30 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    * scenario.
    */
   public function testSeleniumStillDeclaresTheReflectedMethods(): void {
+    $this->skipWithoutDriver(Selenium2Driver::class);
+
     $reflection = new \ReflectionClass(Selenium2Driver::class);
 
     foreach (Selenium2Adapter::SYN_METHODS as $method) {
       $this->assertTrue($reflection->hasMethod($method), sprintf('%s still declares %s().', Selenium2Driver::class, $method));
+    }
+  }
+
+  /**
+   * Skips the test when the Mink driver package is not installed.
+   *
+   * Both JavaScript drivers are suggested rather than required, and the Chrome
+   * extension pins Behat 3, so a Behat 4 install resolves without it. An
+   * adapter still loads and reports FALSE for a driver class that is absent,
+   * which is what keeps the resolver working; only a test naming the class
+   * directly needs the package present.
+   *
+   * @param string $driver_class
+   *   The Mink driver class the test mocks.
+   */
+  protected function skipWithoutDriver(string $driver_class): void {
+    if (!class_exists($driver_class)) {
+      $this->markTestSkipped(sprintf('%s is not installed.', $driver_class));
     }
   }
 
