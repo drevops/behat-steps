@@ -304,7 +304,7 @@ function provision_apply_patches(): void {
     provision_run($composer . 'patches-repatch', ['COMPOSER_MEMORY_LIMIT' => '-1']);
   }
   finally {
-    file_put_contents($composer_file, $original);
+    provision_write($composer_file, $original);
   }
 }
 
