@@ -71,6 +71,14 @@ Keep the `require` section of `composer.json` minimal - it should contain only w
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
 
+### Dependency patches
+
+A patch lives at `patches/<vendor>/<package>/<name>.patch`, so the package it applies to is its own directory, and the file name becomes its description. `composer.json` declares none.
+
+[scripts/provision.php](scripts/provision.php) writes the `extra.patches` map over this package's own `composer.json`, applies it with `composer patches-relock` and `composer patches-repatch`, and restores the file afterwards. The declaration is not committed because Composer Patches registers a `Dependencies` resolver that reads `extra.patches` from every installed dependency and resolves relative paths against the consuming project's root - a project requiring this package would look for the patch inside its own tree and fail. These patches are build-time concerns of this repository alone.
+
+Provisioning therefore has to run before linting: `mglaman/phpstan-drupal` reads `DRUPAL_ROOT` and `DRUPAL_VENDOR_ROOT` only once patched, and PHPStan aborts with `InceptionNotSuccessfulException` without it. `ahoy build` covers this, and the CI Lint job provisions before it lints. On a fresh checkout, run `ahoy build` before `ahoy lint`.
+
 ## Local environment setup
 
 Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)

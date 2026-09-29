@@ -24,6 +24,7 @@
         <include>
             <directory>src</directory>
             <file>docs.php</file>
+            <file>scripts/provision.php</file>
         </include>
         <exclude>
             <directory>tests/phpunit/src</directory>
