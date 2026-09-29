@@ -779,7 +779,7 @@ function provision_merge_composer(array $package, array $fixture): array {
 
   $merged = array_replace_recursive($filtered, $fixture);
 
-  // A package named in both sections resolves to the lower of the two
+  // A package named in both sections resolves to the lower of the 2
   // constraints under "--prefer-lowest", which can fall outside the range the
   // fixture pins, so the fixture constraint is the one that survives.
   $merged['require-dev'] = array_diff_key(provision_section($merged, 'require-dev'), provision_section($merged, 'require'));
