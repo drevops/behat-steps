@@ -15,12 +15,12 @@ use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManager;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManager;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
@@ -85,11 +85,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertInstanceOf(UserAwareInterface::class, new TestableRawContext());
   }
 
-  public function testUninitializedContextNamesTheMissingUserManager(): void {
+  public function testUninitializedContextNamesTheMissingUserRegistry(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The user manager is available only after Behat has initialized the context.');
+    $this->expectExceptionMessage('The user registry is available only after Behat has initialized the context.');
 
-    (new TestableRawContext())->authGetUserManager();
+    (new TestableRawContext())->authGetUserRegistry();
   }
 
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
@@ -166,11 +166,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('user', NULL, ['name' => 'alice']);
     $driver->expects($this->once())->method('userCreate')->with($stub);
 
-    $user_manager = new UserManager();
-    $context = $this->createContext($driver, $user_manager);
+    $user_registry = new UserRegistry();
+    $context = $this->createContext($driver, $user_registry);
 
     $this->assertSame($stub, $context->authUserCreate($stub));
-    $this->assertSame($stub, $user_manager->getUser('alice'));
+    $this->assertSame($stub, $user_registry->getUser('alice'));
   }
 
   public function testLanguageCreationTracksTheReturnedStub(): void {
@@ -241,7 +241,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testHooksCannotBeDispatchedBeforeInitialization(): void {
     $context = new TestableRawContext();
-    $context->setDriverManager($this->createMock(DriverManagerInterface::class));
+    $context->setDriverRegistry($this->createMock(DriverRegistryInterface::class));
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The hook dispatcher is available only after Behat has initialized the context.');
@@ -250,11 +250,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testHooksCannotBeDispatchedBeforeScenarioStarts(): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
-    $driver_manager->method('getEnvironment')->willReturn(NULL);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->method('getEnvironment')->willReturn(NULL);
 
     $context = new TestableRawContext();
-    $context->setDriverManager($driver_manager);
+    $context->setDriverRegistry($driver_registry);
     $context->setDispatcher($this->createHookDispatcher());
 
     $this->expectException(\RuntimeException::class);
@@ -360,46 +360,46 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $driver->expects($this->once())->method('userDelete');
     $driver->expects($this->once())->method('processBatch');
 
-    $user_manager = new UserManager();
-    $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($driver, $user_registry)->authCleanUsers($this->createAfterScenarioScope());
 
-    $this->assertFalse($user_manager->hasUsers());
+    $this->assertFalse($user_registry->hasUsers());
   }
 
   public function testUsersAreLeftBehindByIncapableDriver(): void {
-    $user_manager = new UserManager();
-    $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), $user_registry)->authCleanUsers($this->createAfterScenarioScope());
 
-    $this->assertTrue($user_manager->hasUsers());
+    $this->assertTrue($user_registry->hasUsers());
   }
 
   public function testSessionIsResetWhenManagerSupportsFastLogout(): void {
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
-    $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
-    $authentication_manager->expects($this->once())->method('fastLogout');
+    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
+    $authenticator->expects($this->once())->method('fastLogout');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->once())->method('logOut');
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->once())->method('logOut');
 
-    $user_manager = new UserManager();
-    $user_manager->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
+    $user_registry = new UserRegistry();
+    $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(DriverInterface::class), $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->never())->method('logOut');
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testCreatedRolesAreDeleted(): void {
@@ -487,10 +487,10 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testTheOptOutAlsoSkipsUserCleanup(): void {
     putenv('BEHAT_STEPS_DISABLE_CLEANUP=1');
 
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->never())->method('logOut');
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
 
   public function testTheOptOutAlsoSkipsRoleCleanup(): void {
@@ -536,16 +536,16 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     // The normal path calls 'fastLogout()' even for a scenario that created
     // no users, so the 'never()' expectation proves the early return ran.
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
-    $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
-    $authentication_manager->expects($this->never())->method('fastLogout');
+    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
+    $authenticator->expects($this->never())->method('fastLogout');
 
-    $user_manager = new UserManager();
-    $user_manager->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_manager, $authentication_manager)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:authCleanUsers']));
+    $this->createContext($driver, $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:authCleanUsers']));
 
-    $this->assertTrue($user_manager->hasUsers());
+    $this->assertTrue($user_registry->hasUsers());
   }
 
   public function testTheSkipTagDisablesRoleCleanup(): void {
@@ -663,73 +663,73 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame([], $context->getCreatedStubs());
   }
 
-  public function testLoginDelegatesToTheAuthenticationManager(): void {
+  public function testLoginDelegatesToTheAuthenticator(): void {
     $user = new EntityStub('user', NULL, ['name' => 'alice']);
 
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->once())->method('logIn')->with($user);
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->once())->method('logIn')->with($user);
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogin($user);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLogin($user);
   }
 
-  public function testLogoutDelegatesToTheAuthenticationManager(): void {
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->once())->method('logOut');
+  public function testLogoutDelegatesToTheAuthenticator(): void {
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->once())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout();
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLogout();
   }
 
   public function testFastLogoutIsUsedWhenAskedForAndSupported(): void {
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authentication_manager */
-    $authentication_manager = $this->createMockForIntersectionOfInterfaces([AuthenticationManagerInterface::class, FastLogoutInterface::class]);
-    $authentication_manager->expects($this->once())->method('fastLogout');
-    $authentication_manager->expects($this->never())->method('logOut');
+    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
+    $authenticator->expects($this->once())->method('fastLogout');
+    $authenticator->expects($this->never())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout(TRUE);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLogout(TRUE);
   }
 
   public function testFastLogoutFallsBackWhenUnsupported(): void {
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->expects($this->once())->method('logOut');
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->expects($this->once())->method('logOut');
 
-    $this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLogout(TRUE);
+    $this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLogout(TRUE);
   }
 
-  public function testLoggedInDelegatesToTheAuthenticationManager(): void {
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
-    $authentication_manager->method('loggedIn')->willReturn(TRUE);
+  public function testLoggedInDelegatesToTheAuthenticator(): void {
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
+    $authenticator->method('loggedIn')->willReturn(TRUE);
 
-    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authentication_manager)->authLoggedIn());
+    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLoggedIn());
   }
 
   /**
    * Builds an initialized context over the given driver.
    *
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
-   *   The driver the manager hands out.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface|null $user_manager
-   *   The user manager, when the test inspects it.
-   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface|null $authentication_manager
-   *   The authentication manager, when the test inspects it.
+   *   The driver the registry hands out.
+   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
+   *   The user registry, when the test inspects it.
+   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface|null $authenticator
+   *   The authenticator, when the test inspects it.
    * @param \Behat\Testwork\Hook\HookDispatcher|null $dispatcher
    *   The hook dispatcher, when the test needs one that finds hooks.
    */
-  protected function createContext(DriverInterface $driver, ?UserManagerInterface $user_manager = NULL, ?AuthenticationManagerInterface $authentication_manager = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
+  protected function createContext(DriverInterface $driver, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
     $environment = $this->createMock(Environment::class);
     // A real environment binds a callee to the context instance it holds. The
     // fixture hooks are static, so the callee's own callable is enough for
     // the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
-    $driver_manager = new DriverManager(['test' => $driver]);
-    $driver_manager->setScenarioDrivers(['test' => 'test']);
-    $driver_manager->setEnvironment($environment);
+    $driver_registry = new DriverRegistry(['test' => $driver]);
+    $driver_registry->setScenarioDrivers(['test' => 'test']);
+    $driver_registry->setEnvironment($environment);
 
     $context = new TestableRawContext();
-    $context->setDriverManager($driver_manager);
+    $context->setDriverRegistry($driver_registry);
     $context->setDispatcher($dispatcher ?? $this->createHookDispatcher());
-    $context->authSetUserManager($user_manager ?? new UserManager());
-    $context->authSetManager($authentication_manager ?? $this->createMock(AuthenticationManagerInterface::class));
+    $context->authSetUserRegistry($user_registry ?? new UserRegistry());
+    $context->authSetAuthenticator($authenticator ?? $this->createMock(AuthenticatorInterface::class));
 
     return $context;
   }

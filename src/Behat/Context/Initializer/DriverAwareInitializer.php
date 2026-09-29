@@ -9,40 +9,40 @@ use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 
 /**
- * Injects the driver manager and its collaborators into a context.
+ * Injects the driver registry and its collaborators into a context.
  */
 class DriverAwareInitializer implements ContextInitializer {
 
   /**
    * Constructs a DriverAwareInitializer object.
    *
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
-   *   The driver manager.
+   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface $driverRegistry
+   *   The driver registry.
    * @param array<string, mixed> $parameters
    *   Configuration parameters.
    * @param \Behat\Testwork\Hook\HookDispatcher $hookDispatcher
    *   The hook dispatcher.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface $basicAuthManager
+   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface $basicAuthenticator
    *   Applies webserver-level basic auth, which needs no Drupal site.
-   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface $authenticationManager
+   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface $authenticator
    *   Logs a user in and out of the site under test.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface $userManager
-   *   The user manager.
+   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
+   *   The user registry.
    */
   public function __construct(
-    protected readonly DriverManagerInterface $driverManager,
+    protected readonly DriverRegistryInterface $driverRegistry,
     protected readonly array $parameters,
     protected readonly HookDispatcher $hookDispatcher,
-    protected readonly BasicAuthInterface $basicAuthManager,
-    protected readonly AuthenticationManagerInterface $authenticationManager,
-    protected readonly UserManagerInterface $userManager,
+    protected readonly BasicAuthenticatorInterface $basicAuthenticator,
+    protected readonly AuthenticatorInterface $authenticator,
+    protected readonly UserRegistryInterface $userRegistry,
   ) {
   }
 
@@ -55,17 +55,17 @@ class DriverAwareInitializer implements ContextInitializer {
     }
 
     if ($context instanceof UserAwareInterface) {
-      $context->authSetUserManager($this->userManager);
-      $context->authSetManager($this->authenticationManager);
+      $context->authSetUserRegistry($this->userRegistry);
+      $context->authSetAuthenticator($this->authenticator);
     }
 
     if (!$context instanceof DriverAwareInterface) {
       return;
     }
 
-    $context->setDriverManager($this->driverManager);
+    $context->setDriverRegistry($this->driverRegistry);
     $context->setDispatcher($this->hookDispatcher);
-    $context->setBasicAuthManager($this->basicAuthManager);
+    $context->setBasicAuthenticator($this->basicAuthenticator);
   }
 
 }

@@ -22,7 +22,7 @@ trait StaticCacheTrait {
    */
   #[AfterScenario]
   public function staticCacheClear(): void {
-    $this->getDriverManager()->getResolvedDriverFor(CacheCapabilityInterface::class)?->cacheClearStatic();
+    $this->getDriverRegistry()->getResolvedDriverFor(CacheCapabilityInterface::class)?->cacheClearStatic();
   }
 
 }

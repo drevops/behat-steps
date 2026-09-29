@@ -22,21 +22,21 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  * session reset drops request headers, so the credentials are reapplied
  * afterwards, and that is the only overlap between the two concerns.
  */
-class AuthenticationManager implements AuthenticationManagerInterface, FastLogoutInterface {
+class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
   use MinkAwareTrait;
   use ParametersTrait;
 
   /**
-   * Constructs an AuthenticationManager object.
+   * Constructs an Authenticator object.
    *
    * @param \Behat\Mink\Mink $mink
    *   The Mink instance.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserManagerInterface $userManager
-   *   The user manager.
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface $driverManager
-   *   The driver manager.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface $basicAuthManager
+   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
+   *   The user registry.
+   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface $driverRegistry
+   *   The driver registry.
+   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface $basicAuthenticator
    *   Reapplies basic auth after a session reset clears the request headers.
    * @param array<string, mixed> $mink_parameters
    *   Mink configuration parameters.
@@ -45,9 +45,9 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    */
   public function __construct(
     Mink $mink,
-    protected UserManagerInterface $userManager,
-    protected DriverManagerInterface $driverManager,
-    protected BasicAuthInterface $basicAuthManager,
+    protected UserRegistryInterface $userRegistry,
+    protected DriverRegistryInterface $driverRegistry,
+    protected BasicAuthenticatorInterface $basicAuthenticator,
     array $mink_parameters,
     array $parameters,
   ) {
@@ -108,7 +108,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
       throw new ExpectationException($message, $session->getDriver());
     }
 
-    $this->userManager->setCurrentUser($user);
+    $this->userRegistry->setCurrentUser($user);
 
     $this->backendLogin($user);
   }
@@ -134,7 +134,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
       $logout_element->click();
     }
 
-    $this->userManager->setCurrentUser(FALSE);
+    $this->userRegistry->setCurrentUser(FALSE);
 
     $this->backendLogout();
   }
@@ -209,10 +209,10 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
       $session->reset();
       // Resetting clears request headers, including basic auth, so requests
       // after the reset would 401 on sites behind webserver-level basic auth.
-      $this->basicAuthManager->applyBasicAuth();
+      $this->basicAuthenticator->applyBasicAuth();
     }
 
-    $this->userManager->setCurrentUser(FALSE);
+    $this->userRegistry->setCurrentUser(FALSE);
 
     $this->backendLogout();
   }
@@ -242,8 +242,8 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
    * Logs in on the backend driver if it supports authentication.
    */
   protected function backendLogin(EntityStubInterface $user): void {
-    if ($this->driverManager->hasCapability(AuthenticationCapabilityInterface::class)) {
-      $this->driverManager->getDriverFor(AuthenticationCapabilityInterface::class)->login($user);
+    if ($this->driverRegistry->hasCapability(AuthenticationCapabilityInterface::class)) {
+      $this->driverRegistry->getDriverFor(AuthenticationCapabilityInterface::class)->login($user);
     }
   }
 
@@ -254,7 +254,7 @@ class AuthenticationManager implements AuthenticationManagerInterface, FastLogou
     // Only a driver the scenario already reached can hold a backend session,
     // and resolving one here would bootstrap it: teardown logs every scenario
     // out, so asking for the capability would boot Drupal for all of them.
-    $this->driverManager->getResolvedDriverFor(AuthenticationCapabilityInterface::class)?->logout();
+    $this->driverRegistry->getResolvedDriverFor(AuthenticationCapabilityInterface::class)?->logout();
   }
 
 }

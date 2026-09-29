@@ -3,7 +3,7 @@
 ' Traced from src/Steps/Web/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
 ' src/Behat/Context/WebRawContext.php, WebContext.php,
 ' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
-' DrupalContext.php, src/Behat/Manager/DriverManager.php,
+' DrupalContext.php, src/Behat/Manager/DriverRegistry.php,
 ' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -17,7 +17,7 @@ participant "Behat" as Behat
 participant "WebContext\nDrupalContext" as Ctx
 participant "Step trait method" as Trait
 participant "DriverListener" as Listener
-participant "DriverManager" as DM
+participant "DriverRegistry" as DM
 participant "Driver\nDrupal, Drush or Blackbox" as Driver
 participant "Mink session" as Mink
 
@@ -27,7 +27,7 @@ Listener -> Listener: take the configured drivers list,\npromote every "@driver:
 Listener -> DM: setScenarioDrivers(order)
 deactivate Listener
 
-Behat -> Ctx: instantiate each registered context,\ninject managers via DriverAwareInitializer
+Behat -> Ctx: instantiate each registered context,\ninject the services via DriverAwareInitializer
 activate Ctx
 Behat -> Ctx: scan the Given, When and Then step attributes
 note right of Behat: attributes inherited\nthrough "use" are\nfound too

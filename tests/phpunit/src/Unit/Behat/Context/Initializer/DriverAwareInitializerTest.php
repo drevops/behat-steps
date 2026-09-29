@@ -8,10 +8,10 @@ use Behat\Behat\Context\Context;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticationManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserManagerInterface;
+use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -44,35 +44,35 @@ class DriverAwareInitializerTest extends UnitTestCase {
   }
 
   public function testDriverAwareContextReceivesEveryCollaborator(): void {
-    $driver_manager = $this->createMock(DriverManagerInterface::class);
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $dispatcher = $this->createHookDispatcher();
-    $basic_auth_manager = $this->createMock(BasicAuthInterface::class);
+    $basic_authenticator = $this->createMock(BasicAuthenticatorInterface::class);
 
     $context = $this->createMock(DriverAwareInterface::class);
     $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
-    $context->expects($this->once())->method('setDriverManager')->with($driver_manager);
+    $context->expects($this->once())->method('setDriverRegistry')->with($driver_registry);
     $context->expects($this->once())->method('setDispatcher')->with($dispatcher);
-    $context->expects($this->once())->method('setBasicAuthManager')->with($basic_auth_manager);
+    $context->expects($this->once())->method('setBasicAuthenticator')->with($basic_authenticator);
 
-    $initializer = new DriverAwareInitializer($driver_manager, self::PARAMETERS, $dispatcher, $basic_auth_manager, $this->createMock(AuthenticationManagerInterface::class), $this->createMock(UserManagerInterface::class));
+    $initializer = new DriverAwareInitializer($driver_registry, self::PARAMETERS, $dispatcher, $basic_authenticator, $this->createMock(AuthenticatorInterface::class), $this->createMock(UserRegistryInterface::class));
     $initializer->initializeContext($context);
   }
 
   public function testUserAwareContextReceivesTheUserAndLoginManagers(): void {
-    $user_manager = $this->createMock(UserManagerInterface::class);
-    $authentication_manager = $this->createMock(AuthenticationManagerInterface::class);
+    $user_registry = $this->createMock(UserRegistryInterface::class);
+    $authenticator = $this->createMock(AuthenticatorInterface::class);
 
     $context = $this->createMock(UserAwareInterface::class);
-    $context->expects($this->once())->method('authSetUserManager')->with($user_manager);
-    $context->expects($this->once())->method('authSetManager')->with($authentication_manager);
+    $context->expects($this->once())->method('authSetUserRegistry')->with($user_registry);
+    $context->expects($this->once())->method('authSetAuthenticator')->with($authenticator);
 
     $initializer = new DriverAwareInitializer(
-      $this->createMock(DriverManagerInterface::class),
+      $this->createMock(DriverRegistryInterface::class),
       self::PARAMETERS,
       $this->createHookDispatcher(),
-      $this->createMock(BasicAuthInterface::class),
-      $authentication_manager,
-      $user_manager,
+      $this->createMock(BasicAuthenticatorInterface::class),
+      $authenticator,
+      $user_registry,
     );
 
     $initializer->initializeContext($context);
@@ -83,12 +83,12 @@ class DriverAwareInitializerTest extends UnitTestCase {
    */
   protected function createInitializer(): DriverAwareInitializer {
     return new DriverAwareInitializer(
-      $this->createMock(DriverManagerInterface::class),
+      $this->createMock(DriverRegistryInterface::class),
       self::PARAMETERS,
       $this->createHookDispatcher(),
-      $this->createMock(BasicAuthInterface::class),
-      $this->createMock(AuthenticationManagerInterface::class),
-      $this->createMock(UserManagerInterface::class),
+      $this->createMock(BasicAuthenticatorInterface::class),
+      $this->createMock(AuthenticatorInterface::class),
+      $this->createMock(UserRegistryInterface::class),
     );
   }
 

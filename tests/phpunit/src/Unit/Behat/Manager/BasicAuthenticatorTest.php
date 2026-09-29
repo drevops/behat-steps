@@ -8,7 +8,7 @@ use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthManager;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -16,8 +16,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests applying webserver-level basic auth to the session.
  */
-#[CoversClass(BasicAuthManager::class)]
-class BasicAuthManagerTest extends TestCase {
+#[CoversClass(BasicAuthenticator::class)]
+class BasicAuthenticatorTest extends TestCase {
 
   /**
    * Tests that credentials are parsed from the configured base URL.
@@ -79,13 +79,13 @@ class BasicAuthManagerTest extends TestCase {
   }
 
   /**
-   * Builds a manager over a session and a configured base URL.
+   * Builds an authenticator over a session and a configured base URL.
    */
-  protected function createManager(Session $session, string $base_url): BasicAuthManager {
+  protected function createManager(Session $session, string $base_url): BasicAuthenticator {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    return new BasicAuthManager($mink, ['base_url' => $base_url]);
+    return new BasicAuthenticator($mink, ['base_url' => $base_url]);
   }
 
 }

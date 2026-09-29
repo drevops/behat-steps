@@ -1975,19 +1975,19 @@ Load all webform templates whose title contains the given string
 > Creates users and roles, logs them in, and removes them afterwards.
 
 <details>
-  <summary><code>public function authGetManager(): AuthenticationManagerInterface</code></summary>
+  <summary><code>public function authGetAuthenticator(): AuthenticatorInterface</code></summary>
 
 <br/>
-Returns the manager that logs a user in and out
+Returns the authenticator that logs a user in and out
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function authGetUserManager(): UserManagerInterface</code></summary>
+  <summary><code>public function authGetUserRegistry(): UserRegistryInterface</code></summary>
 
 <br/>
-Returns the user manager
+Returns the user registry
 <br/><br/>
 
 </details>
@@ -2233,10 +2233,10 @@ Returns the highest-priority driver providing the given capability
 </details>
 
 <details>
-  <summary><code>public function getBasicAuthManager(): BasicAuthInterface</code></summary>
+  <summary><code>public function getBasicAuthenticator(): BasicAuthenticatorInterface</code></summary>
 
 <br/>
-Returns the basic authentication manager
+Returns the basic authenticator
 <br/><br/>
 
 </details>
@@ -2260,10 +2260,10 @@ Returns a driver of this scenario by the name its suite gave it
 </details>
 
 <details>
-  <summary><code>public function getDriverManager(): DriverManagerInterface</code></summary>
+  <summary><code>public function getDriverRegistry(): DriverRegistryInterface</code></summary>
 
 <br/>
-Returns the driver manager
+Returns the driver registry
 <br/><br/>
 
 </details>

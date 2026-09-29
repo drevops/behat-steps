@@ -73,7 +73,7 @@ trait UserTrait {
 
       foreach ($users as $user) {
         $user->delete();
-        $this->authGetUserManager()->removeUser($user->getAccountName());
+        $this->authGetUserRegistry()->removeUser($user->getAccountName());
       }
     }
   }
@@ -339,7 +339,7 @@ trait UserTrait {
    */
   #[When('I log in as the user :name')]
   public function userLogInAs(string $name): void {
-    $this->authLogin($this->authGetUserManager()->getUser($name));
+    $this->authLogin($this->authGetUserRegistry()->getUser($name));
   }
 
   /**
@@ -449,7 +449,7 @@ trait UserTrait {
    */
   #[When('I visit my own password reset link')]
   public function userVisitOwnPasswordResetLink(): void {
-    $current_user = $this->authGetUserManager()->getCurrentUser();
+    $current_user = $this->authGetUserRegistry()->getCurrentUser();
 
     if (!$current_user instanceof EntityStubInterface) {
       throw new \RuntimeException('Current user is not logged in.');
@@ -718,7 +718,7 @@ trait UserTrait {
    */
   public function userVisitActionPage(string $name, string $action_subpath = ''): void {
     if ($name === 'current') {
-      $user = $this->authGetUserManager()->getCurrentUser();
+      $user = $this->authGetUserRegistry()->getCurrentUser();
 
       if (!$user instanceof EntityStubInterface) {
         throw new \RuntimeException('Current user is not logged in.');

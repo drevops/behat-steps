@@ -9,12 +9,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Registers the tagged drivers with the driver manager.
+ * Registers the tagged drivers with the driver registry.
  */
 class DriverPass implements CompilerPassInterface {
 
   /**
-   * Tag a driver service carries to be registered with the manager.
+   * Tag a driver service carries to be registered with the registry.
    */
   public const DRIVER_TAG = 'behat_steps.driver';
 
@@ -22,16 +22,16 @@ class DriverPass implements CompilerPassInterface {
    * Registers drivers.
    */
   public function process(ContainerBuilder $container): void {
-    if (!$container->hasDefinition('behat_steps.driver_manager')) {
+    if (!$container->hasDefinition('behat_steps.driver_registry')) {
       return;
     }
 
-    $manager_definition = $container->getDefinition('behat_steps.driver_manager');
+    $registry_definition = $container->getDefinition('behat_steps.driver_registry');
 
     foreach ($container->findTaggedServiceIds(self::DRIVER_TAG) as $id => $attributes) {
       foreach ($attributes as $attribute) {
         if (isset($attribute['alias']) && $name = $attribute['alias']) {
-          $manager_definition->addMethodCall('registerDriver', [$name, new Reference($id)]);
+          $registry_definition->addMethodCall('registerDriver', [$name, new Reference($id)]);
         }
       }
 

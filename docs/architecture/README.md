@@ -14,7 +14,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | --- | --- | --- |
 | `architecture.puml` | `architecture.svg` | The 3 library layers, the consuming project, and the runtime around them |
 | `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
-| `class-context.puml` | `class-context.svg` | The context hierarchy, the managers, the helper traits, representative step traits, and the exceptions a failing step throws |
+| `class-context.puml` | `class-context.svg` | The context hierarchy, its services, the helper traits, representative step traits, and the exceptions a failing step throws |
 | `class-drivers.puml` | `class-drivers.svg` | The Behat-free driver layer: the base contract, the capability interfaces, the 3 drivers, and the Core bridge |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
 | `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
@@ -36,7 +36,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the managers, the 3 context classes, the entity-creation hooks.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks.
 
 **`src/Helper/` - the shared internals.** 10 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
 
@@ -56,7 +56,7 @@ A driver is the thing that actually talks to Drupal. `DriverInterface` is delibe
 
 ![Class structure: the driver layer](class-drivers.svg)
 
-This is what makes a step's requirements explicit rather than implicit, and it is also how a driver is chosen. A step names the capability it needs - a step that creates a node asks for `ContentCapabilityInterface` - and `DriverManager` walks the scenario's driver order and hands back the first driver implementing it, bootstrapping only that one. When none does, the step fails with `UnsupportedDriverActionException` naming the capability and the order, instead of a fatal error somewhere deeper.
+This is what makes a step's requirements explicit rather than implicit, and it is also how a driver is chosen. A step names the capability it needs - a step that creates a node asks for `ContentCapabilityInterface` - and `DriverRegistry` walks the scenario's driver order and hands back the first driver implementing it, bootstrapping only that one. When none does, the step fails with `UnsupportedDriverActionException` naming the capability and the order, instead of a fatal error somewhere deeper.
 
 The order itself comes from the suite: its `drivers` setting is both the allow-list and the precedence order, and a `@driver:NAME` tag moves one of those names to the front for a single scenario or feature. A step never names a driver, so the shipped vocabulary carries over unchanged to a driver a project registers itself.
 
@@ -64,9 +64,9 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 ## The integration layer
 
-`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the managers, and aliases the library's `DocumentElement` over Mink's own.
+`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the services, and aliases the library's `DocumentElement` over Mink's own.
 
-`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverManager`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver.
+`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverRegistry`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver.
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 
@@ -74,7 +74,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 - Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
 - Option resolution: `getOption()` reads a trait's option through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags.
-- Authentication delegation: `getAuthenticationManager()`, because `BasicAuthTrait` is a web trait and calls it.
+- Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
 - The hook dispatcher and `skipTag()`.
 - The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.
 
@@ -82,17 +82,17 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 - Entity creation (`entityNodeCreate`, `authUserCreate`, `entityTermCreate`, `entityCreate`, `entityLanguageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `entityCleanAll`, `authCleanUsers` and `authCleanRoles` run after the scenario and delete what it created, in reverse.
-- Authentication: `authLogin`, `authLogout`, `authLoggedIn`, delegated to `AuthenticationManager`.
+- Authentication: `authLogin`, `authLogout`, `authLoggedIn`, delegated to `Authenticator`.
 
 Every helper member carries its trait's prefix, so two helpers mixed into one context cannot collide and a reader can tell from a call site which trait has to be composed.
 
 Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so it arrives with whichever step traits create the thing being torn down. A suite that extends `WebContext`, or composes no entity-creating trait, never runs those hooks at all.
 
-Authentication splits along the same line. `AuthenticationManager` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthManager` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthManager()` and a suite with no Drupal site still gets basic auth.
+Authentication splits along the same line. `Authenticator` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthenticator` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthenticator()` and a suite with no Drupal site still gets basic auth.
 
 A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 
-![Class detail: context, managers, helpers and step traits](class-context.svg)
+![Class detail: context, services, helpers and step traits](class-context.svg)
 
 ## The step vocabulary
 
@@ -115,7 +115,7 @@ Step traits never `use` other step traits. Shared logic goes in a trait under `s
 
 Nothing in this library is invoked directly. Behat owns the loop, and the traits are just where the matching methods happen to live.
 
-When Behat starts, it instantiates every registered context, injects the managers through `DriverAwareInitializer`, and scans each class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
+When Behat starts, it instantiates every registered context, injects those services through `DriverAwareInitializer`, and scans each class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
 
 Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why each class in the chain composes a trait the ones above it do not, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
 

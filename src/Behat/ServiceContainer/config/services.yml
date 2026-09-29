@@ -1,8 +1,8 @@
 parameters:
-  behat_steps.driver_manager.class: DrevOps\BehatSteps\Behat\Manager\DriverManager
-  behat_steps.authentication_manager.class: DrevOps\BehatSteps\Behat\Manager\AuthenticationManager
-  behat_steps.basic_auth_manager.class: DrevOps\BehatSteps\Behat\Manager\BasicAuthManager
-  behat_steps.user_manager.class: DrevOps\BehatSteps\Behat\Manager\UserManager
+  behat_steps.driver_registry.class: DrevOps\BehatSteps\Behat\Manager\DriverRegistry
+  behat_steps.authenticator.class: DrevOps\BehatSteps\Behat\Manager\Authenticator
+  behat_steps.basic_authenticator.class: DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator
+  behat_steps.user_registry.class: DrevOps\BehatSteps\Behat\Manager\UserRegistry
   behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
   behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
@@ -12,35 +12,35 @@ parameters:
   behat_steps.drivers: {}
 
 services:
-  behat_steps.driver_manager:
-    class: "%behat_steps.driver_manager.class%"
+  behat_steps.driver_registry:
+    class: "%behat_steps.driver_registry.class%"
     arguments:
       - {}
-  behat_steps.basic_auth_manager:
-    class: "%behat_steps.basic_auth_manager.class%"
+  behat_steps.basic_authenticator:
+    class: "%behat_steps.basic_authenticator.class%"
     arguments:
       - "@mink"
       - "%mink.parameters%"
-  behat_steps.authentication_manager:
-    class: "%behat_steps.authentication_manager.class%"
+  behat_steps.authenticator:
+    class: "%behat_steps.authenticator.class%"
     arguments:
       - "@mink"
-      - "@behat_steps.user_manager"
-      - "@behat_steps.driver_manager"
-      - "@behat_steps.basic_auth_manager"
+      - "@behat_steps.user_registry"
+      - "@behat_steps.driver_registry"
+      - "@behat_steps.basic_authenticator"
       - "%mink.parameters%"
       - "%behat_steps.parameters%"
-  behat_steps.user_manager:
-    class: "%behat_steps.user_manager.class%"
+  behat_steps.user_registry:
+    class: "%behat_steps.user_registry.class%"
   behat_steps.context.initializer:
     class: "%behat_steps.context.initializer.class%"
     arguments:
-      - "@behat_steps.driver_manager"
+      - "@behat_steps.driver_registry"
       - "%behat_steps.parameters%"
       - "@hook.dispatcher"
-      - "@behat_steps.basic_auth_manager"
-      - "@behat_steps.authentication_manager"
-      - "@behat_steps.user_manager"
+      - "@behat_steps.basic_authenticator"
+      - "@behat_steps.authenticator"
+      - "@behat_steps.user_registry"
     tags:
       - { name: context.initializer }
   behat_steps.context.attribute_reader:
@@ -50,7 +50,7 @@ services:
   behat_steps.listener.driver:
     class: "%behat_steps.listener.driver.class%"
     arguments:
-      - "@behat_steps.driver_manager"
+      - "@behat_steps.driver_registry"
       - "%behat_steps.drivers%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }

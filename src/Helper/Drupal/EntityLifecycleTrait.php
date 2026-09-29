@@ -44,7 +44,7 @@ trait EntityLifecycleTrait {
   /**
    * Tracks every entity stub created during a scenario for cleanup.
    *
-   * Users are tracked in the user manager instead, because a user is looked
+   * Users are tracked in the user registry instead, because a user is looked
    * up by name.
    *
    * @var array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
@@ -70,13 +70,13 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    $manager = $context->getDriverManager();
+    $registry = $context->getDriverRegistry();
 
-    if (!$manager->hasCapability(ContentCapabilityInterface::class)) {
+    if (!$registry->hasCapability(ContentCapabilityInterface::class)) {
       return;
     }
 
-    if (!$manager->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+    if (!$registry->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -175,7 +175,7 @@ trait EntityLifecycleTrait {
     // code could, so the resolution is best-effort.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
-    if (!empty($vocabulary) && $this->getDriverManager()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!empty($vocabulary) && $this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       $stub->setValue('vocabulary_machine_name', $this->entityResolveVocabularyMachineName((string) $vocabulary));
     }
 
@@ -320,10 +320,10 @@ trait EntityLifecycleTrait {
    */
   protected function entityDeleteStub(EntityStubInterface $stub): void {
     $type = $stub->getEntityType();
-    $manager = $this->getDriverManager();
+    $registry = $this->getDriverRegistry();
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
-      if ($manager->hasCapability(LanguageCapabilityInterface::class)) {
+      if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
         try {
           $this->driverFor(LanguageCapabilityInterface::class)->languageDelete($stub);
         }
@@ -336,7 +336,7 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    if (!$manager->hasCapability(ContentCapabilityInterface::class)) {
+    if (!$registry->hasCapability(ContentCapabilityInterface::class)) {
       return;
     }
 
@@ -389,7 +389,7 @@ trait EntityLifecycleTrait {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
 
-    $environment = $this->getDriverManager()->getEnvironment();
+    $environment = $this->getDriverRegistry()->getEnvironment();
 
     if (!$environment instanceof Environment) {
       throw new \RuntimeException('Hooks can be dispatched only once a scenario has started.');

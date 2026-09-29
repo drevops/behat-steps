@@ -60,7 +60,7 @@ trait BasicAuthTrait {
    * Apply the resolved credentials to the session.
    */
   public function basicAuthApply(): void {
-    $this->getBasicAuthManager()->applyBasicAuth();
+    $this->getBasicAuthenticator()->applyBasicAuth();
   }
 
   /**

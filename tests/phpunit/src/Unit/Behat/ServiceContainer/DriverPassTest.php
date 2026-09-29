@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
-use DrevOps\BehatSteps\Behat\Manager\DriverManager;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
 use DrevOps\BehatSteps\Behat\ServiceContainer\DriverPass;
 use DrevOps\BehatSteps\Driver\BlackboxDriver;
 use DrevOps\BehatSteps\Driver\Core\Core;
@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Tests that the compiler pass wires tagged drivers into the manager.
+ * Tests that the compiler pass wires tagged drivers into the registry.
  */
 #[CoversClass(DriverPass::class)]
 class DriverPassTest extends TestCase {
@@ -27,7 +27,7 @@ class DriverPassTest extends TestCase {
 
     (new DriverPass())->process($container);
 
-    $this->assertFalse($container->hasDefinition('behat_steps.driver_manager'));
+    $this->assertFalse($container->hasDefinition('behat_steps.driver_registry'));
   }
 
   public function testTaggedDriversAreRegisteredUnderTheirAlias(): void {
@@ -36,7 +36,7 @@ class DriverPassTest extends TestCase {
 
     (new DriverPass())->process($container);
 
-    $calls = $container->getDefinition('behat_steps.driver_manager')->getMethodCalls();
+    $calls = $container->getDefinition('behat_steps.driver_registry')->getMethodCalls();
 
     $this->assertSame('registerDriver', $calls[0][0]);
     $this->assertSame('blackbox', $calls[0][1][0]);
@@ -49,7 +49,7 @@ class DriverPassTest extends TestCase {
 
     (new DriverPass())->process($container);
 
-    $this->assertSame([], $container->getDefinition('behat_steps.driver_manager')->getMethodCalls());
+    $this->assertSame([], $container->getDefinition('behat_steps.driver_registry')->getMethodCalls());
   }
 
   public function testRegisteredNamesAreCollectedInRegistrationOrder(): void {
@@ -95,11 +95,11 @@ class DriverPassTest extends TestCase {
   }
 
   /**
-   * Builds a container holding the driver manager the pass looks for.
+   * Builds a container holding the driver registry the pass looks for.
    */
   protected function createContainer(): ContainerBuilder {
     $container = new ContainerBuilder();
-    $container->setDefinition('behat_steps.driver_manager', new Definition(DriverManager::class));
+    $container->setDefinition('behat_steps.driver_registry', new Definition(DriverRegistry::class));
 
     return $container;
   }

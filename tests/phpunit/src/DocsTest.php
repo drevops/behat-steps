@@ -2767,7 +2767,7 @@ EOD,
     // published surface.
     $names = array_column($actual['WebRawContext']['helpers'], 'name');
     $this->assertContains('driverFor', $names);
-    $this->assertNotContains('setDriverManager', $names);
+    $this->assertNotContains('setDriverRegistry', $names);
     $this->assertNotContains('setParameters', $names);
 
     // A composed helper trait is published under its own name, so the context
@@ -2796,10 +2796,10 @@ EOD,
 
     // A trait declares no interface of its own, so '{@inheritdoc}' resolves
     // against the contract the composing context declares.
-    $this->assertSame('Returns the user manager.', $helpers['authGetUserManager']);
+    $this->assertSame('Returns the user registry.', $helpers['authGetUserRegistry']);
 
     // The injection point is '@internal' on that same contract.
-    $this->assertArrayNotHasKey('authSetUserManager', $helpers);
+    $this->assertArrayNotHasKey('authSetUserRegistry', $helpers);
   }
 
   /**

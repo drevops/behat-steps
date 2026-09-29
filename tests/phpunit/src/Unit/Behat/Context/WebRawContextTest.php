@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverManager;
+use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
@@ -45,8 +45,8 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public static function dataProviderUninitializedContextNamesMissingCollaborator(): \Iterator {
-    yield 'driver manager' => ['getDriverManager', 'The driver manager is available only after Behat has initialized the context.'];
-    yield 'basic authentication manager' => ['getBasicAuthManager', 'The basic authentication manager is available only after Behat has initialized the context.'];
+    yield 'driver registry' => ['getDriverRegistry', 'The driver registry is available only after Behat has initialized the context.'];
+    yield 'basic authenticator' => ['getBasicAuthenticator', 'The basic authenticator is available only after Behat has initialized the context.'];
   }
 
   public function testTheDriverComesFromTheManager(): void {
@@ -92,17 +92,17 @@ class WebRawContextTest extends UnitTestCase {
    * Builds an initialized context over the given driver.
    *
    * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
-   *   The driver the manager hands out.
+   *   The driver the registry hands out.
    */
   protected function createContext(DriverInterface $driver): WebRawContext {
-    $driver_manager = new DriverManager(['test' => $driver]);
-    $driver_manager->setScenarioDrivers(['test' => 'test']);
-    $driver_manager->setEnvironment($this->createMock(Environment::class));
+    $driver_registry = new DriverRegistry(['test' => $driver]);
+    $driver_registry->setScenarioDrivers(['test' => 'test']);
+    $driver_registry->setEnvironment($this->createMock(Environment::class));
 
     $context = new WebRawContext();
-    $context->setDriverManager($driver_manager);
+    $context->setDriverRegistry($driver_registry);
     $context->setDispatcher($this->createHookDispatcher());
-    $context->setBasicAuthManager($this->createMock(BasicAuthInterface::class));
+    $context->setBasicAuthenticator($this->createMock(BasicAuthenticatorInterface::class));
 
     return $context;
   }
