@@ -32,7 +32,7 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
    * {@inheritdoc}
    */
   public function cookieGetAll(): array {
-    /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+    /** @var \Behat\Mink\Driver\BrowserKitDriver<object, object> $driver */
     $driver = $this->driver;
     $jar = $driver->getClient()->getCookieJar();
 
@@ -62,7 +62,7 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
    * {@inheritdoc}
    */
   public function httpClient(): object {
-    /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+    /** @var \Behat\Mink\Driver\BrowserKitDriver<object, object> $driver */
     $driver = $this->driver;
 
     return $driver->getClient();
@@ -72,7 +72,7 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
    * {@inheritdoc}
    */
   public function requestHeaderSet(string $name, string $value): void {
-    /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
+    /** @var \Behat\Mink\Driver\BrowserKitDriver<object, object> $driver */
     $driver = $this->driver;
     $driver->setRequestHeader($name, $value);
   }
