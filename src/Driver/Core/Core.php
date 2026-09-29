@@ -1106,6 +1106,66 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function configExists(string $name): bool {
+    return !\Drupal::configFactory()->getEditable($name)->isNew();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configGetData(string $name): array {
+    return \Drupal::configFactory()->getEditable($name)->getRawData();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configSetData(string $name, array $data): void {
+    \Drupal::configFactory()->getEditable($name)
+      ->setData($data)
+      ->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configDelete(string $name): void {
+    \Drupal::configFactory()->getEditable($name)->delete();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateGet(string $name): mixed {
+    return \Drupal::state()->get($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateSet(string $name, mixed $value): void {
+    \Drupal::state()->set($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateDelete(string $name): void {
+    \Drupal::state()->delete($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateExists(string $name): bool {
+    // The state service reads a stored NULL and an absent key alike, so the
+    // backing key-value store answers this instead.
+    return \Drupal::keyValue('state')->has($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
     $entity_type = $stub->getEntityType();
 
@@ -1202,6 +1262,20 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function moduleUninstall(string $module_name): void {
     \Drupal::service('module_installer')->uninstall([$module_name]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsEnabled(string $module_name): bool {
+    return \Drupal::moduleHandler()->moduleExists($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsPresent(string $module_name): bool {
+    return array_key_exists($module_name, \Drupal::service('extension.list.module')->getList());
   }
 
   /**

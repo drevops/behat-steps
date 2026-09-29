@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 
@@ -29,6 +30,7 @@ interface DrushDriverInterface extends
   DrushCapabilityInterface,
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
+  StateCapabilityInterface,
   UserCapabilityInterface,
   WatchdogCapabilityInterface {
 

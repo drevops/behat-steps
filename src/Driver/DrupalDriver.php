@@ -227,6 +227,62 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
+  public function configExists(string $name): bool {
+    return $this->getCore()->configExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configGetData(string $name): array {
+    return $this->getCore()->configGetData($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configSetData(string $name, array $data): void {
+    $this->getCore()->configSetData($name, $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configDelete(string $name): void {
+    $this->getCore()->configDelete($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateGet(string $name): mixed {
+    return $this->getCore()->stateGet($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateSet(string $name, mixed $value): void {
+    $this->getCore()->stateSet($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateDelete(string $name): void {
+    $this->getCore()->stateDelete($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateExists(string $name): bool {
+    return $this->getCore()->stateExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
     return $this->getCore()->nodeCreate($stub);
   }
@@ -355,6 +411,20 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
    */
   public function moduleInstall(string $module_name): void {
     $this->getCore()->moduleInstall($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsEnabled(string $module_name): bool {
+    return $this->getCore()->moduleIsEnabled($module_name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsPresent(string $module_name): bool {
+    return $this->getCore()->moduleIsPresent($module_name);
   }
 
   /**
