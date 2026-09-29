@@ -43,7 +43,7 @@ class OptionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderSwitchDefaultsToBoolean')]
   public function testSwitchDefaultsToBoolean(mixed $default): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The "enabled" option switches its trait on and off, so it defaults to a boolean.');
 
     new Option('enabled', default: $default, description: 'Whether the hook runs.');
@@ -60,7 +60,7 @@ class OptionTest extends UnitTestCase {
   }
 
   public function testTagValueOfTheWrongTypeIsRejected(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The "slow" tag of the "wait_timeout" option sets a value of the wrong type. The "wait_timeout" option expects an integer, but a string was given.');
 
     new Option('wait_timeout', default: 5000, description: 'An integer option.', tags: ['slow' => 'thirty']);
@@ -80,7 +80,7 @@ class OptionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderMalformedDeclarationIsRejected')]
   public function testMalformedDeclarationIsRejected(string $name, string $description, array $tags, string $expected_message): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
 
     new Option($name, default: TRUE, description: $description, tags: $tags);

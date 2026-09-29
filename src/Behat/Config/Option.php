@@ -53,7 +53,7 @@ final readonly class Option {
    * @param array<array-key, mixed> $tags
    *   Map of tag name to the value that tag sets, without a leading '@'.
    *
-   * @throws \InvalidArgumentException
+   * @throws \RuntimeException
    *   When the name or the description is empty, a tag is not named, or a tag
    *   sets a value that does not match the type the default carries.
    */
@@ -64,25 +64,25 @@ final readonly class Option {
     array $tags = [],
   ) {
     if (trim($name) === '') {
-      throw new \InvalidArgumentException('An option declares a name.');
+      throw new \RuntimeException('An option declares a name.');
     }
 
     if (trim($description) === '') {
-      throw new \InvalidArgumentException(sprintf('The "%s" option declares a description.', $name));
+      throw new \RuntimeException(sprintf('The "%s" option declares a description.', $name));
     }
 
     // Every hook of the trait is switched on this one option, and the skip tag
     // binds it to FALSE, so a declaration naming another type would fail at the
     // hook that read it rather than here.
     if ($name === self::ENABLED && !is_bool($default)) {
-      throw new \InvalidArgumentException(sprintf('The "%s" option switches its trait on and off, so it defaults to a boolean.', $name));
+      throw new \RuntimeException(sprintf('The "%s" option switches its trait on and off, so it defaults to a boolean.', $name));
     }
 
     $bindings = [];
 
     foreach ($tags as $tag => $value) {
       if (!is_string($tag) || trim($tag) === '') {
-        throw new \InvalidArgumentException(sprintf('The "%s" option lists its tags as a map of tag name to the value it sets.', $name));
+        throw new \RuntimeException(sprintf('The "%s" option lists its tags as a map of tag name to the value it sets.', $name));
       }
 
       // Read here rather than where a tag matches, so a declaration a scenario
@@ -91,7 +91,7 @@ final readonly class Option {
         $bindings[$tag] = $this->cast($value, $name);
       }
       catch (InvalidConfigurationException $exception) {
-        throw new \InvalidArgumentException(sprintf('The "%s" tag of the "%s" option sets a value of the wrong type. %s', $tag, $name, $exception->getMessage()), 0, $exception);
+        throw new \RuntimeException(sprintf('The "%s" tag of the "%s" option sets a value of the wrong type. %s', $tag, $name, $exception->getMessage()), 0, $exception);
       }
     }
 

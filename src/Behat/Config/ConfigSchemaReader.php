@@ -105,7 +105,7 @@ class ConfigSchemaReader {
     try {
       $declarations = $method->invoke($instance);
     }
-    catch (\InvalidArgumentException $exception) {
+    catch (\RuntimeException $exception) {
       throw new \RuntimeException(sprintf('%s declares a malformed option: %s', $where, $exception->getMessage()), 0, $exception);
     }
 
