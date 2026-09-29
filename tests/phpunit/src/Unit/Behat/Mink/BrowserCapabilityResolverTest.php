@@ -121,7 +121,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   /**
    * Tests that a driver providing one capability still refuses another.
    */
-  public function testResolveRefusesACapabilityTheDriverLacks(): void {
+  public function testResolveRefusesCapabilityTheDriverLacks(): void {
     $driver = $this->createMock(BrowserKitDriver::class);
     $resolver = new BrowserCapabilityResolver();
 
