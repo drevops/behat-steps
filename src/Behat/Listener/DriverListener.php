@@ -9,11 +9,15 @@ use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Gherkin\Node\TaggedNodeInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
+use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Builds the driver order each scenario or example resolves against.
+ * Publishes the state each scenario or example resolves against.
+ *
+ * Behat dispatches this event before the first 'BeforeScenario' hook, so
+ * everything set here is in place for the whole scenario.
  */
 class DriverListener implements EventSubscriberInterface {
 
@@ -27,12 +31,15 @@ class DriverListener implements EventSubscriberInterface {
    *
    * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface $driverRegistry
    *   The driver registry.
+   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTagRegistry
+   *   The registry option resolution reads the scenario's tags from.
    * @param array<array-key, string> $drivers
    *   The configured driver list, as ordered pairs of tag name to registered
    *   driver name. A bare entry carries an integer key and names both.
    */
   public function __construct(
     protected readonly DriverRegistryInterface $driverRegistry,
+    protected readonly ScenarioTagRegistryInterface $scenarioTagRegistry,
     protected readonly array $drivers = [],
   ) {
   }
@@ -48,11 +55,14 @@ class DriverListener implements EventSubscriberInterface {
   }
 
   /**
-   * Passes the registry the driver order for the scenario about to run.
+   * Passes the registries the state for the scenario about to run.
    *
    * The configured list is both the allow-list and the precedence order. A
    * '@driver:NAME' tag moves NAME to the front of that order for this
    * scenario; it never adds a driver the configuration does not list.
+   *
+   * The scenario's tags are published here rather than read from a hook scope,
+   * so a tag that sets a trait option applies to a step as well as to a hook.
    *
    * Both subscribed events carry a 'BeforeScenarioTested', an example's
    * scenario being the outline row itself.
@@ -61,6 +71,8 @@ class DriverListener implements EventSubscriberInterface {
    *   When a '@driver:' tag names a driver the configuration does not list.
    */
   public function prepareScenarioDrivers(BeforeScenarioTested $event): void {
+    $this->scenarioTagRegistry->setTags(Tag::all($event));
+
     $configured = $this->configuredDrivers();
     $order = [];
 

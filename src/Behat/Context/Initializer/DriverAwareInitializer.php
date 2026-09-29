@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Behat\Context\Initializer;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
@@ -35,6 +36,8 @@ class DriverAwareInitializer implements ContextInitializer {
    *   Logs a user in and out of the site under test.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
    *   The user registry.
+   * @param \DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface $optionResolverFactory
+   *   Builds a context's option resolver out of the shared collaborators.
    */
   public function __construct(
     protected readonly DriverRegistryInterface $driverRegistry,
@@ -43,6 +46,7 @@ class DriverAwareInitializer implements ContextInitializer {
     protected readonly BasicAuthenticatorInterface $basicAuthenticator,
     protected readonly AuthenticatorInterface $authenticator,
     protected readonly UserRegistryInterface $userRegistry,
+    protected readonly TraitOptionResolverFactoryInterface $optionResolverFactory,
   ) {
   }
 
@@ -66,6 +70,10 @@ class DriverAwareInitializer implements ContextInitializer {
     $context->setDriverRegistry($this->driverRegistry);
     $context->setDispatcher($this->hookDispatcher);
     $context->setBasicAuthenticator($this->basicAuthenticator);
+
+    // Set last: it rebuilds the resolver, so the parameters set above are the
+    // ones the rebuild reads its 'steps' section from.
+    $context->setOptionResolverFactory($this->optionResolverFactory);
   }
 
 }
