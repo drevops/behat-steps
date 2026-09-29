@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the fixture site provisioning script.
@@ -16,8 +17,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * rebases.
  *
  * SCRIPT_RUN_SKIP defines the script's functions without running it, so
- * main() is called in process rather than as a subprocess.
+ * main() is called in process rather than as a subprocess. A global main()
+ * can be declared once per process and docs.php declares one too, so each
+ * test runs in its own process, which also gives it a pristine verbose()
+ * buffer.
  */
+#[RunTestsInSeparateProcesses]
 #[CoversFunction('main')]
 #[CoversFunction('print_help')]
 #[CoversFunction('provision_append_settings')]
