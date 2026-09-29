@@ -271,8 +271,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * Loads the blackbox driver.
    */
   protected function loadBlackbox(FileLoader $loader): void {
-    // The blackbox driver is the fallback for scenarios that select no other,
-    // so it is always registered.
+    // The blackbox driver needs no configuration, unlike the Drupal and Drush
+    // drivers, which load only when configured.
     $loader->load('drivers/blackbox.yml');
   }
 
@@ -330,8 +330,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * Resolves a relative binary path to an absolute path.
    *
    * Probes the current working directory and its parent to locate the binary.
-   * This ensures the path remains valid after the Drupal API driver changes
-   * the working directory to DRUPAL_ROOT via chdir().
+   * This ensures the path remains valid after 'Core::bootstrap()' changes the
+   * working directory to DRUPAL_ROOT via chdir().
    *
    * Absolute paths and binaries without a directory separator (bare commands
    * like 'drush' that resolve via $PATH) are returned as-is.

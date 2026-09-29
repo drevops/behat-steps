@@ -52,8 +52,8 @@ class DrushDriverTest extends TestCase {
    * Tests instantiating the driver with only the root path.
    */
   public function testWithRoot(): void {
-    // Bit of a hack here to use the path to this file, but all the driver cares
-    // about during initialization is that the root be a directory.
+    // The driver only resolves the root with 'realpath()', so the path to this
+    // file serves as a root.
     $driver = new DrushDriver('', __FILE__);
     $this->assertSame(__FILE__, $driver->root);
   }

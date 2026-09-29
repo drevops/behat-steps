@@ -5147,9 +5147,9 @@ Create content blocks of the specified type with the given field values
 
 ```gherkin
 Given the following "basic" content blocks exist:
-  | info                  | status | body                   | created           |
-  | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
-  | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
+  | info                  | status | body                   |
+  | [TEST] Footer Contact | 1      | Call us at 555-1234    |
+  | [TEST] Copyright      | 1      | © 2023 Example Company |
 
 ```
 
@@ -5482,7 +5482,7 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 
 >  Run Drush commands and assert their output.
 >  - Run a command with or without arguments, through the Drush driver.
->  - Run a command that is expected to fail and keep its error output.
+>  - Run a command that is expected to fail and keep its output.
 >  - Assert the last command's output by substring or regular expression.
 >  
 >  Steps resolve the driver that can run Drush commands rather than the one at

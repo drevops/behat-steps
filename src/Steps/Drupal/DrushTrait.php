@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
  * Run Drush commands and assert their output.
  *
  * - Run a command with or without arguments, through the Drush driver.
- * - Run a command that is expected to fail and keep its error output.
+ * - Run a command that is expected to fail and keep its output.
  * - Assert the last command's output by substring or regular expression.
  *
  * Steps resolve the driver that can run Drush commands rather than the one at
@@ -60,8 +60,9 @@ trait DrushTrait {
   /**
    * Run a Drush command that is expected to fail.
    *
-   * A non-zero exit does not abort the step; the error output is kept in
-   * '$drushOutput' for later assertions.
+   * A non-zero exit does not abort the step; the command output is kept in
+   * '$drushOutput' for later assertions, falling back to stderr when stdout is
+   * empty.
    *
    * @code
    * When I run the failing drush command "pm:uninstall no_such_module"

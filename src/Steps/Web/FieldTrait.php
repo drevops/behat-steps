@@ -272,8 +272,8 @@ JS;
   /**
    * Set value for WYSIWYG field.
    *
-   * If used with Selenium driver, it will try to find associated WYSIWYG and
-   * fill it in. If used with webdriver - it will fill in the field as normal.
+   * A JavaScript-capable driver fills the associated WYSIWYG editor; any other
+   * driver sets the field value directly.
    *
    * @code
    * When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
@@ -689,10 +689,10 @@ JS;
   /**
    * Assert that a field is marked as required.
    *
-   * Checks three common markers in order:
-   * 1. The native HTML `required` attribute on the field.
-   * 2. The `form-required` CSS class on the field or its label.
-   * 3. A `*` character inside the `<label>` associated with the field.
+   * Checks the `required_marker_selectors` option against the field, then the
+   * associated label, then a `*` character in the label text, then any
+   * descendant of the label matching a selector. The default selectors are
+   * `.form-required` and `[required]`.
    *
    * @code
    * Then the field "Email" should be required
@@ -938,9 +938,9 @@ JS;
   /**
    * Check if a given field element is marked as required.
    *
-   * Checks the native `required` attribute, the `form-required` class on
-   * the field or any associated label, and the presence of a `*` character
-   * inside any associated label.
+   * Checks the configured marker selectors against the field, then the
+   * associated label, then a `*` character in the label text, then any
+   * descendant of the label matching a selector.
    */
   public function fieldIsMarkedRequired(NodeElement $field_element): bool {
     $selectors = $this->fieldGetRequiredMarkerSelectors();

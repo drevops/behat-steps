@@ -36,10 +36,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * the toolbox, published in HELPERS.md and covered by semantic versioning; a
  * protected one carries no guarantee. A method cannot be narrowed again
  * before the next major, so these tests hold the four conventions below.
- *
- * Each loop reads its subject into a variable first. Rector rewrites a foreach
- * directly over a method call to a camel case value variable, which the snake
- * case coding standard then rewrites back.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {

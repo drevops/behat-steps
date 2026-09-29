@@ -12,9 +12,7 @@ use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
  * Contract for a context that logs users in and tracks the ones it creates.
  *
  * A trait cannot implement an interface, so a context composing
- * 'AuthTrait' declares this one to receive the user registry. The
- * context initializer injects into nothing else, so a suite that creates no
- * users never builds one.
+ * 'AuthTrait' declares this one to receive the user registry.
  *
  * @see \DrevOps\BehatSteps\Helper\Drupal\AuthTrait
  */

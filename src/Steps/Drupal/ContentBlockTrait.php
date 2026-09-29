@@ -67,11 +67,10 @@ trait ContentBlockTrait {
    * Each row in the table creates a separate block entity of the given type.
    *
    * Required fields:
-   * - info (or title): The block's admin title/label
+   * - info: The block's admin title/label
    *
    * Common optional fields:
    * - status: Published status (1 for published, 0 for unpublished)
-   * - created: Creation timestamp (format: YYYY-MM-DD H:MMam/pm)
    * - body: Block content (for blocks with a body field)
    *
    * @param string $content_block_type
@@ -81,9 +80,9 @@ trait ContentBlockTrait {
    *
    * @code
    *   Given the following "basic" content blocks exist:
-   *     | info                  | status | body                   | created           |
-   *     | [TEST] Footer Contact | 1      | Call us at 555-1234    | 2023-01-17 8:00am |
-   *     | [TEST] Copyright      | 1      | © 2023 Example Company | 2023-01-18 9:00am |
+   *     | info                  | status | body                   |
+   *     | [TEST] Footer Contact | 1      | Call us at 555-1234    |
+   *     | [TEST] Copyright      | 1      | © 2023 Example Company |
    * @endcode
    */
   #[Given('the following :content_block_type content blocks exist:')]

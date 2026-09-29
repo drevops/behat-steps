@@ -183,8 +183,8 @@ class MemberOrderTest extends UnitTestCase {
   /**
    * Return the ordering group a method belongs to.
    *
-   * Hook attributes are recognised by namespace so that a hook from the Drupal
-   * Extension counts alongside Behat's own.
+   * Hook attributes are recognised by namespace so that this library's own
+   * hook attributes count alongside Behat's.
    */
   protected static function methodGroup(\ReflectionMethod $method): int {
     $attributes = $method->getAttributes();

@@ -545,7 +545,6 @@ class AuthenticatorTest extends TestCase {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->with('Log in')->willReturn($submit);
-    // Simulate: logged_in_selector not found on first call, found on second.
     $page->method('has')->willReturnCallback(function (string $selector, string $locator) use (&$call_count): bool {
       if ($locator === 'body.logged-in') {
         $call_count++;
