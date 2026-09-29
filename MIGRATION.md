@@ -2,7 +2,7 @@
 
 ## Per-trait configuration
 
-Every configurable trait now declares its options in a `<prefix>ConfigSchema()` method, and the extension carries their profile-wide defaults under a new `steps` section. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists the options of each trait beside its steps.
+Every configurable trait now declares its options in a `<prefix>ConfigSchema()` method returning `Option` objects, and the extension carries their profile-wide defaults under a new `steps` section. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists the options of each trait beside its steps.
 
 An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag.
 
@@ -64,6 +64,56 @@ class UiContext extends WebRawContext {
 ```
 
 A group or an option the context cannot serve is an error naming what it accepts, so a typo fails while Behat builds the context. The extension's `steps` section is read permissively instead: a group there may name a trait only one of the registered contexts composes.
+
+### A trait declares its options as `Option` objects
+
+A project with its own configurable trait returns a list of `DrevOps\BehatSteps\Behat\Config\Option` from its `<prefix>ConfigSchema()` method instead of a map of array shapes. The constructor validates the declaration, so a missing description or a tag list written as a list rather than a map fails when the context is built, with a message naming the declaring method.
+
+```php
+// Before.
+protected function acmeConfigSchema(): array {
+  return [
+    'enabled' => [
+      'default' => TRUE,
+      'description' => 'Whether the Acme hook runs.',
+    ],
+    'wait_timeout' => [
+      'default' => 5000,
+      'description' => 'How long to wait, in milliseconds.',
+      'tags' => ['slow' => 30000],
+    ],
+  ];
+}
+
+// After.
+protected function acmeConfigSchema(): array {
+  return [
+    new Option('enabled', default: TRUE, description: 'Whether the Acme hook runs.'),
+    new Option('wait_timeout', default: 5000, description: 'How long to wait, in milliseconds.', tags: ['slow' => 30000]),
+  ];
+}
+```
+
+### An option is read at the type it was declared with
+
+`getOption()` no longer returns `mixed` for a declared type, and no longer takes a `ScenarioScope`. A read names the type the declaration defaults to, so a caller neither casts nor guards what it gets back, and a read naming the wrong type fails with a message naming both.
+
+| Before | After |
+| --- | --- |
+| `(bool) $this->getOption('acme', 'enabled')` | `$this->getOptionBool('acme', 'enabled')` |
+| `(int) $this->getOption('acme', 'wait_timeout')` | `$this->getOptionInt('acme', 'wait_timeout')` |
+| `(float) $this->getOption('acme', 'ratio')` | `$this->getOptionFloat('acme', 'ratio')` |
+| `(string) $this->getOption('acme', 'label')` | `$this->getOptionString('acme', 'label')` |
+| `(array) $this->getOption('acme', 'selectors')` | `$this->getOptionArray('acme', 'selectors')` |
+| `$this->getOption('acme', 'enabled', $scope)` | `$this->getOptionBool('acme', 'enabled')` |
+
+`getOption()` stays for an option whose declaration defaults to `NULL` and so names no type.
+
+Dropping the scope also removes an asymmetry. The two tag layers used to be read only when a scope was passed, which a hook has and a step does not, so a tag that set an option worked in a hook and silently did nothing in a step. The tags of the running scenario are now published once when the scenario starts, and every read sees them. A trait that resolved a tag-bound option in a `BeforeScenario` hook and cached it on a property for a step hook to read can drop the property and read the option where it is used.
+
+### Option resolution is a service a project can replace
+
+`WebRawContext` delegates to a `TraitOptionResolverInterface` built by the `behat_steps.config.resolver_factory` service. Registering another `TraitOptionResolverFactoryInterface` under that id replaces resolution for every context, in place of overriding the protected methods the base class used to carry. A context implementing `DriverAwareInterface` directly rather than extending `WebRawContext` adds `setOptionResolverFactory()` and `getOptionResolver()`.
 
 ### `getMapping()` became `mappingGetValue()`
 

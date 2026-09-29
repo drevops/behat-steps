@@ -3,7 +3,7 @@
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
-' src/Behat/Manager/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Behat/Config/, src/Behat/Manager/, src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
 ' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -19,12 +19,18 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +getDriver(name) : DriverInterface
     +driverFor(capability) : object
     +getRandom() : Random
-    +getOption(group, key, scope) : mixed
+    +getOption(group, key) : mixed
+    +getOptionBool(group, key) : bool
+    +getOptionInt(group, key) : int
+    +getOptionFloat(group, key) : float
+    +getOptionString(group, key) : string
+    +getOptionArray(group, key) : array
+    +getOptionResolver() : TraitOptionResolverInterface
     +getBasicAuthenticator() : BasicAuthenticatorInterface
     --
     #skipTag(name, scope) : bool
     #shouldCleanup() : bool
-    #contextConfigDeclarations() : array
+    #buildOptionResolver() : TraitOptionResolverInterface
     --
     composes the 4 web helper traits
   }
@@ -70,10 +76,62 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
     +addUser(user) : void
     +currentUserHasRole(role) : bool
   }
+  interface ScenarioTagRegistryInterface {
+    +setTags(tags) : void
+    +getTags() : array
+  }
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
+  interface TraitOptionResolverFactoryInterface {
+    +create(context_class, config, steps) : TraitOptionResolverInterface
+  }
+
+  interface TraitOptionResolverInterface {
+    +has(group, key) : bool
+    +raw(group, key) : mixed
+    +bool(group, key) : bool
+    +int(group, key) : int
+    +float(group, key) : float
+    +string(group, key) : string
+    +array(group, key) : array
+    +groupFor(name) : string|null
+  }
+
+  class Option {
+    +name : string
+    +default : mixed
+    +description : string
+    +tags : array
+    --
+    +cast(value, path) : mixed
+  }
+
+  class ConfigSchemaReader {
+    +read(context_class) : array
+    --
+    the only piece that reflects
+  }
+
+  class TagOverrides {
+    +apply(group, option, value, tags) : mixed
+  }
+
+  TraitOptionResolverFactoryInterface ..> TraitOptionResolverInterface : builds
+  TraitOptionResolverInterface o--> Option
+  TraitOptionResolverInterface o--> TagOverrides
+  ConfigSchemaReader ..> Option : reads
+
+  TraitOptionResolverFactoryInterface -[hidden]down- TraitOptionResolverInterface
+  Option -[hidden]down- ConfigSchemaReader
+  ConfigSchemaReader -[hidden]down- TagOverrides
 }
 
 WebRawContext o--> DriverRegistryInterface
 WebRawContext o--> BasicAuthenticatorInterface
+WebRawContext o--> TraitOptionResolverFactoryInterface
+TraitOptionResolverFactoryInterface o--> ConfigSchemaReader
+TraitOptionResolverInterface o--> ScenarioTagRegistryInterface
 AuthTrait o--> UserRegistryInterface
 AuthTrait o--> AuthenticatorInterface
 
@@ -241,5 +299,17 @@ note right of BasicAuthenticatorInterface
   a base URL, so BasicAuthenticator is separate from
   the Drupal session services and WebRawContext
   carries only this one.
+end note
+
+note bottom of TraitOptionResolverInterface
+  A resolver depends on the context class that declared
+  the options and on the config argument that context was
+  given, so it is built per context rather than shared.
+  Registering another factory replaces option resolution
+  for every context at once.
+
+  DriverListener fills ScenarioTagRegistry before the first
+  BeforeScenario hook, so a tag that sets an option reaches
+  a step as well as a hook.
 end note
 @enduml
