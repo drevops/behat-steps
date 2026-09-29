@@ -30,9 +30,9 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * Indicates whether a path under `src/` holds step vocabulary.
    *
-   * The conventions the discovery-driven tests hold describe traits mixed
-   * into a consuming context, and those all live under `Steps/`. The driver
-   * layer is library code with its own shapes.
+   * The conventions the discovery-driven tests hold describe step vocabulary,
+   * which lives under `Steps/`. The driver and helper layers are library code
+   * with their own shapes.
    *
    * @param string $relative_path
    *   A path relative to `src/`.

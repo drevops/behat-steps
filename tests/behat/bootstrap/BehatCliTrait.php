@@ -434,7 +434,7 @@ EOL;
   }
 
   /**
-   * Helper to print file comments.
+   * Print the contents of a file.
    */
   protected static function behatCliPrintFileContents(string $filename, string $title = '') {
     if (!is_readable($filename)) {
