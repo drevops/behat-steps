@@ -12,8 +12,9 @@ use DrevOps\BehatSteps\Driver\DriverInterface;
  *
  * Two name spaces meet here. A driver is registered under the name the
  * extension builds it with ('drupal', 'drush', 'blackbox'), and a suite maps
- * a Gherkin-facing tag name onto one of those. Every method below that takes a
- * name takes the tag name, because that is the name a test author writes.
+ * a Gherkin-facing tag name onto one of those. 'getDriver()' takes the tag
+ * name, because that is the name a test author writes; 'registerDriver()'
+ * takes the registered name.
  */
 interface DriverRegistryInterface {
 

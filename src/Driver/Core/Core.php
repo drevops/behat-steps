@@ -446,7 +446,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function cacheClear(?string $type = NULL): void {
-    // Need to change into the Drupal root directory or the registry explodes.
     drupal_flush_all_caches();
   }
 

@@ -480,7 +480,7 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
    * Detects the major Drupal version from the filesystem.
    *
    * @return int
-   *   The actual major version number (10, 11, 12, etc.).
+   *   The major version number, 11 or higher.
    */
   protected function detectMajorVersion(): int {
     $version_files = [

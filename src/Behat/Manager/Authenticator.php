@@ -149,9 +149,8 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
       return FALSE;
     }
 
-    // A nullsafe check here keeps PHPStan from flagging the non-nullable
-    // 'getPage()' return type while still letting test doubles that return
-    // 'NULL' short-circuit safely.
+    // 'getPage()' is declared non-nullable, but a stubbed session can return
+    // NULL, so this guard is not dead code.
     $page = $session->getPage();
     if ($page === NULL) {
       return FALSE;

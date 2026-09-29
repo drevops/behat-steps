@@ -13,8 +13,9 @@ use Behat\Testwork\Suite\Suite;
  * Replaces Behat's own generator behind the
  * 'context.class_generator.simple' service.
  *
- * The '$contextClass' parameters stay untyped so the declaration matches both
- * the untyped Behat 3 interface and the 'string'-typed Behat 4 one.
+ * The '$contextClass' parameters are declared 'mixed' so the declaration
+ * matches both the untyped Behat 3 interface and the 'string'-typed Behat 4
+ * one.
  */
 class ClassGenerator implements UpstreamClassGenerator {
 
