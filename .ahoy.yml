@@ -93,7 +93,7 @@ commands:
 
   provision:
     usage: Provision a fixture test site.
-    cmd: ahoy cli ./scripts/provision.sh
+    cmd: ahoy cli php ./scripts/provision.php
 
   clean:
     usage: Remove containers and all build files.
