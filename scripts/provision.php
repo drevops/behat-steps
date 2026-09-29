@@ -110,7 +110,11 @@ function main(array $argv, int $argc): void {
     throw new \RuntimeException('This script takes no arguments. Use environment variables to shape the build.');
   }
 
+  // Installs a Drupal site over Composer and Drush, which a unit test cannot
+  // call. The CI matrix runs it on every leg.
+  // @codeCoverageIgnoreStart
   provision();
+  // @codeCoverageIgnoreEnd
 }
 
 /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Tests\Fixtures\UnwritableStream;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -347,6 +348,56 @@ class ProvisionTest extends UnitTestCase {
     $this->expectExceptionMessage('Unable to open');
 
     provision_append_settings(static::$tmp . '/absent.php');
+  }
+
+  /**
+   * Assert that a settings file that cannot be appended to is reported.
+   */
+  public function testAppendSettingsReportsTheFailedWrite(): void {
+    UnwritableStream::register("<?php\n");
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to append the fixture config overrides');
+
+    $this->withoutWarnings(static function (): void {
+      provision_append_settings(UnwritableStream::path('settings.php'));
+    });
+  }
+
+  /**
+   * Assert that a merged configuration that cannot be written is reported.
+   */
+  public function testWriteMergedComposerReportsTheFailedWrite(): void {
+    UnwritableStream::register((string) json_encode(static::fixture()));
+    $package_file = $this->writeFixture('package/composer.json', (string) json_encode(static::package()));
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to write');
+
+    $this->withoutWarnings(static function () use ($package_file): void {
+      provision_write_merged_composer($package_file, UnwritableStream::path('composer.json'));
+    });
+  }
+
+  /**
+   * Run a callback with PHP warnings swallowed.
+   *
+   * A failed write raises a warning before the script reports it, and the
+   * suite is configured to fail on one.
+   *
+   * @param callable $callback
+   *   The callback to run.
+   */
+  protected function withoutWarnings(callable $callback): void {
+    set_error_handler(static fn(): bool => TRUE);
+
+    try {
+      $callback();
+    }
+    finally {
+      restore_error_handler();
+      UnwritableStream::unregister();
+    }
   }
 
   /**
