@@ -248,7 +248,7 @@ No shipped step matches those lines. You write them yourself, over the same help
 ```php
 #[When('I publish a page titled :title')]
 public function publishPage(string $title): void {
-  $this->entityNodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
+  $this->entityLifecycleNodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
 }
 ```
 
@@ -337,11 +337,11 @@ before the term it references.
 A step of your own registers what it saved:
 
 ```php
-$this->entityRegister($entity);
+$this->entityLifecycleRegister($entity);
 ```
 
 To keep **all** entities after a scenario, add
-`@behat-steps-skip:entityCleanAll` to the scenario or feature.
+`@behat-steps-skip:entityLifecycleCleanAll` to the scenario or feature.
 `@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles` do the
 same for users and roles.
 

@@ -95,7 +95,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setDriverRegistry($this->createDriverRegistry($driver));
 
-    $this->context->entityTermCreate($stub);
+    $this->context->entityLifecycleTermCreate($stub);
 
     $this->assertSame('tags', $stub->getValue('vocabulary_machine_name'));
   }
@@ -116,7 +116,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setDriverRegistry($this->createDriverRegistry($driver));
 
-    $this->context->entityTermCreate($stub);
+    $this->context->entityLifecycleTermCreate($stub);
 
     $this->assertSame('Tags', $stub->getValue('vocabulary_machine_name'));
   }

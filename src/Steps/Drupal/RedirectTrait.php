@@ -83,7 +83,7 @@ trait RedirectTrait {
       $redirect->setRedirect($to);
       $redirect->save();
 
-      $this->entityRegister($redirect);
+      $this->entityLifecycleRegister($redirect);
     }
   }
 

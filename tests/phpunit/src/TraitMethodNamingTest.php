@@ -132,7 +132,7 @@ class TraitMethodNamingTest extends UnitTestCase {
       $path = (string) $file->getRealPath();
       $relative = substr($path, strlen((string) $root) + 1);
 
-      if (!static::isVocabularyPath($relative)) {
+      if (!static::isComposedTraitPath($relative)) {
         continue;
       }
 

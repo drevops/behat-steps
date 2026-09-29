@@ -24,6 +24,8 @@ use Behat\Step\When;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -70,6 +72,22 @@ class PublicSurfaceTest extends UnitTestCase {
    */
   protected const ALLOWED_CONSTANTS = [];
 
+  /**
+   * The classes naming the contracts a composed trait answers to.
+   */
+  protected const CONTEXTS = [WebContext::class, DrupalContext::class];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // The documentation check holds what HELPERS.md publishes, so it reads a
+    // docblock through the generator's own resolution rather than a copy of it.
+    require_once dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'docs.php';
+  }
+
   #[DataProvider('dataProviderPublicMethodsAreDocumented')]
   public function testPublicMethodsAreDocumented(string $trait): void {
     $methods = static::traitOwnMethods($trait);
@@ -80,7 +98,7 @@ class PublicSurfaceTest extends UnitTestCase {
         continue;
       }
 
-      $comment = (string) $method->getDocComment();
+      $comment = resolve_inherited_comment($method, helper_trait_contracts(static::reflect($trait), static::CONTEXTS));
 
       if ($comment === '' || preg_match('/^\s*\*\s+[A-Z]/m', $comment) !== 1) {
         $violations[] = $trait . '::' . $method->getName();
@@ -200,7 +218,7 @@ class PublicSurfaceTest extends UnitTestCase {
 
       $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
 
-      if (!static::isVocabularyPath($relative)) {
+      if (!static::isComposedTraitPath($relative)) {
         continue;
       }
 

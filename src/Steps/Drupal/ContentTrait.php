@@ -136,7 +136,7 @@ trait ContentTrait {
   #[Given('the following :content_type content exist:')]
   public function contentCreate(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
-      $this->entityNodeCreate(new EntityStub('node', $content_type, $values));
+      $this->entityLifecycleNodeCreate(new EntityStub('node', $content_type, $values));
     }
   }
 

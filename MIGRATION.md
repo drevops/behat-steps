@@ -633,9 +633,9 @@ Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchan
 
 ## Unified entity cleanup
 
-Every entity a creation step or the driver creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the driver creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
-An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityRegister($entity)`. Without that call the entity survives the scenario.
+An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
 
 The per-trait cleanup skip tags have been removed. Replace them as follows:
 
@@ -650,7 +650,7 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 | `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
 | `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:entityCleanAll`. The companion hooks take `@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles`.
+To skip cleanup of every registered entity at once, use `@behat-steps-skip:entityLifecycleCleanAll`. The companion hooks take `@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles`.
 
 `FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
@@ -716,7 +716,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityNodeCreate()`, `entityTermCreate()`, `entityCreate()`, `entityLanguageCreate()`, `entityRegister()`, `entityParseFields()`, `entityCleanAll()`, `entityAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleCleanAll()`, `entityLifecycleAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
 | `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
@@ -736,14 +736,14 @@ A call or an override in a consumer context is renamed:
 
 | Old `RawContext` member | New member |
 | --- | --- |
-| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityNodeCreate()` |
-| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityTermCreate()` |
-| `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityCreate()` |
-| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLanguageCreate()` |
-| `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityRegister()` |
-| `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityParseFields()` |
-| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityCleanAll()` |
-| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityAlterNodeParameters()` |
+| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleNodeCreate()` |
+| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleTermCreate()` |
+| `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreate()` |
+| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` |
+| `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
+| `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
+| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCleanAll()` |
+| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAlterNodeParameters()` |
 | `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
@@ -754,7 +754,7 @@ A call or an override in a consumer context is renamed:
 | `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
 | `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
 
-Three of those names are also skip tags, and the tags follow the methods: `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:entityCleanAll`, `@behat-steps-skip:cleanUsers` becomes `@behat-steps-skip:authCleanUsers`, and `@behat-steps-skip:cleanRoles` becomes `@behat-steps-skip:authCleanRoles`.
+Three of those names are also skip tags, and the tags follow the methods: `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:entityLifecycleCleanAll`, `@behat-steps-skip:cleanUsers` becomes `@behat-steps-skip:authCleanUsers`, and `@behat-steps-skip:cleanRoles` becomes `@behat-steps-skip:authCleanRoles`.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -862,7 +862,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityRegister()` |
+| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
@@ -872,7 +872,7 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 
 | Old tag | New tag |
 | --- | --- |
-| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:entityCleanAll` |
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:entityLifecycleCleanAll` |
 
 ## Query parameter presence
 

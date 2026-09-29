@@ -28,17 +28,30 @@ use Behat\Testwork\Tester\Result\TestResult;
 abstract class UnitTestCase extends UpstreamUnitTestCase {
 
   /**
-   * Indicates whether a path under `src/` holds step vocabulary.
+   * Directories under `src/` holding the traits a context composes.
+   */
+  protected const COMPOSED_TRAIT_ROOTS = ['Helper', 'Steps'];
+
+  /**
+   * Indicates whether a path under `src/` holds a trait a context composes.
    *
-   * The conventions the discovery-driven tests hold describe step vocabulary,
-   * which lives under `Steps/`. The driver and helper layers are library code
-   * with their own shapes.
+   * The conventions the discovery-driven tests hold describe the traits this
+   * library names itself and flattens into a consuming context: the step
+   * vocabulary under `Steps/` and the helpers under `Helper/`. The traits
+   * under `Behat/` carry the names the framework interfaces dictate, and the
+   * driver layer is library code with its own shapes.
    *
    * @param string $relative_path
    *   A path relative to `src/`.
    */
-  protected static function isVocabularyPath(string $relative_path): bool {
-    return str_starts_with($relative_path, 'Steps' . DIRECTORY_SEPARATOR);
+  protected static function isComposedTraitPath(string $relative_path): bool {
+    foreach (static::COMPOSED_TRAIT_ROOTS as $root) {
+      if (str_starts_with($relative_path, $root . DIRECTORY_SEPARATOR)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

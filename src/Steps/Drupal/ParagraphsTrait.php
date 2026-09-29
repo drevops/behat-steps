@@ -55,7 +55,7 @@ trait ParagraphsTrait {
     }
 
     $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
-    $this->entityParseFields($stub);
+    $this->entityLifecycleParseFields($stub);
     $this->paragraphsExpandEntityFields($stub);
 
     $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $stub);
@@ -102,7 +102,7 @@ trait ParagraphsTrait {
       $parent_entity->save();
     }
 
-    $this->entityRegister($paragraph);
+    $this->entityLifecycleRegister($paragraph);
 
     return $paragraph;
   }

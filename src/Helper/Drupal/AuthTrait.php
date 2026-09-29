@@ -165,22 +165,22 @@ trait AuthTrait {
    *   When no driver in the scenario's order can create users.
    */
   public function authUserCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->entityDispatchHooks(BeforeUserCreateScope::class, $stub);
-    $this->entityDispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(BeforeUserCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
     $driver = $this->driverFor(UserCapabilityInterface::class);
-    $this->entityParseCreatedFields($stub, $driver, ['role']);
+    $this->entityLifecycleParseCreatedFields($stub, $driver, ['role']);
 
-    $scalars = $this->entityCaptureScalarBaseFields($stub);
+    $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $driver->userCreate($stub);
-    $this->entityRestoreScalarBaseFields($stub, $scalars);
+    $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the user behind, and cleanup removes only registered stubs.
     $this->authGetUserRegistry()->addUser($stub);
 
-    $this->entityDispatchHooks(AfterUserCreateScope::class, $stub);
-    $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterUserCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }

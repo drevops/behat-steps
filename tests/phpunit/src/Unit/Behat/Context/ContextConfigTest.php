@@ -333,7 +333,7 @@ class ContextConfigTest extends UnitTestCase {
     yield 'a group with no enabled option is tag-only' => ['otherSampleBeforeScenario', ['behat-steps-skip:otherSampleBeforeScenario'], [], TRUE];
 
     yield 'a trait with no group is tag-only' => ['NonexistentTrait', [], [], FALSE];
-    yield 'a name matching no group is tag-only' => ['entityCleanAll', [], [], FALSE];
+    yield 'a name matching no group is tag-only' => ['entityLifecycleCleanAll', [], [], FALSE];
 
     // A prefix has to be followed by a word boundary in the method name.
     yield 'a prefix that is not followed by a capital does not match' => ['sampledBeforeScenario', [], ['sample' => ['enabled' => FALSE]], FALSE];

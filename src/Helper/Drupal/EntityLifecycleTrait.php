@@ -58,7 +58,7 @@ trait EntityLifecycleTrait {
    *   When a timestamp value cannot be read as a date.
    */
   #[BeforeNodeCreate]
-  public static function entityAlterNodeParameters(BeforeNodeCreateScope $scope): void {
+  public static function entityLifecycleAlterNodeParameters(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
     // A driver that writes the node over the command line takes the values as
@@ -103,13 +103,13 @@ trait EntityLifecycleTrait {
    * Walks 'createdStubs' in reverse order, so a dependent entity such as a
    * node referencing a term is deleted before the entity it references.
    *
-   * '@behat-steps-skip:entityCleanAll' skips the whole pass, and
+   * '@behat-steps-skip:entityLifecycleCleanAll' skips the whole pass, and
    * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips one entity
    * type.
    */
   #[AfterScenario]
-  public function entityCleanAll(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('entityCleanAll', $scope)) {
+  public function entityLifecycleCleanAll(AfterScenarioScope $scope): void {
+    if (!$this->shouldCleanup() || $this->skipTag('entityLifecycleCleanAll', $scope)) {
       return;
     }
 
@@ -117,14 +117,14 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    $skip_types = $this->entitySkippedCleanupTypes($scope);
+    $skip_types = $this->entityLifecycleSkippedCleanupTypes($scope);
 
     foreach (array_reverse($this->createdStubs) as $stub) {
       if (in_array($stub->getEntityType(), $skip_types, TRUE)) {
         continue;
       }
 
-      $this->entityDeleteStub($stub);
+      $this->entityLifecycleDeleteStub($stub);
     }
 
     $this->createdStubs = [];
@@ -139,23 +139,23 @@ trait EntityLifecycleTrait {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
-  public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->entityDispatchHooks(BeforeNodeCreateScope::class, $stub);
-    $this->entityDispatchHooks(BeforeEntityCreateScope::class, $stub);
+  public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface {
+    $this->entityLifecycleDispatchHooks(BeforeNodeCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityGetContentDriver();
-    $this->entityParseCreatedFields($stub, $driver, ['author']);
+    $driver = $this->entityLifecycleGetContentDriver();
+    $this->entityLifecycleParseCreatedFields($stub, $driver, ['author']);
 
-    $scalars = $this->entityCaptureScalarBaseFields($stub);
+    $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $driver->nodeCreate($stub);
-    $this->entityRestoreScalarBaseFields($stub, $scalars);
+    $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the entity behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
-    $this->entityDispatchHooks(AfterNodeCreateScope::class, $stub);
-    $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterNodeCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }
@@ -169,14 +169,14 @@ trait EntityLifecycleTrait {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
-  public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface {
     // The driver loads vocabularies by machine name only, so a human label is
     // resolved to one first. The driver reports a clearer failure than this
     // code could, so the resolution is best-effort.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
     if (!empty($vocabulary) && $this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
-      $stub->setValue('vocabulary_machine_name', $this->entityResolveVocabularyMachineName((string) $vocabulary));
+      $stub->setValue('vocabulary_machine_name', $this->entityLifecycleResolveVocabularyMachineName((string) $vocabulary));
     }
 
     // The driver resolves 'parent' as a term name in the same vocabulary, so
@@ -187,22 +187,22 @@ trait EntityLifecycleTrait {
       $stub->removeValue('parent');
     }
 
-    $this->entityDispatchHooks(BeforeTermCreateScope::class, $stub);
-    $this->entityDispatchHooks(BeforeEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(BeforeTermCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityGetContentDriver();
-    $this->entityParseCreatedFields($stub, $driver, ['vocabulary_machine_name']);
+    $driver = $this->entityLifecycleGetContentDriver();
+    $this->entityLifecycleParseCreatedFields($stub, $driver, ['vocabulary_machine_name']);
 
-    $scalars = $this->entityCaptureScalarBaseFields($stub);
+    $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $driver->termCreate($stub);
-    $this->entityRestoreScalarBaseFields($stub, $scalars);
+    $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the term behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
-    $this->entityDispatchHooks(AfterTermCreateScope::class, $stub);
-    $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterTermCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }
@@ -210,8 +210,9 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub is added to 'createdStubs', so 'entityCleanAll()' removes it
-   * after the scenario through the driver's 'entityDelete()' fallback.
+   * The stub is added to 'createdStubs', so 'entityLifecycleCleanAll()'
+   * removes it after the scenario through the driver's 'entityDelete()'
+   * fallback.
    *
    * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
    *   The entity stub.
@@ -219,21 +220,21 @@ trait EntityLifecycleTrait {
    * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
-  public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->entityDispatchHooks(BeforeEntityCreateScope::class, $stub);
+  public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface {
+    $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityGetContentDriver();
-    $this->entityParseCreatedFields($stub, $driver);
+    $driver = $this->entityLifecycleGetContentDriver();
+    $this->entityLifecycleParseCreatedFields($stub, $driver);
 
-    $scalars = $this->entityCaptureScalarBaseFields($stub);
+    $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
     $driver->entityCreate($stub);
-    $this->entityRestoreScalarBaseFields($stub, $scalars);
+    $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hook runs: a hook that throws still
     // leaves the entity behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $stub;
 
-    $this->entityDispatchHooks(AfterEntityCreateScope::class, $stub);
+    $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
 
     return $stub;
   }
@@ -250,8 +251,8 @@ trait EntityLifecycleTrait {
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order can manage languages.
    */
-  public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false {
-    $this->entityDispatchHooks(BeforeLanguageCreateScope::class, $stub);
+  public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false {
+    $this->entityLifecycleDispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
     $result = $this->driverFor(LanguageCapabilityInterface::class)->languageCreate($stub);
 
@@ -263,7 +264,7 @@ trait EntityLifecycleTrait {
     // leaves the language behind, and cleanup removes only registered stubs.
     $this->createdStubs[] = $result;
 
-    $this->entityDispatchHooks(AfterLanguageCreateScope::class, $result);
+    $this->entityLifecycleDispatchHooks(AfterLanguageCreateScope::class, $result);
 
     return $result;
   }
@@ -279,7 +280,7 @@ trait EntityLifecycleTrait {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The saved entity.
    */
-  public function entityRegister(EntityInterface $entity): void {
+  public function entityLifecycleRegister(EntityInterface $entity): void {
     $id = $entity->id();
     $id_key = $entity->getEntityType()->getKey('id');
 
@@ -306,10 +307,10 @@ trait EntityLifecycleTrait {
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order reaches Drupal's API.
    */
-  public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+  public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
     $classifier = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
 
-    $parser = $this->entityGetFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
+    $parser = $this->entityLifecycleGetFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
     $parser->ignoring($ignored_properties);
 
     $stub->setValues($parser->parse($stub->getValues()));
@@ -318,7 +319,7 @@ trait EntityLifecycleTrait {
   /**
    * Routes a stub to the right per-type driver delete method.
    */
-  protected function entityDeleteStub(EntityStubInterface $stub): void {
+  protected function entityLifecycleDeleteStub(EntityStubInterface $stub): void {
     $type = $stub->getEntityType();
     $registry = $this->getDriverRegistry();
 
@@ -359,7 +360,7 @@ trait EntityLifecycleTrait {
    *   Entity type ids parsed from
    *   '@behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
    */
-  protected function entitySkippedCleanupTypes(ScenarioScope $scope): array {
+  protected function entityLifecycleSkippedCleanupTypes(ScenarioScope $scope): array {
     $prefix = 'behat-steps-entity-cleanup-skip:';
     $tags = Tag::all($scope);
     $types = [];
@@ -384,7 +385,7 @@ trait EntityLifecycleTrait {
    * @throws \RuntimeException
    *   When the context has not been initialized by Behat.
    */
-  protected function entityDispatchHooks(string $scope_class, EntityStubInterface $stub): void {
+  protected function entityLifecycleDispatchHooks(string $scope_class, EntityStubInterface $stub): void {
     if (!$this->dispatcher instanceof HookDispatcher) {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
@@ -426,12 +427,12 @@ trait EntityLifecycleTrait {
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched.
    */
-  protected function entityParseCreatedFields(EntityStubInterface $stub, object $driver, array $ignored_properties = []): void {
+  protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $driver, array $ignored_properties = []): void {
     if (!$driver instanceof CoreCapabilityInterface) {
       return;
     }
 
-    $this->entityParseFields($stub, $ignored_properties);
+    $this->entityLifecycleParseFields($stub, $ignored_properties);
   }
 
   /**
@@ -447,7 +448,7 @@ trait EntityLifecycleTrait {
    * @param string|null $bundle
    *   The bundle, or NULL for an entity type without bundles.
    */
-  protected function entityGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
+  protected function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
     return new EntityFieldParser($entity_type, $classifier, $bundle);
   }
 
@@ -458,7 +459,7 @@ trait EntityLifecycleTrait {
    * (looked up via the vocabulary storage). Falls back to the original value
    * when no label matches, leaving the driver to surface a not-found error.
    */
-  protected function entityResolveVocabularyMachineName(string $identifier): string {
+  protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
     $this->driverFor(CoreCapabilityInterface::class);
 
     if (!class_exists(Vocabulary::class) || Vocabulary::load($identifier) instanceof Vocabulary) {
@@ -488,7 +489,7 @@ trait EntityLifecycleTrait {
    * @return array<string, scalar>
    *   The scalar values keyed by name.
    */
-  protected function entityCaptureScalarBaseFields(EntityStubInterface $stub): array {
+  protected function entityLifecycleCaptureScalarBaseFields(EntityStubInterface $stub): array {
     return array_filter($stub->getValues(), is_scalar(...));
   }
 
@@ -500,7 +501,7 @@ trait EntityLifecycleTrait {
    * @param array<string, scalar> $scalars
    *   Map of value name to original scalar value.
    */
-  protected function entityRestoreScalarBaseFields(EntityStubInterface $stub, array $scalars): void {
+  protected function entityLifecycleRestoreScalarBaseFields(EntityStubInterface $stub, array $scalars): void {
     foreach ($scalars as $field => $value) {
       $stub->setValue($field, $value);
     }
@@ -512,7 +513,7 @@ trait EntityLifecycleTrait {
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order can create content.
    */
-  protected function entityGetContentDriver(): ContentCapabilityInterface {
+  protected function entityLifecycleGetContentDriver(): ContentCapabilityInterface {
     return $this->driverFor(ContentCapabilityInterface::class);
   }
 

@@ -72,7 +72,7 @@ deactivate Behat
 
 Behat -> Ctx: AfterScenario
 activate Ctx
-Ctx -> Ctx: EntityLifecycleTrait runs entityCleanAll,\nAuthTrait authCleanUsers and authCleanRoles
+Ctx -> Ctx: EntityLifecycleTrait runs entityLifecycleCleanAll,\nAuthTrait authCleanUsers and authCleanRoles
 Ctx -> Driver: delete what the scenario created
 deactivate Ctx
 @enduml

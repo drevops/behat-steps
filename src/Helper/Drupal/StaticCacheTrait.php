@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper\Drupal;
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 
@@ -21,7 +22,7 @@ trait StaticCacheTrait {
    * static cache, so no driver is resolved for a scenario that did not.
    */
   #[AfterScenario]
-  public function staticCacheClear(): void {
+  public function staticCacheClear(AfterScenarioScope $scope): void {
     $this->getDriverRegistry()->getResolvedDriverFor(CacheCapabilityInterface::class)?->cacheClearStatic();
   }
 
