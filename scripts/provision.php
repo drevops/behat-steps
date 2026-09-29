@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 /**
@@ -5,11 +6,24 @@
  * Fixture site provisioning.
  *
  * Builds the throwaway Drupal site under build/ that the Behat suite runs
- * against. DRUPAL_VERSION picks the core major and the fixture directory it
- * copies from, and DEPS switches Composer between its newest and its lowest
- * resolution.
+ * against. The script takes no arguments; the build is shaped by environment
+ * variables.
  *
- * Run with: php scripts/provision.php
+ * Environment variables:
+ * - DRUPAL_VERSION: Core major to install, and the fixture directory to copy
+ *   from. Defaults to '11'.
+ * - DEPS: 'lowest' resolves Composer to the lowest stable versions, any other
+ *   value installs from the fixture's lock file. Defaults to 'normal'.
+ * - GITHUB_TOKEN: Written to the build's auth.json when set.
+ * - DREVOPS_DEBUG: Set to any value to print each command before it runs.
+ * - SCRIPT_QUIET: Set to '1' to suppress verbose messages.
+ * - SCRIPT_RUN_SKIP: Set to '1' to skip running of the script. Useful when
+ *   unit-testing or requiring this file from other files.
+ *
+ * Usage:
+ * @code
+ * php scripts/provision.php
+ * @endcode
  */
 
 declare(strict_types=1);
@@ -74,19 +88,86 @@ $config['system.site']['slogan'] = 'Overridden Slogan';
 
 PHP;
 
-// The entry function runs only when the script is run directly, not when it
-// is included.
-// @codeCoverageIgnoreStart
-if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'provision.php') {
-  try {
-    provision();
+/**
+ * Main functionality.
+ *
+ * @param array<string> $argv
+ *   Array of arguments.
+ * @param int $argc
+ *   Number of arguments.
+ *
+ * @throws \RuntimeException
+ *   When an argument is passed, or when a provisioning step fails.
+ */
+function main(array $argv, int $argc): void {
+  if (array_intersect(['help', '--help', '-h', '-?'], $argv)) {
+    print_help();
+
+    return;
   }
-  catch (\Throwable $exception) {
-    echo 'ERROR: ' . $exception->getMessage() . PHP_EOL;
-    exit(1);
+
+  if ($argc > 1) {
+    throw new \RuntimeException('This script takes no arguments. Use environment variables to shape the build.');
   }
+
+  provision();
 }
-// @codeCoverageIgnoreEnd
+
+/**
+ * Print help.
+ */
+function print_help(): void {
+  $script_name = basename(__FILE__);
+  $out = <<<EOF
+Fixture site provisioning.
+--------------------------
+
+Builds the throwaway Drupal site under build/ that the Behat suite runs
+against. Takes no arguments; the build is shaped by environment variables.
+
+Environment variables:
+  DRUPAL_VERSION        Core major to install, and the fixture directory to
+                        copy from. Defaults to 11.
+  DEPS                  'lowest' resolves Composer to the lowest stable
+                        versions. Defaults to 'normal'.
+  GITHUB_TOKEN          Written to the build's auth.json when set.
+  DREVOPS_DEBUG         Print each command before it runs.
+
+Options:
+  --help                This help.
+
+Examples:
+  php {$script_name}
+  DRUPAL_VERSION=10 DEPS=lowest php {$script_name}
+
+EOF;
+  verbose($out);
+}
+
+/**
+ * Show a verbose message and record messages into internal buffer.
+ *
+ * @param string $string
+ *   Message to print.
+ * @param bool|float|int|string|null ...$args
+ *   Arguments to sprintf() the message.
+ *
+ * @return array<string>
+ *   Array of messages.
+ */
+function verbose(string $string, ...$args): array {
+  $string = sprintf($string, ...$args);
+
+  static $buffer = [];
+  $buffer[] = $string;
+  if (empty(getenv('SCRIPT_QUIET'))) {
+    // @codeCoverageIgnoreStart
+    print end($buffer);
+    // @codeCoverageIgnoreEnd
+  }
+
+  return $buffer;
+}
 
 /**
  * Installs the fixture site.
@@ -102,9 +183,9 @@ function provision(): void {
 
   $fixture_dir = PROVISION_PACKAGE_ROOT . '/tests/behat/fixtures_drupal/d' . $drupal_version;
 
-  echo sprintf('==> Starting provisioning of fixture Drupal %s site.%s', $drupal_version, PHP_EOL);
+  verbose('==> Starting provisioning of fixture Drupal %s site.' . PHP_EOL, $drupal_version);
 
-  provision_step('Removing existing build assets.');
+  verbose('  > Removing existing build assets.' . PHP_EOL);
   provision_run('chmod -Rf 777 ' . PROVISION_BUILD_DIR, [], TRUE);
   provision_run('rm -Rf ' . PROVISION_BUILD_DIR . '/.*', [], TRUE);
   provision_run('rm -Rf ' . PROVISION_BUILD_DIR . '/*', [], TRUE);
@@ -117,22 +198,22 @@ function provision(): void {
     throw new \RuntimeException('Unable to enter ' . PROVISION_BUILD_DIR);
   }
 
-  provision_step('Copying fixture files to the build dir.');
+  verbose('  > Copying fixture files to the build dir.' . PHP_EOL);
   provision_run('cp -Rf ' . escapeshellarg($fixture_dir . '/.') . ' ./');
 
-  provision_step('Validating fixture Composer configuration.');
+  verbose('  > Validating fixture Composer configuration.' . PHP_EOL);
   provision_run('composer validate --ansi --no-check-all');
 
-  provision_step("Merging configuration from module's composer.json.");
+  verbose("  > Merging configuration from module's composer.json." . PHP_EOL);
   provision_write_merged_composer(PROVISION_PACKAGE_ROOT . '/composer.json', PROVISION_BUILD_DIR . '/composer.json');
 
-  provision_step('Show compiled composer.json.');
-  echo (string) file_get_contents(PROVISION_BUILD_DIR . '/composer.json');
+  verbose('  > Show compiled composer.json.' . PHP_EOL);
+  verbose('%s', (string) file_get_contents(PROVISION_BUILD_DIR . '/composer.json'));
 
-  provision_step('Validating merged fixture Composer configuration.');
+  verbose('  > Validating merged fixture Composer configuration.' . PHP_EOL);
   provision_run('composer validate --ansi --no-check-all');
 
-  provision_step('Creating GitHub authentication token if provided.');
+  verbose('  > Creating GitHub authentication token if provided.' . PHP_EOL);
   $github_token = provision_env('GITHUB_TOKEN', '');
 
   if ($github_token !== '') {
@@ -143,14 +224,14 @@ function provision(): void {
     chmod($auth_file, 0600);
   }
 
-  provision_step('Installing Composer dependencies inside the build dir.');
+  verbose('  > Installing Composer dependencies inside the build dir.' . PHP_EOL);
   $install = $deps === 'lowest' ? 'composer update --prefer-lowest --prefer-stable' : 'composer install --prefer-dist';
   provision_run($install, ['COMPOSER_MEMORY_LIMIT' => '-1']);
 
-  provision_step('Running post-install-cmd.');
+  verbose('  > Running post-install-cmd.' . PHP_EOL);
   provision_run('composer run-script post-install-cmd');
 
-  provision_step('Installing Drupal site.');
+  verbose('  > Installing Drupal site.' . PHP_EOL);
   $install_arguments = [
     'si standard -y',
     '--db-url=' . PROVISION_DB_URL,
@@ -162,23 +243,23 @@ function provision(): void {
   ];
   provision_run(PROVISION_DRUSH . ' -r ' . PROVISION_WEB_ROOT . ' ' . implode(' ', $install_arguments), ['PHP_OPTIONS' => '-d sendmail_path=/bin/true']);
 
-  provision_step('Appending fixture $config overrides to settings.php for ConfigOverrideTrait tests.');
+  verbose('  > Appending fixture $config overrides to settings.php for ConfigOverrideTrait tests.' . PHP_EOL);
   provision_append_settings(PROVISION_WEB_ROOT . '/sites/default/settings.php');
 
-  provision_step('Running post-install commands defined in the composer.json for each specific fixture.');
+  verbose('  > Running post-install commands defined in the composer.json for each specific fixture.' . PHP_EOL);
   provision_run('composer run-script drupal-post-install');
 
-  provision_step('Copying test fixtures.');
+  verbose('  > Copying test fixtures.' . PHP_EOL);
   provision_run('cp -Rf ' . PROVISION_PACKAGE_ROOT . '/tests/behat/fixtures/. ' . PROVISION_WEB_ROOT . '/sites/default/files/');
 
-  provision_step('Bootstrapping site.');
+  verbose('  > Bootstrapping site.' . PHP_EOL);
   provision_confirm(PROVISION_DRUSH . ' -r ' . PROVISION_WEB_ROOT . ' --uri=' . PROVISION_SITE_URI . ' status --fields=bootstrap', 'Successful', 'Unable to bootstrap a site');
 
   if (!chdir(PROVISION_PACKAGE_ROOT)) {
     throw new \RuntimeException('Unable to return to ' . PROVISION_PACKAGE_ROOT);
   }
 
-  echo sprintf('==> Finished provisioning of fixture Drupal %s site.%s', $drupal_version, PHP_EOL);
+  verbose('==> Finished provisioning of fixture Drupal %s site.' . PHP_EOL, $drupal_version);
 }
 
 // @codeCoverageIgnoreEnd
@@ -198,18 +279,6 @@ function provision_env(string $name, string $default): string {
   $value = getenv($name);
 
   return is_string($value) && $value !== '' ? $value : $default;
-}
-
-/**
- * Prints a step heading.
- *
- * @param string $message
- *   The heading text.
- *
- * @codeCoverageIgnore
- */
-function provision_step(string $message): void {
-  echo sprintf('  > %s%s', $message, PHP_EOL);
 }
 
 /**
@@ -240,6 +309,8 @@ function provision_with_env(string $command, array $env): string {
 /**
  * Runs a command, streaming its output.
  *
+ * Every external binary the script calls goes through here.
+ *
  * @param string $command
  *   The command to run.
  * @param array<string, string> $env
@@ -256,7 +327,7 @@ function provision_run(string $command, array $env = [], bool $tolerate_failure 
   $prefixed = provision_with_env($command, $env);
 
   if (provision_env('DREVOPS_DEBUG', '') !== '') {
-    echo '+ ' . $prefixed . PHP_EOL;
+    verbose('+ %s' . PHP_EOL, $prefixed);
   }
 
   $exit_code = 0;
@@ -289,12 +360,12 @@ function provision_confirm(string $command, string $expected, string $failure): 
   $text = implode(PHP_EOL, $output);
 
   if ($exit_code !== 0 || !str_contains($text, $expected)) {
-    echo $text . PHP_EOL;
+    verbose('%s' . PHP_EOL, $text);
 
     throw new \RuntimeException($failure);
   }
 
-  echo '    Success' . PHP_EOL;
+  verbose('    Success' . PHP_EOL);
 }
 
 /**
@@ -472,3 +543,42 @@ function provision_rebase_psr4(array $autoload): array {
 function provision_rebase_path(mixed $path): string {
   return '../' . (is_string($path) ? $path : '');
 }
+
+// Entrypoint.
+//
+// @codeCoverageIgnoreStart
+ini_set('display_errors', 1);
+
+if (PHP_SAPI !== 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
+  die('This script can be only ran from the command line.');
+}
+
+// Allow to skip the script run.
+if (getenv('SCRIPT_RUN_SKIP') != 1) {
+  set_error_handler(function (int $severity, string $message, string $file, int $line): bool {
+    if ((error_reporting() & $severity) === 0) {
+      // This error code is not included in error_reporting - continue
+      // execution with the normal error handler.
+      return FALSE;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+  });
+
+  try {
+    $argv = is_array($_SERVER['argv'] ?? NULL) ? array_filter($_SERVER['argv'], is_string(...)) : [];
+    $argc = is_scalar($_SERVER['argc'] ?? NULL) ? (int) $_SERVER['argc'] : 0;
+    // The function should not provide an exit code but rather throw exceptions.
+    main($argv, $argc);
+  }
+  catch (\ErrorException $exception) {
+    if ($exception->getSeverity() <= E_USER_WARNING) {
+      verbose(PHP_EOL . 'RUNTIME ERROR: ' . $exception->getMessage() . PHP_EOL);
+      exit($exception->getCode() === 0 ? 1 : $exception->getCode());
+    }
+  }
+  catch (\Exception $exception) {
+    verbose(PHP_EOL . 'ERROR: ' . $exception->getMessage() . PHP_EOL);
+    exit($exception->getCode() == 0 ? 1 : $exception->getCode());
+  }
+}
+// @codeCoverageIgnoreEnd

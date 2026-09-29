@@ -6,14 +6,24 @@ namespace DrevOps\BehatSteps\Tests;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Tests the transforms the fixture site is provisioned through.
+ * Tests the fixture site provisioning script.
  *
  * The provisioning sequence itself is exercised by the CI matrix, which
- * builds a real site on every leg. What is covered here is the logic that
- * shapes the build: the Composer merge and the paths it rebases.
+ * builds a real site on every leg. What is covered here is the entry point
+ * and the logic that shapes the build: the Composer merge and the paths it
+ * rebases.
+ *
+ * The script defines main(), verbose() and print_help() in the global
+ * namespace, and docs.php defines a main() of its own, so requiring both in
+ * 1 process would be a fatal redeclare. Each test therefore runs in its own
+ * process, which also gives it a pristine verbose() buffer.
  */
+#[RunTestsInSeparateProcesses]
+#[CoversFunction('main')]
+#[CoversFunction('print_help')]
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_env')]
 #[CoversFunction('provision_merge_composer')]
@@ -23,6 +33,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('provision_section')]
 #[CoversFunction('provision_with_env')]
 #[CoversFunction('provision_write_merged_composer')]
+#[CoversFunction('verbose')]
 class ProvisionTest extends UnitTestCase {
 
   /**
@@ -31,7 +42,53 @@ class ProvisionTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    putenv('SCRIPT_RUN_SKIP=1');
+    putenv('SCRIPT_QUIET=1');
+
     require_once __DIR__ . '/../../../scripts/provision.php';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    putenv('SCRIPT_RUN_SKIP');
+    putenv('SCRIPT_QUIET');
+
+    parent::tearDown();
+  }
+
+  /**
+   * Assert that the help text names the variables that shape the build.
+   */
+  public function testMainPrintsHelp(): void {
+    $buffer = $this->runMain('--help');
+    $text = implode('', $buffer);
+
+    $this->assertStringContainsString('Fixture site provisioning.', $text);
+    $this->assertStringContainsString('DRUPAL_VERSION', $text);
+    $this->assertStringContainsString('DEPS', $text);
+    $this->assertStringContainsString('provision.php', $text);
+  }
+
+  /**
+   * Assert that an argument is rejected rather than silently ignored.
+   */
+  public function testMainRejectsAnyArgument(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('This script takes no arguments');
+
+    $this->runMain('11');
+  }
+
+  /**
+   * Assert that messages accumulate in the buffer in order.
+   */
+  public function testVerboseBuffersEveryMessage(): void {
+    verbose('first%s', '.');
+    $buffer = verbose('second.');
+
+    $this->assertSame(['first.', 'second.'], $buffer);
   }
 
   /**
@@ -286,6 +343,24 @@ class ProvisionTest extends UnitTestCase {
     $this->expectExceptionMessage('Unable to open');
 
     provision_append_settings(static::$tmp . '/absent.php');
+  }
+
+  /**
+   * Call the script's main() with the given arguments.
+   *
+   * @param string|array<string> $args
+   *   Arguments passed after the script name.
+   *
+   * @return array<string>
+   *   The full verbose() message buffer.
+   */
+  protected function runMain(string|array $args = []): array {
+    $args = is_array($args) ? $args : [$args];
+    array_unshift($args, 'provision.php');
+
+    main($args, count($args));
+
+    return verbose('');
   }
 
   /**

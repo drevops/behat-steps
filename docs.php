@@ -27,20 +27,29 @@ use Behat\Step\When;
 // Execute the main function only when the script is run directly, not when included.
 // @codeCoverageIgnoreStart
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
-  $options = getopt('', ['fail-on-change', 'path::']);
-  main($options);
+  $argv = is_array($_SERVER['argv'] ?? NULL) ? array_filter($_SERVER['argv'], is_string(...)) : [];
+  $argc = is_scalar($_SERVER['argc'] ?? NULL) ? (int) $_SERVER['argc'] : 0;
+  main($argv, $argc);
 }
 // @codeCoverageIgnoreEnd
 
 /**
  * Main function to handle the documentation generation process.
  *
- * @param array<string, bool|string|array<int, string>> $options
- *   Command line options.
+ * The options are read from the process arguments with getopt(), so $argv and
+ * $argc carry no value of their own here. They are the signature every
+ * script in this repository declares, which keeps 1 global main() consistent
+ * across them for static analysis.
+ *
+ * @param array<string> $argv
+ *   Array of arguments.
+ * @param int $argc
+ *   Number of arguments.
  *
  * @codeCoverageIgnoreStart
  */
-function main(array $options = []): void {
+function main(array $argv, int $argc): void {
+  $options = getopt('', ['fail-on-change', 'path::']);
   $base_path = is_string($options['path'] ?? NULL) ? $options['path'] : __DIR__;
 
   require_once $base_path . '/build/vendor/autoload.php';
