@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Tests;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the fixture site provisioning script.
@@ -16,12 +15,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * and the logic that shapes the build: the Composer merge and the paths it
  * rebases.
  *
- * The script defines main(), verbose() and print_help() in the global
- * namespace, and docs.php defines a main() of its own, so requiring both in
- * 1 process would be a fatal redeclare. Each test therefore runs in its own
- * process, which also gives it a pristine verbose() buffer.
+ * SCRIPT_RUN_SKIP defines the script's functions without running it, so
+ * main() is called in process rather than as a subprocess.
  */
-#[RunTestsInSeparateProcesses]
 #[CoversFunction('main')]
 #[CoversFunction('print_help')]
 #[CoversFunction('provision_append_settings')]
@@ -83,12 +79,15 @@ class ProvisionTest extends UnitTestCase {
 
   /**
    * Assert that messages accumulate in the buffer in order.
+   *
+   * The buffer is static and the tests share a process, so only the tail it
+   * just received is asserted on.
    */
   public function testVerboseBuffersEveryMessage(): void {
     verbose('first%s', '.');
     $buffer = verbose('second.');
 
-    $this->assertSame(['first.', 'second.'], $buffer);
+    $this->assertSame(['first.', 'second.'], array_slice($buffer, -2));
   }
 
   /**
