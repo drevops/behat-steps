@@ -39,9 +39,13 @@ class TagOverrides {
    *   The value, replaced by whatever the last matching tag sets.
    */
   public function apply(string $group, Option $option, mixed $value, array $tags): mixed {
+    if ($tags === []) {
+      return $value;
+    }
+
     $bindings = $this->bindings($group, $option);
 
-    if ($bindings === [] || $tags === []) {
+    if ($bindings === []) {
       return $value;
     }
 
