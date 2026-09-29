@@ -14,7 +14,6 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
