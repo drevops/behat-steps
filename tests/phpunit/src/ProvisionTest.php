@@ -29,6 +29,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_env')]
 #[CoversFunction('provision_merge_composer')]
+#[CoversFunction('provision_patches')]
 #[CoversFunction('provision_read_json')]
 #[CoversFunction('provision_rebase_path')]
 #[CoversFunction('provision_rebase_psr4')]
@@ -338,6 +339,37 @@ class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString("\$config['system.site']['name'] = 'Overridden Site Name';", $contents);
     $this->assertStringContainsString("\$config['system.site']['slogan'] = 'Overridden Slogan';", $contents);
     $this->assertSame(0444, fileperms($file) & 0777);
+  }
+
+  /**
+   * Assert that each patch is keyed by the package its directory names.
+   */
+  public function testPatchesAreKeyedByTheirDirectory(): void {
+    $this->writeFixture('patches/mglaman/phpstan-drupal/custom-drupal-root.patch', 'diff');
+    $this->writeFixture('patches/drupal/webform/fix-the-thing.patch', 'diff');
+
+    $expected = [
+      'drupal/webform' => ['fix the thing' => 'patches/drupal/webform/fix-the-thing.patch'],
+      'mglaman/phpstan-drupal' => ['custom drupal root' => 'patches/mglaman/phpstan-drupal/custom-drupal-root.patch'],
+    ];
+
+    $this->assertSame($expected, provision_patches(static::$tmp . '/patches', static::$tmp));
+  }
+
+  /**
+   * Assert that a tree holding no patch declares none.
+   */
+  public function testPatchesReadsAnEmptyTreeAsNone(): void {
+    $this->assertSame([], provision_patches(static::$tmp . '/absent', static::$tmp));
+  }
+
+  /**
+   * Assert that a file that is not a patch is passed over.
+   */
+  public function testPatchesSkipsFilesThatAreNotPatches(): void {
+    $this->writeFixture('patches/mglaman/phpstan-drupal/README.md', 'not a patch');
+
+    $this->assertSame([], provision_patches(static::$tmp . '/patches', static::$tmp));
   }
 
   /**

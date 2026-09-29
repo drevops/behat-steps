@@ -189,6 +189,8 @@ function provision(): void {
 
   verbose('==> Starting provisioning of fixture Drupal %s site.' . PHP_EOL, $drupal_version);
 
+  provision_apply_patches();
+
   verbose('  > Removing existing build assets.' . PHP_EOL);
   provision_run('chmod -Rf 777 ' . PROVISION_BUILD_DIR, [], TRUE);
   provision_run('rm -Rf ' . PROVISION_BUILD_DIR . '/.*', [], TRUE);
@@ -267,6 +269,92 @@ function provision(): void {
 }
 
 // @codeCoverageIgnoreEnd
+
+/**
+ * Applies the package's own patches through Composer Patches.
+ *
+ * A patch declared in composer.json is read by the Composer Patches
+ * "Dependencies" resolver in every project that requires this package, which
+ * resolves the path against that project's own root. The declaration is
+ * written here, over the package's own composer.json, and reverted once
+ * Composer has applied it.
+ *
+ * The patches apply to this package's own vendor directory, not to the
+ * fixture site: "ahoy lint" runs the root vendor/bin/phpstan, and
+ * mglaman/phpstan-drupal reads DRUPAL_ROOT and DRUPAL_VENDOR_ROOT only once
+ * patched.
+ *
+ * @throws \RuntimeException
+ *   When composer.json cannot be read or written.
+ *
+ * @codeCoverageIgnoreStart
+ */
+function provision_apply_patches(): void {
+  $patches = provision_patches(PROVISION_PACKAGE_ROOT . '/patches', PROVISION_PACKAGE_ROOT);
+
+  if ($patches === []) {
+    return;
+  }
+
+  verbose("  > Applying the package's own patches through Composer Patches." . PHP_EOL);
+
+  $composer_file = PROVISION_PACKAGE_ROOT . '/composer.json';
+  $declared = provision_read_json($composer_file);
+  $original = (string) file_get_contents($composer_file);
+  $declared['extra']['patches'] = $patches;
+
+  try {
+    if (file_put_contents($composer_file, json_encode($declared, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL) === FALSE) {
+      throw new \RuntimeException('Unable to write ' . $composer_file);
+    }
+
+    foreach ($patches as $package => $entries) {
+      verbose('    %s: %d patch(es)' . PHP_EOL, $package, count($entries));
+    }
+
+    // "install" applies a patch only while it installs the package the patch
+    // belongs to, and the dependencies are in place by now, so the packages
+    // carrying one are re-fetched and re-patched explicitly.
+    $composer = 'composer --working-dir=' . PROVISION_PACKAGE_ROOT . ' --ansi --no-interaction ';
+    provision_run($composer . 'patches-relock', ['COMPOSER_MEMORY_LIMIT' => '-1']);
+    provision_run($composer . 'patches-repatch', ['COMPOSER_MEMORY_LIMIT' => '-1']);
+  }
+  finally {
+    file_put_contents($composer_file, $original);
+  }
+}
+
+// @codeCoverageIgnoreEnd
+
+/**
+ * Maps the patch files under a directory to the packages they apply to.
+ *
+ * A patch file lives at "patches/<vendor>/<package>/<name>.patch", so the
+ * package it applies to is its own directory and the set is iterated rather
+ * than listed.
+ *
+ * @param string $directory
+ *   Absolute path to the directory holding the patches.
+ * @param string $relative_to
+ *   Absolute path that the returned patch paths are relative to.
+ *
+ * @return array<string, array<string, string>>
+ *   Patch paths, keyed by package and then by description.
+ */
+function provision_patches(string $directory, string $relative_to): array {
+  $patches = [];
+  $files = glob($directory . '/*/*/*.patch');
+
+  foreach ($files === FALSE ? [] : $files as $file) {
+    $package = basename(dirname($file, 2)) . '/' . basename(dirname($file));
+    $description = str_replace('-', ' ', basename($file, '.patch'));
+    $patches[$package][$description] = substr($file, strlen($relative_to) + 1);
+  }
+
+  ksort($patches);
+
+  return $patches;
+}
 
 /**
  * Reads an environment variable, falling back when it is unset or empty.

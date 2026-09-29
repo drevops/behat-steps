@@ -86,12 +86,5 @@
             }
         },
         "sort-packages": true
-    },
-    "extra": {
-        "patches": {
-            "mglaman/phpstan-drupal": {
-                "Support for custom Drupal root": "https://patch-diff.githubusercontent.com/raw/mglaman/phpstan-drupal/pull/873.diff"
-            }
-        }
     }
 }
