@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 
 /**
  * Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
@@ -25,7 +26,7 @@ use Behat\Step\When;
  *
  * `@javascript`-only: requires a headless browser session.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait DropzoneTrait {
 
@@ -59,6 +60,10 @@ trait DropzoneTrait {
    */
   #[When('I drop the following files on the :selector dropzone:')]
   public function dropzoneDropFiles(string $selector, TableNode $paths): void {
+    // The gesture is built entirely in JavaScript, so a driver that runs none
+    // fails naming the capability instead of on the first script call.
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
+
     $session = $this->getSession();
     $page = $session->getPage();
 

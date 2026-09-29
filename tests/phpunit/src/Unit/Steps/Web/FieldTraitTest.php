@@ -13,7 +13,9 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Steps\Web\FieldTrait;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Mink\Fixtures\AnyDriverAdapter;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -60,20 +62,16 @@ class FieldTraitTest extends UnitTestCase {
   }
 
   public function testFillMultiValueRequiresJavascriptDriver(): void {
-    // The trait probes JavaScript support by evaluating a script, so a driver
-    // that throws on evaluateScript() counts as non-JavaScript.
-    $this->driver->method('isStarted')->willReturn(TRUE);
-    $this->driver->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('JavaScript is not supported by %s', $this->driver));
-
+    // No adapter speaks for a bare driver mock, so the step resolves no
+    // JavaScript capability.
     $this->expectException(UnsupportedDriverActionException::class);
-    $this->expectExceptionMessage('The "fill in the multi-value field" step requires a JavaScript-capable driver.');
+    $this->expectExceptionMessage(sprintf('No browser capability "%s" is available', JavascriptCapabilityInterface::class));
 
     $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value'], ['Drupal']]));
   }
 
   public function testFillMultiValueThrowsWhenInputRowIsMissing(): void {
-    $this->driver->method('isStarted')->willReturn(TRUE);
-    $this->driver->method('evaluateScript')->willReturn(TRUE);
+    $this->testObject->getBrowserResolver()->registerAdapter(AnyDriverAdapter::class);
 
     // Zero existing inputs count as one row, so no "Add another item" click
     // is attempted and the first value has no input to fill.

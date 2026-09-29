@@ -8,7 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use Behat\Mink\Driver\Selenium2Driver;
+use DrevOps\BehatSteps\Behat\Mink\Capability\RequestHeaderCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
@@ -31,8 +31,10 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  * the scenario.
  *
  * Limitations:
- * - Cannot be used with Selenium/JavaScript drivers (the underlying driver
- *   does not expose request headers).
+ * - The request header reaches the SUT only on a driver providing
+ *   `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
+ *   headers, so a scenario running on Selenium falls back to the `$_SERVER`
+ *   entry and the environment variable alone.
  * - The SUT must implement support for the `X-Config-No-Override` header,
  *   the `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry or the matching
  *   environment variable. An example implementation:
@@ -135,11 +137,10 @@ trait ConfigOverrideTrait {
 
     $value = implode(',', $this->configOverrideDisabledNames);
 
-    // Selenium-based drivers cannot set request headers, so the header is set
-    // on BrowserKit-based sessions only.
-    $driver = $this->getSession()->getDriver();
-    if (!$driver instanceof Selenium2Driver) {
-      $driver->setRequestHeader('X-Config-No-Override', $value);
+    // A hook cannot fail a scenario over a driver that carries no request
+    // headers, so the capability is asked for rather than required.
+    if ($this->browserDriverHas(RequestHeaderCapabilityInterface::class)) {
+      $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', $value);
     }
 
     $this->requestHeadersSet('X-Config-No-Override', $value);
@@ -170,15 +171,15 @@ trait ConfigOverrideTrait {
    */
   protected function configOverrideClearDriverHeader(): void {
     try {
-      $driver = $this->getSession()->getDriver();
+      $has_capability = $this->browserDriverHas(RequestHeaderCapabilityInterface::class);
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
       return;
     }
     // @codeCoverageIgnoreEnd
-    if (!$driver instanceof Selenium2Driver) {
-      $driver->setRequestHeader('X-Config-No-Override', '');
+    if ($has_capability) {
+      $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', '');
     }
   }
 

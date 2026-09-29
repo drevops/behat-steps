@@ -35,3 +35,18 @@ Feature: Check that IframeTrait works
       """
       Iframe matching css ".nonexistent-iframe" not found.
       """
+
+  @trait:IframeTrait
+  Scenario: Assert that switching iframes fails naming the capability on a driver that runs no JavaScript
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/iframes.html"
+      And I switch to the iframe with the selector ".named-iframe"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
+      """
+      No browser capability "DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface" is available for
+      """

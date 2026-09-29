@@ -1145,3 +1145,77 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
 | `DiagnosticsTrait` | `diagnosticsShowUrl()` | `diagnosticsGetShowUrl()` |
 | `ElementTrait` | `elementScrollIntoViewCenter()` | `elementGetScrollIntoViewCenter()` |
+
+## Browser capabilities for the Mink driver
+
+The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a driver, so a project registering its own Mink driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
+
+`DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped driver family. A Mink driver comes from another package, so an adapter declares the capabilities on the driver's behalf rather than the driver implementing them.
+
+| Capability | BrowserKit | Selenium2 | Chrome (CDP) |
+| --- | --- | --- | --- |
+| `CookieCapabilityInterface` | yes | yes | yes |
+| `HttpClientCapabilityInterface` | yes | no | no |
+| `JavascriptCapabilityInterface` | no | yes | yes |
+| `KeyboardCapabilityInterface` | no | yes | yes |
+| `RequestHeaderCapabilityInterface` | yes | no | yes |
+
+`WebRawContext` exposes the pair the Drupal side already has: `browserDriverFor()` returns the adapter or raises `UnsupportedDriverActionException` naming the capability, and `browserDriverHas()` answers the same question as a boolean for a step that degrades gracefully instead of failing.
+
+### `JavascriptSupportTrait` is gone
+
+`javascriptSupportAvailable()` probed the driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
+
+```php
+// Before.
+if (!$this->javascriptSupportAvailable()) {
+  return;
+}
+
+// After.
+if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
+  return;
+}
+```
+
+Where the step could not proceed without JavaScript, resolve the capability and let it raise:
+
+```php
+$this->browserDriverFor(JavascriptCapabilityInterface::class);
+```
+
+### Four traits now need the library's context
+
+`CookieTrait`, `DropzoneTrait`, `IframeTrait` and `KeyboardTrait` resolve a browser capability, so they need `WebRawContext` and no longer compose onto Mink's own `RawMinkContext`. A context composing one of them extends `DrevOps\BehatSteps\Behat\Context\WebRawContext`. `JsonTrait`, `LinkTrait`, `MetatagTrait`, `PathTrait`, `RegionTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still run on the bare Mink context.
+
+### Three steps now fail naming the capability
+
+`I wait for the modal to appear`, `I drop the following files on the :selector dropzone:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
+
+`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a driver that cannot serve them, with the capability named in place of a hardcoded driver list.
+
+### Registering an adapter for another driver
+
+```php
+$this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
+```
+
+An adapter extends `BrowserAdapterBase`, implements the capability interfaces its driver can honour, and answers `supports()` for the driver it speaks for. A registered adapter is offered each driver ahead of the shipped ones.
+
+## Drupal capabilities cover the config, module and state steps
+
+The config, module and state steps resolved `CoreCapabilityInterface` - "bootstrap Drupal in this process" - and then reached into the container, so they ran only on the in-process driver. They now name the capability they need and run on any driver providing it, including Drush.
+
+A project with its own driver implementing these capabilities adds the methods below. A project using only the shipped drivers needs no change.
+
+| Interface | Added |
+| --- | --- |
+| `ConfigCapabilityInterface` | `configExists()`, `configGetData()`, `configSetData()`, `configDelete()` |
+| `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
+| `StateCapabilityInterface` | New: `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()` |
+
+### The Drush driver stores config values correctly
+
+`DrushDriver::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value the driver wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. A project that seeded config through the Drush driver and worked around the mangled values can drop the workaround.
+
+Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.

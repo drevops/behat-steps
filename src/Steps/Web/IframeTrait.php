@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 
 /**
  * Switch between iframes and the root document.
@@ -13,7 +14,7 @@ use Behat\Step\When;
  * - Switch to iframes by CSS selector, including unnamed iframes.
  * - Switch back to the root (top-level) document.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait IframeTrait {
 
@@ -31,6 +32,10 @@ trait IframeTrait {
    */
   #[When('I switch to the iframe with the selector :selector')]
   public function iframeSwitchTo(string $selector): void {
+    // Switching frames and naming an unnamed one both need a real browser, so
+    // a driver that runs no JavaScript fails naming the capability.
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
+
     $iframe = $this->getSession()->getPage()->find('css', $selector);
 
     if ($iframe === NULL) {

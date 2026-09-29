@@ -9,7 +9,6 @@ use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -125,7 +124,7 @@ class ContextCompositionTest extends UnitTestCase {
    * Assert that the root context composes the web helpers and no step trait.
    */
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
-    $expected = [JavascriptSupportTrait::class, LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
+    $expected = [LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
     $composed = static::composedTraits(WebRawContext::class, 'Helper');
 
     $this->assertSame($expected, $composed);

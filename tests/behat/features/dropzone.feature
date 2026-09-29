@@ -105,3 +105,18 @@ Feature: Check that DropzoneTrait works
       """
       missing-second.bin" does not exist.
       """
+
+  @trait:DropzoneTrait
+  Scenario: Assert that dropping files fails naming the capability on a driver that runs no JavaScript
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/dropzone.html"
+      And I drop the file "document.pdf" on the ".dropzone" dropzone
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
+      """
+      No browser capability "DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface" is available for
+      """

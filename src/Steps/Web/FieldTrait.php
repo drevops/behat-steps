@@ -18,8 +18,8 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
@@ -37,7 +37,6 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  */
 trait FieldTrait {
 
-  use JavascriptSupportTrait;
   use StringTrait;
 
   /**
@@ -84,7 +83,7 @@ trait FieldTrait {
       return;
     }
 
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
 
@@ -136,7 +135,7 @@ trait FieldTrait {
       $this->fieldFormValidationRegistry[] = $selector;
     }
 
-    if ($this->javascriptSupportAvailable()) {
+    if ($this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       $this->fieldDisableFormValidation($selector);
     }
   }
@@ -161,9 +160,7 @@ trait FieldTrait {
    */
   #[When('I fill in the multi-value field :field with the following values:')]
   public function fieldFillMultiValue(string $field, TableNode $table): void {
-    if (!$this->javascriptSupportAvailable()) {
-      throw new UnsupportedDriverActionException('The "fill in the multi-value field" step requires a JavaScript-capable driver.', $this->getSession()->getDriver());
-    }
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $rows = $table->getColumn(0);
     // Drop the header row.
@@ -294,7 +291,7 @@ JS;
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       $element->setValue($value);
       return;
     }

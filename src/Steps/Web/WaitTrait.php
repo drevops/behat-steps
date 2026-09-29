@@ -11,10 +11,9 @@ use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 
 /**
  * Wait for a period of time or for AJAX to finish.
@@ -32,8 +31,6 @@ use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait WaitTrait {
-
-  use JavascriptSupportTrait;
 
   /**
    * Step text that changes the page, and so warrants an AJAX wait around it.
@@ -118,9 +115,7 @@ trait WaitTrait {
   public function waitForAjax(string|int $seconds): void {
     $seconds = (int) $seconds;
 
-    if (!$this->javascriptSupportAvailable()) {
-      throw new UnsupportedDriverActionException('Method can be used only with JS-capable driver. Driver %s is not JS-capable driver.', $this->getSession()->getDriver());
-    }
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $script = <<<JS
       (function() {

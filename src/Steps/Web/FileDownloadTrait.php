@@ -13,9 +13,9 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -88,40 +88,10 @@ trait FileDownloadTrait {
 
     $cookie_list = [];
 
-    /** @var \Behat\Mink\Driver\CoreDriver $driver */
-    $driver = $this->getSession()->getDriver();
-
-    // WebDriver-based drivers like Selenium2Driver.
-    if (method_exists($driver, 'getWebDriverSession')) {
-      $cookies = $driver->getWebDriverSession()->getAllCookies();
-      foreach ($cookies as $cookie) {
-        $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
-      }
-    }
-
-    // CDP-based drivers like the Chrome (chrome-mink) driver.
-    elseif (method_exists($driver, 'getCookies')) {
-      // @phpstan-ignore-next-line
-      foreach ($driver->getCookies() as $cookie) {
-        $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
-      }
-    }
-
-    // BrowserKit-based drivers like GoutteDriver. Values are passed through as
-    // the driver reports them, because the Cookie header carries them in wire
-    // form.
-    elseif (method_exists($driver, 'getClient')) {
-      /** @var \Behat\Mink\Driver\BrowserKitDriver $driver */
-      // @phpstan-ignore-next-line
-      $cookies = $driver->getClient()->getCookieJar()->allValues($driver->getCurrentUrl());
-      foreach ($cookies as $cookie_name => $cookie_value) {
-        $cookie_list[] = $cookie_name . '=' . $cookie_value;
-      }
-    }
-    else {
-      // @codeCoverageIgnoreStart
-      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s.', $driver);
-      // @codeCoverageIgnoreEnd
+    // The Cookie header carries wire-form values, which is the form the
+    // capability reports.
+    foreach ($this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll() as $cookie) {
+      $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
     }
 
     $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url, [

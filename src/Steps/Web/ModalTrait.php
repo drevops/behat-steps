@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 
 /**
  * Interact with and assert modals.
@@ -94,6 +95,10 @@ trait ModalTrait {
    */
   #[When('I wait for the modal to appear')]
   public function modalWaitForAppear(): void {
+    // Without the capability the wait can only time out, so the driver is
+    // checked before the timeout is spent.
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
+
     $timeout = $this->modalGetWaitTimeout();
 
     $result = $this->getSession()->getPage()->waitFor($timeout, function (): bool {
