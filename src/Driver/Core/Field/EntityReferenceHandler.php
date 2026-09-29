@@ -59,8 +59,11 @@ class EntityReferenceHandler extends AbstractHandler {
     // User entities return FALSE for getKey('label'), so 'name' is used
     // directly.
     $label_key = $entity_type_id !== 'user' ? $definition->getKey('label') : 'name';
+    $label_key = $label_key === FALSE ? NULL : $label_key;
+
     $bundles = $this->getTargetBundles();
     $bundle_key = $bundles ? $definition->getKey('bundle') : NULL;
+    $bundle_key = $bundle_key === FALSE ? NULL : $bundle_key;
 
     return new ReferenceTarget($entity_type_id, $id_key, $label_key, $bundles, $bundle_key);
   }
