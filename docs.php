@@ -26,6 +26,8 @@ use Behat\Behat\Definition\Pattern\Policy\TurnipPatternPolicy;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\GroupName;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
@@ -456,11 +458,11 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
  * @param string $trait_name
  *   The short trait name.
  *
- * @return array<string, array<string, mixed>>
- *   Declarations keyed by option name, empty when the trait declares none.
+ * @return array<string, \DrevOps\BehatSteps\Behat\Config\Option>
+ *   Options keyed by name, empty when the trait declares none.
  */
 function extract_trait_options(string $class_name, string $trait_name): array {
-  $method = lcfirst(str_replace('Trait', '', $trait_name)) . 'ConfigSchema';
+  $method = GroupName::schemaMethod($trait_name);
 
   /** @var class-string $class_name */
   $reflection = new \ReflectionClass($class_name);
@@ -470,8 +472,15 @@ function extract_trait_options(string $class_name, string $trait_name): array {
   }
 
   $declarations = $reflection->getMethod($method)->invoke($reflection->newInstanceWithoutConstructor());
+  $options = [];
 
-  return is_array($declarations) ? $declarations : [];
+  foreach (is_array($declarations) ? $declarations : [] as $declaration) {
+    if ($declaration instanceof Option) {
+      $options[$declaration->name] = $declaration;
+    }
+  }
+
+  return $options;
 }
 
 /**
@@ -484,7 +493,7 @@ function extract_trait_options(string $class_name, string $trait_name): array {
  *   The group name, in snake case.
  */
 function trait_option_group(string $trait_name): string {
-  return camel_to_snake(str_replace('Trait', '', $trait_name));
+  return GroupName::fromTraitName($trait_name);
 }
 
 /**
@@ -798,7 +807,7 @@ function render_value(mixed $value): string {
  * @param string $trait_name
  *   The short trait name.
  * @param mixed $options
- *   The declarations the trait returned, keyed by option name.
+ *   The options the trait declared, keyed by option name.
  *
  * @return string
  *   The table, or an empty string when the trait declares no option.
@@ -811,24 +820,25 @@ function render_trait_options(string $trait_name, mixed $options): string {
   $group = trait_option_group($trait_name);
   $rows = [];
 
-  foreach ($options as $key => $declaration) {
-    $declaration = is_array($declaration) ? $declaration : [];
-    $default = $declaration['default'] ?? NULL;
+  foreach ($options as $option) {
+    if (!$option instanceof Option) {
+      continue;
+    }
 
-    $tags = is_array($declaration['tags'] ?? NULL) ? array_keys($declaration['tags']) : [];
+    $tags = array_keys($option->tags);
 
-    if ($key === 'enabled') {
+    if ($option->name === 'enabled') {
       $tags[] = 'behat-steps-skip:' . $trait_name;
     }
 
     $tags = array_map(static fn(string $tag): string => '`@' . $tag . '`', $tags);
 
     $rows[] = [
-      sprintf('`%s.%s`', $group, $key),
-      trait_option_type($default),
-      sprintf('`%s`', render_value($default)),
+      sprintf('`%s.%s`', $group, $option->name),
+      trait_option_type($option->default),
+      sprintf('`%s`', render_value($option->default)),
       $tags === [] ? '-' : implode(', ', $tags),
-      str_replace('|', '\\|', (string) ($declaration['description'] ?? '')),
+      str_replace('|', '\\|', $option->description),
     ];
   }
 
@@ -1499,8 +1509,6 @@ function validate(array $info): array {
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
 
-    $errors = array_merge($errors, validate_trait_options($class_name, $class_info['options'] ?? []));
-
     // @phpstan-ignore-next-line
     foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
@@ -1681,43 +1689,6 @@ function extract_step_examples(string $example): array {
   }
 
   return $steps;
-}
-
-/**
- * Validate that every declared option carries a default and a description.
- *
- * The option table is generated from the declarations, so an option without a
- * description would render in the reference as an empty cell.
- *
- * @param string $trait_name
- *   The short trait name, for the error message.
- * @param mixed $options
- *   The declarations the trait returned, keyed by option name.
- *
- * @return array<string>
- *   Array of errors.
- */
-function validate_trait_options(string $trait_name, mixed $options): array {
-  if (!is_array($options)) {
-    return [];
-  }
-
-  $group = trait_option_group($trait_name);
-  $errors = [];
-
-  foreach ($options as $key => $declaration) {
-    if (!is_array($declaration) || !array_key_exists('default', $declaration)) {
-      $errors[] = sprintf('  %s - Option "%s.%s" declares no default' . PHP_EOL, $trait_name, $group, $key);
-
-      continue;
-    }
-
-    if (!isset($declaration['description']) || trim((string) $declaration['description']) === '') {
-      $errors[] = sprintf('  %s - Option "%s.%s" is undocumented' . PHP_EOL, $trait_name, $group, $key);
-    }
-  }
-
-  return $errors;
 }
 
 /**
