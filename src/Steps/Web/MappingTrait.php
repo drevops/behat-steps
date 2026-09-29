@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Replace `{{ Key }}` tokens in step arguments and table cells.
@@ -145,11 +146,11 @@ trait MappingTrait {
    *   When the same key appears in more than one group.
    */
   protected function mappingGetFlattened(): array {
-    $groups = $this->getOption('mapping', 'groups');
+    $groups = $this->getOptionArray('mapping', 'groups');
     $flat = [];
     $origins = [];
 
-    foreach (is_array($groups) ? $groups : [] as $group => $entries) {
+    foreach ($groups as $group => $entries) {
       foreach (is_array($entries) ? $entries : [] as $key => $value) {
         if (isset($origins[$key])) {
           throw new \RuntimeException(sprintf('Duplicate mapping key "%s" found in groups "%s" and "%s" under "mapping.groups". Mapping keys must be unique across all groups.', $key, $origins[$key], $group));
@@ -166,19 +167,13 @@ trait MappingTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function mappingConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.',
-      ],
-      'groups' => [
-        'default' => [],
-        'description' => 'Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
+      new Option('groups', default: [], description: 'Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups.'),
     ];
   }
 

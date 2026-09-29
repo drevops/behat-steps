@@ -10,6 +10,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -384,21 +385,18 @@ trait CommandTrait {
    * The maximum time, in seconds, a command may run before it is terminated.
    */
   public function commandGetTimeout(): int {
-    return (int) $this->getOption('command', 'timeout');
+    return $this->getOptionInt('command', 'timeout');
   }
 
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function commandConfigSchema(): array {
     return [
-      'timeout' => [
-        'default' => 300,
-        'description' => 'Maximum time, in seconds, a command may run before it is terminated.',
-      ],
+      new Option('timeout', default: 300, description: 'Maximum time, in seconds, a command may run before it is terminated.'),
     ];
   }
 

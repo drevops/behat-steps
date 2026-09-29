@@ -12,6 +12,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 
@@ -164,25 +165,19 @@ JS;
    * Return the configured AJAX timeout, in seconds.
    */
   public function waitGetAjaxTimeout(): int {
-    return (int) $this->getOption('wait', 'ajax_timeout');
+    return $this->getOptionInt('wait', 'ajax_timeout');
   }
 
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function waitConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Wait for AJAX around every navigating or submitting step of a `@javascript` scenario.',
-      ],
-      'ajax_timeout' => [
-        'default' => 5,
-        'description' => 'Maximum time, in seconds, to wait for AJAX calls to complete.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Wait for AJAX around every navigating or submitting step of a `@javascript` scenario.'),
+      new Option('ajax_timeout', default: 5, description: 'Maximum time, in seconds, to wait for AJAX calls to complete.'),
     ];
   }
 

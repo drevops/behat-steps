@@ -248,6 +248,8 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
   ];
 
   public function __construct() {
+    parent::__construct();
+
     $this->session = new DiagnosticsFakeSession();
   }
 

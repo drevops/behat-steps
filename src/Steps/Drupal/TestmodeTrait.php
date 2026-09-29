@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -77,15 +78,12 @@ trait TestmodeTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function testmodeConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Enable the Testmode module for a `@testmode` scenario and disable it afterwards.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Enable the Testmode module for a `@testmode` scenario and disable it afterwards.'),
     ];
   }
 

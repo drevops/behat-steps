@@ -10,6 +10,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
@@ -772,7 +773,7 @@ trait ElementTrait {
    * @endcode
    */
   protected function elementGetScrollIntoViewCenter(): bool {
-    return (bool) $this->getOption('element', 'scroll_into_view_center');
+    return $this->getOptionBool('element', 'scroll_into_view_center');
   }
 
   /**
@@ -1381,15 +1382,12 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function elementConfigSchema(): array {
     return [
-      'scroll_into_view_center' => [
-        'default' => TRUE,
-        'description' => 'Center an element in the viewport when scrolling to it, rather than aligning it to the top.',
-      ],
+      new Option('scroll_into_view_center', default: TRUE, description: 'Center an element in the viewport when scrolling to it, rather than aligning it to the top.'),
     ];
   }
 

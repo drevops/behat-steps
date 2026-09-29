@@ -10,6 +10,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Interact with HTML table elements and assert their content.
@@ -343,14 +344,14 @@ trait TableTrait {
    * Get the CSS selector for table header cells.
    */
   public function tableGetHeaderSelector(): string {
-    return (string) $this->getOption('table', 'header_selector');
+    return $this->getOptionString('table', 'header_selector');
   }
 
   /**
    * Get the CSS selector for table body rows.
    */
   public function tableGetBodyRowSelector(): string {
-    return (string) $this->getOption('table', 'body_row_selector');
+    return $this->getOptionString('table', 'body_row_selector');
   }
 
   /**
@@ -453,19 +454,13 @@ trait TableTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function tableConfigSchema(): array {
     return [
-      'header_selector' => [
-        'default' => 'thead tr th',
-        'description' => 'CSS selector of a table header cell, relative to the table.',
-      ],
-      'body_row_selector' => [
-        'default' => 'tbody tr',
-        'description' => 'CSS selector of a table body row, relative to the table.',
-      ],
+      new Option('header_selector', default: 'thead tr th', description: 'CSS selector of a table header cell, relative to the table.'),
+      new Option('body_row_selector', default: 'tbody tr', description: 'CSS selector of a table body row, relative to the table.'),
     ];
   }
 

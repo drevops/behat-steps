@@ -11,6 +11,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
@@ -213,14 +214,14 @@ trait QueueTrait {
    * Get the maximum number of items to process.
    */
   public function queueGetProcessLimit(): int {
-    return (int) $this->getOption('queue', 'process_limit');
+    return $this->getOptionInt('queue', 'process_limit');
   }
 
   /**
    * Get the lease time for claiming queue items.
    */
   public function queueGetLeaseTime(): int {
-    return (int) $this->getOption('queue', 'lease_time');
+    return $this->getOptionInt('queue', 'lease_time');
   }
 
   /**
@@ -235,23 +236,14 @@ trait QueueTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function queueConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Delete the queues a scenario created once it finishes.',
-      ],
-      'process_limit' => [
-        'default' => 1000,
-        'description' => 'Maximum number of items a single queue-processing step handles.',
-      ],
-      'lease_time' => [
-        'default' => 30,
-        'description' => 'Time, in seconds, a claimed queue item stays leased.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Delete the queues a scenario created once it finishes.'),
+      new Option('process_limit', default: 1000, description: 'Maximum number of items a single queue-processing step handles.'),
+      new Option('lease_time', default: 30, description: 'Time, in seconds, a claimed queue item stays leased.'),
     ];
   }
 

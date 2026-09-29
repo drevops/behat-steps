@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Testwork\Tester\Result\ExceptionResult;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Append on-failure diagnostics to the failure message of any failed step.
@@ -285,91 +286,67 @@ trait DiagnosticsTrait {
    * Return the header line that precedes the diagnostics block.
    */
   public function diagnosticsGetHeader(): string {
-    return (string) $this->getOption('diagnostics', 'header');
+    return $this->getOptionString('diagnostics', 'header');
   }
 
   /**
    * Return the binary used in the re-run command. Override to customise.
    */
   public function diagnosticsGetRerunBinary(): string {
-    return (string) $this->getOption('diagnostics', 'rerun_binary');
+    return $this->getOptionString('diagnostics', 'rerun_binary');
   }
 
   /**
    * Return TRUE to include the current URL. Override to suppress.
    */
   public function diagnosticsGetShowUrl(): bool {
-    return (bool) $this->getOption('diagnostics', 'show_url');
+    return $this->getOptionBool('diagnostics', 'show_url');
   }
 
   /**
    * Return TRUE to include the HTTP status code. Override to suppress.
    */
   public function diagnosticsGetShowStatusCode(): bool {
-    return (bool) $this->getOption('diagnostics', 'show_status_code');
+    return $this->getOptionBool('diagnostics', 'show_status_code');
   }
 
   /**
    * Return TRUE to include the Mink driver class. Override to suppress.
    */
   public function diagnosticsGetShowDriver(): bool {
-    return (bool) $this->getOption('diagnostics', 'show_driver');
+    return $this->getOptionBool('diagnostics', 'show_driver');
   }
 
   /**
    * Return TRUE to include JavaScript console errors. Override to suppress.
    */
   public function diagnosticsGetShowJsErrors(): bool {
-    return (bool) $this->getOption('diagnostics', 'show_js_errors');
+    return $this->getOptionBool('diagnostics', 'show_js_errors');
   }
 
   /**
    * Return TRUE to include the re-run command. Override to suppress.
    */
   public function diagnosticsGetShowRerun(): bool {
-    return (bool) $this->getOption('diagnostics', 'show_rerun');
+    return $this->getOptionBool('diagnostics', 'show_rerun');
   }
 
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function diagnosticsConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Append a diagnostics block to the message of a failing step.',
-      ],
-      'header' => [
-        'default' => '--- Failure diagnostics ---',
-        'description' => 'Header line that precedes the diagnostics block.',
-      ],
-      'rerun_binary' => [
-        'default' => 'vendor/bin/behat',
-        'description' => 'Binary named in the re-run command the block prints.',
-      ],
-      'show_url' => [
-        'default' => TRUE,
-        'description' => 'Include the current URL in the block.',
-      ],
-      'show_status_code' => [
-        'default' => TRUE,
-        'description' => 'Include the HTTP status code in the block.',
-      ],
-      'show_driver' => [
-        'default' => TRUE,
-        'description' => 'Include the Mink driver class in the block.',
-      ],
-      'show_js_errors' => [
-        'default' => TRUE,
-        'description' => 'Include the JavaScript console errors in the block.',
-      ],
-      'show_rerun' => [
-        'default' => TRUE,
-        'description' => 'Include the command that re-runs the failing scenario in the block.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Append a diagnostics block to the message of a failing step.'),
+      new Option('header', default: '--- Failure diagnostics ---', description: 'Header line that precedes the diagnostics block.'),
+      new Option('rerun_binary', default: 'vendor/bin/behat', description: 'Binary named in the re-run command the block prints.'),
+      new Option('show_url', default: TRUE, description: 'Include the current URL in the block.'),
+      new Option('show_status_code', default: TRUE, description: 'Include the HTTP status code in the block.'),
+      new Option('show_driver', default: TRUE, description: 'Include the Mink driver class in the block.'),
+      new Option('show_js_errors', default: TRUE, description: 'Include the JavaScript console errors in the block.'),
+      new Option('show_rerun', default: TRUE, description: 'Include the command that re-runs the failing scenario in the block.'),
     ];
   }
 

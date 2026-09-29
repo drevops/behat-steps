@@ -16,6 +16,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -449,7 +450,7 @@ trait AccessibilityTrait {
    * Default: 10 seconds. Override to suit a slower source.
    */
   public function accessibilityGetFetchTimeout(): int {
-    return (int) $this->getOption('accessibility', 'fetch_timeout');
+    return $this->getOptionInt('accessibility', 'fetch_timeout');
   }
 
   /**
@@ -458,7 +459,7 @@ trait AccessibilityTrait {
    * Default: 3.
    */
   public function accessibilityGetFetchAttempts(): int {
-    return (int) $this->getOption('accessibility', 'fetch_attempts');
+    return $this->getOptionInt('accessibility', 'fetch_attempts');
   }
 
   /**
@@ -468,7 +469,7 @@ trait AccessibilityTrait {
    * a different version, a private mirror, or a local asset.
    */
   public function accessibilityGetCdnUrl(): string {
-    return (string) $this->getOption('accessibility', 'cdn_url');
+    return $this->getOptionString('accessibility', 'cdn_url');
   }
 
   /**
@@ -480,7 +481,7 @@ trait AccessibilityTrait {
    * has not run, the live working directory is used.
    */
   public function accessibilityGetReportDir(): string {
-    $directory = (string) $this->getOption('accessibility', 'report_dir');
+    $directory = $this->getOptionString('accessibility', 'report_dir');
 
     if (str_starts_with($directory, DIRECTORY_SEPARATOR)) {
       return $directory;
@@ -500,7 +501,7 @@ trait AccessibilityTrait {
    * configuration. Default: `accessibility`. Override to shorten.
    */
   public function accessibilityGetAutoTag(): string {
-    return (string) $this->getOption('accessibility', 'auto_tag');
+    return $this->getOptionString('accessibility', 'auto_tag');
   }
 
   /**
@@ -510,7 +511,7 @@ trait AccessibilityTrait {
    * rule identifier expected by the engine in use.
    */
   public function accessibilityGetDefaultRules(): string {
-    return (string) $this->getOption('accessibility', 'default_rules');
+    return $this->getOptionString('accessibility', 'default_rules');
   }
 
   /**
@@ -520,7 +521,7 @@ trait AccessibilityTrait {
    * impact level from accessibilityGetImpacts(). Default: `any`.
    */
   public function accessibilityGetFailureThreshold(): string {
-    return (string) $this->getOption('accessibility', 'failure_threshold');
+    return $this->getOptionString('accessibility', 'failure_threshold');
   }
 
   /**
@@ -529,7 +530,7 @@ trait AccessibilityTrait {
    * Default: FALSE (incomplete findings are reported but do not fail).
    */
   public function accessibilityGetFailOnIncomplete(): bool {
-    return (bool) $this->getOption('accessibility', 'fail_on_incomplete');
+    return $this->getOptionBool('accessibility', 'fail_on_incomplete');
   }
 
   /**
@@ -1589,47 +1590,20 @@ HTML;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function accessibilityConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Assess every page an `@accessibility` scenario visits.',
-      ],
-      'auto_tag' => [
-        'default' => 'accessibility',
-        'description' => 'Base tag name, without its `@`, that puts a scenario into automatic mode.',
-      ],
-      'default_rules' => [
-        'default' => 'wcag2a,wcag2aa',
-        'description' => 'Rule identifier passed to the engine when a scenario names none.',
-      ],
-      'failure_threshold' => [
-        'default' => 'any',
-        'description' => 'Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier.',
-      ],
-      'fail_on_incomplete' => [
-        'default' => FALSE,
-        'description' => 'Fail the scenario on a finding the engine could not decide.',
-      ],
-      'cdn_url' => [
-        'default' => 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js',
-        'description' => 'Location the engine source is read from.',
-      ],
-      'fetch_timeout' => [
-        'default' => 10,
-        'description' => 'Per-attempt timeout, in seconds, for the engine fetch.',
-      ],
-      'fetch_attempts' => [
-        'default' => 3,
-        'description' => 'How many times the engine fetch is attempted before failing.',
-      ],
-      'report_dir' => [
-        'default' => '.logs/test_results/accessibility',
-        'description' => 'Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Assess every page an `@accessibility` scenario visits.'),
+      new Option('auto_tag', default: 'accessibility', description: 'Base tag name, without its `@`, that puts a scenario into automatic mode.'),
+      new Option('default_rules', default: 'wcag2a,wcag2aa', description: 'Rule identifier passed to the engine when a scenario names none.'),
+      new Option('failure_threshold', default: 'any', description: 'Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier.'),
+      new Option('fail_on_incomplete', default: FALSE, description: 'Fail the scenario on a finding the engine could not decide.'),
+      new Option('cdn_url', default: 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js', description: 'Location the engine source is read from.'),
+      new Option('fetch_timeout', default: 10, description: 'Per-attempt timeout, in seconds, for the engine fetch.'),
+      new Option('fetch_attempts', default: 3, description: 'How many times the engine fetch is attempted before failing.'),
+      new Option('report_dir', default: '.logs/test_results/accessibility', description: 'Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from.'),
     ];
   }
 

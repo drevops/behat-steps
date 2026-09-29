@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 
 /**
@@ -205,7 +206,7 @@ trait ModalTrait {
    *   An array of CSS selectors to try, in order.
    */
   public function modalGetSelectors(): array {
-    return (array) $this->getOption('modal', 'selectors');
+    return $this->getOptionArray('modal', 'selectors');
   }
 
   /**
@@ -215,7 +216,7 @@ trait ModalTrait {
    *   An array of CSS selectors to try, in order.
    */
   public function modalGetContentSelectors(): array {
-    return (array) $this->getOption('modal', 'content_selectors');
+    return $this->getOptionArray('modal', 'content_selectors');
   }
 
   /**
@@ -225,14 +226,14 @@ trait ModalTrait {
    *   An array of CSS selectors to try, in order.
    */
   public function modalGetCloseSelectors(): array {
-    return (array) $this->getOption('modal', 'close_selectors');
+    return $this->getOptionArray('modal', 'close_selectors');
   }
 
   /**
    * Get the timeout in seconds for waiting for the modal to appear.
    */
   public function modalGetWaitTimeout(): int {
-    return (int) $this->getOption('modal', 'wait_timeout');
+    return $this->getOptionInt('modal', 'wait_timeout');
   }
 
   /**
@@ -305,27 +306,15 @@ trait ModalTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function modalConfigSchema(): array {
     return [
-      'selectors' => [
-        'default' => ['.ui-dialog', 'dialog[open]', '.modal'],
-        'description' => 'CSS selectors of the modal container, tried in order.',
-      ],
-      'content_selectors' => [
-        'default' => ['.ui-dialog-content', '.modal-content', '.modal-body'],
-        'description' => 'CSS selectors of the modal content element, tried in order.',
-      ],
-      'close_selectors' => [
-        'default' => ['.ui-dialog-titlebar-close', '[data-dismiss="modal"]', '.btn-close'],
-        'description' => 'CSS selectors of the modal close button, tried in order.',
-      ],
-      'wait_timeout' => [
-        'default' => 3,
-        'description' => 'Maximum time, in seconds, to wait for a modal to appear.',
-      ],
+      new Option('selectors', default: ['.ui-dialog', 'dialog[open]', '.modal'], description: 'CSS selectors of the modal container, tried in order.'),
+      new Option('content_selectors', default: ['.ui-dialog-content', '.modal-content', '.modal-body'], description: 'CSS selectors of the modal content element, tried in order.'),
+      new Option('close_selectors', default: ['.ui-dialog-titlebar-close', '[data-dismiss="modal"]', '.btn-close'], description: 'CSS selectors of the modal close button, tried in order.'),
+      new Option('wait_timeout', default: 3, description: 'Maximum time, in seconds, to wait for a modal to appear.'),
     ];
   }
 

@@ -15,6 +15,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
@@ -470,7 +471,7 @@ trait FileDownloadTrait {
    * Get temp download dir.
    */
   public function fileDownloadGetTempDir(): string {
-    return (string) $this->getOption('file_download', 'temp_dir');
+    return $this->getOptionString('file_download', 'temp_dir');
   }
 
   /**
@@ -490,19 +491,13 @@ trait FileDownloadTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function fileDownloadConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Prepare and clean up the download directory around a `@download` scenario.',
-      ],
-      'temp_dir' => [
-        'default' => '/tmp/behat_downloads',
-        'description' => 'Directory a `@download` scenario writes downloaded files into.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Prepare and clean up the download directory around a `@download` scenario.'),
+      new Option('temp_dir', default: '/tmp/behat_downloads', description: 'Directory a `@download` scenario writes downloaded files into.'),
     ];
   }
 
