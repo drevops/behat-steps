@@ -515,12 +515,31 @@ class DrushDriverMethodsTest extends TestCase {
    */
   public function testConfigSetDataReplacesRatherThanMerges(): void {
     $driver = $this->createDriver();
+    $driver->drushResponse = '{"name":"Original","slogan":"Dropped"}';
 
     $driver->configSetData('system.site', ['name' => 'Example']);
 
     $commands = array_column($driver->invocations, 'command');
 
     $this->assertContains('config:delete', $commands, 'The object must be deleted so omitted keys do not survive.');
+    $this->assertSame('config:set', end($commands));
+  }
+
+  /**
+   * Tests that an object holding nothing is written without being deleted.
+   *
+   * Deleting it would drop no key and leave nothing to restore from, because
+   * 'config:set' refuses to write an empty object back.
+   */
+  public function testConfigSetDataKeepsAnEmptyObjectInPlace(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{}';
+
+    $driver->configSetData('system.site', ['name' => 'Example']);
+
+    $commands = array_column($driver->invocations, 'command');
+
+    $this->assertNotContains('config:delete', $commands);
     $this->assertSame('config:set', end($commands));
   }
 

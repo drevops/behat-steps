@@ -24,7 +24,7 @@ class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInt
   /**
    * Cookies this adapter reports.
    *
-   * @var array<int, array{name: string, value: string, secure: bool}>
+   * @var array<int, array{name: string, value: string}>
    */
   public static array $cookies = [];
 

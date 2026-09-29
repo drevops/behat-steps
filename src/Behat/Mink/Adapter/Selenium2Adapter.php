@@ -47,7 +47,6 @@ class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInt
       $cookies[] = [
         'name' => (string) $cookie['name'],
         'value' => (string) $cookie['value'],
-        'secure' => (bool) ($cookie['secure'] ?? FALSE),
       ];
     }
 

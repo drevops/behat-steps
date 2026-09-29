@@ -212,7 +212,12 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
     // than being left missing.
     $previous = $this->configGetData($name);
 
-    $this->configDelete($name);
+    // An object holding nothing has no keys to drop, and 'config:set' refuses
+    // to write an empty object back, so deleting one would leave nothing to
+    // restore from if the write then failed.
+    if ($previous !== []) {
+      $this->configDelete($name);
+    }
 
     if ($data === []) {
       return;

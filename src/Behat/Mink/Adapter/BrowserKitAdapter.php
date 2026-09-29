@@ -60,7 +60,6 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
       $cookies[$name] = [
         'name' => $name,
         'value' => $cookie->getRawValue(),
-        'secure' => $cookie->isSecure(),
       ];
     }
 

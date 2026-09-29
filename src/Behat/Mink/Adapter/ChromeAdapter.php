@@ -68,7 +68,6 @@ class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterf
       $cookies[] = [
         'name' => (string) $cookie['name'],
         'value' => (string) $cookie['value'],
-        'secure' => (bool) ($cookie['secure'] ?? FALSE),
       ];
     }
 
