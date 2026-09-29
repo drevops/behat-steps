@@ -20,7 +20,7 @@ fixtures_drupal/
 └── d12/          # Drupal 12 fixture, same layout
 ```
 
-`scripts/provision.sh` and `.ahoy.yml` address the fixture as `d${DRUPAL_VERSION}`, so a fixture for a new Drupal major is added as a sibling directory with no changes to either.
+`scripts/provision.php` and `.ahoy.yml` address the fixture as `d${DRUPAL_VERSION}`, so a fixture for a new Drupal major is added as a sibling directory with no changes to either.
 
 ## Purpose
 

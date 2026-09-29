@@ -216,6 +216,12 @@ Keep the `require` section of `composer.json` minimal - it should contain only w
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
 
+### Dependency patches
+
+A patch against this repository's own vendor directory lives at `patches/<vendor>/<package>/<name>.patch`, so the package it applies to is its own directory and the file name becomes its description. `composer.json` declares none. These are separate from the fixture site's patches, which the Drupal 12 fixture declares itself - see [Patched contrib](#patched-contrib).
+
+[scripts/provision.php](scripts/provision.php) writes the `extra.patches` map over this package's own `composer.json`, applies it with `composer patches-relock` and `composer patches-repatch`, and restores the file afterwards. The declaration is not committed because Composer Patches registers a `Dependencies` resolver that reads `extra.patches` from every installed dependency and resolves relative paths against the consuming project's root - a project requiring this package would look for the patch inside its own tree and fail.
+
 ## Local environment setup
 
 Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
@@ -330,7 +336,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 1 job, on PHP 8.4. It checks that `composer.json` is normalized, then `ahoy lint` runs `composer validate`, `parallel-lint`, `phpcs`, `phpstan`, `rector --dry-run`, `gherkinlint`, [scripts/lint-layers.php](scripts/lint-layers.php) and [scripts/lint-traits.php](scripts/lint-traits.php), and `ahoy lint-docs` checks [STEPS.md](STEPS.md) for drift. Both are the commands you run locally, and the job is green only when both are.
 
-The job provisions before it lints, and PHPStan needs it to. `ahoy lint` points the analyser at the fixture with `DRUPAL_ROOT` and `DRUPAL_VENDOR_ROOT`, which `mglaman/phpstan-drupal` reads only with the patch [scripts/provision.sh](scripts/provision.sh) applies to it. Run `ahoy build` before `ahoy lint` on a fresh checkout, or PHPStan aborts before it analyses anything.
+The job provisions before it lints, and PHPStan needs it to. `ahoy lint` points the analyser at the fixture with `DRUPAL_ROOT` and `DRUPAL_VENDOR_ROOT`, which `mglaman/phpstan-drupal` reads only with the patch [scripts/provision.php](scripts/provision.php) applies to it. Run `ahoy build` before `ahoy lint` on a fresh checkout, or PHPStan aborts before it analyses anything.
 
 ### Test matrix
 
@@ -347,7 +353,7 @@ Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Beha
 
 ### Behat 4 legs
 
-Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.sh](scripts/provision.sh) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes `dmore/behat-chrome-extension`, which has no release that accepts Behat 4. That is why Behat 4 has no `chrome_headless` leg.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes `dmore/behat-chrome-extension`, which has no release that accepts Behat 4. That is why Behat 4 has no `chrome_headless` leg.
 
 On Drupal 11 it also removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
@@ -375,7 +381,7 @@ Drupal 12 constrains its own grid hard:
 
 Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does not:
 
-- `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. The hosted lenient endpoint on drupal.org is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.sh](scripts/provision.sh) installs it globally before the build update; Composer loads global plugins for local projects.
+- `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. The hosted lenient endpoint on drupal.org is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.php](scripts/provision.php) installs it globally before the build update; Composer loads global plugins for local projects.
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
 
@@ -383,7 +389,7 @@ Every contrib module carries a floor in `d12/composer.json` at the oldest releas
 
 The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
 
-Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.sh](scripts/provision.sh) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
+Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
 Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
 
@@ -407,7 +413,7 @@ A patch stops being needed the day its module ships a Drupal 12 release, at whic
 
 ### Verifying the import landed
 
-`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.sh](scripts/provision.sh) therefore reads a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success on an empty site.
+`drush cim` can enable the modules, abort on a fatal raised while it creates config entities, and still exit 0. The site then comes up with its modules enabled and none of the content types, fields, webforms or entity types the suite asserts on. [scripts/provision.php](scripts/provision.php) therefore reads a config entity only the fixture defines and fails when the import did not land, on every major - without that check a Drupal 12 build reports success on an empty site.
 
 ### Coverage
 
