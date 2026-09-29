@@ -32,11 +32,21 @@ class BrowserCapabilityResolver {
   ];
 
   /**
-   * Adapters already built, keyed by the driver's object id.
+   * Adapters already built, keyed by the driver they speak for.
    *
-   * @var array<int, \DrevOps\BehatSteps\Behat\Mink\BrowserAdapterInterface>
+   * Keyed by the driver object rather than its id, because PHP reuses an
+   * object id once the object it belonged to is collected.
+   *
+   * @var \WeakMap<\Behat\Mink\Driver\DriverInterface, \DrevOps\BehatSteps\Behat\Mink\BrowserAdapterInterface>
    */
-  protected array $resolved = [];
+  protected \WeakMap $resolved;
+
+  /**
+   * Constructs a resolver with an empty adapter cache.
+   */
+  public function __construct() {
+    $this->resolved = new \WeakMap();
+  }
 
   /**
    * Registers an adapter class ahead of the shipped ones.
@@ -46,7 +56,7 @@ class BrowserCapabilityResolver {
    */
   public function registerAdapter(string $adapter): void {
     array_unshift($this->adapters, $adapter);
-    $this->resolved = [];
+    $this->resolved = new \WeakMap();
   }
 
   /**
@@ -98,15 +108,13 @@ class BrowserCapabilityResolver {
    *   The driver the session is running.
    */
   protected function adapterFor(DriverInterface $driver): ?BrowserAdapterInterface {
-    $id = spl_object_id($driver);
-
-    if (array_key_exists($id, $this->resolved)) {
-      return $this->resolved[$id];
+    if (isset($this->resolved[$driver])) {
+      return $this->resolved[$driver];
     }
 
     foreach ($this->adapters as $adapter) {
       if ($adapter::supports($driver)) {
-        return $this->resolved[$id] = new $adapter($driver);
+        return $this->resolved[$driver] = new $adapter($driver);
       }
     }
 
