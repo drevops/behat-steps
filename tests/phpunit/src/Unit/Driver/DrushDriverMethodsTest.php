@@ -369,7 +369,7 @@ class DrushDriverMethodsTest extends TestCase {
    * value is stored verbatim, so a JSON payload would land as its own encoding
    * rather than as the value it encodes.
    */
-  public function testConfigSetRequestsAParsedInputFormat(): void {
+  public function testConfigSetRequestsParsedInputFormat(): void {
     $driver = $this->createDriver();
 
     $driver->configSet('system.site', 'page', ['front' => '/node']);
@@ -389,10 +389,8 @@ class DrushDriverMethodsTest extends TestCase {
     $driver->configGet('system.site', 'name');
     $this->assertArrayHasKey('include-overridden', $driver->invocations[0]['options']);
 
-    $driver->invocations = [];
-
     $driver->configGetOriginal('system.site', 'name');
-    $this->assertArrayNotHasKey('include-overridden', $driver->invocations[0]['options']);
+    $this->assertArrayNotHasKey('include-overridden', $driver->invocations[1]['options']);
   }
 
   /**
@@ -457,7 +455,7 @@ class DrushDriverMethodsTest extends TestCase {
   /**
    * Tests that deleting a missing configuration object issues no delete.
    */
-  public function testConfigDeleteOfMissingObjectIsANoOp(): void {
+  public function testConfigDeleteOfMissingObjectIsNoOp(): void {
     $driver = $this->createDriver();
     $driver->drushExitCode = 1;
 
