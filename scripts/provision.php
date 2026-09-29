@@ -284,9 +284,17 @@ function provision_apply_patches(): void {
 
   echo "  > Applying the package's own patches through Composer Patches." . PHP_EOL;
 
+  // The bytes restored in the finally are the bytes that were decoded, so a
+  // read that returned nothing cannot reach the restore and truncate the
+  // package's own manifest.
   $composer_file = PROVISION_PACKAGE_ROOT . '/composer.json';
-  $declared = provision_read_json($composer_file);
-  $original = (string) file_get_contents($composer_file);
+  $original = file_get_contents($composer_file);
+
+  if ($original === FALSE) {
+    throw new \RuntimeException('Unable to read ' . $composer_file);
+  }
+
+  $declared = provision_decode_json($original, $composer_file);
   $declared['extra']['patches'] = $patches;
 
   try {
@@ -694,7 +702,25 @@ function provision_read_json(string $file): array {
     throw new \RuntimeException('Unable to read ' . $file);
   }
 
-  $decoded = json_decode((string) file_get_contents($file), TRUE);
+  return provision_decode_json((string) file_get_contents($file), $file);
+}
+
+/**
+ * Decodes JSON that was read from a file.
+ *
+ * @param string $contents
+ *   The contents to decode.
+ * @param string $file
+ *   Absolute path the contents came from, named when they do not decode.
+ *
+ * @return array<array-key, mixed>
+ *   The decoded contents.
+ *
+ * @throws \RuntimeException
+ *   When the contents do not decode to an object.
+ */
+function provision_decode_json(string $contents, string $file): array {
+  $decoded = json_decode($contents, TRUE);
 
   if (!is_array($decoded)) {
     throw new \RuntimeException('Unable to decode ' . $file);

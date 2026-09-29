@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_behat_packages')]
+#[CoversFunction('provision_decode_json')]
 #[CoversFunction('provision_env')]
 #[CoversFunction('provision_install_command')]
 #[CoversFunction('provision_is_lenient')]
@@ -138,6 +139,23 @@ class ProvisionTest extends UnitTestCase {
     $this->expectExceptionMessage('Unable to decode');
 
     provision_read_json($file);
+  }
+
+  /**
+   * Assert that contents already in hand are decoded without a second read.
+   */
+  public function testDecodeJsonDecodesTheContents(): void {
+    $this->assertSame(['name' => 'drevops/fixture'], provision_decode_json('{"name": "drevops/fixture"}', 'composer.json'));
+  }
+
+  /**
+   * Assert that contents that do not decode name the file they came from.
+   */
+  public function testDecodeJsonNamesTheFileItCannotDecode(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to decode /app/composer.json');
+
+    provision_decode_json('not json', '/app/composer.json');
   }
 
   /**
