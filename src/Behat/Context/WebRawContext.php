@@ -365,8 +365,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
 
   /**
    * Builds the resolver from this context's class, argument and parameters.
+   *
+   * @throws \RuntimeException
+   *   When the context declares a constructor that never reached this one, so
+   *   the 'config' argument was never set.
    */
   protected function buildOptionResolver(): TraitOptionResolverInterface {
+    // A promoted constructor property is set by the constructor and by nothing
+    // else, so a subclass constructor that does not forward leaves it unset.
+    // @phpstan-ignore isset.initializedProperty
+    if (!isset($this->config)) {
+      throw new \RuntimeException(sprintf('%s declares a constructor that does not call parent::__construct(), so its "config" argument was never set. Add "array $config = []" to the constructor and forward it.', static::class));
+    }
+
     $steps = $this->getParameter('steps');
 
     return $this->getOptionResolverFactory()->create(static::class, $this->config, is_array($steps) ? $steps : []);

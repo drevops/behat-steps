@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableSubContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\UnforwardedConfigContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -97,6 +98,13 @@ class ContextConfigTest extends UnitTestCase {
     $context->setOptionResolverFactory(new TraitOptionResolverFactory());
 
     $this->assertSame('from the profile', $context->getOptionString('sample', 'label'));
+  }
+
+  public function testContextThatDoesNotForwardItsConstructorSaysSo(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(UnforwardedConfigContext::class . ' declares a constructor that does not call parent::__construct(), so its "config" argument was never set.');
+
+    (new UnforwardedConfigContext())->getOption('sample', 'label');
   }
 
   public function testContextComposingNoDeclaringTraitHasNoOptionToRead(): void {

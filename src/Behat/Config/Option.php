@@ -30,6 +30,13 @@ final readonly class Option {
   ];
 
   /**
+   * Map of tag name to the value that tag sets, read as the declared type.
+   *
+   * @var array<string, mixed>
+   */
+  public array $tags;
+
+  /**
    * Constructs an Option.
    *
    * @param string $name
@@ -38,17 +45,18 @@ final readonly class Option {
    *   The value the option holds when nothing configures it.
    * @param string $description
    *   What the option does, as the configuration reference renders it.
-   * @param array<string, mixed> $tags
+   * @param array<array-key, mixed> $tags
    *   Map of tag name to the value that tag sets, without a leading '@'.
    *
    * @throws \InvalidArgumentException
-   *   When the name or the description is empty, or a tag is not named.
+   *   When the name or the description is empty, a tag is not named, or a tag
+   *   sets a value that does not match the type the default carries.
    */
   public function __construct(
     public string $name,
     public mixed $default,
     public string $description,
-    public array $tags = [],
+    array $tags = [],
   ) {
     if (trim($name) === '') {
       throw new \InvalidArgumentException('An option declares a name.');
@@ -58,11 +66,24 @@ final readonly class Option {
       throw new \InvalidArgumentException(sprintf('The "%s" option declares a description.', $name));
     }
 
-    foreach (array_keys($tags) as $tag) {
+    $bindings = [];
+
+    foreach ($tags as $tag => $value) {
       if (!is_string($tag) || trim($tag) === '') {
         throw new \InvalidArgumentException(sprintf('The "%s" option lists its tags as a map of tag name to the value it sets.', $name));
       }
+
+      // Read here rather than where a tag matches, so a declaration a scenario
+      // has yet to reach still fails while the context is built.
+      try {
+        $bindings[$tag] = $this->cast($value, $name);
+      }
+      catch (InvalidConfigurationException $exception) {
+        throw new \InvalidArgumentException(sprintf('The "%s" tag of the "%s" option sets a value of the wrong type. %s', $tag, $name, $exception->getMessage()), 0, $exception);
+      }
     }
+
+    $this->tags = $bindings;
   }
 
   /**

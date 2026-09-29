@@ -29,6 +29,19 @@ class OptionTest extends UnitTestCase {
     $this->assertSame([], (new Option('label', default: 'a default', description: 'A string option.'))->tags);
   }
 
+  public function testTagValuesAreReadAsTheDeclaredType(): void {
+    $option = new Option('wait_timeout', default: 5000, description: 'An integer option.', tags: ['slow' => '30000']);
+
+    $this->assertSame(['slow' => 30000], $option->tags);
+  }
+
+  public function testTagValueOfTheWrongTypeIsRejected(): void {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('The "slow" tag of the "wait_timeout" option sets a value of the wrong type. The "wait_timeout" option expects an integer, but a string was given.');
+
+    new Option('wait_timeout', default: 5000, description: 'An integer option.', tags: ['slow' => 'thirty']);
+  }
+
   /**
    * Tests that a declaration missing what it needs is rejected.
    *
