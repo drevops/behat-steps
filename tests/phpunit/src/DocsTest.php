@@ -2778,10 +2778,10 @@ EOD,
   public function testExtractHelpersPublishesTheHelperTraits(): void {
     $actual = extract_helpers([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3));
 
-    $this->assertSame('Web', $actual['JavascriptSupportTrait']['context']);
-    $this->assertNull($actual['JavascriptSupportTrait']['steps_anchor']);
-    $this->assertSame('src/Helper/Web/JavascriptSupportTrait.php', $actual['JavascriptSupportTrait']['source']);
-    $this->assertSame(['javascriptSupportAvailable'], array_column($actual['JavascriptSupportTrait']['helpers'], 'name'));
+    $this->assertSame('Web', $actual['RequestHeadersTrait']['context']);
+    $this->assertNull($actual['RequestHeadersTrait']['steps_anchor']);
+    $this->assertSame('src/Helper/Web/RequestHeadersTrait.php', $actual['RequestHeadersTrait']['source']);
+    $this->assertSame(['requestHeadersSet'], array_column($actual['RequestHeadersTrait']['helpers'], 'name'));
 
     $this->assertContains('entityNodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
   }

@@ -7,26 +7,12 @@ namespace DrevOps\BehatSteps\Driver\Core\Field;
 /**
  * Field handler for 'supported_image' fields (supported_image contrib module).
  *
+ * Uploads each path the same way a file field does, then records the caption
+ * and attribution properties the field adds on top.
+ *
  * @see https://www.drupal.org/project/supported_image
  */
-class SupportedImageHandler extends AbstractHandler {
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function normalize(mixed $values): array {
-    $records = parent::normalize($values);
-
-    foreach ($records as &$record) {
-      if ($record[$this->mainProperty] === NULL || $record[$this->mainProperty] === '') {
-        throw new \RuntimeException(sprintf('Supported image field "%s" must not be NULL or empty.', $this->mainProperty));
-      }
-
-      $record[$this->mainProperty] = (string) $record[$this->mainProperty];
-    }
-
-    return $records;
-  }
+class SupportedImageHandler extends FileHandler {
 
   /**
    * {@inheritdoc}
@@ -35,21 +21,10 @@ class SupportedImageHandler extends AbstractHandler {
     $images = [];
 
     foreach ($records as $record) {
-      $file_path = $record[$this->mainProperty];
-      $file_extension = pathinfo((string) $file_path, PATHINFO_EXTENSION);
-      $data = file_get_contents($file_path);
-
-      if ($data === FALSE) {
-        throw new \RuntimeException(sprintf('Error reading file %s.', $file_path));
-      }
-
-      /** @var \Drupal\file\FileInterface $file */
-      $file = \Drupal::service('file.repository')
-        ->writeData($data, 'public://' . uniqid() . '.' . $file_extension);
-      $file->save();
+      $file = $this->uploadAndSave($record[$this->mainProperty]);
 
       $images[] = [
-        $this->mainProperty => $file->id(),
+        $this->mainProperty => $this->fileId($file),
         'alt' => $record['alt'] ?? NULL,
         'title' => $record['title'] ?? NULL,
         'caption_value' => $record['caption_value'] ?? NULL,
@@ -60,6 +35,13 @@ class SupportedImageHandler extends AbstractHandler {
     }
 
     return $images;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldLabel(): string {
+    return 'Supported image';
   }
 
 }

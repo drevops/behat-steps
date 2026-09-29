@@ -16,6 +16,7 @@ use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
@@ -40,6 +41,7 @@ interface DrupalDriverInterface extends
   MailCapabilityInterface,
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
+  StateCapabilityInterface,
   UserCapabilityInterface,
   WatchdogCapabilityInterface {
 

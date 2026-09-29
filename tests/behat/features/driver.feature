@@ -25,3 +25,16 @@ Feature: Check that the driver order resolves as documented
   Scenario: A capability only one driver provides ignores the order
     Then the Drush capability should resolve to the "DrevOps\BehatSteps\Driver\DrushDriver" driver
     And the Core capability should resolve to the "DrevOps\BehatSteps\Driver\DrupalDriver" driver
+
+  Scenario: The config, module and state capabilities resolve in-process by default
+    Then the Config capability should resolve to the "DrevOps\BehatSteps\Driver\DrupalDriver" driver
+    And the Module capability should resolve to the "DrevOps\BehatSteps\Driver\DrupalDriver" driver
+    And the State capability should resolve to the "DrevOps\BehatSteps\Driver\DrupalDriver" driver
+
+  # The config, module and state steps name these capabilities rather than Core,
+  # so a scenario tag is enough to run them against a site over Drush.
+  @driver:drush
+  Scenario: The config, module and state capabilities follow a promoted driver
+    Then the Config capability should resolve to the "DrevOps\BehatSteps\Driver\DrushDriver" driver
+    And the Module capability should resolve to the "DrevOps\BehatSteps\Driver\DrushDriver" driver
+    And the State capability should resolve to the "DrevOps\BehatSteps\Driver\DrushDriver" driver

@@ -11,7 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -67,15 +67,14 @@ trait StateTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $driver = $this->driverFor(StateCapabilityInterface::class);
 
-    $state = \Drupal::state();
     foreach ($this->stateOriginalValues as $name => $snapshot) {
       if ($snapshot['exists']) {
-        $state->set($name, $snapshot['value']);
+        $driver->stateSet($name, $snapshot['value']);
       }
       else {
-        $state->delete($name);
+        $driver->stateDelete($name);
       }
     }
 
@@ -91,10 +90,8 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     $this->stateStoreOriginalValue($name);
-    \Drupal::state()->set($name, $this->stateNormalizeValue($value));
+    $this->driverFor(StateCapabilityInterface::class)->stateSet($name, $this->stateNormalizeValue($value));
   }
 
   /**
@@ -106,10 +103,8 @@ trait StateTrait {
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     $this->stateStoreOriginalValue($name);
-    \Drupal::state()->delete($name);
+    $this->driverFor(StateCapabilityInterface::class)->stateDelete($name);
   }
 
   /**
@@ -124,16 +119,15 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $driver = $this->driverFor(StateCapabilityInterface::class);
 
-    $state = \Drupal::state();
     foreach ($table->getHash() as $row) {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The state values table must contain "name" and "value" columns.');
       }
       $name = $row['name'];
       $this->stateStoreOriginalValue($name);
-      $state->set($name, $this->stateNormalizeValue($row['value']));
+      $driver->stateSet($name, $this->stateNormalizeValue($row['value']));
     }
   }
 
@@ -189,15 +183,13 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   public function stateReadValue(string $name): array {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $driver = $this->driverFor(StateCapabilityInterface::class);
 
-    $key_value = \Drupal::keyValue('state');
-
-    if (!$key_value->has($name)) {
+    if (!$driver->stateExists($name)) {
       return ['exists' => FALSE, 'value' => NULL];
     }
 
-    return ['exists' => TRUE, 'value' => \Drupal::state()->get($name)];
+    return ['exists' => TRUE, 'value' => $driver->stateGet($name)];
   }
 
   /**

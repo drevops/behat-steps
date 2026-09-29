@@ -8,10 +8,10 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
 /**
@@ -141,15 +141,7 @@ trait RestTrait {
    *   The BrowserKit client.
    */
   public function restGetClient(): mixed {
-    $driver = $this->getSession()->getDriver();
-
-    if (!method_exists($driver, 'getClient')) {
-      // @codeCoverageIgnoreStart
-      throw new UnsupportedDriverActionException('REST requests require a BrowserKit-based driver (e.g. Goutte, BrowserKit). The current driver "%s" does not support this.', $driver);
-      // @codeCoverageIgnoreEnd
-    }
-
-    return $driver->getClient();
+    return $this->browserDriverFor(HttpClientCapabilityInterface::class)->httpClient();
   }
 
   /**

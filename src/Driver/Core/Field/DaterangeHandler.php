@@ -19,13 +19,7 @@ class DaterangeHandler extends DatetimeHandler {
       return [];
     }
 
-    // A top-level positional pair like ['start', 'end'] is itself a list,
-    // so iterating directly would treat each scalar as its own delta and
-    // reject it. Only a list whose first element is an array is treated
-    // as a multi-delta list.
-    $is_list_of_records = array_is_list($values) && is_array($values[0] ?? NULL);
-
-    if (!$is_list_of_records) {
+    if (!$this->isListOfRecords($values)) {
       $values = [$values];
     }
 

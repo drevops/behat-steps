@@ -163,34 +163,203 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function configGet(string $name, string $key = ''): mixed {
-    $arguments = $key !== '' ? [$name, $key] : [$name];
-    $output = trim($this->drush('config:get', $arguments, ['format' => 'json']));
-
-    // 'drush config:get' returns whatever JSON shape the value has (object,
-    // array, scalar). Decode objects to associative arrays so the return
-    // shape matches 'Core::configGet()', which delegates to Drupal's config
-    // API and returns arrays.
-    return json_decode($output, TRUE);
+    return $this->configRead($name, $key, TRUE);
   }
 
   /**
    * {@inheritdoc}
    */
   public function configGetOriginal(string $name, string $key = ''): mixed {
-    // Drush persists every 'configSet' change to the active store, so there
-    // is no separate "original" layer to read.
-    return $this->configGet($name, $key);
+    return $this->configRead($name, $key, FALSE);
   }
 
   /**
    * {@inheritdoc}
    */
   public function configSet(string $name, string $key, mixed $value): void {
-    $payload = json_encode($value);
-    $this->drush('config:set', [$name, $key, (string) $payload], [
+    $this->drush('config:set', [$name, $key, (string) json_encode($value)], [
+      'yes' => NULL,
+      'input-format' => 'yaml',
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configExists(string $name): bool {
+    // 'config:get' refuses an object that does not exist, so its exit code
+    // answers this without a second command.
+    return $this->drushResult('config:get', [$name], ['format' => 'json'])->exitCode === 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configGetData(string $name): array {
+    $data = $this->configRead($name, '', FALSE);
+
+    return is_array($data) ? $data : [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configSetData(string $name, array $data): void {
+    // 'config:set' assigns only the keys it is handed and Drush exposes no
+    // whole-object replace, so the object is deleted first to drop the keys
+    // the new data does not carry. The delete and the write are 2 commands,
+    // so the object is read first and put back when the write fails, rather
+    // than being left missing.
+    $previous = $this->configGetData($name);
+
+    // An object holding nothing has no keys to drop, and 'config:set' refuses
+    // to write an empty object back, so deleting one would leave nothing to
+    // restore from if the write then failed.
+    if ($previous !== []) {
+      $this->configDelete($name);
+    }
+
+    if ($data === []) {
+      return;
+    }
+
+    try {
+      $this->configWriteData($name, $data);
+    }
+    catch (\RuntimeException $e) {
+      try {
+        if ($previous !== []) {
+          $this->configWriteData($name, $previous);
+        }
+      }
+      // @codeCoverageIgnoreStart
+      catch (\RuntimeException) {
+        // Restoring failed as well. The write failure below is the error
+        // worth reporting, so this one is not allowed to replace it.
+      }
+      // @codeCoverageIgnoreEnd
+      throw $e;
+    }
+  }
+
+  /**
+   * Assigns every key of a configuration object in 1 command.
+   *
+   * @param string $name
+   *   The configuration object name.
+   * @param array<int|string, mixed> $data
+   *   The data to assign.
+   *
+   * @throws \RuntimeException
+   *   When the command exits with a non-zero status.
+   */
+  protected function configWriteData(string $name, array $data): void {
+    $this->drush('config:set', [$name, '?', (string) json_encode($data)], [
+      'yes' => NULL,
+      'input-format' => 'yaml',
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configDelete(string $name): void {
+    // 'config:delete' refuses an object that does not exist, while Drupal's
+    // own config API treats deleting one as a no-op.
+    if (!$this->configExists($name)) {
+      return;
+    }
+
+    $this->drush('config:delete', [$name], ['yes' => NULL]);
+  }
+
+  /**
+   * Reads a configuration value through 'drush config:get'.
+   *
+   * @param string $name
+   *   The configuration object name.
+   * @param string $key
+   *   The key within the object. Empty for the whole object.
+   * @param bool $with_overrides
+   *   Whether module and 'settings.php' overrides are applied. Without them
+   *   the read returns the stored value, which is what a write replaces.
+   *
+   * @return mixed
+   *   The value, or NULL when the object or key does not exist.
+   */
+  protected function configRead(string $name, string $key, bool $with_overrides): mixed {
+    $options = ['format' => 'json'];
+
+    if ($with_overrides) {
+      $options['include-overridden'] = NULL;
+    }
+
+    $arguments = $key !== '' ? [$name, $key] : [$name];
+    $result = $this->drushResult('config:get', $arguments, $options);
+
+    // A missing object is an error to Drush and an absent value to Drupal's
+    // config API; the API's answer is the one the capability promises.
+    if ($result->exitCode !== 0) {
+      return NULL;
+    }
+
+    $decoded = json_decode(trim($result->output), TRUE);
+    $envelope_key = $name . ':' . $key;
+
+    // Asked for a single key, 'config:get' answers with a 1-entry map keyed
+    // '<name>:<key>' rather than the bare value.
+    if ($key !== '' && is_array($decoded) && array_key_exists($envelope_key, $decoded)) {
+      return $decoded[$envelope_key];
+    }
+
+    return $decoded;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateGet(string $name): mixed {
+    $result = $this->drushResult('state:get', [$name], ['format' => 'json']);
+
+    if ($result->exitCode !== 0) {
+      return NULL;
+    }
+
+    $decoded = json_decode(trim($result->output), TRUE);
+
+    // 'state:get' answers with a 1-entry map keyed by the state key.
+    if (is_array($decoded) && array_key_exists($name, $decoded)) {
+      return $decoded[$name];
+    }
+
+    return $decoded;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateSet(string $name, mixed $value): void {
+    $this->drush('state:set', [$name, (string) json_encode($value)], [
       'yes' => NULL,
       'input-format' => 'json',
     ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function stateDelete(string $name): void {
+    $this->drush('state:delete', [$name], ['yes' => NULL]);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Drush exposes no existence check over the state key-value store, so a key
+   * holding NULL reads the same as an absent one on this driver.
+   */
+  public function stateExists(string $name): bool {
+    return $this->stateGet($name) !== NULL;
   }
 
   /**
@@ -213,6 +382,47 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    */
   public function moduleUninstall(string $module_name): void {
     $this->drush('pm-uninstall', [$module_name], ['yes' => NULL]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsEnabled(string $module_name): bool {
+    return $this->moduleIsListed($module_name, 'enabled');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function moduleIsPresent(string $module_name): bool {
+    return $this->moduleIsListed($module_name, 'enabled,disabled');
+  }
+
+  /**
+   * Whether 'drush pm:list' reports a module under any of the given statuses.
+   *
+   * @param string $module_name
+   *   The module machine name.
+   * @param string $status
+   *   Comma-separated statuses to restrict the listing to.
+   */
+  protected function moduleIsListed(string $module_name, string $status): bool {
+    $result = $this->drushResult('pm:list', [], [
+      'format' => 'json',
+      'type' => 'module',
+      'status' => $status,
+      // The filter matches any substring of a name, so it only narrows the
+      // listing; the exact machine name is looked up in the result.
+      'filter' => $module_name,
+    ]);
+
+    if ($result->exitCode !== 0) {
+      return FALSE;
+    }
+
+    $modules = json_decode(trim($result->output), TRUE);
+
+    return is_array($modules) && array_key_exists($module_name, $modules);
   }
 
   /**

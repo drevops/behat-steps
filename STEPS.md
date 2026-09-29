@@ -4885,8 +4885,10 @@ When I run cron
 >  the scenario.
 >  <br/><br/>
 >  Limitations:
->  - Cannot be used with Selenium/JavaScript drivers (the underlying driver
->  does not expose request headers).
+>  - The request header reaches the SUT only on a driver providing
+>  `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
+>  headers, so a scenario running on Selenium falls back to the `$_SERVER`
+>  entry and the environment variable alone.
 >  - The SUT must implement support for the `X-Config-No-Override` header,
 >  the `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry or the matching
 >  environment variable. An example implementation:

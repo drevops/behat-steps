@@ -15,6 +15,7 @@ use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\Core\Url;
@@ -37,6 +38,7 @@ use Drupal\user\UserInterface;
 trait UserTrait {
 
   use AuthTrait;
+  use QueryTrait;
   use StringTrait;
   use TableTransposeTrait;
 
@@ -679,17 +681,7 @@ trait UserTrait {
    *   Array of loaded user objects.
    */
   public function userLoadMultiple(array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('user')->accessCheck(FALSE);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    $ids = $query->execute();
+    $ids = $this->queryEntityIds('user', $conditions);
 
     return $ids ? User::loadMultiple($ids) : [];
   }

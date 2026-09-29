@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
-use Behat\Mink\Driver\BrowserKitDriver;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\ElementNotFoundException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 
 /**
  * Simulate keyboard interactions in Drupal browser testing.
@@ -17,7 +15,7 @@ use Behat\Step\When;
  * - Assert keyboard navigation and shortcut functionality.
  * - Support for targeted key presses on specific page elements.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait KeyboardTrait {
 
@@ -94,11 +92,10 @@ trait KeyboardTrait {
    *   If method is used for invalid driver.
    */
   protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
-    $driver = $this->getSession()->getDriver();
-
-    if ($driver instanceof BrowserKitDriver) {
-      throw new UnsupportedDriverActionException('Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).', $driver);
-    }
+    // Resolved before the key map is built so a driver that cannot dispatch a
+    // key event fails naming the capability rather than the drivers that have
+    // it.
+    $keyboard = $this->browserDriverFor(KeyboardCapabilityInterface::class);
 
     $keys = [
       'backspace' => "\b",
@@ -195,7 +192,7 @@ JS;
         throw new \RuntimeException('No element is currently focused. Please focus an element first using a step with a selector.');
       }
 
-      $this->keyboardTriggerKey($xpath, $char);
+      $keyboard->keyboardTriggerKey($xpath, $char);
     }
     else {
       $this->assertSession()->elementExists('css', $selector);
@@ -206,74 +203,7 @@ JS;
         throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
       // @codeCoverageIgnoreEnd
-      $this->keyboardTriggerKey($element->getXpath(), $char);
-    }
-  }
-
-  /**
-   * Trigger key on the element.
-   *
-   * The Selenium2 driver triggers events through the bundled Syn library;
-   * other drivers dispatch native DevTools key events.
-   *
-   * @param string $xpath
-   *   XPath string for an element to trigger the key on.
-   * @param string $key
-   *   Key to trigger. Special key values must be provided as strings (i.e.
-   *   'tab' key as "\t", 'enter' key as "\r" etc.).
-   *
-   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
-   *   If method is used for invalid driver.
-   */
-  protected function keyboardTriggerKey(string $xpath, string $key): void {
-    $driver = $this->getSession()->getDriver();
-
-    if ($driver instanceof Selenium2Driver) {
-      $reflector = new \ReflectionClass($driver);
-      $with_syn_reflection = $reflector->getMethod('withSyn');
-      $execute_js_on_xpath_reflection = $reflector->getMethod('executeJsOnXpath');
-      $with_syn_result = $with_syn_reflection->invoke($driver);
-
-      $execute_js_on_xpath_reflection->invokeArgs($with_syn_result, [
-        $xpath,
-        sprintf("syn.key({{ELEMENT}}, '%s');", $key),
-      ]);
-
-      return;
-    }
-
-    // Special keys are sent as a keycode down/up pair so their default action
-    // (focus move, submit, etc.) fires. Printable characters are sent as a
-    // single character so their text is inserted.
-    $keycodes = [
-      "\b" => 8,
-      "\t" => 9,
-      "\r" => 13,
-      'shift' => 16,
-      'ctrl' => 17,
-      'alt' => 18,
-      'pause' => 19,
-      'break' => 19,
-      'caps' => 20,
-      'escape' => 27,
-      'page-up' => 33,
-      'page-down' => 34,
-      'end' => 35,
-      'home' => 36,
-      'left' => 37,
-      'up' => 38,
-      'right' => 39,
-      'down' => 40,
-      'insert' => 45,
-      'delete' => 46,
-    ];
-
-    if (isset($keycodes[$key])) {
-      $driver->keyDown($xpath, $keycodes[$key]);
-      $driver->keyUp($xpath, $keycodes[$key]);
-    }
-    else {
-      $driver->keyPress($xpath, $key);
+      $keyboard->keyboardTriggerKey($element->getXpath(), $char);
     }
   }
 

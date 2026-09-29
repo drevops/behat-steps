@@ -12,6 +12,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -27,6 +28,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 trait TaxonomyTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
   use TableTransposeTrait;
 
   /**
@@ -287,19 +289,7 @@ trait TaxonomyTrait {
    *   Array of term ids.
    */
   public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('taxonomy_term')
-      ->accessCheck(FALSE)
-      ->condition('vid', $vocabulary);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
   }
 
 }

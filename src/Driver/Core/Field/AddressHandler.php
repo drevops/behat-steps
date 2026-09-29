@@ -27,12 +27,7 @@ class AddressHandler extends AbstractHandler {
       throw new \RuntimeException(sprintf('Address field value must be a string or array. Got %s.', get_debug_type($values)));
     }
 
-    // A top-level list of scalars is a single positional address (the
-    // visible-field positions), not a multi-delta list. Only a list whose
-    // first element is an array iterates as multi-delta.
-    $is_list_of_records = array_is_list($values) && is_array($values[0] ?? NULL);
-
-    if (!$is_list_of_records) {
+    if (!$this->isListOfRecords($values)) {
       return [$this->normalizeDelta($values, $visible_fields)];
     }
 

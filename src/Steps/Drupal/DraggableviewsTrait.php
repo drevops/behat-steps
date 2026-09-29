@@ -85,19 +85,7 @@ trait DraggableviewsTrait {
    *   The found node or NULL.
    */
   public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('node')
-      ->accessCheck(FALSE)
-      ->condition('type', $type);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    $nids = $query->execute();
+    $nids = $this->queryNodeIds($type, $conditions);
 
     if (empty($nids)) {
       return NULL;

@@ -13,7 +13,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 
 /**
@@ -49,7 +49,6 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
  */
 trait JavascriptTrait {
 
-  use JavascriptSupportTrait;
   use LastStepTrait;
 
   /**
@@ -148,7 +147,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
     // @codeCoverageIgnoreEnd
@@ -184,7 +183,7 @@ trait JavascriptTrait {
     // Collection runs through the driver-agnostic Mink script API, so any
     // JavaScript-capable driver qualifies.
     // @codeCoverageIgnoreStart
-    if (!$this->javascriptSupportAvailable()) {
+    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
     // @codeCoverageIgnoreEnd

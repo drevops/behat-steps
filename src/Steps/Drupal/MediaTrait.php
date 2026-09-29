@@ -14,6 +14,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
@@ -33,6 +34,7 @@ trait MediaTrait {
 
   use EntityLifecycleTrait;
   use FixtureFileTrait;
+  use QueryTrait;
   use TableTransposeTrait;
 
   /**
@@ -361,19 +363,7 @@ trait MediaTrait {
    *   Array of media ids.
    */
   public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery('media')
-      ->accessCheck(FALSE)
-      ->condition('bundle', $media_type);
-
-    foreach ($conditions as $k => $v) {
-      $and = $query->andConditionGroup();
-      $and->condition($k, $v);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->queryEntityIds('media', $conditions, $media_type);
   }
 
 }

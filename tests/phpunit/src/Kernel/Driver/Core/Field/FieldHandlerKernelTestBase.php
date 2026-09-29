@@ -179,4 +179,22 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     }
   }
 
+  /**
+   * Returns the highest file id currently in storage.
+   *
+   * A handler that uploads writes a new File, and the test asserts against the
+   * most recent one rather than an id fixed in advance.
+   */
+  protected function latestFileId(): int {
+    $ids = \Drupal::entityTypeManager()
+      ->getStorage('file')
+      ->getQuery()
+      ->accessCheck(FALSE)
+      ->sort('fid', 'DESC')
+      ->range(0, 1)
+      ->execute();
+
+    return (int) reset($ids);
+  }
+
 }

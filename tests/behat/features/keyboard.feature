@@ -36,7 +36,7 @@ Feature: Check that KeyboardTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
       """
-      Keyboard interaction is only supported by JavaScript drivers (Selenium2 or Chrome).
+      No browser capability "DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface" is available for
       """
 
   @javascript @phpserver

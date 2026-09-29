@@ -51,5 +51,5 @@ Feature: Check that WaitTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
       """
-      Method can be used only with JS-capable driver
+      No browser capability "DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface" is available for
       """

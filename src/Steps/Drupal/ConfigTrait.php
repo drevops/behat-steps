@@ -11,7 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -88,15 +88,14 @@ trait ConfigTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $driver = $this->driverFor(ConfigCapabilityInterface::class);
 
     foreach ($this->configOriginalData as $name => $snapshot) {
-      $config = \Drupal::configFactory()->getEditable($name);
       if ($snapshot['existed']) {
-        $config->setData($snapshot['data'])->save();
+        $driver->configSetData($name, $snapshot['data']);
       }
       else {
-        $config->delete();
+        $driver->configDelete($name);
       }
     }
 
@@ -112,10 +111,8 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     $this->configSnapshot($name);
-    \Drupal::configFactory()->getEditable($name)->set($key, $this->configCastValue($value))->save();
+    $this->driverFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configCastValue($value));
   }
 
   /**
@@ -131,7 +128,7 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $driver = $this->driverFor(ConfigCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
@@ -139,7 +136,7 @@ trait ConfigTrait {
       }
 
       $this->configSnapshot($row['name']);
-      \Drupal::configFactory()->getEditable($row['name'])->set($row['key'], $this->configCastValue($row['value']))->save();
+      $driver->configSet($row['name'], $row['key'], $this->configCastValue($row['value']));
     }
   }
 
@@ -262,9 +259,7 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   public function configReadStored(string $name, string $key): mixed {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    return \Drupal::configFactory()->getEditable($name)->get($key);
+    return $this->driverFor(ConfigCapabilityInterface::class)->configGetOriginal($name, $key);
   }
 
   /**
@@ -279,9 +274,7 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   public function configReadEffective(string $name, string $key): mixed {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    return \Drupal::config($name)->get($key);
+    return $this->driverFor(ConfigCapabilityInterface::class)->configGet($name, $key);
   }
 
   /**
@@ -291,16 +284,14 @@ trait ConfigTrait {
    *   The configuration object name.
    */
   protected function configSnapshot(string $name): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
     if (array_key_exists($name, $this->configOriginalData)) {
       return;
     }
 
-    $config = \Drupal::configFactory()->getEditable($name);
+    $driver = $this->driverFor(ConfigCapabilityInterface::class);
     $this->configOriginalData[$name] = [
-      'existed' => !$config->isNew(),
-      'data' => $config->getRawData(),
+      'existed' => $driver->configExists($name),
+      'data' => $driver->configGetData($name),
     ];
   }
 

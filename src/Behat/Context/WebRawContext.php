@@ -9,10 +9,10 @@ use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverManagerInterface;
+use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Helper\Web\JavascriptSupportTrait;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -40,7 +40,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  */
 class WebRawContext extends RawMinkContext implements DriverAwareInterface {
 
-  use JavascriptSupportTrait;
   use LastStepTrait;
   use ParametersTrait;
   use RequestHeadersTrait;
@@ -50,6 +49,11 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * Driver manager.
    */
   protected ?DriverManagerInterface $driverManager = NULL;
+
+  /**
+   * Resolves what the session's browser driver can do.
+   */
+  protected ?BrowserCapabilityResolver $browserResolver = NULL;
 
   /**
    * Hook dispatcher.
@@ -179,6 +183,50 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    */
   public function driverFor(string $capability): object {
     return $this->getDriverManager()->getDriverFor($capability);
+  }
+
+  /**
+   * Returns the adapter providing a browser capability for this session.
+   *
+   * The browser half of the vocabulary resolves its capabilities separately
+   * from the Drupal half: a Mink session runs exactly 1 driver, so there is no
+   * ordered list to walk and no driver to bootstrap.
+   *
+   * @param class-string<T> $capability
+   *   The browser capability interface the caller needs.
+   *
+   * @return T
+   *   The adapter speaking for the session's driver.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the session's driver does not provide the capability.
+   *
+   * @template T of object
+   */
+  public function browserDriverFor(string $capability): object {
+    return $this->getBrowserResolver()->resolve($this->getSession()->getDriver(), $capability);
+  }
+
+  /**
+   * Whether this session's driver provides a browser capability.
+   *
+   * A step that degrades gracefully without the capability asks this; a step
+   * that cannot proceed without it calls 'browserDriverFor()'.
+   *
+   * @param class-string $capability
+   *   The browser capability interface to look for.
+   */
+  public function browserDriverHas(string $capability): bool {
+    return $this->getBrowserResolver()->has($this->getSession()->getDriver(), $capability);
+  }
+
+  /**
+   * Returns the browser capability resolver, creating it on first use.
+   */
+  public function getBrowserResolver(): BrowserCapabilityResolver {
+    $this->browserResolver ??= new BrowserCapabilityResolver();
+
+    return $this->browserResolver;
   }
 
   /**

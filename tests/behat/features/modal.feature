@@ -249,3 +249,18 @@ Feature: Check that ModalTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @trait:ModalTrait
+  Scenario: Assert that waiting for a modal fails naming the capability instead of spending the timeout
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/modal_jquery_ui.html"
+      And I wait for the modal to appear
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
+      """
+      No browser capability "DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface" is available for
+      """

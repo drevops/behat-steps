@@ -64,19 +64,4 @@ class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertInstanceOf(File::class, File::load($file_id));
   }
 
-  /**
-   * Returns the highest file id currently in storage.
-   */
-  protected function latestFileId(): int {
-    $ids = \Drupal::entityTypeManager()
-      ->getStorage('file')
-      ->getQuery()
-      ->accessCheck(FALSE)
-      ->sort('fid', 'DESC')
-      ->range(0, 1)
-      ->execute();
-
-    return (int) reset($ids);
-  }
-
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ExpectationException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 
 /**
  * Verify and inspect browser cookies.
@@ -14,7 +14,7 @@ use Behat\Step\Then;
  * - Assert cookie existence and values with exact or partial matching.
  * - Support both WebDriver and BrowserKit drivers for test compatibility.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait CookieTrait {
 
@@ -268,60 +268,12 @@ trait CookieTrait {
    *   An array of cookies.
    */
   public function cookieGetAll(): array {
-    $driver = $this->getSession()->getDriver();
+    $cookies = $this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll();
 
-    // WebDriver-based drivers like Selenium2Driver.
-    if (method_exists($driver, 'getWebDriverSession')) {
-      $cookies = $driver->getWebDriverSession()->getAllCookies();
-      array_walk($cookies, function (array &$cookie): void {
-        $cookie['value'] = rawurldecode((string) $cookie['value']);
-      });
-    }
-
-    // CDP-based drivers like the Chrome (chrome-mink) driver.
-    elseif (method_exists($driver, 'getCookies')) {
-      $cookies = [];
-      foreach ($driver->getCookies() as $cookie) {
-        $cookies[] = [
-          'name' => $cookie['name'],
-          'value' => rawurldecode((string) $cookie['value']),
-          'secure' => $cookie['secure'],
-        ];
-      }
-    }
-
-    // BrowserKit-based drivers like GoutteDriver.
-    elseif (method_exists($driver, 'getClient')) {
-      /** @var \Symfony\Component\BrowserKit\CookieJar $cookie_jar */
-      $cookie_jar = $driver->getClient()->getCookieJar();
-
-      // The allValues() list is filtered for the current URL but holds only
-      // name/value pairs; the full cookie objects supply the remaining
-      // properties.
-      /** @var \Symfony\Component\BrowserKit\Cookie[] $cookie_objects */
-      $cookie_objects = $cookie_jar->all();
-
-      $cookie_values = $cookie_jar->allValues($driver->getCurrentUrl());
-
-      $cookies = [];
-      foreach ($cookie_objects as $cookie_object) {
-        if (!array_key_exists($cookie_object->getName(), $cookie_values)) {
-          // @codeCoverageIgnoreStart
-          continue;
-          // @codeCoverageIgnoreEnd
-        }
-
-        $cookies[] = [
-          'name' => $cookie_object->getName(),
-          'value' => $cookie_object->getValue(),
-          'secure' => $cookie_object->isSecure(),
-        ];
-      }
-    }
-    else {
-      // @codeCoverageIgnoreStart
-      throw new UnsupportedDriverActionException('Cookie retrieval is not supported by %s.', $driver);
-      // @codeCoverageIgnoreEnd
+    // The capability reports wire-form values; an assertion compares against
+    // the value a step was written with.
+    foreach ($cookies as &$cookie) {
+      $cookie['value'] = rawurldecode($cookie['value']);
     }
 
     return $cookies;

@@ -363,6 +363,187 @@ class DrushDriverMethodsTest extends TestCase {
   }
 
   /**
+   * Tests that a config write hands Drush a format it actually parses.
+   *
+   * 'config:set' parses its value only under '--input-format=yaml'; any other
+   * value is stored verbatim, so a JSON payload would land as its own encoding
+   * rather than as the value it encodes.
+   */
+  public function testConfigSetRequestsParsedInputFormat(): void {
+    $driver = $this->createDriver();
+
+    $driver->configSet('system.site', 'page', ['front' => '/node']);
+
+    $this->assertSame('config:set', $driver->invocations[0]['command']);
+    $this->assertSame('yaml', $driver->invocations[0]['options']['input-format']);
+    $this->assertSame('{"front":"\/node"}', $driver->invocations[0]['arguments'][2]);
+  }
+
+  /**
+   * Tests that only the effective read asks Drush to apply overrides.
+   */
+  public function testConfigReadsSeparateStoredFromEffective(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{"system.site:name":"Example"}';
+
+    $driver->configGet('system.site', 'name');
+    $this->assertArrayHasKey('include-overridden', $driver->invocations[0]['options']);
+
+    $driver->configGetOriginal('system.site', 'name');
+    $this->assertArrayNotHasKey('include-overridden', $driver->invocations[1]['options']);
+  }
+
+  /**
+   * Tests that a keyed read returns the value rather than Drush's envelope.
+   *
+   * @param string $method
+   *   The driver method to call.
+   * @param array<int, mixed> $args
+   *   Positional arguments for the method.
+   * @param string $drush_response
+   *   Raw JSON the stubbed Drush call returns.
+   * @param mixed $expected
+   *   The value the method must return.
+   */
+  #[DataProvider('dataProviderUnwrapsEnvelope')]
+  public function testUnwrapsEnvelope(string $method, array $args, string $drush_response, mixed $expected): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = $drush_response;
+
+    $this->assertSame($expected, $driver->{$method}(...$args));
+  }
+
+  /**
+   * Data provider for testUnwrapsEnvelope().
+   */
+  public static function dataProviderUnwrapsEnvelope(): \Iterator {
+    yield 'config key read unwraps the name:key entry' => [
+      'configGet',
+      ['system.site', 'name'],
+      '{"system.site:name":"Example"}',
+      'Example',
+    ];
+    yield 'config whole-object read is already unwrapped' => [
+      'configGet',
+      ['system.site'],
+      '{"name":"Example"}',
+      ['name' => 'Example'],
+    ];
+    yield 'state read unwraps the key entry' => [
+      'stateGet',
+      ['my.key'],
+      '{"my.key":42}',
+      42,
+    ];
+  }
+
+  /**
+   * Tests that a read of a missing object reports absence rather than failing.
+   *
+   * 'config:get' exits non-zero for an object that does not exist, while the
+   * capability promises the absent value Drupal's config API reports.
+   */
+  public function testConfigReadOfMissingObjectReturnsNull(): void {
+    $driver = $this->createDriver();
+    $driver->drushExitCode = 1;
+
+    $this->assertNull($driver->configGet('missing.object', 'name'));
+    $this->assertSame([], $driver->configGetData('missing.object'));
+    $this->assertFalse($driver->configExists('missing.object'));
+  }
+
+  /**
+   * Tests that deleting a missing configuration object issues no delete.
+   */
+  public function testConfigDeleteOfMissingObjectIsNoOp(): void {
+    $driver = $this->createDriver();
+    $driver->drushExitCode = 1;
+
+    $driver->configDelete('missing.object');
+
+    $this->assertSame(['config:get'], array_column($driver->invocations, 'command'));
+  }
+
+  /**
+   * Tests that a module lookup matches the machine name exactly.
+   *
+   * The 'pm:list' filter matches any substring of a name, so a listing that
+   * only holds a longer neighbour must not report the module as present.
+   */
+  public function testModuleLookupMatchesTheExactName(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{"node_storage_body_field":{"status":"Enabled"}}';
+
+    $this->assertFalse($driver->moduleIsEnabled('node'));
+    $this->assertFalse($driver->moduleIsPresent('node'));
+
+    $driver->drushResponse = '{"node":{"status":"Enabled"},"search_node":{"status":"Enabled"}}';
+
+    $this->assertTrue($driver->moduleIsEnabled('node'));
+    $this->assertTrue($driver->moduleIsPresent('node'));
+  }
+
+  /**
+   * Tests that a failed write puts the configuration object back.
+   *
+   * The delete and the write are separate commands, so a write that fails
+   * after the delete would otherwise leave the object missing instead of
+   * unchanged.
+   */
+  public function testConfigSetDataRestoresTheObjectWhenTheWriteFails(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{"name":"Original"}';
+    // Fail the first 'config:set' and let the restoring one through.
+    $driver->drushFailures['config:set'] = 1;
+
+    try {
+      $driver->configSetData('system.site', ['name' => 'Replacement']);
+      $this->fail('Expected the failed write to be rethrown.');
+    }
+    catch (\RuntimeException $e) {
+      $this->assertStringContainsString('config:set', $e->getMessage());
+    }
+
+    $sets = array_values(array_filter($driver->invocations, static fn(array $invocation): bool => $invocation['command'] === 'config:set'));
+
+    $this->assertCount(2, $sets, 'The failed write is followed by a restoring write.');
+    $this->assertSame('{"name":"Original"}', $sets[1]['arguments'][2], 'The restore writes back the data read before the delete.');
+  }
+
+  /**
+   * Tests that a whole-object write drops the keys the new data omits.
+   */
+  public function testConfigSetDataReplacesRatherThanMerges(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{"name":"Original","slogan":"Dropped"}';
+
+    $driver->configSetData('system.site', ['name' => 'Example']);
+
+    $commands = array_column($driver->invocations, 'command');
+
+    $this->assertContains('config:delete', $commands, 'The object must be deleted so omitted keys do not survive.');
+    $this->assertSame('config:set', end($commands));
+  }
+
+  /**
+   * Tests that an object holding nothing is written without being deleted.
+   *
+   * Deleting it would drop no key and leave nothing to restore from, because
+   * 'config:set' refuses to write an empty object back.
+   */
+  public function testConfigSetDataKeepsAnEmptyObjectInPlace(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{}';
+
+    $driver->configSetData('system.site', ['name' => 'Example']);
+
+    $commands = array_column($driver->invocations, 'command');
+
+    $this->assertNotContains('config:delete', $commands);
+    $this->assertSame('config:set', end($commands));
+  }
+
+  /**
    * Data provider: method -> args -> first-expected-drush-command.
    */
   public static function dataProviderInvokesDrush(): \Iterator {
@@ -379,6 +560,16 @@ class DrushDriverMethodsTest extends TestCase {
     yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
     yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
     yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
+    yield 'configExists' => ['configExists', ['system.site'], 'config:get', '{}'];
+    yield 'configGetData' => ['configGetData', ['system.site'], 'config:get', '{"name":"Example"}'];
+    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'Example']], 'config:get', '{"name":"Old"}'];
+    yield 'configDelete' => ['configDelete', ['system.site'], 'config:get', '{}'];
+    yield 'stateGet' => ['stateGet', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'state:set'];
+    yield 'stateDelete' => ['stateDelete', ['my.key'], 'state:delete'];
+    yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
+    yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
     yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
     yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
     yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];

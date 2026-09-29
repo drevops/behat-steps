@@ -14,7 +14,7 @@
 | [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
-| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -28,7 +28,6 @@
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
-| [JavascriptSupportTrait](#javascriptsupporttrait) | 1 | Reports whether the running driver evaluates JavaScript. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
 
@@ -62,13 +61,13 @@
 | [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Reads Drupal state a step asserts on without going through a driver. |
 
 ### Index of Toolbox helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [WebRawContext](#webrawcontext) | 7 | Root context carrying the plumbing every suite needs. |
+| [WebRawContext](#webrawcontext) | 10 | Root context carrying the plumbing every suite needs. |
 
 ---
 
@@ -582,21 +581,6 @@ Download file
 <br/>
 Assert that no JavaScript errors were collected
 <br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
-
-<br/>
-Check if JavaScript is supported by the current driver
-<br/><br/>
-
-```
-if (!$this->javascriptSupportAvailable()) {
-  return;
-}
-```
 
 </details>
 
@@ -1251,27 +1235,6 @@ Validate the response as an RSS 2.0 feed
 <br/>
 Validate the response against an XSD schema
 <br/><br/>
-
-</details>
-
-## JavascriptSupportTrait
-
-[Source](src/Helper/Web/JavascriptSupportTrait.php)
-
-> Reports whether the running driver evaluates JavaScript.
-
-<details>
-  <summary><code>public function javascriptSupportAvailable(): bool</code></summary>
-
-<br/>
-Check if JavaScript is supported by the current driver
-<br/><br/>
-
-```
-if (!$this->javascriptSupportAvailable()) {
-  return;
-}
-```
 
 </details>
 
@@ -2210,6 +2173,15 @@ Assert that a module backing a set of steps is enabled
 </details>
 
 <details>
+  <summary><code>public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array</code></summary>
+
+<br/>
+Load the ids of the entities of a type matching the conditions
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function queryNodeIds(string $content_type, array $conditions = []): array</code></summary>
 
 <br/>
@@ -2234,6 +2206,24 @@ Constructs a WebRawContext object
 </details>
 
 <details>
+  <summary><code>public function browserDriverFor(string $capability): object</code></summary>
+
+<br/>
+Returns the adapter providing a browser capability for this session
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function browserDriverHas(string $capability): bool</code></summary>
+
+<br/>
+Whether this session's driver provides a browser capability
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function driverFor(string $capability): object</code></summary>
 
 <br/>
@@ -2247,6 +2237,15 @@ Returns the highest-priority driver providing the given capability
 
 <br/>
 Returns the basic authentication manager
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getBrowserResolver(): BrowserCapabilityResolver</code></summary>
+
+<br/>
+Returns the browser capability resolver, creating it on first use
 <br/><br/>
 
 </details>
