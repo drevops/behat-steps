@@ -34,19 +34,23 @@ class TagOverrides {
    *   The value, replaced by whatever the last matching tag sets.
    */
   public function apply(string $group, Option $option, mixed $value, array $tags): mixed {
-    if ($tags === []) {
-      return $value;
-    }
+    // An 'enabled' option is also switched off by the library's one skip tag,
+    // named after the trait the group belongs to.
+    $switchable = $option->name === Option::ENABLED;
 
-    $bindings = $this->bindings($group, $option);
-
-    if ($bindings === []) {
+    if ($tags === [] || ($option->tags === [] && !$switchable)) {
       return $value;
     }
 
     foreach ($tags as $tag) {
-      if (array_key_exists($tag, $bindings)) {
-        $value = $bindings[$tag];
+      if ($switchable && $this->skipsGroup($tag, $group)) {
+        $value = FALSE;
+
+        continue;
+      }
+
+      if (array_key_exists($tag, $option->tags)) {
+        $value = $option->tags[$tag];
       }
     }
 
@@ -54,26 +58,26 @@ class TagOverrides {
   }
 
   /**
-   * Collects the tags that set an option and the value each one sets.
+   * Whether a skip tag names the trait that owns a group.
    *
+   * The tag carries the trait's own name, which a group name cannot be
+   * converted back into: a run of capitals reads as one word, so 'APIClient'
+   * and 'ApiClient' both give 'api_client'. The tag is read forwards instead,
+   * and any spelling of the trait that derives the group matches it.
+   *
+   * @param string $tag
+   *   A tag the scenario or its feature carries, without a leading '@'.
    * @param string $group
    *   The group the option belongs to.
-   * @param \DrevOps\BehatSteps\Behat\Config\Option $option
-   *   The option being read.
-   *
-   * @return array<string, mixed>
-   *   Map of tag name to the value it sets.
    */
-  protected function bindings(string $group, Option $option): array {
-    $bindings = $option->tags;
-
-    // An 'enabled' option is also switched off by the library's one skip tag,
-    // named after the trait the group belongs to.
-    if ($option->name === Option::ENABLED) {
-      $bindings[self::SKIP_TAG_PREFIX . GroupName::toTraitName($group)] = FALSE;
+  protected function skipsGroup(string $tag, string $group): bool {
+    if (!str_starts_with($tag, self::SKIP_TAG_PREFIX)) {
+      return FALSE;
     }
 
-    return $bindings;
+    $name = substr($tag, strlen(self::SKIP_TAG_PREFIX));
+
+    return str_ends_with($name, GroupName::TRAIT_SUFFIX) && GroupName::fromTraitName($name) === $group;
   }
 
 }

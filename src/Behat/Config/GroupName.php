@@ -11,6 +11,10 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * trait declares its options in a method carrying the same name in camel case.
  * The runtime and the documentation generator both walk that mapping, so both
  * go through here and cannot disagree on it.
+ *
+ * Every conversion runs towards the group name, never back to the trait name:
+ * a run of capitals reads as one word, so 'APIClientTrait' and 'ApiClientTrait'
+ * both give 'api_client' and the group alone cannot say which was written.
  */
 final class GroupName {
 
@@ -69,19 +73,6 @@ final class GroupName {
     }
 
     return self::fromMethodPrefix($trait_name);
-  }
-
-  /**
-   * Converts a group name to the trait that declares it.
-   *
-   * @param string $group
-   *   The group name, such as 'big_pipe'.
-   *
-   * @return string
-   *   The short trait name, such as 'BigPipeTrait'.
-   */
-  public static function toTraitName(string $group): string {
-    return ucfirst(self::toMethodPrefix($group)) . self::TRAIT_SUFFIX;
   }
 
   /**

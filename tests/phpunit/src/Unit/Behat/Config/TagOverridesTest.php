@@ -67,6 +67,12 @@ class TagOverridesTest extends UnitTestCase {
     yield 'another trait skip tag leaves it alone' => ['big_pipe', ['behat-steps-skip:CacheTrait'], TRUE];
     yield 'a hook skip tag leaves it alone' => ['big_pipe', ['behat-steps-skip:bigPipeBeforeStep'], TRUE];
     yield 'a single word group names its trait' => ['cache', ['behat-steps-skip:CacheTrait'], FALSE];
+    yield 'a tag that is not a skip tag leaves it alone' => ['big_pipe', ['javascript'], TRUE];
+
+    // The tag carries the trait's own name, which the group cannot be
+    // converted back into, so every spelling deriving the group matches.
+    yield 'an acronym trait name switches its group off' => ['api_client', ['behat-steps-skip:APIClientTrait'], FALSE];
+    yield 'the same group spelled without the acronym also matches' => ['api_client', ['behat-steps-skip:ApiClientTrait'], FALSE];
   }
 
   public function testTheDeclaredBindingsSurviveTheSkipTagBinding(): void {

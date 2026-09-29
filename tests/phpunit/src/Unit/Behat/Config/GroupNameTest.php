@@ -37,7 +37,7 @@ class GroupNameTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a trait name converts to a group name and back.
+   * Tests that a trait name converts to its group name.
    *
    * @param string $trait_name
    *   The short trait name.
@@ -47,7 +47,6 @@ class GroupNameTest extends UnitTestCase {
   #[DataProvider('dataProviderTraitName')]
   public function testTraitName(string $trait_name, string $group): void {
     $this->assertSame($group, GroupName::fromTraitName($trait_name));
-    $this->assertSame($trait_name, GroupName::toTraitName($group));
   }
 
   public static function dataProviderTraitName(): \Iterator {
@@ -69,6 +68,7 @@ class GroupNameTest extends UnitTestCase {
    */
   public function testAcronymDerivesOneGroupFromBothNames(): void {
     $this->assertSame('api_client', GroupName::fromTraitName('APIClientTrait'));
+    $this->assertSame('api_client', GroupName::fromTraitName('ApiClientTrait'));
     $this->assertSame('api_client', GroupName::fromMethodPrefix('apiClient'));
     $this->assertSame('http_cache', GroupName::fromMethodPrefix('HTTPCache'));
   }
