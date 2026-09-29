@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
@@ -11,12 +12,14 @@ use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\DocumentedOptionsContext;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\MultiMethodTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\NoMatchTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\SampleTrait;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\DuplicateOptionConfigContext;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Config\Definition\ArrayNode;
@@ -64,6 +67,10 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('extension_option_rows')]
 #[CoversFunction('extension_option_type')]
 #[CoversFunction('extension_option_description')]
+#[CoversFunction('extract_trait_options')]
+#[CoversFunction('trait_option_group')]
+#[CoversFunction('render_trait_options')]
+#[CoversFunction('trait_option_type')]
 #[CoversFunction('validate_env_vars')]
 class DocsTest extends UnitTestCase {
 
@@ -3015,6 +3022,69 @@ EOD,
       'integer' => ['login_wait', 'integer'],
       'prototyped array' => ['regions', 'map'],
       'array' => ['text', 'section'],
+    ];
+  }
+
+  #[DataProvider('dataProviderExtractTraitOptions')]
+  public function testExtractTraitOptions(string $trait_name, array $expected): void {
+    $this->assertSame($expected, array_keys(extract_trait_options(DocumentedOptionsContext::class, $trait_name)));
+  }
+
+  public static function dataProviderExtractTraitOptions(): array {
+    return [
+      'a trait the class composes' => ['DocumentedOptionsTrait', ['enabled', 'limit']],
+      'a trait the class does not compose' => ['SampleTrait', []],
+    ];
+  }
+
+  public function testExtractTraitOptionsRejectsMalformedDeclaration(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('declares the "duplicate_option.label" option twice.');
+
+    extract_trait_options(DuplicateOptionConfigContext::class, 'DuplicateOptionTrait');
+  }
+
+  #[DataProvider('dataProviderRenderTraitOptions')]
+  public function testRenderTraitOptions(mixed $options, string $expected): void {
+    $this->assertSame($expected, render_trait_options('DocumentedOptionsTrait', $options));
+  }
+
+  public static function dataProviderRenderTraitOptions(): array {
+    $table = implode("\n", [
+      '| Option | Type | Default | Tag | Description |',
+      '| --- | --- | --- | --- | --- |',
+      '| `documented_options.enabled` | boolean | `TRUE` | `@documented-off`, `@behat-steps-skip:DocumentedOptionsTrait` | Whether the hook runs. |',
+      '| `documented_options.limit` | integer | `7` | - | Reads a \| b. |',
+    ]);
+
+    return [
+      'not a list' => ['not a list', ''],
+      'no option' => [[], ''],
+      'no entry that is an option' => [['not an option'], ''],
+      'a table skipping an entry that is not an option' => [
+        [
+          new Option('enabled', default: TRUE, description: 'Whether the hook runs.', tags: ['documented-off' => FALSE]),
+          'not an option',
+          new Option('limit', default: 7, description: 'Reads a | b.'),
+        ],
+        '### Options' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+      ],
+    ];
+  }
+
+  #[DataProvider('dataProviderTraitOptionType')]
+  public function testTraitOptionType(mixed $default, string $expected): void {
+    $this->assertSame($expected, trait_option_type($default));
+  }
+
+  public static function dataProviderTraitOptionType(): array {
+    return [
+      'a boolean' => [TRUE, 'boolean'],
+      'an integer' => [7, 'integer'],
+      'a float' => [0.5, 'float'],
+      'a map' => [['.one'], 'map'],
+      'a string' => ['page', 'string'],
+      'a default naming no type' => [NULL, 'string'],
     ];
   }
 
