@@ -61,7 +61,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * Public bridge to the protected vocabulary resolver.
    */
   public function callResolveVocabularyMachineName(string $identifier): string {
-    return $this->entityResolveVocabularyMachineName($identifier);
+    return $this->entityLifecycleResolveVocabularyMachineName($identifier);
   }
 
 }

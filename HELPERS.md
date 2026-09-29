@@ -1537,7 +1537,7 @@ Get email messages collected during the test
 > Create entities of a type that has no dedicated trait.
 
 <details>
-  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates an entity of a type that has no dedicated method
@@ -1546,7 +1546,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
 
 <br/>
 Creates a language
@@ -1555,7 +1555,7 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
@@ -1564,7 +1564,7 @@ Creates a node
 </details>
 
 <details>
-  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
@@ -1573,7 +1573,7 @@ Expands a stub's raw Gherkin values into the storage field shape
 </details>
 
 <details>
-  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
@@ -1582,7 +1582,7 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a taxonomy term
@@ -2029,7 +2029,7 @@ Creates a user
 </details>
 
 <details>
-  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates an entity of a type that has no dedicated method
@@ -2038,7 +2038,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
 
 <br/>
 Creates a language
@@ -2047,7 +2047,7 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
@@ -2056,7 +2056,7 @@ Creates a node
 </details>
 
 <details>
-  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
@@ -2065,7 +2065,7 @@ Expands a stub's raw Gherkin values into the storage field shape
 </details>
 
 <details>
-  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
@@ -2074,7 +2074,7 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a taxonomy term
@@ -2089,7 +2089,7 @@ Creates a taxonomy term
 > Creates Drupal entities and removes them when the scenario ends.
 
 <details>
-  <summary><code>public function entityCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates an entity of a type that has no dedicated method
@@ -2098,7 +2098,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
 
 <br/>
 Creates a language
@@ -2107,7 +2107,7 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
@@ -2116,7 +2116,7 @@ Creates a node
 </details>
 
 <details>
-  <summary><code>public function entityParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
@@ -2125,7 +2125,7 @@ Expands a stub's raw Gherkin values into the storage field shape
 </details>
 
 <details>
-  <summary><code>public function entityRegister(EntityInterface $entity): void</code></summary>
+  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
@@ -2134,7 +2134,7 @@ Registers an entity saved outside the create pipeline for cleanup
 </details>
 
 <details>
-  <summary><code>public function entityTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a taxonomy term

@@ -187,13 +187,13 @@ trait ContentBlockTrait {
 
     $values['type'] = $type;
     $stub = new EntityStub('block_content', $type, $values);
-    $this->entityParseFields($stub);
+    $this->entityLifecycleParseFields($stub);
 
     /** @var \Drupal\block_content\Entity\BlockContent $entity */
     $entity = BlockContent::create($stub->getValues());
     $entity->save();
 
-    $this->entityRegister($entity);
+    $this->entityLifecycleRegister($entity);
 
     return $entity;
   }

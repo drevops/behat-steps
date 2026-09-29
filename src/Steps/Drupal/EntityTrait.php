@@ -43,7 +43,7 @@ trait EntityTrait {
   #[Given('the following :entity_type entities exist:')]
   public function entityCreateMultiple(string $entity_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
-      $this->entityCreate(new EntityStub($entity_type, NULL, $values));
+      $this->entityLifecycleCreate(new EntityStub($entity_type, NULL, $values));
     }
   }
 

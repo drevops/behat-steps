@@ -50,6 +50,8 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this and the three conventions below.
 
+`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Driver` is composed into nothing.
+
 ### Assertions
 
 An assertion method reads `<trait>Assert<Subject><Predicate>`.
@@ -107,7 +109,7 @@ The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the 
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
+- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
 - It is `public`. A `private` member cannot be reached from a composing context and has no place in a trait.
 - It begins with its trait's name, which is the collision rule every trait member follows anyway.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.

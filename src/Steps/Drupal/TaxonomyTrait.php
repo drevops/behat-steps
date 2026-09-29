@@ -71,7 +71,7 @@ trait TaxonomyTrait {
   public function taxonomyCreate(string $vocabulary, TableNode $table): void {
     foreach ($table->getHash() as $values) {
       $values['vocabulary_machine_name'] = $vocabulary;
-      $this->entityTermCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
+      $this->entityLifecycleTermCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
     }
   }
 

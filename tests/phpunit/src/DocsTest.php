@@ -2783,7 +2783,7 @@ EOD,
     $this->assertSame('src/Helper/Web/RequestHeadersTrait.php', $actual['RequestHeadersTrait']['source']);
     $this->assertSame(['requestHeadersSet'], array_column($actual['RequestHeadersTrait']['helpers'], 'name'));
 
-    $this->assertContains('entityNodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
+    $this->assertContains('entityLifecycleNodeCreate', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
   }
 
   public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {

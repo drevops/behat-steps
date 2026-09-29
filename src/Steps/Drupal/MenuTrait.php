@@ -70,7 +70,7 @@ trait MenuTrait {
       $menu = Menu::create($menu_hash);
       $menu->save();
 
-      $this->entityRegister($menu);
+      $this->entityLifecycleRegister($menu);
     }
   }
 
@@ -141,7 +141,7 @@ trait MenuTrait {
       }
       $menu_link = MenuLinkContent::create($menu_link_hash);
       $menu_link->save();
-      $this->entityRegister($menu_link);
+      $this->entityLifecycleRegister($menu_link);
     }
   }
 

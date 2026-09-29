@@ -110,15 +110,15 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
 
 package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
   class EntityLifecycleTrait <<trait>> {
-    +entityNodeCreate(stub) : EntityStubInterface
-    +entityTermCreate(stub) : EntityStubInterface
-    +entityCreate(stub) : EntityStubInterface
-    +entityLanguageCreate(stub) : EntityStubInterface|false
-    +entityRegister(entity) : void
+    +entityLifecycleNodeCreate(stub) : EntityStubInterface
+    +entityLifecycleTermCreate(stub) : EntityStubInterface
+    +entityLifecycleCreate(stub) : EntityStubInterface
+    +entityLifecycleLanguageCreate(stub) : EntityStubInterface|false
+    +entityLifecycleRegister(entity) : void
     --
-    +entityCleanAll(scope) : void
+    +entityLifecycleCleanAll(scope) : void
     --
-    #entityDispatchHooks(scopeClass, stub) : void
+    #entityLifecycleDispatchHooks(scopeClass, stub) : void
   }
 
   class AuthTrait <<trait>> {

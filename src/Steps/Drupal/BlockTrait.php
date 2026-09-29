@@ -75,7 +75,7 @@ trait BlockTrait {
 
     $this->blockConfigure($admin_label, $fields);
 
-    $this->entityRegister($block);
+    $this->entityLifecycleRegister($block);
   }
 
   /**

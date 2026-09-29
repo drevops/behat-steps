@@ -282,9 +282,9 @@ trait MediaTrait {
    *   The created media item.
    */
   public function mediaCreateSingle(EntityStubInterface $stub): MediaInterface {
-    $this->entityParseFields($stub);
+    $this->entityLifecycleParseFields($stub);
     $entity = $this->mediaCreateEntity($stub);
-    $this->entityRegister($entity);
+    $this->entityLifecycleRegister($entity);
 
     return $entity;
   }

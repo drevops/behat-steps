@@ -80,8 +80,8 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 `WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext` and composes every trait under `src/Steps/Drupal`. The Drupal scenario lifecycle does not sit on the context: each step trait composes the helper traits it needs, so the lifecycle arrives with the traits that use it:
 
-- Entity creation (`entityNodeCreate`, `authUserCreate`, `entityTermCreate`, `entityCreate`, `entityLanguageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
-- Cleanup: `entityCleanAll`, `authCleanUsers` and `authCleanRoles` run after the scenario and delete what it created, in reverse.
+- Entity creation (`entityLifecycleNodeCreate`, `authUserCreate`, `entityLifecycleTermCreate`, `entityLifecycleCreate`, `entityLifecycleLanguageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
+- Cleanup: `entityLifecycleCleanAll`, `authCleanUsers` and `authCleanRoles` run after the scenario and delete what it created, in reverse.
 - Authentication: `authLogin`, `authLogout`, `authLoggedIn`, delegated to `Authenticator`.
 
 Every helper member carries its trait's prefix, so two helpers mixed into one context cannot collide and a reader can tell from a call site which trait has to be composed.

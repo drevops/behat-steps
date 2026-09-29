@@ -171,13 +171,13 @@ trait EckTrait {
    * Create a single content entity.
    */
   public function eckCreateEntity(EntityStub $stub): void {
-    $this->entityParseFields($stub);
+    $this->entityLifecycleParseFields($stub);
 
     $this->driverFor(ContentCapabilityInterface::class)->entityCreate($stub);
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {
-      $this->entityRegister($saved);
+      $this->entityLifecycleRegister($saved);
     }
   }
 
