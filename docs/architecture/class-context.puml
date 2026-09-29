@@ -132,7 +132,7 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
   }
 
   class StaticCacheTrait <<trait>> {
-    +staticCacheClear() : void
+    +staticCacheClear(scope) : void
   }
 
   class FixtureFileTrait <<trait>> {
