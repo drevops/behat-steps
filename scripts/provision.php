@@ -556,7 +556,11 @@ if (PHP_SAPI !== 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
 // Allow to skip the script run.
 if (getenv('SCRIPT_RUN_SKIP') != 1) {
   set_error_handler(function (int $severity, string $message, string $file, int $line): bool {
-    if ((error_reporting() & $severity) === 0) {
+    // A severity above E_USER_WARNING is a notice, a deprecation or a strict
+    // warning. Composer and Drupal raise those throughout a healthy build, and
+    // the catch below only exits for E_USER_WARNING and lower, so throwing
+    // here would abort provisioning and still report success.
+    if ((error_reporting() & $severity) === 0 || $severity > E_USER_WARNING) {
       // This error code is not included in error_reporting - continue
       // execution with the normal error handler.
       return FALSE;
