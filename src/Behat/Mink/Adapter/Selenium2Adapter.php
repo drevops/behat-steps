@@ -66,9 +66,11 @@ class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInt
 
     $driver_with_syn = $reflection->getMethod($with_syn)->invoke($this->driver);
 
+    // The key goes into the script as an encoded literal, so a quote, a
+    // backslash or a control character reaches Syn as itself.
     $reflection->getMethod($execute_js_on_xpath)->invokeArgs($driver_with_syn, [
       $xpath,
-      sprintf("syn.key({{ELEMENT}}, '%s');", $key),
+      sprintf('syn.key({{ELEMENT}}, %s);', json_encode($key)),
     ]);
   }
 
