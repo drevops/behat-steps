@@ -41,8 +41,9 @@ interface StateCapabilityInterface {
   /**
    * Whether a state key is set.
    *
-   * A key holding NULL is indistinguishable from an unset key, so this
-   * reports only whether a value was stored.
+   * A key holding NULL counts as set where the driver can tell the difference.
+   * A driver reading state through 'stateGet()' alone cannot, and says so on
+   * its own implementation.
    *
    * @param string $name
    *   The state key.
