@@ -740,7 +740,7 @@ A call or an override in a consumer context is renamed:
 | `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleTermCreate()` |
 | `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreate()` |
 | `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` |
-| `entityLifecycleRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
+| `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
 | `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCleanAll()` |
 | `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAlterNodeParameters()` |
@@ -862,7 +862,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityLifecycleRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
+| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
