@@ -224,10 +224,18 @@ function provision(): void {
 
   if ($github_token !== '') {
     $auth_file = PROVISION_BUILD_DIR . '/auth.json';
-    file_put_contents($auth_file, (string) json_encode(['github-oauth' => ['github.com' => $github_token]]));
-    // The file holds a credential, and the build directory is world-writable
-    // for the duration of the next cleanup.
-    chmod($auth_file, 0600);
+
+    // The file holds a credential. A umask denies every other user from the
+    // moment the file is created, where a chmod() after the write would leave
+    // the token readable in between. The build directory was emptied above,
+    // so the file cannot already exist with a mode of its own.
+    $umask = umask(0077);
+    $written = file_put_contents($auth_file, (string) json_encode(['github-oauth' => ['github.com' => $github_token]]));
+    umask($umask);
+
+    if ($written === FALSE) {
+      throw new \RuntimeException('Unable to write ' . $auth_file);
+    }
   }
 
   verbose('  > Installing Composer dependencies inside the build dir.' . PHP_EOL);
