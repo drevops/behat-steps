@@ -205,14 +205,50 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
    * {@inheritdoc}
    */
   public function configSetData(string $name, array $data): void {
-    // 'config:set' assigns only the keys it is handed, so the object is
-    // deleted first to drop the keys the new data does not carry.
+    // 'config:set' assigns only the keys it is handed and Drush exposes no
+    // whole-object replace, so the object is deleted first to drop the keys
+    // the new data does not carry. The delete and the write are 2 commands,
+    // so the object is read first and put back when the write fails, rather
+    // than being left missing.
+    $previous = $this->configGetData($name);
+
     $this->configDelete($name);
 
     if ($data === []) {
       return;
     }
 
+    try {
+      $this->configWriteData($name, $data);
+    }
+    catch (\RuntimeException $e) {
+      try {
+        if ($previous !== []) {
+          $this->configWriteData($name, $previous);
+        }
+      }
+      // @codeCoverageIgnoreStart
+      catch (\RuntimeException) {
+        // Restoring failed as well. The write failure below is the error
+        // worth reporting, so this one is not allowed to replace it.
+      }
+      // @codeCoverageIgnoreEnd
+      throw $e;
+    }
+  }
+
+  /**
+   * Assigns every key of a configuration object in 1 command.
+   *
+   * @param string $name
+   *   The configuration object name.
+   * @param array<int|string, mixed> $data
+   *   The data to assign.
+   *
+   * @throws \RuntimeException
+   *   When the command exits with a non-zero status.
+   */
+  protected function configWriteData(string $name, array $data): void {
     $this->drush('config:set', [$name, '?', (string) json_encode($data)], [
       'yes' => NULL,
       'input-format' => 'yaml',

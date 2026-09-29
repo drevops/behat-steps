@@ -484,6 +484,33 @@ class DrushDriverMethodsTest extends TestCase {
   }
 
   /**
+   * Tests that a failed write puts the configuration object back.
+   *
+   * The delete and the write are separate commands, so a write that fails
+   * after the delete would otherwise leave the object missing instead of
+   * unchanged.
+   */
+  public function testConfigSetDataRestoresTheObjectWhenTheWriteFails(): void {
+    $driver = $this->createDriver();
+    $driver->drushResponse = '{"name":"Original"}';
+    // Fail the first 'config:set' and let the restoring one through.
+    $driver->drushFailures['config:set'] = 1;
+
+    try {
+      $driver->configSetData('system.site', ['name' => 'Replacement']);
+      $this->fail('Expected the failed write to be rethrown.');
+    }
+    catch (\RuntimeException $e) {
+      $this->assertStringContainsString('config:set', $e->getMessage());
+    }
+
+    $sets = array_values(array_filter($driver->invocations, static fn(array $invocation): bool => $invocation['command'] === 'config:set'));
+
+    $this->assertCount(2, $sets, 'The failed write is followed by a restoring write.');
+    $this->assertSame('{"name":"Original"}', $sets[1]['arguments'][2], 'The restore writes back the data read before the delete.');
+  }
+
+  /**
    * Tests that a whole-object write drops the keys the new data omits.
    */
   public function testConfigSetDataReplacesRatherThanMerges(): void {

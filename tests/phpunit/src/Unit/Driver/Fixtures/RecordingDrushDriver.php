@@ -33,10 +33,27 @@ class RecordingDrushDriver extends DrushDriver {
   public int $drushExitCode = 0;
 
   /**
+   * Commands 'drush()' raises on, as a command name to remaining-failure count.
+   *
+   * A count lets a test fail the first call of a command and let a later one
+   * through, which is what a driver method recovering from a failed write
+   * needs.
+   *
+   * @var array<string, int>
+   */
+  public array $drushFailures = [];
+
+  /**
    * {@inheritdoc}
    */
   public function drush(string $command, array $arguments = [], array $options = []): string {
     $this->record($command, $arguments, $options);
+
+    if (($this->drushFailures[$command] ?? 0) > 0) {
+      $this->drushFailures[$command]--;
+
+      throw new \RuntimeException(sprintf("Drush command '%s' exited with code 1.", $command));
+    }
 
     return $this->drushResponse;
   }

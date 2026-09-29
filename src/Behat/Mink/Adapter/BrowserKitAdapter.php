@@ -36,26 +36,35 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
     $driver = $this->driver;
     $jar = $driver->getClient()->getCookieJar();
 
-    // The value list is filtered for the current URL but holds only names and
-    // values; the cookie objects supply the remaining properties.
-    $relevant = $jar->allValues($driver->getCurrentUrl(), TRUE);
+    // The value list holds 1 entry per name, already resolved for the current
+    // URL by domain, path and secure flag. The cookie objects supply the
+    // remaining properties, and 'all()' flattens every domain and path
+    // together, so several objects can share a name: the one carrying the
+    // resolved value is the one that belongs to this URL.
+    $resolved = $jar->allValues($driver->getCurrentUrl(), TRUE);
     $cookies = [];
 
     foreach ($jar->all() as $cookie) {
-      if (!$cookie instanceof Cookie || !array_key_exists($cookie->getName(), $relevant)) {
+      if (!$cookie instanceof Cookie) {
         // @codeCoverageIgnoreStart
         continue;
         // @codeCoverageIgnoreEnd
       }
 
-      $cookies[] = [
-        'name' => $cookie->getName(),
+      $name = $cookie->getName();
+
+      if (isset($cookies[$name]) || ($resolved[$name] ?? NULL) !== $cookie->getRawValue()) {
+        continue;
+      }
+
+      $cookies[$name] = [
+        'name' => $name,
         'value' => $cookie->getRawValue(),
         'secure' => $cookie->isSecure(),
       ];
     }
 
-    return $cookies;
+    return array_values($cookies);
   }
 
   /**
