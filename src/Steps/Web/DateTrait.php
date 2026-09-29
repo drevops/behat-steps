@@ -110,10 +110,9 @@ trait DateTrait {
    *   | test article | [relative:-1 day] |
    * @endcode
    *
-   * @note Since return value can be a date string, it is possible that
-   * asserted result may span across multiple days (i.e. if set as -14 hours).
-   * To avoid this, default time is always rounded to midday and it is expected
-   * that relative time within a day use max of 12 hours offset.
+   * @note A formatted return value can land on a different day than the
+   * scenario expects when the offset crosses midnight, because an absent
+   * 'now' resolves to the current minute rather than a fixed time of day.
    */
   public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
     if (!static::dateRelativeStringHasToken($value)) {
@@ -149,7 +148,7 @@ trait DateTrait {
   }
 
   /**
-   * Assert that string has a token.
+   * Check whether a string holds a relative date token.
    */
   public static function dateRelativeStringHasToken(string $string): bool {
     return str_contains($string, '[relative:');

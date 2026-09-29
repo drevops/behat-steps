@@ -318,7 +318,7 @@ Given the following "article" content:
   <summary><code>public static function dateRelativeStringHasToken(string $string): bool</code></summary>
 
 <br/>
-Assert that string has a token
+Check whether a string holds a relative date token
 <br/><br/>
 
 </details>

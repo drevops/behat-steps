@@ -455,7 +455,7 @@ trait AccessibilityTrait {
   /**
    * Return how many times the engine fetch is attempted before failing.
    *
-   * Default: 3. Values below 1 are treated as 1.
+   * Default: 3.
    */
   public function accessibilityGetFetchAttempts(): int {
     return (int) $this->getOption('accessibility', 'fetch_attempts');
@@ -506,7 +506,7 @@ trait AccessibilityTrait {
   /**
    * Return the default rule identifier passed to the engine.
    *
-   * Default: WCAG 2.0/2.1 A and AA tag set. Override to use a different
+   * Default: the WCAG 2.0 A and AA tag set. Override to use a different
    * rule identifier expected by the engine in use.
    */
   public function accessibilityGetDefaultRules(): string {
