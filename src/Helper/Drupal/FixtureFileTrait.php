@@ -60,7 +60,7 @@ trait FixtureFileTrait {
         continue;
       }
 
-      // A stub not yet parsed by 'parseEntityFields()' still holds the raw
+      // A stub not yet parsed by 'entityParseFields()' still holds the raw
       // compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
       if (is_string($value) && $this->fixtureFileLooksLikeCompoundCell($value)) {

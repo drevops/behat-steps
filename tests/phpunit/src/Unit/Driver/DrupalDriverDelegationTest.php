@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  *
  * 'DrupalDriver' is a thin facade over 'CoreInterface'; the tests here verify
  * that each method delegates to the corresponding core method. Kernel tests
- * under 'Kernel/Core/' exercise the behaviour end-to-end.
+ * under 'Kernel/Driver/Core/' exercise the behaviour end-to-end.
  */
 #[CoversClass(DrupalDriver::class)]
 #[Group('drivers')]

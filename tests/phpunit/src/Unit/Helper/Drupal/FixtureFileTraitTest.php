@@ -359,7 +359,7 @@ class FixtureFileTraitTest extends UnitTestCase {
  * Host composing the trait under test.
  *
  * Exposes the protected helper methods under the test and stubs the
- * Drupal-dependent 'managedFileExists()' so unit tests can simulate
+ * Drupal-dependent 'fixtureFileManagedExists()' so unit tests can simulate
  * pre-existing managed files without bootstrapping Drupal.
  */
 class FixtureFileTraitTestImplementation extends WebRawContext {
@@ -367,7 +367,7 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   use FixtureFileTrait;
 
   /**
-   * Basenames the stubbed 'managedFileExists()' should report as managed.
+   * Basenames the stubbed 'fixtureFileManagedExists()' reports as managed.
    *
    * @var string[]
    */
