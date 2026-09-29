@@ -717,7 +717,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | Helper | Holds | Composed by |
 | --- | --- | --- |
 | `Helper\Drupal\EntityLifecycleTrait` | `entityNodeCreate()`, `entityTermCreate()`, `entityCreate()`, `entityLanguageCreate()`, `entityRegister()`, `entityParseFields()`, `entityCleanAll()`, `entityAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
-| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserManager()`, `authSetUserManager()`, `authGetManager()`, `authSetManager()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
+| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryNodeIds()`, `queryAssertModuleEnabled()` | 9 step traits |
@@ -748,8 +748,8 @@ A call or an override in a consumer context is renamed:
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
 | `loggedIn()` | `Helper\Drupal\AuthTrait::authLoggedIn()` |
-| `getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserManager()` |
-| `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserManager()` |
+| `getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserRegistry()` |
+| `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
 | `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
 | `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
 | `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
@@ -768,9 +768,9 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`UserAwareInterface` declares the four accessors `AuthTrait` implements: `authSetUserManager()`, `authGetUserManager()`, `authSetManager()` and `authGetManager()`. A context composing `AuthTrait` declares the interface so the context initializer injects both managers; a context that creates no users declares nothing and neither manager is built.
+`UserAwareInterface` declares the four accessors `AuthTrait` implements: `authSetUserRegistry()`, `authGetUserRegistry()`, `authSetAuthenticator()` and `authGetAuthenticator()`. A context composing `AuthTrait` declares the interface so the context initializer injects both services; a context that creates no users declares nothing and neither is built.
 
-Basic authentication is a separate manager, because applying credentials to a request needs Mink and a base URL and knows nothing about a Drupal session. `WebRawContext` carries `BasicAuthInterface` through `setBasicAuthManager()` and `getBasicAuthManager()`, and `AuthenticationManager` takes that manager as a constructor argument to reapply the credentials after a fast logout.
+Basic authentication is a separate service, because applying credentials to a request needs Mink and a base URL and knows nothing about a Drupal session. `WebRawContext` carries `BasicAuthenticatorInterface` through `setBasicAuthenticator()` and `getBasicAuthenticator()`, and `Authenticator` takes it as a constructor argument to reapply the credentials after a fast logout.
 
 ### One context registers, not two
 
@@ -953,14 +953,14 @@ If your project catches an exception from one of these steps, update the type:
 | `the meta tag should exist with the following attributes:` | `Meta tag with specified attributes was not found: {...}.` | `Meta tag with attributes "{...}" not found.` |
 | `the :meta_name meta tag should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
 
-The same rule now covers the driver layer and the Behat managers, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls the driver or a manager directly and catches on the type, update it:
+The same rule now covers the driver layer and the Behat services under `src/Behat`, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls the driver or one of those services directly and catches on the type, update it:
 
 | Class | Was | Now |
 | --- | --- | --- |
 | `Driver\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
 | `Driver\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Behat\Manager\DriverManager::getDriver()` and `setDefaultDriverName()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Behat\Manager\UserManager::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Manager\DriverRegistry::getDriver()` and `setScenarioDrivers()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Manager\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Driver\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Driver\Exception\Exception` |
 
@@ -1145,6 +1145,73 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
 | `DiagnosticsTrait` | `diagnosticsShowUrl()` | `diagnosticsGetShowUrl()` |
 | `ElementTrait` | `elementScrollIntoViewCenter()` | `elementGetScrollIntoViewCenter()` |
+
+## A class is named for the role it plays
+
+5 classes under `Behat\Manager` shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. The suffix is replaced by a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun.
+
+| Old | Role | New |
+| --- | --- | --- |
+| `Behat\Manager\DriverManager` | registers drivers, resolves one by capability, tracks the scenario's order | `Behat\Manager\DriverRegistry` |
+| `Behat\Manager\UserManager` | stores the users a scenario created, tracks the current one | `Behat\Manager\UserRegistry` |
+| `Behat\Manager\AuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Manager\Authenticator` |
+| `Behat\Manager\BasicAuthManager` | derives credentials from `base_url`, applies them to Mink | `Behat\Manager\BasicAuthenticator` |
+
+Each interface travels with its class:
+
+| Old | New |
+| --- | --- |
+| `DriverManagerInterface` | `DriverRegistryInterface` |
+| `UserManagerInterface` | `UserRegistryInterface` |
+| `AuthenticationManagerInterface` | `AuthenticatorInterface` |
+| `BasicAuthInterface` | `BasicAuthenticatorInterface` |
+
+`FastLogoutInterface` keeps its name. It describes a capability rather than a role.
+
+A context implements `DriverAwareInterface` or `UserAwareInterface`, so the 8 accessors those interfaces declare are renamed too. A project that composes `AuthTrait` or extends any shipped context inherits the new names for free; one that calls them from its own step definitions renames the calls.
+
+| Interface | Old | New |
+| --- | --- | --- |
+| `DriverAwareInterface` | `setDriverManager()` | `setDriverRegistry()` |
+| `DriverAwareInterface` | `getDriverManager()` | `getDriverRegistry()` |
+| `DriverAwareInterface` | `setBasicAuthManager()` | `setBasicAuthenticator()` |
+| `DriverAwareInterface` | `getBasicAuthManager()` | `getBasicAuthenticator()` |
+| `UserAwareInterface` | `authSetUserManager()` | `authSetUserRegistry()` |
+| `UserAwareInterface` | `authGetUserManager()` | `authGetUserRegistry()` |
+| `UserAwareInterface` | `authSetManager()` | `authSetAuthenticator()` |
+| `UserAwareInterface` | `authGetManager()` | `authGetAuthenticator()` |
+
+The service ids and the `*.class` parameters that let a suite swap an implementation follow the classes.
+
+| Old | New |
+| --- | --- |
+| `behat_steps.driver_manager` | `behat_steps.driver_registry` |
+| `behat_steps.user_manager` | `behat_steps.user_registry` |
+| `behat_steps.authentication_manager` | `behat_steps.authenticator` |
+| `behat_steps.basic_auth_manager` | `behat_steps.basic_authenticator` |
+
+### `MailManager` is gone
+
+`MailManager` forwarded to `MailCapabilityInterface` and added nothing: `stopCollectingMail()` called `mailStopCollecting()`, `getMail()` called `mailGet()`, `clearMail()` called `mailClear()`, and `startCollectingMail()` called `mailStartCollecting()` and then cleared. Nothing registered it as a service, and `EmailTrait` resolves `CoreCapabilityInterface` directly rather than asking for the mail capability at all, which is why the class was never wired.
+
+That is the general rule, not a one-off: a class that only wraps a capability interface is not written, because the capability interface already is the abstraction. A trait reaches a capability through `driverFor(SomeCapabilityInterface::class)` on `WebRawContext`.
+
+A project that constructed `MailManager` itself calls the capability instead:
+
+```php
+// Before.
+$mail = new MailManager($driver);
+$mail->startCollectingMail();
+$messages = $mail->getMail();
+
+// After.
+$driver = $this->driverFor(MailCapabilityInterface::class);
+$driver->mailStartCollecting();
+$driver->mailClear();
+$messages = $driver->mailGet();
+```
+
+`MailManagerInterface` is removed with the class.
 
 ## Browser capabilities for the Mink driver
 

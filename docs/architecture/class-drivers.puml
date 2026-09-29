@@ -3,7 +3,7 @@
 ' Traced from src/Driver/DriverInterface.php, DrupalDriverInterface.php,
 ' DrushDriverInterface.php, BlackboxDriverInterface.php, DrupalDriver.php,
 ' DrushDriver.php, BlackboxDriver.php, src/Driver/Capability/,
-' src/Driver/Core/, src/Driver/Entity/, src/Behat/Manager/DriverManager.php,
+' src/Driver/Core/, src/Driver/Entity/, src/Behat/Manager/DriverRegistry.php,
 ' scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -14,7 +14,7 @@ skinparam classAttributeIconSize 0
 title Class structure: the driver layer
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
-  class DriverManager {
+  class DriverRegistry {
     +registerDriver(name, driver) : void
     +setScenarioDrivers(drivers) : void
     +getDriver(name) : DriverInterface
@@ -112,7 +112,7 @@ package "DrevOps\\BehatSteps\\Driver\\Entity" #E8F5E9 {
   EntityStubInterface <|.. EntityStub
 }
 
-DriverManager o--> DriverInterface : registered by name
+DriverRegistry o--> DriverInterface : registered by name
 
 DrupalDriverInterface ..|> AuthenticationCapabilityInterface
 DrupalDriverInterface ..|> ContentCapabilityInterface
@@ -137,7 +137,7 @@ note bottom of DrupalDriverInterface
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here.
 
-  DriverManager walks the scenario's driver
+  DriverRegistry walks the scenario's driver
   order and returns the first instance of the
   capability a step asked for, bootstrapping
   only that one.

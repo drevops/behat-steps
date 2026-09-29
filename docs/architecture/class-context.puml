@@ -1,5 +1,5 @@
 @startuml
-' drevops/behat-steps - the context chain, its managers, the helper traits
+' drevops/behat-steps - the context chain, its services, the helper traits
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
@@ -12,7 +12,7 @@ skinparam backgroundColor white
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam classAttributeIconSize 0
-title Class detail: context, managers, helpers and step traits
+title Class detail: context, services, helpers and step traits
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   class WebRawContext {
@@ -20,7 +20,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +driverFor(capability) : object
     +getRandom() : Random
     +getOption(group, key, scope) : mixed
-    +getBasicAuthManager() : BasicAuthInterface
+    +getBasicAuthenticator() : BasicAuthenticatorInterface
     --
     #skipTag(name, scope) : bool
     #shouldCleanup() : bool
@@ -40,10 +40,10 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   }
 
   interface UserAwareInterface {
-    +authSetUserManager(manager) : void
-    +authGetUserManager() : UserManagerInterface
-    +authSetManager(manager) : void
-    +authGetManager() : AuthenticationManagerInterface
+    +authSetUserRegistry(registry) : void
+    +authGetUserRegistry() : UserRegistryInterface
+    +authSetAuthenticator(authenticator) : void
+    +authGetAuthenticator() : AuthenticatorInterface
   }
 
   WebRawContext <|-- WebContext
@@ -52,35 +52,30 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
-  interface DriverManagerInterface {
+  interface DriverRegistryInterface {
     +getDriverFor(capability) : object
     +hasCapability(capability) : bool
     +setScenarioDrivers(drivers) : void
   }
-  interface BasicAuthInterface {
+  interface BasicAuthenticatorInterface {
     +applyBasicAuth() : void
   }
-  interface AuthenticationManagerInterface {
+  interface AuthenticatorInterface {
     +logIn(user) : void
     +logOut() : void
     +loggedIn() : bool
   }
-  interface UserManagerInterface {
+  interface UserRegistryInterface {
     +getCurrentUser() : EntityStubInterface|false
     +addUser(user) : void
     +currentUserHasRole(role) : bool
   }
-  interface MailManagerInterface {
-    +startCollectingMail() : void
-    +getMail() : array
-    +clearMail() : void
-  }
 }
 
-WebRawContext o--> DriverManagerInterface
-WebRawContext o--> BasicAuthInterface
-AuthTrait o--> UserManagerInterface
-AuthTrait o--> AuthenticationManagerInterface
+WebRawContext o--> DriverRegistryInterface
+WebRawContext o--> BasicAuthenticatorInterface
+AuthTrait o--> UserRegistryInterface
+AuthTrait o--> AuthenticatorInterface
 
 package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
@@ -241,10 +236,10 @@ note bottom of RequestHeadersTrait
   so both reach the same state.
 end note
 
-note right of BasicAuthInterface
+note right of BasicAuthenticatorInterface
   Applying credentials to a request needs Mink and
-  a base URL, so BasicAuthManager is separate from
-  the Drupal session managers and WebRawContext
+  a base URL, so BasicAuthenticator is separate from
+  the Drupal session services and WebRawContext
   carries only this one.
 end note
 @enduml
