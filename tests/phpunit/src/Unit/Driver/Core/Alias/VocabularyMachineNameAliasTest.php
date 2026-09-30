@@ -62,10 +62,10 @@ class VocabularyMachineNameAliasTest extends TestCase {
   /**
    * Data provider for 'testApplyToStub()'.
    *
-   * @return iterable<string, array<int, mixed>>
+   * @return \Iterator<string, array<int, mixed>>
    *   Cases of bundle, stub values, expected 'vid' (or NULL).
    */
-  public static function dataProviderApplyToStub(): iterable {
+  public static function dataProviderApplyToStub(): \Iterator {
     yield 'no bundle, alias only' => [
       NULL,
       ['vocabulary_machine_name' => 'tags'],

@@ -69,10 +69,10 @@ class RolesAliasTest extends TestCase {
   /**
    * Data provider for 'testApplyAfterCreateIgnoresNonArrayValues()'.
    *
-   * @return iterable<string, array<int, mixed>>
+   * @return \Iterator<string, array<int, mixed>>
    *   Cases of non-array 'roles' value.
    */
-  public static function dataProviderApplyAfterCreateIgnoresNonArrayValues(): iterable {
+  public static function dataProviderApplyAfterCreateIgnoresNonArrayValues(): \Iterator {
     yield 'string' => ['editor'];
     yield 'integer' => [42];
     yield 'null' => [NULL];
