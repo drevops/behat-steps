@@ -33,10 +33,10 @@ package "drevops/behat-steps" {
     component "BehatStepsExtension\nservice wiring" as Ext
     component "WebRawContext\ndriver access, option reads,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
-    component "Managers\nDriver, Authentication,\nUser, Mail, Scenario tags" as Managers
+    component "Managers\nDriver, Authentication,\nUser, Scenario tags" as Managers
     component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
-    component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
+    component "BrowserKitFactory\nbuilds browserkit_http\non DrupalTestBrowser" as BrowserKit
   }
 
   package "Driver - src/Driver" #E8F5E9 {
@@ -50,6 +50,7 @@ package "drevops/behat-steps" {
 
 package "Runtime and targets" #ECEFF1 {
   component "Behat\nstep matching and hooks" as Behat
+  component "Mink extension\nMink's own,\nunder the mink key" as MinkExt
   component "Mink session" as Mink
   component "Browser\nBrowserKit, Selenium2,\nChrome DevTools" as Browser
   component "Drupal site\nentity API, config, drush" as Site
@@ -81,7 +82,7 @@ Ext --> OptionConfig : registers
 Behat --> Listeners : before each scenario
 Listeners --> Managers : driver order,\nscenario tags
 Ext --> DriverIface : registers drivers
-Ext ..> MinkExt : reads ajax_timeout
+Ext ..> BrowserKit : registers with Mink\nwhen drupal/core is installed
 Ext ..> Mink : aliases DocumentElement
 WebRawCtx --> Managers
 WebRawCtx --> OptionConfig : resolves trait options
@@ -94,6 +95,7 @@ BlackboxDrv ..|> DriverIface
 DrupalDrv --> Core
 
 MinkExt --> Mink : builds sessions,\npicks one per scenario
+MinkExt ..> BrowserKit : builds the browserkit_http\ndriver with
 Consumer --> Mink
 Mink --> Browser
 DrupalDrv --> Site
