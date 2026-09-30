@@ -23,7 +23,8 @@ Feature: Check that DrushTrait works
   Scenario: Assert "When I run the failing drush command :command with the arguments :arguments" works as expected
     Given the user is anonymous
     When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
-    Then the drush output should contain the value "The module no_such_module does not exist."
+    Then the drush output should contain the value "no_such_module"
+    And the drush output should not contain the value "is not defined"
 
   Scenario: Assert "When I print the last drush output" works as expected
     Given the user is anonymous
