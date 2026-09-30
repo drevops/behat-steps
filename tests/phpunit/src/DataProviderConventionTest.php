@@ -34,7 +34,7 @@ class DataProviderConventionTest extends UnitTestCase {
     $violations = [];
 
     foreach (static::ownMethods($reflection) as $test) {
-      $expected ='dataProvider' . substr($test->getName(), strlen('test'));
+      $expected = 'dataProvider' . substr($test->getName(), strlen('test'));
 
       foreach (static::providerNames($test) as $name) {
         if ($name !== $expected) {
