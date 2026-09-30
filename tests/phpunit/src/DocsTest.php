@@ -1412,6 +1412,271 @@ EOD,
         ],
         [],
       ],
+      'placeholder preceding its own noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :queue queue should be empty'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":queue" in the step precedes its own noun "queue"' . PHP_EOL],
+      ],
+      'placeholder preceding a noun its name contains' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :row_text row should contain the following:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":row_text" in the step precedes its own noun "row"' . PHP_EOL],
+      ],
+      'placeholder preceding a noun its name abbreviates' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :attr attribute should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":attr" in the step precedes its own noun "attribute"' . PHP_EOL],
+      ],
+      'placeholder following its own noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the queue :queue should have :count item(s)'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'bundle placeholder preceding its entity noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given the following :media_type media exist:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'abbreviated placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the current URL should have the query parameter :param'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":param" in the step' . PHP_EOL],
+      ],
+      'bare value placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the JSON path :path should be equal to :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":value" in the step does not read "the value :value"' . PHP_EOL],
+      ],
+      'value placeholder preceding its own noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the current URL should have the query parameter :name with the :value value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertMethod - Placeholder ":value" in the step precedes its own noun "value"' . PHP_EOL,
+          '  TestTrait::testAssertMethod - Placeholder ":value" in the step does not read "the value :value"' . PHP_EOL,
+        ],
+      ],
+      'value placeholder introduced by its noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the state :name should have the value :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod2',
+                'steps' => ['@Then the config :name key :key should have the effective value :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'partial match placeholder without the partial prefix' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then a cookie with a name containing :name should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":name" after "containing" in the step is not prefixed with "partial_"' . PHP_EOL],
+      ],
+      'partial match placeholder with the partial prefix' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then a cookie with a name containing :partial_name should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'text compared against a named target' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the region :region should contain the text :text'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":text" in the step compares against a named target but should be ":value"' . PHP_EOL],
+      ],
+      'text compared against a whole body' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the modal should contain :text'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'text identifying the asserted entity' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'step opening with a placeholder' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then :content_type content with the title :title should not exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Step starts with a placeholder but should start with the noun it names' . PHP_EOL],
+      ],
       'missing example' => [
         [
           'TestTrait' => [
@@ -1558,15 +1823,15 @@ EOD,
             'methods' => [
               [
                 'name' => 'queueProcessItems',
-                'steps' => ['@When I process :count item(s) from the :queue queue'],
+                'steps' => ['@When I process :count item(s) from the queue :queue'],
                 'description' => 'Process a specific number of items from a queue.',
-                'example' => 'When I process 5 items from the "myqueue" queue',
+                'example' => 'When I process 5 items from the queue "myqueue"',
               ],
               [
                 'name' => 'queueProcessAll',
-                'steps' => ['@When I process the :queue queue'],
+                'steps' => ['@When I process the queue :queue'],
                 'description' => 'Process all items from a queue.',
-                'example' => 'When I process the "myqueue" queue',
+                'example' => 'When I process the queue "myqueue"',
               ],
             ],
           ],
@@ -1580,21 +1845,21 @@ EOD,
             'methods' => [
               [
                 'name' => 'queueProcessItems',
-                'steps' => ['@When I process :count item(s) from the :queue queue'],
+                'steps' => ['@When I process :count item(s) from the queue :queue'],
                 'description' => 'Process a specific number of items from a queue.',
-                'example' => 'When I process 5 items from the "myqueue" queue',
+                'example' => 'When I process 5 items from the queue "myqueue"',
               ],
               [
                 'name' => 'queueProcessAll',
-                'steps' => ['@When I process all items from the :queue queue'],
+                'steps' => ['@When I process all items from the queue :queue'],
                 'description' => 'Process all items from a queue.',
-                'example' => 'When I process all items from the "myqueue" queue',
+                'example' => 'When I process all items from the queue "myqueue"',
               ],
             ],
           ],
         ],
         [
-          '  QueueTrait::queueProcessAll - Step "I process all items from the "myqueue" queue" matches more than one definition: queueProcessItems() as "I process :count item(s) from the :queue queue", queueProcessAll() as "I process all items from the :queue queue"' . PHP_EOL,
+          '  QueueTrait::queueProcessAll - Step "I process all items from the queue "myqueue"" matches more than one definition: queueProcessItems() as "I process :count item(s) from the queue :queue", queueProcessAll() as "I process all items from the queue :queue"' . PHP_EOL,
         ],
       ],
       'example left behind by a renamed pattern' => [
@@ -1604,15 +1869,15 @@ EOD,
             'methods' => [
               [
                 'name' => 'queueProcessAll',
-                'steps' => ['@When I process the :queue queue'],
+                'steps' => ['@When I process the queue :queue'],
                 'description' => 'Process all items from a queue.',
-                'example' => 'When I process all items from the "myqueue" queue',
+                'example' => 'When I process all items from the queue "myqueue"',
               ],
             ],
           ],
         ],
         [
-          '  QueueTrait::queueProcessAll - No example matches the step "I process the :queue queue"' . PHP_EOL,
+          '  QueueTrait::queueProcessAll - No example matches the step "I process the queue :queue"' . PHP_EOL,
         ],
       ],
       'example reusing another step as setup' => [
@@ -1628,9 +1893,9 @@ EOD,
               ],
               [
                 'name' => 'commandAssertOutputContains',
-                'steps' => ['@Then the command output should contain :text'],
-                'description' => 'Assert that the command output contains a text.',
-                'example' => 'When I run the command "echo hello"' . PHP_EOL . 'And the command output should contain "hello"',
+                'steps' => ['@Then the command output should contain the value :value'],
+                'description' => 'Assert that the command output contains a value.',
+                'example' => 'When I run the command "echo hello"' . PHP_EOL . 'And the command output should contain the value "hello"',
               ],
             ],
           ],
@@ -2428,8 +2693,8 @@ EOD,
     $placeholders = non_descriptive_placeholders();
 
     $this->assertContains('number', $placeholders);
+    $this->assertContains('param', $placeholders);
     $this->assertNotContains('count', $placeholders);
-    $this->assertNotContains('param', $placeholders);
 
     // Names are compared against the placeholders extracted from a step
     // pattern, which carry no leading colon.
