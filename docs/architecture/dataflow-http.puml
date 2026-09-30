@@ -1,0 +1,114 @@
+@startuml
+' drevops/behat-steps - data flow for a request a step sends itself.
+' Traced from src/Behat/ServiceContainer/BehatStepsExtension.php,
+' src/Behat/ServiceContainer/config/services.yml,
+' src/Behat/Mink/ServiceContainer/Driver/BrowserKitFactory.php,
+' src/Behat/Http/HttpClientFactory.php, src/Behat/Context/WebRawContext.php,
+' src/Behat/Manager/BasicAuthenticator.php, src/Steps/Web/FileDownloadTrait.php,
+' src/Steps/Web/MetatagTrait.php, src/Steps/Web/RestTrait.php,
+' src/Steps/Web/AccessibilityTrait.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Data flow: a step sends its own request
+
+participant "Behat" as Behat
+participant "BehatStepsExtension" as Ext
+participant "Mink extension" as MinkExt
+participant "BrowserKitFactory" as Factory
+participant "Step trait method" as Trait
+participant "WebRawContext" as Ctx
+participant "BrowserCapabilityResolver\nand the driver's adapter" as Adapter
+participant "HttpClientFactory" as HttpFactory
+participant "HttpBrowser" as Browser
+participant "behat_steps.http_client\nshared transport" as Transport
+participant "Site or\nthird-party host" as Site
+
+== Container build, once per run ==
+
+Behat -> Ext: initialize(extensionManager)
+activate Ext
+Ext -> MinkExt: registerDriverFactory(BrowserKitFactory)
+note right of MinkExt: keyed by driver name, so it\nreplaces Mink's own browserkit_http\nfactory whatever the extension order
+deactivate Ext
+
+Behat -> MinkExt: load()
+activate MinkExt
+loop every browserkit_http session
+  MinkExt -> Factory: buildDriver(config)
+  activate Factory
+  Factory -> Factory: record the session's\nhttp_client_parameters
+  Factory --> MinkExt: BrowserKitDriver over an HttpBrowser\nthat references behat_steps.http_client
+  deactivate Factory
+end
+deactivate MinkExt
+
+Behat -> Ext: process(container)
+activate Ext
+Ext -> Factory: getClientOptions()
+activate Factory
+alt every session declares the same options
+  Factory --> Ext: the options
+else 2 sessions differ
+  Factory -> Behat: throw InvalidConfigurationException,\nthe run stops before any scenario
+end
+deactivate Factory
+Ext -> Ext: define behat_steps.http_client as\nHttpClientFactory::createTransport(options, base_url),\nthe options scoped to the base_url host
+deactivate Ext
+
+== A step sends a request ==
+
+alt detached: FileDownloadTrait, the MetatagTrait hreflang return-link check
+  Trait -> Ctx: httpDetachedClient(options)
+  activate Ctx
+  Ctx -> Adapter: browserDriverFor(CookieCapabilityInterface)\n->cookieGetAll()
+  activate Adapter
+  Adapter --> Ctx: the session's cookies
+  deactivate Adapter
+  Ctx -> Ctx: requestHeadersAll(), and\nBasicAuthenticator::findCredentials()
+  Ctx -> HttpFactory: createDetached(HttpIdentity, options)
+  activate HttpFactory
+  HttpFactory --> Ctx: a fresh HttpBrowser: cookies for their own host,\nheaders and credentials for the base_url host only
+  deactivate HttpFactory
+  deactivate Ctx
+else page: RestTrait
+  Trait -> Ctx: httpPageClient()
+  activate Ctx
+  Ctx -> Adapter: browserDriverFor(HttpClientCapabilityInterface)\n->httpClient()
+  activate Adapter
+  alt the session runs BrowserKit
+    Adapter --> Ctx: the session's own HttpBrowser
+  else it runs Selenium2 or Chrome, whose\nadapters lack the capability
+    Adapter -> Trait: throw UnsupportedDriverActionException
+  end
+  deactivate Adapter
+  deactivate Ctx
+else bare: the AccessibilityTrait engine fetch
+  Trait -> Ctx: httpBareClient(options)
+  activate Ctx
+  Ctx -> HttpFactory: createBare(options)
+  activate HttpFactory
+  HttpFactory --> Ctx: a fresh HttpBrowser with an empty cookie jar
+  deactivate HttpFactory
+  deactivate Ctx
+end
+
+Ctx --> Trait: AbstractBrowser
+activate Trait
+Trait -> Browser: request('GET', url)
+activate Browser
+Browser -> Transport: the request
+activate Transport
+Transport -> Site: sent with the session options only\nwhen the host is the base_url host
+activate Site
+Site --> Transport: response
+deactivate Site
+Transport --> Browser: response
+deactivate Transport
+Browser --> Trait: getInternalResponse()
+deactivate Browser
+note over Trait: page client: the response is the new page.\ndetached or bare: it stays in the trait's own\nstate or the step, and the page is untouched.
+deactivate Trait
+@enduml

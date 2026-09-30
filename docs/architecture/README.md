@@ -16,7 +16,9 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
 | `class-context.puml` | `class-context.svg` | The context hierarchy, its services, the helper traits, representative step traits, and the exceptions a failing step throws |
 | `class-drivers.puml` | `class-drivers.svg` | The Behat-free driver layer: the base contract, the capability interfaces, the 3 drivers, and the Core bridge |
+| `class-browser.puml` | `class-browser.svg` | The browser capability layer, the HTTP client factory, and the `browserkit_http` driver factory |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
+| `dataflow-http.puml` | `dataflow-http.svg` | A step sending its own request through the page, detached or bare client |
 | `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
 | `dataflow-tests.puml` | `dataflow-tests.svg` | The fixture Drupal site, the nested Behat harness, and the coverage merge |
 
@@ -36,9 +38,9 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks, the browser capabilities, and the HTTP clients a step sends its own requests through.
 
-**`src/Helper/` - the shared internals.** 10 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
+**`src/Helper/` - the shared internals.** 9 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
 
 **`src/Steps/` - the vocabulary.** The step traits, split into `Steps\Web` and `Steps\Drupal`. This is the layer a consuming project registers, or mixes into a context of its own.
 
@@ -46,7 +48,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 2 layers and the namespaces each one excludes: `src/Driver` may not reference `Behat` or `Mink`, and `src/Steps/Web` with `WebRawContext`, `WebContext` and every trait under `src/Helper/Web` may not reference `Drupal` beyond `Drupal\Component\Utility\Random`. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-traits.php`, which holds a step trait to composing no other step trait and a helper trait to registering no Gherkin. So the driver layer stays usable without Behat loaded and the web half without Drupal, and the check catches the first import that would break either rather than the tenth.
 
-The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, Guzzle, `webflo/drupal-finder`, and 5 Symfony components. This is a framework now, not a trait bag.
+The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, Behat 3.33 or 4, Mink and the BrowserKit driver, plus `drupal/core-utility`, `friends-of-behat/mink-extension`, and 8 Symfony components, BrowserKit, HttpClient and Mime among them for the requests steps send themselves. This is a framework now, not a trait bag.
 
 ## The driver layer
 
@@ -64,7 +66,7 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 ## The integration layer
 
-`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the services, and aliases the library's `DocumentElement` over Mink's own.
+`BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the services, defines the shared HTTP transport, and aliases the library's `DocumentElement` over Mink's own.
 
 `DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverRegistry`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver. It publishes the scenario's tags to `ScenarioTagRegistry` in the same pass, which Behat dispatches before the first `BeforeScenario` hook, so a tag that sets a trait option reaches a step as well as a hook.
 
@@ -72,15 +74,25 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 `Behat\Config` holds option resolution, which `WebRawContext` delegates to rather than carrying. `ConfigSchemaReader` is the only piece that reflects: it walks a context class for `<prefix>ConfigSchema()` methods and returns the `Option` objects they declare, cached per class. `TraitOptionResolver` layers the declaration defaults, the extension's `steps` section and the context's `config` argument, and exposes a typed read per declared type. `TagOverrides` applies the tags an option declares, plus the `@behat-steps-skip:<Trait>` tag every `enabled` option carries, and holds the pattern a skip tag's value has to match. A resolver depends on the context class that declared the options and on the `config` argument that context was given, so `TraitOptionResolverFactory` builds one per context; registering another factory under `behat_steps.config.resolver_factory` replaces resolution everywhere at once.
 
-Browser sessions come from Mink's own extension, which the suite registers alongside this one. `BehatStepsExtension::initialize()` hands it a `BrowserKitFactory`, and Mink keys its driver factories by name, so that factory replaces Mink's own and `browserkit_http` runs on Drupal's test browser, `DrupalTestBrowser`, instead of a plain `HttpBrowser`. Behat calls `initialize()` once every extension is activated and before it builds any configuration tree, so the swap holds whichever order the suite lists the 2 extensions - it's the same hook the Chrome extension uses to add its driver. The factory goes in only when `drupal/core` is installed alongside the suite, so a suite testing a site it has no codebase for keeps Mink's own client.
+Browser sessions come from Mink's own extension, which the suite registers alongside this one. `BehatStepsExtension::initialize()` hands it a `BrowserKitFactory`, and Mink keys its driver factories by name, so that factory replaces Mink's own for `browserkit_http`. Behat calls `initialize()` once every extension is activated and before it builds any configuration tree, so the swap holds whichever order the suite lists the 2 extensions - it's the same hook the Chrome extension uses to add its driver.
+
+The factory keeps Mink's configuration tree and Mink's `HttpBrowser`, and changes 1 thing. Rather than a client per session, it records each session's `http_client_parameters` and builds every session on 1 transport service, `behat_steps.http_client`. `BehatStepsExtension::process()` defines that service once Mink has built every session, through `HttpClientFactory::createTransport()`, with the options scoped to the `base_url` host. Sessions that declare different options stop the run there, because the transport carries 1 set.
+
+The browser half resolves by capability, the same way the driver half does. `Behat\Mink\Capability` holds 5 interfaces - cookies, the page's HTTP client, JavaScript, the keyboard and request headers - and `Behat\Mink\Adapter` holds 1 adapter per shipped Mink driver family, because a Mink driver comes from another package and can't implement them itself. `BrowserCapabilityResolver` offers the session's driver to each adapter in turn, registered adapters first. `WebRawContext::browserDriverFor()` returns the adapter that answers, or throws `UnsupportedDriverActionException` naming the capability.
+
+Requests a step sends itself go through `Behat\Http`. `WebRawContext` hands out 3 clients, and all 3 are BrowserKit browsers. `httpPageClient()` resolves the session's own `HttpBrowser` through the HTTP client capability, so its response becomes the page. `httpDetachedClient()` and `httpBareClient()` come from `HttpClientFactoryInterface`, the `behat_steps.http_client_factory` service, which builds a fresh `HttpBrowser` on the shared transport each time. The detached one carries an `HttpIdentity` - the session's cookies, the request header bag and the `base_url` credentials - and sends its headers and credentials to the `base_url` host only. [HTTP clients](../http-clients.md) tells the same story from the consuming project's side.
+
+![Class structure: browser capabilities and HTTP clients](class-browser.svg)
 
 The context layer is one chain. `WebRawContext` is the root and registers no steps:
 
 - Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
 - Option resolution: `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` and `getOptionArray()` each read a trait's option at the type its declaration defaults to, through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags. `getOption()` covers a declaration that defaults to `NULL` and so names no type.
 - Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
+- Browser access: `browserDriverFor()` and `browserDriverHas()`, which resolve a browser capability.
+- HTTP clients: `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()`.
 - The hook dispatcher and `skipTag()`.
-- The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.
+- 3 of the web helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 
 `WebContext` extends it and composes every trait under `src/Steps/Web`. `DrupalContext` extends `WebContext` and composes every trait under `src/Steps/Drupal`. The Drupal scenario lifecycle does not sit on the context: each step trait composes the helper traits it needs, so the lifecycle arrives with the traits that use it:
 
@@ -109,11 +121,11 @@ That directory split isn't just tidiness. `docs.php` reads a trait's context str
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 44 name `WebRawContext` because they reach for the driver, and 13 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes the 12 web ones into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 49 name `WebRawContext` because they reach for the driver, a browser capability or an HTTP client, and 8 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes the 7 web ones into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 
-Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition, and the whole Drupal scenario lifecycle - and nowhere else. A trait's directory is its classification: `src/Steps` registers Gherkin, `src/Helper` registers none, and `scripts/lint-traits.php` makes that a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
+Step traits never `use` other step traits. Shared logic goes in a trait under `src/Helper/` named for its concern - last-step tracking, the request header bag, string shaping, table transposition, and the whole Drupal scenario lifecycle - and nowhere else. A trait's directory is its classification: `src/Steps` registers Gherkin, `src/Helper` registers none, and `scripts/lint-traits.php` makes that a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
 
 ## Flow 1: a step runs
 
@@ -136,7 +148,19 @@ A trait's hooks can be switched off from a feature file. `@behat-steps-skip:Java
 
 Every one of those tags is read through `Tag`, which strips the leading `@` first. Behat 3 removes it by default and Behat 4 keeps it, so going through `Tag` is what lets the same tag match on both.
 
-## Flow 2: the reference documentation generates itself
+## Flow 2: a step sends its own request
+
+Most steps read the page the Mink session holds. A few send a request of their own from PHP - a file download, the hreflang return-link check, the accessibility engine fetch, a REST call - and each one goes through 1 of the 3 clients. The method a trait calls names which.
+
+The transport comes first, and it's built once per run. Mink calls `BrowserKitFactory::buildDriver()` for every `browserkit_http` session it's configured with, and the factory records the session's options and returns a `BrowserKitDriver` over an `HttpBrowser` that references `behat_steps.http_client`. `BehatStepsExtension::process()` then defines that service from the recorded options. The page's browser and the detached and bare clients all send through it, so a certificate setting that lets the page load also lets a download through.
+
+Then a step asks for a client. `FileDownloadTrait` asks for the detached one: `WebRawContext` reads the session's cookies through the cookie capability, which all 3 adapters provide, adds the request header bag and the `base_url` credentials, and hands that `HttpIdentity` to the factory. The response lands in the trait's own state, so the next page assertion still reads the page. `RestTrait` asks for the page client instead, and only a BrowserKit session has one, so under Selenium2 or Chrome the step throws. `AccessibilityTrait` asks for the bare client, which carries nothing of the scenario and reaches the CDN with Symfony's defaults, since the session options apply to the `base_url` host only.
+
+![Data flow: a step sends its own request](dataflow-http.svg)
+
+Under `@javascript` the detached and bare clients work the same way, as a sidecar. The browser holds the page, and the client sends from PHP next to it, taking its settings from `http_client_parameters` rather than from the browser's capabilities. So a suite whose sessions are all JavaScript still declares a `browserkit_http` session when those requests need options of their own.
+
+## Flow 3: the reference documentation generates itself
 
 Every reference document is generated, and `docs.php` is the only thing that generates them. It's a plain procedural script - top-level functions, no classes - and it runs against the fixture site's autoloader because it needs to reflect over real Drupal-dependent traits.
 
@@ -156,7 +180,7 @@ One of those checks is less obvious than the rest. `validate_step_patterns()` co
 
 Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates the blocks in memory and exits non-zero if they don't match what's committed, naming the targets that drifted and writing nothing. So the documentation can't drift, because a drifted build is a red build.
 
-## Flow 3: how the library tests itself
+## Flow 4: how the library tests itself
 
 This is the interesting part, and it's genuinely a bit unusual. A library of Drupal test steps can't be tested without a Drupal site, so the repository builds one - and then, for the failure paths, runs Behat inside Behat.
 
@@ -170,13 +194,15 @@ The `BEHAT` variable picks the Behat major, `3` unless set. `composer.json` allo
 
 Drupal 12 needs contrib relaxed at two layers, because no contrib release declares it yet. For the Composer solve, `d12/composer.json` lists every contrib module under `extra.drupal-lenient.allowed-list` for `mglaman/composer-drupal-lenient` to strip the core constraint from; a plugin only shapes a solve it is already installed for, so provisioning installs it globally first - Composer loads global plugins for local projects. For Drupal itself, which reads `core_version_requirement` from each extension and refuses to enable one that excludes the running major, provisioning appends `|| ^12` to that key across the contrib extensions in `build/`, leaving the fixture sources untouched.
 
+The Drupal 12 fixture pins `~12.0.0-beta1`, and that release changed 2 more things the fixture works around. It moved Olivero, Claro and Search out of core, so `d12/composer.json` installs them from contrib under the same machine names. It also stopped shipping core's test files in the dist package, which the PHPUnit bootstrap, the Kernel suite and core's test modules need, so the fixture sets `preferred-install` to take `drupal/core` from source. Provisioning passes no `--prefer-dist`, because that flag would override the per-package setting.
+
 Behat then runs from inside `build/` but with the project-root `behat.php`, which is why several paths in the config look one level off.
 
 ### The suite
 
 `behat.php` wires up `FeatureContext` (`DrupalContext` plus the test-only steps and overrides), `BehatCliContext` (the nested runner), Mink's own `MinkContext`, the screenshot extension, and a PHP built-in server that serves `tests/behat/fixtures/` on port 8888 for the traits that need a static file and no Drupal at all. The `BehatStepsExtension` settings choose the `drupal` API driver, the Drush root and global options, the message selectors, the named regions, and the path mappings. The coverage extension is registered only when it is installed, so a Behat 4 build runs without it. Behat 4 reads only PHP configuration, and Behat 3.33 reads the same file.
 
-Default sessions run through BrowserKit on Drupal's test browser. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
+Default sessions run through BrowserKit, on Mink's `HttpBrowser` over the shared transport. `@javascript` scenarios run through Selenium2, or through headless Chrome over the DevTools Protocol if you use the `chrome_headless` profile - which inherits everything and swaps only the JavaScript session, so the same suite proves the steps are driver-portable.
 
 ### Behat inside Behat
 
