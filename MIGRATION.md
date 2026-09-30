@@ -392,7 +392,7 @@ This also renames the `$number` argument of `ElementTrait::elementAssertVisually
 
 ## Step text follows the documented grammar
 
-The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed, so every step does exactly what it did before.
+The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behaviour tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
 
 - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the dropzone :selector`. A bundle still comes before the entity noun it qualifies (`the :media_type media`), and a count before its unit (`:count item(s)`).
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
