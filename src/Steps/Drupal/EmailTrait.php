@@ -41,8 +41,7 @@ trait EmailTrait {
   use StringTrait;
 
   /**
-   * The tag that collects the scenario's email, naming a handler type as its
-   * optional value.
+   * The tag that collects the scenario's email, with an optional handler type.
    */
   protected const EMAIL_TAG = 'email';
 

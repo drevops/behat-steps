@@ -78,8 +78,7 @@ trait AccessibilityTrait {
   public const ACCESSIBILITY_IMPACT_MINOR = 'minor';
 
   /**
-   * The default tag that assesses every page, with a gate variant as its
-   * optional value.
+   * The default tag that assesses every page, with an optional gate variant.
    */
   protected const ACCESSIBILITY_TAG = 'accessibility';
 

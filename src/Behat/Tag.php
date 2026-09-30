@@ -25,17 +25,17 @@ final class Tag {
   /**
    * The tag that runs a scenario in the Mink JavaScript session.
    */
-  public const JAVASCRIPT = 'javascript';
+  public const string JAVASCRIPT = 'javascript';
 
   /**
    * Separates the name of a parametrized tag from its value.
    */
-  public const SEPARATOR = ':';
+  public const string SEPARATOR = ':';
 
   /**
    * Switches off the value of a switch tag it precedes.
    */
-  public const NEGATION = '!';
+  public const string NEGATION = '!';
 
   /**
    * Strips the leading '@' from each tag.
