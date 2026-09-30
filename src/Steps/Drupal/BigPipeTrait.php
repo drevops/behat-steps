@@ -79,7 +79,7 @@ trait BigPipeTrait {
   #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
     $tags = Tag::all($scope);
-    $is_skipped = $this->skipTag('BigPipeTrait', $scope);
+    $is_skipped = $this->skipTag(__TRAIT__, $scope);
 
     $this->bigPipeAutoWaitEnabled = in_array('javascript', $tags, TRUE) && !$is_skipped;
     $this->bigPipeJavascriptProbe = NULL;

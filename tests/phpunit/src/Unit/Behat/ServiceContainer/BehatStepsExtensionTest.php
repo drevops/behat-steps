@@ -133,6 +133,7 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertTrue($container->hasDefinition('behat_steps.context.initializer'));
     $this->assertTrue($container->hasDefinition('behat_steps.context.attribute_reader'));
     $this->assertTrue($container->hasDefinition('behat_steps.listener.driver'));
+    $this->assertTrue($container->hasDefinition('behat_steps.listener.skip_tag'));
     $this->assertTrue($container->hasDefinition('behat_steps.region_selector'));
   }
 

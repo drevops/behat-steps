@@ -874,9 +874,9 @@ The per-trait cleanup skip tags have been removed. Replace them as follows:
 | `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
 | `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:entityLifecycleCleanAll`. The companion hooks take `@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles`.
+To skip cleanup of every registered entity at once, use `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:AuthTrait` to keep the users and roles a scenario created.
 
-`FileTrait` keeps its own `@behat-steps-skip:fileAfterScenario` tag, which now covers only unmanaged files; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
+`@behat-steps-skip:FileTrait` now keeps only the unmanaged files `FileTrait` created; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
 ## Trait namespaces re-rooted under `Steps`
 
@@ -978,7 +978,7 @@ A call or an override in a consumer context is renamed:
 | `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
 | `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
 
-Three of those names are also skip tags, and the tags follow the methods: `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:entityLifecycleCleanAll`, `@behat-steps-skip:cleanUsers` becomes `@behat-steps-skip:authCleanUsers`, and `@behat-steps-skip:cleanRoles` becomes `@behat-steps-skip:authCleanRoles`.
+Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -1092,11 +1092,7 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
 | `WaitTrait` | `waitForAjaxToFinish()` | `waitForAjax()` |
 
-Gherkin step text is unchanged, so feature files need no edit for the renames above. One tag does change, because it names the hook method it skips:
-
-| Old tag | New tag |
-| --- | --- |
-| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:entityLifecycleCleanAll` |
+Gherkin step text is unchanged, so feature files need no edit for the renames above. A skip tag names a trait rather than a method, so no rename changes one; [One skip tag per trait](#one-skip-tag-per-trait) maps every tag that named a hook method.
 
 ## Query parameter presence
 
@@ -1571,3 +1567,73 @@ This affects the steps that look an entity up by name and, when several share th
 - The 4 media steps `I edit the :media_type media with the name :name`, `I visit the :media_type media with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
 - The 3 term steps `I visit the :vocabulary term page with the name :term_name`, `I visit the :vocabulary term edit page with the name :term_name` and `I visit the :vocabulary term delete page with the name :term_name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
 - `I edit the :content_block_type content block with the description :description`.
+
+## One skip tag per trait
+
+A skip tag names the trait whose hooks it switches off, and switches off every hook that trait registers. `@behat-steps-skip:<TraitName>` is the only form: the hook-method form is gone, and with it the choice between the 2. The tag is the same switch the trait's `enabled` option sets for a whole profile or context.
+
+A skip tag carrying anything but a trait name fails the run at scenario start, naming the tag, so a feature file still carrying a hook-method tag cannot quietly lose its effect:
+
+```
+The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
+```
+
+Replace each hook-method tag with its trait's:
+
+| Tag | Replacement |
+| --- | --- |
+| `@behat-steps-skip:authCleanRoles` | `@behat-steps-skip:AuthTrait` |
+| `@behat-steps-skip:authCleanUsers` | `@behat-steps-skip:AuthTrait` |
+| `@behat-steps-skip:basicAuthBeforeScenario` | `@behat-steps-skip:BasicAuthTrait` |
+| `@behat-steps-skip:cleanEntities` | `@behat-steps-skip:EntityLifecycleTrait` |
+| `@behat-steps-skip:cleanRoles` | `@behat-steps-skip:AuthTrait` |
+| `@behat-steps-skip:cleanUsers` | `@behat-steps-skip:AuthTrait` |
+| `@behat-steps-skip:configAfterScenario` | `@behat-steps-skip:ConfigTrait` |
+| `@behat-steps-skip:configOverrideBeforeScenario` | `@behat-steps-skip:ConfigOverrideTrait` |
+| `@behat-steps-skip:configOverrideBeforeStep` | `@behat-steps-skip:ConfigOverrideTrait` |
+| `@behat-steps-skip:emailAfterScenario` | `@behat-steps-skip:EmailTrait` |
+| `@behat-steps-skip:emailBeforeScenario` | `@behat-steps-skip:EmailTrait` |
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:EntityLifecycleTrait` |
+| `@behat-steps-skip:entityLifecycleCleanAll` | `@behat-steps-skip:EntityLifecycleTrait` |
+| `@behat-steps-skip:fileAfterScenario` | `@behat-steps-skip:FileTrait` |
+| `@behat-steps-skip:fileBeforeScenario` | `@behat-steps-skip:FileTrait` |
+| `@behat-steps-skip:fileDownloadAfterScenario` | `@behat-steps-skip:FileDownloadTrait` |
+| `@behat-steps-skip:fileDownloadBeforeScenario` | `@behat-steps-skip:FileDownloadTrait` |
+| `@behat-steps-skip:moduleAfterScenario` | `@behat-steps-skip:ModuleTrait` |
+| `@behat-steps-skip:moduleBeforeScenario` | `@behat-steps-skip:ModuleTrait` |
+| `@behat-steps-skip:overrideBootstrapDrupal` | Remove it. `OverrideTrait` is gone, and a step bootstraps Drupal through the driver it resolves. |
+| `@behat-steps-skip:queueAfterScenario` | `@behat-steps-skip:QueueTrait` |
+| `@behat-steps-skip:restBeforeScenario` | `@behat-steps-skip:RestTrait` |
+| `@behat-steps-skip:stateAfterScenario` | `@behat-steps-skip:StateTrait` |
+| `@behat-steps-skip:testmodeAfterScenario` | `@behat-steps-skip:TestmodeTrait` |
+| `@behat-steps-skip:testmodeBeforeScenario` | `@behat-steps-skip:TestmodeTrait` |
+| `@behat-steps-skip:timeCleanup` | `@behat-steps-skip:TimeTrait` |
+| `@behat-steps-skip:watchdogAfterStep` | `@behat-steps-skip:WatchdogTrait` |
+| `@behat-steps-skip:watchdogSetScenario` | `@behat-steps-skip:WatchdogTrait` |
+
+The per-type cleanup tags listed under [Unified entity cleanup](#unified-entity-cleanup), such as `@behat-steps-skip:mediaAfterScenario`, fail the same way. Their replacements are unchanged.
+
+### A tag now reaches every hook of its trait
+
+For most traits the replacement does exactly what the old tag did, because the trait has one hook to switch off or both of its tags had the same effect: `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`. The rest reach further than a single hook tag did:
+
+- A tag that skipped a trait's teardown alone now skips its setup as well. `@behat-steps-skip:EmailTrait` keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards. A scenario that wants the collector without the teardown enables it itself with `When I enable the test email system`. `FileTrait` (the private and temporary directories), `FileDownloadTrait` (the download directory), `ModuleTrait` (the `@module:` tags) and `TestmodeTrait` (the `@testmode` tag) work the same way.
+- `@behat-steps-skip:AuthTrait` keeps both the users and the roles a scenario created, where the 2 were separate tags.
+
+### A guard of your own names its trait
+
+A trait of your own that guards a hook with `skipTag()` passes `__TRAIT__`, which resolves to the trait the code is written in:
+
+```php
+// Before.
+if ($this->skipTag(__FUNCTION__, $scope)) {
+  return;
+}
+
+// After.
+if ($this->skipTag(__TRAIT__, $scope)) {
+  return;
+}
+```
+
+`TraitOptionResolverInterface::groupFor()` resolves a trait name only, so a resolver of your own drops any matching of hook-method names against a group's prefix.

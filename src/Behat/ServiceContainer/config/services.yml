@@ -10,6 +10,7 @@ parameters:
   behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
   behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
+  behat_steps.listener.skip_tag.class: DrevOps\BehatSteps\Behat\Listener\SkipTagListener
   behat_steps.region_selector.class: DrevOps\BehatSteps\Behat\Selector\RegionSelector
   behat_steps.parameters: {}
   behat_steps.regions: {}
@@ -70,6 +71,10 @@ services:
       - "@behat_steps.driver_registry"
       - "@behat_steps.scenario_tag_registry"
       - "%behat_steps.drivers%"
+    tags:
+      - { name: event_dispatcher.subscriber, priority: 0 }
+  behat_steps.listener.skip_tag:
+    class: "%behat_steps.listener.skip_tag.class%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }
   behat_steps.region_selector:

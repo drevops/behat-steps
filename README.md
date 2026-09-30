@@ -315,16 +315,17 @@ The cookie with name "session" was not set.
 
 ### Skipping hooks
 
-Several traits carry hooks that run around every scenario or step. One tag form
-turns any of them off:
+Several traits carry hooks that run around every scenario or step. One tag
+switches off every hook of a trait:
 
 ```gherkin
-@behat-steps-skip:NAME
+@behat-steps-skip:TRAIT
 ```
 
-`NAME` is either the hook method (`@behat-steps-skip:emailBeforeScenario`) or
-the trait it belongs to (`@behat-steps-skip:ElementTrait`), and the tag works on
-the `Feature:` line as well as the `Scenario:` line.
+`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the
+tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag
+naming anything else, such as a hook method, fails the run before the scenario
+starts.
 
 ### Automatic entity cleanup
 
@@ -341,9 +342,8 @@ $this->entityLifecycleRegister($entity);
 ```
 
 To keep **all** entities after a scenario, add
-`@behat-steps-skip:entityLifecycleCleanAll` to the scenario or feature.
-`@behat-steps-skip:authCleanUsers` and `@behat-steps-skip:authCleanRoles` do the
-same for users and roles.
+`@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature.
+`@behat-steps-skip:AuthTrait` does the same for users and roles.
 
 To keep only entities of a **named type**, add
 `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example

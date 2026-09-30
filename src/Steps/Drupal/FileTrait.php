@@ -31,8 +31,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * - Verify file existence, content, and proper storage locations.
  * - Set up file system directories and clean up created files.
  *
- * Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
- * `@behat-steps-skip:fileAfterScenario`
+ * Skip processing with tag: `@behat-steps-skip:FileTrait`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -53,7 +52,7 @@ trait FileTrait {
    */
   #[BeforeScenario]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 
@@ -81,7 +80,7 @@ trait FileTrait {
    */
   #[AfterScenario]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
     foreach ($this->fileUnmanagedUris as $uri) {

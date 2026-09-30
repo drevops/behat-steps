@@ -115,10 +115,10 @@ class ContextConfigTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a skip name resolves to the group that owns it.
+   * Tests whether the tags and the configuration switch a trait's hooks off.
    *
-   * @param string $name
-   *   The hook method name or trait name a skip tag would carry.
+   * @param string $trait
+   *   The trait name a hook passes, fully qualified or short.
    * @param list<string> $tags
    *   Tags on the scenario.
    * @param array<string, mixed> $config
@@ -127,34 +127,34 @@ class ContextConfigTest extends UnitTestCase {
    *   Whether the hook is expected to be skipped.
    */
   #[DataProvider('dataProviderSkipTag')]
-  public function testSkipTag(string $name, array $tags, array $config, bool $expected): void {
+  public function testSkipTag(string $trait, array $tags, array $config, bool $expected): void {
     $context = new ConfigurableContext($config);
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
     $context->setOptionResolverFactory(new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrides()));
 
-    $this->assertSame($expected, $context->callSkipTag($name, $this->createBeforeScenarioScope($tags)));
+    $this->assertSame($expected, $context->callSkipTag($trait, $this->createBeforeScenarioScope($tags)));
   }
 
   public static function dataProviderSkipTag(): \Iterator {
-    yield 'no tag and no config runs the hook' => ['sampleBeforeScenario', [], [], FALSE];
-    yield 'a method tag skips the hook' => ['sampleBeforeScenario', ['behat-steps-skip:sampleBeforeScenario'], [], TRUE];
-    yield 'a trait tag skips the hook' => ['SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
-    yield 'a trait tag skips a method-named hook of the same trait' => ['sampleBeforeScenario', ['behat-steps-skip:SampleTrait'], [], TRUE];
-    yield 'a disabled group skips a method-named hook' => ['sampleBeforeScenario', [], ['sample' => ['enabled' => FALSE]], TRUE];
-    yield 'a disabled group skips a trait-named hook' => ['SampleTrait', [], ['sample' => ['enabled' => FALSE]], TRUE];
+    yield 'no tag and no config runs the hook' => ['SampleTrait', [], [], FALSE];
+    yield 'the trait tag skips the hook' => ['SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
+    yield 'a fully qualified trait reads the short tag' => ['Acme\Behat\SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
+    yield 'a disabled group skips the hook' => ['SampleTrait', [], ['sample' => ['enabled' => FALSE]], TRUE];
+    yield 'a hook tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:sampleBeforeScenario'], [], FALSE];
+    yield 'another trait tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:SampleExtraTrait'], [], FALSE];
 
-    // 'sampleExtraBeforeScenario' matches both 'sample' and 'sample_extra', so
-    // the longer group owns the name and the shorter one does not.
-    yield 'the longest matching prefix owns the hook' => ['sampleExtraBeforeScenario', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
-    yield 'the shorter prefix does not claim a longer group' => ['sampleExtraBeforeScenario', [], ['sample' => ['enabled' => FALSE]], FALSE];
+    // 'SampleExtraTrait' starts with 'Sample', and each trait keeps to its own
+    // group in both directions.
+    yield 'a disabled group skips its own trait' => ['SampleExtraTrait', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
+    yield 'a disabled group leaves a trait extending its name running' => ['SampleExtraTrait', [], ['sample' => ['enabled' => FALSE]], FALSE];
 
     // A group without an 'enabled' option contributes no switch.
-    yield 'a group with no enabled option is tag-only' => ['otherSampleBeforeScenario', ['behat-steps-skip:otherSampleBeforeScenario'], [], TRUE];
+    yield 'a trait whose group has no enabled option is tag-only' => ['OtherSampleTrait', ['behat-steps-skip:OtherSampleTrait'], [], TRUE];
 
-    yield 'a trait with no group is tag-only' => ['NonexistentTrait', [], [], FALSE];
-    yield 'a name matching no group is tag-only' => ['entityLifecycleCleanAll', [], [], FALSE];
+    yield 'a trait with no group runs without its tag' => ['NonexistentTrait', [], [], FALSE];
+    yield 'a trait with no group is skipped by its tag' => ['NonexistentTrait', ['behat-steps-skip:NonexistentTrait'], [], TRUE];
   }
 
 }

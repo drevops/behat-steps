@@ -188,3 +188,17 @@ Feature: Behat CLI context
       """
       The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, blackbox. The tag reorders that list; it never adds to it.
       """
+
+  Scenario: A skip tag naming a hook rather than a trait fails at scenario start
+    Given a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        @behat-steps-skip:emailAfterScenario
+        Scenario: A scenario skips a hook by its method name
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
+      """

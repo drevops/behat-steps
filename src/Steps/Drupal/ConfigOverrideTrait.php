@@ -63,8 +63,7 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  *   Then the response should contain "Original site name"
  * @endcode
  *
- * Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
- * and `@behat-steps-skip:configOverrideBeforeStep`.
+ * Skip processing with tag: `@behat-steps-skip:ConfigOverrideTrait`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -80,30 +79,20 @@ trait ConfigOverrideTrait {
   protected array $configOverrideDisabledNames = [];
 
   /**
-   * Whether the `BeforeStep` hook should be skipped for this scenario.
-   */
-  protected bool $configOverrideSkipBeforeStep = FALSE;
-
-  /**
    * Collect `@disable-config-override:*` tags for the current scenario.
    *
    * The signal propagated by a previous scenario is cleared before the
    * skip-tag check, so no signal persists across scenarios.
-   * `@behat-steps-skip:configOverrideBeforeScenario` bypasses tag collection,
-   * not the clearing.
+   * `@behat-steps-skip:ConfigOverrideTrait` bypasses tag collection, not the
+   * clearing.
    */
   #[BeforeScenario]
   public function configOverrideBeforeScenario(BeforeScenarioScope $scope): void {
     $this->configOverrideDisabledNames = [];
-    $this->configOverrideSkipBeforeStep = FALSE;
     $this->configOverrideClearSignal();
 
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
-    }
-
-    if ($this->skipTag('configOverrideBeforeStep', $scope)) {
-      $this->configOverrideSkipBeforeStep = TRUE;
     }
 
     $tags = array_unique(Tag::all($scope));
@@ -126,7 +115,7 @@ trait ConfigOverrideTrait {
    */
   #[BeforeStep]
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
-    if ($this->configOverrideSkipBeforeStep || $this->configOverrideDisabledNames === []) {
+    if ($this->configOverrideDisabledNames === []) {
       // Nothing to propagate. The process-level signal persists beyond the
       // scenario that set it, so it is cleared here along with the
       // driver-level header.

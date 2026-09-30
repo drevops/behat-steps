@@ -17,8 +17,7 @@ use Drupal\testmode\Testmode;
 /**
  * Configure Drupal Testmode module for controlled testing scenarios.
  *
- * Skip processing with tags: `@behat-steps-skip:testmodeBeforeScenario` and
- * `@behat-steps-skip:testmodeAfterScenario`.
+ * Skip processing with tag: `@behat-steps-skip:TestmodeTrait`.
  *
  * Special tags:
  * - `@testmode` - enable for scenario
@@ -34,7 +33,7 @@ trait TestmodeTrait {
    */
   #[BeforeScenario]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
+    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 
@@ -50,7 +49,7 @@ trait TestmodeTrait {
    */
   #[AfterScenario]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
+    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
       return;
     }
 

@@ -253,6 +253,32 @@ if (Tag::has($scope->getScenario(), 'email')) {
 
 `Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
+## Skipping a trait's hooks
+
+A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not a trait name, so a tag that would switch nothing off cannot pass unnoticed.
+
+A scenario hook opens with the guard, naming its own trait:
+
+```php
+#[AfterScenario]
+public function acmeAfterScenario(AfterScenarioScope $scope): void {
+  if ($this->skipTag(__TRAIT__, $scope)) {
+    return;
+  }
+
+  // ...
+}
+```
+
+`__TRAIT__` resolves to the trait the code is written in, so the guard cannot name the wrong trait or fall out of step with a rename.
+
+A step hook's scope carries no scenario tags, so it reads a flag its trait's `BeforeScenario` hook set behind the guard, and an `AfterScenario` hook may read the same flag instead of a guard of its own. Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
+
+- A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
+- A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
+
+`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that is neither guarded nor listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
+
 ## Dependency policy
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
@@ -362,7 +388,7 @@ Mark a block only when a test cannot reach it in this environment:
 
 Do not mark a branch that a scenario could reach. In particular:
 
-- **Skip-tag guards** (`@behat-steps-skip:<method>`) are reachable by definition - add a scenario carrying the tag.
+- **Skip-tag guards** (`@behat-steps-skip:<TraitName>`) are reachable by definition - add a scenario carrying the tag.
 - **Argument validation** driven by a step parameter is reachable by passing an invalid value.
 
 If a reachable branch has no test, the fix is the test, not the marker.

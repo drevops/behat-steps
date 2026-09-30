@@ -79,7 +79,7 @@ trait RandomTrait {
 
     // A transform receives no scope, so the decision is made here and the
     // transforms read the result.
-    $this->randomEnabled = !$this->skipTag('RandomTrait', $scope);
+    $this->randomEnabled = !$this->skipTag(__TRAIT__, $scope);
 
     if (!$this->randomEnabled) {
       return;

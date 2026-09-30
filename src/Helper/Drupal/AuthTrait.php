@@ -25,6 +25,9 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
  * because a user is looked up by name. Roles are tracked separately for the
  * same reason.
  *
+ * Keep the users and roles a scenario created with tag:
+ * `@behat-steps-skip:AuthTrait`.
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait AuthTrait {
@@ -57,7 +60,7 @@ trait AuthTrait {
    */
   #[AfterScenario]
   public function authCleanUsers(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('authCleanUsers', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 
@@ -95,7 +98,7 @@ trait AuthTrait {
    */
   #[AfterScenario]
   public function authCleanRoles(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('authCleanRoles', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

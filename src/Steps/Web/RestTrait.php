@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
  * - Assert response status codes and body content.
  *
- * Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
+ * Skip processing with tag: `@behat-steps-skip:RestTrait`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -35,7 +35,7 @@ trait RestTrait {
    */
   #[BeforeScenario]
   public function restBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

@@ -187,19 +187,9 @@ Feature: Check that FileTrait works
       """
 
   @trait:Drupal\FileTrait
-  Scenario: Assert that skip tag for beforeScenario hook works
+  Scenario: Assert that the skip tag switches the FileTrait hooks off
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:fileBeforeScenario":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:Drupal\FileTrait
-  Scenario: Assert that skip tag for afterScenario hook works
-    Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:fileAfterScenario":
+    And scenario steps tagged with "@behat-steps-skip:FileTrait":
       """
       When I visit "/"
       """

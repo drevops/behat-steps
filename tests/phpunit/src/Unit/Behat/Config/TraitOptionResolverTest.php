@@ -228,33 +228,25 @@ class TraitOptionResolverTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a skip name resolves to the group that owns it.
+   * Tests that a trait name resolves to the switchable group it owns.
    *
-   * @param string $name
-   *   The hook method name or trait name a skip tag would carry.
+   * @param string $trait
+   *   The short trait name a skip tag carries.
    * @param string|null $expected
-   *   The group expected to own the name.
+   *   The group expected to be owned by the trait.
    */
   #[DataProvider('dataProviderGroupFor')]
-  public function testGroupFor(string $name, ?string $expected): void {
-    $this->assertSame($expected, $this->createResolver()->groupFor($name));
+  public function testGroupFor(string $trait, ?string $expected): void {
+    $this->assertSame($expected, $this->createResolver()->groupFor($trait));
   }
 
   public static function dataProviderGroupFor(): \Iterator {
-    yield 'a hook name carries its trait prefix' => ['sampleBeforeScenario', 'sample'];
-    yield 'a trait name maps directly' => ['SampleTrait', 'sample'];
-
-    // 'sampleExtraBeforeScenario' matches both 'sample' and 'sample_extra', so
-    // the longer group owns the name and the shorter one does not.
-    yield 'the longest matching prefix wins' => ['sampleExtraBeforeScenario', 'sample_extra'];
-
-    yield 'a group with no enabled option owns nothing' => ['otherSampleBeforeScenario', NULL];
+    yield 'a trait name maps to its group' => ['SampleTrait', 'sample'];
+    yield 'a trait whose name extends another maps to its own group' => ['SampleExtraTrait', 'sample_extra'];
+    yield 'a trait whose group has no enabled option owns nothing' => ['OtherSampleTrait', NULL];
     yield 'a trait with no group owns nothing' => ['NonexistentTrait', NULL];
-    yield 'a name matching no group owns nothing' => ['entityLifecycleCleanAll', NULL];
-
-    // A prefix has to be followed by a word boundary in the method name.
-    yield 'a prefix not followed by a capital does not match' => ['sampledBeforeScenario', NULL];
-    yield 'a prefix reaching the end of the name does not match' => ['sample', NULL];
+    yield 'a hook name owns nothing' => ['sampleBeforeScenario', NULL];
+    yield 'a name without the trait suffix owns nothing' => ['Sample', NULL];
   }
 
   /**

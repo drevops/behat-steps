@@ -50,7 +50,7 @@ trait MappingTrait {
    */
   #[BeforeScenario]
   public function mappingBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->mappingEnabled = !$this->skipTag('MappingTrait', $scope);
+    $this->mappingEnabled = !$this->skipTag(__TRAIT__, $scope);
   }
 
   /**

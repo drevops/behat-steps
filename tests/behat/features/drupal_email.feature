@@ -714,11 +714,12 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that behat-steps-skip tag for AfterScenario hook works
+  Scenario: Assert that a scenario with the skip tag drives the test email system itself
     Given some behat configuration
-    And scenario steps tagged with "@email @behat-steps-skip:emailAfterScenario":
+    And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
       """
-      When I send test email to "test@example.com" with:
+      When I enable the test email system
+      And I send test email to "test@example.com" with:
         '''
         Test content
         '''
@@ -759,14 +760,17 @@ Feature: Check that EmailTrait works
     Then the mailsystem formatter should be "php_mail"
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that skip tag for beforeScenario hook works
+  Scenario: Assert that the skip tag keeps the "@email" tag from enabling the test email system
     Given some behat configuration
-    And scenario steps tagged with "@email @behat-steps-skip:emailBeforeScenario":
+    And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
       """
-      When I visit "/"
+      When I clear the test email system queue
       """
     When I run "behat --no-colors"
-    Then it should pass
+    Then it should fail with an exception:
+      """
+      Clearing testing email system queue can be done only when email testing system is activated.
+      """
 
   @trait:Drupal\EmailTrait
   Scenario: Assert that an unknown email field is rejected by a positive assertion

@@ -82,7 +82,7 @@ trait JavascriptTrait {
     $this->javascriptClearRegistry();
     $this->javascriptAsserted = FALSE;
 
-    if ($this->skipTag('JavascriptTrait', $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       $this->javascriptEnabled = FALSE;
       return;
     }

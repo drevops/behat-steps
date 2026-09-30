@@ -1763,7 +1763,7 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => 'Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE.',
+      'description' => 'Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start.',
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',

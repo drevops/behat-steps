@@ -73,7 +73,7 @@ trait DiagnosticsTrait {
    */
   #[BeforeScenario]
   public function diagnosticsBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->diagnosticsSkip = $this->skipTag('DiagnosticsTrait', $scope);
+    $this->diagnosticsSkip = $this->skipTag(__TRAIT__, $scope);
 
     $this->diagnosticsFeatureFile = $scope->getFeature()->getFile();
     $this->diagnosticsScenarioLine = $scope->getScenario()->getLine();

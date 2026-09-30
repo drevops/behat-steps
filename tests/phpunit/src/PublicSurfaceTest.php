@@ -198,59 +198,6 @@ class PublicSurfaceTest extends UnitTestCase {
   }
 
   /**
-   * Return every trait shipped in the library, keyed by name.
-   *
-   * The conventions below describe traits mixed into a consuming context, so
-   * classes under `src` are outside their scope.
-   *
-   * @return array<string, array{string}>
-   *   Fully qualified trait names, as data provider rows.
-   */
-  protected static function discoverTraits(): array {
-    $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
-    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
-
-    $traits = [];
-    foreach ($files as $file) {
-      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
-        continue;
-      }
-
-      $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
-
-      if (!static::isComposedTraitPath($relative)) {
-        continue;
-      }
-
-      $trait = 'DrevOps\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
-
-      if (!trait_exists($trait)) {
-        continue;
-      }
-
-      $traits[$trait] = [$trait];
-    }
-
-    ksort($traits);
-
-    return $traits;
-  }
-
-  /**
-   * Reflect a trait discovered by path.
-   *
-   * @param string $trait
-   *   Fully qualified trait name.
-   *
-   * @return \ReflectionClass<object>
-   *   Reflection of the trait.
-   */
-  protected static function reflect(string $trait): \ReflectionClass {
-    /** @var class-string $trait */
-    return new \ReflectionClass($trait);
-  }
-
-  /**
    * Return the methods a trait declares itself.
    *
    * @param string $trait

@@ -26,8 +26,7 @@ use Drupal\Core\Database\StatementInterface;
  * - Follow links and test attachments within email content.
  * - Configure mail handler systems for proper test isolation.
  *
- * Skip processing with tags: `@behat-steps-skip:emailBeforeScenario` or
- * `@behat-steps-skip:emailAfterScenario`
+ * Skip processing with tag: `@behat-steps-skip:EmailTrait`.
  *
  * Special tags:
  * - `@email` - enable email tracking using a default handler
@@ -57,7 +56,7 @@ trait EmailTrait {
    */
   #[BeforeScenario]
   public function emailBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 
@@ -92,7 +91,7 @@ trait EmailTrait {
    */
   #[AfterScenario]
   public function emailAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

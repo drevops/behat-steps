@@ -151,10 +151,12 @@ In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertio
   - `I clear the test email system queue`
   - `an email should be sent to the address "..."`
 
-## Skipping Before Scenario Hooks
-Some traits provide `beforeScenario` hook implementations that can be disabled by adding `behat-steps-skip:METHOD_NAME` tag to your test.
+## Skipping Trait Hooks
+A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag carrying any other value fails the run at scenario start.
 
-Example: To skip `beforeScenario` hook from `ElementTrait`, add `@behat-steps-skip:ElementTrait` tag to the feature.
+Example: To skip the hooks of `EmailTrait`, add `@behat-steps-skip:EmailTrait` tag to the feature.
+
+A scenario hook opens with `if ($this->skipTag(__TRAIT__, $scope)) { return; }`. A scenario hook with nothing to switch off carries no guard and is listed with its reason in `UNGUARDED_HOOKS` in `tests/phpunit/src/SkipGuardTest.php`. See the "Skipping a trait's hooks" section of [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Reading Tags
 Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, and `hasTag()` compares strictly, so a bare-name comparison that matches on one major fails on the other. Read tags through `DrevOps\BehatSteps\Behat\Tag` instead: `Tag::all($scope)` for the scenario plus its feature, `Tag::on($node)` for one node, `Tag::has($node, 'email')` for one tag on one node, `Tag::normalize($tags)` for a raw list. Nothing outside `Tag` calls `getTags()` or `hasTag()`. See the "Reading tags" section of [CONTRIBUTING.md](CONTRIBUTING.md).

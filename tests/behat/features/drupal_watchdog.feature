@@ -111,19 +111,9 @@ Feature: Check that WatchdogTrait works
     When I go to the homepage
 
   @trait:Drupal\WatchdogTrait
-  Scenario: Assert that skip tag for watchdogSetScenario hook works
+  Scenario: Assert that the skip tag switches the WatchdogTrait hooks off
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:watchdogSetScenario":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:Drupal\WatchdogTrait
-  Scenario: Assert that skip tag for watchdogAfterStep hook works
-    Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:watchdogAfterStep":
+    And scenario steps tagged with "@behat-steps-skip:WatchdogTrait":
       """
       When I visit "/"
       """

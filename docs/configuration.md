@@ -305,7 +305,7 @@ The declared default carries the option's type, and the composing context reads 
 A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.
 
 ```gherkin
-@module:redirect @behat-steps-skip:watchdogAfterStep
+@module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
 
@@ -313,7 +313,7 @@ Scenario: Editor publishes a page
 
 | Tag | Description |
 | --- | --- |
-| `@behat-steps-skip:VALUE` | Turn a hook off, named either by its method (`emailBeforeScenario`) or by the trait it belongs to (`ElementTrait`). Naming a trait sets its `enabled` option to FALSE. |
+| `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |

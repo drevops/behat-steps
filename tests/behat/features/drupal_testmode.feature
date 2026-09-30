@@ -39,19 +39,9 @@ Feature: Ensure TestmodeTrait works.
     And I save screenshot
 
   @trait:Drupal\TestmodeTrait
-  Scenario: Assert that skip tag for beforeScenario hook works
+  Scenario: Assert that the skip tag switches the TestmodeTrait hooks off
     Given some behat configuration
-    And scenario steps tagged with "@testmode @behat-steps-skip:testmodeBeforeScenario":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:Drupal\TestmodeTrait
-  Scenario: Assert that skip tag for afterScenario hook works
-    Given some behat configuration
-    And scenario steps tagged with "@testmode @behat-steps-skip:testmodeAfterScenario":
+    And scenario steps tagged with "@testmode @behat-steps-skip:TestmodeTrait":
       """
       When I visit "/"
       """

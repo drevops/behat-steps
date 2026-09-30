@@ -22,9 +22,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * `\Drupal::state()`. Touched keys are snapshotted on first access and
  * reverted after the scenario finishes.
  *
- * Skip the revert with `@behat-steps-skip:stateAfterScenario` or with the
- * convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
- * cleared unconditionally before and after the scenario to prevent state
+ * Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
+ * is cleared unconditionally before and after the scenario to prevent state
  * leaking into subsequent scenarios.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
@@ -54,10 +53,7 @@ trait StateTrait {
    */
   #[AfterScenario]
   public function stateAfterScenario(AfterScenarioScope $scope): void {
-    if (
-      $this->skipTag(__FUNCTION__, $scope)
-      || $this->skipTag('StateTrait', $scope)
-    ) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       $this->stateOriginalValues = [];
       return;
     }

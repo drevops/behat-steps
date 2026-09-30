@@ -200,7 +200,7 @@ trait AccessibilityTrait {
     $this->accessibilityScenarioFailOnIncomplete = NULL;
     $this->accessibilityGated = FALSE;
 
-    $this->accessibilitySkip = $this->skipTag('AccessibilityTrait', $scope);
+    $this->accessibilitySkip = $this->skipTag(__TRAIT__, $scope);
 
     if ($this->accessibilitySkip) {
       return;

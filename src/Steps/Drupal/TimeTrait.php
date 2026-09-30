@@ -21,6 +21,8 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  * - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
  * - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
  *
+ * Skip processing with tag: `@behat-steps-skip:TimeTrait`.
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait TimeTrait {
@@ -37,7 +39,7 @@ trait TimeTrait {
   public function timeCleanup(AfterScenarioScope $scope): void {
     // A scenario that never set the time has nothing to clean up, and
     // resolving a driver would fail a suite that lists none reaching Drupal.
-    if (!$this->timeWasSet || $this->skipTag(__FUNCTION__, $scope)) {
+    if (!$this->timeWasSet || $this->skipTag(__TRAIT__, $scope)) {
       $this->timeWasSet = FALSE;
 
       return;
