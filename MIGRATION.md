@@ -1802,6 +1802,7 @@ Where both lines carry the same kind of tag:
 - `@email:TYPE` and `@watchdog:TYPE` add up, so the scenario uses every handler type and tracks every message type named on either line.
 - `@module:` and `@breakpoint:` take the scenario's value over the feature's. A feature tagged `@module:help` holding a scenario tagged `@module:!help` leaves `help` disabled for that scenario, and doesn't install it first.
 - Each line takes 1 `@breakpoint:` tag at most. 2 on the `Feature:` line fail every scenario below it with `Only one @breakpoint tag is allowed per feature`.
+- A parametrized tag with nothing after the colon, such as `@module:`, `@email:` or `@breakpoint:`, names nothing and is ignored. It used to reach some traits as an empty module name, handler type or breakpoint.
 
 ### What to check
 

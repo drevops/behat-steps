@@ -274,26 +274,29 @@ The test suite follows the same rule. Behat 4 reads only PHP configuration and i
 
 Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
 
-Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly. A hook reads the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
+Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to one of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
 
 ```php
-// Every tag on the scenario and on the feature that holds it, without the '@'.
-$tags = Tag::all($scope);
-
-if (in_array('email', $tags, TRUE)) {
+// A flag: '@testmode' on the scenario or on its feature.
+if (Tag::has($scope, self::TESTMODE_TAG)) {
   // ...
 }
+
+// The values of a parametrized tag: '@watchdog:php @watchdog:cron' gives
+// 'php' and 'cron', feature tags first.
+$types = Tag::values($scope, self::WATCHDOG_TAG);
+
+// A switch tag: '@module:help @module:!contextual' gives
+// ['help' => TRUE, 'contextual' => FALSE]. A later tag for a value replaces
+// an earlier one, so a scenario tag overrides a feature tag.
+$modules = Tag::switches($scope, self::MODULE_TAG);
 ```
 
-`Tag::on()` returns the tags of a single node and `Tag::has()` checks one tag on a single node. They are for a hook that ranks the 2 lines, such as `ResponsiveTrait` taking the scenario's `@breakpoint:` over the feature's:
+Every tag has the same syntax: a flag stands alone, a parametrized tag takes its value after `Tag::SEPARATOR` (`:`), and a switch tag turns its value off with `Tag::NEGATION` (`!`). A tag with nothing after the separator names no value.
 
-```php
-// Every tag on one node.
-$scenario_tags = Tag::on($scope->getScenario());
-$feature_tags = Tag::on($scope->getFeature());
-```
+A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a single node, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
 
-`Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
+A reader also takes a single node, for a hook that ranks the 2 lines itself: `ResponsiveTrait` validates the `@breakpoint:` tag of the scenario and of its feature separately. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits, such as a listener. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 ## Skipping a trait's hooks
 
