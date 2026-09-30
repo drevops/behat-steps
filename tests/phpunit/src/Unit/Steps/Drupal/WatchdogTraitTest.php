@@ -138,6 +138,33 @@ class WatchdogTraitTest extends UnitTestCase {
   }
 
   /**
+   * Tests the message types the scenario and feature tags add to 'php'.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param list<string> $expected
+   *   The message types expected to be tracked.
+   */
+  #[DataProvider('dataProviderSetScenarioTracksMessageTypes')]
+  public function testSetScenarioTracksMessageTypes(array $scenario_tags, array $feature_tags, array $expected): void {
+    $context = $this->createContext(['drupal' => $this->createDrupalDriver(TRUE)]);
+
+    $context->watchdogSetScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertSame($expected, array_values($context->getMessageTypes()));
+  }
+
+  public static function dataProviderSetScenarioTracksMessageTypes(): \Iterator {
+    yield 'no tags' => [[], [], ['php']];
+    yield 'on the scenario' => [['watchdog:custom_type'], [], ['custom_type', 'php']];
+    yield 'on the feature' => [[], ['watchdog:custom_type'], ['custom_type', 'php']];
+    yield 'on both' => [['watchdog:scenario_type'], ['watchdog:feature_type'], ['feature_type', 'scenario_type', 'php']];
+    yield 'the same type on both' => [['watchdog:custom_type'], ['watchdog:custom_type'], ['custom_type', 'php']];
+  }
+
+  /**
    * Builds a Drupal driver double reporting whether dblog is enabled.
    */
   protected function createDrupalDriver(bool $dblog): DrupalDriverInterface {
@@ -180,6 +207,16 @@ class WatchdogTraitTestImplementation extends WebRawContext {
    */
   public function isArmed(): bool {
     return $this->watchdogScenarioStartTime !== NULL;
+  }
+
+  /**
+   * Returns the message types the scenario is checked for.
+   *
+   * @return array<int, string>
+   *   The message types.
+   */
+  public function getMessageTypes(): array {
+    return $this->watchdogMessageTypes;
   }
 
 }
