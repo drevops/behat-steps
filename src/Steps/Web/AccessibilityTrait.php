@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * Assess accessibility of rendered pages.
@@ -427,7 +428,9 @@ trait AccessibilityTrait {
    * Read the engine source once from the given location.
    *
    * Default: a single read bounded by the given timeout, returning FALSE
-   * when the read fails. Override to fetch through a different HTTP client;
+   * when the read fails. An HTTP or HTTPS location is fetched through the
+   * bare client, which carries no scenario state; any other location is read
+   * as a local file. Override to fetch through a different HTTP client;
    * accessibilityGetJs() supplies the retries around it.
    *
    * @param string $url
@@ -439,9 +442,22 @@ trait AccessibilityTrait {
    *   The engine source, or FALSE when the read fails.
    */
   public function accessibilityFetchJs(string $url, int $timeout): string|false {
-    $context = stream_context_create(['http' => ['timeout' => $timeout]]);
+    if (preg_match('#^https?://#i', $url) !== 1) {
+      return @file_get_contents($url);
+    }
 
-    return @file_get_contents($url, FALSE, $context);
+    $browser = $this->httpBareClient(['timeout' => $timeout]);
+
+    try {
+      $browser->request('GET', $url);
+    }
+    catch (TransportExceptionInterface) {
+      return FALSE;
+    }
+
+    $response = $browser->getInternalResponse();
+
+    return $response->getStatusCode() < 400 ? $response->getContent() : FALSE;
   }
 
   /**
