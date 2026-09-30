@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ForeignMinkExtension;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBehatStepsExtension;
 use Drupal\Tests\DrupalTestBrowser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -98,8 +98,8 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public static function dataProviderInitializeRegistersTheFirstPartyBrowserKitFactory(): \Iterator {
-    yield 'Mink activated first' => [[MinkExtension::class, BehatStepsExtension::class]];
-    yield 'Mink activated last' => [[BehatStepsExtension::class, MinkExtension::class]];
+    yield 'Mink activated first' => [[MinkExtension::class, TestableBehatStepsExtension::class]];
+    yield 'Mink activated last' => [[TestableBehatStepsExtension::class, MinkExtension::class]];
   }
 
   public function testInitializeBuildsTheBrowserKitSessionOnDrupalTestBrowser(): void {
@@ -137,16 +137,8 @@ class BehatStepsExtensionTest extends TestCase {
 
   public function testInitializeKeepsMinkFactoryWithoutDrupal(): void {
     $mink = new MinkExtension();
-    $extension = new class extends BehatStepsExtension {
-
-      /**
-       * {@inheritdoc}
-       */
-      protected function createBrowserKitFactory(): TestableBrowserKitFactory {
-        return new TestableBrowserKitFactory();
-      }
-
-    };
+    $extension = new TestableBehatStepsExtension();
+    $extension->drupalRoot = NULL;
 
     $extension->initialize(new ExtensionManager([$mink]));
 
@@ -544,7 +536,7 @@ class BehatStepsExtensionTest extends TestCase {
   protected function initializeMink(): MinkExtension {
     $mink = new MinkExtension();
 
-    (new BehatStepsExtension())->initialize(new ExtensionManager([$mink]));
+    (new TestableBehatStepsExtension())->initialize(new ExtensionManager([$mink]));
 
     return $mink;
   }
