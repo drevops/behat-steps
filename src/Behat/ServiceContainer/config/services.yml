@@ -7,6 +7,7 @@ parameters:
   behat_steps.config.schema_reader.class: DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader
   behat_steps.config.tag_overrides.class: DrevOps\BehatSteps\Behat\Config\TagOverrides
   behat_steps.config.resolver_factory.class: DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory
+  behat_steps.http_client_factory.class: DrevOps\BehatSteps\Behat\Http\HttpClientFactory
   behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
   behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
@@ -49,6 +50,11 @@ services:
       - "@behat_steps.config.schema_reader"
       - "@behat_steps.scenario_tag_registry"
       - "@behat_steps.config.tag_overrides"
+  behat_steps.http_client_factory:
+    class: "%behat_steps.http_client_factory.class%"
+    arguments:
+      - "@behat_steps.http_client"
+      - "%mink.base_url%"
   behat_steps.context.initializer:
     class: "%behat_steps.context.initializer.class%"
     arguments:
@@ -59,6 +65,7 @@ services:
       - "@behat_steps.authenticator"
       - "@behat_steps.user_registry"
       - "@behat_steps.config.resolver_factory"
+      - "@behat_steps.http_client_factory"
     tags:
       - { name: context.initializer }
   behat_steps.context.attribute_reader:

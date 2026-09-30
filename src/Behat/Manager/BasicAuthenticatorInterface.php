@@ -21,4 +21,12 @@ interface BasicAuthenticatorInterface {
    */
   public function applyBasicAuth(): void;
 
+  /**
+   * Returns the credentials the 'base_url' userinfo carries.
+   *
+   * @return array{username: string, password: string}|null
+   *   The credentials, or NULL when the 'base_url' carries no username.
+   */
+  public function findCredentials(): ?array;
+
 }

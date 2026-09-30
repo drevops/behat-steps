@@ -10,6 +10,7 @@ use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
@@ -38,6 +39,8 @@ class DriverAwareInitializer implements ContextInitializer {
    *   The user registry.
    * @param \DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface $optionResolverFactory
    *   Builds a context's option resolver out of the shared collaborators.
+   * @param \DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface $httpClientFactory
+   *   Builds the detached and bare browsers on the shared transport.
    */
   public function __construct(
     protected readonly DriverRegistryInterface $driverRegistry,
@@ -47,6 +50,7 @@ class DriverAwareInitializer implements ContextInitializer {
     protected readonly AuthenticatorInterface $authenticator,
     protected readonly UserRegistryInterface $userRegistry,
     protected readonly TraitOptionResolverFactoryInterface $optionResolverFactory,
+    protected readonly HttpClientFactoryInterface $httpClientFactory,
   ) {
   }
 
@@ -70,6 +74,7 @@ class DriverAwareInitializer implements ContextInitializer {
     $context->setDriverRegistry($this->driverRegistry);
     $context->setDispatcher($this->hookDispatcher);
     $context->setBasicAuthenticator($this->basicAuthenticator);
+    $context->setHttpClientFactory($this->httpClientFactory);
 
     // Set last: it rebuilds the resolver, so the parameters set above are the
     // ones the rebuild reads its 'steps' section from.

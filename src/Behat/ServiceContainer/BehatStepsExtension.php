@@ -10,6 +10,7 @@ use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -19,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Behat extension wiring the driver layer, its services and hooks into a suite.
@@ -34,6 +36,11 @@ class BehatStepsExtension implements ExtensionInterface {
    * Container parameter holding the configured ordered driver list.
    */
   public const DRIVERS_PARAMETER = 'behat_steps.drivers';
+
+  /**
+   * The factory registered with Mink, NULL when the suite registers no Mink.
+   */
+  protected ?BrowserKitFactory $browserKitFactory = NULL;
 
   /**
    * {@inheritdoc}
@@ -72,6 +79,7 @@ class BehatStepsExtension implements ExtensionInterface {
     $this->processDriverPass($container);
     $this->processDrivers($container);
     $this->processClassGenerator($container);
+    $this->processHttpClient($container);
   }
 
   /**
@@ -222,22 +230,9 @@ class BehatStepsExtension implements ExtensionInterface {
       return;
     }
 
-    $factory = $this->createBrowserKitFactory();
+    $this->browserKitFactory = new BrowserKitFactory();
 
-    // A project without Drupal has no test browser to load, so Mink's own
-    // factory stays registered.
-    if (!$factory->isDrupalInstalled()) {
-      return;
-    }
-
-    $mink->registerDriverFactory($factory);
-  }
-
-  /**
-   * Creates the factory that builds the 'browserkit_http' driver.
-   */
-  protected function createBrowserKitFactory(): BrowserKitFactory {
-    return new BrowserKitFactory();
+    $mink->registerDriverFactory($this->browserKitFactory);
   }
 
   /**
@@ -497,6 +492,25 @@ class BehatStepsExtension implements ExtensionInterface {
     }
 
     return $tag;
+  }
+
+  /**
+   * Defines the transport every browser sends through.
+   *
+   * Mink hands the 'browserkit_http' factory each session's options while the
+   * extensions load, so they are read here, in the process pass after it.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When 2 'browserkit_http' sessions declare different options.
+   */
+  protected function processHttpClient(ContainerBuilder $container): void {
+    $options = $this->browserKitFactory?->getClientOptions() ?? [];
+    $base_url = $container->hasParameter('mink.base_url') ? $container->getParameter('mink.base_url') : NULL;
+
+    $definition = new Definition(HttpClientInterface::class, [$options, is_string($base_url) ? $base_url : NULL]);
+    $definition->setFactory([HttpClientFactory::class, 'createTransport']);
+
+    $container->setDefinition(BrowserKitFactory::TRANSPORT_SERVICE, $definition);
   }
 
   /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
+use Behat\Mink\Exception\DriverException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Config\Option;
@@ -12,9 +13,14 @@ use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
+use DrevOps\BehatSteps\Behat\Http\HttpIdentity;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
+use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
+use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\DriverInterface;
@@ -22,6 +28,8 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Component\Utility\Random;
+use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
  * Root context carrying the plumbing every suite needs.
@@ -70,6 +78,11 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * Applies webserver-level basic auth to the session.
    */
   protected ?BasicAuthenticatorInterface $basicAuthenticator = NULL;
+
+  /**
+   * Builds the detached and bare browsers.
+   */
+  protected ?HttpClientFactoryInterface $httpClientFactory = NULL;
 
   /**
    * Builds the option resolver out of the shared collaborators.
@@ -150,6 +163,99 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     return $this->basicAuthenticator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHttpClientFactory(HttpClientFactoryInterface $factory): void {
+    $this->httpClientFactory = $factory;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * A context Behat has not initialized builds a standalone factory on first
+   * use, which applies no connection options.
+   */
+  public function getHttpClientFactory(): HttpClientFactoryInterface {
+    if (!$this->httpClientFactory instanceof HttpClientFactoryInterface) {
+      $base_url = $this->getMinkParameter('base_url');
+      $this->httpClientFactory = new HttpClientFactory(HttpClient::create(), is_string($base_url) ? $base_url : NULL);
+    }
+
+    return $this->httpClientFactory;
+  }
+
+  /**
+   * Returns the browser the Mink session drives.
+   *
+   * A request sent through it becomes the page the next steps read. Only a
+   * session on a PHP driver has one.
+   *
+   * @return \Symfony\Component\BrowserKit\AbstractBrowser<covariant object, covariant object>
+   *   The browser the session drives.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the session runs a real browser, as a JavaScript session does.
+   */
+  public function httpPageClient(): AbstractBrowser {
+    return $this->browserDriverFor(HttpClientCapabilityInterface::class)->httpClient();
+  }
+
+  /**
+   * Returns a one-off browser that acts as the scenario's visitor.
+   *
+   * It sends the session's cookies and the headers the steps set, plus the
+   * site's basic-auth credentials, and leaves the page the session holds
+   * untouched. It works under every session, JavaScript ones included.
+   *
+   * @param array<string, mixed> $options
+   *   Symfony HttpClient options for this browser, such as a 'timeout'.
+   *
+   * @return \Symfony\Component\BrowserKit\AbstractBrowser<covariant object, covariant object>
+   *   A fresh browser holding the scenario's identity.
+   */
+  public function httpDetachedClient(array $options = []): AbstractBrowser {
+    return $this->getHttpClientFactory()->createDetached($this->httpIdentity(), $options);
+  }
+
+  /**
+   * Returns a one-off browser that carries no scenario state.
+   *
+   * It applies the connection options the site's 'browserkit_http' session
+   * declares, and nothing from the scenario, so it suits requests that are
+   * not the visitor's own, such as fetching a script from a CDN.
+   *
+   * @param array<string, mixed> $options
+   *   Symfony HttpClient options for this browser, such as a 'timeout'.
+   *
+   * @return \Symfony\Component\BrowserKit\AbstractBrowser<covariant object, covariant object>
+   *   A fresh browser with an empty cookie jar.
+   */
+  public function httpBareClient(array $options = []): AbstractBrowser {
+    return $this->getHttpClientFactory()->createBare($options);
+  }
+
+  /**
+   * Reads the scenario's identity from the current session.
+   */
+  protected function httpIdentity(): HttpIdentity {
+    $cookies = [];
+    $cookie_url = '';
+
+    try {
+      $cookie_url = $this->getSession()->getCurrentUrl();
+
+      foreach ($this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll() as $cookie) {
+        $cookies[$cookie['name']] = $cookie['value'];
+      }
+    }
+    catch (DriverException) {
+      // A session that has not opened a page yet holds no cookies.
+    }
+
+    return new HttpIdentity($cookies, $cookie_url, $this->requestHeadersAll(), $this->basicAuthenticator?->findCredentials());
   }
 
   /**

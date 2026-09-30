@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
@@ -55,6 +56,19 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    * Returns the basic authenticator.
    */
   public function getBasicAuthenticator(): BasicAuthenticatorInterface;
+
+  /**
+   * Sets the factory that builds the detached and bare browsers.
+   *
+   * @internal
+   *   Injection point called by the context initializer.
+   */
+  public function setHttpClientFactory(HttpClientFactoryInterface $factory): void;
+
+  /**
+   * Returns the factory that builds the detached and bare browsers.
+   */
+  public function getHttpClientFactory(): HttpClientFactoryInterface;
 
   /**
    * Sets the factory that builds this context's option resolver.
