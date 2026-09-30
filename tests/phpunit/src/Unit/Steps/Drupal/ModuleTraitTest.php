@@ -22,33 +22,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 class ModuleTraitTest extends UnitTestCase {
 
   /**
-   * Tests the state each module tag resolves to.
-   *
-   * @param list<string> $tags
-   *   Tags of the scenario and its feature, feature tags first.
-   * @param array<string, bool> $expected
-   *   The expected state of each module.
-   */
-  #[DataProvider('dataProviderParseTags')]
-  public function testParseTags(array $tags, array $expected): void {
-    $this->assertSame($expected, (new ModuleTraitTestImplementation())->callModuleParseTags($tags));
-  }
-
-  public static function dataProviderParseTags(): array {
-    return [
-      'no tags' => [[], []],
-      'unrelated tags' => [['api', 'javascript', 'modules:help'], []],
-      'an enabled module' => [['module:help'], ['help' => TRUE]],
-      'a disabled module' => [['module:!help'], ['help' => FALSE]],
-      'several modules' => [['module:help', 'module:!contextual'], ['help' => TRUE, 'contextual' => FALSE]],
-      'a repeated tag' => [['module:help', 'module:help'], ['help' => TRUE]],
-      'a later disable replaces an enable' => [['module:help', 'module:!help'], ['help' => FALSE]],
-      'a later enable replaces a disable' => [['module:!help', 'module:help'], ['help' => TRUE]],
-      'the first mention keeps its position' => [['module:help', 'module:syslog', 'module:!help'], ['help' => FALSE, 'syslog' => TRUE]],
-    ];
-  }
-
-  /**
    * Tests that the tags of the scenario and its feature change each module once.
    *
    * @param list<string> $scenario_tags
@@ -117,18 +90,5 @@ class ModuleTraitTest extends UnitTestCase {
 class ModuleTraitTestImplementation extends WebRawContext {
 
   use ModuleTrait;
-
-  /**
-   * Exposes the protected tag parser.
-   *
-   * @param array<int, string> $tags
-   *   Tags of the scenario and its feature, feature tags first.
-   *
-   * @return array<string, bool>
-   *   The state of each named module.
-   */
-  public function callModuleParseTags(array $tags): array {
-    return $this->moduleParseTags($tags);
-  }
 
 }

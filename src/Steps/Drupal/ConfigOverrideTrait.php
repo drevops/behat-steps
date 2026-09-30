@@ -72,6 +72,11 @@ trait ConfigOverrideTrait {
   use RequestHeadersTrait;
 
   /**
+   * The tag that disables the overrides of the config object it names.
+   */
+  protected const CONFIG_OVERRIDE_DISABLE_TAG = 'disable-config-override';
+
+  /**
    * Config names parsed from `@disable-config-override:*` tags.
    *
    * @var array<int, string>
@@ -95,16 +100,7 @@ trait ConfigOverrideTrait {
       return;
     }
 
-    $tags = array_unique(Tag::all($scope));
-    $prefix = 'disable-config-override:';
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, $prefix)) {
-        $name = substr($tag, strlen($prefix));
-        if ($name !== '' && !in_array($name, $this->configOverrideDisabledNames, TRUE)) {
-          $this->configOverrideDisabledNames[] = $name;
-        }
-      }
-    }
+    $this->configOverrideDisabledNames = array_values(array_unique(Tag::values($scope, self::CONFIG_OVERRIDE_DISABLE_TAG)));
   }
 
   /**

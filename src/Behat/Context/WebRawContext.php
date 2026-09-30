@@ -535,7 +535,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   protected function skipTag(string $trait, ScenarioScope $scope): bool {
     $name = $this->traitName($trait);
 
-    if (in_array(TagOverrides::SKIP_TAG_PREFIX . $name, Tag::all($scope), TRUE)) {
+    if (Tag::has($scope, TagOverrides::SKIP_TAG_PREFIX . $name)) {
       return TRUE;
     }
 

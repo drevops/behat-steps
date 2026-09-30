@@ -78,6 +78,12 @@ trait AccessibilityTrait {
   public const ACCESSIBILITY_IMPACT_MINOR = 'minor';
 
   /**
+   * The default tag that assesses every page, with a gate variant as its
+   * optional value.
+   */
+  protected const ACCESSIBILITY_TAG = 'accessibility';
+
+  /**
    * In-memory cache for the engine JavaScript source, fetched once per process.
    */
   protected static ?string $accessibilityCachedJs = NULL;
@@ -212,7 +218,7 @@ trait AccessibilityTrait {
     $this->accessibilityFeatureName = $scope->getFeature()->getTitle() ?? 'feature';
     $this->accessibilityScenarioName = $scope->getScenario()->getTitle() ?? 'scenario';
 
-    $this->accessibilityResolveTags(Tag::all($scope));
+    $this->accessibilityResolveTags($scope);
   }
 
   /**
@@ -708,26 +714,20 @@ trait AccessibilityTrait {
   /**
    * Resolve scenario / feature tags into mode and threshold state.
    *
-   * @param array<int, string> $tags
-   *   Combined feature and scenario tags.
+   * A later variant replaces an earlier one, so a scenario tag overrides a
+   * feature tag.
+   *
+   * @param \Behat\Behat\Hook\Scope\BeforeScenarioScope $scope
+   *   The scenario scope the hook received.
    */
-  protected function accessibilityResolveTags(array $tags): void {
+  protected function accessibilityResolveTags(BeforeScenarioScope $scope): void {
     $auto_tag = $this->accessibilityGetAutoTag();
+    $variants = array_map(strtolower(...), Tag::values($scope, $auto_tag));
     $impacts = $this->accessibilityGetImpacts();
 
-    foreach ($tags as $tag) {
-      if ($tag === $auto_tag) {
-        $this->accessibilityAutoMode = TRUE;
-        continue;
-      }
+    $this->accessibilityAutoMode = Tag::has($scope, $auto_tag) || $variants !== [];
 
-      if (!str_starts_with($tag, $auto_tag . ':')) {
-        continue;
-      }
-
-      $variant = strtolower(substr($tag, strlen((string) $auto_tag) + 1));
-      $this->accessibilityAutoMode = TRUE;
-
+    foreach ($variants as $variant) {
       if ($variant === 'warning' || $variant === 'warn') {
         $this->accessibilityScenarioThreshold = 'never';
       }
@@ -1613,7 +1613,7 @@ HTML;
   protected function accessibilityConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Assess every page an `@accessibility` scenario visits.'),
-      new Option('auto_tag', default: 'accessibility', description: 'Base tag name, without its `@`, that puts a scenario into automatic mode.'),
+      new Option('auto_tag', default: self::ACCESSIBILITY_TAG, description: 'Base tag name, without its `@`, that puts a scenario into automatic mode.'),
       new Option('default_rules', default: 'wcag2a,wcag2aa', description: 'Rule identifier passed to the engine when a scenario names none.'),
       new Option('failure_threshold', default: 'any', description: 'Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier.'),
       new Option('fail_on_incomplete', default: FALSE, description: 'Fail the scenario on a finding the engine could not decide.'),

@@ -40,6 +40,11 @@ trait FieldTrait {
   use StringTrait;
 
   /**
+   * The tag that strips browser validation from every form of the scenario.
+   */
+  protected const FIELD_DISABLE_FORM_VALIDATION_TAG = 'disable-form-validation';
+
+  /**
    * Registry of form selectors that should have validation disabled.
    *
    * @var array<int, string>
@@ -71,7 +76,7 @@ trait FieldTrait {
     $this->fieldFormValidationEnabled = TRUE;
     $this->fieldFormValidationRegistry = [];
 
-    $this->fieldDisableAllFormValidation = in_array('disable-form-validation', Tag::all($scope), TRUE);
+    $this->fieldDisableAllFormValidation = Tag::has($scope, self::FIELD_DISABLE_FORM_VALIDATION_TAG);
   }
 
   /**

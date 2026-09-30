@@ -37,6 +37,11 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 trait FileDownloadTrait {
 
   /**
+   * The tag that prepares the download directory around the scenario.
+   */
+  protected const FILE_DOWNLOAD_TAG = 'download';
+
+  /**
    * Information about downloaded file.
    *
    * @var array<string, mixed>
@@ -52,7 +57,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if (in_array('download', Tag::all($scope), TRUE)) {
+    if (Tag::has($scope, self::FILE_DOWNLOAD_TAG)) {
       $this->fileDownloadRemoveTempDir();
       $this->fileDownloadPrepareTempDir();
     }
@@ -67,7 +72,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if (in_array('download', Tag::all($scope), TRUE)) {
+    if (Tag::has($scope, self::FILE_DOWNLOAD_TAG)) {
       $this->fileDownloadRemoveTempDir();
     }
   }

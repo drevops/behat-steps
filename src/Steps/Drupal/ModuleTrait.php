@@ -34,6 +34,11 @@ use DrevOps\BehatSteps\Exception\AssertionException;
 trait ModuleTrait {
 
   /**
+   * The switch tag that enables its module, or disables it after a '!'.
+   */
+  protected const MODULE_TAG = 'module';
+
+  /**
    * Stores original module states for restoration.
    *
    * @var array<string, bool>
@@ -49,7 +54,7 @@ trait ModuleTrait {
       return;
     }
 
-    foreach ($this->moduleParseTags(Tag::all($scope)) as $module_name => $should_enable) {
+    foreach (Tag::switches($scope, self::MODULE_TAG) as $module_name => $should_enable) {
       $this->moduleStoreOriginalState($module_name);
 
       if ($should_enable) {
@@ -298,39 +303,6 @@ trait ModuleTrait {
    */
   public function moduleIsPresent(string $module): bool {
     return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
-  }
-
-  /**
-   * Parse module tags into 1 state per named module.
-   *
-   * A later tag for a module replaces an earlier one.
-   *
-   * @code
-   * @module:help @module:!contextual
-   * @endcode
-   *
-   * @param array<int, string> $tags
-   *   Tags of the scenario and its feature, feature tags first, so a scenario
-   *   tag overrides a feature tag.
-   *
-   * @return array<string, bool>
-   *   TRUE to enable the module or FALSE to disable it, keyed by module name.
-   */
-  protected function moduleParseTags(array $tags): array {
-    $modules = [];
-
-    foreach ($tags as $tag) {
-      if (!str_starts_with($tag, 'module:')) {
-        continue;
-      }
-
-      $module_spec = substr($tag, strlen('module:'));
-      $should_disable = str_starts_with($module_spec, '!');
-
-      $modules[$should_disable ? substr($module_spec, 1) : $module_spec] = !$should_disable;
-    }
-
-    return $modules;
   }
 
   /**

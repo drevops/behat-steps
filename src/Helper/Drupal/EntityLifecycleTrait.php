@@ -42,6 +42,11 @@ use Drupal\taxonomy\Entity\Vocabulary;
 trait EntityLifecycleTrait {
 
   /**
+   * The tag that keeps the entities of the type it names after the scenario.
+   */
+  protected const ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG = 'behat-steps-entity-cleanup-skip';
+
+  /**
    * Tracks every entity stub created during a scenario for cleanup.
    *
    * Users are tracked in the user registry instead, because a user is looked
@@ -361,17 +366,7 @@ trait EntityLifecycleTrait {
    *   '@behat-steps-entity-cleanup-skip:<entity_type_id>' tags.
    */
   protected function entityLifecycleSkippedCleanupTypes(ScenarioScope $scope): array {
-    $prefix = 'behat-steps-entity-cleanup-skip:';
-    $tags = Tag::all($scope);
-    $types = [];
-
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, $prefix)) {
-        $types[] = substr($tag, strlen($prefix));
-      }
-    }
-
-    return $types;
+    return Tag::values($scope, self::ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG);
   }
 
   /**
