@@ -275,3 +275,136 @@ Feature: Check that TableTrait works
       """
       Row containing "Alpha item" does not contain expected text "NonExistent".
       """
+
+  @phpserver
+  Scenario: Assert "When I click the link :link in the row :row_text" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/table.html"
+    And I click the link "Edit" in the row "Epsilon record"
+    Then the current URL should have the query parameter "edit" with the value "epsilon"
+
+  @phpserver
+  Scenario: Assert "When I press the button :button in the row :row_text" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/table.html"
+    And I press the button "Remove" in the row "Epsilon record"
+    Then the current URL should have the query parameter "remove" with the value "epsilon"
+
+  @phpserver
+  Scenario: Assert "Then the row :row_text should contain the value :value" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/table.html"
+    Then the row "Delta record" should contain the value "Draft"
+    And the row "Delta record" should not contain the value "Published"
+
+  @phpserver
+  Scenario: Assert "Then the link :link should exist in the row :row_text" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/table.html"
+    Then the link "Edit" should exist in the row "Delta record"
+    And the link "Edit" should not exist in the row "Zeta record"
+
+  @trait:TableTrait
+  Scenario: Assert "When I click the link :link in the row :row_text" fails when the row has no such link
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      And I click the link "Edit" in the row "Zeta record"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "When I press the button :button in the row :row_text" fails when the row has no such button
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      And I press the button "Remove" in the row "Zeta record"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Button in the row containing "Zeta record" with id|name|title|alt|value "Remove" not found.
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "Then the row :row_text should contain the value :value" fails when no row has the text
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      Then the row "Omega record" should contain the value "Draft"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Table row with text "Omega record" not found.
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "Then the row :row_text should contain the value :value" fails when the row lacks the value
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      Then the row "Delta record" should contain the value "Published"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The row containing "Delta record" does not contain the text "Published".
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "Then the row :row_text should not contain the value :value" fails when the row has the value
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      Then the row "Delta record" should not contain the value "Draft"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The row containing "Delta record" contains the text "Draft".
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "Then the link :link should exist in the row :row_text" fails when the row has no such link
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      Then the link "Edit" should exist in the row "Zeta record"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
+      """
+
+  @trait:TableTrait
+  Scenario: Assert "Then the link :link should not exist in the row :row_text" fails when the row has the link
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      Given the user is anonymous
+      When I visit "http://cli:8888/table.html"
+      Then the link "Edit" should not exist in the row "Delta record"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The row containing "Delta record" has a "Edit" link.
+      """

@@ -81,5 +81,45 @@
   </tbody>
 </table>
 
+<h2>Table with row operations</h2>
+<table class="table-operations">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Status</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delta record</td>
+      <td>Draft</td>
+      <td>
+        <a href="table.html?edit=delta">Edit</a>
+        <form action="table.html" method="get">
+          <input type="hidden" name="remove" value="delta">
+          <button type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+    <tr>
+      <td>Epsilon record</td>
+      <td>Published</td>
+      <td>
+        <a href="table.html?edit=epsilon">Edit</a>
+        <form action="table.html" method="get">
+          <input type="hidden" name="remove" value="epsilon">
+          <button type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+    <tr>
+      <td>Zeta record</td>
+      <td>Archived</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
 </body>
 </html>

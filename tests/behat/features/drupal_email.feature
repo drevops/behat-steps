@@ -237,6 +237,36 @@ Feature: Check that EmailTrait works
     Then I should be on "http://example.com/reset-password"
 
   @email
+  Scenario: As a developer, I want to follow a link in an email by matching part of its URL
+    When I send test email to "test@example.com" with:
+      """
+      Register at http://nginx:8080/user/register or sign in at http://nginx:8080/user/login
+      """
+    And I follow the link with a URL containing "user/login" in the email
+    Then the path should be "/user/login"
+
+  @email
+  Scenario: As a developer, I want to count the emails sent
+    When I send test email to "test@example.com" with:
+      """
+      First email
+      """
+    And I send test email to "test@example.com,test2@example.com" with:
+      """
+      Second email
+      """
+    And I send test email to "test3@example.com" with subject "Welcome" and attachment "welcome.pdf" and body:
+      """
+      Third email
+      """
+    Then the number of sent emails should be 3
+    And the number of emails sent to the address "test@example.com" should be 2
+    And the number of emails sent to the address "test2@example.com" should be 1
+    And the number of emails sent to the address "test4@example.com" should be 0
+    And the number of emails sent with the subject "Test Email" should be 2
+    And the number of emails sent with the subject "Welcome" should be 1
+
+  @email
   Scenario: As a developer, I want to know that no emails assertions works as expected
     Given no emails should have been sent
     When I send test email to "test@example.com" with
@@ -798,4 +828,72 @@ Feature: Check that EmailTrait works
     Then it should fail with an exception:
       """
       Invalid email field nonexistent was specified for assertion.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following a link by part of its URL fails when no email has such a link
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Sign in at http://nginx:8080/user/login
+        '''
+      Then I follow the link with a URL containing "user/reset" in the email
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      No email contains a link with "user/reset" in its URL.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that counting the emails sent fails on a count mismatch
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the number of sent emails should be 2
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected 2 email(s) to have been sent, but 1 were found.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that counting the emails sent to an address fails on a count mismatch
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the number of emails sent to the address "test@example.com" should be 3
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected 3 email(s) to have been sent to "test@example.com", but 1 were found.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that counting the emails sent with a subject fails on a count mismatch
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Test content
+        '''
+      Then the number of emails sent with the subject "Test Email" should be 0
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Expected 0 email(s) to have been sent with the subject "Test Email", but 1 were found.
       """

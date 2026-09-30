@@ -192,7 +192,9 @@ The outer run writes `.logs/coverage/behat/`. Each nested subprocess drops its o
 
 That merged file is the real number. The `behat/` one only ever shows the direct scenarios, so it reads lower - which is exactly the kind of thing that sends someone off chasing coverage that already exists. `scripts/check-coverage.php` defaults to the merged file for that reason.
 
-Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, the helper traits, and the convention tests at the root of `tests/phpunit/src/` that hold the naming, member order, public surface, data provider, layer and context-composition rules.
+Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the driver layer, the helper traits, and the convention tests at the root of `tests/phpunit/src/` that hold the naming, member order, public surface, data provider, layer, context-composition and step-coverage rules.
+
+The step-coverage rule is the one that reads the feature files rather than the source. `StepScenarioCoverageTest` parses every scenario the suite would run - outline rows expanded, the tag filter `behat.php` declares applied, and the steps a `@trait` scenario hands to its nested run included - and matches each pattern `DrupalContext` registers against those steps through Behat's own pattern policies. A step nothing reaches fails the unit suite. It's the other half of `validate_step_patterns()`: that check stops one pattern shadowing another, and this one makes sure some scenario runs every step, since that's the only moment Behat matches a pattern against anything.
 
 ## Continuous integration
 

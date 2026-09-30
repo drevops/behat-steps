@@ -184,6 +184,16 @@ Feature: Check that UserTrait works
     When I visit my own user profile page
     Then the response status code should be 200
 
+  Scenario: Assert "When I log in as a user with the role(s) :roles and the following fields:" works as expected
+    When I log in as a user with the role "content_editor" and the following fields:
+      | name | [TEST] fields_user      |
+      | mail | fields_user@example.com |
+    Then the user "[TEST] fields_user" should have the role "content_editor" assigned
+    And the user with the email "fields_user@example.com" should exist
+    When I visit my own user profile page
+    Then the response status code should be 200
+    And I should see "[TEST] fields_user"
+
   @trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own user profile page" fails for non-logged in user
     Given some behat configuration
