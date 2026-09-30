@@ -274,19 +274,23 @@ The test suite follows the same rule. Behat 4 reads only PHP configuration and i
 
 Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
 
-Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly:
+Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly. A hook reads the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
 
 ```php
 // Every tag on the scenario and on the feature that holds it, without the '@'.
 $tags = Tag::all($scope);
 
-// Every tag on one node.
-$tags = Tag::on($scope->getScenario());
-
-// One tag on one node.
-if (Tag::has($scope->getScenario(), 'email')) {
+if (in_array('email', $tags, TRUE)) {
   // ...
 }
+```
+
+`Tag::on()` returns the tags of a single node and `Tag::has()` checks one tag on a single node. They are for a hook that ranks the 2 lines, such as `ResponsiveTrait` taking the scenario's `@breakpoint:` over the feature's:
+
+```php
+// Every tag on one node.
+$scenario_tags = Tag::on($scope->getScenario());
+$feature_tags = Tag::on($scope->getFeature());
 ```
 
 `Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.

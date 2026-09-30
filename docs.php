@@ -1836,7 +1836,7 @@ function tag_registry(): array {
     ],
     'breakpoint' => [
       'form' => 'parametrized',
-      'description' => 'Resize the viewport to the named breakpoint before the first step. One tag per scenario, and the scenario has to be `@javascript`.',
+      'description' => "Resize the viewport to the named breakpoint before the first step. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`.",
     ],
     'email' => [
       'form' => 'parametrized',

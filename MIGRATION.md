@@ -136,7 +136,7 @@ The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is
 
 `@error` used to leave the start time unset, which disabled collection entirely. It now means `fail_on_errors = FALSE`: the errors the scenario logged are still read and cleared from the `watchdog` table, and the scenario is not failed. A scenario that relied on `@error` leaving rows behind for a later assertion reads them before the scenario ends, or uses `@behat-steps-skip:WatchdogTrait` instead.
 
-`@error` and `@js-errors` are also read on the `Feature:` line now, as every other tag of this package already was, so either one there covers every scenario in that feature.
+`@error` and `@js-errors` are also read on the `Feature:` line now, so either one there covers every scenario in that feature. [Tags on the `Feature:` line apply to every scenario](#tags-on-the-feature-line-apply-to-every-scenario) covers the rest of the tags.
 
 ### Three transform traits can be switched off
 
@@ -1781,3 +1781,38 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 ```
 
 `TraitOptionResolverInterface::groupFor()` resolves a trait name only, so a resolver of your own drops any matching of hook-method names against a group's prefix.
+
+## Tags on the `Feature:` line apply to every scenario
+
+7 traits read their tags from the scenario alone, so a tag on the `Feature:` line switched some traits on and did nothing for others. `@javascript` there turned on `WaitTrait`'s waits, while `@email` there left `EmailTrait`'s collector off. Every hook now reads the scenario's tags together with its feature's, the way Behat's own tag filters, the `@behat-steps-skip:` tags and the option tags already did.
+
+| Trait | Tags now read on the `Feature:` line |
+| --- | --- |
+| `Drupal\EmailTrait` | `@email`, `@email:TYPE`, `@debug` |
+| `Drupal\ModuleTrait` | `@module:NAME`, `@module:!NAME` |
+| `Drupal\TestmodeTrait` | `@testmode` |
+| `Drupal\WatchdogTrait` | `@watchdog:TYPE` |
+| `Web\FieldTrait` | `@disable-form-validation` |
+| `Web\FileDownloadTrait` | `@download` |
+| `Web\ResponsiveTrait` | `@breakpoint:NAME`, and the `@javascript` it requires |
+
+Where both lines carry the same kind of tag:
+
+- A flag such as `@email` or `@download` switches the behaviour on from either line.
+- `@email:TYPE` and `@watchdog:TYPE` add up, so the scenario uses every handler type and tracks every message type named on either line.
+- `@module:` and `@breakpoint:` take the scenario's value over the feature's. A feature tagged `@module:help` holding a scenario tagged `@module:!help` leaves `help` disabled for that scenario, and doesn't install it first.
+- Each line takes 1 `@breakpoint:` tag at most. 2 on the `Feature:` line fail every scenario below it with `Only one @breakpoint tag is allowed per feature`.
+
+### What to check
+
+A tag on the `Feature:` line that used to do nothing now acts on every scenario in the feature. `grep -rn -B3 'Feature:' <your features directory>` prints the lines above each `Feature:` keyword, which is where those tags sit. Look for:
+
+- `@email`: every scenario captures mail in the test collector, so a scenario that relied on mail actually leaving the site no longer sends it.
+- `@testmode`: every scenario runs in test mode, and fails on a site without the Testmode module enabled.
+- `@module:NAME`: the module is installed or uninstalled around every scenario, which is slow. If every scenario needs it, enable it in the fixture site instead.
+- `@watchdog:TYPE`: every scenario that logs a warning or worse of that type fails.
+- `@breakpoint:NAME`: every scenario is resized, and a scenario with `@javascript` on neither line fails.
+- `@disable-form-validation`: every JavaScript scenario submits forms the browser would otherwise block.
+- `@download` and `@debug`: the download directory is prepared around every scenario, and every `@email` scenario prints the messages it reads.
+
+A tag that was only meant for some of the scenarios in a feature moves down onto those scenarios.

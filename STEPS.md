@@ -6582,7 +6582,8 @@ Given the following menu links exist in the menu "Main navigation":
 
 >  Enable and disable Drupal modules with automatic state restoration.
 >  <br/><br/>
->  Supports automatic module management via scenario tags.
+>  Supports automatic module management via scenario and feature tags. A
+>  scenario tag overrides a feature tag naming the same module.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:ModuleTrait`.
 >  <br/><br/>
