@@ -7,9 +7,12 @@
         "php": ">=8.5",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7.3",
-        "drupal/core-composer-scaffold": "~12.0.0-alpha1",
-        "drupal/core-project-message": "~12.0.0-alpha1",
-        "drupal/core-recommended": "~12.0.0-alpha1",
+        "drupal/core-composer-scaffold": "~12.0.0-beta1",
+        "drupal/core-project-message": "~12.0.0-beta1",
+        "drupal/core-recommended": "~12.0.0-beta1",
+        "drupal/claro": "^3.0.0",
+        "drupal/olivero": "^2.0.0",
+        "drupal/search": "^1.0.0",
         "mglaman/composer-drupal-lenient": "^2.0",
         "symfony/browser-kit": "^8.1",
         "symfony/config": "^8.1",
@@ -41,8 +44,7 @@
     "require-dev": {
         "drupal/address": "^2.0.4",
         "drupal/commerce": "^3.3.9",
-        "drupal/core-dev": "~12.0.0-alpha1",
-        "drupal/date_recur": "^3.9.3",
+        "drupal/core-dev": "~12.0.0-beta1",
         "drupal/name": "^1.5.0",
         "drupal/smart_date": "^4.3.0",
         "drupal/supported_image": "^1.0.0-beta1",
@@ -50,8 +52,7 @@
         "phpunit/php-code-coverage": "^12.0"
     },
     "conflict": {
-        "drupal/core": "^7.0",
-        "twig/twig": ">=3.30"
+        "drupal/core": "^7.0"
     },
     "repositories": {
         "drupal": {
@@ -67,6 +68,10 @@
         ]
     },
     "config": {
+        "preferred-install": {
+            "drupal/core": "source",
+            "*": "dist"
+        },
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
@@ -97,6 +102,7 @@
         "drupal-lenient": {
             "allowed-list": [
                 "drupal/address",
+                "drupal/claro",
                 "drupal/commerce",
                 "drupal/ctools",
                 "drupal/date_recur",
@@ -108,12 +114,14 @@
                 "drupal/inline_entity_form",
                 "drupal/mailsystem",
                 "drupal/name",
+                "drupal/olivero",
                 "drupal/paragraphs",
                 "drupal/pathauto",
                 "drupal/profile",
                 "drupal/rat",
                 "drupal/redirect",
                 "drupal/scheduled_transitions",
+                "drupal/search",
                 "drupal/search_api",
                 "drupal/smart_date",
                 "drupal/state_machine",

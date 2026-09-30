@@ -573,6 +573,9 @@ function provision_lenient_constraint(string $file): string {
  * The package constraint allows both Behat majors, and "--with" narrows it
  * to the one this build runs on.
  *
+ * The command passes no '--prefer-dist': that flag overrides the per-package
+ * 'preferred-install' setting a fixture declares.
+ *
  * @param string $deps
  *   Set to 'lowest' to resolve to the lowest stable versions.
  * @param string $behat
@@ -582,9 +585,9 @@ function provision_lenient_constraint(string $file): string {
  *   The command.
  */
 function provision_install_command(string $deps, string $behat): string {
-  $flags = $deps === 'lowest' ? '--prefer-lowest --prefer-stable' : '--prefer-dist';
+  $flags = $deps === 'lowest' ? ' --prefer-lowest --prefer-stable' : '';
 
-  return 'composer update ' . $flags . ' --with=' . escapeshellarg('behat/behat:^' . $behat);
+  return 'composer update' . $flags . ' --with=' . escapeshellarg('behat/behat:^' . $behat);
 }
 
 /**

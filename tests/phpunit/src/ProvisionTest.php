@@ -353,7 +353,7 @@ class ProvisionTest extends UnitTestCase {
    */
   public static function dataProviderInstallCommandNarrowsBehat(): array {
     return [
-      'normal' => ['normal', '3', "composer update --prefer-dist --with='behat/behat:^3'"],
+      'normal' => ['normal', '3', "composer update --with='behat/behat:^3'"],
       'lowest' => ['lowest', '4', "composer update --prefer-lowest --prefer-stable --with='behat/behat:^4'"],
     ];
   }

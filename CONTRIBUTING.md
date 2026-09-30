@@ -444,7 +444,7 @@ ahoy test-bdd
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
 
-Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
+Drupal 12 is pinned to `~12.0.0-beta1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
 
 Drupal 12 constrains its own grid hard:
 
@@ -459,13 +459,23 @@ Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does 
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
 
+The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 the release package no longer carries core's test files, which the PHPUnit bootstrap and the Kernel suite need, and [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist` so the per-package setting holds.
+
 Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release predates the major and fails on it whatever the patches do - `drupal/token` at its lowest resolvable release declares no return type on `getSubscribedEvents()` - and a patch written against one release does not apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
 
 The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
 
 Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
-Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
+Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship. 12.0.0-beta1 goes further: it moves Olivero, Claro and Search out of core, which the fixture installs from contrib under the same machine names, and removes Toolbar and the Syndicate block, which the fixture drops.
+
+To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
+
+```bash
+PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
+```
+
+The suites then run against it with `DRUPAL_VERSION=12 BEHAT=4` in front of `ahoy test-unit`, `ahoy test-kernel` and `ahoy test-bdd`.
 
 ### Patched contrib
 
@@ -491,14 +501,7 @@ A patch stops being needed the day its module ships a Drupal 12 release, at whic
 
 ### Coverage
 
-Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
-To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
-
-```bash
-PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
-```
-
-That run installs Drupal 12 and then fails on the configuration check, which is the state this section describes.
+Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is a pre-release.
 
 ## Updating fixture site
 
