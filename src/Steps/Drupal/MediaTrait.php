@@ -118,11 +118,10 @@ trait MediaTrait {
   public function mediaDelete(string $media_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
+    $storage = \Drupal::entityTypeManager()->getStorage('media');
+
     foreach ($table->getHash() as $media_hash) {
-      $ids = $this->mediaLoadMultiple($media_type, $media_hash);
-      $storage = \Drupal::entityTypeManager()->getStorage('media');
-      $entities = $storage->loadMultiple($ids);
-      $storage->delete($entities);
+      $storage->delete($this->mediaLoadMultiple($media_type, $media_hash));
     }
   }
 
@@ -219,11 +218,11 @@ trait MediaTrait {
    */
   #[Then('the :media_type media with the name :name should exist')]
   public function mediaAssertExistsWithName(string $media_type, string $name): void {
-    $mids = $this->mediaLoadMultiple($media_type, [
+    $media = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
 
-    if (empty($mids)) {
+    if (empty($media)) {
       throw new ExpectationException(sprintf('The "%s" media with the name "%s" does not exist.', $media_type, $name), $this->getSession()->getDriver());
     }
   }
@@ -237,11 +236,11 @@ trait MediaTrait {
    */
   #[Then('the :media_type media with the name :name should not exist')]
   public function mediaAssertNotExistsWithName(string $media_type, string $name): void {
-    $mids = $this->mediaLoadMultiple($media_type, [
+    $media = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
 
-    if (!empty($mids)) {
+    if (!empty($media)) {
       throw new ExpectationException(sprintf('The "%s" media with the name "%s" exists, but it should not.', $media_type, $name), $this->getSession()->getDriver());
     }
   }
@@ -257,16 +256,16 @@ trait MediaTrait {
    *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc.
    */
   public function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void {
-    $mids = $this->mediaLoadMultiple($media_type, [
+    $media = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
 
-    if (empty($mids)) {
+    if (empty($media)) {
       throw new \RuntimeException(sprintf('Unable to find "%s" media with the name "%s".', $media_type, $name));
     }
 
-    ksort($mids);
-    $mid = end($mids);
+    ksort($media);
+    $mid = end($media)->id();
     $path = $this->locatePath('/media/' . $mid . $action_subpath);
 
     $this->getSession()->visit($path);
@@ -359,11 +358,13 @@ trait MediaTrait {
    * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, string>
-   *   Array of media ids.
+   * @return array<int, \Drupal\media\MediaInterface>
+   *   The matching media keyed by ID, or an empty array when none match.
    */
   public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
-    return $this->queryEntityIds('media', $conditions, $media_type);
+    $ids = $this->queryEntityIds('media', $conditions, $media_type);
+
+    return $ids ? Media::loadMultiple($ids) : [];
   }
 
 }

@@ -49,13 +49,11 @@ trait ContentBlockTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($content_block_table->getColumn(0) as $description) {
-      $content_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties([
+      $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
         'info' => $description,
-        'type' => $content_block_type,
       ]);
 
       foreach ($content_blocks as $content_block) {
-        /** @var \Drupal\block_content\Entity\BlockContent $content_block */
         $content_block->delete();
       }
     }
@@ -128,16 +126,16 @@ trait ContentBlockTrait {
    */
   #[When('I edit the :content_block_type content block with the description :description')]
   public function contentBlockEditBlockContentWithDescription(string $content_block_type, string $description): void {
-    $block_ids = $this->contentBlockLoadMultiple($content_block_type, [
+    $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
       'info' => $description,
     ]);
 
-    if (empty($block_ids)) {
+    if (empty($content_blocks)) {
       throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
     }
 
-    ksort($block_ids);
-    $block_id = end($block_ids);
+    ksort($content_blocks);
+    $block_id = end($content_blocks)->id();
 
     $path = $this->locatePath('/admin/content/block/' . $block_id);
     $this->getSession()->visit($path);
@@ -206,11 +204,14 @@ trait ContentBlockTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, string>
-   *   Array of block content ids.
+   * @return array<int, \Drupal\block_content\BlockContentInterface>
+   *   The matching content blocks keyed by ID, or an empty array when none
+   *   match.
    */
   public function contentBlockLoadMultiple(string $type, array $conditions = []): array {
-    return $this->queryEntityIds('block_content', $conditions, $type);
+    $ids = $this->queryEntityIds('block_content', $conditions, $type);
+
+    return $ids ? BlockContent::loadMultiple($ids) : [];
   }
 
 }

@@ -65,10 +65,8 @@ trait EckTrait {
     $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
     foreach ($table->getHash() as $entity_hash) {
-      $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
+      $entities = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
 
-      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
-      $entities = $storage->loadMultiple($entity_ids);
       foreach ($entities as $entity) {
         $entity->delete();
       }
@@ -88,18 +86,15 @@ trait EckTrait {
 
     $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
+    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
     ]);
 
-    if (empty($entity_ids)) {
+    if (empty($entities)) {
       throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
-    $entity_id = current($entity_ids);
-    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
-    $path = $entity->toUrl('canonical')->toString();
+    $path = current($entities)->toUrl('canonical')->toString();
 
     $this->getSession()->visit($path);
   }
@@ -117,18 +112,15 @@ trait EckTrait {
 
     $this->queryAssertModuleEnabled('eck', 'drupal/eck');
 
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $entity_ids = $this->eckLoadMultiple($entity_type, $bundle, [
+    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
     ]);
 
-    if (empty($entity_ids)) {
+    if (empty($entities)) {
       throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
-    $entity_id = current($entity_ids);
-    $entity = $entity_type_manager->getStorage($entity_type)->load($entity_id);
-    $path = $entity->toUrl('edit-form')->toString();
+    $path = current($entities)->toUrl('edit-form')->toString();
 
     $this->getSession()->visit($path);
   }
@@ -143,11 +135,13 @@ trait EckTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, string>
-   *   Array of entity ids.
+   * @return array<int, \Drupal\Core\Entity\EntityInterface>
+   *   The matching entities keyed by ID, or an empty array when none match.
    */
   public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
-    return $this->queryEntityIds($entity_type, $conditions, $bundle);
+    $ids = $this->queryEntityIds($entity_type, $conditions, $bundle);
+
+    return $ids ? \Drupal::entityTypeManager()->getStorage($entity_type)->loadMultiple($ids) : [];
   }
 
   /**

@@ -678,7 +678,7 @@ trait UserTrait {
    *   Conditions keyed by field names.
    *
    * @return array<int, \Drupal\user\UserInterface>
-   *   Array of loaded user objects.
+   *   The matching users keyed by ID, or an empty array when none match.
    */
   public function userLoadMultiple(array $conditions = []): array {
     $ids = $this->queryEntityIds('user', $conditions);
