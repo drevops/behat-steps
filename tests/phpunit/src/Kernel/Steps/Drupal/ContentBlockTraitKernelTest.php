@@ -10,12 +10,14 @@ use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading content blocks through 'ContentBlockTrait'.
  */
 #[CoversTrait(ContentBlockTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
 
   /**

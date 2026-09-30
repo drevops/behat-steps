@@ -10,12 +10,14 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\TermInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading terms through 'TaxonomyTrait'.
  */
 #[CoversTrait(TaxonomyTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
 
   /**

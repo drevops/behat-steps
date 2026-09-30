@@ -9,12 +9,14 @@ use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading managed files through 'FileTrait'.
  */
 #[CoversTrait(FileTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class FileTraitKernelTest extends StepTraitKernelTestBase {
 
   /**

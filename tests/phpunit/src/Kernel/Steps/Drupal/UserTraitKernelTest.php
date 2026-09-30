@@ -9,12 +9,14 @@ use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading users through 'UserTrait'.
  */
 #[CoversTrait(UserTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class UserTraitKernelTest extends StepTraitKernelTestBase {
 
   /**

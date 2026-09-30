@@ -10,12 +10,14 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\eck\Entity\EckEntityType;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading ECK entities through 'EckTrait'.
  */
 #[CoversTrait(EckTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class EckTraitKernelTest extends StepTraitKernelTestBase {
 
   /**

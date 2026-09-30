@@ -10,6 +10,7 @@ use Drupal\media\MediaInterface;
 use Drupal\Tests\media\Traits\MediaTypeCreationTrait;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel test for loading media through 'MediaTrait'.
@@ -19,6 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversTrait(MediaTrait::class)]
 #[Group('behat')]
+#[RunTestsInSeparateProcesses]
 class MediaTraitKernelTest extends StepTraitKernelTestBase {
 
   use MediaTypeCreationTrait;
