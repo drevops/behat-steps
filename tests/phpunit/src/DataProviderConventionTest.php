@@ -32,8 +32,9 @@ class DataProviderConventionTest extends UnitTestCase {
     $reflection = new \ReflectionClass($class);
 
     $violations = [];
+
     foreach (static::ownMethods($reflection) as $test) {
-      $expected = 'dataProvider' . substr($test->getName(), strlen('test'));
+      $expected ='dataProvider' . substr($test->getName(), strlen('test'));
 
       foreach (static::providerNames($test) as $name) {
         if ($name !== $expected) {
@@ -52,8 +53,8 @@ class DataProviderConventionTest extends UnitTestCase {
   /**
    * Assert that a provider is declared after the test it serves.
    *
-   * A subclass can implement the provider of a test it inherits, so the check
-   * covers only a provider declared in the test's own class.
+   * Line numbers compare only within 1 file, so a provider declared outside
+   * the test's own class is skipped.
    *
    * @param class-string $class
    *   The test class to check.
@@ -63,6 +64,7 @@ class DataProviderConventionTest extends UnitTestCase {
     $reflection = new \ReflectionClass($class);
 
     $violations = [];
+
     foreach (static::ownMethods($reflection) as $test) {
       foreach (static::providerNames($test) as $name) {
         if (!$reflection->hasMethod($name)) {
@@ -99,6 +101,7 @@ class DataProviderConventionTest extends UnitTestCase {
     $reflection = new \ReflectionClass($class);
 
     $violations = [];
+
     foreach (static::ownMethods($reflection) as $provider) {
       if (!str_starts_with($provider->getName(), 'dataProvider') || $provider->isAbstract()) {
         continue;
@@ -123,8 +126,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * Return every test class under `tests/phpunit/src`, keyed by name.
    *
    * Abstract bases stay in, because they declare tests and providers too.
-   * Fixture directories are skipped without being loaded, since their classes
-   * are not tests.
+   * Fixture directories hold no tests and are skipped by path.
    *
    * @return array<string, array{class-string}>
    *   Fully qualified test class names, as data provider rows.
@@ -133,6 +135,7 @@ class DataProviderConventionTest extends UnitTestCase {
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS));
 
     $classes = [];
+
     foreach ($files as $file) {
       if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
         continue;
