@@ -142,7 +142,7 @@ class BehatStepsExtensionTest extends TestCase {
       /**
        * {@inheritdoc}
        */
-      protected function createBrowserKitFactory(): BrowserKitFactory {
+      protected function createBrowserKitFactory(): TestableBrowserKitFactory {
         return new TestableBrowserKitFactory();
       }
 
