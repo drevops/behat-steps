@@ -116,7 +116,7 @@ trait EmailTrait {
   public function emailClearTestQueue(bool $force = FALSE): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    if (!$force && !static::emailGetMailSystemOriginal()) {
+    if (!$force && !static::emailFindMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
 
@@ -263,8 +263,8 @@ trait EmailTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailGetMailSystemDefault($type);
-      if (!static::emailGetMailSystemOriginal($type)) {
+      $original_test_system = static::emailFindMailSystemDefault($type);
+      if (!static::emailFindMailSystemOriginal($type)) {
         static::emailSetMailSystemOriginal($type, $original_test_system);
       }
       static::emailSetMailSystemDefault($type, 'test_mail_collector');
@@ -287,7 +287,7 @@ trait EmailTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailGetMailSystemOriginal($type);
+      $original_test_system = static::emailFindMailSystemOriginal($type);
       static::emailSetMailSystemDefault($type, $original_test_system);
     }
 
@@ -682,9 +682,9 @@ trait EmailTrait {
   }
 
   /**
-   * Get the default mail system value.
+   * Find the default mail system value.
    */
-  protected static function emailGetMailSystemDefault(string $type = 'default'): mixed {
+  protected static function emailFindMailSystemDefault(string $type = 'default'): mixed {
     return \Drupal::config('system.mail')->get('interface.' . $type);
   }
 
@@ -706,9 +706,9 @@ trait EmailTrait {
   }
 
   /**
-   * Get the original mail system value.
+   * Find the original mail system value.
    */
-  protected static function emailGetMailSystemOriginal(string $type = 'default'): mixed {
+  protected static function emailFindMailSystemOriginal(string $type = 'default'): mixed {
     return \Drupal::config('system.mail_original')->get('interface.' . $type);
   }
 

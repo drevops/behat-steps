@@ -211,7 +211,7 @@ trait ContentTrait {
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $node = $this->contentLoadNodeByTitle($content_type, $title);
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
     $state_is_valid = FALSE;
     $workflows = Workflow::loadMultiple();
@@ -242,7 +242,7 @@ trait ContentTrait {
   public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $node = $this->contentLoadNodeByTitle($content_type, $title);
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
     $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
 
@@ -293,7 +293,7 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('Path alias for "%s" content with the title "%s" cannot be empty.', $content_type, $title));
     }
 
-    $node = $this->contentLoadNodeByTitle($content_type, $title);
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
     // The current value carries the 'pid' of the existing alias, so the save
     // updates that alias rather than adding a second one.
@@ -336,7 +336,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should be published')]
   public function contentAssertPublishedWithTitle(string $content_type, string $title): void {
-    $node = $this->contentLoadNodeByTitle($content_type, $title);
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
     if (!$node->isPublished()) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
@@ -352,7 +352,7 @@ trait ContentTrait {
    */
   #[Then(':content_type content with the title :title should not be published')]
   public function contentAssertNotPublishedWithTitle(string $content_type, string $title): void {
-    $node = $this->contentLoadNodeByTitle($content_type, $title);
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
     if ($node->isPublished()) {
       throw new ExpectationException(sprintf('"%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
@@ -370,17 +370,17 @@ trait ContentTrait {
    *   The operation to perform.
    */
   public function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
-    $nid = $this->contentResolveNidByTitle($content_type, $title);
+    $nid = $this->contentGetNidByTitle($content_type, $title);
     $path = $this->locatePath('/node/' . $nid . $action_subpath);
 
     $this->getSession()->visit($path);
   }
 
   /**
-   * Resolve the ID of the node with the specified type and title.
+   * Return the ID of the node with the specified type and title.
    *
    * When several nodes of the same type share the title, the most recently
-   * created one is resolved.
+   * created one is returned.
    *
    * @param string $content_type
    *   The content type.
@@ -389,8 +389,11 @@ trait ContentTrait {
    *
    * @return int
    *   The node ID.
+   *
+   * @throws \RuntimeException
+   *   When the content type does not exist or no node of it has the title.
    */
-  public function contentResolveNidByTitle(string $content_type, string $title): int {
+  public function contentGetNidByTitle(string $content_type, string $title): int {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
@@ -413,7 +416,7 @@ trait ContentTrait {
   }
 
   /**
-   * Load the node with the specified type and title.
+   * Return the node with the specified type and title.
    *
    * @param string $content_type
    *   The content type.
@@ -422,11 +425,14 @@ trait ContentTrait {
    *
    * @return \Drupal\node\NodeInterface
    *   The node.
+   *
+   * @throws \RuntimeException
+   *   When the content type does not exist or no node of it has the title.
    */
-  public function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface {
+  public function contentGetNodeByTitle(string $content_type, string $title): NodeInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $node = Node::load($this->contentResolveNidByTitle($content_type, $title));
+    $node = Node::load($this->contentGetNidByTitle($content_type, $title));
 
     // @codeCoverageIgnoreStart
     if (!$node instanceof NodeInterface) {

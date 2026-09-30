@@ -142,7 +142,7 @@ trait BlockTrait {
    */
   #[Given('the block :label does not exist')]
   public function blockRemove(string $label): void {
-    while ($block = $this->blockLoadByLabel($label)) {
+    while ($block = $this->blockFindByLabel($label)) {
       $block->delete();
     }
   }
@@ -250,7 +250,7 @@ trait BlockTrait {
    */
   #[Then('the block :label should exist')]
   public function blockAssertExists(string $label): void {
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockFindByLabel($label);
 
     if (empty($block)) {
       throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
@@ -272,7 +272,7 @@ trait BlockTrait {
    */
   #[Then('the block :label should not exist')]
   public function blockAssertNotExists(string $label): void {
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockFindByLabel($label);
 
     if (!empty($block)) {
       throw new ExpectationException(sprintf('The block "%s" exists but should not.', $label), $this->getSession()->getDriver());
@@ -297,7 +297,7 @@ trait BlockTrait {
   #[Then('the block :label should exist in the :region region')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockFindByLabel($label);
 
     $actual_region = $block->getRegion();
 
@@ -324,7 +324,7 @@ trait BlockTrait {
   #[Then('the block :label should not exist in the :region region')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockFindByLabel($label);
 
     $actual_region = $block->getRegion();
 
@@ -334,7 +334,7 @@ trait BlockTrait {
   }
 
   /**
-   * Load a block by its label or fail.
+   * Return the block carrying a label.
    *
    * @param string $label
    *   The visible label of the block to find.
@@ -346,7 +346,7 @@ trait BlockTrait {
    *   When no block carries that label.
    */
   public function blockGetByLabel(string $label): Block {
-    $block = $this->blockLoadByLabel($label);
+    $block = $this->blockFindByLabel($label);
 
     if (!$block instanceof Block) {
       throw new \RuntimeException(sprintf('The block "%s" does not exist.', $label));
@@ -356,7 +356,7 @@ trait BlockTrait {
   }
 
   /**
-   * Load a block by its label.
+   * Find a block by its label.
    *
    * @param string $label
    *   The visible label of the block to find.
@@ -364,7 +364,7 @@ trait BlockTrait {
    * @return \Drupal\block\Entity\Block|null
    *   The loaded block entity, or NULL when no block carries that label.
    */
-  public function blockLoadByLabel(string $label): ?Block {
+  public function blockFindByLabel(string $label): ?Block {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $default_theme = \Drupal::config('system.theme')->get('default');

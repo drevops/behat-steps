@@ -39,7 +39,7 @@ trait MenuTrait {
    */
   #[Given('the menu :menu_name does not exist')]
   public function menuDeleteSingle(string $menu_name): void {
-    $menu = $this->menuLoadByLabel($menu_name);
+    $menu = $this->menuFindByLabel($menu_name);
     if ($menu instanceof MenuInterface) {
       $menu->delete();
     }
@@ -88,7 +88,7 @@ trait MenuTrait {
     $this->queryAssertModuleEnabled('menu_link_content');
 
     foreach ($table->getColumn(0) as $title) {
-      $menu_link = $this->menuLoadLinkByTitle($title, $menu_name);
+      $menu_link = $this->menuFindLinkByTitle($title, $menu_name);
       if ($menu_link instanceof MenuLinkContent) {
         $menu_link->delete();
       }
@@ -111,7 +111,7 @@ trait MenuTrait {
 
     $this->queryAssertModuleEnabled('menu_link_content');
 
-    $menu = $this->menuLoadByLabel($menu_name);
+    $menu = $this->menuFindByLabel($menu_name);
 
     // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
@@ -126,7 +126,7 @@ trait MenuTrait {
         unset($menu_link_hash['uri']);
       }
       if (!empty($menu_link_hash['parent']) && is_string($menu_link_hash['parent'])) {
-        $parent_link = $this->menuLoadLinkByTitle($menu_link_hash['parent'], $menu_name);
+        $parent_link = $this->menuFindLinkByTitle($menu_link_hash['parent'], $menu_name);
         if ($parent_link instanceof MenuLinkContent) {
           $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
         }
@@ -146,7 +146,7 @@ trait MenuTrait {
   }
 
   /**
-   * Load a menu by its label.
+   * Find a menu by its label.
    *
    * @param string $label
    *   The label of the menu.
@@ -154,7 +154,7 @@ trait MenuTrait {
    * @return \Drupal\system\MenuInterface|null
    *   The menu or NULL if not found.
    */
-  public function menuLoadByLabel(string $label): ?MenuInterface {
+  public function menuFindByLabel(string $label): ?MenuInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
@@ -174,7 +174,7 @@ trait MenuTrait {
   }
 
   /**
-   * Get a menu link by title and menu name.
+   * Find a menu link by title and menu name.
    *
    * @param string $title
    *   The title of the menu link.
@@ -184,10 +184,10 @@ trait MenuTrait {
    * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
    *   The menu link or NULL if not found.
    */
-  public function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
+  public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $menu = $this->menuLoadByLabel($menu_name);
+    $menu = $this->menuFindByLabel($menu_name);
 
     // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {

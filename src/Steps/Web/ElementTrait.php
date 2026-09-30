@@ -86,7 +86,7 @@ trait ElementTrait {
   #[When('I click on the element :selector with the index :index')]
   public function elementClickByIndex(string $selector, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('css', $selector);
-    $this->elementFindNthOrFail($elements, $index, sprintf('element matching "%s"', $selector))->click();
+    $this->elementGetNth($elements, $index, sprintf('element matching "%s"', $selector))->click();
   }
 
   /**
@@ -99,7 +99,7 @@ trait ElementTrait {
   #[When('I follow the link :text with the index :index')]
   public function elementFollowLinkByIndex(string $text, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('named', ['link', $text]);
-    $this->elementFindNthOrFail($elements, $index, sprintf('link "%s"', $text))->click();
+    $this->elementGetNth($elements, $index, sprintf('link "%s"', $text))->click();
   }
 
   /**
@@ -112,7 +112,7 @@ trait ElementTrait {
   #[When('I press the button :label with the index :index')]
   public function elementPressButtonByIndex(string $label, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('named', ['button', $label]);
-    $this->elementFindNthOrFail($elements, $index, sprintf('button "%s"', $label))->press();
+    $this->elementGetNth($elements, $index, sprintf('button "%s"', $label))->press();
   }
 
   /**
@@ -1328,7 +1328,7 @@ JS;
    * @throws \RuntimeException
    *   When the index is below 1.
    */
-  public function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement {
+  public function elementGetNth(array $elements, int $index, string $subject): NodeElement {
     if ($index < 1) {
       throw new \RuntimeException(sprintf('The index must be 1 or greater, but "%d" was given.', $index));
     }

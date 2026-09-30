@@ -251,7 +251,7 @@ trait RegionTrait {
    */
   #[Then('the element :selector in the region :region should have the text :text')]
   public function regionAssertElementText(string $selector, string $region, string $text): void {
-    $this->regionFindElementByText($region, $selector, $text);
+    $this->regionGetElementByText($region, $selector, $text);
   }
 
   /**
@@ -297,7 +297,7 @@ trait RegionTrait {
    */
   #[Then('the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value')]
   public function regionAssertElementTextAttribute(string $selector, string $text, string $region, string $attribute, string $value): void {
-    $element = $this->regionFindElementByText($region, $selector, $text);
+    $element = $this->regionGetElementByText($region, $selector, $text);
 
     if ($element->getAttribute($attribute) !== $value) {
       throw new ExpectationException(sprintf('The "%s" element with the text "%s" in the "%s" region does not have the attribute "%s" with the value "%s" on the page %s.', $selector, $text, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -315,7 +315,7 @@ trait RegionTrait {
    */
   #[Then('the element :selector with the text :text in the region :region should have the CSS property :property with the value :value')]
   public function regionAssertElementTextCssProperty(string $selector, string $text, string $region, string $property, string $value): void {
-    $element = $this->regionFindElementByText($region, $selector, $text);
+    $element = $this->regionGetElementByText($region, $selector, $text);
     $actual = $this->getSession()->getDriver()->evaluateScript(sprintf('window.getComputedStyle(document.evaluate(%s, document, null, 9, null).singleNodeValue).getPropertyValue(%s);', json_encode($element->getXpath()), json_encode($property)));
 
     if ($actual !== $value) {
@@ -346,7 +346,7 @@ trait RegionTrait {
   }
 
   /**
-   * Find an element in a region whose text matches exactly.
+   * Return an element in a region whose text matches exactly.
    *
    * @param string $region
    *   The region name.
@@ -363,7 +363,7 @@ trait RegionTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no matching element carries the text.
    */
-  public function regionFindElementByText(string $region, string $selector, string $text): NodeElement {
+  public function regionGetElementByText(string $region, string $selector, string $text): NodeElement {
     $elements = $this->regionGet($region)->findAll('css', $selector);
 
     if ($elements === []) {

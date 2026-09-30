@@ -913,8 +913,8 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
 | `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
-| `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuLoadByLabel()` |
-| `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuLoadLinkByTitle()` |
+| `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuFindByLabel()` |
+| `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuFindLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
 | `WaitTrait` | `waitForAjaxToFinish()` | `waitForAjax()` |
 
@@ -1113,7 +1113,7 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried six shapes for "assert the negative", two spellings of "normalize", and two shapes for a consumer override point. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize", 2 shapes for a consumer override point, and 3 lookup verbs that didn't say what a lookup does when nothing matches. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
 
 `CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
 
@@ -1195,6 +1195,33 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
 | `DiagnosticsTrait` | `diagnosticsShowUrl()` | `diagnosticsGetShowUrl()` |
 | `ElementTrait` | `elementScrollIntoViewCenter()` | `elementGetScrollIntoViewCenter()` |
+
+### A lookup's verb says what a miss does
+
+`Find`, `Load` and `Get` each named some lookups that return `NULL` when nothing matches and others that throw, sometimes in the same trait: `TableTrait` had a `tableFind()` that threw beside a `tableFindRowByText()` that returned `NULL`. The verb now carries the contract. A `Find` returns `NULL`, a `Get` throws and never returns `NULL`, and a `Load` loads a set, so no lookup for 1 item is named `Load`.
+
+Only the name changes. Each method keeps its body, its parameters, its return type and the exceptions it throws.
+
+| Trait | Old | New | When nothing matches |
+| --- | --- | --- | --- |
+| `Drupal\BlockTrait` | `blockLoadByLabel()` | `blockFindByLabel()` | returns `NULL` |
+| `Drupal\ContentTrait` | `contentLoadNodeByTitle()` | `contentGetNodeByTitle()` | throws `\RuntimeException` |
+| `Drupal\ContentTrait` | `contentResolveNidByTitle()` | `contentGetNidByTitle()` | throws `\RuntimeException` |
+| `Drupal\EmailTrait` | `emailGetMailSystemDefault()` (protected) | `emailFindMailSystemDefault()` | returns `NULL` |
+| `Drupal\EmailTrait` | `emailGetMailSystemOriginal()` (protected) | `emailFindMailSystemOriginal()` | returns `NULL` |
+| `Drupal\UserTrait` | `userLoadByName()` | `userGetByName()` | throws `\RuntimeException` |
+| `CookieTrait` | `cookieGetByName()` | `cookieFindByName()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindDriverName()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetRerunCommand()` | `diagnosticsFindRerunCommand()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetStatusCode()` | `diagnosticsFindStatusCode()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
+| `ElementTrait` | `elementFindNthOrFail()` | `elementGetNth()` | throws `ElementNotFoundException`, or `ExpectationException` past the last match |
+| `MetatagTrait` | `metatagGetCanonicalHref()` | `metatagFindCanonicalHref()` | returns `NULL` |
+| `MetatagTrait` | `metatagGetMetaContent()` | `metatagFindMetaContent()` | returns `NULL` |
+| `ModalTrait` | `modalFindVisible()` | `modalGetVisible()` | throws `ExpectationException` |
+| `TableTrait` | `tableFind()` | `tableGet()` | throws `ElementNotFoundException` |
+
+The 2 `MenuTrait` lookups go straight to their `Find` names, listed under [Trait methods prefixed with their trait name](#trait-methods-prefixed-with-their-trait-name). A lookup that already matched its contract keeps its name, such as `tableFindRowByText()`, `modalFind()`, `metatagFindMeta()` and `emailFindMessage()`.
 
 ## A class is named for the role it plays
 

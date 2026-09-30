@@ -85,7 +85,7 @@ class ModalTraitTest extends UnitTestCase {
   /**
    * Put a visible modal on the page.
    *
-   * A visible modal passes modalFindVisible(), so the failure under test is
+   * A visible modal passes modalGetVisible(), so the failure under test is
    * the lookup inside the modal.
    *
    * @return \Behat\Mink\Element\NodeElement&\PHPUnit\Framework\MockObject\MockObject

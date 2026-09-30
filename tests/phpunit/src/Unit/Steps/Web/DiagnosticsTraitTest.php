@@ -275,15 +275,15 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
   }
 
   public function getUrl(): ?string {
-    return $this->diagnosticsGetUrl();
+    return $this->diagnosticsFindUrl();
   }
 
   public function getStatusCode(): ?int {
-    return $this->diagnosticsGetStatusCode();
+    return $this->diagnosticsFindStatusCode();
   }
 
   public function getDriverName(): ?string {
-    return $this->diagnosticsGetDriverName();
+    return $this->diagnosticsFindDriverName();
   }
 
   /**
@@ -297,7 +297,7 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
   }
 
   public function rerunCommand(): ?string {
-    return $this->diagnosticsGetRerunCommand();
+    return $this->diagnosticsFindRerunCommand();
   }
 
   protected function diagnosticsGetShowUrl(): bool {

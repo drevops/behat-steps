@@ -72,7 +72,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should have :count row(s)')]
   public function tableAssertRowCount(string $selector, int $count): void {
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
     $actual = count($this->tableGetRows($table));
 
     if ($actual !== $count) {
@@ -89,7 +89,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should have :count column(s)')]
   public function tableAssertColumnCount(string $selector, int $count): void {
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
     $actual = count($this->tableGetHeaders($table));
 
     if ($actual !== $count) {
@@ -109,7 +109,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should contain the following columns:')]
   public function tableAssertColumns(string $selector, TableNode $table): void {
-    $table_element = $this->tableFind($selector);
+    $table_element = $this->tableGet($selector);
     $actual_headers = $this->tableGetHeaders($table_element);
 
     foreach ($table->getColumn(0) as $expected_column) {
@@ -129,7 +129,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should be empty')]
   public function tableAssertEmpty(string $selector): void {
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
     $actual = count($this->tableGetRows($table));
 
     if ($actual !== 0) {
@@ -146,7 +146,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should not be empty')]
   public function tableAssertNotEmpty(string $selector): void {
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
 
     if (count($this->tableGetRows($table)) === 0) {
       throw new ExpectationException(sprintf('Expected table "%s" to not be empty, but it has no rows.', $selector), $this->getSession()->getDriver());
@@ -167,7 +167,7 @@ trait TableTrait {
       throw new \RuntimeException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction));
     }
 
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
     $column_index = $this->tableGetColumnIndex($table, $column, $selector);
 
     $values = [];
@@ -203,7 +203,7 @@ trait TableTrait {
    */
   #[Then('the table :selector should contain the following rows:')]
   public function tableAssertRows(string $selector, TableNode $expected_table): void {
-    $table = $this->tableFind($selector);
+    $table = $this->tableGet($selector);
 
     $expected_headers = $expected_table->getRow(0);
     $column_indices = [];
@@ -355,7 +355,7 @@ trait TableTrait {
   }
 
   /**
-   * Find a table element by CSS selector.
+   * Return the table element matching a CSS selector.
    *
    * @param string $selector
    *   The CSS selector for the table.
@@ -366,7 +366,7 @@ trait TableTrait {
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   When the table is not found.
    */
-  public function tableFind(string $selector): NodeElement {
+  public function tableGet(string $selector): NodeElement {
     $page = $this->getSession()->getPage();
     $table = $page->find('css', $selector);
 
