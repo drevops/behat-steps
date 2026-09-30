@@ -760,6 +760,33 @@ Feature: Check that EmailTrait works
     Then the mailsystem formatter should be "php_mail"
 
   @trait:Drupal\EmailTrait
+  Scenario: Assert that the step enables the test email system without the "@email" tag and the teardown disables it
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      Feature: Stub feature
+        Scenario: A scenario enables the test email system with the step
+          When I enable the test email system
+          And I send test email to "test@example.com" with:
+            '''
+            Test content
+            '''
+          Then an email should be sent to the address "test@example.com"
+
+        Scenario: A later scenario finds the test email system disabled
+          When I clear the test email system queue
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Clearing testing email system queue can be done only when email testing system is activated.
+      """
+    And the output should contain:
+      """
+      2 scenarios (1 passed, 1 failed)
+      """
+
+  @trait:Drupal\EmailTrait
   Scenario: Assert that the skip tag keeps the "@email" tag from enabling the test email system
     Given some behat configuration
     And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":

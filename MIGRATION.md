@@ -1620,6 +1620,10 @@ For most traits the replacement does exactly what the old tag did, because the t
 - A tag that skipped a trait's teardown alone now skips its setup as well. `@behat-steps-skip:EmailTrait` keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards. A scenario that wants the collector without the teardown enables it itself with `When I enable the test email system`. `FileTrait` (the private and temporary directories), `FileDownloadTrait` (the download directory), `ModuleTrait` (the `@module:` tags) and `TestmodeTrait` (the `@testmode` tag) work the same way.
 - `@behat-steps-skip:AuthTrait` keeps both the users and the roles a scenario created, where the 2 were separate tags.
 
+### `I enable the test email system` works without `@email`
+
+The step enabled nothing in a scenario without an `@email` tag, because only the hook reading that tag named a handler. It now falls back to the `default` handler, as a bare `@email` does, and the collector it enables is disabled once the scenario finishes, unless `@behat-steps-skip:EmailTrait` switches the hooks off.
+
 ### A guard of your own names its trait
 
 A trait of your own that guards a hook with `skipTag()` passes `__TRAIT__`, which resolves to the trait the code is written in:

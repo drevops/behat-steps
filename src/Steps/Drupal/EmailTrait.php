@@ -77,12 +77,6 @@ trait EmailTrait {
       }
     }
 
-    if (empty($this->emailHandlerTypes)) {
-      $this->emailHandlerTypes[] = 'default';
-    }
-
-    $this->emailHandlerTypes = array_unique($this->emailHandlerTypes);
-
     $this->emailEnableTestSystem();
   }
 
@@ -95,7 +89,9 @@ trait EmailTrait {
       return;
     }
 
-    if (!Tag::has($scope->getScenario(), 'email')) {
+    // The step can enable the system without the '@email' tag, so the enabled
+    // handler types decide the teardown.
+    if ($this->emailHandlerTypes === []) {
       return;
     }
 
@@ -253,6 +249,11 @@ trait EmailTrait {
   /**
    * Enable the test email system.
    *
+   * Collects with the handler types the scenario's `@email:TYPE` tags name, or
+   * with the `default` handler when none do. The system is disabled again once
+   * the scenario finishes, unless `@behat-steps-skip:EmailTrait` switches the
+   * trait's hooks off.
+   *
    * @code
    * When I enable the test email system
    * @endcode
@@ -260,6 +261,8 @@ trait EmailTrait {
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
     $this->driverFor(CoreCapabilityInterface::class);
+
+    $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
 
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = static::emailFindMailSystemDefault($type);
