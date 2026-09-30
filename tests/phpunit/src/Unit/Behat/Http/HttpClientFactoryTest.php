@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Tests the shared transport and the browsers built on it.
@@ -143,6 +144,28 @@ class HttpClientFactoryTest extends UnitTestCase {
     $this->assertNull($this->requestHeader(0, 'X-Token'));
     $this->assertNull($this->requestHeader(0, 'Authorization'));
     $this->assertEqualsWithDelta(3.0, $this->requests[0]['options']['timeout'], 0.001);
+  }
+
+  public function testWithTransportDecoratesEveryBrowserOfTheCopy(): void {
+    $transport = $this->recordingClient();
+    $factory = new HttpClientFactory($transport, 'http://example.com');
+    $received = NULL;
+
+    $decorated = $factory->withTransport(function (HttpClientInterface $inner) use (&$received): HttpClientInterface {
+      $received = $inner;
+
+      return $inner->withOptions(['headers' => ['X-Decorated' => 'yes']]);
+    });
+
+    $decorated->createBare()->request('GET', 'http://example.com/bare');
+    $decorated->createDetached(new HttpIdentity())->request('GET', 'http://example.com/detached');
+    $factory->createBare()->request('GET', 'http://example.com/original');
+
+    $this->assertSame($transport, $received);
+    $this->assertNotSame($factory, $decorated);
+    $this->assertSame('yes', $this->requestHeader(0, 'X-Decorated'));
+    $this->assertSame('yes', $this->requestHeader(1, 'X-Decorated'));
+    $this->assertNull($this->requestHeader(2, 'X-Decorated'));
   }
 
   /**

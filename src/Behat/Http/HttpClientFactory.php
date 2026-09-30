@@ -32,7 +32,7 @@ class HttpClientFactory implements HttpClientFactoryInterface {
    *   credentials to this host only.
    */
   public function __construct(
-    protected readonly HttpClientInterface $transport,
+    protected HttpClientInterface $transport,
     protected readonly ?string $baseUrl = NULL,
   ) {
   }
@@ -85,6 +85,16 @@ class HttpClientFactory implements HttpClientFactoryInterface {
     }
 
     return new HttpBrowser($transport, NULL, $this->cookieJar($identity));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function withTransport(callable $decorator): static {
+    $factory = clone $this;
+    $factory->transport = $decorator($this->transport);
+
+    return $factory;
   }
 
   /**

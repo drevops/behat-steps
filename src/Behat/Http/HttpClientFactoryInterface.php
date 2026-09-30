@@ -44,4 +44,16 @@ interface HttpClientFactoryInterface {
    */
   public function createDetached(HttpIdentity $identity, array $options = []): AbstractBrowser;
 
+  /**
+   * Returns a copy whose browsers send through a decorated transport.
+   *
+   * The decorator receives the shared transport, so the copy keeps the site's
+   * connection options. A context overriding its factory uses it to add
+   * retries, tracing or a mock to every detached and bare browser.
+   *
+   * @param callable(\Symfony\Contracts\HttpClient\HttpClientInterface): \Symfony\Contracts\HttpClient\HttpClientInterface $decorator
+   *   Receives the transport and returns the one to send through.
+   */
+  public function withTransport(callable $decorator): static;
+
 }
