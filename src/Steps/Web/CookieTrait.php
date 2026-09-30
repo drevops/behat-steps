@@ -166,7 +166,7 @@ trait CookieTrait {
    * Assert that a cookie exists.
    */
   public function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
-    $cookie = $this->cookieGetByName($name, $is_partial_name);
+    $cookie = $this->cookieFindByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
       if ($is_partial_name) {
@@ -200,7 +200,7 @@ trait CookieTrait {
    * Assert that a cookie does not exist.
    */
   public function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
-    $cookie = $this->cookieGetByName($name, $is_partial_name);
+    $cookie = $this->cookieFindByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
       return;
@@ -234,7 +234,7 @@ trait CookieTrait {
   }
 
   /**
-   * Get a cookie by exact or partial name.
+   * Find a cookie by exact or partial name.
    *
    * @param string $name
    *   The name of the cookie.
@@ -244,7 +244,7 @@ trait CookieTrait {
    * @return array<string, mixed>|null
    *   The cookie or NULL if not found.
    */
-  public function cookieGetByName(string $name, bool $is_partial = FALSE): ?array {
+  public function cookieFindByName(string $name, bool $is_partial = FALSE): ?array {
     $cookies = $this->cookieGetAll();
 
     foreach ($cookies as $cookie) {

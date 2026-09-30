@@ -37,7 +37,7 @@ trait ModalTrait {
    */
   #[When('I close the modal')]
   public function modalClose(): void {
-    $modal = $this->modalFindVisible();
+    $modal = $this->modalGetVisible();
     $close = $this->modalFindElementIn($modal, $this->modalGetCloseSelectors());
 
     if ($close === NULL) {
@@ -65,7 +65,7 @@ trait ModalTrait {
    */
   #[When('I click on :selector in the modal')]
   public function modalClick(string $selector): void {
-    $modal = $this->modalFindVisible();
+    $modal = $this->modalGetVisible();
 
     $element = $modal->find('css', $selector);
 
@@ -159,7 +159,7 @@ trait ModalTrait {
    */
   #[Then('the modal should contain :text')]
   public function modalAssertContains(string $text): void {
-    $modal = $this->modalFindVisible();
+    $modal = $this->modalGetVisible();
     $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
     if ($content === NULL) {
@@ -184,7 +184,7 @@ trait ModalTrait {
    */
   #[Then('the modal should not contain :text')]
   public function modalAssertNotContains(string $text): void {
-    $modal = $this->modalFindVisible();
+    $modal = $this->modalGetVisible();
     $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
 
     if ($content === NULL) {
@@ -262,7 +262,7 @@ trait ModalTrait {
   }
 
   /**
-   * Find the first visible modal or throw an exception.
+   * Return the first visible modal.
    *
    * @return \Behat\Mink\Element\NodeElement
    *   The visible modal element.
@@ -270,7 +270,7 @@ trait ModalTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no visible modal is found.
    */
-  public function modalFindVisible(): NodeElement {
+  public function modalGetVisible(): NodeElement {
     $modal = $this->modalFind();
 
     if ($modal === NULL || !$modal->isVisible()) {

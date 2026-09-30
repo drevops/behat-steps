@@ -141,7 +141,7 @@ trait MetatagTrait {
    */
   #[Then('the canonical URL should be :url')]
   public function metatagAssertCanonicalEquals(string $url): void {
-    $href = $this->metatagGetCanonicalHref();
+    $href = $this->metatagFindCanonicalHref();
 
     if ($href === NULL || $href === '') {
       throw new ExpectationException('The canonical URL is not set.', $this->getSession()->getDriver());
@@ -161,7 +161,7 @@ trait MetatagTrait {
    */
   #[Then('the canonical URL should exist')]
   public function metatagAssertCanonicalExists(): void {
-    $href = $this->metatagGetCanonicalHref();
+    $href = $this->metatagFindCanonicalHref();
 
     if ($href === NULL || $href === '') {
       throw new ExpectationException('The canonical URL is not set.', $this->getSession()->getDriver());
@@ -177,7 +177,7 @@ trait MetatagTrait {
    */
   #[Then('the canonical URL should not exist')]
   public function metatagAssertCanonicalNotExists(): void {
-    $href = $this->metatagGetCanonicalHref();
+    $href = $this->metatagFindCanonicalHref();
 
     if ($href !== NULL && $href !== '') {
       throw new ExpectationException(sprintf('The canonical URL should not be set, but found "%s".', $href), $this->getSession()->getDriver());
@@ -398,7 +398,7 @@ trait MetatagTrait {
   }
 
   /**
-   * Get the content of a meta tag by its "name" or "property" attribute.
+   * Find the content of a meta tag by its "name" or "property" attribute.
    *
    * @param string $meta_name
    *   The meta tag name or property.
@@ -406,19 +406,19 @@ trait MetatagTrait {
    * @return string|null
    *   The content attribute value, or NULL when the meta tag is not found.
    */
-  public function metatagGetMetaContent(string $meta_name): ?string {
+  public function metatagFindMetaContent(string $meta_name): ?string {
     $meta = $this->metatagFindMeta($meta_name);
 
     return $meta === NULL ? NULL : (string) $meta->getAttribute('content');
   }
 
   /**
-   * Get the canonical URL href.
+   * Find the canonical URL href.
    *
    * @return string|null
    *   The canonical href, or NULL when no canonical link is present.
    */
-  public function metatagGetCanonicalHref(): ?string {
+  public function metatagFindCanonicalHref(): ?string {
     $link = $this->getSession()->getPage()->find('xpath', '//link[@rel="canonical"]');
 
     return $link === NULL ? NULL : (string) $link->getAttribute('href');
@@ -431,7 +431,7 @@ trait MetatagTrait {
    *   The directive tokens, or an empty array when no robots meta tag exists.
    */
   public function metatagGetRobotsDirectives(): array {
-    $content = $this->metatagGetMetaContent('robots');
+    $content = $this->metatagFindMetaContent('robots');
 
     if ($content === NULL || trim($content) === '') {
       return [];
@@ -644,7 +644,7 @@ trait MetatagTrait {
     $missing = [];
 
     foreach ($names as $name) {
-      $content = $this->metatagGetMetaContent($name);
+      $content = $this->metatagFindMetaContent($name);
 
       if ($content === NULL || trim($content) === '') {
         $missing[] = $name;

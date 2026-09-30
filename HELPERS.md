@@ -258,19 +258,19 @@ Assert that a cookie exists
 </details>
 
 <details>
-  <summary><code>public function cookieGetAll(): array</code></summary>
+  <summary><code>public function cookieFindByName(string $name, bool $is_partial = FALSE): ?array</code></summary>
 
 <br/>
-Get all cookies
+Find a cookie by exact or partial name
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function cookieGetByName(string $name, bool $is_partial = FALSE): ?array</code></summary>
+  <summary><code>public function cookieGetAll(): array</code></summary>
 
 <br/>
-Get a cookie by exact or partial name
+Get all cookies
 <br/><br/>
 
 </details>
@@ -330,10 +330,37 @@ Check whether a string holds a relative date token
 > Append on-failure diagnostics to the failure message of any failed step.
 
 <details>
-  <summary><code>public function diagnosticsGetDriverName(): ?string</code></summary>
+  <summary><code>public function diagnosticsFindDriverName(): ?string</code></summary>
 
 <br/>
 Return the active Mink driver class, or NULL when it is unavailable
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function diagnosticsFindRerunCommand(): ?string</code></summary>
+
+<br/>
+Return the command that re-runs just the failing scenario
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function diagnosticsFindStatusCode(): ?int</code></summary>
+
+<br/>
+Return the last response status code, or NULL when it is unavailable
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function diagnosticsFindUrl(): ?string</code></summary>
+
+<br/>
+Return the current page URL, or NULL when it cannot be determined
 <br/><br/>
 
 </details>
@@ -361,15 +388,6 @@ Return collected JavaScript console error messages
 
 <br/>
 Return the binary used in the re-run command. Override to customise
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function diagnosticsGetRerunCommand(): ?string</code></summary>
-
-<br/>
-Return the command that re-runs just the failing scenario
 <br/><br/>
 
 </details>
@@ -419,24 +437,6 @@ Return TRUE to include the current URL. Override to suppress
 
 </details>
 
-<details>
-  <summary><code>public function diagnosticsGetStatusCode(): ?int</code></summary>
-
-<br/>
-Return the last response status code, or NULL when it is unavailable
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function diagnosticsGetUrl(): ?string</code></summary>
-
-<br/>
-Return the current page URL, or NULL when it cannot be determined
-<br/><br/>
-
-</details>
-
 ## DropzoneTrait
 
 [Source](src/Steps/Web/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
@@ -477,7 +477,7 @@ Find a heading whose text matches exactly
 </details>
 
 <details>
-  <summary><code>public function elementFindNthOrFail(array $elements, int $index, string $subject): NodeElement</code></summary>
+  <summary><code>public function elementGetNth(array $elements, int $index, string $subject): NodeElement</code></summary>
 
 <br/>
 Return the element at a 1-based index or throw a clear error
@@ -717,6 +717,15 @@ Assert that a set of meta tags is present and non-empty
 </details>
 
 <details>
+  <summary><code>public function metatagFindCanonicalHref(): ?string</code></summary>
+
+<br/>
+Find the canonical URL href
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function metatagFindMeta(string $meta_name): ?NodeElement</code></summary>
 
 <br/>
@@ -726,10 +735,10 @@ Find a meta tag by its "name" or "property" attribute
 </details>
 
 <details>
-  <summary><code>public function metatagGetCanonicalHref(): ?string</code></summary>
+  <summary><code>public function metatagFindMetaContent(string $meta_name): ?string</code></summary>
 
 <br/>
-Get the canonical URL href
+Find the content of a meta tag by its "name" or "property" attribute
 <br/><br/>
 
 </details>
@@ -739,15 +748,6 @@ Get the canonical URL href
 
 <br/>
 Get the hreflang alternates present on the current page
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function metatagGetMetaContent(string $meta_name): ?string</code></summary>
-
-<br/>
-Get the content of a meta tag by its "name" or "property" attribute
 <br/><br/>
 
 </details>
@@ -822,15 +822,6 @@ Find the first visible modal, or fall back to the first DOM match
 </details>
 
 <details>
-  <summary><code>public function modalFindVisible(): NodeElement</code></summary>
-
-<br/>
-Find the first visible modal or throw an exception
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function modalGetCloseSelectors(): array</code></summary>
 
 <br/>
@@ -853,6 +844,15 @@ Get the CSS selectors for the modal content
 
 <br/>
 Get the CSS selectors for the modal container
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function modalGetVisible(): NodeElement</code></summary>
+
+<br/>
+Return the first visible modal
 <br/><br/>
 
 </details>
@@ -984,19 +984,19 @@ Applies 'randomSubstitute()' across every cell in '$table'
 > Interact with and assert against named page regions.
 
 <details>
-  <summary><code>public function regionFindElementByText(string $region, string $selector, string $text): NodeElement</code></summary>
+  <summary><code>public function regionGet(string $region): NodeElement</code></summary>
 
 <br/>
-Find an element in a region whose text matches exactly
+Return a named region on the current page
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function regionGet(string $region): NodeElement</code></summary>
+  <summary><code>public function regionGetElementByText(string $region, string $selector, string $text): NodeElement</code></summary>
 
 <br/>
-Return a named region on the current page
+Return an element in a region whose text matches exactly
 <br/><br/>
 
 </details>
@@ -1092,19 +1092,19 @@ Resolve a relative URL against the Mink base URL
 > Interact with HTML table elements and assert their content.
 
 <details>
-  <summary><code>public function tableFind(string $selector): NodeElement</code></summary>
+  <summary><code>public function tableFindRowByText(string $row_text): ?NodeElement</code></summary>
 
 <br/>
-Find a table element by CSS selector
+Find a table row containing the given text
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function tableFindRowByText(string $row_text): ?NodeElement</code></summary>
+  <summary><code>public function tableGet(string $selector): NodeElement</code></summary>
 
 <br/>
-Find a table row containing the given text
+Return the table element matching a CSS selector
 <br/><br/>
 
 </details>
@@ -1312,19 +1312,19 @@ Wait until no BigPipe placeholder markers remain in the DOM
 > Manage Drupal blocks.
 
 <details>
-  <summary><code>public function blockGetByLabel(string $label): Block</code></summary>
+  <summary><code>public function blockFindByLabel(string $label): ?Block</code></summary>
 
 <br/>
-Load a block by its label or fail
+Find a block by its label
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function blockLoadByLabel(string $label): ?Block</code></summary>
+  <summary><code>public function blockGetByLabel(string $label): Block</code></summary>
 
 <br/>
-Load a block by its label
+Return the block carrying a label
 <br/><br/>
 
 </details>
@@ -1399,19 +1399,19 @@ Load multiple content blocks with specified type and conditions
 > Manage Drupal content with workflow and moderation support.
 
 <details>
-  <summary><code>public function contentLoadNodeByTitle(string $content_type, string $title): NodeInterface</code></summary>
+  <summary><code>public function contentGetNidByTitle(string $content_type, string $title): int</code></summary>
 
 <br/>
-Load the node with the specified type and title
+Return the ID of the node with the specified type and title
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function contentResolveNidByTitle(string $content_type, string $title): int</code></summary>
+  <summary><code>public function contentGetNodeByTitle(string $content_type, string $title): NodeInterface</code></summary>
 
 <br/>
-Resolve the ID of the node with the specified type and title
+Return the node with the specified type and title
 <br/><br/>
 
 </details>
@@ -1672,19 +1672,19 @@ Visit the action page of the media with a specified name
 > Manage Drupal menu systems and menu link rendering.
 
 <details>
-  <summary><code>public function menuLoadByLabel(string $label): ?MenuInterface</code></summary>
+  <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>
 
 <br/>
-Load a menu by its label
+Find a menu by its label
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function menuLoadLinkByTitle(string $title, string $menu_name): ?MenuLinkContent</code></summary>
+  <summary><code>public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent</code></summary>
 
 <br/>
-Get a menu link by title and menu name
+Find a menu link by title and menu name
 <br/><br/>
 
 </details>
@@ -1885,10 +1885,10 @@ Check whether a user with the given email address exists
 </details>
 
 <details>
-  <summary><code>public function userLoadByName(string $name): UserInterface</code></summary>
+  <summary><code>public function userGetByName(string $name): UserInterface</code></summary>
 
 <br/>
-Load a user by name
+Return the user with a name
 <br/><br/>
 
 </details>

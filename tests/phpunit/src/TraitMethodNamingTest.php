@@ -114,6 +114,99 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a `Find` method declares a nullable return type.
+   *
+   * `Find` returns NULL when nothing matches, so a caller checks the result
+   * instead of catching an exception.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderFindReturnsNullable')]
+  public function testFindReturnsNullable(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethodsWithVerb($trait, $file, 'Find') as $method) {
+      $type = $method->getReturnType();
+
+      if ($type instanceof \ReflectionType && $type->allowsNull()) {
+        continue;
+      }
+
+      $violations[] = self::describeReturnType($method);
+    }
+
+    $this->assertSame([], $violations, 'A "Find" method returns NULL when nothing matches, so its return type allows NULL. Rename a method that throws on a miss to "Get": "tableGet", not "tableFind".');
+  }
+
+  public static function dataProviderFindReturnsNullable(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a `Get` method declares a return type without NULL.
+   *
+   * `Get` throws when nothing matches, so a caller uses the result without a
+   * NULL check. `mixed` declares no type to check, so it is not reported.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderGetNeverReturnsNull')]
+  public function testGetNeverReturnsNull(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
+      $type = $method->getReturnType();
+
+      if ($type instanceof \ReflectionType && (!$type->allowsNull() || ($type instanceof \ReflectionNamedType && $type->getName() === 'mixed'))) {
+        continue;
+      }
+
+      $violations[] = self::describeReturnType($method);
+    }
+
+    $this->assertSame([], $violations, 'A "Get" method throws when nothing matches and never returns NULL, so its return type excludes NULL. Rename a method that returns NULL on a miss to "Find": "cookieFindByName", not "cookieGetByName".');
+  }
+
+  public static function dataProviderGetNeverReturnsNull(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a `Load` method returns an array or nothing.
+   *
+   * `Load` loads a set, or loads data into the trait's own state. A lookup
+   * for 1 item is a `Find` or a `Get`, so its name states what a miss does.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderLoadReturnsSet')]
+  public function testLoadReturnsSet(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethodsWithVerb($trait, $file, 'Load') as $method) {
+      $type = $method->getReturnType();
+
+      if ($type instanceof \ReflectionNamedType && in_array($type->getName(), ['array', 'void'], TRUE) && !$type->allowsNull()) {
+        continue;
+      }
+
+      $violations[] = self::describeReturnType($method);
+    }
+
+    $this->assertSame([], $violations, 'A "Load" method loads a set or loads into the trait\'s own state, so it returns array or void. Name a lookup for 1 item "Find" when a miss returns NULL, or "Get" when a miss throws: "blockFindByLabel", not "blockLoadByLabel".');
+  }
+
+  public static function dataProviderLoadReturnsSet(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Pair every trait under `src/` with the file that declares it.
    *
    * @return array<string, array{string, string}>
@@ -147,6 +240,34 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Collect the methods a trait declares in its own file.
+   *
+   * @param class-string $trait
+   *   The trait to read.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   *
+   * @return array<int, \ReflectionMethod>
+   *   The methods.
+   */
+  protected static function traitOwnMethods(string $trait, string $file): array {
+    $methods = (new \ReflectionClass($trait))->getMethods();
+
+    $own = [];
+    foreach ($methods as $method) {
+      // A trait that composes another trait reports the composed methods too,
+      // so only the methods declared in this file are the trait's own.
+      if (realpath((string) $method->getFileName()) !== $file) {
+        continue;
+      }
+
+      $own[] = $method;
+    }
+
+    return $own;
+  }
+
+  /**
    * Collect the names of the methods a trait declares in its own file.
    *
    * @param class-string $trait
@@ -158,20 +279,55 @@ class TraitMethodNamingTest extends UnitTestCase {
    *   The method names.
    */
   protected static function traitOwnMethodNames(string $trait, string $file): array {
-    $methods = (new \ReflectionClass($trait))->getMethods();
+    return array_map(static fn(\ReflectionMethod $method): string => $method->getName(), self::traitOwnMethods($trait, $file));
+  }
 
-    $names = [];
-    foreach ($methods as $method) {
-      // A trait that composes another trait reports the composed methods too,
-      // so only the methods declared in this file are the trait's own.
-      if (realpath((string) $method->getFileName()) !== $file) {
+  /**
+   * Collect the methods a trait declares whose name opens with a verb.
+   *
+   * The verb is the word right after the trait prefix, so 'tableGetRows'
+   * opens with 'Get' and a name such as 'tableGetter' opens with no verb.
+   *
+   * @param class-string $trait
+   *   The trait to read.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   * @param string $verb
+   *   The verb, capitalized as it appears in a method name.
+   *
+   * @return array<int, \ReflectionMethod>
+   *   The methods.
+   */
+  protected static function traitOwnMethodsWithVerb(string $trait, string $file, string $verb): array {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $matched = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $name = $method->getName();
+
+      if (!self::hasPrefix($name, $prefix) || preg_match('/^' . $verb . '(?![a-z])/', substr($name, strlen($prefix))) !== 1) {
         continue;
       }
 
-      $names[] = $method->getName();
+      $matched[] = $method;
     }
 
-    return $names;
+    return $matched;
+  }
+
+  /**
+   * Describe a method by its name and declared return type.
+   *
+   * @param \ReflectionMethod $method
+   *   The method to describe.
+   *
+   * @return string
+   *   The name followed by the declared return type.
+   */
+  protected static function describeReturnType(\ReflectionMethod $method): string {
+    $type = $method->getReturnType();
+
+    return sprintf('%s(): %s', $method->getName(), $type instanceof \ReflectionType ? (string) $type : 'no return type');
   }
 
   /**

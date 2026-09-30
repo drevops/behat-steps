@@ -164,7 +164,7 @@ trait UserTrait {
       throw new \RuntimeException('Password must not be empty.');
     }
 
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     $user->setPassword($password)->save();
   }
@@ -182,7 +182,7 @@ trait UserTrait {
    */
   #[Given('the last access time for the user :name is :datetime')]
   public function userSetLastAccessTime(string $name, string $datetime): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
@@ -206,7 +206,7 @@ trait UserTrait {
    */
   #[Given('the last login time for the user :name is :datetime')]
   public function userSetLastLoginTime(string $name, string $datetime): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
 
@@ -436,7 +436,7 @@ trait UserTrait {
    */
   #[When('I visit the password reset link for :name')]
   public function userVisitPasswordResetLink(string $name): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
     $this->userVisitPasswordResetLinkForUser($user);
   }
 
@@ -455,7 +455,7 @@ trait UserTrait {
       throw new \RuntimeException('Current user is not logged in.');
     }
 
-    $user = $this->userLoadByName((string) $current_user->getValue('name'));
+    $user = $this->userGetByName((string) $current_user->getValue('name'));
     $this->userVisitPasswordResetLinkForUser($user);
   }
 
@@ -468,7 +468,7 @@ trait UserTrait {
    */
   #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
@@ -486,7 +486,7 @@ trait UserTrait {
    */
   #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
@@ -536,7 +536,7 @@ trait UserTrait {
    */
   #[Then('the user :name should be blocked')]
   public function userAssertBlocked(string $name): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     if ($user->isActive()) {
       throw new ExpectationException(sprintf('User "%s" is expected to be blocked, but they are not.', $name), $this->getSession()->getDriver());
@@ -552,7 +552,7 @@ trait UserTrait {
    */
   #[Then('the user :name should not be blocked')]
   public function userAssertNotBlocked(string $name): void {
-    $user = $this->userLoadByName($name);
+    $user = $this->userGetByName($name);
 
     if (!$user->isActive()) {
       throw new ExpectationException(sprintf('User "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
@@ -687,7 +687,7 @@ trait UserTrait {
   }
 
   /**
-   * Load a user by name.
+   * Return the user with a name.
    *
    * @param string $name
    *   The user name.
@@ -698,7 +698,7 @@ trait UserTrait {
    * @throws \RuntimeException
    *   When no user with the specified name exists.
    */
-  public function userLoadByName(string $name): UserInterface {
+  public function userGetByName(string $name): UserInterface {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {
@@ -733,7 +733,7 @@ trait UserTrait {
       }
     }
     else {
-      $user = $this->userLoadByName($name);
+      $user = $this->userGetByName($name);
       $uid = $user->id();
     }
 

@@ -127,21 +127,21 @@ trait DiagnosticsTrait {
     $lines = [];
 
     if ($this->diagnosticsGetShowUrl()) {
-      $url = $this->diagnosticsGetUrl();
+      $url = $this->diagnosticsFindUrl();
       if ($url !== NULL) {
         $lines[] = 'URL: ' . $url;
       }
     }
 
     if ($this->diagnosticsGetShowStatusCode()) {
-      $status = $this->diagnosticsGetStatusCode();
+      $status = $this->diagnosticsFindStatusCode();
       if ($status !== NULL) {
         $lines[] = 'HTTP status: ' . $status;
       }
     }
 
     if ($this->diagnosticsGetShowDriver()) {
-      $driver = $this->diagnosticsGetDriverName();
+      $driver = $this->diagnosticsFindDriverName();
       if ($driver !== NULL) {
         $lines[] = 'Mink driver: ' . $driver;
       }
@@ -155,7 +155,7 @@ trait DiagnosticsTrait {
     }
 
     if ($this->diagnosticsGetShowRerun()) {
-      $rerun = $this->diagnosticsGetRerunCommand();
+      $rerun = $this->diagnosticsFindRerunCommand();
       if ($rerun !== NULL) {
         $lines[] = 'Re-run: ' . $rerun;
       }
@@ -171,7 +171,7 @@ trait DiagnosticsTrait {
   /**
    * Return the current page URL, or NULL when it cannot be determined.
    */
-  public function diagnosticsGetUrl(): ?string {
+  public function diagnosticsFindUrl(): ?string {
     try {
       $url = $this->getSession()->getCurrentUrl();
     }
@@ -185,7 +185,7 @@ trait DiagnosticsTrait {
   /**
    * Return the last response status code, or NULL when it is unavailable.
    */
-  public function diagnosticsGetStatusCode(): ?int {
+  public function diagnosticsFindStatusCode(): ?int {
     try {
       return $this->getSession()->getStatusCode();
     }
@@ -197,7 +197,7 @@ trait DiagnosticsTrait {
   /**
    * Return the active Mink driver class, or NULL when it is unavailable.
    */
-  public function diagnosticsGetDriverName(): ?string {
+  public function diagnosticsFindDriverName(): ?string {
     try {
       return $this->getSession()->getDriver()::class;
     }
@@ -253,7 +253,7 @@ trait DiagnosticsTrait {
    * @return string|null
    *   The re-run command, or NULL when the scenario coordinates are unknown.
    */
-  public function diagnosticsGetRerunCommand(): ?string {
+  public function diagnosticsFindRerunCommand(): ?string {
     if ($this->diagnosticsFeatureFile === NULL || $this->diagnosticsScenarioLine === NULL) {
       return NULL;
     }
