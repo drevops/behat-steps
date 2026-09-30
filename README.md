@@ -327,6 +327,10 @@ tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag
 naming anything else, such as a hook method, fails the run before the scenario
 starts.
 
+### Failing hooks
+
+A `BeforeScenario` hook that throws fails its scenario. Behat on its own skips the steps and counts the scenario as skipped, which makes a scenario that never ran easy to miss in the summary. The extension counts it as failed instead: it's listed under `--- Failed scenarios:`, it stops a `--stop-on-failure` run, and the JUnit formatter reports it as `failed`. That covers the library's hooks and your own, on a scenario or on an outline example. The steps still count as skipped, since none of them ran.
+
 ### Automatic entity cleanup
 
 Every entity a scenario creates - through a creation step, through the driver,

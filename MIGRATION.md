@@ -1641,3 +1641,24 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 ```
 
 `TraitOptionResolverInterface::groupFor()` resolves a trait name only, so a resolver of your own drops any matching of hook-method names against a group's prefix.
+
+## A scenario whose `BeforeScenario` hook fails counts as failed
+
+Behat skips every step of a scenario whose `BeforeScenario` hook throws, and on its own it counts that scenario as skipped. `BehatStepsExtension` counts it as failed. A scenario a trait hook couldn't start, such as a `FileTrait` scenario whose configured drivers can't reach Drupal's API, now reads like this:
+
+```
+--- Failed scenarios:
+
+    features/files.feature:3
+
+1 scenario (1 failed)
+1 step (1 skipped)
+```
+
+The exit code doesn't change. Behat already folds the failed hook into the result it computes the exit code from, so the run exited non-zero before as well. What changes is everything that reads the scenario's own result:
+
+- The scenario counts and the lists: the scenario moves from `--- Skipped scenarios:` to `--- Failed scenarios:`. Its steps still count as skipped, because none of them ran.
+- The JUnit report gives the test case a `failed` status rather than `skipped`.
+- `--stop-on-failure` stops the run at that scenario, where it used to carry on with the rest of the suite.
+
+It holds for each example of a scenario outline, and for a hook in a context of your own as much as for one the library ships. A CI step that looked for these scenarios among the skipped ones finds them among the failed ones instead.
