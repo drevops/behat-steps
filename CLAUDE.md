@@ -93,6 +93,9 @@ ahoy copy-files
   - A bundle placeholder qualifying an entity noun comes before it
     (`the :media_type media`); one that is itself the subject follows its noun
     (`the media type :media_type`)
+  - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
+  - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
+  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, and the names in `docs.php`'s `non_descriptive_placeholders()`
 
 - **Given Steps**:
   - Define test prerequisites
@@ -136,7 +139,7 @@ In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertio
 ## Common Behat Step Patterns
 - Block assertions:
   - `the block "..." should exist`
-  - `the block "..." should exist in the "..." region`
+  - `the block "..." should exist in the region "..."`
 
 - Content block operations:
   - `the content block type "..." should exist`

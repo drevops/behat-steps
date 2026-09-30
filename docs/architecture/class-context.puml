@@ -213,14 +213,14 @@ package "Steps\\Web" #E8F5E9 {
     +pathVisit(path) : void
     +pathGoBack() : void
     +pathAssertCurrent(path) : void
-    +pathAssertUrlHasParameter(param) : void
+    +pathAssertUrlHasParameter(name) : void
   }
 
   class CommandTrait <<trait>> {
     +commandRun(command) : void
     +commandAssertSuccess() : void
     +commandAssertExitCode(code) : void
-    +commandAssertOutputContains(text) : void
+    +commandAssertOutputContains(value) : void
   }
 }
 

@@ -55,7 +55,9 @@ Main -> Validate: validate the vocabulary, the toolbox,\nthe tags and the enviro
 activate Validate
 note right of Validate
   When needs "I ", Then needs "should"
-  and an Assert method name, one step
+  and an Assert method name, a placeholder
+  follows the noun it names and a :value
+  reads "the value :value", one step
   attribute per method, an example is
   mandatory and must match its own step
   and no other, every published helper

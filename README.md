@@ -224,12 +224,12 @@ The imperative style spells the interaction out and needs no PHP of your own, so
 
 ```gherkin
 Scenario: Editor publishes a page
-  Given I am logged in as a user with the "editor" role
-  When I visit "/node/add/page"
+  When I log in as a user with the role "editor"
+  And I visit "/node/add/page"
   And I fill in "Title" with "About us"
   And I press "Save"
   Then the path should be "/about-us"
-  And the element ".messages--status" should contain "has been created"
+  And the success message "has been created" should exist
 ```
 
 ### 4. Graduate the flows that matter to domain steps
