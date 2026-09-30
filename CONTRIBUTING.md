@@ -90,7 +90,9 @@ A lookup's verb says what it does when nothing matches, so a caller knows whethe
 
 A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one.
 
-`TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must exclude it, and a `Load` must return `array` or `void`. A `Get` declaring `mixed`, such as `restGetClient()`, leaves the test no type to read, so review holds it to the same rule.
+A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` runs before it loads.
+
+`TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must exclude it, and a `Load` must return `array` or `void`. A `Get` declaring `mixed`, such as `restGetClient()`, leaves the test no type to read, so review holds it to the same rule. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its entities and keys instead.
 
 ### Spelling
 

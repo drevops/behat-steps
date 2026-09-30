@@ -1363,3 +1363,37 @@ A project with its own driver implementing these capabilities adds the methods b
 `DrushDriver::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value the driver wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. A project that seeded config through the Drush driver and worked around the mangled values can drop the workaround.
 
 Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
+
+## Every `LoadMultiple()` returns loaded entities
+
+5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.
+
+| Trait | Method | Returned | Returns now |
+| --- | --- | --- | --- |
+| `Drupal\ContentBlockTrait` | `contentBlockLoadMultiple()` | block content IDs | `BlockContentInterface` entities |
+| `Drupal\EckTrait` | `eckLoadMultiple()` | entity IDs | `EntityInterface` entities |
+| `Drupal\FileTrait` | `fileLoadMultiple()` | file IDs | `FileInterface` entities |
+| `Drupal\MediaTrait` | `mediaLoadMultiple()` | media IDs | `MediaInterface` entities |
+| `Drupal\TaxonomyTrait` | `taxonomyLoadMultiple()` | term IDs | `TermInterface` entities |
+
+The native return type is still `array`, so the call itself doesn't fail. Code that treats a value as an ID fails where it uses it instead, for example with `Object of class ... could not be converted to string` when it builds a path. If your code loaded the IDs itself, drop that step. If it needs only the IDs, call `Helper\Drupal\QueryTrait::queryEntityIds()`: all 5 traits compose it, and it returns exactly what the old helpers did.
+
+```php
+// Before.
+$ids = $this->mediaLoadMultiple('image', ['name' => 'Logo']);
+$media = \Drupal::entityTypeManager()->getStorage('media')->loadMultiple($ids);
+
+// After.
+$media = $this->mediaLoadMultiple('image', ['name' => 'Logo']);
+
+// After, when only the IDs are needed.
+$ids = $this->queryEntityIds('media', ['name' => 'Logo'], 'image');
+```
+
+The keys changed as well. An entity query keys a revisionable entity type by revision ID, so media, terms and content blocks came back keyed by revision ID. They're keyed by entity ID now, like the other 3.
+
+This affects the steps that look an entity up by name and, when several share that name, visit the one with the highest key. With duplicates, they now visit the most recently created match instead of the most recently revised one:
+
+- The 4 media steps `I edit the :media_type media with the name :name`, `I visit the :media_type media with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
+- The 3 term steps `I visit the :vocabulary term page with the name :term_name`, `I visit the :vocabulary term edit page with the name :term_name` and `I visit the :vocabulary term delete page with the name :term_name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
+- `I edit the :content_block_type content block with the description :description`.
