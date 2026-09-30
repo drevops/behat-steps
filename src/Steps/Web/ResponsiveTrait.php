@@ -35,7 +35,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * @javascript
  * Scenario: Responsive layout test
  *   When I am on the homepage
- *   And I set the viewport to the "tablet_landscape" breakpoint
+ *   And I set the viewport to the breakpoint "tablet_landscape"
  *   Then I should see the tablet layout
  *   When I set the viewport to "1920" by "1080"
  *   Then I should see the desktop layout
@@ -162,8 +162,8 @@ trait ResponsiveTrait {
    * Set the viewport to a specific breakpoint.
    *
    * @code
-   * When I set the viewport to the "mobile_portrait" breakpoint
-   * When I set the viewport to the "desktop" breakpoint
+   * When I set the viewport to the breakpoint "mobile_portrait"
+   * When I set the viewport to the breakpoint "desktop"
    * @endcode
    *
    * @param string $breakpoint
@@ -172,7 +172,7 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If breakpoint doesn't exist.
    */
-  #[When('I set the viewport to the :breakpoint breakpoint')]
+  #[When('I set the viewport to the breakpoint :breakpoint')]
   public function responsiveSetViewportToBreakpoint(string $breakpoint): void {
     $this->responsiveResizeToBreakpoint($breakpoint);
   }

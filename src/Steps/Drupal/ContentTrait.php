@@ -204,10 +204,10 @@ trait ContentTrait {
    * Change moderation state of a content with the specified title.
    *
    * @code
-   * When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+   * When I change the moderation state of the "article" content with the title "Test article" to the state "published"
    * @endcode
    */
-  #[When('I change the moderation state of the :content_type content with the title :title to the :new_state state')]
+  #[When('I change the moderation state of the :content_type content with the title :title to the state :new_state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
@@ -314,11 +314,11 @@ trait ContentTrait {
    * Assert content with specified type and title does not exist.
    *
    * @code
-   * Then "page" content with the title "Test page" should not exist
-   * Then "article" content with the title "Test article" should not exist
+   * Then the "page" content with the title "Test page" should not exist
+   * Then the "article" content with the title "Test article" should not exist
    * @endcode
    */
-  #[Then(':content_type content with the title :title should not exist')]
+  #[Then('the :content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
     $nids = $this->queryNodeIds($content_type, ['title' => $title]);
 
@@ -331,10 +331,10 @@ trait ContentTrait {
    * Assert content with specified type and title is published.
    *
    * @code
-   * Then "page" content with the title "Test page" should be published
+   * Then the "page" content with the title "Test page" should be published
    * @endcode
    */
-  #[Then(':content_type content with the title :title should be published')]
+  #[Then('the :content_type content with the title :title should be published')]
   public function contentAssertPublishedWithTitle(string $content_type, string $title): void {
     $node = $this->contentGetNodeByTitle($content_type, $title);
 
@@ -347,10 +347,10 @@ trait ContentTrait {
    * Assert content with specified type and title is not published.
    *
    * @code
-   * Then "page" content with the title "Test page" should not be published
+   * Then the "page" content with the title "Test page" should not be published
    * @endcode
    */
-  #[Then(':content_type content with the title :title should not be published')]
+  #[Then('the :content_type content with the title :title should not be published')]
   public function contentAssertNotPublishedWithTitle(string $content_type, string $title): void {
     $node = $this->contentGetNodeByTitle($content_type, $title);
 

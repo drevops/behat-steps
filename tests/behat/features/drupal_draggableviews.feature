@@ -8,7 +8,7 @@ Feature: Check that DraggableviewsTrait works
       | title  | status | created           |
       | Test 1 | 1      | 2014-10-17 8:00am |
       | Test 2 | 1      | 2014-10-17 9:00am |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
 
     When I visit "/draggableviews-demo"
     And I save screenshot
@@ -40,7 +40,7 @@ Feature: Check that DraggableviewsTrait works
         | title  | status | created           |
         | Test 1 | 1      | 2014-10-17 8:00am |
         | Test 2 | 1      | 2014-10-17 9:00am |
-      And I log in as a user with the "administrator" role
+      And I log in as a user with the role "administrator"
       When I save the draggable views items of the view "draggableviews_demo" and the display "draggableviews_demo_order" for the "draggableviews_demo" content in the following order:
         | Test 1 |
         | Test 2 |

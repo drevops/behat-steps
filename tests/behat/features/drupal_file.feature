@@ -4,7 +4,7 @@ Feature: Check that FileTrait works
   So that users can test file functionality and operations
 
   Scenario: Assert "When the following managed files exist:"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -20,14 +20,14 @@ Feature: Check that FileTrait works
     And "file" entity exists with UUID "9cb1b484-db7b-4496-bd63-8c702e207704"
 
   Scenario: Assert "When the following managed files exist: With subdirectory path"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path                  |
       | subdir/document.pdf   |
     Then "document.pdf" file object exists
 
   Scenario: Assert "When the following managed files exist: With uri"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And no "document.pdf" file object exists
     And no "image.png" file object exists
     And no "audio.mp3" file object exists
@@ -41,7 +41,7 @@ Feature: Check that FileTrait works
     And "audio.mp3" file object exists
 
   Scenario: Assert "When the following managed files do not exist: With filename"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -60,7 +60,7 @@ Feature: Check that FileTrait works
     And no "audio.mp3" file object exists
 
   Scenario: Assert "When the following managed files do not exist: With uri"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -79,7 +79,7 @@ Feature: Check that FileTrait works
     And no "audio.mp3" file object exists
 
   Scenario: Assert "When the following managed files do not exist: With status"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path         |
       | document.pdf |
@@ -96,7 +96,7 @@ Feature: Check that FileTrait works
     And no "audio.mp3" file object exists
 
   Scenario: Assert "When the following managed files do not exist: With filemime"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When the following managed files exist:
       | path         |
       | document.pdf |

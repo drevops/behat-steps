@@ -345,11 +345,11 @@ JS;
    *   The select field id, name or label.
    *
    * @code
-   *   When I unselect "Administrator" from "edit-roles"
-   *   When I unselect "Option B" from "field_multi_select"
+   *   When I unselect the option "Administrator" from the select "edit-roles"
+   *   When I unselect the option "Option B" from the select "field_multi_select"
    * @endcode
    */
-  #[When('I unselect :option from :selector')]
+  #[When('I unselect the option :option from the select :selector')]
   public function fieldUnselectOption(string $option, string $selector): void {
     $option = $this->stringFixStepArgument($option);
     $selector = $this->stringFixStepArgument($selector);
@@ -516,11 +516,11 @@ JS;
    * Leave time empty if not needed.
    *
    * @code
-   * When I fill in the datetime field "Event date" with date "2024-01-15" and time "14:30:00"
-   * When I fill in the datetime field "Event date" with date "2024-01-15" and time ""
+   * When I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
+   * When I fill in the datetime field "Event date" with the date "2024-01-15" and the time ""
    * @endcode
    */
-  #[When('I fill in the datetime field :label with date :date and time :time')]
+  #[When('I fill in the datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetime(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
     if ($time !== '') {
@@ -558,11 +558,11 @@ JS;
    * For date range fields. Leave time empty if not needed.
    *
    * @code
-   * When I fill in the start datetime field "Event period" with date "2024-01-15" and time "14:30:00"
-   * When I fill in the start datetime field "Event period" with date "2024-01-15" and time ""
+   * When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time "14:30:00"
+   * When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time ""
    * @endcode
    */
-  #[When('I fill in the start datetime field :label with date :date and time :time')]
+  #[When('I fill in the start datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
     if ($time !== '') {
@@ -576,11 +576,11 @@ JS;
    * For date range fields. Leave time empty if not needed.
    *
    * @code
-   * When I fill in the end datetime field "Event period" with date "2024-01-20" and time "18:00:00"
-   * When I fill in the end datetime field "Event period" with date "2024-01-20" and time ""
+   * When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time "18:00:00"
+   * When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time ""
    * @endcode
    */
-  #[When('I fill in the end datetime field :label with date :date and time :time')]
+  #[When('I fill in the end datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeHelper($label, 'end_value', 'date', $date);
     if ($time !== '') {

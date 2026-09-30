@@ -34,12 +34,12 @@ trait DropzoneTrait {
    * Drop a single file on the target element.
    *
    * @code
-   * When I drop the file "document.pdf" on the ".dropzone" dropzone
+   * When I drop the file "document.pdf" on the dropzone ".dropzone"
    * @endcode
    *
    * @javascript
    */
-  #[When('I drop the file :path on the :selector dropzone')]
+  #[When('I drop the file :path on the dropzone :selector')]
   public function dropzoneDropFile(string $path, string $selector): void {
     $this->dropzoneDropFiles($selector, new TableNode([[$path]]));
   }
@@ -50,7 +50,7 @@ trait DropzoneTrait {
    * Provide one fixture path per row.
    *
    * @code
-   * When I drop the following files on the ".dropzone" dropzone:
+   * When I drop the following files on the dropzone ".dropzone":
    *   | document.pdf |
    *   | image.png    |
    *   | text.txt     |
@@ -58,7 +58,7 @@ trait DropzoneTrait {
    *
    * @javascript
    */
-  #[When('I drop the following files on the :selector dropzone:')]
+  #[When('I drop the following files on the dropzone :selector:')]
   public function dropzoneDropFiles(string $selector, TableNode $paths): void {
     // The gesture is built entirely in JavaScript, so a driver that runs none
     // fails naming the capability instead of on the first script call.

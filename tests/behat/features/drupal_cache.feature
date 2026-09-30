@@ -4,19 +4,19 @@ Feature: Check that CacheTrait works
   So that users can clear specific caches in their tests without a full rebuild
 
   Scenario: Assert "Given the page cache for the path :path is empty" clears a single path
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the page cache for the path "/user" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   Scenario: Assert "Given the page cache for the paths matching :path_pattern is empty" clears matching paths
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the page cache for the paths matching "/user*" is empty
     When I go to "/user"
     Then I should see "Member for"
 
   Scenario: Assert "Given the render cache is empty" clears the render cache
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the render cache is empty
     When I go to "/user"
     Then I should see "Member for"

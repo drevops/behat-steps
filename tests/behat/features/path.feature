@@ -120,28 +120,28 @@ Feature: Check that PathTrait works
       """
 
   Scenario: Assert that URL has query parameter with a specific value
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When I visit "/admin/content?status=1&type=article"
-    Then the current URL should have the "status" parameter
-    And the current URL should have the "status" parameter with the value "1"
-    And the current URL should have the "type" parameter
-    And the current URL should have the "type" parameter with the value "article"
+    Then the current URL should have the query parameter "status"
+    And the current URL should have the query parameter "status" with the value "1"
+    And the current URL should have the query parameter "type"
+    And the current URL should have the query parameter "type" with the value "article"
 
   Scenario: Assert that URL does not have query parameter with specific value
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When I visit "/admin/content?status=1&type=article"
-    Then the current URL should not have the "status" parameter with the value "0"
-    And the current URL should not have the "other" parameter
-    And the current URL should not have the "type" parameter with the value "page"
+    Then the current URL should not have the query parameter "status" with the value "0"
+    And the current URL should not have the query parameter "other"
+    And the current URL should not have the query parameter "type" with the value "page"
 
   @trait:PathTrait
   Scenario: Assert failure when URL should have parameter but doesn't
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit "/admin/content?status=1&type=article"
-      Then the current URL should have the "filter" parameter with the value "recent"
+      Then the current URL should have the query parameter "filter" with the value "recent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -154,9 +154,9 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit "/admin/content?status=1&type=article"
-      Then the current URL should have the "status" parameter with the value "2"
+      Then the current URL should have the query parameter "status" with the value "2"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -169,9 +169,9 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit "/admin/content?status=1&type=article"
-      Then the current URL should not have the "status" parameter with the value "1"
+      Then the current URL should not have the query parameter "status" with the value "1"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -184,9 +184,9 @@ Feature: Check that PathTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit "/admin/content?status=1&type=article"
-      Then the current URL should not have the "status" parameter
+      Then the current URL should not have the query parameter "status"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -195,21 +195,21 @@ Feature: Check that PathTrait works
       """
 
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When I visit "/admin/content?status=1"
-    Then the current URL should not have the "nonexistent" parameter with the value "value"
+    Then the current URL should not have the query parameter "nonexistent" with the value "value"
 
   Scenario: Assert that a URL parameter with a zero or empty value counts as present
     Given the user is anonymous
     When I visit "/user/login?filter=0&empty=&keyword=recent"
-    Then the current URL should have the "filter" parameter
-    And the current URL should have the "filter" parameter with the value "0"
-    And the current URL should have the "empty" parameter
-    And the current URL should have the "empty" parameter with the value ""
-    And the current URL should have the "keyword" parameter with the value "recent"
-    And the current URL should not have the "missing" parameter
-    And the current URL should not have the "missing" parameter with the value "0"
-    And the current URL should not have the "filter" parameter with the value "1"
+    Then the current URL should have the query parameter "filter"
+    And the current URL should have the query parameter "filter" with the value "0"
+    And the current URL should have the query parameter "empty"
+    And the current URL should have the query parameter "empty" with the value ""
+    And the current URL should have the query parameter "keyword" with the value "recent"
+    And the current URL should not have the query parameter "missing"
+    And the current URL should not have the query parameter "missing" with the value "0"
+    And the current URL should not have the query parameter "filter" with the value "1"
 
   @trait:PathTrait
   Scenario: Assert failure when URL parameter with a zero value should not exist
@@ -218,7 +218,7 @@ Feature: Check that PathTrait works
       """
       Given the user is anonymous
       When I visit "/user/login?filter=0"
-      Then the current URL should not have the "filter" parameter
+      Then the current URL should not have the query parameter "filter"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -233,7 +233,7 @@ Feature: Check that PathTrait works
       """
       Given the user is anonymous
       When I visit "/user/login?empty="
-      Then the current URL should not have the "empty" parameter
+      Then the current URL should not have the query parameter "empty"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -248,7 +248,7 @@ Feature: Check that PathTrait works
       """
       Given the user is anonymous
       When I visit "/user/login?filter=0"
-      Then the current URL should not have the "filter" parameter with the value "0"
+      Then the current URL should not have the query parameter "filter" with the value "0"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -263,7 +263,7 @@ Feature: Check that PathTrait works
       """
       Given the user is anonymous
       When I visit "/user/login?empty="
-      Then the current URL should not have the "empty" parameter with the value ""
+      Then the current URL should not have the query parameter "empty" with the value ""
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -287,7 +287,7 @@ Feature: Check that PathTrait works
     When I go to "/mysite_core/test-basic-auth"
     Then the response status code should be 401
 
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And I go to "/mysite_core/test-basic-auth"
     Then the response status code should be 403
 

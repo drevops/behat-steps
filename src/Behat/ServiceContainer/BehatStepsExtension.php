@@ -94,7 +94,7 @@ class BehatStepsExtension implements ExtensionInterface {
           ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
         ->end()
         ->arrayNode('regions')
-          ->info("Map of named regions to CSS selectors. Region steps such as 'I press :button in the :region region' resolve against this map." . PHP_EOL
+          ->info("Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map." . PHP_EOL
             . '  My region: "#css-selector"' . PHP_EOL
             . '  Content: "#main .region-content"' . PHP_EOL
             . '  Right sidebar: "#sidebar-second"' . PHP_EOL)

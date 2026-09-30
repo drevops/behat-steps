@@ -29,14 +29,14 @@ trait BlockTrait {
    * Create a block instance.
    *
    * @code
-   * Given the instance of "My block" block exists with the following configuration:
+   * Given the instance of the block "My block" exists with the following configuration:
    *   | label         | My block |
    *   | label_display | 1        |
    *   | region        | content  |
    *   | status        | 1        |
    * @endcode
    */
-  #[Given('the instance of :admin_label block exists with the following configuration:')]
+  #[Given('the instance of the block :admin_label exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
@@ -202,12 +202,12 @@ trait BlockTrait {
    *   Configuration for the visibility condition.
    *
    * @code
-   *   Given the block "My block" has the following "request_path" condition configuration:
+   *   Given the block "My block" has the condition "request_path" with the following configuration:
    *     | pages  | /node/1\r\n/about |
    *     | negate | 0                 |
    * @endcode
    */
-  #[Given('the block :label has the following :condition condition configuration:')]
+  #[Given('the block :label has the condition :condition with the following configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
     $block = $this->blockGetByLabel($label);
 
@@ -227,10 +227,10 @@ trait BlockTrait {
    *   The type of visibility condition to remove.
    *
    * @code
-   *   Given the block "My block" has the "request_path" condition removed
+   *   Given the block "My block" has the condition "request_path" removed
    * @endcode
    */
-  #[Given('the block :label has the :condition condition removed')]
+  #[Given('the block :label has the condition :condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
     $this->blockConfigureVisibilityCondition($label, $condition, new TableNode([]));
   }
@@ -288,13 +288,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" should exist in the "content" region
+   *   Then the block "My block" should exist in the region "content"
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found in the given region.
    */
-  #[Then('the block :label should exist in the :region region')]
+  #[Then('the block :label should exist in the region :region')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);
@@ -315,13 +315,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" should not exist in the "content" region
+   *   Then the block "My block" should not exist in the region "content"
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found in the given region.
    */
-  #[Then('the block :label should not exist in the :region region')]
+  #[Then('the block :label should not exist in the region :region')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);

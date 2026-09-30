@@ -79,10 +79,10 @@ trait EckTrait {
    * Navigate to view entity page with specified type and title.
    *
    * @code
-   * When I visit eck "contact" "contact_type" entity with the title "Test contact"
+   * When I visit the eck "contact" "contact_type" entity with the title "Test contact"
    * @endcode
    */
-  #[When('I visit eck :bundle :entity_type entity with the title :title')]
+  #[When('I visit the eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
@@ -108,10 +108,10 @@ trait EckTrait {
    * Navigate to edit eck entity page with specified type and title.
    *
    * @code
-   * When I edit eck "contact" "contact_type" entity with the title "Test contact"
+   * When I edit the eck "contact" "contact_type" entity with the title "Test contact"
    * @endcode
    */
-  #[When('I edit eck :bundle :entity_type entity with the title :title')]
+  #[When('I edit the eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 

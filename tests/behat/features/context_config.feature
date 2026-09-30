@@ -145,7 +145,7 @@ Feature: Check that trait configuration works
     And scenario steps:
       """
       When I run the command "echo -n '[?slug]'"
-      Then the command output should contain "?slug"
+      Then the command output should contain the value "?slug"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -156,7 +156,7 @@ Feature: Check that trait configuration works
     And scenario steps:
       """
       When I run the command "echo -n '[?slug]'"
-      Then the command output should not contain "?slug"
+      Then the command output should not contain the value "?slug"
       """
     When I run "behat --no-colors"
     Then it should pass

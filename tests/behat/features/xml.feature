@@ -119,17 +119,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should be equal to :value" works
+  Scenario: Assert "Then the XML element :element should be equal to the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+    Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should be equal to :value" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML element :element should be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//nonexistent" should be equal to "test"
+      Then the XML element "//nonexistent" should be equal to the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -138,12 +138,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should be equal to :value" fails with an error for wrong content
+  Scenario: Assert that negative assertion for "Then the XML element :element should be equal to the value :value" fails with an error for wrong content
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//book[@id='123']/title" should be equal to "Wrong Title"
+      Then the XML element "//book[@id='123']/title" should be equal to the value "Wrong Title"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -152,17 +152,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should not be equal to :value" works
+  Scenario: Assert "Then the XML element :element should not be equal to the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should not be equal to "Wrong Title"
+    Then the XML element "//book[@id='123']/title" should not be equal to the value "Wrong Title"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should not be equal to :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the XML element :element should not be equal to the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//book[@id='123']/title" should not be equal to "The Great Adventure"
+      Then the XML element "//book[@id='123']/title" should not be equal to the value "The Great Adventure"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -171,17 +171,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should contain :value" works
+  Scenario: Assert "Then the XML element :element should contain the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/description" should contain "sample book"
+    Then the XML element "//book[@id='123']/description" should contain the value "sample book"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should contain :value" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML element :element should contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//nonexistent" should contain "test"
+      Then the XML element "//nonexistent" should contain the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -190,12 +190,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should contain :value" fails with an error for missing text
+  Scenario: Assert that negative assertion for "Then the XML element :element should contain the value :value" fails with an error for missing text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//book[@id='123']/title" should contain "nonexistent"
+      Then the XML element "//book[@id='123']/title" should contain the value "nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -204,17 +204,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML element :element should not contain :value" works
+  Scenario: Assert "Then the XML element :element should not contain the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should not contain "nonexistent"
+    Then the XML element "//book[@id='123']/title" should not contain the value "nonexistent"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML element :element should not contain :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the XML element :element should not contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//book[@id='123']/description" should not contain "sample book"
+      Then the XML element "//book[@id='123']/description" should not contain the value "sample book"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -223,17 +223,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should exist" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should exist" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "id" on element "//book[@id='123']" should exist
+    Then the XML attribute "id" on the element "//book[@id='123']" should exist
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should exist" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should exist" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should exist
+      Then the XML attribute "id" on the element "//nonexistent" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -242,12 +242,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should exist" fails with an error for missing attribute
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should exist" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "nonexistent" on element "//book[@id='123']" should exist
+      Then the XML attribute "nonexistent" on the element "//book[@id='123']" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -256,17 +256,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should not exist" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should not exist" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "nonexistent" on element "//book[@id='123']" should not exist
+    Then the XML attribute "nonexistent" on the element "//book[@id='123']" should not exist
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should not exist" fails with an error
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//book[@id='123']" should not exist
+      Then the XML attribute "id" on the element "//book[@id='123']" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -275,22 +275,22 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should be equal to :value" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should be equal to the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "id" on element "//book[@id='123']" should be equal to "123"
+    Then the XML attribute "id" on the element "//book[@id='123']" should be equal to the value "123"
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should be equal to :value" works with category
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should be equal to the value :value" works with category
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "category" on element "//book[@id='123']" should be equal to "fiction"
+    Then the XML attribute "category" on the element "//book[@id='123']" should be equal to the value "fiction"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should be equal to :value" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should be equal to "123"
+      Then the XML attribute "id" on the element "//nonexistent" should be equal to the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -299,12 +299,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should be equal to :value" fails with an error for missing attribute
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "nonexistent" on element "//book[@id='123']" should be equal to "test"
+      Then the XML attribute "nonexistent" on the element "//book[@id='123']" should be equal to the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -313,12 +313,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should be equal to :value" fails with an error for wrong value
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for wrong value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//book[@id='123']" should be equal to "999"
+      Then the XML attribute "id" on the element "//book[@id='123']" should be equal to the value "999"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -327,17 +327,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should not be equal to :value" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should not be equal to the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "id" on element "//book[@id='123']" should not be equal to "999"
+    Then the XML attribute "id" on the element "//book[@id='123']" should not be equal to the value "999"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should not be equal to :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//book[@id='123']" should not be equal to "123"
+      Then the XML attribute "id" on the element "//book[@id='123']" should not be equal to the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -429,20 +429,20 @@ Feature: Check that XmlTrait works
   @phpserver
   Scenario: Assert that XML document is reloaded when navigating between different XML files
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+    Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
     When I go to "http://cli:8888/xml_simple.xml"
     Then the XML element "//root" should have "5" elements
-    And the XML element "//count" should be equal to "3"
+    And the XML element "//count" should be equal to the value "3"
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+    Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
 
   @trait:XmlTrait
-  Scenario: Assert that "Then the XML element :element should not be equal to :value" fails with an error for missing element
+  Scenario: Assert that "Then the XML element :element should not be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//nonexistent" should not be equal to "test"
+      Then the XML element "//nonexistent" should not be equal to the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -451,12 +451,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that "Then the XML element :element should not contain :value" fails with an error for missing element
+  Scenario: Assert that "Then the XML element :element should not contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML element "//nonexistent" should not contain "test"
+      Then the XML element "//nonexistent" should not contain the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -465,12 +465,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that "Then the XML attribute :attribute on element :element should not exist" fails with an error for missing element
+  Scenario: Assert that "Then the XML attribute :attribute on the element :element should not exist" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should not exist
+      Then the XML attribute "id" on the element "//nonexistent" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -479,12 +479,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that "Then the XML attribute :attribute on element :element should not be equal to :value" fails with an error for missing element
+  Scenario: Assert that "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should not be equal to "123"
+      Then the XML attribute "id" on the element "//nonexistent" should not be equal to the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -493,12 +493,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that "Then the XML attribute :attribute on element :element should not be equal to :value" fails with an error for missing attribute
+  Scenario: Assert that "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "nonexistent" on element "//book[@id='123']" should not be equal to "test"
+      Then the XML attribute "nonexistent" on the element "//book[@id='123']" should not be equal to the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -508,11 +508,11 @@ Feature: Check that XmlTrait works
 
   Scenario: Assert "Given the response XML is loaded from the file :filename" works
     Given the response XML is loaded from the file "xml_valid.xml"
-    Then the XML element "//book[@id='123']/title" should be equal to "The Great Adventure"
+    Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
 
   Scenario: Assert "Given the response XML is loaded from the file :filename" works with attribute assertions
     Given the response XML is loaded from the file "xml_valid.xml"
-    Then the XML attribute "category" on element "//book[@id='123']" should be equal to "fiction"
+    Then the XML attribute "category" on the element "//book[@id='123']" should be equal to the value "fiction"
 
   @trait:XmlTrait
   Scenario: Assert that "Given the response XML is loaded from the file :filename" fails with an exception for missing file
@@ -539,9 +539,9 @@ Feature: Check that XmlTrait works
         </product>
       </catalog>
       """
-    Then the XML element "//product[@id='p1']/name" should be equal to "Blue Widget"
-    And the XML element "//product[@id='p1']/price" should be equal to "9.99"
-    And the XML attribute "type" on element "//product[@id='p1']" should be equal to "widget"
+    Then the XML element "//product[@id='p1']/name" should be equal to the value "Blue Widget"
+    And the XML element "//product[@id='p1']/price" should be equal to the value "9.99"
+    And the XML attribute "type" on the element "//product[@id='p1']" should be equal to the value "widget"
 
   @trait:XmlTrait
   Scenario: Assert that "Given the response XML is the following:" fails with an exception for invalid XML
@@ -561,22 +561,22 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should contain :value" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should contain the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "category" on element "//book[@id='123']" should contain "fic"
+    Then the XML attribute "category" on the element "//book[@id='123']" should contain the value "fic"
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should contain :value" works with id attribute
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should contain the value :value" works with id attribute
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "id" on element "//book[@id='123']" should contain "12"
+    Then the XML attribute "id" on the element "//book[@id='123']" should contain the value "12"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should contain :value" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should contain "123"
+      Then the XML attribute "id" on the element "//nonexistent" should contain the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -585,12 +585,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should contain :value" fails with an error for missing attribute
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "nonexistent" on element "//book[@id='123']" should contain "test"
+      Then the XML attribute "nonexistent" on the element "//book[@id='123']" should contain the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -599,12 +599,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should contain :value" fails with an error for text not found
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for text not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "category" on element "//book[@id='123']" should contain "science"
+      Then the XML attribute "category" on the element "//book[@id='123']" should contain the value "science"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -613,17 +613,17 @@ Feature: Check that XmlTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the XML attribute :attribute on element :element should not contain :value" works
+  Scenario: Assert "Then the XML attribute :attribute on the element :element should not contain the value :value" works
     When I go to "http://cli:8888/xml_valid.xml"
-    Then the XML attribute "category" on element "//book[@id='123']" should not contain "science"
+    Then the XML attribute "category" on the element "//book[@id='123']" should not contain the value "science"
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should not contain :value" fails with an error for missing element
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "id" on element "//nonexistent" should not contain "123"
+      Then the XML attribute "id" on the element "//nonexistent" should not contain the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -632,12 +632,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should not contain :value" fails with an error for missing attribute
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "nonexistent" on element "//book[@id='123']" should not contain "test"
+      Then the XML attribute "nonexistent" on the element "//book[@id='123']" should not contain the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -646,12 +646,12 @@ Feature: Check that XmlTrait works
       """
 
   @trait:XmlTrait
-  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on element :element should not contain :value" fails with an error when text is found
+  Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error when text is found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/xml_valid.xml"
-      Then the XML attribute "category" on element "//book[@id='123']" should not contain "fic"
+      Then the XML attribute "category" on the element "//book[@id='123']" should not contain the value "fic"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -659,16 +659,16 @@ Feature: Check that XmlTrait works
       The XML attribute "category" on element "//book[@id='123']" contains "fic", but it should not.
       """
 
-  Scenario: Assert "When I print last XML response" works
+  Scenario: Assert "When I print the last XML response" works
     Given the response XML is loaded from the file "xml_valid.xml"
-    When I print last XML response
+    When I print the last XML response
 
   @trait:XmlTrait
-  Scenario: Assert that "When I print last XML response" fails with an error when no XML is loaded
+  Scenario: Assert that "When I print the last XML response" fails with an error when no XML is loaded
     Given some behat configuration
     And scenario steps:
       """
-      When I print last XML response
+      When I print the last XML response
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\DriverException" exception:

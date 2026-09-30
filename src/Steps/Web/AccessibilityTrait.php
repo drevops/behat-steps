@@ -318,15 +318,15 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Assert that the current page passes accessibility checks for given rules.
+   * Assert that the current page passes accessibility checks for given tags.
    *
    * @code
-   * Then the current page should pass accessibility checks for tags "wcag2a"
+   * Then the current page should pass accessibility checks for the tags "wcag2a"
    * @endcode
    */
-  #[Then('the current page should pass accessibility checks for tags :rules')]
-  public function accessibilityAssertCurrentPageForTags(string $rules): void {
-    $result = $this->accessibilityAssess($rules);
+  #[Then('the current page should pass accessibility checks for the tags :tags')]
+  public function accessibilityAssertCurrentPageForTags(string $tags): void {
+    $result = $this->accessibilityAssess($tags);
 
     $threshold = $this->accessibilityEffectiveThreshold();
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
@@ -341,7 +341,7 @@ trait AccessibilityTrait {
     throw new ExpectationException(
       $this->accessibilityFormatGateMessage(
         $this->getSession()->getCurrentUrl(),
-        $rules,
+        $tags,
         $threshold,
         $check_incomplete,
         $violations,

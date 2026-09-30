@@ -55,19 +55,19 @@ Feature: Check that ElementTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should exist" works as expected
+  Scenario: Assert "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements.html"
-    Then the element "html" with the attribute "dir" and the value containing "lt" should exist
+    Then the element "html" with the attribute "dir" and a value containing "lt" should exist
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the element does not exist
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should exist
+      Then the element "#nonexisting-element" with the attribute "dir" and a value containing "ltr" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -76,13 +76,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute is not found
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the attribute is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should exist
+      Then the element "html" with the attribute "no-existing-attribute" and a value containing "ltr" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -91,13 +91,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should exist" fails as expected when the attribute does not contain the partial value
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the attribute does not contain the partial value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "html" with the attribute "dir" and the value containing "ltr1" should exist
+      Then the element "html" with the attribute "dir" and a value containing "ltr1" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -157,19 +157,19 @@ Feature: Check that ElementTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the element :selector with the attribute :attribute and the value containing :value should not exist" works as expected
+  Scenario: Assert "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements.html"
-    Then the element "html" with the attribute "dir" and the value containing "nonexistingvalue" should not exist
+    Then the element "html" with the attribute "dir" and a value containing "nonexistingvalue" should not exist
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the element does not exist
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "#nonexisting-element" with the attribute "dir" and the value containing "ltr" should not exist
+      Then the element "#nonexisting-element" with the attribute "dir" and a value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -178,13 +178,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not exist
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "html" with the attribute "no-existing-attribute" and the value containing "ltr" should not exist
+      Then the element "html" with the attribute "no-existing-attribute" and a value containing "ltr" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -193,13 +193,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value containing :value should not exist" fails as expected when the attribute does not contain the exact value
+  Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements.html"
-      Then the element "html" with the attribute "dir" and the value containing "lt" should not exist
+      Then the element "html" with the attribute "dir" and a value containing "lt" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -865,11 +865,11 @@ Feature: Check that ElementTrait works
     And the element "#css-hidden" should have the CSS property "display" with the value "none"
 
   @javascript @phpserver
-  Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" works as expected
+  Scenario: Assert "Then the element :selector should have the CSS property :property with a value containing :partial_value" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_css.html"
-    Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
-    And the element "#css-box" should not have the CSS property "box-shadow" with the value containing "inset"
+    Then the element "#css-box" should have the CSS property "box-shadow" with a value containing "rgb(255, 0, 0)"
+    And the element "#css-box" should not have the CSS property "box-shadow" with a value containing "inset"
 
   @trait:ElementTrait
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails when the element does not exist
@@ -932,13 +932,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert "Then the element :selector should have the CSS property :property with the value containing :value" fails when the value is not contained
+  Scenario: Assert "Then the element :selector should have the CSS property :property with a value containing :partial_value" fails when the value is not contained
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_css.html"
-      Then the element "#css-box" should have the CSS property "box-shadow" with the value containing "inset"
+      Then the element "#css-box" should have the CSS property "box-shadow" with a value containing "inset"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -947,13 +947,13 @@ Feature: Check that ElementTrait works
       """
 
   @trait:ElementTrait
-  Scenario: Assert "Then the element :selector should not have the CSS property :property with the value containing :value" fails when the value is contained
+  Scenario: Assert "Then the element :selector should not have the CSS property :property with a value containing :partial_value" fails when the value is contained
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_css.html"
-      Then the element "#css-box" should not have the CSS property "box-shadow" with the value containing "rgb(255, 0, 0)"
+      Then the element "#css-box" should not have the CSS property "box-shadow" with a value containing "rgb(255, 0, 0)"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

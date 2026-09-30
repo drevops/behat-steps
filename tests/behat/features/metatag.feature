@@ -48,24 +48,24 @@ Feature: Check that MetatagTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean meta tag
+  Scenario: Assert "Then the meta tag :name should not contain any HTML tags" works for clean meta tag
     Given the user is anonymous
     When I visit "http://cli:8888/metatags.html"
-    Then the "description" meta tag should not contain any HTML tags
+    Then the meta tag "description" should not contain any HTML tags
 
   @phpserver
-  Scenario: Assert "Then the :meta_name meta tag should not contain any HTML tags" works for clean OG meta tag
+  Scenario: Assert "Then the meta tag :name should not contain any HTML tags" works for clean OG meta tag
     Given the user is anonymous
     When I visit "http://cli:8888/metatags.html"
-    Then the "og:title" meta tag should not contain any HTML tags
+    Then the meta tag "og:title" should not contain any HTML tags
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the :meta_name meta tag should not contain any HTML tags" fails when meta tag contains HTML
+  Scenario: Assert that "Then the meta tag :name should not contain any HTML tags" fails when meta tag contains HTML
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags.html"
-      Then the "og:description" meta tag should not contain any HTML tags
+      Then the meta tag "og:description" should not contain any HTML tags
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -74,12 +74,12 @@ Feature: Check that MetatagTrait works
       """
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the :meta_name meta tag should not contain any HTML tags" fails when meta tag does not exist
+  Scenario: Assert that "Then the meta tag :name should not contain any HTML tags" fails when meta tag does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags.html"
-      Then the "nonexistent" meta tag should not contain any HTML tags
+      Then the meta tag "nonexistent" should not contain any HTML tags
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

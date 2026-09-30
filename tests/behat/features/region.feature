@@ -4,12 +4,12 @@ Feature: Check that RegionTrait works
   So that users can scope actions and assertions to part of a page
 
   @phpserver
-  Scenario: Assert "Then the region :region should contain the text :text" works as expected
+  Scenario: Assert "Then the region :region should contain the value :value" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    Then the region "content" should contain the text "Welcome to the content region."
-    And the region "content" should not contain the text "Sidebar copy."
-    And the region "sidebar" should contain the text "Sidebar copy."
+    Then the region "content" should contain the value "Welcome to the content region."
+    And the region "content" should not contain the value "Sidebar copy."
+    And the region "sidebar" should contain the value "Sidebar copy."
 
   @phpserver
   Scenario: Assert "Then the region :region should contain the heading :heading" works as expected
@@ -40,8 +40,8 @@ Feature: Check that RegionTrait works
     When I visit "http://cli:8888/regions.html"
     Then the element "img" should exist in the region "content"
     And the element "img" should not exist in the region "footer"
-    And the element "h2" in the region "content" should have the text "Latest news"
-    And the element "h2" in the region "content" should not have the text "Sidebar heading"
+    And the element "h2" in the region "content" should have the value "Latest news"
+    And the element "h2" in the region "content" should not have the value "Sidebar heading"
     And the element "img" in the region "content" should have the attribute "alt" with the value "Logo"
     And the element "a" with the text "About us" in the region "footer" should have the attribute "href" with the value "/about"
 
@@ -53,21 +53,21 @@ Feature: Check that RegionTrait works
     Then the path should be "/about"
 
   @phpserver
-  Scenario: Assert "When I fill in the field :field with :value in the region :region" works as expected
+  Scenario: Assert "When I fill in the field :field with the value :value in the region :region" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    And I fill in the field "Search" with "behat" in the region "content"
+    And I fill in the field "Search" with the value "behat" in the region "content"
     And I check the checkbox "Published" in the region "content"
     Then the "search" field should contain "behat"
     And I uncheck the checkbox "Published" in the region "content"
 
   @trait:RegionTrait @phpserver
-  Scenario: Assert "Then the region :region should contain the text :text" fails for an unmapped region
+  Scenario: Assert "Then the region :region should contain the value :value" fails for an unmapped region
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/regions.html"
-      Then the region "nonexistent" should contain the text "Anything"
+      Then the region "nonexistent" should contain the value "Anything"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

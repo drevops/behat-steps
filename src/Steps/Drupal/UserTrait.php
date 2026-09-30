@@ -284,11 +284,11 @@ trait UserTrait {
    * role is implied by having an account, so it is not assigned.
    *
    * @code
-   * When I log in as a user with the "editor" role
-   * When I log in as a user with the "editor, admin" roles
+   * When I log in as a user with the role "editor"
+   * When I log in as a user with the roles "editor, admin"
    * @endcode
    */
-  #[When('I log in as a user with the :roles role(s)')]
+  #[When('I log in as a user with the role(s) :roles')]
   public function userLogInWithRoles(string $roles): void {
     $this->userCreateAndLogIn($roles);
   }
@@ -297,12 +297,12 @@ trait UserTrait {
    * Create a user with the roles and fields, and log in as them.
    *
    * @code
-   *   When I log in as a user with the "editor" role and the following fields:
+   *   When I log in as a user with the role "editor" and the following fields:
    *     | field_user_name    | John  |
    *     | field_user_surname | Smith |
    * @endcode
    */
-  #[When('I log in as a user with the :roles role(s) and the following fields:')]
+  #[When('I log in as a user with the role(s) :roles and the following fields:')]
   public function userLogInWithRolesAndFields(string $roles, TableNode $fields): void {
     $this->userCreateAndLogIn($roles, $fields->getRowsHash());
   }
@@ -313,11 +313,11 @@ trait UserTrait {
    * Several permissions are given as a comma-separated list.
    *
    * @code
-   * When I log in as a user with the "administer nodes" permission
-   * When I log in as a user with the "administer nodes, access content" permissions
+   * When I log in as a user with the permission "administer nodes"
+   * When I log in as a user with the permissions "administer nodes, access content"
    * @endcode
    */
-  #[When('I log in as a user with the :permissions permission(s)')]
+  #[When('I log in as a user with the permission(s) :permissions')]
   public function userLogInWithPermissions(string $permissions): void {
     $role = $this->driverFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
@@ -358,10 +358,10 @@ trait UserTrait {
    * Visit the profile page of the specified user.
    *
    * @code
-   * When I visit "John" user profile page
+   * When I visit the profile page of the user "John"
    * @endcode
    */
-  #[When('I visit :name user profile page')]
+  #[When('I visit the profile page of the user :name')]
   public function userVisitProfile(string $name): void {
     $this->userVisitActionPage($name);
   }
@@ -382,10 +382,10 @@ trait UserTrait {
    * Visit the profile edit page of the specified user.
    *
    * @code
-   * When I visit "John" user profile edit page
+   * When I visit the profile edit page of the user "John"
    * @endcode
    */
-  #[When('I visit :name user profile edit page')]
+  #[When('I visit the profile edit page of the user :name')]
   public function userEditProfile(string $name): void {
     $this->userVisitActionPage($name, '/edit');
   }
@@ -406,10 +406,10 @@ trait UserTrait {
    * Visit the profile delete page of the specified user.
    *
    * @code
-   * When I visit "John" user profile delete page
+   * When I visit the profile delete page of the user "John"
    * @endcode
    */
-  #[When('I visit :name user profile delete page')]
+  #[When('I visit the profile delete page of the user :name')]
   public function userDeleteProfile(string $name): void {
     $this->userVisitActionPage($name, '/cancel');
   }
@@ -430,11 +430,11 @@ trait UserTrait {
    * Visit the password reset link for a user.
    *
    * @code
-   * When I visit the password reset link for "admin"
-   * When I visit the password reset link for "test_user"
+   * When I visit the password reset link for the user "admin"
+   * When I visit the password reset link for the user "test_user"
    * @endcode
    */
-  #[When('I visit the password reset link for :name')]
+  #[When('I visit the password reset link for the user :name')]
   public function userVisitPasswordResetLink(string $name): void {
     $user = $this->userGetByName($name);
     $this->userVisitPasswordResetLinkForUser($user);

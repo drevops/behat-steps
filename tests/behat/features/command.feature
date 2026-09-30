@@ -7,9 +7,9 @@ Feature: Check that CommandTrait works
     When I run the command "echo hello"
     Then the command should succeed
     And the command exit code should be 0
-    And the command output should contain "hello"
-    And the command output should be "hello"
-    And the command output should not contain "goodbye"
+    And the command output should contain the value "hello"
+    And the command output should be equal to the value "hello"
+    And the command output should not contain the value "goodbye"
 
   Scenario: Assert that a failing command passes failure and exit code assertions
     When I run the command "exit 3"
@@ -18,8 +18,8 @@ Feature: Check that CommandTrait works
 
   Scenario: Assert that error output is captured separately from standard output
     When I run the command "echo oops >&2"
-    Then the command error output should contain "oops"
-    And the command output should not contain "oops"
+    Then the command error output should contain the value "oops"
+    And the command output should not contain the value "oops"
 
   Scenario: Assert that duration assertions pass and a second command replaces the first
     When I run the command "echo fast"
@@ -75,7 +75,7 @@ Feature: Check that CommandTrait works
     And scenario steps:
       """
       When I run the command "echo hello"
-      Then the command output should contain "goodbye"
+      Then the command output should contain the value "goodbye"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -89,7 +89,7 @@ Feature: Check that CommandTrait works
     And scenario steps:
       """
       When I run the command "echo hello"
-      Then the command output should not contain "hello"
+      Then the command output should not contain the value "hello"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -103,7 +103,7 @@ Feature: Check that CommandTrait works
     And scenario steps:
       """
       When I run the command "echo hello"
-      Then the command output should be "goodbye"
+      Then the command output should be equal to the value "goodbye"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -117,7 +117,7 @@ Feature: Check that CommandTrait works
     And scenario steps:
       """
       When I run the command "echo hello"
-      Then the command error output should contain "missing"
+      Then the command error output should contain the value "missing"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

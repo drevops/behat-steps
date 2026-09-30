@@ -150,25 +150,25 @@ Feature: Check that TableTrait works
   # Sort order.
 
   @phpserver
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with ascending order
+  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" works with ascending order
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the table ".table-asc" should be sorted by "Name" in "ascending" order
+    Then the table ".table-asc" should be sorted by the column "Name" in "ascending" order
 
   @phpserver
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with descending order
+  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" works with descending order
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the table ".table-desc" should be sorted by "Name" in "descending" order
+    Then the table ".table-desc" should be sorted by the column "Name" in "descending" order
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails with invalid direction
+  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails with invalid direction
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-asc" should be sorted by "Name" in "invalid" order
+      Then the table ".table-asc" should be sorted by the column "Name" in "invalid" order
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -177,13 +177,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when not sorted
+  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when not sorted
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-desc" should be sorted by "Name" in "ascending" order
+      Then the table ".table-desc" should be sorted by the column "Name" in "ascending" order
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -192,13 +192,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
+  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-asc" should be sorted by "NonExistent" in "ascending" order
+      Then the table ".table-asc" should be sorted by the column "NonExistent" in "ascending" order
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -237,21 +237,21 @@ Feature: Check that TableTrait works
   # Row text.
 
   @phpserver
-  Scenario: Assert "Then the :row_text row should contain the following:" works as expected
+  Scenario: Assert "Then the row :row_text should contain the following:" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the "Alpha item" row should contain the following:
+    Then the row "Alpha item" should contain the following:
       | Type A  |
       | Active  |
 
   @trait:TableTrait
-  Scenario: Assert "Then the :row_text row should contain the following:" fails when row not found
+  Scenario: Assert "Then the row :row_text should contain the following:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the "NonExistent" row should contain the following:
+      Then the row "NonExistent" should contain the following:
         | some text |
       """
     When I run "behat --no-colors"
@@ -261,13 +261,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the :row_text row should contain the following:" fails when text not found in row
+  Scenario: Assert "Then the row :row_text should contain the following:" fails when text not found in row
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the "Alpha item" row should contain the following:
+      Then the row "Alpha item" should contain the following:
         | NonExistent |
       """
     When I run "behat --no-colors"

@@ -57,10 +57,10 @@ trait TimeTrait {
    *   The time value as Unix timestamp.
    *
    * @code
-   *   When I set system time to "1737849900"
+   *   When I set the system time to the value "1737849900"
    * @endcode
    */
-  #[When('I set system time to :value')]
+  #[When('I set the system time to the value :value')]
   public function timeSet(string $value): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
@@ -73,10 +73,10 @@ trait TimeTrait {
    * Resets the system time to real time.
    *
    * @code
-   * When I reset system time
+   * When I reset the system time
    * @endcode
    */
-  #[When('I reset system time')]
+  #[When('I reset the system time')]
   public function timeReset(): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
