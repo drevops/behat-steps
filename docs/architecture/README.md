@@ -66,14 +66,16 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 `BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the drivers named in the Behat configuration, validates the `drivers` list against those registrations, wires the services, and aliases the library's `DocumentElement` over Mink's own.
 
-`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverRegistry`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver.
+`DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverRegistry`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver. It publishes the scenario's tags to `ScenarioTagRegistry` in the same pass, which Behat dispatches before the first `BeforeScenario` hook, so a tag that sets a trait option reaches a step as well as a hook.
+
+`Behat\Config` holds option resolution, which `WebRawContext` delegates to rather than carrying. `ConfigSchemaReader` is the only piece that reflects: it walks a context class for `<prefix>ConfigSchema()` methods and returns the `Option` objects they declare, cached per class. `TraitOptionResolver` layers the declaration defaults, the extension's `steps` section and the context's `config` argument, and exposes a typed read per declared type. `TagOverrides` applies the tags an option declares, plus the `@behat-steps-skip:<Trait>` tag every `enabled` option carries. A resolver depends on the context class that declared the options and on the `config` argument that context was given, so `TraitOptionResolverFactory` builds one per context; registering another factory under `behat_steps.config.resolver_factory` replaces resolution everywhere at once.
 
 The library also ships its own `MinkExtension`, registered separately in the Behat configuration. It wraps Mink's extension rather than extending it, because Mink 3 declares that class `final`, and it adds 2 things on top: a `browserkit_http` driver that runs through Drupal's test browser, and a deprecated `ajax_timeout` setting. It passes `registerDriverFactory()` through to the wrapped extension, so an extension such as the Chrome one can still register its driver.
 
 The context layer is one chain. `WebRawContext` is the root and registers no steps:
 
 - Driver access: `driverFor()`, which resolves the capability a step names, and `getDriver()` for the rare caller that wants one suite driver by name.
-- Option resolution: `getOption()` reads a trait's option through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags.
+- Option resolution: `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` and `getOptionArray()` each read a trait's option at the type its declaration defaults to, through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags. `getOption()` covers a declaration that defaults to `NULL` and so names no type.
 - Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
 - The hook dispatcher and `skipTag()`.
 - The 4 web helper traits: `LastStepTrait`, `RequestHeadersTrait`, `StringTrait` and `JavascriptSupportTrait`.

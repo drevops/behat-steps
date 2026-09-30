@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
@@ -370,15 +371,12 @@ trait FileTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function fileConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.'),
     ];
   }
 

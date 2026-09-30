@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Assert status, error, warning and success messages rendered on the page.
@@ -272,9 +273,9 @@ trait MessageTrait {
    *   When the message type has no configured selector.
    */
   public function messageSelector(string $type): string {
-    $selectors = $this->getOption('message', 'selectors');
+    $selectors = $this->getOptionArray('message', 'selectors');
 
-    if (!is_array($selectors) || !isset($selectors[$type]) || !is_string($selectors[$type])) {
+    if (!isset($selectors[$type]) || !is_string($selectors[$type])) {
       throw new \RuntimeException(sprintf('No CSS selector is configured for the "%s" message type. Set it under "behat_steps: steps: message: selectors: %s:".', $type, $type));
     }
 
@@ -284,15 +285,12 @@ trait MessageTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function messageConfigSchema(): array {
     return [
-      'selectors' => [
-        'default' => [],
-        'description' => 'Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`.',
-      ],
+      new Option('selectors', default: [], description: 'Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`.'),
     ];
   }
 

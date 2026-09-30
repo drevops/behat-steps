@@ -11,6 +11,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
@@ -172,15 +173,12 @@ trait RestTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function restConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Reset the request state this trait accumulates between scenarios.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Reset the request state this trait accumulates between scenarios.'),
     ];
   }
 

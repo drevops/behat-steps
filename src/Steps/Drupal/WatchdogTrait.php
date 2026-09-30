@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
@@ -61,11 +62,6 @@ trait WatchdogTrait {
   protected int $watchdogScenarioLine = 0;
 
   /**
-   * Whether a logged error fails the current scenario.
-   */
-  protected bool $watchdogFailOnErrors = TRUE;
-
-  /**
    * Store the scenario identity, tracked message types and start time.
    */
   #[BeforeScenario]
@@ -81,7 +77,6 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->watchdogFailOnErrors = $this->getOption('watchdog', 'fail_on_errors', $scope) !== FALSE;
     $this->watchdogScenarioStartTime = time();
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
@@ -111,7 +106,7 @@ trait WatchdogTrait {
       throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
     }
 
-    if (!$this->watchdogFailOnErrors) {
+    if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
       $this->watchdogReadErrors();
 
       return;
@@ -147,7 +142,7 @@ trait WatchdogTrait {
       return;
     }
 
-    if (!$this->watchdogFailOnErrors) {
+    if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
       $this->watchdogReadErrors();
 
       return;
@@ -259,20 +254,13 @@ trait WatchdogTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function watchdogConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.',
-      ],
-      'fail_on_errors' => [
-        'default' => TRUE,
-        'description' => 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.',
-        'tags' => ['error' => FALSE],
-      ],
+      new Option('enabled', default: TRUE, description: 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.'),
+      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.', tags: ['error' => FALSE]),
     ];
   }
 

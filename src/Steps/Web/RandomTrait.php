@@ -10,6 +10,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use Drupal\Component\Utility\Random;
 
 /**
@@ -408,15 +409,12 @@ trait RandomTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function randomConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Replace `[?name:type]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Replace `[?name:type]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
     ];
   }
 

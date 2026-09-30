@@ -287,6 +287,19 @@ Two options recur, and they are deliberately separate switches:
 
 Overriding the trait's `<trait>Get<Noun>()` method in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
 
+A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Behat\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
+
+```php
+protected function acmeConfigSchema(): array {
+  return [
+    new Option('enabled', default: TRUE, description: 'Whether the Acme hook runs.'),
+    new Option('wait_timeout', default: 5000, description: 'How long to wait, in milliseconds.', tags: ['slow' => 30000]),
+  ];
+}
+```
+
+The declared default carries the option's type, and the composing context reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that id.
+
 ## 3. Tags
 
 A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.

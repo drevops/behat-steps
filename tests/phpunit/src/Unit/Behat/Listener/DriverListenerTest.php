@@ -12,6 +12,7 @@ use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Listener\DriverListener;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
+use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,6 +28,17 @@ class DriverListenerTest extends TestCase {
    * The driver list the extension configuration declares, in order.
    */
   protected const DRIVERS = ['drupal', 'drush', 'blackbox'];
+
+  /**
+   * The registry the listener publishes the scenario's tags to.
+   */
+  protected ScenarioTagRegistry $scenarioTags;
+
+  protected function setUp(): void {
+    parent::setUp();
+
+    $this->scenarioTags = new ScenarioTagRegistry();
+  }
 
   public function testItSubscribesToScenariosAndExamples(): void {
     $events = DriverListener::getSubscribedEvents();
@@ -50,7 +62,7 @@ class DriverListenerTest extends TestCase {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($expected);
 
-    $listener = new DriverListener($driver_registry, self::DRIVERS);
+    $listener = new DriverListener($driver_registry, $this->scenarioTags, self::DRIVERS);
     $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags));
   }
 
@@ -96,7 +108,7 @@ class DriverListenerTest extends TestCase {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_registry, ['blackbox', 'api' => 'drupal']);
+    $listener = new DriverListener($driver_registry, $this->scenarioTags, ['blackbox', 'api' => 'drupal']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api']));
   }
 
@@ -104,7 +116,7 @@ class DriverListenerTest extends TestCase {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
 
-    $listener = new DriverListener($driver_registry, ['API' => 'drupal', 'blackbox']);
+    $listener = new DriverListener($driver_registry, $this->scenarioTags, ['API' => 'drupal', 'blackbox']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:API']));
   }
 
@@ -116,12 +128,12 @@ class DriverListenerTest extends TestCase {
     ]);
     $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['blackbox' => 'blackbox', 'drupal' => 'drupal']);
 
-    $listener = new DriverListener($driver_registry);
+    $listener = new DriverListener($driver_registry, $this->scenarioTags);
     $listener->prepareScenarioDrivers($this->createEvent([], []));
   }
 
   public function testTagNamingUnlistedDriverIsReported(): void {
-    $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), self::DRIVERS);
+    $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), $this->scenarioTags, self::DRIVERS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, drush, blackbox. The tag reorders that list; it never adds to it.');
@@ -135,8 +147,31 @@ class DriverListenerTest extends TestCase {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $driver_registry->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
 
-    $listener = new DriverListener($driver_registry, self::DRIVERS);
+    $listener = new DriverListener($driver_registry, $this->scenarioTags, self::DRIVERS);
     $listener->prepareScenarioDrivers($event);
+  }
+
+  /**
+   * Tests that the scenario's tags reach the registry, feature tags first.
+   */
+  public function testTheScenarioTagsArePublished(): void {
+    $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), $this->scenarioTags, self::DRIVERS);
+
+    $listener->prepareScenarioDrivers($this->createEvent(['api'], ['javascript', 'error']));
+
+    $this->assertSame(['api', 'javascript', 'error'], $this->scenarioTags->getTags());
+  }
+
+  /**
+   * Tests that each scenario replaces the tags of the one before it.
+   */
+  public function testTheTagsOfOneScenarioDoNotLeakIntoTheNext(): void {
+    $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), $this->scenarioTags, self::DRIVERS);
+
+    $listener->prepareScenarioDrivers($this->createEvent([], ['error']));
+    $listener->prepareScenarioDrivers($this->createEvent([], []));
+
+    $this->assertSame([], $this->scenarioTags->getTags());
   }
 
   /**

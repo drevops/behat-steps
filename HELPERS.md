@@ -67,7 +67,7 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [WebRawContext](#webrawcontext) | 10 | Root context carrying the plumbing every suite needs. |
+| [WebRawContext](#webrawcontext) | 17 | Root context carrying the plumbing every suite needs. |
 
 ---
 
@@ -2269,10 +2269,73 @@ Returns the driver registry
 </details>
 
 <details>
-  <summary><code>public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed</code></summary>
+  <summary><code>public function getOption(string $group, string $key): mixed</code></summary>
 
 <br/>
-Returns a trait option resolved for this context
+Returns a trait option at whatever type it resolved to
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionArray(string $group, string $key): array</code></summary>
+
+<br/>
+Returns a trait option declared as a map
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionBool(string $group, string $key): bool</code></summary>
+
+<br/>
+Returns a trait option declared as a boolean
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionFloat(string $group, string $key): float</code></summary>
+
+<br/>
+Returns a trait option declared as a float
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionInt(string $group, string $key): int</code></summary>
+
+<br/>
+Returns a trait option declared as an integer
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionResolver(): TraitOptionResolverInterface</code></summary>
+
+<br/>
+Returns the resolver of the options this context's traits declare
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionResolverFactory(): TraitOptionResolverFactoryInterface</code></summary>
+
+<br/>
+Returns the resolver factory, creating a standalone one on first use
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getOptionString(string $group, string $key): string</code></summary>
+
+<br/>
+Returns a trait option declared as a string
 <br/><br/>
 
 </details>

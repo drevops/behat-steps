@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
@@ -53,5 +55,21 @@ interface DriverAwareInterface extends Context, ParametersAwareInterface {
    * Returns the basic authenticator.
    */
   public function getBasicAuthenticator(): BasicAuthenticatorInterface;
+
+  /**
+   * Sets the factory that builds this context's option resolver.
+   *
+   * Replaces the resolver the context built for itself, so the shared tag
+   * registry and schema reader are the ones the container holds.
+   *
+   * @internal
+   *   Injection point called by the context initializer.
+   */
+  public function setOptionResolverFactory(TraitOptionResolverFactoryInterface $factory): void;
+
+  /**
+   * Returns the resolver of the options this context's traits declare.
+   */
+  public function getOptionResolver(): TraitOptionResolverInterface;
 
 }

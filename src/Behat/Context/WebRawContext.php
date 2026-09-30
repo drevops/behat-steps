@@ -7,6 +7,11 @@ namespace DrevOps\BehatSteps\Behat\Context;
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
@@ -17,7 +22,6 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Component\Utility\Random;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * Root context carrying the plumbing every suite needs.
@@ -41,7 +45,9 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class WebRawContext extends RawMinkContext implements DriverAwareInterface {
 
   use LastStepTrait;
-  use ParametersTrait;
+  use ParametersTrait {
+    setParameters as protected setParameterValues;
+  }
   use RequestHeadersTrait;
   use StringTrait;
 
@@ -66,34 +72,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   protected ?BasicAuthenticatorInterface $basicAuthenticator = NULL;
 
   /**
-   * Per-context option overrides, as the suite declared them.
-   *
-   * @var array<string, array<string, mixed>>
+   * Builds the option resolver out of the shared collaborators.
    */
-  protected array $contextConfig = [];
+  protected ?TraitOptionResolverFactoryInterface $optionResolverFactory = NULL;
 
   /**
-   * Options resolved against the schemas, NULL until the first read.
-   *
-   * @var array<string, array<string, mixed>>|null
+   * Resolves the options this context's traits declare, NULL until first read.
    */
-  protected ?array $contextConfigResolved = NULL;
-
-  /**
-   * Declared schemas, keyed by context class name.
-   *
-   * Reflection over every method of a context composing forty traits is too
-   * expensive to repeat per option read, and a class's schemas cannot change
-   * within a run.
-   *
-   * @var array<string, array<string, array<string, array<string, mixed>>>>
-   */
-  protected static array $contextConfigDeclarationCache = [];
+  protected ?TraitOptionResolverInterface $optionResolver = NULL;
 
   /**
    * Constructs a WebRawContext object.
    *
-   * @param array<string, array<string, mixed>> $config
+   * @param array<array-key, mixed> $config
    *   Option overrides, keyed by trait group and then by option name. Behat
    *   binds a context argument by parameter name, so a suite declares them
    *   under 'config'.
@@ -102,12 +93,20 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   When a group or an option is not one this context composes, or a value
    *   does not match the type its declaration defaults to.
    */
-  public function __construct(array $config = []) {
-    // Validated here rather than on first read, so a typo fails while Behat
-    // builds the context instead of at the step that would have read it.
-    $this->contextConfigMerge($this->contextConfigDefaults(), $config, TRUE);
+  public function __construct(protected array $config = []) {
+    // Resolved here rather than on first read, so a typo fails while Behat
+    // builds the context instead of at the step that would have read it. The
+    // extension's 'steps' section arrives later, through 'setParameters()'.
+    $this->optionResolver = $this->buildOptionResolver();
+  }
 
-    $this->contextConfig = $config;
+  /**
+   * {@inheritdoc}
+   */
+  public function setParameters(array $parameters): void {
+    $this->setParameterValues($parameters);
+
+    $this->optionResolver = NULL;
   }
 
   /**
@@ -151,6 +150,36 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
     }
 
     return $this->basicAuthenticator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOptionResolverFactory(TraitOptionResolverFactoryInterface $factory): void {
+    $this->optionResolverFactory = $factory;
+
+    $this->optionResolver = NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOptionResolver(): TraitOptionResolverInterface {
+    $this->optionResolver ??= $this->buildOptionResolver();
+
+    return $this->optionResolver;
+  }
+
+  /**
+   * Returns the resolver factory, creating a standalone one on first use.
+   *
+   * A context Behat has not initialized resolves its options against its own
+   * collaborators, which hold no scenario tags.
+   */
+  public function getOptionResolverFactory(): TraitOptionResolverFactoryInterface {
+    $this->optionResolverFactory ??= new TraitOptionResolverFactory();
+
+    return $this->optionResolverFactory;
   }
 
   /**
@@ -237,19 +266,15 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns a trait option resolved for this context.
+   * Returns a trait option at whatever type it resolved to.
    *
-   * The value is taken from the first of these that declares it: the scenario's
-   * tags, the feature's tags, this context's 'config' argument, the extension's
-   * 'steps' section, the declaration's own default. The two tag layers are read
-   * only when a scope is passed, which a hook has and a step does not.
+   * Reserved for an option whose declaration defaults to NULL and so names no
+   * type. Every other read names its type.
    *
    * @param string $group
    *   The trait group the option belongs to, such as 'javascript'.
    * @param string $key
    *   The option name within the group, such as 'fail_on_errors'.
-   * @param \Behat\Behat\Hook\Scope\ScenarioScope|null $scope
-   *   The scenario scope a hook received, to read the tag layers.
    *
    * @return mixed
    *   The resolved value.
@@ -257,21 +282,106 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * @throws \RuntimeException
    *   When no trait this context composes declares the option.
    */
-  public function getOption(string $group, string $key, ?ScenarioScope $scope = NULL): mixed {
-    $schema = $this->contextConfigDeclarations();
+  public function getOption(string $group, string $key): mixed {
+    return $this->getOptionResolver()->raw($group, $key);
+  }
 
-    if (!isset($schema[$group][$key])) {
-      throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', static::class, $group, $key, $this->contextConfigOptionList()));
+  /**
+   * Returns a trait option declared as a boolean.
+   *
+   * @param string $group
+   *   The trait group the option belongs to.
+   * @param string $key
+   *   The option name within the group.
+   *
+   * @throws \RuntimeException
+   *   When no trait declares the option, or it resolved to another type.
+   */
+  public function getOptionBool(string $group, string $key): bool {
+    return $this->getOptionResolver()->bool($group, $key);
+  }
+
+  /**
+   * Returns a trait option declared as an integer.
+   *
+   * @param string $group
+   *   The trait group the option belongs to.
+   * @param string $key
+   *   The option name within the group.
+   *
+   * @throws \RuntimeException
+   *   When no trait declares the option, or it resolved to another type.
+   */
+  public function getOptionInt(string $group, string $key): int {
+    return $this->getOptionResolver()->int($group, $key);
+  }
+
+  /**
+   * Returns a trait option declared as a float.
+   *
+   * @param string $group
+   *   The trait group the option belongs to.
+   * @param string $key
+   *   The option name within the group.
+   *
+   * @throws \RuntimeException
+   *   When no trait declares the option, or it resolved to another type.
+   */
+  public function getOptionFloat(string $group, string $key): float {
+    return $this->getOptionResolver()->float($group, $key);
+  }
+
+  /**
+   * Returns a trait option declared as a string.
+   *
+   * @param string $group
+   *   The trait group the option belongs to.
+   * @param string $key
+   *   The option name within the group.
+   *
+   * @throws \RuntimeException
+   *   When no trait declares the option, or it resolved to another type.
+   */
+  public function getOptionString(string $group, string $key): string {
+    return $this->getOptionResolver()->string($group, $key);
+  }
+
+  /**
+   * Returns a trait option declared as a map.
+   *
+   * @param string $group
+   *   The trait group the option belongs to.
+   * @param string $key
+   *   The option name within the group.
+   *
+   * @return array<array-key, mixed>
+   *   The resolved value.
+   *
+   * @throws \RuntimeException
+   *   When no trait declares the option, or it resolved to another type.
+   */
+  public function getOptionArray(string $group, string $key): array {
+    return $this->getOptionResolver()->array($group, $key);
+  }
+
+  /**
+   * Builds the resolver from this context's class, argument and parameters.
+   *
+   * @throws \RuntimeException
+   *   When the context declares a constructor that never reached this one, so
+   *   the 'config' argument was never set.
+   */
+  protected function buildOptionResolver(): TraitOptionResolverInterface {
+    // A promoted constructor property is set by the constructor and by nothing
+    // else, so a subclass constructor that does not forward leaves it unset.
+    // @phpstan-ignore isset.initializedProperty
+    if (!isset($this->config)) {
+      throw new \RuntimeException(sprintf('%s declares a constructor that does not call parent::__construct(), so its "config" argument was never set. Add "array $config = []" to the constructor and forward it.', static::class));
     }
 
-    $resolved = $this->contextConfigResolve();
-    $value = $resolved[$group][$key];
+    $steps = $this->getParameter('steps');
 
-    if (!$scope instanceof ScenarioScope) {
-      return $value;
-    }
-
-    return $this->contextConfigApplyTags($group, $key, $value, $scope);
+    return $this->getOptionResolverFactory()->create(static::class, $this->config, is_array($steps) ? $steps : []);
   }
 
   /**
@@ -314,348 +424,13 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   trait's 'enabled' option resolves to FALSE.
    */
   protected function skipTag(string $name, ScenarioScope $scope): bool {
-    $tags = Tag::all($scope);
-
-    if (in_array('behat-steps-skip:' . $name, $tags, TRUE)) {
+    if (in_array(TagOverrides::SKIP_TAG_PREFIX . $name, Tag::all($scope), TRUE)) {
       return TRUE;
     }
 
-    $group = $this->contextConfigGroupFor($name);
+    $group = $this->getOptionResolver()->groupFor($name);
 
-    return $group !== NULL && $this->getOption($group, 'enabled', $scope) === FALSE;
-  }
-
-  /**
-   * Collects the option declarations of every trait this context composes.
-   *
-   * A trait declares its options in a '<prefix>ConfigSchema()' method, named
-   * by the prefix its other methods carry. The group name derives from the
-   * method name, so a consuming project's own trait participates without being
-   * registered anywhere.
-   *
-   * @return array<string, array<string, array<string, mixed>>>
-   *   Declarations keyed by group name and then by option name.
-   *
-   * @throws \RuntimeException
-   *   When a declaration omits its default or its description.
-   */
-  protected function contextConfigDeclarations(): array {
-    if (isset(self::$contextConfigDeclarationCache[static::class])) {
-      return self::$contextConfigDeclarationCache[static::class];
-    }
-
-    $reflection = new \ReflectionClass(static::class);
-    $schema = [];
-
-    foreach ($reflection->getMethods() as $method) {
-      if ($method->getNumberOfParameters() > 0 || preg_match('/^(.+)ConfigSchema$/', $method->getName(), $matches) !== 1) {
-        continue;
-      }
-
-      $group = $this->contextConfigSnakeCase($matches[1]);
-      $declarations = $method->invoke($this);
-
-      if (!is_array($declarations)) {
-        throw new \RuntimeException(sprintf('%s::%s() must return an array of option declarations.', static::class, $method->getName()));
-      }
-
-      foreach ($declarations as $key => $declaration) {
-        if (!is_array($declaration) || !array_key_exists('default', $declaration) || !isset($declaration['description'])) {
-          throw new \RuntimeException(sprintf('The "%s.%s" declaration in %s::%s() needs a "default" and a "description".', $group, $key, static::class, $method->getName()));
-        }
-
-        if (isset($declaration['tags']) && !is_array($declaration['tags'])) {
-          throw new \RuntimeException(sprintf('The "%s.%s" declaration in %s::%s() lists its tags as a map of tag name to the value it sets.', $group, $key, static::class, $method->getName()));
-        }
-      }
-
-      $schema[$group] = $declarations;
-    }
-
-    ksort($schema);
-    self::$contextConfigDeclarationCache[static::class] = $schema;
-
-    return $schema;
-  }
-
-  /**
-   * Resolves every option against the extension and this context's overrides.
-   *
-   * The extension's 'steps' section is set through 'setParameters()', which
-   * Behat calls after it has constructed the context, so the resolution is
-   * deferred to the first read and memoised.
-   *
-   * @return array<string, array<string, mixed>>
-   *   Resolved values keyed by group name and then by option name.
-   */
-  protected function contextConfigResolve(): array {
-    if ($this->contextConfigResolved !== NULL) {
-      return $this->contextConfigResolved;
-    }
-
-    $resolved = $this->contextConfigDefaults();
-
-    $steps = $this->getParameter('steps');
-
-    // A group under 'steps' may name a trait only one of the registered
-    // contexts composes, so an unservable group is skipped rather than
-    // rejected.
-    if (is_array($steps)) {
-      $resolved = $this->contextConfigMerge($resolved, $steps, FALSE);
-    }
-
-    $this->contextConfigResolved = $this->contextConfigMerge($resolved, $this->contextConfig, TRUE);
-
-    return $this->contextConfigResolved;
-  }
-
-  /**
-   * Returns every declared option at its default value.
-   *
-   * @return array<string, array<string, mixed>>
-   *   Default values keyed by group name and then by option name.
-   */
-  protected function contextConfigDefaults(): array {
-    $defaults = [];
-
-    foreach ($this->contextConfigDeclarations() as $group => $declarations) {
-      foreach ($declarations as $key => $declaration) {
-        $defaults[$group][$key] = $declaration['default'];
-      }
-    }
-
-    return $defaults;
-  }
-
-  /**
-   * Layers one set of overrides over the resolved values.
-   *
-   * @param array<string, array<string, mixed>> $resolved
-   *   The values resolved so far.
-   * @param array<string, mixed> $overrides
-   *   The overrides to apply.
-   * @param bool $strict
-   *   Reject a group or an option no trait declares, rather than skipping it.
-   *
-   * @return array<string, array<string, mixed>>
-   *   The values with the overrides applied.
-   *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When a group or an option is undeclared under a strict merge, a group
-   *   does not hold a map of options, or a value does not match the type its
-   *   declaration defaults to.
-   */
-  protected function contextConfigMerge(array $resolved, array $overrides, bool $strict): array {
-    $schema = $this->contextConfigDeclarations();
-
-    foreach ($overrides as $group => $options) {
-      if (!isset($schema[$group])) {
-        if ($strict) {
-          throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, static::class, implode(', ', array_keys($schema)) ?: 'nothing'));
-        }
-
-        continue;
-      }
-
-      if (!is_array($options)) {
-        throw new InvalidConfigurationException(sprintf('The "%s" option group holds a map of options, but a %s was given.', $group, get_debug_type($options)));
-      }
-
-      foreach ($options as $key => $value) {
-        if (!isset($schema[$group][$key])) {
-          if ($strict) {
-            throw new InvalidConfigurationException(sprintf('Unknown option "%s.%s" for context "%s". The "%s" group accepts: %s.', $group, $key, static::class, $group, implode(', ', array_keys($schema[$group]))));
-          }
-
-          continue;
-        }
-
-        $resolved[$group][$key] = $this->contextConfigCast($value, $schema[$group][$key]['default'], $group, (string) $key);
-      }
-    }
-
-    return $resolved;
-  }
-
-  /**
-   * Reads a configured value as the type its declaration defaults to.
-   *
-   * @param mixed $value
-   *   The configured value.
-   * @param mixed $default
-   *   The declared default, whose type the value has to match.
-   * @param string $group
-   *   The group name, for the failure message.
-   * @param string $key
-   *   The option name, for the failure message.
-   *
-   * @return mixed
-   *   The value, cast where a numeric form is unambiguous.
-   *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When the value cannot be read as the declared type.
-   */
-  protected function contextConfigCast(mixed $value, mixed $default, string $group, string $key): mixed {
-    $expected = get_debug_type($default);
-
-    if ($expected === 'bool' && is_bool($value)) {
-      return $value;
-    }
-
-    if ($expected === 'int' && (is_int($value) || (is_string($value) && preg_match('/^-?\d+$/', $value) === 1))) {
-      return (int) $value;
-    }
-
-    if ($expected === 'float' && (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value)))) {
-      return (float) $value;
-    }
-
-    if ($expected === 'string' && (is_string($value) || is_int($value) || is_float($value))) {
-      return (string) $value;
-    }
-
-    if ($expected === 'array' && is_array($value)) {
-      return $value;
-    }
-
-    // A declaration defaulting to NULL names no type, so anything it is given
-    // passes through.
-    if (!in_array($expected, ['bool', 'int', 'float', 'string', 'array'], TRUE)) {
-      return $value;
-    }
-
-    throw new InvalidConfigurationException(sprintf('The "%s.%s" option expects %s, but %s was given.', $group, $key, $this->contextConfigTypeName($expected), $this->contextConfigTypeName(get_debug_type($value))));
-  }
-
-  /**
-   * Names a type as it reads in a failure message.
-   *
-   * @param string $type
-   *   A type name as 'get_debug_type()' reports it.
-   *
-   * @return string
-   *   The name with its article, or the type itself where none applies.
-   */
-  protected function contextConfigTypeName(string $type): string {
-    return match ($type) {
-      'bool' => 'a boolean',
-      'int' => 'an integer',
-      'float' => 'a float',
-      'string' => 'a string',
-      'array' => 'a map',
-      'null' => 'null',
-      default => 'a ' . $type,
-    };
-  }
-
-  /**
-   * Applies the tag layers of one option.
-   *
-   * A declaration names the tags that set it and the value each one sets.
-   * Feature tags are read before scenario tags, so the tag on the narrower node
-   * settles the value.
-   *
-   * @param string $group
-   *   The group the option belongs to.
-   * @param string $key
-   *   The option name.
-   * @param mixed $value
-   *   The value resolved from the configuration.
-   * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
-   *   The scenario scope a hook received.
-   *
-   * @return mixed
-   *   The value, replaced by whatever the last matching tag sets.
-   */
-  protected function contextConfigApplyTags(string $group, string $key, mixed $value, ScenarioScope $scope): mixed {
-    $tags = $this->contextConfigDeclarations()[$group][$key]['tags'] ?? [];
-
-    // An 'enabled' option is also switched off by the library's one skip tag,
-    // named after the trait the group belongs to.
-    if ($key === 'enabled') {
-      $tags['behat-steps-skip:' . ucfirst($this->contextConfigCamelCase($group)) . 'Trait'] = FALSE;
-    }
-
-    if ($tags === []) {
-      return $value;
-    }
-
-    foreach (Tag::all($scope) as $tag) {
-      if (array_key_exists($tag, $tags)) {
-        $value = $tags[$tag];
-      }
-    }
-
-    return $value;
-  }
-
-  /**
-   * Resolves the group a skip name belongs to.
-   *
-   * A name is either a trait name, which maps to its group directly, or a hook
-   * method name, which carries its trait's prefix. The longest matching prefix
-   * wins, so 'configOverrideBeforeStep' resolves to 'config_override' rather
-   * than to 'config'.
-   *
-   * @param string $name
-   *   The hook method name or trait name a skip tag would carry.
-   *
-   * @return string|null
-   *   The group name, or NULL when no group with an 'enabled' option matches.
-   */
-  protected function contextConfigGroupFor(string $name): ?string {
-    $groups = array_keys(array_filter($this->contextConfigDeclarations(), static fn(array $declarations): bool => isset($declarations['enabled'])));
-
-    if (str_ends_with($name, 'Trait')) {
-      $group = $this->contextConfigSnakeCase(substr($name, 0, -strlen('Trait')));
-
-      return in_array($group, $groups, TRUE) ? $group : NULL;
-    }
-
-    $match = NULL;
-
-    foreach ($groups as $group) {
-      $prefix = $this->contextConfigCamelCase($group);
-
-      if (!str_starts_with($name, $prefix) || !ctype_upper(substr($name, strlen($prefix), 1))) {
-        continue;
-      }
-
-      if ($match === NULL || strlen($group) > strlen($match)) {
-        $match = $group;
-      }
-    }
-
-    return $match;
-  }
-
-  /**
-   * Lists every declared option as a dotted path.
-   */
-  protected function contextConfigOptionList(): string {
-    $paths = [];
-
-    foreach ($this->contextConfigDeclarations() as $group => $declarations) {
-      foreach (array_keys($declarations) as $key) {
-        $paths[] = $group . '.' . $key;
-      }
-    }
-
-    return implode(', ', $paths) ?: 'none';
-  }
-
-  /**
-   * Converts a camel case method prefix to its snake case group name.
-   */
-  protected function contextConfigSnakeCase(string $prefix): string {
-    return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $prefix));
-  }
-
-  /**
-   * Converts a snake case group name to its camel case method prefix.
-   */
-  protected function contextConfigCamelCase(string $group): string {
-    return lcfirst(str_replace('_', '', ucwords($group, '_')));
+    return $group !== NULL && !$this->getOptionBool($group, Option::ENABLED);
   }
 
 }

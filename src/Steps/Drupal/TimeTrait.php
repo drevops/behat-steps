@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
@@ -85,15 +86,12 @@ trait TimeTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function timeConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Restore the site clock after a scenario that moved it.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Restore the site clock after a scenario that moved it.'),
     ];
   }
 

@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\RequestHeaderCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
@@ -186,15 +187,12 @@ trait ConfigOverrideTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function configOverrideConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards.'),
     ];
   }
 

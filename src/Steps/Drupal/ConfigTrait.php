@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
@@ -490,15 +491,12 @@ trait ConfigTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function configConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Restore the configuration values a scenario changed once it finishes.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Restore the configuration values a scenario changed once it finishes.'),
     ];
   }
 

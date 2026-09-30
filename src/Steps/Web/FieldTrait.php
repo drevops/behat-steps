@@ -17,6 +17,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -918,7 +919,7 @@ JS;
    *   CSS selectors to probe for the add-another-item button.
    */
   public function fieldGetAddMoreButtonSelectors(): array {
-    return (array) $this->getOption('field', 'add_more_button_selectors');
+    return $this->getOptionArray('field', 'add_more_button_selectors');
   }
 
   /**
@@ -932,7 +933,7 @@ JS;
    *   CSS selectors to probe for a required marker.
    */
   public function fieldGetRequiredMarkerSelectors(): array {
-    return (array) $this->getOption('field', 'required_marker_selectors');
+    return $this->getOptionArray('field', 'required_marker_selectors');
   }
 
   /**
@@ -1116,23 +1117,18 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function fieldConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Strip HTML5 validation from every form of a `@disable-form-validation` scenario.',
-      ],
-      'add_more_button_selectors' => [
-        'default' => ['input[value="Add another item"]', 'button.field-add-more-submit'],
-        'description' => 'CSS selectors of the add-another-item button, tried in order.',
-      ],
-      'required_marker_selectors' => [
-        'default' => ['.form-required', '[required]'],
-        'description' => 'CSS selectors that mark a field as required, tried in order.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Strip HTML5 validation from every form of a `@disable-form-validation` scenario.'),
+      new Option(
+        'add_more_button_selectors',
+        default: ['input[value="Add another item"]', 'button.field-add-more-submit'],
+        description: 'CSS selectors of the add-another-item button, tried in order.'
+      ),
+      new Option('required_marker_selectors', default: ['.form-required', '[required]'], description: 'CSS selectors that mark a field as required, tried in order.'),
     ];
   }
 

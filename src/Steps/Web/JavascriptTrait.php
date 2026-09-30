@@ -13,6 +13,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 
@@ -69,11 +70,6 @@ trait JavascriptTrait {
   protected bool $javascriptEnabled = FALSE;
 
   /**
-   * Whether the current scenario expects JavaScript errors.
-   */
-  protected bool $javascriptBypassErrors = FALSE;
-
-  /**
    * Whether the collected errors have already been asserted.
    */
   protected bool $javascriptAsserted = FALSE;
@@ -93,10 +89,6 @@ trait JavascriptTrait {
 
     $this->javascriptEnabled = TRUE;
 
-    // Step scopes carry no scenario tags, so the bypass is resolved here for
-    // the step hook to read.
-    $this->javascriptBypassErrors = $this->getOption('javascript', 'fail_on_errors', $scope) === FALSE;
-
     $this->lastStepSetLine($scope);
   }
 
@@ -114,12 +106,11 @@ trait JavascriptTrait {
   #[AfterScenario('@javascript')]
   public function javascriptAfterScenario(AfterScenarioScope $scope): void {
     $assert = $this->javascriptEnabled
-      && !$this->javascriptBypassErrors
+      && $this->getOptionBool('javascript', 'fail_on_errors')
       && !$this->javascriptAsserted
       && !$scope->getTestResult()->isPassed();
 
     $this->javascriptEnabled = FALSE;
-    $this->javascriptBypassErrors = FALSE;
     $this->javascriptAsserted = FALSE;
 
     if (!$assert) {
@@ -201,7 +192,7 @@ trait JavascriptTrait {
     catch (\Exception) {
     }
     // @codeCoverageIgnoreEnd
-    if ($this->javascriptBypassErrors || !$this->lastStepReached($scope)) {
+    if (!$this->getOptionBool('javascript', 'fail_on_errors') || !$this->lastStepReached($scope)) {
       return;
     }
 
@@ -346,20 +337,13 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function javascriptConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Collect JavaScript console errors on a `@javascript` scenario.',
-      ],
-      'fail_on_errors' => [
-        'default' => TRUE,
-        'description' => 'Fail a scenario that collected a console error. Errors are still collected when this is off.',
-        'tags' => ['js-errors' => FALSE],
-      ],
+      new Option('enabled', default: TRUE, description: 'Collect JavaScript console errors on a `@javascript` scenario.'),
+      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that collected a console error. Errors are still collected when this is off.', tags: ['js-errors' => FALSE]),
     ];
   }
 

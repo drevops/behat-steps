@@ -9,6 +9,7 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 
 /**
@@ -183,25 +184,19 @@ trait BigPipeTrait {
    *   The timeout in milliseconds.
    */
   public function bigPipeGetWaitTimeout(): int {
-    return $this->bigPipeWaitTimeout ?? (int) $this->getOption('big_pipe', 'wait_timeout');
+    return $this->bigPipeWaitTimeout ?? $this->getOptionInt('big_pipe', 'wait_timeout');
   }
 
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function bigPipeConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario.',
-      ],
-      'wait_timeout' => [
-        'default' => 10000,
-        'description' => 'Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario.'),
+      new Option('wait_timeout', default: 10000, description: 'Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced.'),
     ];
   }
 

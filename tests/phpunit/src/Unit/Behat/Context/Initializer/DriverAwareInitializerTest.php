@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context\Initializer;
 
 use Behat\Behat\Context\Context;
+use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
@@ -47,14 +48,16 @@ class DriverAwareInitializerTest extends UnitTestCase {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
     $dispatcher = $this->createHookDispatcher();
     $basic_authenticator = $this->createMock(BasicAuthenticatorInterface::class);
+    $resolver_factory = $this->createMock(TraitOptionResolverFactoryInterface::class);
 
     $context = $this->createMock(DriverAwareInterface::class);
     $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
     $context->expects($this->once())->method('setDriverRegistry')->with($driver_registry);
     $context->expects($this->once())->method('setDispatcher')->with($dispatcher);
     $context->expects($this->once())->method('setBasicAuthenticator')->with($basic_authenticator);
+    $context->expects($this->once())->method('setOptionResolverFactory')->with($resolver_factory);
 
-    $initializer = new DriverAwareInitializer($driver_registry, self::PARAMETERS, $dispatcher, $basic_authenticator, $this->createMock(AuthenticatorInterface::class), $this->createMock(UserRegistryInterface::class));
+    $initializer = new DriverAwareInitializer($driver_registry, self::PARAMETERS, $dispatcher, $basic_authenticator, $this->createMock(AuthenticatorInterface::class), $this->createMock(UserRegistryInterface::class), $resolver_factory);
     $initializer->initializeContext($context);
   }
 
@@ -73,6 +76,7 @@ class DriverAwareInitializerTest extends UnitTestCase {
       $this->createMock(BasicAuthenticatorInterface::class),
       $authenticator,
       $user_registry,
+      $this->createMock(TraitOptionResolverFactoryInterface::class),
     );
 
     $initializer->initializeContext($context);
@@ -89,6 +93,7 @@ class DriverAwareInitializerTest extends UnitTestCase {
       $this->createMock(BasicAuthenticatorInterface::class),
       $this->createMock(AuthenticatorInterface::class),
       $this->createMock(UserRegistryInterface::class),
+      $this->createMock(TraitOptionResolverFactoryInterface::class),
     );
   }
 

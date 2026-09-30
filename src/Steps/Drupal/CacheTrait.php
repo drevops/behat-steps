@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
@@ -136,21 +137,18 @@ trait CacheTrait {
    * custom internal page cache bin name.
    */
   public function cacheGetPageCacheBin(): string {
-    return (string) $this->getOption('cache', 'page_cache_bin');
+    return $this->getOptionString('cache', 'page_cache_bin');
   }
 
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function cacheConfigSchema(): array {
     return [
-      'page_cache_bin' => [
-        'default' => 'page',
-        'description' => 'Name of the cache bin holding the internal page cache.',
-      ],
+      new Option('page_cache_bin', default: 'page', description: 'Name of the cache bin holding the internal page cache.'),
     ];
   }
 

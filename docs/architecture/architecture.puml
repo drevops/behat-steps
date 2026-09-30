@@ -31,9 +31,10 @@ package "drevops/behat-steps" {
 
   package "Integration - src/Behat" #F3E5F5 {
     component "BehatStepsExtension\nservice wiring" as Ext
-    component "WebRawContext\ndriver access, configuration,\nhook dispatch, no steps" as WebRawCtx
+    component "WebRawContext\ndriver access, option reads,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
-    component "Managers\nDriver, Authentication,\nUser, Mail" as Managers
+    component "Managers\nDriver, Authentication,\nUser, Mail, Scenario tags" as Managers
+    component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
     component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
   }
 
@@ -74,10 +75,13 @@ Consumer ..> DrupalHelpers : composes
 Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx
 Ext --> Managers : registers
+Ext --> OptionConfig : registers
 Ext --> DriverIface : registers drivers
 Ext ..> MinkExt : reads ajax_timeout
 Ext ..> Mink : aliases DocumentElement
 WebRawCtx --> Managers
+WebRawCtx --> OptionConfig : resolves trait options
+OptionConfig --> Managers : reads the scenario's tags
 
 Managers --> DriverIface : resolves by capability
 DrupalDrv ..|> DriverIface

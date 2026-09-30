@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Keep HTTP basic authentication applied across session resets.
@@ -66,15 +67,12 @@ trait BasicAuthTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<string, array<string, mixed>>
-   *   Option declarations keyed by option name.
+   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   *   The options this trait declares.
    */
   protected function basicAuthConfigSchema(): array {
     return [
-      'enabled' => [
-        'default' => TRUE,
-        'description' => 'Apply the configured basic authentication credentials to every request.',
-      ],
+      new Option('enabled', default: TRUE, description: 'Apply the configured basic authentication credentials to every request.'),
     ];
   }
 
