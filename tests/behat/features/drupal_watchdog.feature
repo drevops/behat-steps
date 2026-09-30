@@ -255,3 +255,20 @@ Feature: Check that WatchdogTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @trait:Drupal\WatchdogTrait
+  Scenario: Assert that a @watchdog tag on the feature tracks the type in every scenario
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @watchdog:custom_type
+      Feature: Stub feature
+
+        Scenario: Custom type is logged
+          When set watchdog error level "warning" of type "custom_type"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      PHP errors were logged to watchdog during scenario "Custom type is logged" (line 4):
+      """

@@ -243,6 +243,28 @@ Feature: Check that FileDownloadTrait works
     Then it should pass
 
   @trait:FileDownloadTrait
+  Scenario: Assert that the @download tag on the feature applies to every scenario
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @download @phpserver
+      Feature: Stub feature
+
+        Scenario: File is downloaded
+          When I visit "/"
+          And I download the file from the URL "http://cli:8888/text.txt"
+          Then the downloaded file should contain:
+            '''
+            Some Text
+            '''
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      1 scenario (1 passed)
+      """
+
+  @trait:FileDownloadTrait
   Scenario: Assert that checking file name without download fails with an error
     Given some behat configuration
     And scenario steps:

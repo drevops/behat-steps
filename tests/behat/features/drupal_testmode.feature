@@ -47,3 +47,27 @@ Feature: Ensure TestmodeTrait works.
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @trait:Drupal\TestmodeTrait
+  Scenario: Assert that the @testmode tag on the feature applies to every scenario
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @testmode
+      Feature: Stub feature
+
+        Scenario: Test content is listed on its own
+          Given the following article content exist:
+            | title              |
+            | Article 1          |
+            | [MYTEST] Article 6 |
+          When I log in as a user with the role "administrator"
+          And I go to "/content_test"
+          Then I should see "[MYTEST] Article 6"
+          And I should not see "Article 1"
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      1 scenario (1 passed)
+      """
