@@ -117,7 +117,7 @@ trait SearchApiTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     // @codeCoverageIgnoreStart
-    if (!$this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('search_api_solr')) {
+    if (!$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('search_api_solr')) {
       return;
     }
 

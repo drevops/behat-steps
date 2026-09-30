@@ -1122,7 +1122,7 @@ A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`,
 | Before | After |
 | --- | --- |
 | `$this->queryAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
-| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
+| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
 
 The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
 

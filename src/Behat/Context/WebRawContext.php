@@ -545,6 +545,30 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
+   * Returns a driver providing a capability, reusing one already reached.
+   *
+   * A read-only query such as a module check returns the same result through
+   * any driver, so a driver the scenario already reached is returned before
+   * the first one in the list, and no second driver starts.
+   *
+   * @param class-string<T> $capability
+   *   The capability interface the caller needs.
+   *
+   * @return T
+   *   The driver, bootstrapped.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's order implements the capability.
+   *
+   * @template T of object
+   */
+  protected function anyDriverFor(string $capability): object {
+    $registry = $this->getDriverRegistry();
+
+    return $registry->getResolvedDriverFor($capability) ?? $registry->getDriverFor($capability);
+  }
+
+  /**
    * Asserts that the prerequisites a trait declares hold.
    *
    * A trait declares them in a '<prefix>Prerequisites()' method, each naming a
@@ -602,7 +626,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
         return new UnsupportedDriverActionException($this->prerequisiteMessage($trait, $prerequisite, $detail));
       }
 
-      $driver = $registry->getResolvedDriverFor($prerequisite->capability) ?? $registry->getDriverFor($prerequisite->capability);
+      // A capability without a check still reaches its driver, so a later
+      // check runs through that driver.
+      $driver = $this->anyDriverFor($prerequisite->capability);
 
       if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($driver)) {
         return new \RuntimeException($this->prerequisiteMessage($trait, $prerequisite));

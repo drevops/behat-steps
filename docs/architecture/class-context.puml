@@ -34,6 +34,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +httpBareClient(options) : AbstractBrowser
     --
     #skipTag(trait, scope) : bool
+    #anyDriverFor(capability) : object
     #assertPrerequisites(trait) : void
     #prerequisitesMet(trait) : bool
     #shouldCleanup() : bool

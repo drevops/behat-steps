@@ -18,6 +18,7 @@ use DrevOps\BehatSteps\Behat\Http\HttpIdentity;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
 use DrevOps\BehatSteps\Driver\DrushDriverInterface;
@@ -268,6 +269,23 @@ class WebRawContextTest extends UnitTestCase {
     $drupal->method('moduleIsEnabled')->willReturn(TRUE);
 
     $this->assertTrue($this->createPrerequisiteContext(['drush' => $drush, 'drupal' => $drupal])->callPrerequisitesMet(SamplePrerequisiteTrait::class));
+  }
+
+  #[DataProvider('dataProviderAnyDriverForReusesReachedDriver')]
+  public function testAnyDriverForReusesReachedDriver(bool $reach_drupal, string $expected): void {
+    $drivers = ['drush' => $this->createStub(DrushDriverInterface::class), 'drupal' => $this->createStub(DrupalDriverInterface::class)];
+    $context = $this->createPrerequisiteContext($drivers);
+
+    if ($reach_drupal) {
+      $context->driverFor(CoreCapabilityInterface::class);
+    }
+
+    $this->assertSame($drivers[$expected], $context->callAnyDriverFor(ModuleCapabilityInterface::class));
+  }
+
+  public static function dataProviderAnyDriverForReusesReachedDriver(): \Iterator {
+    yield 'a reached driver answers before the first listed' => [TRUE, 'drupal'];
+    yield 'the first listed answers when none was reached' => [FALSE, 'drush'];
   }
 
   /**

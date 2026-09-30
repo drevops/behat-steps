@@ -700,7 +700,7 @@ trait EmailTrait {
     // The Mailsystem module replaces the default interface, so update its
     // configuration as well when the module is installed.
     // @codeCoverageIgnoreStart
-    if ($this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
+    if ($this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
         ->save();

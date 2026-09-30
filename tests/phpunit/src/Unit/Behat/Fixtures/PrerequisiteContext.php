@@ -28,4 +28,14 @@ class PrerequisiteContext extends WebRawContext {
     return $this->prerequisitesMet($trait);
   }
 
+  /**
+   * Public bridge to the protected lookup that reuses a reached driver.
+   *
+   * @param class-string $capability
+   *   The capability interface to look up.
+   */
+  public function callAnyDriverFor(string $capability): object {
+    return $this->anyDriverFor($capability);
+  }
+
 }

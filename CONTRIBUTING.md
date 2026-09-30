@@ -361,7 +361,7 @@ protected function acmePrerequisites(): array {
 - `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a driver providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
 - A description is a clause completing "requires that", in lower case with no closing period. It appears both in the failure message and in the Prerequisites table `docs.php` renders into [STEPS.md](STEPS.md).
 
-A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
+A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a driver the scenario already reached, so the question never starts a second driver the way `driverFor()` would under `@driver:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
 
 ### Where a trait checks them
 
@@ -370,7 +370,7 @@ A module the trait needs is declared. A module it only adapts to, such as `patha
 - **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
 - **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
 
-The checker reads each trait's declarations once per run and evaluates them in order. For each capability it reuses a driver the scenario already reached before trying the first one listed, so checking never starts a second driver: once `CoreCapabilityInterface` has resolved `drupal`, a module check runs in-process even under `@driver:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
+The checker reads each trait's declarations once per run and evaluates them in order. For each capability it goes through `anyDriverFor()`, which reuses a driver the scenario already reached before trying the first one listed, so checking never starts a second driver. A capability with no check still reaches its driver, so declaring `CoreCapabilityInterface` first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@driver:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
 
 `tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Helper`.
 

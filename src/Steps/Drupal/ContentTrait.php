@@ -304,7 +304,7 @@ trait ContentTrait {
 
     // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
     // on save.
-    if ($this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
+    if ($this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
       $path_value['pathauto'] = 0;
     }
 
