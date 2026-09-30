@@ -131,10 +131,10 @@ class ParentTermAliasTest extends TestCase {
   /**
    * Data provider for 'testApplyToStubNoOpsOnEmptyParent()'.
    *
-   * @return iterable<string, array<int, mixed>>
+   * @return \Iterator<string, array<int, mixed>>
    *   Cases of empty-ish parent value.
    */
-  public static function dataProviderApplyToStubNoOpsOnEmptyParent(): iterable {
+  public static function dataProviderApplyToStubNoOpsOnEmptyParent(): \Iterator {
     yield 'empty string' => [''];
     yield 'null' => [NULL];
     yield 'zero integer' => [0];

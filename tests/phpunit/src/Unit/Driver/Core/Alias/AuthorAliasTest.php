@@ -94,10 +94,10 @@ class AuthorAliasTest extends TestCase {
   /**
    * Data provider for 'testApplyToStubCoercesValueToString()'.
    *
-   * @return iterable<string, array<int, mixed>>
+   * @return \Iterator<string, array<int, mixed>>
    *   Cases of stub value, expected closure input.
    */
-  public static function dataProviderApplyToStubCoercesValueToString(): iterable {
+  public static function dataProviderApplyToStubCoercesValueToString(): \Iterator {
     yield 'plain string' => ['alice', 'alice'];
     yield 'integer-like string' => ['7', '7'];
     yield 'integer coerced' => [7, '7'];
@@ -127,10 +127,10 @@ class AuthorAliasTest extends TestCase {
   /**
    * Data provider for 'testApplyToStubThrowsOnEmptyAuthor()'.
    *
-   * @return iterable<string, array<int, mixed>>
+   * @return \Iterator<string, array<int, mixed>>
    *   Cases of empty-ish 'author' value.
    */
-  public static function dataProviderApplyToStubThrowsOnEmptyAuthor(): iterable {
+  public static function dataProviderApplyToStubThrowsOnEmptyAuthor(): \Iterator {
     yield 'empty string' => [''];
     yield 'null' => [NULL];
   }
