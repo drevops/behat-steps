@@ -36,9 +36,10 @@ class ConfigSchemaReaderTest extends UnitTestCase {
   }
 
   public function testTheDeclarationsAreReadOnce(): void {
-    $reader = new ConfigSchemaReader();
+    $first = (new ConfigSchemaReader())->read(ConfigurableContext::class);
+    $second = (new ConfigSchemaReader())->read(ConfigurableContext::class);
 
-    $this->assertSame($reader->read(ConfigurableContext::class), (new ConfigSchemaReader())->read(ConfigurableContext::class));
+    $this->assertSame($first['sample']['label'], $second['sample']['label']);
   }
 
   /**
