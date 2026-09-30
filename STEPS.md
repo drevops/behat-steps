@@ -7728,6 +7728,15 @@ Then the user "John" should not be blocked
 >  - Optionally check only for specific message types.
 >  - Optionally skip error checking for specific scenarios.
 >  
+>  Requires the core `dblog` module, whose `watchdog` table the check reads.
+>  Without it, every scenario fails at its last step until the check is
+>  switched off with the `watchdog.enabled` option or the skip tag below.
+>  <br/><br/>
+>  `watchdog.fail_on_errors` and `@error` do not switch off the check for a
+>  missing table, because they apply only to errors that were read. The check
+>  needs a driver that runs Drupal in-process, so a profile that reaches the
+>  site through Drush alone is not checked.
+>  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>
 >  Special tags:

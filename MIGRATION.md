@@ -1090,6 +1090,14 @@ There is no way to remove an inherited step, so a Drupal project cannot take the
 
 Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
 
+`DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even if your v3 context never composed the trait. The check reads the `watchdog` table, and only the core `dblog` module creates it. On a site without `dblog`, every scenario fails at its last step until you enable the module or switch the check off for the profile:
+
+```php
+'steps' => ['watchdog' => ['enabled' => FALSE]],
+```
+
+Setting `fail_on_errors` to `FALSE` or tagging a scenario `@error` doesn't cover a missing table, because both only apply to errors that were read. A profile that lists no in-process driver, such as `'drivers' => ['drush', 'blackbox']`, runs no check at all.
+
 ## Traits declare the host they need
 
 Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads the driver or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.

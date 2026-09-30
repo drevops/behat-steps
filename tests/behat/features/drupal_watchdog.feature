@@ -121,7 +121,7 @@ Feature: Check that WatchdogTrait works
     Then it should pass
 
   @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that missing watchdog table throws RuntimeException
+  Scenario: Assert that a missing watchdog table fails with the switches that turn the check off
     Given some behat configuration
     And scenario steps tagged with "@module:!dblog":
       """
@@ -130,5 +130,70 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Watchdog table does not exist. Ensure the dblog module is enabled.
+      The "watchdog" table does not exist, so logged errors cannot be checked. Enable the "dblog" module, or switch the check off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
       """
+
+  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
+  Scenario: Assert that the enabled option switches the check off for a missing watchdog table
+    Given a configuration with the step options:
+      """
+      'watchdog' => ['enabled' => FALSE],
+      """
+    And some behat configuration
+    And scenario steps tagged with "@module:!dblog":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
+  Scenario: Assert that the skip tag switches the check off for a missing watchdog table
+    Given some behat configuration
+    And scenario steps tagged with "@module:!dblog @behat-steps-skip:WatchdogTrait":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
+  Scenario: Assert that turning fail_on_errors off does not cover a missing watchdog table
+    Given a configuration with the step options:
+      """
+      'watchdog' => ['fail_on_errors' => FALSE],
+      """
+    And some behat configuration
+    And scenario steps tagged with "@module:!dblog":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The "watchdog" table does not exist
+      """
+
+  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
+  Scenario: Assert that the error tag does not cover a missing watchdog table
+    Given some behat configuration
+    And scenario steps tagged with "@module:!dblog @error":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The "watchdog" table does not exist
+      """
+
+  @trait:Drupal\WatchdogTrait
+  Scenario: Assert that a configuration reaching Drupal only through Drush runs no check
+    Given a configuration listing the drivers "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass

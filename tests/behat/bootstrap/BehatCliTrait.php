@@ -244,7 +244,7 @@ EOL;
    * Narrow the generated configuration's driver list.
    *
    * Runs before 'some behat configuration', so a scenario can exercise a
-   * configuration that lists no driver reaching Drupal.
+   * configuration that lists no in-process Drupal driver.
    */
   #[Given('a configuration listing the driver(s) :drivers')]
   public function behatCliSetConfiguredDrivers(string $drivers): void {
@@ -278,6 +278,17 @@ EOL;
    */
   protected function behatCliRenderConfiguredDrivers(): string {
     return sprintf("['%s']", implode("', '", $this->behatCliConfiguredDrivers));
+  }
+
+  /**
+   * Render the Drush driver section when the driver list names the driver.
+   */
+  protected function behatCliRenderDrushDriver(): string {
+    if (!in_array('drush', $this->behatCliConfiguredDrivers, TRUE)) {
+      return '';
+    }
+
+    return PHP_EOL . "    'drush' => ['root' => '/app/build/web', 'binary' => '/app/build/vendor/bin/drush'],";
   }
 
   /**
@@ -347,7 +358,7 @@ $profile = (new Profile('default'))
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'drivers' => {{CONFIGURED_DRIVERS}},
-    'drupal' => ['drupal_root' => '/app/build/web'],
+    'drupal' => ['drupal_root' => '/app/build/web'],{{DRUSH_DRIVER}}
     'steps' => {{STEPS_CONFIG}},
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
@@ -368,6 +379,7 @@ EOL;
     $content = strtr($content, [
       '{{COVERAGE_EXTENSION}}' => $coverage_extension,
       '{{CONFIGURED_DRIVERS}}' => $this->behatCliRenderConfiguredDrivers(),
+      '{{DRUSH_DRIVER}}' => $this->behatCliRenderDrushDriver(),
       '{{STEPS_CONFIG}}' => $this->behatCliRenderStepsConfig(),
       '{{CONTEXT_ARGUMENTS}}' => $this->behatCliRenderContextArguments(),
     ]);

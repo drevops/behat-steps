@@ -12,9 +12,9 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
@@ -24,6 +24,15 @@ use Drupal\Core\Database\Database;
  * - Check for Watchdog messages after scenario completion.
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
+ *
+ * Requires the core `dblog` module, whose `watchdog` table the check reads.
+ * Without it, every scenario fails at its last step until the check is
+ * switched off with the `watchdog.enabled` option or the skip tag below.
+ *
+ * `watchdog.fail_on_errors` and `@error` do not switch off the check for a
+ * missing table, because they apply only to errors that were read. The check
+ * needs a driver that runs Drupal in-process, so a profile that reaches the
+ * site through Drush alone is not checked.
  *
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
@@ -65,7 +74,7 @@ trait WatchdogTrait {
    */
   #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       return;
     }
 
@@ -97,7 +106,7 @@ trait WatchdogTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     if (!Database::getConnection()->schema()->tableExists('watchdog')) {
-      throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
+      throw new \RuntimeException(sprintf('The "watchdog" table does not exist, so logged errors cannot be checked. Enable the "dblog" module, or switch the check off with the "watchdog.enabled" option or the "@%sWatchdogTrait" tag.', TagOverrides::SKIP_TAG_PREFIX));
     }
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
@@ -123,7 +132,7 @@ trait WatchdogTrait {
    */
   #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if (!isset($this->watchdogScenarioStartTime)) {
       return;
     }
 

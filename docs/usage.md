@@ -30,7 +30,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
 
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The site needs the core `dblog` module, or the Watchdog check [switched off](#switch-a-trait-off) |
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
@@ -177,7 +177,7 @@ The three reach the same value, most specific last: `steps`, then the context's 
 Two options recur across the traits that carry hooks, and they mean different things:
 
 - `enabled` turns the trait's hooks off entirely: nothing is collected, and no driver is bootstrapped on its account.
-- `fail_on_errors` leaves the collection running and stops it failing the scenario.
+- `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
 A project that never wants a trait's gate sets it once:
 
@@ -186,6 +186,10 @@ A project that never wants a trait's gate sets it once:
 ```
 
 rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
+
+`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, and only the core `dblog` module creates that table. On a site that logs through `syslog` instead, every scenario fails at its last step with an error naming both ways out: enable `dblog`, or switch the trait off as above.
+
+Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help there. Both decide what happens to errors that were read, and with no table there's nothing to read. The check reads the table directly, so it only runs when the scenario's driver list holds a driver that loads Drupal into the Behat process, such as `drupal`. A profile that reaches the site through `drush` alone isn't checked at all.
 
 ## Go further than the options
 
