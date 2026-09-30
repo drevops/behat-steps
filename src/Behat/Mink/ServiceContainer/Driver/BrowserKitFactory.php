@@ -89,6 +89,13 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
   }
 
   /**
+   * Whether a Drupal installation is present to load the test browser from.
+   */
+  public function isDrupalInstalled(): bool {
+    return $this->resolveDrupalRoot() !== NULL;
+  }
+
+  /**
    * Returns the Drupal root, or throws when there is none.
    *
    * @return string
@@ -100,7 +107,7 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
   protected function locateDrupalRoot(): string {
     $root = $this->resolveDrupalRoot();
 
-    if ($root === NULL || $root === '') {
+    if ($root === NULL) {
       throw new BootstrapException('No Drupal installation found. The "browserkit_http" driver runs against a local Drupal codebase, so "drupal/core" must be installed alongside the suite.');
     }
 
@@ -114,7 +121,23 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
    *   Absolute path to the Drupal root, or NULL when none is installed.
    */
   protected function resolveDrupalRoot(): ?string {
-    return (new DrupalFinderComposerRuntime())->getDrupalRoot();
+    try {
+      $root = $this->createDrupalFinder()->getDrupalRoot();
+    }
+    catch (\OutOfBoundsException) {
+      // Composer throws for a package that is not installed.
+      return NULL;
+    }
+
+    // The finder returns an empty string when the recorded path is gone.
+    return $root === '' ? NULL : $root;
+  }
+
+  /**
+   * Creates the finder that reads Composer's record of 'drupal/core'.
+   */
+  protected function createDrupalFinder(): DrupalFinderComposerRuntime {
+    return new DrupalFinderComposerRuntime();
   }
 
   /**

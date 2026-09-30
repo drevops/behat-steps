@@ -10,7 +10,9 @@ use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Tests\DrupalTestBrowser;
+use DrupalFinder\DrupalFinderComposerRuntime;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\Definition;
@@ -93,6 +95,50 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->expectNotToPerformAssertions();
 
     $this->requireTestBrowser(new TestableBrowserKitFactory(), self::NO_DRUPAL_DIR);
+  }
+
+  /**
+   * Tests the root read from Composer's record of 'drupal/core'.
+   *
+   * @param string|\Throwable|null $recorded
+   *   What the finder returns, or the exception it throws.
+   * @param string|null $expected
+   *   The root the factory is expected to resolve.
+   */
+  #[DataProvider('dataProviderRootIsResolvedFromComposer')]
+  public function testRootIsResolvedFromComposer(string|\Throwable|null $recorded, ?string $expected): void {
+    $finder = $this->createStub(DrupalFinderComposerRuntime::class);
+
+    if ($recorded instanceof \Throwable) {
+      $finder->method('getDrupalRoot')->willThrowException($recorded);
+    }
+    else {
+      $finder->method('getDrupalRoot')->willReturn($recorded);
+    }
+
+    $factory = new class ($finder) extends BrowserKitFactory {
+
+      public function __construct(protected DrupalFinderComposerRuntime $finder) {
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      protected function createDrupalFinder(): DrupalFinderComposerRuntime {
+        return $this->finder;
+      }
+
+    };
+
+    $this->assertSame($expected, (new \ReflectionMethod($factory, 'resolveDrupalRoot'))->invoke($factory));
+    $this->assertSame($expected !== NULL, $factory->isDrupalInstalled());
+  }
+
+  public static function dataProviderRootIsResolvedFromComposer(): \Iterator {
+    yield 'a recorded root' => ['/drupal', '/drupal'];
+    yield 'a core recorded with no path, as a replaced package is' => [NULL, NULL];
+    yield 'a recorded path that no longer exists' => ['', NULL];
+    yield 'a core that is not installed' => [new \OutOfBoundsException('Package "drupal/core" is not installed'), NULL];
   }
 
   /**
