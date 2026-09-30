@@ -358,14 +358,12 @@ trait FileDownloadTrait {
     $content = $response->getContent();
     $status = $response->getStatusCode();
 
-    if ($content === '') {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
-      // @codeCoverageIgnoreEnd
-    }
-
     if ($status >= 400) {
       throw new \RuntimeException(sprintf('The URL %s returned HTTP status %d.', $url, $status));
+    }
+
+    if ($content === '') {
+      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
     }
 
     $headers = $this->fileDownloadParseHeaders($response->getHeaders());

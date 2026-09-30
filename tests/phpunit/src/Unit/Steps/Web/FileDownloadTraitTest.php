@@ -81,13 +81,30 @@ class FileDownloadTraitTest extends UnitTestCase {
     $this->assertSame(['timeout' => 300], $object->detachedOptions);
   }
 
-  public function testProcessRejectsAnErrorStatus(): void {
-    $this->testObject->response = new MockResponse('Not found', ['http_code' => 404]);
+  /**
+   * Tests the responses a download rejects.
+   *
+   * @param \Symfony\Component\HttpClient\Response\MockResponse $response
+   *   The response the server sends.
+   * @param string $message
+   *   The exception message expected.
+   */
+  #[DataProvider('dataProviderProcessRejectsTheResponse')]
+  public function testProcessRejectsTheResponse(MockResponse $response, string $message): void {
+    $this->testObject->response = $response;
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The URL http://example.com/missing.pdf returned HTTP status 404.');
+    $this->expectExceptionMessage($message);
 
     $this->testObject->fileDownloadProcess('http://example.com/missing.pdf');
+  }
+
+  public static function dataProviderProcessRejectsTheResponse(): array {
+    return [
+      'an error status' => [new MockResponse('Not found', ['http_code' => 404]), 'The URL http://example.com/missing.pdf returned HTTP status 404.'],
+      'an error status with an empty body' => [new MockResponse('', ['http_code' => 401]), 'The URL http://example.com/missing.pdf returned HTTP status 401.'],
+      'an empty body' => [new MockResponse(''), 'Unable to save temp file from URL http://example.com/missing.pdf.'],
+    ];
   }
 
   /**
