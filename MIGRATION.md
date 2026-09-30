@@ -633,9 +633,44 @@ $profile
   ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
 ```
 
-Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http` and its `guzzle_request_options`, `drupal_root` - is set exactly as before. `ajax_timeout` and the 3 driver-selection keys are the exceptions; see below and [Capability-based driver resolution](#capability-based-driver-resolution).
+Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout` and the 3 driver-selection keys are the exceptions; see below and [Capability-based driver resolution](#capability-based-driver-resolution).
 
-`BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers, so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. It does so only when `drupal/core` is installed alongside the suite, so a suite testing a site it has no codebase for keeps Mink's own client.
+`BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session on Mink's own `HttpBrowser` over 1 shared Symfony HttpClient transport, and the requests steps send from PHP go through the same transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
+
+```yaml
+# Before.
+extensions:
+  Drupal\MinkExtension:
+    sessions:
+      browserkit_http:
+        browserkit_http:
+          guzzle_request_options:
+            verify: false
+
+# After.
+extensions:
+  Behat\MinkExtension:
+    sessions:
+      browserkit_http:
+        browserkit_http:
+          http_client_parameters:
+            verify_peer: false
+            verify_host: false
+```
+
+The Guzzle options a suite most often sets map across like this:
+
+| Guzzle | Symfony HttpClient |
+| --- | --- |
+| `verify: false` | `verify_peer: false` and `verify_host: false` |
+| `verify: /path/to/ca.pem` | `cafile: /path/to/ca.pem` |
+| `cert: /path/to/client.pem` | `local_cert: /path/to/client.pem` |
+| `auth: [user, pass]` | `auth_basic: [user, pass]` |
+| `timeout: 30` | `max_duration: 30` |
+| `proxy` | `proxy` |
+| `headers` | `headers` |
+
+A `guzzle_request_options` left in place fails the container build with a message naming its replacement. The options now reach only requests to `base_url`, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
 
 `ajax_timeout` moves from the `mink` key, where `Drupal\MinkExtension` accepted it, to the `wait` group under `steps` (see [Per-trait configuration](#per-trait-configuration)):
 
@@ -1548,7 +1583,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 ### Four traits now need the library's context
 
-`CookieTrait`, `DropzoneTrait`, `IframeTrait` and `KeyboardTrait` resolve a browser capability, so they need `WebRawContext` and no longer compose onto Mink's own `RawMinkContext`. A context composing one of them extends `DrevOps\BehatSteps\Behat\Context\WebRawContext`. `JsonTrait`, `LinkTrait`, `MetatagTrait`, `PathTrait`, `RegionTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still run on the bare Mink context.
+`CookieTrait`, `DropzoneTrait`, `IframeTrait` and `KeyboardTrait` resolve a browser capability, so they need `WebRawContext` and no longer compose onto Mink's own `RawMinkContext`. A context composing one of them extends `DrevOps\BehatSteps\Behat\Context\WebRawContext`. `JsonTrait`, `LinkTrait`, `PathTrait`, `RegionTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still run on the bare Mink context. `MetatagTrait` needs `WebRawContext` too, for its HTTP client; see [Steps send their own requests through 3 HTTP clients](#steps-send-their-own-requests-through-3-http-clients).
 
 ### Three steps now fail naming the capability
 
@@ -1563,6 +1598,32 @@ $this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 An adapter extends `BrowserAdapterBase`, implements the capability interfaces its driver can honour, and answers `supports()` for the driver it speaks for. A registered adapter is offered each driver ahead of the shipped ones.
+
+## Steps send their own requests through 3 HTTP clients
+
+Every request a step sends from PHP goes through 1 of 3 clients on `WebRawContext`, so the choice shows where it's made. `httpPageClient()` sends a request whose response becomes the page. `httpDetachedClient()` sends one as the scenario's visitor, with its cookies, headers and credentials, and leaves the page alone. `httpBareClient()` sends one that carries nothing of the scenario. All 3 return BrowserKit's `AbstractBrowser`, and [HTTP clients](docs/http-clients.md) covers them in full.
+
+`FileDownloadTrait` downloads through the detached client instead of cURL, so `fileDownloadProcess()` takes Symfony HttpClient options in place of `CURLOPT_*` constants:
+
+```php
+// Before.
+$this->fileDownloadProcess($url, [CURLOPT_USERAGENT => 'acme']);
+
+// After.
+$this->fileDownloadProcess($url, ['headers' => ['User-Agent' => 'acme']]);
+```
+
+The download timeout moves from a hardcoded 120 seconds to the `file_download.timeout` option. The download no longer passes the session's cookies itself, because the detached client carries them, along with the headers steps set and the basic-auth credentials. So a download from a route behind basic auth now works after `the basic authentication has the username :username and the password :password`.
+
+`MetatagTrait` fetches the hreflang alternates through the detached client, so the return-link check works on a site behind basic auth or a login. That makes it need `WebRawContext`, like the traits in [Four traits now need the library's context](#four-traits-now-need-the-librarys-context). `AccessibilityTrait` fetches its engine through the bare client, which takes the site's connection settings only for requests to `base_url`.
+
+3 signatures change for code that implements or calls them directly:
+
+- `HttpClientCapabilityInterface::httpClient()` declares `AbstractBrowser` in place of `object`, so an adapter implementing it narrows its return type to match.
+- `RestTrait::restGetClient()` returns the page client, the same browser as before.
+- `BasicAuthenticatorInterface` gains `findCredentials()`, which returns the credentials the `base_url` carries. It takes over from the protected `resolveBasicAuth()` in `BasicAuthenticator`, and a class implementing the interface adds it.
+
+`guzzlehttp/guzzle` and `webflo/drupal-finder` are no longer dependencies, while `symfony/browser-kit`, `symfony/http-client` and `symfony/mime` are. A project that calls Guzzle directly requires it itself.
 
 ## Drupal capabilities cover the config, module and state steps
 

@@ -472,7 +472,7 @@ trait FileDownloadTrait {
     return [
       new Option('enabled', default: TRUE, description: 'Prepare and clean up the download directory around a `@download` scenario.'),
       new Option('temp_dir', default: '/tmp/behat_downloads', description: 'Directory a `@download` scenario writes downloaded files into.'),
-      new Option('timeout', default: 120, description: 'Timeout, in seconds, for a file download.'),
+      new Option('timeout', default: 120, description: 'How long, in seconds, a file download may wait for data.'),
     ];
   }
 

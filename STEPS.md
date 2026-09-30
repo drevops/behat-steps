@@ -1733,6 +1733,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 | --- | --- | --- | --- | --- |
 | `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | Prepare and clean up the download directory around a `@download` scenario. |
 | `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | Directory a `@download` scenario writes downloaded files into. |
+| `file_download.timeout` | integer | `120` | - | How long, in seconds, a file download may wait for data. |
 
 <details>
   <summary><code>@When I download the file from the URL :url</code></summary>

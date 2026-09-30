@@ -67,7 +67,7 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [WebRawContext](#webrawcontext) | 17 | Root context carrying the plumbing every suite needs. |
+| [WebRawContext](#webrawcontext) | 21 | Root context carrying the plumbing every suite needs. |
 
 ---
 
@@ -1071,7 +1071,7 @@ Set custom breakpoints
   <summary><code>public function restGetClient(): mixed</code></summary>
 
 <br/>
-Get the BrowserKit client from the current Mink driver
+Get the page client REST requests are sent through
 <br/><br/>
 
 </details>
@@ -2269,6 +2269,15 @@ Returns the driver registry
 </details>
 
 <details>
+  <summary><code>public function getHttpClientFactory(): HttpClientFactoryInterface</code></summary>
+
+<br/>
+Returns the factory that builds the detached and bare browsers
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function getOption(string $group, string $key): mixed</code></summary>
 
 <br/>
@@ -2345,6 +2354,33 @@ Returns a trait option declared as a string
 
 <br/>
 Returns the driver's random generator
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function httpBareClient(array $options = []): AbstractBrowser</code></summary>
+
+<br/>
+Returns a one-off browser that carries no scenario state
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function httpDetachedClient(array $options = []): AbstractBrowser</code></summary>
+
+<br/>
+Returns a one-off browser that acts as the scenario's visitor
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function httpPageClient(): AbstractBrowser</code></summary>
+
+<br/>
+Returns the browser the Mink session drives
 <br/><br/>
 
 </details>
