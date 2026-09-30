@@ -5214,10 +5214,17 @@ Then the content block type "Search" should exist
 >  Steps that match content by title resolve to the most recently created node
 >  when several nodes of the same type share that title.
 >  <br/><br/>
->  The path alias step requires the core `path` module to be enabled. When the
->  contrib `pathauto` module is enabled, automatic alias generation is switched
->  off for the content so that the provided alias is preserved.
+>  When the contrib `pathauto` module is enabled, the path alias step switches
+>  automatic alias generation off for the content, so that the provided alias
+>  is preserved.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "path" module is enabled, for the path alias step | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the content type :content_type does not exist</code></summary>
@@ -5460,6 +5467,13 @@ Then the "page" content with the title "Test page" should not be published
 >  Order items in the Drupal Draggable Views.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "draggableviews" module from the "drupal/draggableviews" package is enabled | `ModuleCapabilityInterface` |
+
 <details>
   <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:</code></summary>
 
@@ -5613,6 +5627,13 @@ Then the drush output should match the pattern "/Drupal [0-9]+/"
 >  - Visit and edit ECK entity pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "eck" module from the "drupal/eck" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the following eck :bundle :entity_type entities exist:</code></summary>
@@ -6484,6 +6505,13 @@ Then the "image" media with the name "Test media image" should not exist
 >  - Created menus and menu links are automatically removed at the end of the scenario.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "menu_link_content" module is enabled, for the menu link steps | `ModuleCapabilityInterface` |
+
 <details>
   <summary><code>@Given the menu :menu_name does not exist</code></summary>
 
@@ -6700,6 +6728,13 @@ Then the following modules should be disabled:
 >  - Created paragraph items are automatically removed at the end of the scenario.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "paragraphs" module from the "drupal/paragraphs" package is enabled | `ModuleCapabilityInterface` |
+
 <details>
   <summary><code>@Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:</code></summary>
 
@@ -6834,11 +6869,14 @@ Then the queue "myqueue" should be empty
 >  - Delete redirects by source path.
 >  - Assert that redirects do or do not exist for given source paths.
 >  - Created redirects are automatically removed at the end of the scenario.
->  
->  Requires the `redirect` contrib module to be installed and enabled in the
->  consumer project: add `drupal/redirect` to `composer.json` and enable the
->  module as part of the site's standard setup (e.g. in `core.extension.yml`).
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "redirect" module from the "drupal/redirect" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the following redirects exist:</code></summary>
@@ -6916,6 +6954,13 @@ Then the following redirects should not exist:
 >  - Add content to an index
 >  - Run indexing for a specific number of items.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "search_api" module from the "drupal/search_api" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@When I add the :content_type content with the title :title to the search index</code></summary>
@@ -7235,6 +7280,13 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 >  Special tags:
 >  - `@testmode` - enable for scenario
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "testmode" module from the "drupal/testmode" package is enabled | `ModuleCapabilityInterface` |
 
 ### Options
 
@@ -7760,9 +7812,14 @@ Then the user "John" should not be blocked
 >  - Delete webforms matching a given title for test isolation.
 >  - Clone webform templates into new webforms for scenario setup.
 >  - Cloned webforms are automatically removed at the end of the scenario.
->  
->  Requires `drupal/webform` module.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The "webform" module from the "drupal/webform" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the webform :title does not exist</code></summary>

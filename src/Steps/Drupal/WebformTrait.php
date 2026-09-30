@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 
 /**
  * Manage Drupal webforms.
@@ -16,13 +17,10 @@ use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
  * - Clone webform templates into new webforms for scenario setup.
  * - Cloned webforms are automatically removed at the end of the scenario.
  *
- * Requires `drupal/webform` module.
- *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait WebformTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
 
   /**
@@ -41,7 +39,7 @@ trait WebformTrait {
   public function webformDelete(string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertPrerequisites(__TRAIT__);
 
     $webforms = $this->webformLoadAll($title);
 
@@ -66,7 +64,7 @@ trait WebformTrait {
   public function webformCloneTemplate(string $title, string $template): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertPrerequisites(__TRAIT__);
 
     $templates = $this->webformTemplates($template);
 
@@ -113,7 +111,7 @@ trait WebformTrait {
   public function webformLoadAll(string $title): array {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('webform', 'drupal/webform');
+    $this->assertPrerequisites(__TRAIT__);
 
     // Clear config factory cache to pick up webform changes made via the
     // admin UI in a separate process.
@@ -169,6 +167,19 @@ trait WebformTrait {
     } while ($storage->load($candidate) !== NULL);
 
     return $candidate;
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function webformPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('webform'), 'the "webform" module from the "drupal/webform" package is enabled'),
+    ];
   }
 
 }

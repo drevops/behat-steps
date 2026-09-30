@@ -61,7 +61,7 @@
 | [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Reads Drupal state a step asserts on without going through a driver. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
 
 ### Index of Toolbox helpers
 
@@ -2162,15 +2162,6 @@ Expand fixture file paths for file/image fields on an entity stub
 [Source](src/Helper/Drupal/QueryTrait.php)
 
 > Reads Drupal state a step asserts on without going through a driver.
-
-<details>
-  <summary><code>public function queryAssertModuleEnabled(string $module, string $package = ''): void</code></summary>
-
-<br/>
-Assert that a module backing a set of steps is enabled
-<br/><br/>
-
-</details>
 
 <details>
   <summary><code>public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array</code></summary>

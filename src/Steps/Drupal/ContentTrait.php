@@ -11,7 +11,9 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
@@ -34,9 +36,9 @@ use Drupal\workflows\Entity\Workflow;
  * Steps that match content by title resolve to the most recently created node
  * when several nodes of the same type share that title.
  *
- * The path alias step requires the core `path` module to be enabled. When the
- * contrib `pathauto` module is enabled, automatic alias generation is switched
- * off for the content so that the provided alias is preserved.
+ * When the contrib `pathauto` module is enabled, the path alias step switches
+ * automatic alias generation off for the content, so that the provided alias
+ * is preserved.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -285,7 +287,7 @@ trait ContentTrait {
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->contentAssertPathModuleEnabled();
+    $this->assertPrerequisites(__TRAIT__);
 
     $alias = trim($alias);
 
@@ -302,7 +304,7 @@ trait ContentTrait {
 
     // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
     // on save.
-    if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
+    if ($this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
       $path_value['pathauto'] = 0;
     }
 
@@ -444,16 +446,16 @@ trait ContentTrait {
   }
 
   /**
-   * Throw when the `path` module is not enabled.
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
    */
-  protected function contentAssertPathModuleEnabled(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    // @codeCoverageIgnoreStart
-    if (!\Drupal::moduleHandler()->moduleExists('path')) {
-      throw new \RuntimeException('The "path" module is not enabled. Enable it to manage content path aliases.');
-    }
-    // @codeCoverageIgnoreEnd
+  protected function contentPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('path'), 'the core "path" module is enabled, for the path alias step'),
+    ];
   }
 
 }

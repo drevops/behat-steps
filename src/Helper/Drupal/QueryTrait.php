@@ -89,36 +89,4 @@ trait QueryTrait {
     return $bundle_key;
   }
 
-  /**
-   * Assert that a module backing a set of steps is enabled.
-   *
-   * Without the check, a step against a missing module fails with a fatal on
-   * an unresolvable class or a raw database error, not a message naming the
-   * module.
-   *
-   * @param string $module
-   *   The module machine name.
-   * @param string $package
-   *   Optional Composer package to name in the message. Pass an empty string
-   *   for a module that ships with Drupal core.
-   *
-   * @throws \RuntimeException
-   *   When the module is not enabled.
-   */
-  public function queryAssertModuleEnabled(string $module, string $package = ''): void {
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    // @codeCoverageIgnoreStart
-    if (\Drupal::moduleHandler()->moduleExists($module)) {
-      return;
-    }
-
-    $remedy = $package === ''
-      ? 'Enable it as part of the site setup; it ships with Drupal core.'
-      : sprintf('Add "%s" to the consumer project\'s composer.json and enable the module as part of the site setup.', $package);
-
-    throw new \RuntimeException(sprintf('The "%s" module is not enabled. %s', $module, $remedy));
-    // @codeCoverageIgnoreEnd
-  }
-
 }

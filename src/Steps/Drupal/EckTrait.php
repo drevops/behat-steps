@@ -7,8 +7,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -42,7 +44,7 @@ trait EckTrait {
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
+    $this->assertPrerequisites(__TRAIT__);
 
     $filtered_table = TableNode::fromList($table->getColumn(0));
     $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
@@ -62,7 +64,7 @@ trait EckTrait {
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
+    $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getHash() as $entity_hash) {
       $entities = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
@@ -84,7 +86,7 @@ trait EckTrait {
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
+    $this->assertPrerequisites(__TRAIT__);
 
     $entities = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
@@ -110,7 +112,7 @@ trait EckTrait {
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('eck', 'drupal/eck');
+    $this->assertPrerequisites(__TRAIT__);
 
     $entities = $this->eckLoadMultiple($entity_type, $bundle, [
       'title' => $title,
@@ -173,6 +175,19 @@ trait EckTrait {
     if ($saved instanceof EntityInterface) {
       $this->entityLifecycleRegister($saved);
     }
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function eckPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('eck'), 'the "eck" module from the "drupal/eck" package is enabled'),
+    ];
   }
 
 }

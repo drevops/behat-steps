@@ -1027,7 +1027,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
-| `Helper\Drupal\QueryTrait` | `queryNodeIds()`, `queryAssertModuleEnabled()` | 9 step traits |
+| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
 
 The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names nothing Drupal:
 
@@ -1104,6 +1104,30 @@ Every trait that reaches beyond its own methods states what it needs from its ho
 
 Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
 
+## A trait declares its prerequisites
+
+A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a driver capability rather than a query of its own. The module checks the step traits ran through `queryAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
+
+```php
+protected function acmePrerequisites(): array {
+  return [
+    Prerequisite::capability(CoreCapabilityInterface::class),
+    Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+  ];
+}
+```
+
+A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off.
+
+| Before | After |
+| --- | --- |
+| `$this->queryAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
+| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
+
+The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
+
+`TestmodeTrait` still checks the `testmode` module when a `@testmode` scenario starts, but it no longer checks it again when the scenario ends: the teardown disables test mode only if the scenario enabled it.
+
 ## A trait's directory classifies it
 
 A trait's directory is its classification: `src/Steps` registers Gherkin and `src/Helper` registers none. `scripts/lint-traits.php` fails a step trait composing another step trait, and a helper trait registering a step or a transform. A helper may register a hook, because the trait that owns a teardown carries the hook that runs it.
@@ -1152,7 +1176,7 @@ A helper trait composed by a step trait and by the context under it holds one sl
 | `helperResolveFixtureFile()` | `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` |
 | `helperManagedFileExists()` | `Helper\Drupal\FixtureFileTrait::fixtureFileManagedExists()` |
 | `helperLoadNodeIds()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
-| `helperAssertModuleEnabled()` | `Helper\Drupal\QueryTrait::queryAssertModuleEnabled()` |
+| `helperAssertModuleEnabled()` | A `<prefix>Prerequisites()` declaration checked by `assertPrerequisites(__TRAIT__)`, as [A trait declares its prerequisites](#a-trait-declares-its-prerequisites) shows |
 
 A context that composed a `HelperTrait` to reach one of these composes the trait holding it instead:
 

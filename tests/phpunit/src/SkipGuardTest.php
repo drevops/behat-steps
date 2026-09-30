@@ -163,19 +163,4 @@ class SkipGuardTest extends UnitTestCase {
     return implode('', array_slice($lines, $start - 1, (int) $reflection->getEndLine() - $start + 1));
   }
 
-  /**
-   * Tokenize a file, dropping whitespace and comments.
-   *
-   * @param string $file
-   *   The absolute path to the file.
-   *
-   * @return array<int, array{int, string, int}|string>
-   *   The remaining tokens, reindexed.
-   */
-  protected static function significantTokens(string $file): array {
-    $tokens = token_get_all((string) file_get_contents($file));
-
-    return array_values(array_filter($tokens, static fn(array|string $token): bool => !is_array($token) || !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], TRUE)));
-  }
-
 }

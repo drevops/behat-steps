@@ -20,7 +20,11 @@ use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Driver\DrushDriverInterface;
 use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SamplePrerequisiteTrait;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\StepPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -172,6 +176,100 @@ class WebRawContextTest extends UnitTestCase {
     $this->assertNull($identity->credentials);
   }
 
+  public function testPrerequisitesHoldWhenEveryDeclarationIsMet(): void {
+    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+
+    $context = $this->createPrerequisiteContext(['drupal' => $drupal]);
+    $context->callAssertPrerequisites(SamplePrerequisiteTrait::class);
+
+    $this->assertTrue($context->callPrerequisitesMet(SamplePrerequisiteTrait::class));
+  }
+
+  /**
+   * Tests that the first unmet prerequisite fails with its message.
+   *
+   * @param array<string, class-string<\DrevOps\BehatSteps\Driver\DriverInterface>> $drivers
+   *   Driver interfaces to stub, keyed by the name the scenario lists each
+   *   one under, in order.
+   * @param bool $enabled
+   *   What each stub reports for any module.
+   * @param string $trait
+   *   The trait whose prerequisites to assert.
+   * @param class-string<\RuntimeException> $exception
+   *   The exception the assertion throws.
+   * @param string $message
+   *   The message it throws with.
+   */
+  #[DataProvider('dataProviderUnmetPrerequisiteFails')]
+  public function testUnmetPrerequisiteFails(array $drivers, bool $enabled, string $trait, string $exception, string $message): void {
+    $stubs = [];
+
+    foreach ($drivers as $name => $interface) {
+      $stub = $this->createStub($interface);
+      $stub->method('moduleIsEnabled')->willReturn($enabled);
+      $stubs[$name] = $stub;
+    }
+
+    $context = $this->createPrerequisiteContext($stubs);
+
+    $this->assertFalse($context->callPrerequisitesMet($trait));
+
+    $this->expectException($exception);
+    $this->expectExceptionMessage($message);
+
+    $context->callAssertPrerequisites($trait);
+  }
+
+  public static function dataProviderUnmetPrerequisiteFails(): \Iterator {
+    $switch_off = ' Meet the prerequisite, or switch SamplePrerequisiteTrait off with the "sample_prerequisite.enabled" option or the "@behat-steps-skip:SamplePrerequisiteTrait" tag.';
+
+    yield 'no driver provides the capability' => [
+      ['drush' => DrushDriverInterface::class],
+      TRUE,
+      SamplePrerequisiteTrait::class,
+      UnsupportedDriverActionException::class,
+      'SamplePrerequisiteTrait requires that a driver in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: drush.' . $switch_off,
+    ];
+    yield 'no driver listed' => [
+      [],
+      TRUE,
+      SamplePrerequisiteTrait::class,
+      UnsupportedDriverActionException::class,
+      'SamplePrerequisiteTrait requires that a driver in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: none.' . $switch_off,
+    ];
+    yield 'a check fails for a trait that switches off' => [
+      ['drupal' => DrupalDriverInterface::class],
+      FALSE,
+      SamplePrerequisiteTrait::class,
+      \RuntimeException::class,
+      'SamplePrerequisiteTrait requires that the "sample" module is enabled, which does not hold.' . $switch_off,
+    ];
+  }
+
+  public function testUnmetPrerequisiteOfTraitWithoutSwitchNamesNoSwitch(): void {
+    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(FALSE);
+
+    try {
+      $this->createPrerequisiteContext(['drupal' => $drupal])->callAssertPrerequisites(StepPrerequisiteTrait::class);
+      $this->fail('An unmet prerequisite did not fail.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('StepPrerequisiteTrait requires that the "step" module is enabled, which does not hold.', $exception->getMessage());
+    }
+  }
+
+  public function testReachedDriverAnswersBeforeFirstInList(): void {
+    $drush = $this->createMock(DrushDriverInterface::class);
+    $drush->expects($this->never())->method('moduleIsEnabled');
+
+    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+
+    $this->assertTrue($this->createPrerequisiteContext(['drush' => $drush, 'drupal' => $drupal])->callPrerequisitesMet(SamplePrerequisiteTrait::class));
+  }
+
   /**
    * Builds a context whose Mink session runs on the given BrowserKit browser.
    */
@@ -221,6 +319,23 @@ class WebRawContextTest extends UnitTestCase {
     $context->setDriverRegistry($driver_registry);
     $context->setDispatcher($this->createHookDispatcher());
     $context->setBasicAuthenticator($this->createMock(BasicAuthenticatorInterface::class));
+
+    return $context;
+  }
+
+  /**
+   * Builds a context composing traits with prerequisites over drivers.
+   *
+   * @param array<string, \DrevOps\BehatSteps\Driver\DriverInterface> $drivers
+   *   The drivers the scenario lists, in order, keyed by name.
+   */
+  protected function createPrerequisiteContext(array $drivers): PrerequisiteContext {
+    $driver_registry = new DriverRegistry($drivers);
+    $names = array_keys($drivers);
+    $driver_registry->setScenarioDrivers(array_combine($names, $names));
+
+    $context = new PrerequisiteContext();
+    $context->setDriverRegistry($driver_registry);
 
     return $context;
   }

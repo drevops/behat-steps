@@ -22,8 +22,11 @@ use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -34,10 +37,10 @@ use Symfony\Component\HttpClient\HttpClient;
 /**
  * Root context carrying the plumbing every suite needs.
  *
- * Provides driver access, authentication delegation, option resolution and
- * the hook dispatcher, and composes 3 of the web helper traits. It registers
- * no step definitions and references no Drupal class beyond 'Random', which a
- * layer lint holds.
+ * Provides driver access, authentication delegation, option resolution,
+ * prerequisite checks and the hook dispatcher, and composes 3 of the web
+ * helper traits. It registers no step definitions and references no Drupal
+ * class beyond 'Random', which a layer lint holds.
  *
  * Extend this to compose a context out of a chosen set of traits; extend
  * 'WebContext' instead to get the whole web vocabulary, or 'DrupalContext'
@@ -530,8 +533,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   trait's 'enabled' option resolves to FALSE.
    */
   protected function skipTag(string $trait, ScenarioScope $scope): bool {
-    $separator = strrpos($trait, '\\');
-    $name = $separator === FALSE ? $trait : substr($trait, $separator + 1);
+    $name = $this->traitName($trait);
 
     if (in_array(TagOverrides::SKIP_TAG_PREFIX . $name, Tag::all($scope), TRUE)) {
       return TRUE;
@@ -540,6 +542,116 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
     $group = $this->getOptionResolver()->groupFor($name);
 
     return $group !== NULL && !$this->getOptionBool($group, Option::ENABLED);
+  }
+
+  /**
+   * Asserts that the prerequisites a trait declares hold.
+   *
+   * A trait declares them in a '<prefix>Prerequisites()' method, each naming a
+   * capability a driver in the scenario's list provides and, optionally, a
+   * check that driver passes. A driver the scenario already reached answers
+   * before the first one in the list, so checking never starts a second one.
+   *
+   * @param string $trait
+   *   The trait whose prerequisites to assert. A hook or a step passes
+   *   '__TRAIT__'.
+   *
+   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
+   *   When no driver in the scenario's list provides a declared capability.
+   * @throws \RuntimeException
+   *   When a declared check fails.
+   */
+  protected function assertPrerequisites(string $trait): void {
+    $failure = $this->prerequisiteFailure($trait);
+
+    if ($failure instanceof \RuntimeException) {
+      throw $failure;
+    }
+  }
+
+  /**
+   * Determines whether the prerequisites a trait declares hold.
+   *
+   * A teardown asks this instead of asserting, so an unmet prerequisite never
+   * replaces a failure the scenario has already recorded.
+   *
+   * @param string $trait
+   *   The trait whose prerequisites to check. A hook passes '__TRAIT__'.
+   */
+  protected function prerequisitesMet(string $trait): bool {
+    return !$this->prerequisiteFailure($trait) instanceof \RuntimeException;
+  }
+
+  /**
+   * Returns the failure of the first declared prerequisite that does not hold.
+   *
+   * @param string $trait
+   *   The trait whose prerequisites to evaluate.
+   *
+   * @return \RuntimeException|null
+   *   The failure to throw, or NULL when every prerequisite holds.
+   */
+  protected function prerequisiteFailure(string $trait): ?\RuntimeException {
+    $registry = $this->getDriverRegistry();
+
+    foreach ((new PrerequisiteReader())->read($this, $trait) as $prerequisite) {
+      if (!$registry->hasCapability($prerequisite->capability)) {
+        $drivers = array_keys($registry->getScenarioDrivers());
+        $detail = sprintf('Drivers available to this scenario, in order: %s.', $drivers === [] ? 'none' : implode(', ', $drivers));
+
+        return new UnsupportedDriverActionException($this->prerequisiteMessage($trait, $prerequisite, $detail));
+      }
+
+      $driver = $registry->getResolvedDriverFor($prerequisite->capability) ?? $registry->getDriverFor($prerequisite->capability);
+
+      if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($driver)) {
+        return new \RuntimeException($this->prerequisiteMessage($trait, $prerequisite));
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Builds the message of a prerequisite that does not hold.
+   *
+   * A trait that declares an 'enabled' option can be switched off instead of
+   * having its prerequisite met, so its message names both switches.
+   *
+   * @param string $trait
+   *   The trait that declares the prerequisite.
+   * @param \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite $prerequisite
+   *   The prerequisite that does not hold.
+   * @param string $detail
+   *   What was found instead, as a sentence, or an empty string.
+   */
+  protected function prerequisiteMessage(string $trait, Prerequisite $prerequisite, string $detail = ''): string {
+    $name = $this->traitName($trait);
+    $message = sprintf('%s requires that %s, which does not hold.', $name, $prerequisite->description);
+
+    if ($detail !== '') {
+      $message .= ' ' . $detail;
+    }
+
+    $group = $this->getOptionResolver()->groupFor($name);
+
+    if ($group !== NULL) {
+      $message .= sprintf(' Meet the prerequisite, or switch %s off with the "%s.%s" option or the "@%s%s" tag.', $name, $group, Option::ENABLED, TagOverrides::SKIP_TAG_PREFIX, $name);
+    }
+
+    return $message;
+  }
+
+  /**
+   * Returns a trait's short name.
+   *
+   * @param string $trait
+   *   The trait name, fully qualified or short.
+   */
+  protected function traitName(string $trait): string {
+    $separator = strrpos($trait, '\\');
+
+    return $separator === FALSE ? $trait : substr($trait, $separator + 1);
   }
 
 }
