@@ -275,16 +275,16 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `Then the :metaName meta tag should not contain any HTML tags` | `Then the :meta_name meta tag should not contain any HTML tags` |
+| `Then the :metaName meta tag should not contain any HTML tags` | `Then the meta tag :name should not contain any HTML tags` |
 
 ### PathTrait
 
 | Before | After |
 | --- | --- |
-| `Then current url should have the :param parameter` | `Then the current URL should have the :param parameter` |
-| `Then current url should have the :param parameter with the :value value` | `Then the current URL should have the :param parameter with the value :value` |
-| `Then current url should not have the :param parameter` | `Then the current URL should not have the :param parameter` |
-| `Then current url should not have the :param parameter with the :value value` | `Then the current URL should not have the :param parameter with the value :value` |
+| `Then current url should have the :param parameter` | `Then the current URL should have the query parameter :name` |
+| `Then current url should have the :param parameter with the :value value` | `Then the current URL should have the query parameter :name with the value :value` |
+| `Then current url should not have the :param parameter` | `Then the current URL should not have the query parameter :name` |
+| `Then current url should not have the :param parameter with the :value value` | `Then the current URL should not have the query parameter :name with the value :value` |
 | `Given the basic authentication with the username :username and the password :password` | `Given the basic authentication has the username :username and the password :password` |
 
 ### ResponseTrait
@@ -318,7 +318,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `Then the :rowText row should contain the following:` | `Then the :row_text row should contain the following:` |
+| `Then the :rowText row should contain the following:` | `Then the row :row_text should contain the following:` |
 
 ### TaxonomyTrait
 
@@ -352,14 +352,14 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `Then the XML attribute :attribute on element :element should be equal to :text` | `Then the XML attribute :attribute on element :element should be equal to :value` |
-| `Then the XML attribute :attribute on element :element should not be equal to :text` | `Then the XML attribute :attribute on element :element should not be equal to :value` |
-| `Then the XML attribute :attribute_name on element :element should contain :text` | `Then the XML attribute :attribute on element :element should contain :value` |
-| `Then the XML attribute :attribute_name on element :element should not contain :text` | `Then the XML attribute :attribute on element :element should not contain :value` |
-| `Then the XML element :element should be equal to :text` | `Then the XML element :element should be equal to :value` |
-| `Then the XML element :element should contain :text` | `Then the XML element :element should contain :value` |
-| `Then the XML element :element should not be equal to :text` | `Then the XML element :element should not be equal to :value` |
-| `Then the XML element :element should not contain :text` | `Then the XML element :element should not contain :value` |
+| `Then the XML attribute :attribute on element :element should be equal to :text` | `Then the XML attribute :attribute on the element :element should be equal to the value :value` |
+| `Then the XML attribute :attribute on element :element should not be equal to :text` | `Then the XML attribute :attribute on the element :element should not be equal to the value :value` |
+| `Then the XML attribute :attribute_name on element :element should contain :text` | `Then the XML attribute :attribute on the element :element should contain the value :value` |
+| `Then the XML attribute :attribute_name on element :element should not contain :text` | `Then the XML attribute :attribute on the element :element should not contain the value :value` |
+| `Then the XML element :element should be equal to :text` | `Then the XML element :element should be equal to the value :value` |
+| `Then the XML element :element should contain :text` | `Then the XML element :element should contain the value :value` |
+| `Then the XML element :element should not be equal to :text` | `Then the XML element :element should not be equal to the value :value` |
+| `Then the XML element :element should not contain :text` | `Then the XML element :element should not contain the value :value` |
 | `Given the response content from the file :filename` | `Given the response XML is loaded from the file :filename` |
 | `Given the response content is the following:` | `Given the response XML is the following:` |
 
@@ -389,6 +389,180 @@ Placeholders name the value's role rather than its type, so `:number` became `:o
 | `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels` |
 
 This also renames the `$number` argument of `ElementTrait::elementAssertVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
+
+## Step text follows the documented grammar
+
+The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed, so every step does exactly what it did before.
+
+- A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the dropzone :selector`. A bundle still comes before the entity noun it qualifies (`the :media_type media`), and a count before its unit (`:count item(s)`).
+- Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
+- A value reads `the value :value`, so `should be equal to :value` became `should be equal to the value :value`.
+- A step that names its target compares against `:value`, so the region, row and command output assertions take `:value` where they took `:text`. `the modal should contain :text` keeps `:text`, because it asserts on a whole body with no named target.
+- A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did.
+- `:param` became `:name`, the placeholder every other named thing uses, and an email link's position became `:index`, as it is in `I follow the link :link with the index :index`.
+
+Where a pass above already renamed a step, its row there now carries the final text instead of being repeated here, so each v3 step maps straight to its v4 form. That covers the query parameter, meta tag and table row steps, and the XML comparisons. Steps that are new in v4 changed only in the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary).
+
+A renamed placeholder renames the method parameter behind it, because Behat binds a step argument to the parameter of the same name. That matters only to a context that overrides one of these methods or calls it with named arguments. 2 steps changed a placeholder name and nothing else, so their feature files need no edit:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `ElementTrait::elementFollowLinkByIndex()` | `$text` | `$link` |
+| `ElementTrait::elementPressButtonByIndex()` | `$label` | `$button` |
+
+`DateTrait` expands `[relative:...]` tokens in `:partial_value` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. The region, row and command output assertions now take `:value`, so a token in their argument is expanded rather than compared as written.
+
+### AccessibilityTrait
+
+| Before | After |
+| --- | --- |
+| `Then the current page should pass accessibility checks for tags :rules` | `Then the current page should pass accessibility checks for the tags :tags` |
+
+### BlockTrait
+
+| Before | After |
+| --- | --- |
+| `Given the instance of :admin_label block exists with the following configuration:` | `Given the instance of the block :admin_label exists with the following configuration:` |
+| `Given the block :label has the following :condition condition configuration:` | `Given the block :label has the condition :condition with the following configuration:` |
+| `Given the block :label has the :condition condition removed` | `Given the block :label has the condition :condition removed` |
+| `Then the block :label should exist in the :region region` | `Then the block :label should exist in the region :region` |
+| `Then the block :label should not exist in the :region region` | `Then the block :label should not exist in the region :region` |
+
+### CommandTrait
+
+| Before | After |
+| --- | --- |
+| `Then the command output should contain :text` | `Then the command output should contain the value :value` |
+| `Then the command output should not contain :text` | `Then the command output should not contain the value :value` |
+| `Then the command output should be :text` | `Then the command output should be equal to the value :value` |
+| `Then the command error output should contain :text` | `Then the command error output should contain the value :value` |
+
+### ContentTrait
+
+| Before | After |
+| --- | --- |
+| `When I change the moderation state of the :content_type content with the title :title to the :new_state state` | `When I change the moderation state of the :content_type content with the title :title to the state :new_state` |
+| `Then :content_type content with the title :title should not exist` | `Then the :content_type content with the title :title should not exist` |
+| `Then :content_type content with the title :title should be published` | `Then the :content_type content with the title :title should be published` |
+| `Then :content_type content with the title :title should not be published` | `Then the :content_type content with the title :title should not be published` |
+
+### DropzoneTrait
+
+| Before | After |
+| --- | --- |
+| `When I drop the file :path on the :selector dropzone` | `When I drop the file :path on the dropzone :selector` |
+| `When I drop the following files on the :selector dropzone:` | `When I drop the following files on the dropzone :selector:` |
+
+### EckTrait
+
+| Before | After |
+| --- | --- |
+| `When I visit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity with the title :title` |
+| `When I edit eck :bundle :entity_type entity with the title :title` | `When I edit the eck :bundle :entity_type entity with the title :title` |
+
+### ElementTrait
+
+| Before | After |
+| --- | --- |
+| `Then the element :selector with the attribute :attribute and the value containing :value should exist` | `Then the element :selector with the attribute :attribute and a value containing :partial_value should exist` |
+| `Then the element :selector with the attribute :attribute and the value containing :value should not exist` | `Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist` |
+| `Then the element :selector should have the CSS property :property with the value containing :value` | `Then the element :selector should have the CSS property :property with a value containing :partial_value` |
+| `Then the element :selector should not have the CSS property :property with the value containing :value` | `Then the element :selector should not have the CSS property :property with a value containing :partial_value` |
+
+### EmailTrait
+
+| Before | After |
+| --- | --- |
+| `When I follow link number :link_number in the email with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
+| `When I follow link number :link_number in the email with the subject containing :subject` | `When I follow the link with the index :index in the email with a subject containing :partial_subject` |
+| `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :file_name should be attached to the email with a subject containing :partial_subject` |
+
+### FieldTrait
+
+| Before | After |
+| --- | --- |
+| `When I unselect :option from :selector` | `When I unselect the option :option from the select :selector` |
+| `When I fill in the datetime field :label with date :date and time :time` | `When I fill in the datetime field :label with the date :date and the time :time` |
+| `When I fill in the start datetime field :label with date :date and time :time` | `When I fill in the start datetime field :label with the date :date and the time :time` |
+| `When I fill in the end datetime field :label with date :date and time :time` | `When I fill in the end datetime field :label with the date :date and the time :time` |
+
+### JsonTrait
+
+| Before | After |
+| --- | --- |
+| `When I print last JSON response` | `When I print the last JSON response` |
+| `Then the JSON path :path should be equal to :value` | `Then the JSON path :path should be equal to the value :value` |
+| `Then the JSON path :path should not be equal to :value` | `Then the JSON path :path should not be equal to the value :value` |
+| `Then the JSON path :path should contain :value` | `Then the JSON path :path should contain the value :value` |
+| `Then the JSON path :path should not contain :value` | `Then the JSON path :path should not contain the value :value` |
+
+### ModalTrait
+
+| Before | After |
+| --- | --- |
+| `When I click on :selector in the modal` | `When I click on the element :selector in the modal` |
+
+### ModuleTrait
+
+| Before | After |
+| --- | --- |
+| `Given the :module module is enabled` | `Given the module :module is enabled` |
+| `Given the :module module is disabled` | `Given the module :module is disabled` |
+| `Then the :module module should be enabled` | `Then the module :module should be enabled` |
+| `Then the :module module should be disabled` | `Then the module :module should be disabled` |
+
+### QueueTrait
+
+| Before | After |
+| --- | --- |
+| `Given the :queue queue is empty` | `Given the queue :queue is empty` |
+| `When I process :count item(s) from the :queue queue` | `When I process :count item(s) from the queue :queue` |
+| `When I process the :queue queue` | `When I process the queue :queue` |
+| `Then the :queue queue should have :count item(s)` | `Then the queue :queue should have :count item(s)` |
+| `Then the :queue queue should be empty` | `Then the queue :queue should be empty` |
+
+### ResponsiveTrait
+
+| Before | After |
+| --- | --- |
+| `When I set the viewport to the :breakpoint breakpoint` | `When I set the viewport to the breakpoint :breakpoint` |
+
+### RestTrait
+
+| Before | After |
+| --- | --- |
+| `When I send a REST :method request to :url` | `When I send a REST :method request to the URL :url` |
+| `When I send a REST :method request to :url with body:` | `When I send a REST :method request to the URL :url with the body:` |
+
+### TableTrait
+
+| Before | After |
+| --- | --- |
+| `Then the table :selector should be sorted by :column in :direction order` | `Then the table :selector should be sorted by the column :column in :direction order` |
+
+### TimeTrait
+
+| Before | After |
+| --- | --- |
+| `When I set system time to :value` | `When I set the system time to the value :value` |
+| `When I reset system time` | `When I reset the system time` |
+
+### UserTrait
+
+| Before | After |
+| --- | --- |
+| `When I visit :name user profile page` | `When I visit the profile page of the user :name` |
+| `When I visit :name user profile edit page` | `When I visit the profile edit page of the user :name` |
+| `When I visit :name user profile delete page` | `When I visit the profile delete page of the user :name` |
+| `When I visit the password reset link for :name` | `When I visit the password reset link for the user :name` |
+
+### XmlTrait
+
+| Before | After |
+| --- | --- |
+| `When I print last XML response` | `When I print the last XML response` |
+| `Then the XML attribute :attribute on element :element should exist` | `Then the XML attribute :attribute on the element :element should exist` |
+| `Then the XML attribute :attribute on element :element should not exist` | `Then the XML attribute :attribute on the element :element should not exist` |
 
 ## Optional dependencies moved to `require-dev` and `suggest`
 
@@ -495,10 +669,10 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given I am an anonymous user` | `Given the user is anonymous` |
 | `Given I am not logged in` | `Given the user is anonymous` |
 | `When I log out` | `When I log out` |
-| `Given I am logged in as a user with the :role role(s)` | `When I log in as a user with the :roles role(s)` |
-| `Given I am logged in as a/an :role` | `When I log in as a user with the :roles role(s)` |
-| `Given I am logged in as a user with the :role role(s) and I have the following fields:` | `When I log in as a user with the :roles role(s) and the following fields:` |
-| `Given I am logged in as a user with the :permissions permission(s)` | `When I log in as a user with the :permissions permission(s)` |
+| `Given I am logged in as a user with the :role role(s)` | `When I log in as a user with the role(s) :roles` |
+| `Given I am logged in as a/an :role` | `When I log in as a user with the role(s) :roles` |
+| `Given I am logged in as a user with the :role role(s) and I have the following fields:` | `When I log in as a user with the role(s) :roles and the following fields:` |
+| `Given I am logged in as a user with the :permissions permission(s)` | `When I log in as a user with the permission(s) :permissions` |
 | `Given I am logged in as :name` | `When I log in as the user :name` |
 | `Given the following users:` | `Given the following users exist:` |
 
@@ -530,7 +704,7 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given the cache has been cleared` | `Given the cache is empty` |
 | `Given I run cron` | `When I run cron` |
 | `Given I wait for the batch job to finish` | `When I wait for the batch job to finish` |
-| `Given the following item is in the system queue:` | `Given the following item is in the :queue queue:` |
+| `Given the following item is in the system queue:` | `Given the following item is in the queue :queue:` |
 
 ### Navigation, buttons, headings and fields
 
@@ -571,12 +745,12 @@ Every region step drops the optional `( region)` suffix and names the region las
 | --- | --- |
 | `When I follow/click :link in the :region( region)` | `When I click the link :link in the region :region` |
 | `Given I press :button in the :region( region)` | `When I press the button :button in the region :region` |
-| `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with :value in the region :region` |
-| `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with :value in the region :region` |
+| `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
+| `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
 | `Given I check :locator in the :region( region)` | `When I check the checkbox :checkbox in the region :region` |
 | `Given I uncheck :checkbox in the :region( region)` | `When I uncheck the checkbox :checkbox in the region :region` |
-| `Then I should see( the text) :text in the :region( region)` | `Then the region :region should contain the text :text` |
-| `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the text :text` |
+| `Then I should see( the text) :text in the :region( region)` | `Then the region :region should contain the value :value` |
+| `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the value :value` |
 | `Then I should see the heading :heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
 | `Then I should see the :heading heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
 | `Then I should see the link :link in the :region( region)` | `Then the link :link should exist in the region :region` |
@@ -587,8 +761,8 @@ Every region step drops the optional `( region)` suffix and names the region las
 | `Then I should not see the :button button in the :region( region)` | `Then the button :button should not exist in the region :region` |
 | `Then I should see the :tag element in the :region( region)` | `Then the element :selector should exist in the region :region` |
 | `Then I should not see the :tag element in the :region( region)` | `Then the element :selector should not exist in the region :region` |
-| `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the text :text` |
-| `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the text :text` |
+| `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the value :value` |
+| `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the value :value` |
 | `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the region :region should have the attribute :attribute with the value :value` |
 | `Then I should see :text in the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value` |
 | `Then I should see :text in the :tag element with the :property CSS property set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value` |
@@ -622,8 +796,8 @@ The message tables lose their header row: each row is a message, with no `error 
 | --- | --- |
 | `Given I click :link in the :rowText row` | `When I click the link :link in the row :row_text` |
 | `Given I press :button in the :rowText row` | `When I press the button :button in the row :row_text` |
-| `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the text :text` |
-| `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the text :text` |
+| `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the value :value` |
+| `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the value :value` |
 | `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row :row_text` |
 | `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row :row_text` |
 
@@ -648,9 +822,9 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
 | `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :file_name should be attached to the email with the subject :subject` |
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
-| `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link containing :url_fragment in the email` |
+| `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link with a URL containing :partial_url in the email` |
 | `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
-| `When I follow the link to :urlFragment from the (e)mail with the subject :subject` | `When I follow link number :link_number in the email with the subject :subject` |
+| `When I follow the link to :urlFragment from the (e)mail with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 
 ### Config
 
@@ -930,15 +1104,15 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 
 | Step | `?filter=0` before | `?filter=0` after |
 | --- | --- | --- |
-| `Then the current URL should have the :param parameter` | fails | passes |
-| `Then the current URL should have the :param parameter with the value :value` | fails | passes for the value `0` |
-| `Then the current URL should not have the :param parameter` | passes | fails |
-| `Then the current URL should not have the :param parameter with the value :value` | passes | fails for the value `0` |
+| `Then the current URL should have the query parameter :name` | fails | passes |
+| `Then the current URL should have the query parameter :name with the value :value` | fails | passes for the value `0` |
+| `Then the current URL should not have the query parameter :name` | passes | fails |
+| `Then the current URL should not have the query parameter :name with the value :value` | passes | fails for the value `0` |
 
-A scenario that asserted a falsy parameter away with `Then the current URL should not have the "filter" parameter` now needs to name the value it excludes:
+A scenario that asserted a falsy parameter away with `Then the current URL should not have the query parameter "filter"` now needs to name the value it excludes:
 
 ```gherkin
-Then the current URL should not have the "filter" parameter with the value "recent"
+Then the current URL should not have the query parameter "filter" with the value "recent"
 ```
 
 ## Unified assertion exceptions
@@ -970,13 +1144,13 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `TableTrait` (any table step, when the table or the row is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `ModalTrait` (`I close the modal`, `I click on ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `FieldTrait` (`I unselect ... from ...` and `the option ... should not be selected within the select element ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `XmlTrait` (every `the XML element ...` and `the XML attribute ... on element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `ModalTrait` (`I close the modal`, `I click on the element ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... should not be selected within the select element ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `XmlTrait` (every `the XML element ...` and `the XML attribute ... on the element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `JsonTrait` (an invalid JSONPath expression, an invalid regular expression, a count that is not an integer, a schema that is not JSON) | `ExpectationException` | `\RuntimeException` |
-| `TableTrait` (`the table ... should be sorted by ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
+| `TableTrait` (`the table ... should be sorted by the column ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
 | `ElementTrait` (`... with the index ...`, with an index below 1; `... pinned to the top of the viewport within ... pixels`, with a negative tolerance) | `ExpectationException` | `\RuntimeException` |
-| `Drupal\EmailTrait` (`I follow link number ...`, with a link number that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
+| `Drupal\EmailTrait` (`I follow the link with the index ...`, with an index that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
 | `FieldTrait` (`I fill in the WYSIWYG field ...`, when the field has no `id` attribute) | `ExpectationException` | `\RuntimeException` |
 | `XmlTrait` (`I print last XML response`, when the document cannot be serialised) | `ExpectationException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
@@ -991,17 +1165,17 @@ If your project catches an exception from one of these steps, update the type:
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
 | `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
-| `I unselect :option from :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
+| `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option should not be selected within the select element :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
 | every `the table ...` step, when the table is missing | `Table with selector "..." not found.` | `Table matching css "..." not found.` |
 | every `... the row ...` step, when the row is missing | `Table row containing text "..." not found.` | `Table row with text "..." not found.` |
 | `I close the modal` | `The modal close button was not found.` | `Modal close button matching css "..." not found.` |
-| `I click on :selector in the modal` | `The element "..." was not found in the modal.` | `Element in the modal with css\|id\|name\|title\|alt\|value\|text "..." not found.` |
+| `I click on the element :selector in the modal` | `The element "..." was not found in the modal.` | `Element in the modal with css\|id\|name\|title\|alt\|value\|text "..." not found.` |
 | `the modal should (not) contain :text` | `The modal content element was not found.` | `Modal content element matching css "..." not found.` |
-| every `the XML element ...` and `the XML attribute ... on element ...` step, when the element is missing | `The XML element "..." was not found.` | `XML element matching xpath "..." not found.` |
+| every `the XML element ...` and `the XML attribute ... on the element ...` step, when the element is missing | `The XML element "..." was not found.` | `XML element matching xpath "..." not found.` |
 | `the meta tag should exist with the following attributes:` | `Meta tag with specified attributes was not found: {...}.` | `Meta tag with attributes "{...}" not found.` |
-| `the :meta_name meta tag should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
+| `the meta tag :name should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
 
 The same rule now covers the driver layer and the Behat services under `src/Behat`, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls the driver or one of those services directly and catches on the type, update it:
 
@@ -1334,7 +1508,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 ### Three steps now fail naming the capability
 
-`I wait for the modal to appear`, `I drop the following files on the :selector dropzone:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
+`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
 
 `I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a driver that cannot serve them, with the capability named in place of a hardcoded driver list.
 
