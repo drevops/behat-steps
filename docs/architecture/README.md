@@ -52,9 +52,9 @@ The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, 
 
 ## The driver layer
 
-A driver is the thing that actually talks to Drupal. `DriverInterface` is deliberately tiny - `getRandom()`, `bootstrap()`, `isBootstrapped()` - and everything else a driver can do is expressed as a separate capability interface in `Driver\Capability`: content, users, roles, config, modules, cache, cron, batch, language, mail, blocks, watchdog, authentication, creation aliases.
+A driver is the thing that actually talks to Drupal. `DriverInterface` is deliberately tiny - `getRandom()`, `bootstrap()`, `isBootstrapped()` - and everything else a driver can do is expressed as a separate capability interface in `Driver\Capability`: content, users, roles, config, modules, state, cache, cron, batch, language, mail, blocks, authentication, creation aliases, Drupal's API in this process, and Drush commands.
 
-3 drivers implement different slices of that set. `DrupalDriver` bootstraps Drupal in-process and implements all 14. `DrushDriver` shells out and implements the 8 Drush can service. `BlackboxDriver` implements the base contract only, for testing a remote site with no Drupal access at all.
+3 drivers implement different slices of that set. `DrupalDriver` bootstraps Drupal in-process and implements 15 of the 16, every one but Drush commands. `DrushDriver` shells out and implements the 10 Drush can service, Drush commands included. `BlackboxDriver` implements the base contract only, for testing a remote site with no Drupal access at all.
 
 ![Class structure: the driver layer](class-drivers.svg)
 

@@ -13,7 +13,6 @@ use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 
 /**
  * Contract for the Drush-based driver.
@@ -31,7 +30,6 @@ interface DrushDriverInterface extends
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
-  UserCapabilityInterface,
-  WatchdogCapabilityInterface {
+  UserCapabilityInterface {
 
 }

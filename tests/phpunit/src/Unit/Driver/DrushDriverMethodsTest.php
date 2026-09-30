@@ -552,8 +552,6 @@ class DrushDriverMethodsTest extends TestCase {
     yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
     yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
     yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
-    yield 'watchdogFetch' => ['watchdogFetch', [10], 'watchdog-show'];
-    yield 'watchdogFetch filtered' => ['watchdogFetch', [10, 'php', 'error'], 'watchdog-show'];
     yield 'cronRun' => ['cronRun', [], 'cron'];
     yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
     yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];

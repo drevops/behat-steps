@@ -179,7 +179,6 @@ class DrupalDriverDelegationTest extends TestCase {
     yield 'userDelete' => ['userDelete', [$user], 'userDelete'];
     yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'userAddRole'];
     yield 'processBatch' => ['processBatch', [], 'processBatch'];
-    yield 'watchdogFetch' => ['watchdogFetch', [5, 'php', 'error'], 'watchdogFetch'];
     yield 'cacheClear' => ['cacheClear', ['all'], 'cacheClear'];
     yield 'cacheClearStatic' => ['cacheClearStatic', [], 'cacheClearStatic'];
     yield 'nodeCreate' => ['nodeCreate', [$node], 'nodeCreate'];

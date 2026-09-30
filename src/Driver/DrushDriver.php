@@ -500,25 +500,6 @@ class DrushDriver implements DrushDriverInterface, CreationAliasCapabilityInterf
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function watchdogFetch(int $count = 10, ?string $type = NULL, ?string $severity = NULL): string {
-    // parseArguments() maps a NULL value to a bare --flag, so only filters
-    // that are explicitly set are passed.
-    $options = ['count' => (string) $count];
-
-    if ($type !== NULL) {
-      $options['type'] = $type;
-    }
-
-    if ($severity !== NULL) {
-      $options['severity'] = $severity;
-    }
-
-    return $this->drush('watchdog-show', [], $options);
-  }
-
-  /**
    * Sets common drush arguments or options.
    *
    * @param string $arguments

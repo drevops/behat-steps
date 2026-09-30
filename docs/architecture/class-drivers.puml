@@ -71,8 +71,8 @@ package "DrevOps\\BehatSteps\\Driver\\Capability" #E8F5E9 {
   interface MailCapabilityInterface
   interface ModuleCapabilityInterface
   interface RoleCapabilityInterface
+  interface StateCapabilityInterface
   interface UserCapabilityInterface
-  interface WatchdogCapabilityInterface
 
   AuthenticationCapabilityInterface -[hidden]down- BatchCapabilityInterface
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
@@ -87,8 +87,8 @@ package "DrevOps\\BehatSteps\\Driver\\Capability" #E8F5E9 {
   LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
 
   ModuleCapabilityInterface -[hidden]down- RoleCapabilityInterface
-  RoleCapabilityInterface -[hidden]down- UserCapabilityInterface
-  UserCapabilityInterface -[hidden]down- WatchdogCapabilityInterface
+  RoleCapabilityInterface -[hidden]down- StateCapabilityInterface
+  StateCapabilityInterface -[hidden]down- UserCapabilityInterface
 }
 
 package "DrevOps\\BehatSteps\\Driver\\Core" #E8F5E9 {

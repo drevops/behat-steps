@@ -470,13 +470,6 @@ class DrupalDriver implements DrupalDriverInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function watchdogFetch(int $count = 10, ?string $type = NULL, ?string $severity = NULL): string {
-    return $this->getCore()->watchdogFetch($count, $type, $severity);
-  }
-
-  /**
    * Detects the major Drupal version from the filesystem.
    *
    * @return int

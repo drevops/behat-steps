@@ -14,7 +14,6 @@ use DrevOps\BehatSteps\Driver\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use DrevOps\BehatSteps\Driver\DrupalDriver;
 use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
@@ -81,7 +80,6 @@ class DrupalDriverTest extends TestCase {
     yield 'module' => [ModuleCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
-    yield 'watchdog' => [WatchdogCapabilityInterface::class];
   }
 
   /**
