@@ -193,7 +193,7 @@ class FileDownloadTraitTest extends UnitTestCase {
       'on the scenario' => [['download'], [], TRUE],
       'on the feature' => [[], ['download'], TRUE],
       'on both' => [['download'], ['download'], TRUE],
-      'skipped on the feature' => [['download'], ['behat-steps-skip:fileDownloadBeforeScenario'], FALSE],
+      'skipped on the feature' => [['download'], ['behat-steps-skip:FileDownloadTrait'], FALSE],
     ];
   }
 

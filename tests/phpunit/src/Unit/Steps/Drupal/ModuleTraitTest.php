@@ -79,7 +79,7 @@ class ModuleTraitTest extends UnitTestCase {
       'already in the state the feature asks for' => [[], ['module:help'], TRUE, NULL],
       'the scenario disables what the feature enables' => [['module:!help'], ['module:help'], FALSE, NULL],
       'the scenario enables what the feature disables' => [['module:help'], ['module:!help'], TRUE, NULL],
-      'skipped on the feature' => [['module:help'], ['behat-steps-skip:moduleBeforeScenario'], FALSE, NULL],
+      'skipped on the feature' => [['module:help'], ['behat-steps-skip:ModuleTrait'], FALSE, NULL],
     ];
   }
 

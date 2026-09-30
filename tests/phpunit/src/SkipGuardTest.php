@@ -42,7 +42,7 @@ class SkipGuardTest extends UnitTestCase {
     'Steps\Web\JsonTrait::jsonAfterScenario' => 'Clears the decoded JSON.',
     'Steps\Web\JsonTrait::jsonBeforeScenario' => 'Clears the decoded JSON.',
     'Steps\Web\RandomTrait::randomAfterScenario' => 'Clears the resolved token values.',
-    'Steps\Web\ResponsiveTrait::responsiveBeforeScenario' => 'Acts only on the scenario\'s own "@breakpoint:" tag.',
+    'Steps\Web\ResponsiveTrait::responsiveBeforeScenario' => 'Acts only on a "@breakpoint:" tag on the scenario or its feature.',
     'Steps\Web\XmlTrait::xmlAfterScenario' => 'Clears the loaded XML document.',
     'Steps\Web\XmlTrait::xmlBeforeScenario' => 'Clears the loaded XML document and the libxml error buffer.',
   ];
