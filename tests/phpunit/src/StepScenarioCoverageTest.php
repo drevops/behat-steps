@@ -37,6 +37,8 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
   /**
    * Attributes that register a method as a step.
+   *
+   * @var array<int, class-string<\Behat\Step\Given|\Behat\Step\When|\Behat\Step\Then>>
    */
   protected const STEP_ATTRIBUTES = [Given::class, When::class, Then::class];
 
@@ -59,7 +61,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
   /**
    * Assert that every registered step matches a step some scenario runs.
    */
-  public function testEveryStepIsRunByAScenario(): void {
+  public function testEveryRegisteredStepIsRun(): void {
     $root = dirname(__DIR__, 3);
     $texts = static::scenarioStepTexts(glob($root . '/tests/behat/features/*.feature') ?: [], static::suiteFilter($root . '/behat.php'));
     $steps = static::registeredSteps(DrupalContext::class, $root . '/src');
@@ -498,6 +500,9 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
     $runs = [];
 
+    // The lowest supported Behat installs gherkin 4.17, which has no
+    // getExecutableChildren().
+    // @phpstan-ignore method.deprecated
     foreach ($feature->getScenarios() as $scenario) {
       $runs = array_merge($runs, $scenario instanceof OutlineNode ? $scenario->getExamples() : [$scenario]);
     }
