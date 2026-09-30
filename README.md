@@ -214,6 +214,8 @@ return (new Config())->withProfile($profile);
 
 The `drivers` list says which drivers a scenario may reach, and in what order. A step never names a driver - it names the capability it needs, and the first driver in the list providing that capability answers. See [Driver resolution](docs/configuration.md#driver-resolution).
 
+Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](behat.dist.php) shows. When `drupal/core` is installed alongside the suite, `BehatStepsExtension` runs Mink's `browserkit_http` driver on Drupal's own test browser, `DrupalTestBrowser`.
+
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
 [behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference, and [docs/configuration.md](docs/configuration.md) documents all 4 configuration channels, including the suite layout to start from.

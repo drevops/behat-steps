@@ -586,26 +586,74 @@ composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
 
 ## Behat extensions registered in the Behat configuration
 
-`drupal/drupal-extension` is no longer a dependency, so the two extensions it supplied are replaced by two this package supplies:
+`drupal/drupal-extension` is no longer a dependency. Its Mink extension is replaced by Mink's own, and its Drupal extension by the one this package supplies:
 
 | Old | New |
 | --- | --- |
-| `Drupal\MinkExtension` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` |
+| `Drupal\MinkExtension` | `Behat\MinkExtension` |
 | `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
 
-Both keep their configuration keys and option trees, so every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. The three driver-selection keys are the exception; see [Capability-based driver resolution](#capability-based-driver-resolution).
-
-`MinkExtension` wraps `Behat\MinkExtension\ServiceContainer\MinkExtension` and replaces the factory behind `browserkit_http` so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. Without it a session reaches Drupal without the cookie handling a login depends on.
-
-`ajax_timeout` belongs on `BehatStepsExtension`:
+In `behat.yml`:
 
 ```yaml
+# Before.
 extensions:
+  Drupal\MinkExtension:
+    base_url: http://your-site.local
+    sessions:
+      browserkit_http:
+        browserkit_http: ~
+  Drupal\DrupalExtension:
+    drupal:
+      drupal_root: web
+
+# After.
+extensions:
+  Behat\MinkExtension:
+    base_url: http://your-site.local
+    sessions:
+      browserkit_http:
+        browserkit_http: ~
   DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-    ajax_timeout: 10
+    drupal:
+      drupal_root: web
 ```
 
-Setting it on `MinkExtension` still works and still applies, and reports itself as deprecated.
+In `behat.php`, which Behat 4 requires, `Behat\MinkExtension` is the `Behat\MinkExtension\ServiceContainer\MinkExtension` class:
+
+```php
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
+$profile
+  ->withExtension(new Extension(MinkExtension::class, [
+    'base_url' => 'http://your-site.local',
+    'sessions' => ['browserkit_http' => ['browserkit_http' => NULL]],
+  ]))
+  ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
+```
+
+Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http` and its `guzzle_request_options`, `drupal_root` - is set exactly as before. `ajax_timeout` and the 3 driver-selection keys are the exceptions; see below and [Capability-based driver resolution](#capability-based-driver-resolution).
+
+`BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers, so the driver runs on Drupal's own `DrupalTestBrowser` rather than a plain Symfony `HttpBrowser`. It does so only when `drupal/core` is installed alongside the suite, so a suite testing a site it has no codebase for keeps Mink's own client.
+
+`ajax_timeout` moves from the `mink` key, where `Drupal\MinkExtension` accepted it, to the `wait` group under `steps` (see [Per-trait configuration](#per-trait-configuration)):
+
+```yaml
+# Before.
+extensions:
+  Drupal\MinkExtension:
+    ajax_timeout: 10
+
+# After.
+extensions:
+  DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+    steps:
+      wait:
+        ajax_timeout: 10
+```
+
+Mink's own extension declares no `ajax_timeout`, so one left under the `mink` key fails the container build with an `Unrecognized option "ajax_timeout"` error.
 
 ## Capability-based driver resolution
 
