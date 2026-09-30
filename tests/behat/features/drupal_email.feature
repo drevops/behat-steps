@@ -214,7 +214,7 @@ Feature: Check that EmailTrait works
       """
     Then an email should be sent to the address "test@example.com"
 
-    And I follow link number "<number>" in the email with the subject "Test Email"
+    And I follow the link with the index "<number>" in the email with the subject "Test Email"
     Then the response status code should be 200
     And I should see "Example Domain"
     Examples:
@@ -233,7 +233,7 @@ Feature: Check that EmailTrait works
       Here is your link: http://example.com/reset-password
       """
     Then an email should be sent to the address "test@example.com"
-    When I follow link number 1 in the email with the subject containing "Test Email"
+    When I follow the link with the index 1 in the email with a subject containing "Test Email"
     Then I should be on "http://example.com/reset-password"
 
   @email
@@ -302,7 +302,7 @@ Feature: Check that EmailTrait works
       This email contains an attachment.
       """
     Then an email should be sent to the address "test@example.com"
-    And the file "example.pdf" should be attached to the email with the subject containing "with Attachment"
+    And the file "example.pdf" should be attached to the email with a subject containing "with Attachment"
 
   @email
   Scenario: As a developer, I want error when no emails sent but some expected
@@ -354,7 +354,7 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       Then an email should be sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
@@ -419,7 +419,7 @@ Feature: Check that EmailTrait works
         '''
         Email with a link: http://example.com
         '''
-      Then I follow link number "1" in the email with the subject "Wrong Subject"
+      Then I follow the link with the index "1" in the email with the subject "Wrong Subject"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -436,7 +436,7 @@ Feature: Check that EmailTrait works
         '''
         Email with no links
         '''
-      Then I follow link number "1" in the email with the subject "Test Email"
+      Then I follow the link with the index "1" in the email with the subject "Test Email"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -453,7 +453,7 @@ Feature: Check that EmailTrait works
         '''
         Email with one link: http://example.com
         '''
-      Then I follow link number "5" in the email with the subject "Test Email"
+      Then I follow the link with the index "5" in the email with the subject "Test Email"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -470,7 +470,7 @@ Feature: Check that EmailTrait works
         '''
         Email with one link: http://example.com
         '''
-      Then I follow link number "<number>" in the email with the subject "Test Email"
+      Then I follow the link with the index "<number>" in the email with the subject "Test Email"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -492,7 +492,7 @@ Feature: Check that EmailTrait works
         '''
         Email with one link: http://example.com
         '''
-      Then I follow link number "0" in the email with the subject containing "Test"
+      Then I follow the link with the index "0" in the email with a subject containing "Test"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -509,7 +509,7 @@ Feature: Check that EmailTrait works
         '''
         Email with a link: http://example.com
         '''
-      Then I follow link number 1 in the email with the subject containing "Nonexistent"
+      Then I follow the link with the index 1 in the email with a subject containing "Nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -526,7 +526,7 @@ Feature: Check that EmailTrait works
         '''
         Email with no links
         '''
-      Then I follow link number 1 in the email with the subject containing "Test"
+      Then I follow the link with the index 1 in the email with a subject containing "Test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -543,7 +543,7 @@ Feature: Check that EmailTrait works
         '''
         Email with one link: http://example.com
         '''
-      Then I follow link number 3 in the email with the subject containing "Email"
+      Then I follow the link with the index 3 in the email with a subject containing "Email"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -688,7 +688,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then the file "test.pdf" should be attached to the email with the subject containing "Nonexistent"
+      Then the file "test.pdf" should be attached to the email with a subject containing "Nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -705,7 +705,7 @@ Feature: Check that EmailTrait works
         '''
         Test content without attachments
         '''
-      Then the file "test.pdf" should be attached to the email with the subject containing "Test"
+      Then the file "test.pdf" should be attached to the email with a subject containing "Test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

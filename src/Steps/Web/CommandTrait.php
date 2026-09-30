@@ -216,45 +216,45 @@ trait CommandTrait {
   }
 
   /**
-   * Assert that the command output contains a string.
+   * Assert that the command output contains a value.
    *
    * The output is the command's standard output (stdout).
    *
    * @code
    * When I run the command "echo hello"
-   * Then the command output should contain "hello"
+   * Then the command output should contain the value "hello"
    * @endcode
    */
-  #[Then('the command output should contain :text')]
-  public function commandAssertOutputContains(string $text): void {
+  #[Then('the command output should contain the value :value')]
+  public function commandAssertOutputContains(string $value): void {
     $this->commandAssertHasRun();
 
-    if (!str_contains($this->commandStdout, $text)) {
-      throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $text, $this->commandStdout));
+    if (!str_contains($this->commandStdout, $value)) {
+      throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $value, $this->commandStdout));
     }
   }
 
   /**
-   * Assert that the command output does not contain a string.
+   * Assert that the command output does not contain a value.
    *
    * The output is the command's standard output (stdout).
    *
    * @code
    * When I run the command "echo hello"
-   * Then the command output should not contain "goodbye"
+   * Then the command output should not contain the value "goodbye"
    * @endcode
    */
-  #[Then('the command output should not contain :text')]
-  public function commandAssertOutputNotContains(string $text): void {
+  #[Then('the command output should not contain the value :value')]
+  public function commandAssertOutputNotContains(string $value): void {
     $this->commandAssertHasRun();
 
-    if (str_contains($this->commandStdout, $text)) {
-      throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $text, $this->commandStdout));
+    if (str_contains($this->commandStdout, $value)) {
+      throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $value, $this->commandStdout));
     }
   }
 
   /**
-   * Assert that the command output equals a string.
+   * Assert that the command output equals a value.
    *
    * The output is the command's standard output (stdout). Leading and trailing
    * whitespace is ignored on both sides so a trailing newline emitted by the
@@ -262,34 +262,34 @@ trait CommandTrait {
    *
    * @code
    * When I run the command "echo hello"
-   * Then the command output should be "hello"
+   * Then the command output should be equal to the value "hello"
    * @endcode
    */
-  #[Then('the command output should be :text')]
-  public function commandAssertOutputEquals(string $text): void {
+  #[Then('the command output should be equal to the value :value')]
+  public function commandAssertOutputEquals(string $value): void {
     $this->commandAssertHasRun();
 
-    if (trim($this->commandStdout) !== trim($text)) {
-      throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($text), trim($this->commandStdout)));
+    if (trim($this->commandStdout) !== trim($value)) {
+      throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($value), trim($this->commandStdout)));
     }
   }
 
   /**
-   * Assert that the command error output contains a string.
+   * Assert that the command error output contains a value.
    *
    * The error output is the command's standard error (stderr).
    *
    * @code
    * When I run the command "ls /nonexistent"
-   * Then the command error output should contain "No such file"
+   * Then the command error output should contain the value "No such file"
    * @endcode
    */
-  #[Then('the command error output should contain :text')]
-  public function commandAssertErrorOutputContains(string $text): void {
+  #[Then('the command error output should contain the value :value')]
+  public function commandAssertErrorOutputContains(string $value): void {
     $this->commandAssertHasRun();
 
-    if (!str_contains($this->commandStderr, $text)) {
-      throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $text, $this->commandStderr));
+    if (!str_contains($this->commandStderr, $value)) {
+      throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $value, $this->commandStderr));
     }
   }
 

@@ -64,10 +64,10 @@ trait RegionTrait {
    * Fill a field within a region.
    *
    * @code
-   * When I fill in the field "Search" with "test" in the region "header"
+   * When I fill in the field "Search" with the value "test" in the region "header"
    * @endcode
    */
-  #[When('I fill in the field :field with :value in the region :region')]
+  #[When('I fill in the field :field with the value :value in the region :region')]
   public function regionFillField(string $field, string $value, string $region): void {
     $this->regionGet($region)->fillField($field, $value);
   }
@@ -97,30 +97,30 @@ trait RegionTrait {
   }
 
   /**
-   * Assert that a region contains the text.
+   * Assert that the text of a region contains a value.
    *
    * @code
-   * Then the region "content" should contain the text "Welcome"
+   * Then the region "content" should contain the value "Welcome"
    * @endcode
    */
-  #[Then('the region :region should contain the text :text')]
-  public function regionAssertContainsText(string $region, string $text): void {
-    if (!str_contains($this->regionGet($region)->getText(), $text)) {
-      throw new ExpectationException(sprintf('The text "%s" was not found in the "%s" region on the page %s.', $text, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+  #[Then('the region :region should contain the value :value')]
+  public function regionAssertContainsText(string $region, string $value): void {
+    if (!str_contains($this->regionGet($region)->getText(), $value)) {
+      throw new ExpectationException(sprintf('The text "%s" was not found in the "%s" region on the page %s.', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that a region does not contain the text.
+   * Assert that the text of a region does not contain a value.
    *
    * @code
-   * Then the region "content" should not contain the text "Error"
+   * Then the region "content" should not contain the value "Error"
    * @endcode
    */
-  #[Then('the region :region should not contain the text :text')]
-  public function regionAssertNotContainsText(string $region, string $text): void {
-    if (str_contains($this->regionGet($region)->getText(), $text)) {
-      throw new ExpectationException(sprintf('The text "%s" was found in the "%s" region on the page %s.', $text, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+  #[Then('the region :region should not contain the value :value')]
+  public function regionAssertNotContainsText(string $region, string $value): void {
+    if (str_contains($this->regionGet($region)->getText(), $value)) {
+      throw new ExpectationException(sprintf('The text "%s" was found in the "%s" region on the page %s.', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -243,29 +243,29 @@ trait RegionTrait {
   }
 
   /**
-   * Assert that an element in a region has the exact text.
+   * Assert that an element in a region has text exactly equal to a value.
    *
    * @code
-   * Then the element "h2" in the region "content" should have the text "News"
+   * Then the element "h2" in the region "content" should have the value "News"
    * @endcode
    */
-  #[Then('the element :selector in the region :region should have the text :text')]
-  public function regionAssertElementText(string $selector, string $region, string $text): void {
-    $this->regionGetElementByText($region, $selector, $text);
+  #[Then('the element :selector in the region :region should have the value :value')]
+  public function regionAssertElementText(string $selector, string $region, string $value): void {
+    $this->regionGetElementByText($region, $selector, $value);
   }
 
   /**
-   * Assert that no element in a region has the exact text.
+   * Assert that no element in a region has text exactly equal to a value.
    *
    * @code
-   * Then the element "h2" in the region "content" should not have the text "News"
+   * Then the element "h2" in the region "content" should not have the value "News"
    * @endcode
    */
-  #[Then('the element :selector in the region :region should not have the text :text')]
-  public function regionAssertElementNotText(string $selector, string $region, string $text): void {
+  #[Then('the element :selector in the region :region should not have the value :value')]
+  public function regionAssertElementNotText(string $selector, string $region, string $value): void {
     foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
-      if (trim($element->getText()) === $text) {
-        throw new ExpectationException(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s.', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      if (trim($element->getText()) === $value) {
+        throw new ExpectationException(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s.', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
       }
     }
   }

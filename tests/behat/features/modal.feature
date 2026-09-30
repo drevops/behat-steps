@@ -25,7 +25,7 @@ Feature: Check that ModalTrait works
     And I click on the element "#open-settings"
     And I wait for the modal to appear
     Then the modal should be displayed
-    When I click on ".btn-save" in the modal
+    When I click on the element ".btn-save" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with button text
@@ -33,7 +33,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
-    When I click on "Save" in the modal
+    When I click on the element "Save" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI modal click with link text
@@ -41,7 +41,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_jquery_ui.html"
     And I click on the element "#open-settings"
     And I wait for the modal to appear
-    When I click on "Cancel" in the modal
+    When I click on the element "Cancel" in the modal
 
   @javascript @phpserver
   Scenario: Assert jQuery UI second modal has different content
@@ -65,7 +65,7 @@ Feature: Check that ModalTrait works
     Then the modal should be displayed
     And the modal should contain "Info modal content"
     And the modal should not contain "Delete modal content"
-    When I click on "Close" in the modal
+    When I click on the element "Close" in the modal
     Then the modal should not be displayed
 
   @javascript @phpserver
@@ -74,7 +74,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
-    When I click on "OK" in the modal
+    When I click on the element "OK" in the modal
 
   @javascript @phpserver
   Scenario: Assert native dialog click with link text
@@ -82,7 +82,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_native.html"
     And I click on the element "#open-info"
     And I wait for the modal to appear
-    When I click on "View details" in the modal
+    When I click on the element "View details" in the modal
 
   @javascript @phpserver
   Scenario: Assert native dialog second modal has different content
@@ -114,7 +114,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
-    When I click on ".btn-update" in the modal
+    When I click on the element ".btn-update" in the modal
 
   @javascript @phpserver
   Scenario: Assert custom modal click with link text
@@ -122,7 +122,7 @@ Feature: Check that ModalTrait works
     When I visit "http://cli:8888/modal_custom.html"
     And I click on the element "#open-profile"
     And I wait for the modal to appear
-    When I click on "Reset" in the modal
+    When I click on the element "Reset" in the modal
 
   @javascript @phpserver
   Scenario: Assert custom modal second modal has different content
@@ -183,7 +183,7 @@ Feature: Check that ModalTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
-      When I click on "Save" in the modal
+      When I click on the element "Save" in the modal
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -214,7 +214,7 @@ Feature: Check that ModalTrait works
       Given the user is anonymous
       When I visit "http://cli:8888/modal_jquery_ui.html"
       When I press "Open Settings"
-      When I click on ".nonexistent-element" in the modal
+      When I click on the element ".nonexistent-element" in the modal
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

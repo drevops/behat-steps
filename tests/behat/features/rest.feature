@@ -3,14 +3,14 @@ Feature: Check that RestTrait works
   I want to provide tools for REST API testing
   So that users can send HTTP requests and assert responses
 
-  Scenario: Assert "Given the REST header :name has the value :value" and "When I send a REST :method request to :url" work
+  Scenario: Assert "Given the REST header :name has the value :value" and "When I send a REST :method request to the URL :url" work
     Given the REST header "Accept" has the value "text/html"
-    When I send a REST "GET" request to "/"
+    When I send a REST "GET" request to the URL "/"
     Then the REST response status code should be 200
 
-  Scenario: Assert "When I send a REST :method request to :url with body:" works
+  Scenario: Assert "When I send a REST :method request to the URL :url with the body:" works
     Given the REST header "Content-Type" has the value "text/plain"
-    When I send a REST "POST" request to "/" with body:
+    When I send a REST "POST" request to the URL "/" with the body:
       """
       test body content
       """
@@ -19,11 +19,11 @@ Feature: Check that RestTrait works
   Scenario: Assert multiple headers can be set
     Given the REST header "Accept" has the value "text/html"
     And the REST header "X-Custom-Header" has the value "custom-value"
-    When I send a REST "GET" request to "/"
+    When I send a REST "GET" request to the URL "/"
     Then the REST response status code should be 200
 
   Scenario: Assert "Then the REST response should contain :text" works
-    When I send a REST "GET" request to "/"
+    When I send a REST "GET" request to the URL "/"
     Then the REST response should contain "html"
 
   @trait:RestTrait
@@ -31,7 +31,7 @@ Feature: Check that RestTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I send a REST "GET" request to "/"
+      When I send a REST "GET" request to the URL "/"
       Then the REST response status code should be 404
       """
     When I run "behat --no-colors"
@@ -45,7 +45,7 @@ Feature: Check that RestTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I send a REST "GET" request to "/"
+      When I send a REST "GET" request to the URL "/"
       Then the REST response should contain "nonexistingtext12345"
       """
     When I run "behat --no-colors"

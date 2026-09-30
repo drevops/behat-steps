@@ -5,7 +5,7 @@ Feature: Behat feature context smoke tests
   So that users can be confident in the Behat step definitions
 
   Scenario: Assert that a module can be installed and uninstalled
-    When I log in as a user with the "administer site configuration, administer modules" permissions
+    When I log in as a user with the permissions "administer site configuration, administer modules"
     When I go to "/admin/modules"
     Then the response status code should be 200
     And the "modules[syslog][enable]" checkbox should be unchecked
@@ -21,7 +21,7 @@ Feature: Behat feature context smoke tests
     And the "modules[syslog][enable]" checkbox should be unchecked
 
   Scenario: Assert that a cookie presence and absence assertions work
-    When I log in as a user with the "administer site configuration" permissions
+    When I log in as a user with the permissions "administer site configuration"
     Then cookie "testcookiename" exists
     And cookie "testcookiename_nonexisting" does not exist
 

@@ -24,6 +24,15 @@ of tests. Follow these guidelines:
   - Omit unnecessary suffixes like `on the page` since it is implied.
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
 
+- **Placeholders**:
+  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value.
+  - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a bundle before the entity noun it qualifies (`the :media_type media`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`) come first.
+  - Every noun takes an article, `URL` is uppercase, and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
+  - A value reads `the value :value`, never `the :value value` or a bare `:value`.
+  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is only for a step asserting on a whole body with no named target, such as `the modal should contain :text`.
+  - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
+  - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
+
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
     test runs.

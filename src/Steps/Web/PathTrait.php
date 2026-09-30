@@ -134,15 +134,15 @@ trait PathTrait {
    * Assert that current URL has a query parameter.
    *
    * @code
-   * Then the current URL should have the "filter" parameter
+   * Then the current URL should have the query parameter "filter"
    * @endcode
    */
-  #[Then('the current URL should have the :param parameter')]
-  public function pathAssertUrlHasParameter(string $param): void {
+  #[Then('the current URL should have the query parameter :name')]
+  public function pathAssertUrlHasParameter(string $name): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (!array_key_exists($param, $query)) {
-      throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $param), $this->getSession()->getDriver());
+    if (!array_key_exists($name, $query)) {
+      throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -150,19 +150,19 @@ trait PathTrait {
    * Assert that current URL has a query parameter with a specific value.
    *
    * @code
-   * Then the current URL should have the "filter" parameter with the value "recent"
+   * Then the current URL should have the query parameter "filter" with the value "recent"
    * @endcode
    */
-  #[Then('the current URL should have the :param parameter with the value :value')]
-  public function pathAssertUrlHasParameterWithValue(string $param, string $value): void {
-    $this->pathAssertUrlHasParameter($param);
+  #[Then('the current URL should have the query parameter :name with the value :value')]
+  public function pathAssertUrlHasParameterWithValue(string $name, string $value): void {
+    $this->pathAssertUrlHasParameter($name);
 
     $query = $this->pathGetCurrentUrlQuery();
 
-    $actual_value = $query[$param] ?? '';
+    $actual_value = $query[$name] ?? '';
 
     if ($actual_value !== $value) {
-      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but with the wrong value "%s".', $param, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but with the wrong value "%s".', $name, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
     }
   }
 
@@ -170,15 +170,15 @@ trait PathTrait {
    * Assert that current URL has no query parameter.
    *
    * @code
-   * Then the current URL should not have the "filter" parameter
+   * Then the current URL should not have the query parameter "filter"
    * @endcode
    */
-  #[Then('the current URL should not have the :param parameter')]
-  public function pathAssertUrlNotHasParameter(string $param): void {
+  #[Then('the current URL should not have the query parameter :name')]
+  public function pathAssertUrlNotHasParameter(string $name): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (array_key_exists($param, $query)) {
-      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $param), $this->getSession()->getDriver());
+    if (array_key_exists($name, $query)) {
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -188,19 +188,19 @@ trait PathTrait {
    * An absent parameter satisfies the assertion.
    *
    * @code
-   * Then the current URL should not have the "filter" parameter with the value "recent"
+   * Then the current URL should not have the query parameter "filter" with the value "recent"
    * @endcode
    */
-  #[Then('the current URL should not have the :param parameter with the value :value')]
-  public function pathAssertUrlNotHasParameterWithValue(string $param, string $value): void {
+  #[Then('the current URL should not have the query parameter :name with the value :value')]
+  public function pathAssertUrlNotHasParameterWithValue(string $name, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 
-    if (!array_key_exists($param, $query)) {
+    if (!array_key_exists($name, $query)) {
       return;
     }
 
-    if ($query[$param] === $value) {
-      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $param, $value), $this->getSession()->getDriver());
+    if ($query[$name] === $value) {
+      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $name, $value), $this->getSession()->getDriver());
     }
   }
 

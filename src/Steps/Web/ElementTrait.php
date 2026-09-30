@@ -96,10 +96,10 @@ trait ElementTrait {
    * When I follow the link "Read more" with the index 2
    * @endcode
    */
-  #[When('I follow the link :text with the index :index')]
-  public function elementFollowLinkByIndex(string $text, int $index): void {
-    $elements = $this->getSession()->getPage()->findAll('named', ['link', $text]);
-    $this->elementGetNth($elements, $index, sprintf('link "%s"', $text))->click();
+  #[When('I follow the link :link with the index :index')]
+  public function elementFollowLinkByIndex(string $link, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['link', $link]);
+    $this->elementGetNth($elements, $index, sprintf('link "%s"', $link))->click();
   }
 
   /**
@@ -109,10 +109,10 @@ trait ElementTrait {
    * When I press the button "Delete" with the index 2
    * @endcode
    */
-  #[When('I press the button :label with the index :index')]
-  public function elementPressButtonByIndex(string $label, int $index): void {
-    $elements = $this->getSession()->getPage()->findAll('named', ['button', $label]);
-    $this->elementGetNth($elements, $index, sprintf('button "%s"', $label))->press();
+  #[When('I press the button :button with the index :index')]
+  public function elementPressButtonByIndex(string $button, int $index): void {
+    $elements = $this->getSession()->getPage()->findAll('named', ['button', $button]);
+    $this->elementGetNth($elements, $index, sprintf('button "%s"', $button))->press();
   }
 
   /**
@@ -333,12 +333,12 @@ trait ElementTrait {
    * Assert an element with selector and attribute containing a value exists.
    *
    * @code
-   * Then the element "#main-content" with the attribute "class" and the value containing "content" should exist
+   * Then the element "#main-content" with the attribute "class" and a value containing "content" should exist
    * @endcode
    */
-  #[Then('the element :selector with the attribute :attribute and the value containing :value should exist')]
-  public function elementAssertAttributeContainingValueExists(string $selector, string $attribute, mixed $value): void {
-    $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, FALSE);
+  #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should exist')]
+  public function elementAssertAttributeContainingValueExists(string $selector, string $attribute, mixed $partial_value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, FALSE);
   }
 
   /**
@@ -357,12 +357,12 @@ trait ElementTrait {
    * Assert an element with selector and attribute containing a value does not exist.
    *
    * @code
-   * Then the element "#main-content" with the attribute "class" and the value containing "hidden" should not exist
+   * Then the element "#main-content" with the attribute "class" and a value containing "hidden" should not exist
    * @endcode
    */
-  #[Then('the element :selector with the attribute :attribute and the value containing :value should not exist')]
-  public function elementAssertAttributeContainingValueNotExists(string $selector, string $attribute, mixed $value): void {
-    $this->elementAssertAttributeWithValue($selector, $attribute, $value, FALSE, TRUE);
+  #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should not exist')]
+  public function elementAssertAttributeContainingValueNotExists(string $selector, string $attribute, mixed $partial_value): void {
+    $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, TRUE);
   }
 
   /**
@@ -393,14 +393,14 @@ trait ElementTrait {
    * or `transition`, where an exact match is brittle.
    *
    * @code
-   * Then the element ".card" should have the CSS property "box-shadow" with the value containing "rgb(0, 0, 0)"
+   * Then the element ".card" should have the CSS property "box-shadow" with a value containing "rgb(0, 0, 0)"
    * @endcode
    *
    * @javascript
    */
-  #[Then('the element :selector should have the CSS property :property with the value containing :value')]
-  public function elementAssertHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
-    $this->elementAssertCssProperty($selector, $property, $value, FALSE, FALSE);
+  #[Then('the element :selector should have the CSS property :property with a value containing :partial_value')]
+  public function elementAssertHasCssPropertyContainingValue(string $selector, string $property, string $partial_value): void {
+    $this->elementAssertCssProperty($selector, $property, $partial_value, FALSE, FALSE);
   }
 
   /**
@@ -421,14 +421,14 @@ trait ElementTrait {
    * Assert an element does not have a computed CSS property containing a value.
    *
    * @code
-   * Then the element ".card" should not have the CSS property "box-shadow" with the value containing "inset"
+   * Then the element ".card" should not have the CSS property "box-shadow" with a value containing "inset"
    * @endcode
    *
    * @javascript
    */
-  #[Then('the element :selector should not have the CSS property :property with the value containing :value')]
-  public function elementAssertNotHasCssPropertyContainingValue(string $selector, string $property, string $value): void {
-    $this->elementAssertCssProperty($selector, $property, $value, FALSE, TRUE);
+  #[Then('the element :selector should not have the CSS property :property with a value containing :partial_value')]
+  public function elementAssertNotHasCssPropertyContainingValue(string $selector, string $property, string $partial_value): void {
+    $this->elementAssertCssProperty($selector, $property, $partial_value, FALSE, TRUE);
   }
 
   /**

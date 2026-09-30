@@ -15,7 +15,7 @@ Feature: Check that WaitTrait works
 
   @javascript
   Scenario: Assert "When I wait for :seconds second(s) for AJAX to finish"
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When I visit "admin/structure/types/manage/page/form-display"
     Then I should not see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
     When I press "title_settings_edit"
@@ -41,7 +41,7 @@ Feature: Check that WaitTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       Then I visit "admin/structure/types/manage/page/form-display"
       Then I should not see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
       Then I press "title_settings_edit"

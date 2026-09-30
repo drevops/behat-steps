@@ -8,13 +8,13 @@ The same behavior can be scripted 2 ways. The first is the imperative style - th
 
 ```gherkin
 Scenario: Editor publishes a page
-  Given I am logged in as a user with the "editor" role
-  When I visit "/node/add/page"
+  When I log in as a user with the role "editor"
+  And I visit "/node/add/page"
   And I fill in "Title" with "About us"
   And I select "Published" from "Save as"
   And I press "Save"
   Then the path should be "/about-us"
-  And the element ".messages--status" should contain "has been created"
+  And the success message "has been created" should exist
 ```
 
 The second is the declarative style - the style Behat's own quick start teaches ("When I add the 'Sith Lord Lightsaber' to the basket"):

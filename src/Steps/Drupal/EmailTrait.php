@@ -124,15 +124,15 @@ trait EmailTrait {
   }
 
   /**
-   * Follow a specific link number in an email with the given subject.
+   * Follow the link at the 1-based index in an email with the given subject.
    *
    * @code
-   * When I follow link number "1" in the email with the subject "Account Verification"
+   * When I follow the link with the index "1" in the email with the subject "Account Verification"
    * @endcode
    */
-  #[When('I follow link number :link_number in the email with the subject :subject')]
-  public function emailFollowLinkNumber(string $link_number, string $subject): void {
-    $link_number = $this->emailAssertLinkNumber($link_number);
+  #[When('I follow the link with the index :index in the email with the subject :subject')]
+  public function emailFollowLinkNumber(string $index, string $subject): void {
+    $index = $this->emailAssertLinkNumber($index);
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -157,26 +157,26 @@ trait EmailTrait {
       throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
     }
 
-    if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
+    if (count($links) < $index) {
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
     }
 
-    $link = $links[$link_number - 1];
+    $link = $links[$index - 1];
     $this->getSession()->visit($link);
   }
 
   /**
-   * Follow the first link containing a fragment in an email.
+   * Follow the first link whose URL contains a fragment in an email.
    *
    * A one-time login or confirmation link can be followed without knowing its
    * position in the body.
    *
    * @code
-   * When I follow the link containing "user/reset" in the email
+   * When I follow the link with a URL containing "user/reset" in the email
    * @endcode
    */
-  #[When('I follow the link containing :url_fragment in the email')]
-  public function emailFollowLinkContaining(string $url_fragment): void {
+  #[When('I follow the link with a URL containing :partial_url in the email')]
+  public function emailFollowLinkContaining(string $partial_url): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $body = $message['params']['body'] ?? NULL;
 
@@ -191,7 +191,7 @@ trait EmailTrait {
       }
 
       foreach (static::emailExtractLinks($body) as $link) {
-        if (str_contains($link, $url_fragment)) {
+        if (str_contains($link, $partial_url)) {
           $this->getSession()->visit($link);
 
           return;
@@ -199,30 +199,30 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $url_fragment), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $partial_url), $this->getSession()->getDriver());
   }
 
   /**
-   * Follow a specific link number in an email whose subject contains the given substring.
+   * Follow the link at the 1-based index in an email whose subject contains the given substring.
    *
    * @code
-   * When I follow link number "1" in the email with the subject containing "Verification"
+   * When I follow the link with the index "1" in the email with a subject containing "Verification"
    * @endcode
    */
-  #[When('I follow link number :link_number in the email with the subject containing :subject')]
-  public function emailFollowLinkNumberWithSubjectContaining(string $link_number, string $subject): void {
-    $link_number = $this->emailAssertLinkNumber($link_number);
+  #[When('I follow the link with the index :index in the email with a subject containing :partial_subject')]
+  public function emailFollowLinkNumberWithSubjectContaining(string $index, string $partial_subject): void {
+    $index = $this->emailAssertLinkNumber($index);
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
-      if (str_contains(strtolower((string) $m['subject']), strtolower($subject))) {
+      if (str_contains(strtolower((string) $m['subject']), strtolower($partial_subject))) {
         $message = $m;
         break;
       }
     }
 
     if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $partial_subject), $this->getSession()->getDriver());
     }
 
     if (isset($message['params']['body']) && is_string($message['params']['body'])) {
@@ -239,14 +239,14 @@ trait EmailTrait {
     $links = static::emailExtractLinks($body);
 
     if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $partial_subject), $this->getSession()->getDriver());
     }
 
-    if (count($links) < $link_number) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $link_number, count($links)), $this->getSession()->getDriver());
+    if (count($links) < $index) {
+      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
     }
 
-    $link = $links[$link_number - 1];
+    $link = $links[$index - 1];
 
     $this->getSession()->visit($link);
   }
@@ -653,21 +653,21 @@ trait EmailTrait {
    * Assert that a file is attached to an email message with a subject containing the specified substring.
    *
    * @code
-   * Then the file "report.xlsx" should be attached to the email with the subject containing "Monthly Report"
+   * Then the file "report.xlsx" should be attached to the email with a subject containing "Monthly Report"
    * @endcode
    */
-  #[Then('the file :file_name should be attached to the email with the subject containing :subject')]
-  public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $file_name, string $subject): void {
+  #[Then('the file :file_name should be attached to the email with a subject containing :partial_subject')]
+  public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $file_name, string $partial_subject): void {
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
-      if (str_contains(strtolower((string) $m['subject']), strtolower($subject))) {
+      if (str_contains(strtolower((string) $m['subject']), strtolower($partial_subject))) {
         $message = $m;
         break;
       }
     }
 
     if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $partial_subject), $this->getSession()->getDriver());
     }
 
     if (!empty($message['params']['attachments'])) {
@@ -678,7 +678,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s".', $subject), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s".', $partial_subject), $this->getSession()->getDriver());
   }
 
   /**

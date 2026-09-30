@@ -108,22 +108,22 @@ trait MetatagTrait {
    * that the "content" attribute value is free of HTML markup.
    *
    * @code
-   * Then the "og:description" meta tag should not contain any HTML tags
-   * Then the "description" meta tag should not contain any HTML tags
+   * Then the meta tag "og:description" should not contain any HTML tags
+   * Then the meta tag "description" should not contain any HTML tags
    * @endcode
    */
-  #[Then('the :meta_name meta tag should not contain any HTML tags')]
-  public function metatagAssertNotContainsHtml(string $meta_name): void {
-    $meta_tag = $this->metatagFindMeta($meta_name);
+  #[Then('the meta tag :name should not contain any HTML tags')]
+  public function metatagAssertNotContainsHtml(string $name): void {
+    $meta_tag = $this->metatagFindMeta($name);
 
     if ($meta_tag === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'name|property', $meta_name);
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'name|property', $name);
     }
 
     $content = (string) $meta_tag->getAttribute('content');
 
     if ($content !== strip_tags($content)) {
-      throw new ExpectationException(sprintf('The "%s" meta tag contains HTML tags: %s.', $meta_name, $content), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The "%s" meta tag contains HTML tags: %s.', $name, $content), $this->getSession()->getDriver());
     }
   }
 

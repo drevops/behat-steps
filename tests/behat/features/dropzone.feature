@@ -7,7 +7,7 @@ Feature: Check that DropzoneTrait works
   Scenario: Assert single-file drop on default selector
     Given the user is anonymous
     When I visit "http://cli:8888/dropzone.html"
-    And I drop the file "document.pdf" on the ".dropzone" dropzone
+    And I drop the file "document.pdf" on the dropzone ".dropzone"
     Then I should see "document.pdf"
     And the "#event-count" element should contain "1"
 
@@ -15,7 +15,7 @@ Feature: Check that DropzoneTrait works
   Scenario: Assert multi-file drop fires a single drop event
     Given the user is anonymous
     When I visit "http://cli:8888/dropzone.html"
-    And I drop the following files on the ".dropzone" dropzone:
+    And I drop the following files on the dropzone ".dropzone":
       | document.pdf |
       | image.png    |
       | text.txt     |
@@ -28,7 +28,7 @@ Feature: Check that DropzoneTrait works
   Scenario: Assert drop on a non-default selector
     Given the user is anonymous
     When I visit "http://cli:8888/dropzone.html"
-    And I drop the file "image.png" on the "#secondary-zone" dropzone
+    And I drop the file "image.png" on the dropzone "#secondary-zone"
     Then the "#secondary-output" element should contain "image.png"
     And the "#primary-output" element should not contain "image.png"
 
@@ -36,8 +36,8 @@ Feature: Check that DropzoneTrait works
   Scenario: Assert two consecutive drops in one scenario do not collide
     Given the user is anonymous
     When I visit "http://cli:8888/dropzone.html"
-    And I drop the file "document.pdf" on the ".dropzone" dropzone
-    And I drop the file "text.txt" on the ".dropzone" dropzone
+    And I drop the file "document.pdf" on the dropzone ".dropzone"
+    And I drop the file "text.txt" on the dropzone ".dropzone"
     Then I should see "document.pdf"
     And I should see "text.txt"
     And the "#event-count" element should contain "2"
@@ -48,7 +48,7 @@ Feature: Check that DropzoneTrait works
   Scenario: Assert multi-file drop populates a real Dropzone.js instance
     Given the user is anonymous
     When I visit "http://cli:8888/dropzone_dropzonejs.html"
-    And I drop the following files on the "#real-dropzone" dropzone:
+    And I drop the following files on the dropzone "#real-dropzone":
       | document.pdf |
       | image.png    |
       | text.txt     |
@@ -66,7 +66,7 @@ Feature: Check that DropzoneTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/dropzone.html"
-      And I drop the file "document.pdf" on the ".nonexistent-zone" dropzone
+      And I drop the file "document.pdf" on the dropzone ".nonexistent-zone"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -81,7 +81,7 @@ Feature: Check that DropzoneTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/dropzone.html"
-      And I drop the file "missing-fixture.bin" on the ".dropzone" dropzone
+      And I drop the file "missing-fixture.bin" on the dropzone ".dropzone"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -96,7 +96,7 @@ Feature: Check that DropzoneTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/dropzone.html"
-      And I drop the following files on the ".dropzone" dropzone:
+      And I drop the following files on the dropzone ".dropzone":
         | document.pdf       |
         | missing-second.bin |
       """
@@ -113,7 +113,7 @@ Feature: Check that DropzoneTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/dropzone.html"
-      And I drop the file "document.pdf" on the ".dropzone" dropzone
+      And I drop the file "document.pdf" on the dropzone ".dropzone"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:

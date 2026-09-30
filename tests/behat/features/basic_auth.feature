@@ -10,7 +10,7 @@ Feature: Check that BasicAuthTrait works
 
   Scenario: Assert that the credentials survive a log out
     Given the user is anonymous
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And I log out
     And I visit "/"
     Then the response status code should be 200

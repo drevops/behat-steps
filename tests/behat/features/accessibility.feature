@@ -11,7 +11,7 @@ Feature: Check that AccessibilityTrait works
   @javascript @phpserver
   Scenario: Clean page passes the explicit assertion for a specific tag set
     Given I visit "http://cli:8888/accessibility_clean.html"
-    Then the current page should pass accessibility checks for tags "wcag2a"
+    Then the current page should pass accessibility checks for the tags "wcag2a"
 
   @javascript @accessibility @phpserver
   Scenario: Auto mode passes when navigating between clean pages

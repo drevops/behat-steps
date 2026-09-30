@@ -68,4 +68,4 @@ Feature: Check that automatic entity cleanup works
 
   Scenario: Entities of several types are all deleted at teardown
     Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should not exist
-    And "page" content with the title "[TEST] Cleanup page" should not exist
+    And the "page" content with the title "[TEST] Cleanup page" should not exist

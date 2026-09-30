@@ -4,7 +4,7 @@ Feature: Check that ContentTrait works
   So that users can test content functionality reliably
 
   Scenario: Assert "@Given the content type :content_type does not exist" works as expected
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     When I visit "/admin/structure/types/add"
     And I fill in "Name" with "test_content_type"
     And I fill in "Machine-readable name" with "test_content_type"
@@ -17,7 +17,7 @@ Feature: Check that ContentTrait works
 
   Scenario: Assert "@Given the content type :content_type does not exist" works as expected on non-existing content type
     Given the content type "test_content_type" does not exist
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
@@ -26,7 +26,7 @@ Feature: Check that ContentTrait works
       | title              |
       | [TEST] Page title1 |
       | [TEST] Page title2 |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I go to "content/test-page-title1"
     Then the response status code should be 200
     When I go to "content/test-page-title2"
@@ -44,7 +44,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title             |
       | [TEST] Page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "page" content page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
@@ -53,7 +53,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "non_existing" content page with the title "[TEST] Page title"
       """
     When I run "behat --no-colors"
@@ -67,7 +67,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "page" content page with the title "[TEST] Non-existing"
       """
     When I run "behat --no-colors"
@@ -80,7 +80,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title             |
       | [TEST] Page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
@@ -89,7 +89,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "non_existing" content edit page with the title "[TEST] Page title"
       """
     When I run "behat --no-colors"
@@ -103,7 +103,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "page" content edit page with the title "[TEST] Non-existing"
       """
     When I run "behat --no-colors"
@@ -116,7 +116,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title             |
       | [TEST] Page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "page" content delete page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
@@ -125,7 +125,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "non_existing" content delete page with the title "[TEST] Page title"
       """
     When I run "behat --no-colors"
@@ -139,7 +139,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "page" content delete page with the title "[TEST] Non-existing"
       """
     When I run "behat --no-colors"
@@ -152,7 +152,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title             |
       | [TEST] Page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "page" content scheduled transitions page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
@@ -161,7 +161,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "non_existing" content scheduled transitions page with the title "[TEST] Page title"
       """
     When I run "behat --no-colors"
@@ -175,7 +175,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "page" content scheduled transitions page with the title "[TEST] Non-existing"
       """
     When I run "behat --no-colors"
@@ -184,24 +184,24 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
+  Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected
     Given the following page content exist:
       | title             | moderation_state |
       | [TEST] Page title | draft            |
     And the user is anonymous
     When I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 403
-    When I change the moderation state of the "page" content with the title "[TEST] Page title" to the "published" state
+    When I change the moderation state of the "page" content with the title "[TEST] Page title" to the state "published"
     And I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 200
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content type
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
-      When I change the moderation state of the "non_existing" content with the title "[TEST] Page title" to the "published" state
+      When I log in as a user with the role "administrator"
+      When I change the moderation state of the "non_existing" content with the title "[TEST] Page title" to the state "published"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -210,12 +210,12 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
-      When I change the moderation state of the "page" content with the title "[TEST] Non-existing" to the "published" state
+      When I log in as a user with the role "administrator"
+      When I change the moderation state of the "page" content with the title "[TEST] Non-existing" to the state "published"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -224,15 +224,15 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for a node without moderation state enabled
+  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for a node without moderation state enabled
     Given some behat configuration
     And scenario steps:
       """
       Given the following landing_page content exist:
         | title             |
         | [TEST] Page title |
-      When I log in as a user with the "administrator" role
-      When I change the moderation state of the "landing_page" content with the title "[TEST] Page title" to the "published" state
+      When I log in as a user with the role "administrator"
+      When I change the moderation state of the "landing_page" content with the title "[TEST] Page title" to the state "published"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -244,7 +244,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                | body        |
       | [TEST] Article title | First draft |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Article title"
     And I fill in "Body" with "Updated content"
     And I press "Save"
@@ -258,7 +258,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I visit the "article" content edit page with the title "[TEST] No existing title"
       """
     When I run "behat --no-colors"
@@ -268,7 +268,7 @@ Feature: Check that ContentTrait works
       """
 
   Scenario: Create single node with vertical field format
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the following page content with fields exist:
       | title  | [TEST] Vertical Page    |
       | body   | Vertical format content |
@@ -277,7 +277,7 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Vertical Page"
 
   Scenario: Create multiple nodes with vertical field format
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the following page content with fields exist:
       | title  | [TEST] V-Page 1    | [TEST] V-Page 2     | [TEST] V-Page 3    |
       | body   | First page content | Second page content | Third page content |
@@ -287,19 +287,19 @@ Feature: Check that ContentTrait works
     And I should see "[TEST] V-Page 2"
     And I should see "[TEST] V-Page 3"
 
-  Scenario: Assert "Then :content_type content with the title :title should not exist" works as expected
-    When I log in as a user with the "administrator" role
-    Then "page" content with the title "[TEST] Non-existing page" should not exist
+  Scenario: Assert "Then the :content_type content with the title :title should not exist" works as expected
+    When I log in as a user with the role "administrator"
+    Then the "page" content with the title "[TEST] Non-existing page" should not exist
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "Then :content_type content with the title :title should not exist" works as expected when content exists
+  Scenario: Assert negative "Then the :content_type content with the title :title should not exist" works as expected when content exists
     Given some behat configuration
     And scenario steps:
       """
       Given the following page content exist:
         | title              |
         | [TEST] Exists page |
-      Then "page" content with the title "[TEST] Exists page" should not exist
+      Then the "page" content with the title "[TEST] Exists page" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -311,7 +311,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title                    |
       | [TEST] Grants page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I rebuild the access grants for the "page" content with the title "[TEST] Grants page title"
     And I visit the "page" content page with the title "[TEST] Grants page title"
     Then I should see "[TEST] Grants page title"
@@ -320,7 +320,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title                        |
       | [TEST] Grants all page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I rebuild the access grants for all content
     And I visit the "page" content page with the title "[TEST] Grants all page title"
     Then I should see "[TEST] Grants all page title"
@@ -330,7 +330,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I rebuild the access grants for the "page" content with the title "[TEST] Non-existing"
       """
     When I run "behat --no-colors"
@@ -343,7 +343,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                | field_file |
       | [TEST] Fixture file  | text.txt   |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Fixture file"
     Then I should see "[TEST] Fixture file"
     And the response should contain ".txt"
@@ -352,7 +352,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                 | field_image |
       | [TEST] Fixture image  | image.png   |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Fixture image"
     Then I should see "[TEST] Fixture image"
 
@@ -360,7 +360,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                         | field_file                                       |
       | [TEST] Compound fixture file  | target_id:"text.txt", description:"My document"  |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Compound fixture file"
     Then I should see "[TEST] Compound fixture file"
     And the response should contain ".txt"
@@ -369,7 +369,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                          | field_image                              |
       | [TEST] Compound fixture image  | target_id:"image.png", alt:"My image"    |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Compound fixture image"
     Then I should see "[TEST] Compound fixture image"
 
@@ -377,7 +377,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                          | field_file          |
       | [TEST] Subdirectory file       | subdir/document.pdf |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Subdirectory file"
     Then I should see "[TEST] Subdirectory file"
     And the response should contain ".pdf"
@@ -386,7 +386,7 @@ Feature: Check that ContentTrait works
     Given the following article content exist:
       | title                            | field_file                                              |
       | [TEST] Compound subdirectory file | target_id:"subdir/document.pdf", description:"My doc"  |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I visit the "article" content edit page with the title "[TEST] Compound subdirectory file"
     Then I should see "[TEST] Compound subdirectory file"
     And the response should contain ".pdf"
@@ -395,7 +395,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title                   |
       | [TEST] Alias page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I set the path alias of the "page" content with the title "[TEST] Alias page title" to "/test-custom-alias"
     And I go to "test-custom-alias"
     Then the response status code should be 200
@@ -405,7 +405,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title                            |
       | [TEST] Alias no slash page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I set the path alias of the "page" content with the title "[TEST] Alias no slash page title" to "test-no-slash-alias"
     And I go to "test-no-slash-alias"
     Then the response status code should be 200
@@ -415,7 +415,7 @@ Feature: Check that ContentTrait works
     Given the following page content exist:
       | title                            |
       | [TEST] Alias replaced page title |
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-first"
     And I go to "test-alias-first"
     Then the response status code should be 200
@@ -431,7 +431,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I set the path alias of the "non_existing" content with the title "[TEST] Page title" to "/test-alias"
       """
     When I run "behat --no-colors"
@@ -445,7 +445,7 @@ Feature: Check that ContentTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the "administrator" role
+      When I log in as a user with the role "administrator"
       When I set the path alias of the "page" content with the title "[TEST] Non-existing" to "/test-alias"
       """
     When I run "behat --no-colors"
@@ -470,34 +470,34 @@ Feature: Check that ContentTrait works
       Path alias for "page" content with the title "[TEST] Empty alias page title" cannot be empty.
       """
 
-  Scenario: Assert "Then :content_type content with the title :title should be published" works as expected
+  Scenario: Assert "Then the :content_type content with the title :title should be published" works as expected
     Given the following page content exist:
       | title                       | moderation_state |
       | [TEST] Published page title | published        |
-    Then "page" content with the title "[TEST] Published page title" should be published
+    Then the "page" content with the title "[TEST] Published page title" should be published
 
-  Scenario: Assert "Then :content_type content with the title :title should not be published" works as expected
+  Scenario: Assert "Then the :content_type content with the title :title should not be published" works as expected
     Given the following page content exist:
       | title                         | moderation_state |
       | [TEST] Unpublished page title | draft            |
-    Then "page" content with the title "[TEST] Unpublished page title" should not be published
+    Then the "page" content with the title "[TEST] Unpublished page title" should not be published
 
   Scenario: Assert publish state assertions resolve the most recently created content when titles are duplicated
     Given the following page content exist:
       | title                       | moderation_state |
       | [TEST] Duplicate page title | published        |
       | [TEST] Duplicate page title | draft            |
-    Then "page" content with the title "[TEST] Duplicate page title" should not be published
+    Then the "page" content with the title "[TEST] Duplicate page title" should not be published
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "Then :content_type content with the title :title should be published" works as expected when content is not published
+  Scenario: Assert negative "Then the :content_type content with the title :title should be published" works as expected when content is not published
     Given some behat configuration
     And scenario steps:
       """
       Given the following page content exist:
         | title                         | moderation_state |
         | [TEST] Unpublished page title | draft            |
-      Then "page" content with the title "[TEST] Unpublished page title" should be published
+      Then the "page" content with the title "[TEST] Unpublished page title" should be published
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -506,14 +506,14 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "Then :content_type content with the title :title should not be published" works as expected when content is published
+  Scenario: Assert negative "Then the :content_type content with the title :title should not be published" works as expected when content is published
     Given some behat configuration
     And scenario steps:
       """
       Given the following page content exist:
         | title                       | moderation_state |
         | [TEST] Published page title | published        |
-      Then "page" content with the title "[TEST] Published page title" should not be published
+      Then the "page" content with the title "[TEST] Published page title" should not be published
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -522,11 +522,11 @@ Feature: Check that ContentTrait works
       """
 
   @trait:Drupal\ContentTrait
-  Scenario: Assert negative "Then :content_type content with the title :title should be published" works as expected for non-existing content
+  Scenario: Assert negative "Then the :content_type content with the title :title should be published" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
-      Then "page" content with the title "[TEST] Non-existing" should be published
+      Then the "page" content with the title "[TEST] Non-existing" should be published
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

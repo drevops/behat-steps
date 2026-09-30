@@ -1556,6 +1556,44 @@ function validate(array $info): array {
         }
       }
 
+      if (preg_match('/^@(?:Given|When|Then) :/', $step) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step starts with a placeholder but should start with the noun it names');
+      }
+
+      preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*) ([a-z]+)/', $step, $followed, PREG_SET_ORDER);
+
+      foreach ($followed as [, $placeholder, $word]) {
+        // A bundle placeholder qualifies the entity noun after it, as in
+        // "the :media_type media", rather than naming that noun.
+        if (str_ends_with($placeholder, '_type')) {
+          continue;
+        }
+
+        if (in_array($word, explode('_', $placeholder), TRUE) || str_starts_with($word, $placeholder)) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step precedes its own noun "%s"', $placeholder, $word));
+        }
+      }
+
+      if (preg_match('/(?<!\bvalue ):value\b/', $step) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Placeholder ":value" in the step does not read "the value :value"');
+      }
+
+      preg_match_all('/\bcontaining :([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $partials);
+
+      foreach ($partials[1] as $placeholder) {
+        if (!str_starts_with($placeholder, 'partial_')) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" after "containing" in the step is not prefixed with "partial_"', $placeholder));
+        }
+      }
+
+      // A placeholder before "should" names the asserted target, so what the
+      // step compares against it is a value rather than a whole body of text.
+      [$subject, $predicate] = array_pad(explode(' should ', $step, 2), 2, '');
+
+      if (preg_match('/:[a-zA-Z_]/', $subject) === 1 && preg_match('/:text\b/', $predicate) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Placeholder ":text" in the step compares against a named target but should be ":value"');
+      }
+
       if (empty($method['example'])) {
         $errors[] = sprintf('  %s::%s - Missing example' . PHP_EOL, $class_name, $method['name']);
       }
@@ -1676,11 +1714,11 @@ function extract_step_examples(string $example): array {
 }
 
 /**
- * Placeholder names that name a value's type instead of its role.
+ * Placeholder names that name a value's type or abbreviate its role.
  *
  * A placeholder is the only description a step gives of what a consumer must
- * pass. It names the thing (`:tolerance`, `:selector`, `:count`) rather than
- * its PHP type or bare category.
+ * pass. It names the thing in full (`:tolerance`, `:selector`, `:count`)
+ * rather than its PHP type, a bare category or an abbreviation.
  *
  * A name listed here is rejected in step patterns.
  *
@@ -1699,6 +1737,7 @@ function non_descriptive_placeholders(): array {
     'int',
     'integer',
     'number',
+    'param',
     'string',
     'type',
     'var',

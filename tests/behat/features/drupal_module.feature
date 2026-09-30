@@ -3,30 +3,30 @@ Feature: Check that ModuleTrait works
   I want to provide tools to manage Drupal modules programmatically
   So that users can enable/disable modules during tests and restore state automatically
 
-  Scenario: Assert "Given the :module module is enabled" enables a module
-    When I log in as a user with the "administrator" role
-    And the "help" module is disabled
-    When the "help" module is enabled
-    Then the "help" module should be enabled
+  Scenario: Assert "Given the module :module is enabled" enables a module
+    When I log in as a user with the role "administrator"
+    And the module "help" is disabled
+    When the module "help" is enabled
+    Then the module "help" should be enabled
 
-  Scenario: Assert "Given the :module module is disabled" disables a module
-    When I log in as a user with the "administrator" role
-    And the "help" module is enabled
-    When the "help" module is disabled
-    Then the "help" module should be disabled
+  Scenario: Assert "Given the module :module is disabled" disables a module
+    When I log in as a user with the role "administrator"
+    And the module "help" is enabled
+    When the module "help" is disabled
+    Then the module "help" should be disabled
 
-  Scenario: Assert "Then the :module module should be enabled" assertion works
-    When I log in as a user with the "administrator" role
-    And the "help" module is enabled
-    Then the "help" module should be enabled
+  Scenario: Assert "Then the module :module should be enabled" assertion works
+    When I log in as a user with the role "administrator"
+    And the module "help" is enabled
+    Then the module "help" should be enabled
 
-  Scenario: Assert "Then the :module module should be disabled" assertion works
-    When I log in as a user with the "administrator" role
-    And the "help" module is disabled
-    Then the "help" module should be disabled
+  Scenario: Assert "Then the module :module should be disabled" assertion works
+    When I log in as a user with the role "administrator"
+    And the module "help" is disabled
+    Then the module "help" should be disabled
 
   Scenario: Assert "Given the following modules are enabled:" enables multiple modules
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the following modules are disabled:
       | help   |
       | syslog |
@@ -38,7 +38,7 @@ Feature: Check that ModuleTrait works
       | syslog |
 
   Scenario: Assert "Given the following modules are disabled:" disables multiple modules
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And the following modules are enabled:
       | help   |
       | syslog |
@@ -55,21 +55,21 @@ Feature: Check that ModuleTrait works
   # in-process scenarios above, which do not pay a subprocess per module.
   @driver:drush
   Scenario: Assert an enabled core module over Drush
-    Then the "node" module should be enabled
-    And the "field" module should be enabled
+    Then the module "node" should be enabled
+    And the module "field" should be enabled
 
   @driver:drush
   Scenario: Assert a module whose code is absent is not enabled
-    Then the "no_such_module_xyz" module should be disabled
+    Then the module "no_such_module_xyz" should be disabled
 
   @trait:Drupal\ModuleTrait
-  Scenario: Assert negative assertion for "Then the :module module should be enabled" works with disabled module
+  Scenario: Assert negative assertion for "Then the module :module should be enabled" works with disabled module
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      And the "help" module is disabled
-      Then the "help" module should be enabled
+      And the module "help" is disabled
+      Then the module "help" should be enabled
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -78,13 +78,13 @@ Feature: Check that ModuleTrait works
       """
 
   @trait:Drupal\ModuleTrait
-  Scenario: Assert negative assertion for "Then the :module module should be disabled" works with enabled module
+  Scenario: Assert negative assertion for "Then the module :module should be disabled" works with enabled module
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      And the "help" module is enabled
-      Then the "help" module should be disabled
+      And the module "help" is enabled
+      Then the module "help" should be disabled
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -94,26 +94,26 @@ Feature: Check that ModuleTrait works
 
   @module:help
   Scenario: Assert @module:module_name tag enables module automatically
-    When I log in as a user with the "administrator" role
-    Then the "help" module should be enabled
+    When I log in as a user with the role "administrator"
+    Then the module "help" should be enabled
 
   @module:!help
   Scenario: Assert @module:!module_name tag disables module automatically
-    When I log in as a user with the "administrator" role
-    Then the "help" module should be disabled
+    When I log in as a user with the role "administrator"
+    Then the module "help" should be disabled
 
   @module:help @module:syslog
   Scenario: Assert multiple @module tags enable multiple modules
-    When I log in as a user with the "administrator" role
-    Then the "help" module should be enabled
-    And the "syslog" module should be enabled
+    When I log in as a user with the role "administrator"
+    Then the module "help" should be enabled
+    And the module "syslog" should be enabled
 
   @module:help @module:syslog @module:!contextual
   Scenario: Assert mixed @module tags with enable and disable work together
-    When I log in as a user with the "administrator" role
-    Then the "help" module should be enabled
-    And the "syslog" module should be enabled
-    And the "contextual" module should be disabled
+    When I log in as a user with the role "administrator"
+    Then the module "help" should be enabled
+    And the module "syslog" should be enabled
+    And the module "contextual" should be disabled
 
   # Skip automatic state restoration because this scenario intentionally sets up
   # initial state for the next scenarios to test tag-based restoration.
@@ -121,53 +121,53 @@ Feature: Check that ModuleTrait works
   # restore it at the end, interfering with the cross-scenario test flow.
   @behat-steps-skip:moduleAfterScenario
   Scenario: Assert module state is restored after scenario changes
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # First, ensure help is disabled
-    And the "help" module is disabled
-    Then the "help" module should be disabled
+    And the module "help" is disabled
+    Then the module "help" should be disabled
 
   @module:help
   Scenario: Assert module state restoration works after tag-based enable
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # This scenario should enable help via tag, but after this scenario
     # the previous state should be restored in the next scenario
-    Then the "help" module should be enabled
+    Then the module "help" should be enabled
 
   Scenario: Verify module state was restored after previous scenario with tag
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # This verifies that help module was restored to disabled state
     # after the previous scenario that used @module:help tag
-    Then the "help" module should be disabled
+    Then the module "help" should be disabled
 
   Scenario: Setup initial state for Given step restoration test
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # Ensure syslog is disabled as the initial state
-    And the "syslog" module is disabled
-    Then the "syslog" module should be disabled
+    And the module "syslog" is disabled
+    Then the module "syslog" should be disabled
 
   Scenario: Assert module state changes via Given step
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # Enable syslog module using Given step (not tag)
-    And the "syslog" module is enabled
-    Then the "syslog" module should be enabled
+    And the module "syslog" is enabled
+    Then the module "syslog" should be enabled
 
   Scenario: Verify module state was restored after Given step modification
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     # This verifies that syslog module was restored to disabled state
     # after the previous scenario modified it using Given step
-    Then the "syslog" module should be disabled
+    Then the module "syslog" should be disabled
 
   Scenario: Assert enabling already-enabled module is idempotent
-    When I log in as a user with the "administrator" role
-    And the "help" module is enabled
-    When the "help" module is enabled
-    Then the "help" module should be enabled
+    When I log in as a user with the role "administrator"
+    And the module "help" is enabled
+    When the module "help" is enabled
+    Then the module "help" should be enabled
 
   Scenario: Assert disabling already-disabled module is idempotent
-    When I log in as a user with the "administrator" role
-    And the "help" module is disabled
-    When the "help" module is disabled
-    Then the "help" module should be disabled
+    When I log in as a user with the role "administrator"
+    And the module "help" is disabled
+    When the module "help" is disabled
+    Then the module "help" should be disabled
 
   @trait:Drupal\ModuleTrait
   Scenario: Assert enabling non-existent module throws error
@@ -175,7 +175,7 @@ Feature: Check that ModuleTrait works
     And scenario steps:
       """
       Given I go to "/"
-      And the "nonexistent_module_xyz" module is enabled
+      And the module "nonexistent_module_xyz" is enabled
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

@@ -157,11 +157,11 @@ trait TableTrait {
    * Assert that a table is sorted by a column in a specific direction.
    *
    * @code
-   * Then the table ".mytable" should be sorted by "Title" in "ascending" order
-   * Then the table ".mytable" should be sorted by "Date" in "descending" order
+   * Then the table ".mytable" should be sorted by the column "Title" in "ascending" order
+   * Then the table ".mytable" should be sorted by the column "Date" in "descending" order
    * @endcode
    */
-  #[Then('the table :selector should be sorted by :column in :direction order')]
+  #[Then('the table :selector should be sorted by the column :column in :direction order')]
   public function tableAssertSortOrder(string $selector, string $column, string $direction): void {
     if ($direction !== 'ascending' && $direction !== 'descending') {
       throw new \RuntimeException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction));
@@ -243,12 +243,12 @@ trait TableTrait {
    * Assert that a table row containing a text has the expected values.
    *
    * @code
-   * Then the "Article title" row should contain the following:
+   * Then the row "Article title" should contain the following:
    *   | Published |
    *   | admin     |
    * @endcode
    */
-  #[Then('the :row_text row should contain the following:')]
+  #[Then('the row :row_text should contain the following:')]
   public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
     $actual_text = $this->tableGetRowByText($row_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
@@ -259,34 +259,34 @@ trait TableTrait {
   }
 
   /**
-   * Assert that a row contains the text.
+   * Assert that a row contains a value.
    *
    * @code
-   * Then the row "Article title" should contain the text "Published"
+   * Then the row "Article title" should contain the value "Published"
    * @endcode
    */
-  #[Then('the row :row_text should contain the text :text')]
-  public function tableAssertTextInRow(string $row_text, string $text): void {
+  #[Then('the row :row_text should contain the value :value')]
+  public function tableAssertTextInRow(string $row_text, string $value): void {
     $row = $this->tableGetRowByText($row_text);
 
-    if (!str_contains($row->getText(), $text)) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $row_text, $text), $this->getSession()->getDriver());
+    if (!str_contains($row->getText(), $value)) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $row_text, $value), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that a row does not contain the text.
+   * Assert that a row does not contain a value.
    *
    * @code
-   * Then the row "Article title" should not contain the text "Unpublished"
+   * Then the row "Article title" should not contain the value "Unpublished"
    * @endcode
    */
-  #[Then('the row :row_text should not contain the text :text')]
-  public function tableAssertTextNotInRow(string $row_text, string $text): void {
+  #[Then('the row :row_text should not contain the value :value')]
+  public function tableAssertTextNotInRow(string $row_text, string $value): void {
     $row = $this->tableGetRowByText($row_text);
 
-    if (str_contains($row->getText(), $text)) {
-      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $row_text, $text), $this->getSession()->getDriver());
+    if (str_contains($row->getText(), $value)) {
+      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $row_text, $value), $this->getSession()->getDriver());
     }
   }
 
