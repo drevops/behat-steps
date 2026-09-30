@@ -36,7 +36,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks, and the scenario tester that counts a scenario whose setup failed as failed.
 
 **`src/Helper/` - the shared internals.** 10 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
 
@@ -69,6 +69,8 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 `DriverListener` builds the driver order once per scenario, before the first step: it takes the configured `drivers` list, moves every `@driver:` name to the front, and hands the result to `DriverRegistry`. A tag naming a driver the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong driver. It publishes the scenario's tags to `ScenarioTagRegistry` in the same pass, which Behat dispatches before the first `BeforeScenario` hook, so a tag that sets a trait option reaches a step as well as a hook.
 
 `SkipTagListener` runs on the same event, just before it. A `@behat-steps-skip:` tag has to name a trait, because a hook reads it by its trait's name alone, so a tag carrying a hook method name or any other value would switch nothing off. The listener fails the run there instead, naming the tag.
+
+`SetupFailureScenarioTester` decides how a scenario whose `BeforeScenario` hook threw is counted. Behat skips every step of that scenario and dispatches `AfterScenarioTested` with the skipped steps alone, so on its own it counts the scenario as skipped, which is easy to miss in a long summary. The extension registers the tester as a wrapper around Behat's scenario and example testers, at a priority that nests it inside the tester dispatching the scenario events and around the one dispatching the hooks. It keeps each failed setup against its scenario and returns a result that holds it, so the summary, the JUnit report and `--stop-on-failure` all see a failed scenario. The exit code doesn't change: Behat already folds the failed setup into the result it computes that from.
 
 `Behat\Config` holds option resolution, which `WebRawContext` delegates to rather than carrying. `ConfigSchemaReader` is the only piece that reflects: it walks a context class for `<prefix>ConfigSchema()` methods and returns the `Option` objects they declare, cached per class. `TraitOptionResolver` layers the declaration defaults, the extension's `steps` section and the context's `config` argument, and exposes a typed read per declared type. `TagOverrides` applies the tags an option declares, plus the `@behat-steps-skip:<Trait>` tag every `enabled` option carries, and holds the pattern a skip tag's value has to match. A resolver depends on the context class that declared the options and on the `config` argument that context was given, so `TraitOptionResolverFactory` builds one per context; registering another factory under `behat_steps.config.resolver_factory` replaces resolution everywhere at once.
 
@@ -122,6 +124,8 @@ Nothing in this library is invoked directly. Behat owns the loop, and the traits
 When Behat starts, it instantiates every registered context, injects those services through `DriverAwareInitializer`, and scans each class for step attributes - including every attribute inherited through a `use` statement. Matching a Gherkin line to a method is then ordinary Behat behaviour. The trait method runs with `$this` bound to the context, so `$this->getSession()` reaches Mink and `$this->getDriver()` reaches whichever driver the suite configured.
 
 Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why each class in the chain composes a trait the ones above it do not, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
+
+Before the first step, Behat sets the scenario up through `SetupFailureScenarioTester`, which calls the Behat tester that dispatches the `BeforeScenario` hooks. When every hook returns, the steps run. When one throws - a `FileTrait` hook resolving `CoreCapabilityInterface` in a suite whose drivers can't serve it, say - Behat skips every step and the `AfterScenario` hooks, and the tester returns the skipped steps together with the failed setup, so the scenario counts as failed.
 
 ![Data flow: a step runs](dataflow-step.svg)
 

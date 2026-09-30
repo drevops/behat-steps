@@ -35,6 +35,7 @@ package "drevops/behat-steps" {
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
     component "Managers\nDriver, Authentication,\nUser, Mail, Scenario tags" as Managers
     component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
+    component "SetupFailureScenarioTester\ncounts a scenario whose\nBeforeScenario hook threw\nas failed" as Tester
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
     component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
   }
@@ -77,8 +78,10 @@ Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx
 Ext --> Managers : registers
 Ext --> Listeners : registers
+Ext --> Tester : registers
 Ext --> OptionConfig : registers
 Behat --> Listeners : before each scenario
+Behat --> Tester : tests each scenario\nand outline example through
 Listeners --> Managers : driver order,\nscenario tags
 Ext --> DriverIface : registers drivers
 Ext ..> MinkExt : reads ajax_timeout

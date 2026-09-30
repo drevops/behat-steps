@@ -5,7 +5,9 @@
 ' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
 ' DrupalContext.php, src/Behat/Manager/DriverRegistry.php,
 ' src/Behat/Listener/SkipTagListener.php,
-' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
+' src/Behat/Listener/DriverListener.php,
+' src/Behat/Tester/SetupFailureScenarioTester.php, src/Driver/DrupalDriver.php,
+' behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -19,6 +21,7 @@ participant "WebContext\nDrupalContext" as Ctx
 participant "Step trait method" as Trait
 participant "SkipTagListener" as SkipListener
 participant "DriverListener" as Listener
+participant "SetupFailureScenarioTester" as Tester
 participant "DriverRegistry" as DM
 participant "Driver\nDrupal, Drush or Blackbox" as Driver
 participant "Mink session" as Mink
@@ -44,6 +47,22 @@ Behat -> Ctx: scan the Given, When and Then step attributes
 note right of Behat: attributes inherited\nthrough "use" are\nfound too
 Ctx --> Behat: step definitions
 deactivate Ctx
+
+Behat -> Tester: set up the scenario
+activate Tester
+Tester -> Ctx: BeforeScenario hooks
+activate Ctx
+alt every hook returns
+  Ctx --> Tester: setup passes
+  Tester --> Behat: setup passes, the steps run
+else a hook throws, e.g. no driver provides its capability
+  Ctx --> Tester: setup fails
+  Tester --> Behat: setup fails, Behat skips every step\nand the AfterScenario hooks
+  Behat -> Tester: test the scenario
+  Tester --> Behat: the skipped steps with the failed setup,\nso the scenario counts as failed
+end
+deactivate Ctx
+deactivate Tester
 
 Feature -> Behat: Then the path should be "/about-us"
 activate Behat
