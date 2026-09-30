@@ -110,8 +110,93 @@ Feature: Check that WatchdogTrait works
     Given the watchdog is cleared
     When I go to the homepage
 
-  @trait:Drupal\WatchdogTrait
-  Scenario: Assert that the skip tag switches the WatchdogTrait hooks off
+  @trait:Drupal\WatchdogTrait @error
+  Scenario: Assert that the enabled option switches the check off on a site with dblog
+    Given a configuration with the step options:
+      """
+      'watchdog' => ['enabled' => FALSE],
+      """
+    And some behat configuration
+    And scenario steps:
+      """
+      When set watchdog error level "warning"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @trait:Drupal\WatchdogTrait @error
+  Scenario: Assert that the skip tag switches the check off on a site with dblog
+    Given some behat configuration
+    And scenario steps tagged with "@behat-steps-skip:WatchdogTrait":
+      """
+      When set watchdog error level "warning"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  Scenario: Assert that an opted-in scenario on a site without dblog fails at its start
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      WatchdogTrait requires that the core "dblog" module is enabled, which does not hold. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+      """
+    And the output should contain:
+      """
+      1 step (1 skipped)
+      """
+
+  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  Scenario: Assert that turning fail_on_errors off does not cover a site without dblog
+    Given a configuration with the step options:
+      """
+      'watchdog' => ['fail_on_errors' => FALSE],
+      """
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.
+      """
+
+  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  Scenario: Assert that the error tag does not cover a site without dblog
+    Given some behat configuration
+    And scenario steps tagged with "@error":
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.
+      """
+
+  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  Scenario: Assert that the enabled option switches the check off on a site without dblog
+    Given a configuration with the step options:
+      """
+      'watchdog' => ['enabled' => FALSE],
+      """
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  Scenario: Assert that the skip tag switches the check off on a site without dblog
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:WatchdogTrait":
       """
@@ -121,75 +206,48 @@ Feature: Check that WatchdogTrait works
     Then it should pass
 
   @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that a missing watchdog table fails with the switches that turn the check off
+  Scenario: Assert that a scenario that uninstalls dblog fails at its last step
     Given some behat configuration
-    And scenario steps tagged with "@module:!dblog":
+    And scenario steps:
       """
+      Given the module "dblog" is disabled
       When I visit "/"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The "watchdog" table does not exist, so logged errors cannot be checked. Enable the "dblog" module, or switch the check off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+      WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.
       """
-
-  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that the enabled option switches the check off for a missing watchdog table
-    Given a configuration with the step options:
+    And the output should contain:
       """
-      'watchdog' => ['enabled' => FALSE],
-      """
-    And some behat configuration
-    And scenario steps tagged with "@module:!dblog":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that the skip tag switches the check off for a missing watchdog table
-    Given some behat configuration
-    And scenario steps tagged with "@module:!dblog @behat-steps-skip:WatchdogTrait":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that turning fail_on_errors off does not cover a missing watchdog table
-    Given a configuration with the step options:
-      """
-      'watchdog' => ['fail_on_errors' => FALSE],
-      """
-    And some behat configuration
-    And scenario steps tagged with "@module:!dblog":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an exception:
-      """
-      The "watchdog" table does not exist
-      """
-
-  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
-  Scenario: Assert that the error tag does not cover a missing watchdog table
-    Given some behat configuration
-    And scenario steps tagged with "@module:!dblog @error":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should fail with an exception:
-      """
-      The "watchdog" table does not exist
+      2 steps (2 passed)
       """
 
   @trait:Drupal\WatchdogTrait
-  Scenario: Assert that a configuration reaching Drupal only through Drush runs no check
+  Scenario: Assert that an opted-in configuration reaching Drupal only through Drush fails at its start
     Given a configuration listing the drivers "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException" exception:
+      """
+      WatchdogTrait requires that a driver in the scenario's list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: drush, blackbox. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+      """
+    And the output should contain:
+      """
+      1 step (1 skipped)
+      """
+
+  @trait:Drupal\WatchdogTrait
+  Scenario: Assert that an opted-out configuration reaching Drupal only through Drush passes
+    Given a configuration listing the drivers "drush, blackbox"
+    And a configuration with the step options:
+      """
+      'watchdog' => ['enabled' => FALSE],
+      """
     And some behat configuration
     And scenario steps:
       """

@@ -7780,14 +7780,11 @@ Then the user "John" should not be blocked
 >  - Optionally check only for specific message types.
 >  - Optionally skip error checking for specific scenarios.
 >  
->  Requires the core `dblog` module, whose `watchdog` table the check reads.
->  Without it, every scenario fails at its last step until the check is
->  switched off with the `watchdog.enabled` option or the skip tag below.
+>  The check is on by default. An opted-in scenario whose prerequisites do not
+>  hold fails at its start.
 >  <br/><br/>
->  `watchdog.fail_on_errors` and `@error` do not switch off the check for a
->  missing table, because they apply only to errors that were read. The check
->  needs a driver that runs Drupal in-process, so a profile that reaches the
->  site through Drush alone is not checked.
+>  `watchdog.fail_on_errors` and `@error` decide what happens to errors that
+>  were read, so they do not cover an unmet prerequisite.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>
@@ -7796,6 +7793,13 @@ Then the user "John" should not be blocked
 >  - `@error` - add to scenarios that are expected to trigger an error. The
 >  errors are still read and cleared; the scenario is not failed.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "dblog" module is enabled | `ModuleCapabilityInterface` |
 
 ### Options
 

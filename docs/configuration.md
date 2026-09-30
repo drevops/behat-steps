@@ -287,7 +287,7 @@ Two options recur, and they are deliberately separate switches:
 | `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
 | `fail_on_errors` | The trait still collects, and does not fail the scenario on what it found. |
 
-`fail_on_errors` only covers what a trait collected. On a site without the core `dblog` module, `WatchdogTrait` can't collect at all and fails every scenario whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
+`fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
 Overriding the trait's `<trait>Get<Noun>()` method in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
 

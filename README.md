@@ -217,7 +217,7 @@ The `drivers` list says which drivers a scenario may reach, and in what order. A
 
 Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and sends the requests steps make from PHP, such as a file download, with the same options. So the page and the download reach the site with the same settings, and [HTTP clients](docs/http-clients.md) covers the rest.
 
-By default, `DrupalContext` fails any scenario that logs a PHP error, reading those errors from the table the core `dblog` module creates. On a site without `dblog`, every scenario fails at its last step until you enable the module or [switch the Watchdog check off](docs/usage.md#switch-a-trait-off).
+By default, `DrupalContext` fails any scenario that logs a PHP error, reading those errors from the table the core `dblog` module creates, through a driver that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a driver, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](docs/usage.md#switch-a-trait-off).
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 

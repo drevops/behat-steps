@@ -12,9 +12,10 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
@@ -25,14 +26,11 @@ use Drupal\Core\Database\Database;
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
  *
- * Requires the core `dblog` module, whose `watchdog` table the check reads.
- * Without it, every scenario fails at its last step until the check is
- * switched off with the `watchdog.enabled` option or the skip tag below.
+ * The check is on by default. An opted-in scenario whose prerequisites do not
+ * hold fails at its start.
  *
- * `watchdog.fail_on_errors` and `@error` do not switch off the check for a
- * missing table, because they apply only to errors that were read. The check
- * needs a driver that runs Drupal in-process, so a profile that reaches the
- * site through Drush alone is not checked.
+ * `watchdog.fail_on_errors` and `@error` decide what happens to errors that
+ * were read, so they do not cover an unmet prerequisite.
  *
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
@@ -74,9 +72,11 @@ trait WatchdogTrait {
    */
   #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !$this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $scenario = $scope->getScenario();
 
@@ -103,11 +103,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    if (!Database::getConnection()->schema()->tableExists('watchdog')) {
-      throw new \RuntimeException(sprintf('The "watchdog" table does not exist, so logged errors cannot be checked. Enable the "dblog" module, or switch the check off with the "watchdog.enabled" option or the "@%sWatchdogTrait" tag.', TagOverrides::SKIP_TAG_PREFIX));
-    }
+    $this->assertPrerequisites(__TRAIT__);
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
       $this->watchdogReadErrors();
@@ -132,16 +128,7 @@ trait WatchdogTrait {
    */
   #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime)) {
-      return;
-    }
-
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    // The step hook throws for a missing table because the step result is
-    // still open. This hook runs after the result is set, where throwing
-    // would replace a real scenario failure with a configuration error.
-    if (!Database::getConnection()->schema()->tableExists('watchdog')) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->prerequisitesMet(__TRAIT__)) {
       return;
     }
 
@@ -264,6 +251,19 @@ trait WatchdogTrait {
     return [
       new Option('enabled', default: TRUE, description: 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.'),
       new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.', tags: ['error' => FALSE]),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function watchdogPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('dblog'), 'the core "dblog" module is enabled'),
     ];
   }
 
