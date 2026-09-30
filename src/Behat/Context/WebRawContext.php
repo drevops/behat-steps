@@ -403,19 +403,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Determines whether a scenario opts out of a hook.
+   * Determines whether a scenario switches a trait's hooks off.
    *
-   * One tag form covers every hook in the library:
-   * '@behat-steps-skip:<Name>', where '<Name>' is either a hook method name or
-   * a trait name. Feature tags and scenario tags are read together, so the tag
-   * works on either line.
+   * The tag names the trait: '@behat-steps-skip:<TraitName>' switches off
+   * every hook the trait registers. Feature tags and scenario tags are read
+   * together, so the tag works on either line.
    *
    * A trait that declares an 'enabled' option is also switched off by that
    * option, so a project turns the trait off for the whole profile or for one
    * context instead of tagging every feature file.
    *
-   * @param string $name
-   *   The hook method name or trait name the tag would carry.
+   * @param string $trait
+   *   The trait the hook belongs to, fully qualified or short. A hook passes
+   *   '__TRAIT__'.
    * @param \Behat\Behat\Hook\Scope\ScenarioScope $scope
    *   The scenario scope the hook received.
    *
@@ -423,7 +423,10 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   TRUE when the scenario or its feature carries the skip tag, or the
    *   trait's 'enabled' option resolves to FALSE.
    */
-  protected function skipTag(string $name, ScenarioScope $scope): bool {
+  protected function skipTag(string $trait, ScenarioScope $scope): bool {
+    $separator = strrpos($trait, '\\');
+    $name = $separator === FALSE ? $trait : substr($trait, $separator + 1);
+
     if (in_array(TagOverrides::SKIP_TAG_PREFIX . $name, Tag::all($scope), TRUE)) {
       return TRUE;
     }

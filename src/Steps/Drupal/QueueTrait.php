@@ -21,6 +21,8 @@ use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
  * - Process queue items during tests.
  * - Assert queue item counts.
  *
+ * Skip processing with tag: `@behat-steps-skip:QueueTrait`.
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait QueueTrait {
@@ -37,7 +39,7 @@ trait QueueTrait {
    */
   #[AfterScenario('@queue')]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->queueNames === [] || $this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->queueNames === [] || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

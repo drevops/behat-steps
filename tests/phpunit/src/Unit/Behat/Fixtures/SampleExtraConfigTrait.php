@@ -7,11 +7,10 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
- * Trait whose prefix extends another switchable group's.
+ * Trait whose group name extends another switchable group's.
  *
- * 'sampleExtra' starts with 'sample', and both groups declare a switch. A hook
- * named after this one matches two groups, and the longer prefix takes
- * precedence.
+ * 'sample_extra' starts with 'sample', and both groups declare a switch, so
+ * each has to resolve to its own group and never to the other.
  */
 trait SampleExtraConfigTrait {
 

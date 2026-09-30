@@ -48,14 +48,14 @@ Feature: Check that ConfigOverrideTrait works
     Then the response status code should be 200
     And the response should contain "system.site"
 
-  @disable-config-override:system.site @behat-steps-skip:configOverrideBeforeScenario
-  Scenario: The @behat-steps-skip:configOverrideBeforeScenario tag bypasses the trait entirely
+  @disable-config-override:system.site @behat-steps-skip:ConfigOverrideTrait
+  Scenario: The @behat-steps-skip:ConfigOverrideTrait tag bypasses the trait entirely
     When I visit "/mysite_core/test-config-no-override-header"
     Then the response status code should be 200
     And the response should not contain "system.site"
 
-  @disable-config-override:system.site @behat-steps-skip:configOverrideBeforeStep
-  Scenario: The @behat-steps-skip:configOverrideBeforeStep tag keeps tag parsing but skips header propagation
+  @disable-config-override:system.site @behat-steps-skip:ConfigOverrideTrait
+  Scenario: The @behat-steps-skip:ConfigOverrideTrait tag keeps the header off after a login step
     Given the following users exist:
       | name       | mail                   | roles         | status |
       | test_user2 | test_user2@example.com | administrator | 1      |

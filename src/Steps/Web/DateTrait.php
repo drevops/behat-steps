@@ -51,7 +51,7 @@ trait DateTrait {
    */
   #[BeforeScenario]
   public function dateBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->dateEnabled = !$this->skipTag('DateTrait', $scope);
+    $this->dateEnabled = !$this->skipTag(__TRAIT__, $scope);
   }
 
   /**

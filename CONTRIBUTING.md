@@ -189,7 +189,7 @@ Data provider naming and placement are settled too. A provider is named `dataPro
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection, the `region` Mink selector and the starter-class generator.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
@@ -252,6 +252,32 @@ if (Tag::has($scope->getScenario(), 'email')) {
 ```
 
 `Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
+
+## Skipping a trait's hooks
+
+A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not a trait name, so a tag that would switch nothing off cannot pass unnoticed.
+
+A scenario hook opens with the guard, naming its own trait:
+
+```php
+#[AfterScenario]
+public function acmeAfterScenario(AfterScenarioScope $scope): void {
+  if ($this->skipTag(__TRAIT__, $scope)) {
+    return;
+  }
+
+  // ...
+}
+```
+
+`__TRAIT__` resolves to the trait the code is written in, so the guard cannot name the wrong trait or fall out of step with a rename.
+
+A step hook's scope carries no scenario tags, so it reads a flag its trait's `BeforeScenario` hook set behind the guard, and an `AfterScenario` hook may read the same flag instead of a guard of its own. Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
+
+- A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
+- A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
+
+`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that is neither guarded nor listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
 
 ## Dependency policy
 
@@ -364,7 +390,7 @@ Mark a block only when a test cannot reach it in this environment:
 
 Do not mark a branch that a scenario could reach. In particular:
 
-- **Skip-tag guards** (`@behat-steps-skip:<method>`) are reachable by definition - add a scenario carrying the tag.
+- **Skip-tag guards** (`@behat-steps-skip:<TraitName>`) are reachable by definition - add a scenario carrying the tag.
 - **Argument validation** driven by a step parameter is reachable by passing an invalid value.
 
 If a reachable branch has no test, the fix is the test, not the marker.

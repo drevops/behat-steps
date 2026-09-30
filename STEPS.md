@@ -1721,8 +1721,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 >  - Verify file names, content, and extracted archives.
 >  - Set up download directories and handle file cleanup.
 >  
->  Skip processing with tags: `@behat-steps-skip:fileDownloadBeforeScenario` or
->  `@behat-steps-skip:fileDownloadAfterScenario`
+>  Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@download` - enable download handling
@@ -3718,7 +3717,7 @@ When I set the viewport to "375" by "667"
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
 >  - Assert response status codes and body content.
 >  
->  Skip processing with tags: `@behat-steps-skip:restBeforeScenario`
+>  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
 
 ### Options
@@ -4916,8 +4915,7 @@ When I run cron
 >    Then the response should contain "Original site name"
 >  ```
 >  <br/><br/>
->  Skip processing with tags: `@behat-steps-skip:configOverrideBeforeScenario`
->  and `@behat-steps-skip:configOverrideBeforeStep`.
+>  Skip processing with tag: `@behat-steps-skip:ConfigOverrideTrait`.
 
 
 ### Options
@@ -4952,7 +4950,7 @@ When I run cron
 >  Configuration objects touched by the set steps are snapshotted on first
 >  write and restored after the scenario: an existing object is reset to its
 >  original data and an object that did not exist is deleted. Skip the revert
->  with `@behat-steps-skip:configAfterScenario` or `@behat-steps-skip:ConfigTrait`.
+>  with `@behat-steps-skip:ConfigTrait`.
 >  <br/><br/>
 >  ```
 >  Scenario: Assert configured values
@@ -5683,8 +5681,7 @@ When I edit the eck "contact" "contact_type" entity with the title "Test contact
 >  - Follow links and test attachments within email content.
 >  - Configure mail handler systems for proper test isolation.
 >  
->  Skip processing with tags: `@behat-steps-skip:emailBeforeScenario` or
->  `@behat-steps-skip:emailAfterScenario`
+>  Skip processing with tag: `@behat-steps-skip:EmailTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@email` - enable email tracking using a default handler
@@ -6124,8 +6121,7 @@ Given the following "commerce_product" entities exist:
 >  - Verify file existence, content, and proper storage locations.
 >  - Set up file system directories and clean up created files.
 >  
->  Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
->  `@behat-steps-skip:fileAfterScenario`
+>  Skip processing with tag: `@behat-steps-skip:FileTrait`.
 
 
 ### Options
@@ -6557,8 +6553,7 @@ Given the following menu links exist in the menu "Main navigation":
 >  <br/><br/>
 >  Supports automatic module management via scenario tags.
 >  <br/><br/>
->  Skip processing with tags: `@behat-steps-skip:moduleBeforeScenario` and
->  `@behat-steps-skip:moduleAfterScenario`.
+>  Skip processing with tag: `@behat-steps-skip:ModuleTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@module:module_name` - enable module for scenario
@@ -6728,6 +6723,8 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 >  - Add items to a queue and clear queues before scenarios.
 >  - Process queue items during tests.
 >  - Assert queue item counts.
+>  
+>  Skip processing with tag: `@behat-steps-skip:QueueTrait`.
 
 
 ### Options
@@ -6984,9 +6981,8 @@ When I run the Search API Solr cron
 >  `\Drupal::state()`. Touched keys are snapshotted on first access and
 >  reverted after the scenario finishes.
 >  <br/><br/>
->  Skip the revert with `@behat-steps-skip:stateAfterScenario` or with the
->  convenience tag `@behat-steps-skip:StateTrait`. The snapshot registry is
->  cleared unconditionally before and after the scenario to prevent state
+>  Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
+>  is cleared unconditionally before and after the scenario to prevent state
 >  leaking into subsequent scenarios.
 
 
@@ -7231,8 +7227,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 >  Configure Drupal Testmode module for controlled testing scenarios.
 >  <br/><br/>
->  Skip processing with tags: `@behat-steps-skip:testmodeBeforeScenario` and
->  `@behat-steps-skip:testmodeAfterScenario`.
+>  Skip processing with tag: `@behat-steps-skip:TestmodeTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@testmode` - enable for scenario
@@ -7257,6 +7252,8 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 >  - Time service: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/Time.php
 >  - Time interface: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/src/Time/TimeInterface.php
 >  - Service registration: https://github.com/drevops/behat-steps/blob/main/tests/behat/fixtures_drupal/d11/web/modules/custom/mysite_core/mysite_core.services.yml
+>  
+>  Skip processing with tag: `@behat-steps-skip:TimeTrait`.
 
 
 ### Options
@@ -7728,8 +7725,7 @@ Then the user "John" should not be blocked
 >  - Optionally check only for specific message types.
 >  - Optionally skip error checking for specific scenarios.
 >  
->  Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
->  `@behat-steps-skip:watchdogAfterStep`
+>  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>
 >  Special tags:
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.

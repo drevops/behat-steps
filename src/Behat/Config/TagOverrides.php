@@ -14,9 +14,14 @@ namespace DrevOps\BehatSteps\Behat\Config;
 class TagOverrides {
 
   /**
-   * Prefix of the tag that turns a hook or a whole trait off.
+   * Prefix of the tag that switches off every hook of a trait.
    */
   public const SKIP_TAG_PREFIX = 'behat-steps-skip:';
+
+  /**
+   * Matches the value a skip tag carries: the short name of a trait.
+   */
+  public const SKIP_TAG_VALUE_PATTERN = '/^[A-Za-z_][A-Za-z0-9_]*' . GroupName::TRAIT_SUFFIX . '$/';
 
   /**
    * Replaces a resolved value with whatever the last matching tag sets.

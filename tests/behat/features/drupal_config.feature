@@ -76,7 +76,7 @@ Feature: Check that ConfigTrait works
   # Setup scenario: store a known value so the next scenario can prove it got
   # reverted automatically. The AfterScenario hook is skipped here so the value
   # persists into the following scenario.
-  @behat-steps-skip:configAfterScenario
+  @behat-steps-skip:ConfigTrait
   Scenario: Seed a config value without auto-revert
     Given the config "behat_steps_test.persistent" key "flag" has the value "seeded"
     Then the config "behat_steps_test.persistent" key "flag" should have the value "seeded"
@@ -125,7 +125,7 @@ Feature: Check that ConfigTrait works
     And the config "behat_steps_test.drush_types" key "tags" should contain the value "b"
     And the config "behat_steps_test.drush_types" key "nested" should contain the value "y"
 
-  @behat-steps-skip:configAfterScenario @driver:drush
+  @behat-steps-skip:ConfigTrait @driver:drush
   Scenario: Seed a config value over Drush without auto-revert
     Given the config "behat_steps_test.drush_persistent" key "flag" has the value "seeded"
     Then the config "behat_steps_test.drush_persistent" key "flag" should have the value "seeded"

@@ -61,7 +61,7 @@ trait FieldTrait {
    */
   #[BeforeScenario]
   public function fieldBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag('FieldTrait', $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       $this->fieldFormValidationEnabled = FALSE;
       $this->fieldFormValidationRegistry = [];
       $this->fieldDisableAllFormValidation = FALSE;
@@ -104,13 +104,6 @@ trait FieldTrait {
    */
   #[AfterScenario]
   public function fieldAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag('FieldTrait', $scope)) {
-      $this->fieldFormValidationEnabled = FALSE;
-      $this->fieldFormValidationRegistry = [];
-      $this->fieldDisableAllFormValidation = FALSE;
-      return;
-    }
-
     $this->fieldFormValidationRegistry = [];
     $this->fieldFormValidationEnabled = FALSE;
     $this->fieldDisableAllFormValidation = FALSE;

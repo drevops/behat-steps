@@ -36,7 +36,7 @@ trait BasicAuthTrait {
    */
   #[BeforeScenario]
   public function basicAuthBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->basicAuthSkip = $this->skipTag('BasicAuthTrait', $scope) || $this->skipTag(__FUNCTION__, $scope);
+    $this->basicAuthSkip = $this->skipTag(__TRAIT__, $scope);
 
     if ($this->basicAuthSkip) {
       return;

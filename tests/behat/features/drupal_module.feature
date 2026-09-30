@@ -119,7 +119,7 @@ Feature: Check that ModuleTrait works
   # initial state for the next scenarios to test tag-based restoration.
   # Without the skip tag, the Given step would store the original state and
   # restore it at the end, interfering with the cross-scenario test flow.
-  @behat-steps-skip:moduleAfterScenario
+  @behat-steps-skip:ModuleTrait
   Scenario: Assert module state is restored after scenario changes
     When I log in as a user with the role "administrator"
     # First, ensure help is disabled
@@ -218,9 +218,9 @@ Feature: Check that ModuleTrait works
       """
 
   @trait:Drupal\ModuleTrait
-  Scenario: Assert that skip tag for beforeScenario hook works
+  Scenario: Assert that the skip tag switches the ModuleTrait hooks off
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:moduleBeforeScenario":
+    And scenario steps tagged with "@behat-steps-skip:ModuleTrait":
       """
       When I visit "/"
       """

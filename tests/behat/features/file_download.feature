@@ -208,19 +208,9 @@ Feature: Check that FileDownloadTrait works
       """
 
   @trait:FileDownloadTrait
-  Scenario: Assert that skip tag for beforeScenario hook works
+  Scenario: Assert that the skip tag switches the FileDownloadTrait hooks off
     Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:fileDownloadBeforeScenario":
-      """
-      When I visit "/"
-      """
-    When I run "behat --no-colors"
-    Then it should pass
-
-  @trait:FileDownloadTrait
-  Scenario: Assert that skip tag for afterScenario hook works
-    Given some behat configuration
-    And scenario steps tagged with "@behat-steps-skip:fileDownloadAfterScenario":
+    And scenario steps tagged with "@download @behat-steps-skip:FileDownloadTrait":
       """
       When I visit "/"
       """

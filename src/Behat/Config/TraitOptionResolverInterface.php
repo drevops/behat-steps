@@ -112,19 +112,14 @@ interface TraitOptionResolverInterface {
   public function array(string $group, string $key): array;
 
   /**
-   * Resolves the group a skip name belongs to.
+   * Resolves the group of a trait that declares an 'enabled' option.
    *
-   * A name is either a trait name, which maps to its group directly, or a hook
-   * method name, which carries its trait's prefix. The longest matching prefix
-   * wins, so 'configOverrideBeforeStep' resolves to 'config_override' rather
-   * than to 'config'.
-   *
-   * @param string $name
-   *   The hook method name or trait name a skip tag would carry.
+   * @param string $trait
+   *   The short trait name a skip tag carries, such as 'BigPipeTrait'.
    *
    * @return string|null
-   *   The group name, or NULL when no group with an 'enabled' option matches.
+   *   The group name, or NULL when the trait declares no 'enabled' option.
    */
-  public function groupFor(string $name): ?string;
+  public function groupFor(string $trait): ?string;
 
 }

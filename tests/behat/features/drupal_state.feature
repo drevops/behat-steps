@@ -45,7 +45,7 @@ Feature: Check that StateTrait works
   # Setup scenario: store a known value so the next scenario can prove it got
   # reverted automatically. The AfterScenario hook should snapshot NULL here
   # and revert the key back to NULL after this scenario finishes.
-  @behat-steps-skip:stateAfterScenario
+  @behat-steps-skip:StateTrait
   Scenario: Seed a state value without auto-revert
     Given the state "behat_steps_test.persistent" has the value "seeded"
     Then the state "behat_steps_test.persistent" should have the value "seeded"
@@ -79,7 +79,7 @@ Feature: Check that StateTrait works
     And the state "behat_steps_test.drush_doomed" does not exist
     Then the state "behat_steps_test.drush_doomed" should not exist
 
-  @behat-steps-skip:stateAfterScenario @driver:drush
+  @behat-steps-skip:StateTrait @driver:drush
   Scenario: Seed a state value over Drush without auto-revert
     Given the state "behat_steps_test.drush_persistent" has the value "seeded"
     Then the state "behat_steps_test.drush_persistent" should have the value "seeded"

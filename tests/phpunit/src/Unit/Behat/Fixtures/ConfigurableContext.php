@@ -19,8 +19,8 @@ class ConfigurableContext extends WebRawContext {
   /**
    * Public bridge to the protected skip resolution.
    */
-  public function callSkipTag(string $name, ScenarioScope $scope): bool {
-    return $this->skipTag($name, $scope);
+  public function callSkipTag(string $trait, ScenarioScope $scope): bool {
+    return $this->skipTag($trait, $scope);
   }
 
 }

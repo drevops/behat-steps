@@ -526,8 +526,20 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderTheSkipTagDisablesEntityCleanup(): \Iterator {
-    yield 'on the scenario' => [['behat-steps-skip:entityLifecycleCleanAll'], []];
-    yield 'on the feature' => [[], ['behat-steps-skip:entityLifecycleCleanAll']];
+    yield 'on the scenario' => [['behat-steps-skip:EntityLifecycleTrait'], []];
+    yield 'on the feature' => [[], ['behat-steps-skip:EntityLifecycleTrait']];
+  }
+
+  public function testTheAuthSkipTagLeavesEntityCleanupRunning(): void {
+    $driver = $this->createContentDriver();
+    $driver->expects($this->once())->method('nodeDelete');
+
+    $context = $this->createContext($driver);
+    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+
+    $context->entityLifecycleCleanAll($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
+
+    $this->assertSame([], $context->getCreatedStubs());
   }
 
   public function testTheSkipTagDisablesUserCleanup(): void {
@@ -543,7 +555,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($driver, $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:authCleanUsers']));
+    $this->createContext($driver, $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
 
     $this->assertTrue($user_registry->hasUsers());
   }
@@ -555,9 +567,21 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($driver);
     $context->setRoles(['editor']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:authCleanRoles']));
+    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
 
     $this->assertSame(['editor'], $context->getRoles());
+  }
+
+  public function testTheEntitySkipTagLeavesRoleCleanupRunning(): void {
+    $driver = $this->createDriver([RoleCapabilityInterface::class]);
+    $driver->expects($this->once())->method('roleDelete');
+
+    $context = $this->createContext($driver);
+    $context->setRoles(['editor']);
+
+    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:EntityLifecycleTrait']));
+
+    $this->assertSame([], $context->getRoles());
   }
 
   public function testTheEntityCleanupSkipTagSparesOnlyTheNamedType(): void {

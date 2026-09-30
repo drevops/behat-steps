@@ -2726,7 +2726,6 @@ EOD,
       'colon email handler' => ['email:default', NULL],
       'colon watchdog' => ['watchdog:custom_type', NULL],
       'colon config override with dots' => ['disable-config-override:system.site', NULL],
-      'colon skip with method' => ['behat-steps-skip:configOverrideBeforeStep', NULL],
       'colon skip with trait' => ['behat-steps-skip:AccessibilityTrait', NULL],
       // Valid: bare forms of otherwise-parametrized tags.
       'bare accessibility' => ['accessibility', NULL],

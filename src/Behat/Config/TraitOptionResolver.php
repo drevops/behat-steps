@@ -129,30 +129,14 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   /**
    * {@inheritdoc}
    */
-  public function groupFor(string $name): ?string {
-    $groups = array_keys(array_filter($this->declarations, static fn(array $options): bool => isset($options[Option::ENABLED])));
-
-    if (str_ends_with($name, GroupName::TRAIT_SUFFIX)) {
-      $group = GroupName::fromTraitName($name);
-
-      return in_array($group, $groups, TRUE) ? $group : NULL;
+  public function groupFor(string $trait): ?string {
+    if (!str_ends_with($trait, GroupName::TRAIT_SUFFIX)) {
+      return NULL;
     }
 
-    $match = NULL;
+    $group = GroupName::fromTraitName($trait);
 
-    foreach ($groups as $group) {
-      $prefix = GroupName::toMethodPrefix($group);
-
-      if (!str_starts_with($name, $prefix) || !ctype_upper(substr($name, strlen($prefix), 1))) {
-        continue;
-      }
-
-      if ($match === NULL || strlen($group) > strlen($match)) {
-        $match = $group;
-      }
-    }
-
-    return $match;
+    return isset($this->declarations[$group][Option::ENABLED]) ? $group : NULL;
   }
 
   /**

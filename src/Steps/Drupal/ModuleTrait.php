@@ -22,8 +22,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *
  * Supports automatic module management via scenario tags.
  *
- * Skip processing with tags: `@behat-steps-skip:moduleBeforeScenario` and
- * `@behat-steps-skip:moduleAfterScenario`.
+ * Skip processing with tag: `@behat-steps-skip:ModuleTrait`.
  *
  * Special tags:
  * - `@module:module_name` - enable module for scenario
@@ -45,7 +44,7 @@ trait ModuleTrait {
    */
   #[BeforeScenario]
   public function moduleBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
     $tags = Tag::on($scope->getScenario());
@@ -74,7 +73,7 @@ trait ModuleTrait {
    */
   #[AfterScenario]
   public function moduleAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

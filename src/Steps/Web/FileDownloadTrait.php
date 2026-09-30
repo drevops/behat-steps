@@ -27,8 +27,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * - Verify file names, content, and extracted archives.
  * - Set up download directories and handle file cleanup.
  *
- * Skip processing with tags: `@behat-steps-skip:fileDownloadBeforeScenario` or
- * `@behat-steps-skip:fileDownloadAfterScenario`
+ * Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.
  *
  * Special tags:
  * - `@download` - enable download handling
@@ -49,7 +48,7 @@ trait FileDownloadTrait {
    */
   #[BeforeScenario]
   public function fileDownloadBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 
@@ -64,7 +63,7 @@ trait FileDownloadTrait {
    */
   #[AfterScenario]
   public function fileDownloadAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

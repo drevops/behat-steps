@@ -25,8 +25,7 @@ use Drupal\Core\Database\Database;
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
  *
- * Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
- * `@behat-steps-skip:watchdogAfterStep`
+ * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
  * Special tags:
  * - `@watchdog:{type}` - limit watchdog messages to specific types.
@@ -66,16 +65,11 @@ trait WatchdogTrait {
    */
   #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__FUNCTION__, $scope) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
       return;
     }
 
     $scenario = $scope->getScenario();
-
-    // An unset start time disables the check.
-    if (Tag::has($scenario, 'behat-steps-skip:watchdogAfterStep')) {
-      return;
-    }
 
     $this->watchdogScenarioStartTime = time();
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';

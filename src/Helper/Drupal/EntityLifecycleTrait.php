@@ -103,13 +103,13 @@ trait EntityLifecycleTrait {
    * Walks 'createdStubs' in reverse order, so a dependent entity such as a
    * node referencing a term is deleted before the entity it references.
    *
-   * '@behat-steps-skip:entityLifecycleCleanAll' skips the whole pass, and
+   * '@behat-steps-skip:EntityLifecycleTrait' skips the whole pass, and
    * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips one entity
    * type.
    */
   #[AfterScenario]
   public function entityLifecycleCleanAll(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag('entityLifecycleCleanAll', $scope)) {
+    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 

@@ -38,7 +38,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * Configuration objects touched by the set steps are snapshotted on first
  * write and restored after the scenario: an existing object is reset to its
  * original data and an object that did not exist is deleted. Skip the revert
- * with `@behat-steps-skip:configAfterScenario` or `@behat-steps-skip:ConfigTrait`.
+ * with `@behat-steps-skip:ConfigTrait`.
  *
  * @code
  * Scenario: Assert configured values
@@ -75,10 +75,7 @@ trait ConfigTrait {
    */
   #[AfterScenario]
   public function configAfterScenario(AfterScenarioScope $scope): void {
-    if (
-      $this->skipTag(__FUNCTION__, $scope)
-      || $this->skipTag('ConfigTrait', $scope)
-    ) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       $this->configOriginalData = [];
       return;
     }
