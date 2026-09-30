@@ -11,6 +11,7 @@ parameters:
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
   behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
   behat_steps.listener.skip_tag.class: DrevOps\BehatSteps\Behat\Listener\SkipTagListener
+  behat_steps.tester.setup_failure.class: DrevOps\BehatSteps\Behat\Tester\SetupFailureScenarioTester
   behat_steps.region_selector.class: DrevOps\BehatSteps\Behat\Selector\RegionSelector
   behat_steps.parameters: {}
   behat_steps.regions: {}
@@ -77,6 +78,21 @@ services:
     class: "%behat_steps.listener.skip_tag.class%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }
+  # Priority 0 nests each wrapper inside the tester that dispatches the
+  # scenario events and around the one that dispatches the hooks. Behat sets
+  # both priorities in EventDispatcherExtension and HookExtension.
+  behat_steps.tester.setup_failure.scenario:
+    class: "%behat_steps.tester.setup_failure.class%"
+    arguments:
+      - "@tester.scenario"
+    tags:
+      - { name: tester.scenario.wrapper, priority: 0 }
+  behat_steps.tester.setup_failure.example:
+    class: "%behat_steps.tester.setup_failure.class%"
+    arguments:
+      - "@tester.example"
+    tags:
+      - { name: tester.example.wrapper, priority: 0 }
   behat_steps.region_selector:
     class: "%behat_steps.region_selector.class%"
     arguments:

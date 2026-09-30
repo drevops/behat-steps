@@ -195,3 +195,26 @@ Feature: Check that FileTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @trait:Drupal\FileTrait
+  Scenario: Assert that a FileTrait hook no configured driver can serve fails the scenario
+    Given a configuration listing the driver "blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      --- Failed scenarios:
+
+          features/stub.feature:3
+
+      1 scenario (1 failed)
+      1 step (1 skipped)
+      """
+    And the output should contain:
+      """
+      No driver provides "DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface". Drivers available to this scenario, in order: blackbox.
+      """

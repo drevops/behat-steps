@@ -14,11 +14,17 @@ Feature: Behat CLI context
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
+      use Behat\Hook\BeforeScenario;
       use Behat\Step\Given;
       use DrevOps\BehatSteps\Behat\Context\WebRawContext;
       use DrevOps\BehatSteps\Steps\Web\PathTrait;
       class FeatureContext extends WebRawContext {
         use PathTrait;
+
+        #[BeforeScenario('@test-hook-abort')]
+        public function abortScenario() {
+          throw new \RuntimeException('Intentional hook failure');
+        }
 
         #[Given('I throw test exception with message :message')]
         public function throwTestException($message) {
@@ -201,4 +207,83 @@ Feature: Behat CLI context
     Then it should fail with:
       """
       The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
+      """
+
+  Scenario: A scenario whose BeforeScenario hook fails counts as failed rather than skipped
+    Given a file named "features/hook_failure.feature" with:
+      """
+      Feature: Homepage
+        Scenario: A scenario whose hooks pass
+          Given I go to the homepage
+
+        @test-hook-abort
+        Scenario: A scenario whose hook fails
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      --- Failed scenarios:
+
+          features/hook_failure.feature:6
+
+      2 scenarios (1 passed, 1 failed)
+      2 steps (1 passed, 1 skipped)
+      """
+    And the output should contain:
+      """
+      Intentional hook failure
+      """
+    And the output should not contain:
+      """
+      --- Skipped scenarios:
+      """
+
+  Scenario: An outline example whose BeforeScenario hook fails counts as failed rather than skipped
+    Given a file named "features/hook_failure.feature" with:
+      """
+      Feature: Homepage
+        Scenario Outline: A scenario for each path
+          Given I go to "<path>"
+
+          Examples:
+            | path |
+            | /    |
+
+          @test-hook-abort
+          Examples:
+            | path |
+            | /    |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      --- Failed scenarios:
+
+          features/hook_failure.feature:12
+
+      2 scenarios (1 passed, 1 failed)
+      2 steps (1 passed, 1 skipped)
+      """
+    And the output should not contain:
+      """
+      --- Skipped scenarios:
+      """
+
+  Scenario: A BeforeScenario hook that fails stops a run under the stop-on-failure option
+    Given a file named "features/hook_failure.feature" with:
+      """
+      Feature: Homepage
+        @test-hook-abort
+        Scenario: A scenario whose hook fails
+          Given I go to the homepage
+
+        Scenario: A scenario after it
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors --stop-on-failure"
+    Then it should fail with:
+      """
+      1 scenario (1 failed)
+      1 step (1 skipped)
       """

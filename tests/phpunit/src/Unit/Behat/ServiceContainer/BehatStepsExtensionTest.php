@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Behat\Tester\ServiceContainer\TesterExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Behat\Tester\SetupFailureScenarioTester;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -135,6 +137,31 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertTrue($container->hasDefinition('behat_steps.listener.driver'));
     $this->assertTrue($container->hasDefinition('behat_steps.listener.skip_tag'));
     $this->assertTrue($container->hasDefinition('behat_steps.region_selector'));
+  }
+
+  /**
+   * Tests that the setup failure tester wraps the scenario and example testers.
+   *
+   * @param string $id
+   *   The service id of the wrapper.
+   * @param string $target
+   *   The service id of the tester the wrapper decorates.
+   * @param string $tag
+   *   The tag Behat collects the wrappers of that tester by.
+   */
+  #[DataProvider('dataProviderSetupFailureTesterWrapsTheTester')]
+  public function testSetupFailureTesterWrapsTheTester(string $id, string $target, string $tag): void {
+    $container = $this->load([]);
+    $definition = $container->getDefinition($id);
+
+    $this->assertSame(SetupFailureScenarioTester::class, $container->getParameterBag()->resolveValue($definition->getClass()));
+    $this->assertSame($target, (string) $definition->getArgument(0));
+    $this->assertSame([['priority' => 0]], $definition->getTag($tag));
+  }
+
+  public static function dataProviderSetupFailureTesterWrapsTheTester(): \Iterator {
+    yield 'scenarios' => ['behat_steps.tester.setup_failure.scenario', TesterExtension::SCENARIO_TESTER_ID, TesterExtension::SCENARIO_TESTER_WRAPPER_TAG];
+    yield 'outline examples' => ['behat_steps.tester.setup_failure.example', TesterExtension::EXAMPLE_TESTER_ID, TesterExtension::EXAMPLE_TESTER_WRAPPER_TAG];
   }
 
   public function testDrupalDriverIsRegisteredWithItsRoot(): void {
