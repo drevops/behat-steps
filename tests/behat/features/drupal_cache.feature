@@ -21,6 +21,13 @@ Feature: Check that CacheTrait works
     When I go to "/user"
     Then I should see "Member for"
 
+  Scenario: Assert "When I run cron" runs cron
+    Given the watchdog is cleared
+    When I run cron
+    And I log in as a user with the "administrator" role
+    And I go to "/admin/reports/dblog"
+    Then I should see "Cron run completed."
+
   @trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty path fails
     Given some behat configuration

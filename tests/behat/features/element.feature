@@ -363,6 +363,46 @@ Feature: Check that ElementTrait works
       """
 
   @phpserver
+  Scenario: Assert "Then the heading :heading should exist" works as expected
+    When I visit "http://cli:8888/elements.html"
+    Then the heading "Element Testing Page" should exist
+    And the heading "Basic Elements" should exist
+
+  @phpserver
+  Scenario: Assert "Then the heading :heading should not exist" works as expected
+    When I visit "http://cli:8888/elements.html"
+    Then the heading "Nonexistent heading" should not exist
+    And the heading "Basic" should not exist
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the heading :heading should exist" fails when no heading has the exact text
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/elements.html"
+      Then the heading "Basic" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Heading with text "Basic" not found.
+      """
+
+  @trait:ElementTrait
+  Scenario: Assert "Then the heading :heading should not exist" fails when a heading has the text
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/elements.html"
+      Then the heading "Basic Elements" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The heading "Basic Elements" was found on the page http://cli:8888/elements.html.
+      """
+
+  @phpserver
   Scenario: Text appears after another text
     When I visit "http://cli:8888/elements.html"
     Then the text "Copyright 2024" should appear after the text "Welcome"

@@ -53,6 +53,19 @@ Feature: Check that RegionTrait works
     Then the path should be "/about"
 
   @phpserver
+  Scenario: Assert "When I press the button :button in the region :region" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/regions.html"
+    And I press the button "Subscribe" in the region "sidebar"
+    Then the current URL should have the query parameter "op" with the value "Subscribe"
+
+  @javascript @phpserver
+  Scenario: Assert "Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value" works as expected
+    Given the user is anonymous
+    When I visit "http://cli:8888/regions.html"
+    Then the element "span" with the text "New" in the region "content" should have the CSS property "color" with the value "rgb(255, 0, 0)"
+
+  @phpserver
   Scenario: Assert "When I fill in the field :field with the value :value in the region :region" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"

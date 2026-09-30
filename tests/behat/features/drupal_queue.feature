@@ -35,6 +35,17 @@ Feature: Check that QueueTrait works
     Then the queue "behat_test" should have 1 item
 
   @queue
+  Scenario: Assert "Given the following item is in the queue :queue:" adds an item the worker processes
+    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    And the queue "behat_test" is empty
+    And the following item is in the queue "behat_test":
+      | data | {"nid":1} |
+    Then the queue "behat_test" should have 1 item
+    When I process the queue "behat_test"
+    Then the queue "behat_test" should be empty
+    And the config "mysite_core.settings" key "queue_budget" should have the value "19"
+
+  @queue
   Scenario: Assert "When I process :count item(s) from the queue :queue" processes the requested number of items
     Given the config "mysite_core.settings" key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
