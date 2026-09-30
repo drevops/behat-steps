@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
 use Symfony\Component\BrowserKit\HttpBrowser;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -36,28 +35,6 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
    * @var array<int, array<array-key, mixed>>
    */
   protected array $sessionOptions = [];
-
-  /**
-   * {@inheritdoc}
-   */
-  public function configure(ArrayNodeDefinition $builder): void {
-    parent::configure($builder);
-
-    // @formatter:off
-    // phpcs:disable
-    $builder
-      ->children()
-        ->variableNode('guzzle_request_options')
-          ->info('Replaced by "http_client_parameters".')
-          ->validate()
-            ->always()
-            ->thenInvalid('The "guzzle_request_options" setting was replaced by "http_client_parameters", which takes Symfony HttpClient options. "verify: false", for example, becomes "verify_peer: false" and "verify_host: false".')
-          ->end()
-        ->end()
-      ->end();
-    // phpcs:enable
-    // @formatter:on
-  }
 
   /**
    * {@inheritdoc}

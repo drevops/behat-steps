@@ -670,7 +670,7 @@ The Guzzle options a suite most often sets map across like this:
 | `proxy` | `proxy` |
 | `headers` | `headers` |
 
-A `guzzle_request_options` left in place fails the container build with a message naming its replacement. The options now reach only requests to `base_url`, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
+The options now reach only requests to `base_url`, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
 
 `ajax_timeout` moves from the `mink` key, where `Drupal\MinkExtension` accepted it, to the `wait` group under `steps` (see [Per-trait configuration](#per-trait-configuration)):
 

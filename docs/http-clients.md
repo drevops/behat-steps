@@ -99,8 +99,6 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
   The 2 "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options.
   ```
 
-- **`guzzle_request_options` is rejected**, with a message naming `http_client_parameters` as its replacement. The options are Symfony's now, so `verify: false` becomes `verify_peer: false` and `verify_host: false`.
-
 ## What the detached client carries
 
 The detached client acts as the scenario's visitor, so it carries whatever makes the site recognise that visitor:

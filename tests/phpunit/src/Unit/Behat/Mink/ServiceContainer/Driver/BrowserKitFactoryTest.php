@@ -36,15 +36,6 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->assertArrayHasKey('http_client_parameters', $children);
   }
 
-  public function testGuzzleRequestOptionsAreRejected(): void {
-    $tree = $this->buildConfigTree();
-
-    $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage('The "guzzle_request_options" setting was replaced by "http_client_parameters"');
-
-    $tree->finalize($tree->normalize(['guzzle_request_options' => ['verify' => FALSE]]));
-  }
-
   public function testTheDriverRunsOnHttpBrowserOverTheSharedTransport(): void {
     $driver = (new BrowserKitFactory())->buildDriver([]);
 
