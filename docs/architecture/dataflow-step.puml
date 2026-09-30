@@ -4,6 +4,7 @@
 ' src/Behat/Context/WebRawContext.php, WebContext.php,
 ' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
 ' DrupalContext.php, src/Behat/Manager/DriverRegistry.php,
+' src/Behat/Listener/SkipTagListener.php,
 ' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -16,10 +17,20 @@ participant "Feature file" as Feature
 participant "Behat" as Behat
 participant "WebContext\nDrupalContext" as Ctx
 participant "Step trait method" as Trait
+participant "SkipTagListener" as SkipListener
 participant "DriverListener" as Listener
 participant "DriverRegistry" as DM
 participant "Driver\nDrupal, Drush or Blackbox" as Driver
 participant "Mink session" as Mink
+
+Behat -> SkipListener: BeforeScenarioTested
+activate SkipListener
+alt every "@behat-steps-skip:" tag names a trait
+  SkipListener --> Behat: continue
+else one names a hook or anything else
+  SkipListener -> Behat: throw RuntimeException,\nthe run stops before any hook
+end
+deactivate SkipListener
 
 Behat -> Listener: BeforeScenarioTested
 activate Listener
@@ -72,6 +83,7 @@ deactivate Behat
 
 Behat -> Ctx: AfterScenario
 activate Ctx
+Ctx -> Ctx: each hook asks skipTag() for its own trait,\nand returns on the trait's skip tag or enabled = FALSE
 Ctx -> Ctx: EntityLifecycleTrait runs entityLifecycleCleanAll,\nAuthTrait authCleanUsers and authCleanRoles
 Ctx -> Driver: delete what the scenario created
 deactivate Ctx

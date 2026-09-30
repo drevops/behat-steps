@@ -12,7 +12,7 @@ skinparam componentStyle rectangle
 title Component architecture
 
 package "Consuming project" #FFF3E0 {
-  component "Feature files\n*.feature" as Features
+  component "Feature files\n~*.feature" as Features
   component "behat.php\nextension settings,\nregisters one context" as Config
   component "Own context\nextends WebRawContext,\ncomposes the chosen traits" as Consumer
 }
@@ -34,6 +34,7 @@ package "drevops/behat-steps" {
     component "WebRawContext\ndriver access, option reads,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
     component "Managers\nDriver, Authentication,\nUser, Mail, Scenario tags" as Managers
+    component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
     component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
   }
@@ -75,7 +76,10 @@ Consumer ..> DrupalHelpers : composes
 Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx
 Ext --> Managers : registers
+Ext --> Listeners : registers
 Ext --> OptionConfig : registers
+Behat --> Listeners : before each scenario
+Listeners --> Managers : driver order,\nscenario tags
 Ext --> DriverIface : registers drivers
 Ext ..> MinkExt : reads ajax_timeout
 Ext ..> Mink : aliases DocumentElement

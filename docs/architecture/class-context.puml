@@ -3,7 +3,8 @@
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
-' src/Behat/Config/, src/Behat/Manager/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Behat/Config/, src/Behat/Manager/, src/Behat/Listener/,
+' src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
 ' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -28,7 +29,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +getOptionResolver() : TraitOptionResolverInterface
     +getBasicAuthenticator() : BasicAuthenticatorInterface
     --
-    #skipTag(name, scope) : bool
+    #skipTag(trait, scope) : bool
     #shouldCleanup() : bool
     #buildOptionResolver() : TraitOptionResolverInterface
     --
@@ -95,7 +96,7 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
     +float(group, key) : float
     +string(group, key) : string
     +array(group, key) : array
-    +groupFor(name) : string|null
+    +groupFor(trait) : string|null
   }
 
   class Option {
@@ -114,6 +115,9 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
   }
 
   class TagOverrides {
+    {static} +SKIP_TAG_PREFIX : string
+    {static} +SKIP_TAG_VALUE_PATTERN : string
+    --
     +apply(group, option, value, tags) : mixed
   }
 
@@ -311,5 +315,9 @@ note bottom of TraitOptionResolverInterface
   DriverListener fills ScenarioTagRegistry before the first
   BeforeScenario hook, so a tag that sets an option reaches
   a step as well as a hook.
+
+  A skip tag names a trait. skipTag() reads it together with
+  the trait's enabled option, and SkipTagListener fails the
+  run at scenario start on a value that is not a trait name.
 end note
 @enduml
