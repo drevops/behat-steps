@@ -90,29 +90,22 @@ trait ResponsiveTrait {
 
   /**
    * Validate @breakpoint:NAME tag before scenario.
+   *
+   * A scenario tag replaces a feature tag.
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
-    $tags = Tag::on($scope->getScenario());
+    // Both nodes are validated, so a feature with 2 tags fails even in a
+    // scenario with its own tag.
+    $scenario_tag = $this->responsiveFindBreakpointTag(Tag::on($scope->getScenario()), 'scenario');
+    $feature_tag = $this->responsiveFindBreakpointTag(Tag::on($scope->getFeature()), 'feature');
+    $tag = $scenario_tag ?? $feature_tag;
 
-    $breakpoint_tags = [];
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, 'breakpoint:')) {
-        $breakpoint_tags[] = $tag;
-      }
-    }
-
-    if (empty($breakpoint_tags)) {
+    if ($tag === NULL) {
       return;
     }
 
-    if (count($breakpoint_tags) > 1) {
-      throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per scenario. Found: @%s.', implode(', @', $breakpoint_tags)));
-    }
-
-    $tag = $breakpoint_tags[0];
-
-    if (!in_array('javascript', $tags, TRUE)) {
+    if (!in_array('javascript', Tag::all($scope), TRUE)) {
       throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport.', $tag));
     }
 
@@ -296,6 +289,30 @@ trait ResponsiveTrait {
    */
   public function responsiveGetAllBreakpoints(): array {
     return array_merge($this->responsiveDefaultBreakpoints, $this->responsiveCustomBreakpoints);
+  }
+
+  /**
+   * Find the @breakpoint tag among the tags of one node.
+   *
+   * @param array<int, string> $tags
+   *   Tags of a scenario or of a feature.
+   * @param string $node
+   *   The node the tags belong to, 'scenario' or 'feature', for the message.
+   *
+   * @return string|null
+   *   The tag without its '@', or NULL when the node carries none.
+   *
+   * @throws \RuntimeException
+   *   If the node carries more than one.
+   */
+  protected function responsiveFindBreakpointTag(array $tags, string $node): ?string {
+    $breakpoint_tags = array_values(array_filter($tags, static fn(string $tag): bool => str_starts_with($tag, 'breakpoint:')));
+
+    if (count($breakpoint_tags) > 1) {
+      throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per %s. Found: @%s.', $node, implode(', @', $breakpoint_tags)));
+    }
+
+    return $breakpoint_tags[0] ?? NULL;
   }
 
   /**

@@ -84,7 +84,7 @@ trait WatchdogTrait {
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
 
-    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
+    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::all($scope));
 
     $this->lastStepSetLine($scope);
   }
@@ -147,14 +147,14 @@ trait WatchdogTrait {
   }
 
   /**
-   * Parse scenario tags into message types.
+   * Parse scenario and feature tags into message types.
    *
    * @code
    * @watchdog:my_module_type @watchdog:my_other_module_type
    * @endcode
    *
    * @param array<int, string> $tags
-   *   Array of scenario tags.
+   *   Tags of the scenario and its feature.
    * @param string $prefix
    *   Optional tag prefix to filter by.
    *

@@ -37,7 +37,7 @@ trait TestmodeTrait {
    */
   #[BeforeScenario]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
+    if ($this->skipTag(__TRAIT__, $scope) || !in_array('testmode', Tag::all($scope), TRUE)) {
       return;
     }
 

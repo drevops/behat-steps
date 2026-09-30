@@ -52,7 +52,7 @@ trait FieldTrait {
   protected bool $fieldFormValidationEnabled = FALSE;
 
   /**
-   * Whether @disable-form-validation tag is present on current scenario.
+   * Whether the scenario or its feature carries @disable-form-validation.
    */
   protected bool $fieldDisableAllFormValidation = FALSE;
 
@@ -71,7 +71,7 @@ trait FieldTrait {
     $this->fieldFormValidationEnabled = TRUE;
     $this->fieldFormValidationRegistry = [];
 
-    $this->fieldDisableAllFormValidation = Tag::has($scope->getScenario(), 'disable-form-validation');
+    $this->fieldDisableAllFormValidation = in_array('disable-form-validation', Tag::all($scope), TRUE);
   }
 
   /**

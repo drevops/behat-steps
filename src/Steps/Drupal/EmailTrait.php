@@ -61,17 +61,19 @@ trait EmailTrait {
       return;
     }
 
-    if (!Tag::has($scope->getScenario(), 'email')) {
+    $tags = Tag::all($scope);
+
+    if (!in_array('email', $tags, TRUE)) {
       return;
     }
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    if (Tag::has($scope->getScenario(), 'debug')) {
+    if (in_array('debug', $tags, TRUE)) {
       $this->emailDebug = TRUE;
     }
 
-    foreach (Tag::on($scope->getScenario()) as $tag) {
+    foreach ($tags as $tag) {
       if (str_starts_with($tag, 'email:')) {
         $parts = explode(':', $tag);
         $this->emailHandlerTypes[] = count($parts) > 1 ? implode(':', array_slice($parts, 1)) : 'default';

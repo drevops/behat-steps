@@ -20,7 +20,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
 /**
  * Enable and disable Drupal modules with automatic state restoration.
  *
- * Supports automatic module management via scenario tags.
+ * Supports automatic module management via scenario and feature tags. A
+ * scenario tag overrides a feature tag naming the same module.
  *
  * Skip processing with tag: `@behat-steps-skip:ModuleTrait`.
  *
@@ -47,23 +48,17 @@ trait ModuleTrait {
     if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
-    $tags = Tag::on($scope->getScenario());
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, 'module:')) {
-        $module_spec = substr($tag, 7);
-        $should_disable = str_starts_with($module_spec, '!');
-        $module_name = $should_disable ? substr($module_spec, 1) : $module_spec;
 
-        $this->moduleStoreOriginalState($module_name);
+    foreach ($this->moduleParseTags(Tag::all($scope)) as $module_name => $should_enable) {
+      $this->moduleStoreOriginalState($module_name);
 
-        if ($should_disable) {
-          if ($this->moduleIsEnabled($module_name)) {
-            $this->moduleDisable($module_name);
-          }
-        }
-        elseif (!$this->moduleIsEnabled($module_name)) {
+      if ($should_enable) {
+        if (!$this->moduleIsEnabled($module_name)) {
           $this->moduleEnable($module_name);
         }
+      }
+      elseif ($this->moduleIsEnabled($module_name)) {
+        $this->moduleDisable($module_name);
       }
     }
   }
@@ -303,6 +298,39 @@ trait ModuleTrait {
    */
   public function moduleIsPresent(string $module): bool {
     return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
+  }
+
+  /**
+   * Parse module tags into 1 state per named module.
+   *
+   * A later tag for a module replaces an earlier one.
+   *
+   * @code
+   * @module:help @module:!contextual
+   * @endcode
+   *
+   * @param array<int, string> $tags
+   *   Tags of the scenario and its feature, feature tags first, so a scenario
+   *   tag overrides a feature tag.
+   *
+   * @return array<string, bool>
+   *   TRUE to enable the module or FALSE to disable it, keyed by module name.
+   */
+  protected function moduleParseTags(array $tags): array {
+    $modules = [];
+
+    foreach ($tags as $tag) {
+      if (!str_starts_with($tag, 'module:')) {
+        continue;
+      }
+
+      $module_spec = substr($tag, strlen('module:'));
+      $should_disable = str_starts_with($module_spec, '!');
+
+      $modules[$should_disable ? substr($module_spec, 1) : $module_spec] = !$should_disable;
+    }
+
+    return $modules;
   }
 
   /**

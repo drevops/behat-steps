@@ -52,7 +52,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if (Tag::has($scope->getScenario(), 'download')) {
+    if (in_array('download', Tag::all($scope), TRUE)) {
       $this->fileDownloadRemoveTempDir();
       $this->fileDownloadPrepareTempDir();
     }
@@ -67,7 +67,7 @@ trait FileDownloadTrait {
       return;
     }
 
-    if (Tag::has($scope->getScenario(), 'download')) {
+    if (in_array('download', Tag::all($scope), TRUE)) {
       $this->fileDownloadRemoveTempDir();
     }
   }
