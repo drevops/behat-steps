@@ -24,7 +24,7 @@ Feature: Check that CacheTrait works
   Scenario: Assert "When I run cron" runs cron
     Given the watchdog is cleared
     When I run cron
-    And I log in as a user with the "administrator" role
+    And I log in as a user with the role "administrator"
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."
 

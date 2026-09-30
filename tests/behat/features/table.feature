@@ -281,21 +281,21 @@ Feature: Check that TableTrait works
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     And I click the link "Edit" in the row "Epsilon record"
-    Then the current URL should have the "edit" parameter with the value "epsilon"
+    Then the current URL should have the query parameter "edit" with the value "epsilon"
 
   @phpserver
   Scenario: Assert "When I press the button :button in the row :row_text" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
     And I press the button "Remove" in the row "Epsilon record"
-    Then the current URL should have the "remove" parameter with the value "epsilon"
+    Then the current URL should have the query parameter "remove" with the value "epsilon"
 
   @phpserver
-  Scenario: Assert "Then the row :row_text should contain the text :text" works as expected
+  Scenario: Assert "Then the row :row_text should contain the value :value" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the row "Delta record" should contain the text "Draft"
-    And the row "Delta record" should not contain the text "Published"
+    Then the row "Delta record" should contain the value "Draft"
+    And the row "Delta record" should not contain the value "Published"
 
   @phpserver
   Scenario: Assert "Then the link :link should exist in the row :row_text" works as expected
@@ -335,13 +335,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the text :text" fails when no row has the text
+  Scenario: Assert "Then the row :row_text should contain the value :value" fails when no row has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Omega record" should contain the text "Draft"
+      Then the row "Omega record" should contain the value "Draft"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -350,13 +350,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the text :text" fails when the row lacks the text
+  Scenario: Assert "Then the row :row_text should contain the value :value" fails when the row lacks the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Delta record" should contain the text "Published"
+      Then the row "Delta record" should contain the value "Published"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -365,13 +365,13 @@ Feature: Check that TableTrait works
       """
 
   @trait:TableTrait
-  Scenario: Assert "Then the row :row_text should not contain the text :text" fails when the row has the text
+  Scenario: Assert "Then the row :row_text should not contain the value :value" fails when the row has the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Delta record" should not contain the text "Draft"
+      Then the row "Delta record" should not contain the value "Draft"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

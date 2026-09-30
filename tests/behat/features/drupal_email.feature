@@ -242,7 +242,7 @@ Feature: Check that EmailTrait works
       """
       Register at http://nginx:8080/user/register or sign in at http://nginx:8080/user/login
       """
-    And I follow the link containing "user/login" in the email
+    And I follow the link with a URL containing "user/login" in the email
     Then the path should be "/user/login"
 
   @email
@@ -839,7 +839,7 @@ Feature: Check that EmailTrait works
         '''
         Sign in at http://nginx:8080/user/login
         '''
-      Then I follow the link containing "user/reset" in the email
+      Then I follow the link with a URL containing "user/reset" in the email
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
