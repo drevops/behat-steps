@@ -2,12 +2,14 @@
 ' drevops/behat-steps - data flow for generating the reference documentation.
 ' Traced from docs.php constants STEPS_DIRECTORY, TOOLBOX_CLASSES,
 ' HELPERS_FILE, CONFIGURATION_FILE and functions main, collect_step_traits,
-' extract_info, extract_helpers, collect_helper_methods, file_declares_trait,
+' extract_info, extract_trait_options, extract_trait_prerequisites,
+' extract_helpers, collect_helper_methods, file_declares_trait,
 ' parse_class_comment, parse_method_comment, extract_method_steps,
 ' resolve_inherited_comment, validate, validate_step_patterns,
 ' extract_step_examples, validate_helpers, validate_tags,
-' validate_env_vars, tag_registry, render_info, render_helpers,
-' render_extension_options, render_tag_reference, replace_content.
+' validate_env_vars, tag_registry, render_info, render_trait_prerequisites,
+' render_trait_options, render_helpers, render_extension_options,
+' render_tag_reference, replace_content.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -48,7 +50,13 @@ Extract -> Extract: vocabulary: public methods prefixed with\nthe trait name tha
 Extract -> Extract: toolbox: the other public methods, minus\nhooks, transformations and anything @internal
 Extract -> Extract: add TOOLBOX_CLASSES, whose own public\nmethods carry no trait-name prefix
 Extract -> Extract: parse each docblock for the description\nand the @code example, following\n{@inheritdoc} to its declaration
+Extract -> Extract: read each trait's option and prerequisite\ndeclarations through ConfigSchemaReader and\nPrerequisiteReader, the readers the runtime uses
 Extract --> Main: step info and helper info
+note right of Extract
+  A malformed declaration throws the
+  runtime's own message, so it fails
+  generation instead of being documented.
+end note
 deactivate Extract
 
 Main -> Validate: validate the vocabulary, the toolbox,\nthe tags and the environment
@@ -75,6 +83,7 @@ deactivate Validate
 
 Main -> Render: render every target
 activate Render
+Render -> Render: under each trait's description, its\nPrerequisites table, then its Options table
 Render -> Render: build the option table from the\nBehatStepsExtension config tree\nand the tag table from tag_registry()
 Render -> Render: swap each block between its\nstart marker and its end marker
 Render --> Main: STEPS.md, README.md, HELPERS.md\nand docs/configuration.md contents

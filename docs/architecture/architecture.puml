@@ -31,7 +31,7 @@ package "drevops/behat-steps" {
 
   package "Integration - src/Behat" #F3E5F5 {
     component "BehatStepsExtension\nservice wiring" as Ext
-    component "WebRawContext\ndriver and browser access,\noption reads, HTTP clients,\nhook dispatch, no steps" as WebRawCtx
+    component "WebRawContext\ndriver and browser access,\noption reads, HTTP clients,\nprerequisite checks,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
     component "Managers\nDriver, Authentication,\nUser, Scenario tags" as Managers
     component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
@@ -39,6 +39,7 @@ package "drevops/behat-steps" {
     component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
     component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
     component "HTTP clients\nsrc/Behat/Http: factory, identity,\nthe shared transport" as HttpClients
+    component "Prerequisite\ntrait declarations stated\nthrough capabilities, reader" as Prereq
   }
 
   package "Driver - src/Driver" #E8F5E9 {
@@ -92,6 +93,8 @@ WebRawCtx --> OptionConfig : resolves trait options
 WebRawCtx --> BrowserCaps : browserDriverFor()
 WebRawCtx --> HttpClients : detached and\nbare clients
 OptionConfig --> Managers : reads the scenario's tags
+WebRawCtx --> Prereq : reads trait prerequisites
+OptionConfig -[hidden]down- Prereq
 
 Managers --> DriverIface : resolves by capability
 DrupalDrv ..|> DriverIface

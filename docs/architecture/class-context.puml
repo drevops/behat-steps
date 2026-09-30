@@ -3,8 +3,8 @@
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
-' src/Behat/Config/, src/Behat/Manager/, src/Behat/Listener/,
-' src/Helper/Web/, src/Helper/Drupal/,
+' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Manager/,
+' src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
 ' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -34,6 +34,8 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +httpBareClient(options) : AbstractBrowser
     --
     #skipTag(trait, scope) : bool
+    #assertPrerequisites(trait) : void
+    #prerequisitesMet(trait) : bool
     #shouldCleanup() : bool
     #buildOptionResolver() : TraitOptionResolverInterface
     --
@@ -74,6 +76,7 @@ RawMinkContext <|-- WebRawContext
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   interface DriverRegistryInterface {
     +getDriverFor(capability) : object
+    +getResolvedDriverFor(capability) : object|null
     +hasCapability(capability) : bool
     +setScenarioDrivers(drivers) : void
   }
@@ -145,9 +148,32 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
   ConfigSchemaReader -[hidden]down- TagOverrides
 }
 
+package "DrevOps\\BehatSteps\\Behat\\Prerequisite" #F3E5F5 {
+  class Prerequisite {
+    +capability : string
+    +check : Closure|null
+    +description : string
+    --
+    {static} +capability(capability, description) : Prerequisite
+    {static} +check(check, description) : Prerequisite
+  }
+
+  class PrerequisiteReader {
+    {static} +methodFor(trait) : string
+    +read(context, trait) : array
+    --
+    caches declarations, never answers
+  }
+
+  PrerequisiteReader ..> Prerequisite : reads
+  Prerequisite -[hidden]down- PrerequisiteReader
+}
+
 WebRawContext o--> DriverRegistryInterface
 WebRawContext o--> BasicAuthenticatorInterface
 WebRawContext o--> TraitOptionResolverFactoryInterface
+WebRawContext ..> PrerequisiteReader : checks prerequisites
+DrupalContext -[hidden]down- Prerequisite
 TraitOptionResolverFactoryInterface o--> ConfigSchemaReader
 TraitOptionResolverInterface o--> ScenarioTagRegistryInterface
 
@@ -210,8 +236,8 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
   }
 
   class QueryTrait <<trait>> {
+    +queryEntityIds(entity_type, conditions, bundle) : array
     +queryNodeIds(content_type, conditions) : array
-    +queryAssertModuleEnabled(module, package) : void
   }
 
   EntityLifecycleTrait -[hidden]down- AuthTrait
@@ -279,6 +305,8 @@ package "Thrown on failure" #FFEBEE {
     unmet prerequisite
   }
   ExpectationException <|-- ElementNotFoundException
+  AssertionException -[hidden]down- UnsupportedDriverActionException
+  UnsupportedDriverActionException -[hidden]down- RuntimeException
 }
 
 PathTrait ..> ExpectationException : throws
@@ -335,5 +363,18 @@ note bottom of TraitOptionResolverInterface
   A skip tag names a trait. skipTag() reads it together with
   the trait's enabled option, and SkipTagListener fails the
   run at scenario start on a value that is not a trait name.
+end note
+
+note bottom of PrerequisiteReader
+  A trait declares what it needs from the site in
+  <prefix>Prerequisites(), each entry through a driver
+  capability. A setup hook or a step calls
+  assertPrerequisites(), which throws for the first entry
+  that does not hold. A teardown asks prerequisitesMet(),
+  so it never replaces a failure already recorded.
+
+  Each check runs against a driver the scenario already
+  reached before the first one listed, so checking never
+  starts a second driver.
 end note
 @enduml
