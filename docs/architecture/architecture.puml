@@ -1,7 +1,7 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
 ' Traced from composer.json, src/Steps/, src/Helper/Web/, src/Helper/Drupal/,
-' src/Behat/, src/Driver/,
+' src/Behat/, src/Behat/Mink/, src/Behat/Http/, src/Driver/,
 ' behat.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -25,18 +25,20 @@ package "drevops/behat-steps" {
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
-    component "Helper\\Web\n5 traits: last step,\nrequest headers, strings,\nJavaScript support,\ntable transpose" as WebHelpers
+    component "Helper\\Web\n4 traits: last step,\nrequest headers, strings,\ntable transpose" as WebHelpers
     component "Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
   }
 
   package "Integration - src/Behat" #F3E5F5 {
     component "BehatStepsExtension\nservice wiring" as Ext
-    component "WebRawContext\ndriver access, option reads,\nhook dispatch, no steps" as WebRawCtx
+    component "WebRawContext\ndriver and browser access,\noption reads, HTTP clients,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
-    component "Managers\nDriver, Authentication,\nUser, Mail, Scenario tags" as Managers
+    component "Managers\nDriver, Authentication,\nUser, Scenario tags" as Managers
     component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
-    component "MinkExtension\nwraps Mink's extension,\nadds browserkit_http" as MinkExt
+    component "BrowserKitFactory\nbuilds every browserkit_http\nsession on the shared transport" as BrowserKit
+    component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
+    component "HTTP clients\nsrc/Behat/Http: factory, identity,\nthe shared transport" as HttpClients
   }
 
   package "Driver - src/Driver" #E8F5E9 {
@@ -50,6 +52,7 @@ package "drevops/behat-steps" {
 
 package "Runtime and targets" #ECEFF1 {
   component "Behat\nstep matching and hooks" as Behat
+  component "Mink extension\nMink's own,\nunder the mink key" as MinkExt
   component "Mink session" as Mink
   component "Browser\nBrowserKit, Selenium2,\nChrome DevTools" as Browser
   component "Drupal site\nentity API, config, drush" as Site
@@ -81,10 +84,14 @@ Ext --> OptionConfig : registers
 Behat --> Listeners : before each scenario
 Listeners --> Managers : driver order,\nscenario tags
 Ext --> DriverIface : registers drivers
-Ext ..> MinkExt : reads ajax_timeout
+Ext ..> BrowserKit : registers with Mink
+Ext --> HttpClients : defines the shared transport\nfrom the session options
 Ext ..> Mink : aliases DocumentElement
 WebRawCtx --> Managers
 WebRawCtx --> OptionConfig : resolves trait options
+WebRawCtx --> BrowserCaps : browserDriverFor()
+WebRawCtx --> HttpClients : detached and\nbare clients
+BrowserKit --> HttpClients : sessions send\nthrough the transport
 OptionConfig --> Managers : reads the scenario's tags
 
 Managers --> DriverIface : resolves by capability
@@ -94,8 +101,12 @@ BlackboxDrv ..|> DriverIface
 DrupalDrv --> Core
 
 MinkExt --> Mink : builds sessions,\npicks one per scenario
+MinkExt ..> BrowserKit : builds the browserkit_http\ndriver with
 Consumer --> Mink
 Mink --> Browser
+BrowserCaps --> Mink : adapts the\nsession's driver
+Browser --> Site : page requests
+HttpClients --> Site : requests steps\nsend from PHP
 DrupalDrv --> Site
 DrushDrv --> Site
 
@@ -108,6 +119,9 @@ end note
 
 Features -[hidden]down- Config
 WebSteps -[hidden]right- DrupalSteps
+Ext -[hidden]down- BrowserKit
+BrowserKit -[hidden]down- HttpClients
+OptionConfig -[hidden]down- BrowserCaps
 DrupalDrv -[hidden]right- DrushDrv
 DrushDrv -[hidden]right- BlackboxDrv
 @enduml

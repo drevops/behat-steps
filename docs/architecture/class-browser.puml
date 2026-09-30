@@ -1,0 +1,184 @@
+@startuml
+' drevops/behat-steps - the browser capability layer and the HTTP clients a
+' step sends its own requests through.
+' Traced from src/Behat/Context/WebRawContext.php, src/Behat/Mink/,
+' src/Behat/Mink/Capability/, src/Behat/Mink/Adapter/,
+' src/Behat/Mink/ServiceContainer/Driver/BrowserKitFactory.php,
+' src/Behat/Http/, src/Behat/ServiceContainer/BehatStepsExtension.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+title Class structure: browser capabilities and HTTP clients
+
+package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+  class WebRawContext {
+    +browserDriverFor(capability) : object
+    +browserDriverHas(capability) : bool
+    +getBrowserResolver() : BrowserCapabilityResolver
+    --
+    +httpPageClient() : AbstractBrowser
+    +httpDetachedClient(options) : AbstractBrowser
+    +httpBareClient(options) : AbstractBrowser
+    +getHttpClientFactory() : HttpClientFactoryInterface
+    #httpIdentity() : HttpIdentity
+  }
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Mink" #F3E5F5 {
+  class BrowserCapabilityResolver {
+    +registerAdapter(adapter) : void
+    +resolve(driver, capability) : object
+    +has(driver, capability) : bool
+  }
+
+  interface BrowserAdapterInterface {
+    {static} +supports(driver) : bool
+  }
+
+  abstract class BrowserAdapterBase {
+    #driver : Mink DriverInterface
+  }
+
+  BrowserAdapterInterface <|.. BrowserAdapterBase
+  BrowserCapabilityResolver ..> BrowserAdapterInterface : offers each driver to,\nregistered adapters first
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Mink\\Adapter" #F3E5F5 {
+  class BrowserKitAdapter
+  class ChromeAdapter
+  class Selenium2Adapter
+
+  BrowserKitAdapter -[hidden]right- ChromeAdapter
+  ChromeAdapter -[hidden]right- Selenium2Adapter
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Mink\\Capability" #F3E5F5 {
+  interface CookieCapabilityInterface {
+    +cookieGetAll() : array
+  }
+  interface HttpClientCapabilityInterface {
+    +httpClient() : AbstractBrowser
+  }
+  interface JavascriptCapabilityInterface {
+    marker: the driver runs JavaScript
+  }
+  interface KeyboardCapabilityInterface {
+    +keyboardTriggerKey(xpath, key) : void
+  }
+  interface RequestHeaderCapabilityInterface {
+    +requestHeaderSet(name, value) : void
+  }
+
+  HttpClientCapabilityInterface -[hidden]right- RequestHeaderCapabilityInterface
+  RequestHeaderCapabilityInterface -[hidden]right- CookieCapabilityInterface
+  CookieCapabilityInterface -[hidden]right- JavascriptCapabilityInterface
+  JavascriptCapabilityInterface -[hidden]right- KeyboardCapabilityInterface
+}
+
+BrowserAdapterBase <|-- BrowserKitAdapter
+BrowserAdapterBase <|-- Selenium2Adapter
+BrowserAdapterBase <|-- ChromeAdapter
+
+BrowserKitAdapter ..|> CookieCapabilityInterface
+BrowserKitAdapter ..|> HttpClientCapabilityInterface
+BrowserKitAdapter ..|> RequestHeaderCapabilityInterface
+Selenium2Adapter ..|> CookieCapabilityInterface
+Selenium2Adapter ..|> JavascriptCapabilityInterface
+Selenium2Adapter ..|> KeyboardCapabilityInterface
+ChromeAdapter ..|> CookieCapabilityInterface
+ChromeAdapter ..|> JavascriptCapabilityInterface
+ChromeAdapter ..|> KeyboardCapabilityInterface
+ChromeAdapter ..|> RequestHeaderCapabilityInterface
+
+package "DrevOps\\BehatSteps\\Behat\\Http" #F3E5F5 {
+  interface HttpClientFactoryInterface {
+    +createBare(options) : AbstractBrowser
+    +createDetached(identity, options) : AbstractBrowser
+    +withTransport(decorator) : static
+  }
+
+  class HttpClientFactory {
+    #transport : HttpClientInterface
+    #baseUrl : string|null
+    --
+    {static} +createTransport(options, base_url, client) : HttpClientInterface
+    #sitePattern(base_url) : string|null
+    #identityOptions(identity) : array
+    #cookieJar(identity) : CookieJar
+  }
+
+  class HttpIdentity {
+    +cookies : array
+    +cookieUrl : string
+    +headers : array
+    +credentials : array|null
+  }
+
+  HttpClientFactoryInterface <|.. HttpClientFactory
+  HttpClientFactoryInterface ..> HttpIdentity : takes
+}
+
+package "DrevOps\\BehatSteps\\Behat\\ServiceContainer" #F3E5F5 {
+  class BehatStepsExtension {
+    +initialize(extensionManager) : void
+    +process(container) : void
+    --
+    #initializeBrowserKitFactory(extension_manager) : void
+    #processHttpClient(container) : void
+  }
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Mink\\ServiceContainer\\Driver" #F3E5F5 {
+  class BrowserKitFactory {
+    {static} +TRANSPORT_SERVICE : string
+    --
+    +configure(builder) : void
+    +buildDriver(config) : Definition
+    +getClientOptions() : array
+  }
+}
+
+package "Symfony and Mink" #ECEFF1 {
+  abstract class AbstractBrowser {
+    from Symfony BrowserKit
+  }
+  class HttpBrowser
+  class ScopingHttpClient {
+    from Symfony HttpClient
+  }
+  class "Mink BrowserKitFactory" as UpstreamBrowserKitFactory {
+    from Behat\\MinkExtension
+  }
+
+  AbstractBrowser <|-- HttpBrowser
+}
+
+WebRawContext o--> BrowserCapabilityResolver
+WebRawContext o--> HttpClientFactoryInterface
+WebRawContext ..> HttpIdentity : builds from cookies,\nthe header bag and\nthe base_url credentials
+
+BrowserKitAdapter ..> HttpBrowser : lends out the\nsession's own
+HttpClientFactory ..> HttpBrowser : builds a fresh one\nper detached or bare client
+HttpClientFactory ..> ScopingHttpClient : applies site options\nto base_url only
+
+UpstreamBrowserKitFactory <|-- BrowserKitFactory
+BrowserKitFactory ..> HttpBrowser : builds each browserkit_http\nsession on the shared transport
+BehatStepsExtension ..> BrowserKitFactory : registers with Mink,\nreads the session options
+BehatStepsExtension ..> HttpClientFactory : defines behat_steps.http_client\nwith createTransport()
+
+note bottom of HttpClientCapabilityInterface
+  The page client is a capability, because only
+  a BrowserKit session has one. The detached and
+  bare clients exist under every browser driver,
+  so a factory builds them instead.
+end note
+
+note bottom of HttpIdentity
+  Headers and credentials go to the base_url
+  host only. Cookies go to the host they were
+  read from and its subdomains.
+end note
+@enduml

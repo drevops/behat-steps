@@ -6,11 +6,13 @@ namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
-use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -18,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Behat extension wiring the driver layer, its services and hooks into a suite.
@@ -35,6 +38,11 @@ class BehatStepsExtension implements ExtensionInterface {
   public const DRIVERS_PARAMETER = 'behat_steps.drivers';
 
   /**
+   * The factory registered with Mink, NULL when the suite registers no Mink.
+   */
+  protected ?BrowserKitFactory $browserKitFactory = NULL;
+
+  /**
    * {@inheritdoc}
    */
   public function getConfigKey(): string {
@@ -45,6 +53,7 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function initialize(ExtensionManager $extensionManager): void {
+    $this->initializeBrowserKitFactory($extensionManager);
   }
 
   /**
@@ -70,7 +79,7 @@ class BehatStepsExtension implements ExtensionInterface {
     $this->processDriverPass($container);
     $this->processDrivers($container);
     $this->processClassGenerator($container);
-    $this->processMinkAjaxTimeout($container);
+    $this->processHttpClient($container);
   }
 
   /**
@@ -201,6 +210,29 @@ class BehatStepsExtension implements ExtensionInterface {
     ->end();
     // phpcs:enable
     // @formatter:on
+  }
+
+  /**
+   * Registers the first-party factory behind Mink's 'browserkit_http' driver.
+   *
+   * Mink keys its driver factories by driver name, so this registration
+   * replaces Mink's own. Behat initializes every extension before it builds
+   * any configuration tree, so the replacement is in place when Mink declares
+   * the session options.
+   *
+   * @param \Behat\Testwork\ServiceContainer\ExtensionManager $extension_manager
+   *   The manager holding every activated extension.
+   */
+  protected function initializeBrowserKitFactory(ExtensionManager $extension_manager): void {
+    $mink = $extension_manager->getExtension('mink');
+
+    if (!$mink instanceof MinkExtension) {
+      return;
+    }
+
+    $this->browserKitFactory = new BrowserKitFactory();
+
+    $mink->registerDriverFactory($this->browserKitFactory);
   }
 
   /**
@@ -463,32 +495,22 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Applies an 'ajax_timeout' the Mink configuration tree supplied.
+   * Defines the transport every browser sends through.
    *
-   * Runs as a process pass rather than during 'load()' because the two
-   * extensions load in whichever order the suite lists them.
+   * Mink hands the 'browserkit_http' factory each session's options while the
+   * extensions load, so they are read here, in the process pass after it.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When 2 'browserkit_http' sessions declare different options.
    */
-  protected function processMinkAjaxTimeout(ContainerBuilder $container): void {
-    if (!$container->hasParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER)) {
-      return;
-    }
+  protected function processHttpClient(ContainerBuilder $container): void {
+    $options = $this->browserKitFactory?->getClientOptions() ?? [];
+    $base_url = $container->hasParameter('mink.base_url') ? $container->getParameter('mink.base_url') : NULL;
 
-    $parameters = $container->getParameter('behat_steps.parameters');
+    $definition = new Definition(HttpClientInterface::class, [$options, is_string($base_url) ? $base_url : NULL]);
+    $definition->setFactory([HttpClientFactory::class, 'createTransport']);
 
-    if (!is_array($parameters)) {
-      return;
-    }
-
-    $steps = is_array($parameters['steps'] ?? NULL) ? $parameters['steps'] : [];
-    $wait = is_array($steps['wait'] ?? NULL) ? $steps['wait'] : [];
-
-    // A project migrating in steps can carry both paths at once, so the value
-    // at the path that replaces this one wins.
-    $wait['ajax_timeout'] ??= $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
-    $steps['wait'] = $wait;
-    $parameters['steps'] = $steps;
-
-    $container->setParameter('behat_steps.parameters', $parameters);
+    $container->setDefinition(BrowserKitFactory::TRANSPORT_SERVICE, $definition);
   }
 
   /**

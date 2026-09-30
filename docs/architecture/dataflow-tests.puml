@@ -1,6 +1,7 @@
 @startuml
 ' drevops/behat-steps - data flow for the project's own test run.
-' Traced from .ahoy.yml, scripts/provision.sh, behat.php,
+' Traced from .ahoy.yml, scripts/provision.php,
+' tests/behat/fixtures_drupal/d12/composer.json, behat.php,
 ' tests/behat/bootstrap/BehatCliTrait.php,
 ' tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -10,20 +11,21 @@ skinparam defaultFontName Helvetica
 skinparam shadowing false
 title Data flow: the fixture site and the nested Behat harness
 
-participant "ahoy test-bdd-coverage" as Dev
-participant "scripts/provision.sh" as Prov
+participant "Developer or CI" as Dev
+participant "scripts/provision.php" as Prov
 participant "Fixture Drupal site\nbuild/" as Site
 participant "Outer Behat run" as Behat
 participant "BehatCliContext" as Cli
 participant "Nested Behat subprocess" as Sub
 participant "scripts/merge-coverage.php" as Merge
 
-Dev -> Prov: bash scripts/provision.sh
+Dev -> Prov: ahoy build, which runs ahoy provision
 activate Prov
 Prov -> Prov: copy tests/behat/fixtures_drupal/d11 or d12\ninto build/, as DRUPAL_VERSION selects
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
 Prov -> Prov: drop the packages the selected Behat\nand Drupal majors cannot install
-Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects
+Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects; the d12 fixture takes\ndrupal/core from source for core/tests
+Prov -> Prov: on Drupal 12, widen core_version_requirement\nacross the installed contrib extensions
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site
 Site --> Prov: configuration imported, bootstrap successful
@@ -31,7 +33,7 @@ deactivate Site
 Prov --> Dev: fixture site ready
 deactivate Prov
 
-Dev -> Behat: behat -c /app/behat.php, run from build/
+Dev -> Behat: ahoy test-bdd-coverage:\nbehat -c /app/behat.php, run from build/
 activate Behat
 
 Behat -> Site: scenarios drive Drupal and Mink directly
@@ -52,7 +54,7 @@ deactivate Cli
 Behat -> Behat: .logs/coverage/behat/phpcov.php
 deactivate Behat
 
-Dev -> Merge: php scripts/merge-coverage.php
+Dev -> Merge: then php scripts/merge-coverage.php
 activate Merge
 Merge -> Merge: fold every .logs/coverage/behat_cli/phpcov/*.php\ninto the main coverage
 Merge --> Dev: .logs/coverage/behat_cli/cobertura.xml\nthe true total coverage

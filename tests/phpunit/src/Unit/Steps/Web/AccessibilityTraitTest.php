@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * Tests for AccessibilityTrait.
@@ -163,6 +166,36 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $this->assertSame(10, $object->testGetFetchTimeout());
     $this->assertSame(3, $object->testGetFetchAttempts());
+  }
+
+  /**
+   * Tests reading the engine source from an HTTP location.
+   *
+   * @param \Symfony\Component\HttpClient\Response\MockResponse $response
+   *   The response the location answers with.
+   * @param string|false $expected
+   *   The source expected back, or FALSE when the read fails.
+   */
+  #[DataProvider('dataProviderFetchJsFromHttpLocation')]
+  public function testFetchJsFromHttpLocation(MockResponse $response, string|false $expected): void {
+    $requests = [];
+    $client = new MockHttpClient(static function (string $method, string $url, array $options) use (&$requests, $response): MockResponse {
+      $requests[] = $options;
+
+      return $response;
+    });
+    $this->testObject->setHttpClientFactory(new HttpClientFactory($client));
+
+    $this->assertSame($expected, $this->testObject->accessibilityFetchJs('https://cdn.example.org/axe.min.js', 4));
+    $this->assertEqualsWithDelta(4.0, $requests[0]['timeout'], 0.001);
+  }
+
+  public static function dataProviderFetchJsFromHttpLocation(): array {
+    return [
+      'a found source' => [new MockResponse('ENGINE'), 'ENGINE'],
+      'a missing source' => [new MockResponse('Not found', ['http_code' => 404]), FALSE],
+      'an unreachable host' => [new MockResponse('', ['error' => 'Could not resolve host']), FALSE],
+    ];
   }
 
   public function testGetReportDirUsesCapturedBaseDir(): void {

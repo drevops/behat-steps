@@ -11,6 +11,9 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\RequestHeaderCapabilityInterface;
+use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\HttpClient\MockHttpClient;
 
 /**
  * Declares every capability for any driver, including a mocked one.
@@ -59,8 +62,8 @@ class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInt
   /**
    * {@inheritdoc}
    */
-  public function httpClient(): object {
-    return new \stdClass();
+  public function httpClient(): AbstractBrowser {
+    return new HttpBrowser(new MockHttpClient());
   }
 
   /**

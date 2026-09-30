@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
+use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
+use Behat\Mink\Exception\UnsupportedDriverActionException as MinkUnsupportedDriverActionException;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
+use DrevOps\BehatSteps\Behat\Http\HttpIdentity;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
@@ -17,6 +25,9 @@ use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * Tests the plumbing every shipped context inherits.
@@ -86,6 +97,113 @@ class WebRawContextTest extends UnitTestCase {
 
     $this->assertSame($driver, $first);
     $this->assertSame($driver, $second);
+  }
+
+  public function testHttpClientFactoryIsTheInjectedOne(): void {
+    $factory = $this->createMock(HttpClientFactoryInterface::class);
+    $context = new WebRawContext();
+
+    $context->setHttpClientFactory($factory);
+
+    $this->assertSame($factory, $context->getHttpClientFactory());
+  }
+
+  public function testHttpClientFactoryDefaultsToStandaloneOne(): void {
+    $context = new WebRawContext();
+
+    $factory = $context->getHttpClientFactory();
+
+    $this->assertInstanceOf(HttpClientFactory::class, $factory);
+    $this->assertSame($factory, $context->getHttpClientFactory());
+  }
+
+  public function testHttpPageClientIsTheSessionBrowser(): void {
+    $browser = new HttpBrowser(new MockHttpClient());
+
+    $this->assertSame($browser, $this->createBrowserKitContext($browser)->httpPageClient());
+  }
+
+  public function testHttpPageClientIsUnsupportedWithoutPhpBrowser(): void {
+    $mink = new Mink(['default' => new Session($this->createMock(MinkDriverInterface::class))]);
+    $mink->setDefaultSessionName('default');
+    $context = new WebRawContext();
+    $context->setMink($mink);
+
+    $this->expectException(MinkUnsupportedDriverActionException::class);
+
+    $context->httpPageClient();
+  }
+
+  public function testHttpBareClientComesFromTheFactory(): void {
+    $browser = new HttpBrowser(new MockHttpClient());
+    $factory = $this->createMock(HttpClientFactoryInterface::class);
+    $factory->expects($this->once())->method('createBare')->with(['timeout' => 5])->willReturn($browser);
+    $context = new WebRawContext();
+    $context->setHttpClientFactory($factory);
+
+    $this->assertSame($browser, $context->httpBareClient(['timeout' => 5]));
+  }
+
+  public function testHttpDetachedClientCarriesTheSessionIdentity(): void {
+    $page = new MockResponse('<html><body>Page</body></html>', ['response_headers' => ['Set-Cookie: SESS=abc; path=/']]);
+    $context = $this->createBrowserKitContext(new HttpBrowser(new MockHttpClient($page)));
+    $context->getSession()->visit('http://example.com/page');
+    $context->requestHeadersSet('X-Token', 't1');
+
+    $basic_authenticator = $this->createMock(BasicAuthenticatorInterface::class);
+    $basic_authenticator->method('findCredentials')->willReturn(['username' => 'bob', 'password' => 'pw']);
+    $context->setBasicAuthenticator($basic_authenticator);
+
+    $identity = $this->captureDetachedIdentity($context);
+
+    $this->assertSame(['SESS' => 'abc'], $identity->cookies);
+    $this->assertSame('http://example.com/page', $identity->cookieUrl);
+    $this->assertSame(['X-Token' => 't1'], $identity->headers);
+    $this->assertSame(['username' => 'bob', 'password' => 'pw'], $identity->credentials);
+  }
+
+  public function testHttpDetachedClientBeforeAnyPageCarriesNoCookies(): void {
+    $context = $this->createBrowserKitContext(new HttpBrowser(new MockHttpClient()));
+
+    $identity = $this->captureDetachedIdentity($context);
+
+    $this->assertSame([], $identity->cookies);
+    $this->assertSame('', $identity->cookieUrl);
+    $this->assertNull($identity->credentials);
+  }
+
+  /**
+   * Builds a context whose Mink session runs on the given BrowserKit browser.
+   */
+  protected function createBrowserKitContext(HttpBrowser $browser): WebRawContext {
+    $mink = new Mink(['default' => new Session(new BrowserKitDriver($browser, 'http://example.com'))]);
+    $mink->setDefaultSessionName('default');
+
+    $context = new WebRawContext();
+    $context->setMink($mink);
+
+    return $context;
+  }
+
+  /**
+   * Returns the identity the context hands the factory for a detached browser.
+   */
+  protected function captureDetachedIdentity(WebRawContext $context): HttpIdentity {
+    $captured = NULL;
+
+    $factory = $this->createMock(HttpClientFactoryInterface::class);
+    $factory->expects($this->once())->method('createDetached')->willReturnCallback(static function (HttpIdentity $identity) use (&$captured): HttpBrowser {
+      $captured = $identity;
+
+      return new HttpBrowser(new MockHttpClient());
+    });
+    $context->setHttpClientFactory($factory);
+
+    $context->httpDetachedClient();
+
+    $this->assertInstanceOf(HttpIdentity::class, $captured);
+
+    return $captured;
   }
 
   /**

@@ -66,6 +66,25 @@ class BasicAuthenticatorTest extends TestCase {
   }
 
   /**
+   * Tests the credentials read from the configured base URL.
+   *
+   * @param string $base_url
+   *   The configured Mink 'base_url'.
+   * @param array{username: string, password: string}|null $expected
+   *   The credentials expected, or NULL when the base URL carries none.
+   */
+  #[DataProvider('dataProviderFindCredentials')]
+  public function testFindCredentials(string $base_url, ?array $expected): void {
+    $this->assertSame($expected, $this->createManager($this->createMock(Session::class), $base_url)->findCredentials());
+  }
+
+  public static function dataProviderFindCredentials(): \Iterator {
+    yield 'username and password' => ['http://bob:s3cret@localhost', ['username' => 'bob', 'password' => 's3cret']];
+    yield 'username only' => ['http://bob@localhost', ['username' => 'bob', 'password' => '']];
+    yield 'no userinfo' => ['http://localhost', NULL];
+  }
+
+  /**
    * Tests that an unsupported-driver exception is swallowed.
    *
    * JavaScript drivers cannot set basic auth headers and throw; the call must

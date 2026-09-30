@@ -144,6 +144,8 @@ default:
 
 Settings under this key configure how the package reaches the site: which drivers a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
 
+HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and the requests steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
+
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'drivers' => ['drupal', 'blackbox'],

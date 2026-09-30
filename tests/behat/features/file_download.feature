@@ -38,6 +38,31 @@ Feature: Check that FileDownloadTrait works
       /Some/i
       """
 
+  @download
+  Scenario: Assert "When I download the file from the URL :url" sends the basic authentication a step set
+    Given the following users exist:
+      | name       | mail               | pass       |
+      | admin-test | admin-test@bar.com | admin-test |
+    When the basic authentication has the username "admin-test" and the password "admin-test"
+    And I download the file from the URL "/mysite_core/test-basic-auth"
+    Then the downloaded file should contain:
+      """
+      admin-test
+      """
+
+  @trait:FileDownloadTrait
+  Scenario: Assert that a download fails without the basic authentication its route requires
+    Given some behat configuration
+    And scenario steps tagged with "@download":
+      """
+      When I download the file from the URL "/mysite_core/test-basic-auth"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      returned HTTP status 401
+      """
+
   @trait:FileDownloadTrait
   Scenario: Assert that regex content match fails properly
     Given some behat configuration

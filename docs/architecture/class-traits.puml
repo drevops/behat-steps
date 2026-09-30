@@ -16,7 +16,7 @@ skinparam ranksep 20
 title Class structure: step traits
 
 package "Behat\\MinkExtension\\Context" #ECEFF1 {
-  abstract class RawMinkContext {
+  class RawMinkContext {
     +getSession() : Session
     +getMinkParameter(name) : mixed
   }
@@ -26,8 +26,8 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   interface DriverAwareInterface
   interface UserAwareInterface
   class WebRawContext {
-    driver access, configuration,
-    the 4 web helper traits, no steps
+    driver and browser access, configuration,
+    HTTP clients, 3 web helper traits, no steps
   }
   class WebContext {
     use every Steps\\Web trait
@@ -181,13 +181,11 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   class LastStepTrait <<trait>>
   class RequestHeadersTrait <<trait>>
   class StringTrait <<trait>>
-  class JavascriptSupportTrait <<trait>>
   class TableTransposeTrait <<trait>>
 
   LastStepTrait -[hidden]down- RequestHeadersTrait
   RequestHeadersTrait -[hidden]down- StringTrait
-  StringTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- TableTransposeTrait
+  StringTrait -[hidden]down- TableTransposeTrait
 }
 
 package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {

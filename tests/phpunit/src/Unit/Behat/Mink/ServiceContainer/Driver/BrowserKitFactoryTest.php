@@ -6,25 +6,21 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
-use DrevOps\BehatSteps\Driver\Exception\BootstrapException;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Tests\DrupalTestBrowser;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Tests the driver definition built for the 'browserkit_http' session.
+ * Tests the 'browserkit_http' driver built on the shared transport.
  */
 #[CoversClass(BrowserKitFactory::class)]
 class BrowserKitFactoryTest extends UnitTestCase {
-
-  /**
-   * A directory holding no Drupal installation.
-   */
-  protected const NO_DRUPAL_DIR = __DIR__;
 
   public function testTheFactoryClaimsMinkBrowserKitName(): void {
     $this->assertSame('browserkit_http', (new BrowserKitFactory())->getDriverName());
@@ -34,102 +30,85 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->assertFalse((new BrowserKitFactory())->supportsJavascript());
   }
 
-  public function testTheConfigAcceptsGuzzleRequestOptions(): void {
+  public function testTheConfigKeepsMinkOptions(): void {
+    $children = $this->buildConfigTree()->getChildren();
+
+    $this->assertArrayHasKey('http_client_parameters', $children);
+  }
+
+  public function testTheDriverRunsOnHttpBrowserOverTheSharedTransport(): void {
+    $driver = (new BrowserKitFactory())->buildDriver([]);
+
+    $this->assertSame(BrowserKitDriver::class, $driver->getClass());
+    $this->assertSame('%mink.base_url%', $driver->getArgument(1));
+
+    $browser = $driver->getArgument(0);
+    $this->assertInstanceOf(Definition::class, $browser);
+    $this->assertSame(HttpBrowser::class, $browser->getClass());
+
+    $transport = $browser->getArgument(0);
+    $this->assertInstanceOf(Reference::class, $transport);
+    $this->assertSame(BrowserKitFactory::TRANSPORT_SERVICE, (string) $transport);
+  }
+
+  /**
+   * Tests the options recorded from the sessions the factory built.
+   *
+   * @param array<int, array<string, mixed>> $sessions
+   *   The driver configuration of each session built.
+   * @param array<string, mixed> $expected
+   *   The options expected back.
+   */
+  #[DataProvider('dataProviderClientOptionsAreReadFromTheSessions')]
+  public function testClientOptionsAreReadFromTheSessions(array $sessions, array $expected): void {
+    $factory = new BrowserKitFactory();
+
+    foreach ($sessions as $session) {
+      $factory->buildDriver($session);
+    }
+
+    $this->assertSame($expected, $factory->getClientOptions());
+  }
+
+  public static function dataProviderClientOptionsAreReadFromTheSessions(): \Iterator {
+    yield 'no session built' => [[], []];
+    yield 'a session without options' => [[[]], []];
+    yield 'a session with options' => [
+      [['http_client_parameters' => ['verify_peer' => FALSE, 'timeout' => 30]]],
+      ['timeout' => 30, 'verify_peer' => FALSE],
+    ];
+    yield 'sessions with the same options in a different order' => [
+      [
+        ['http_client_parameters' => ['timeout' => 30, 'headers' => ['X-B' => '2', 'X-A' => '1']]],
+        ['http_client_parameters' => ['headers' => ['X-A' => '1', 'X-B' => '2'], 'timeout' => 30]],
+      ],
+      ['headers' => ['X-A' => '1', 'X-B' => '2'], 'timeout' => 30],
+    ];
+  }
+
+  public function testSessionsWithDifferentOptionsAreRejected(): void {
+    $factory = new BrowserKitFactory();
+    $factory->buildDriver(['http_client_parameters' => ['timeout' => 30]]);
+    $factory->buildDriver(['http_client_parameters' => ['timeout' => 60]]);
+
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The 2 "browserkit_http" sessions declare different "http_client_parameters".');
+
+    $factory->getClientOptions();
+  }
+
+  /**
+   * Builds the options tree the factory declares for a session.
+   */
+  protected function buildConfigTree(): ArrayNode {
     $builder = new ArrayNodeDefinition('browserkit_http');
 
     (new BrowserKitFactory())->configure($builder);
 
     $node = $builder->getNode(TRUE);
     $this->assertInstanceOf(ArrayNode::class, $node);
-    $this->assertArrayHasKey('guzzle_request_options', $node->getChildren());
-  }
 
-  public function testTheDefinitionDrivesDrupalTestBrowser(): void {
-    $definition = $this->createFactory()->buildDriver([]);
-
-    $this->assertSame(BrowserKitDriver::class, $definition->getClass());
-    $this->assertSame('%mink.base_url%', $definition->getArgument(1));
-    $this->assertSame(DrupalTestBrowser::class, $this->getClientDefinition($definition)->getClass());
-  }
-
-  public function testRedirectsAreOffAndCookiesOnByDefault(): void {
-    $guzzle = $this->getGuzzleDefinition($this->createFactory()->buildDriver([]));
-
-    $this->assertSame(['allow_redirects' => FALSE, 'cookies' => TRUE], $guzzle->getArgument(0));
-  }
-
-  public function testSuppliedRequestOptionsMergeOverTheDefaults(): void {
-    $guzzle = $this->getGuzzleDefinition($this->createFactory()->buildDriver(['guzzle_request_options' => ['timeout' => 5]]));
-
-    $this->assertSame(['allow_redirects' => FALSE, 'cookies' => TRUE, 'timeout' => 5], $guzzle->getArgument(0));
-  }
-
-  public function testSuppliedOptionOverridesItsDefault(): void {
-    $guzzle = $this->getGuzzleDefinition($this->createFactory()->buildDriver(['guzzle_request_options' => ['allow_redirects' => TRUE]]));
-
-    $this->assertSame(['allow_redirects' => TRUE, 'cookies' => TRUE], $guzzle->getArgument(0));
-  }
-
-  public function testMissingDrupalRootIsReported(): void {
-    $factory = new TestableBrowserKitFactory();
-
-    $this->expectException(BootstrapException::class);
-    $this->expectExceptionMessage('No Drupal installation found');
-
-    $factory->buildDriver([]);
-  }
-
-  public function testRootWithoutTestBrowserIsReported(): void {
-    $factory = new TestableBrowserKitFactory();
-    $factory->testBrowserLoaded = FALSE;
-
-    $this->expectException(BootstrapException::class);
-    $this->expectExceptionMessage('ships no test browser');
-
-    $this->requireTestBrowser($factory, self::NO_DRUPAL_DIR);
-  }
-
-  public function testLoadedTestBrowserIsNotIncludedAgain(): void {
-    $this->expectNotToPerformAssertions();
-
-    $this->requireTestBrowser(new TestableBrowserKitFactory(), self::NO_DRUPAL_DIR);
-  }
-
-  /**
-   * Calls the factory's protected test-browser loader.
-   */
-  protected function requireTestBrowser(BrowserKitFactory $factory, string $drupal_root): void {
-    (new \ReflectionMethod($factory, 'requireTestBrowser'))->invoke($factory, $drupal_root);
-  }
-
-  /**
-   * Builds a factory reporting a Drupal root and a loaded test browser.
-   */
-  protected function createFactory(): TestableBrowserKitFactory {
-    $factory = new TestableBrowserKitFactory();
-    $factory->drupalRoot = '/drupal';
-
-    return $factory;
-  }
-
-  /**
-   * Returns the test-browser definition the driver is built around.
-   */
-  protected function getClientDefinition(Definition $driver): Definition {
-    $client = $driver->getArgument(0);
-    $this->assertInstanceOf(Definition::class, $client);
-
-    return $client;
-  }
-
-  /**
-   * Returns the Guzzle definition handed to the test browser.
-   */
-  protected function getGuzzleDefinition(Definition $driver): Definition {
-    $guzzle = $this->getClientDefinition($driver)->getMethodCalls()[0][1][0];
-    $this->assertInstanceOf(Definition::class, $guzzle);
-
-    return $guzzle;
+    return $node;
   }
 
 }

@@ -8,6 +8,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
 /**
  * Navigate and verify paths with URL validation.
@@ -20,6 +21,8 @@ use Behat\Step\When;
  */
 trait PathTrait {
 
+  use RequestHeadersTrait;
+
   /**
    * Set basic authentication for the current session.
    *
@@ -30,6 +33,10 @@ trait PathTrait {
   #[Given('the basic authentication has the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
+
+    // The driver keeps the credentials to itself, so the requests the library
+    // sends outside the session read them from the header bag.
+    $this->requestHeadersSet('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
   }
 
   /**

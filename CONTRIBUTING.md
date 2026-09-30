@@ -189,7 +189,7 @@ Data provider naming and placement are settled too. A provider is named `dataPro
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, JavaScript support detection, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
@@ -212,6 +212,22 @@ A step is only as portable as the driver behind it, so each trait falls into one
 
 A step names a capability and never a driver. `WebRawContext::driverFor()` walks the scenario's driver order, returns the first driver implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedDriverActionException` naming the capability and the order. The order itself comes from the `drivers` list under `behat_steps` and the `@driver:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#driver-resolution).
 
+## Sending a request from a trait
+
+A step that sends its own HTTP request picks 1 of 3 clients on `WebRawContext` by what the response is for, and the method it calls says which:
+
+| The response | Call | Used by |
+| --- | --- | --- |
+| Becomes the page the next steps read | `httpPageClient()` | `RestTrait` |
+| Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` |
+| Carries nothing of the scenario | `httpBareClient()` | The engine fetch in `AccessibilityTrait` |
+
+Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 3 carries `@phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext`.
+
+The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every driver. In a `@javascript` scenario they're a sidecar: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
+
+In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/http-clients.md](docs/http-clients.md) covers the settings, the identity the detached client carries, and the extension points.
+
 A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
 
 [scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Driver` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and the 4 web helper traits exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
@@ -223,7 +239,7 @@ A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterf
 `src/Behat` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
-- **`MinkExtension` wraps Mink's extension instead of extending it.** Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so a subclass cannot even load there. The first-party extension implements `Extension` itself and delegates the 5 interface methods and `registerDriverFactory()` to a wrapped instance, so the `browserkit_http` factory swap and the driver factories other extensions register work on both.
+- **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, receives each session's `http_client_parameters` through `buildDriver()`, and builds every `browserkit_http` session on the transport the library's own requests share. Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so it can't be subclassed, and a wrapper would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs once every extension is activated and before any configuration tree is built, so it hands the factory to `registerDriverFactory()` on whichever Mink extension holds the key - the hook every driver extension uses - and that works on both majors.
 - **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
@@ -444,7 +460,7 @@ ahoy test-bdd
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
 
-Drupal 12 is pinned to `~12.0.0-alpha1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
+Drupal 12 is pinned to `~12.0.0-beta1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
 
 Drupal 12 constrains its own grid hard:
 
@@ -459,13 +475,23 @@ Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does 
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
 
+The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 the release package no longer carries core's test files, which the PHPUnit bootstrap and the Kernel suite need, and [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist` so the per-package setting holds.
+
 Every contrib module carries a floor in `d12/composer.json` at the oldest release known to work on Drupal 12. An older release predates the major and fails on it whatever the patches do - `drupal/token` at its lowest resolvable release declares no return type on `getSubscribedEvents()` - and a patch written against one release does not apply to another. Without the floors the `lowest` leg fails before a single scenario runs.
 
 The floors cover contrib only. `lowest` still resolves the oldest usable version of the library's own dependencies, which is what those legs are for.
 
 Relaxing the Composer solve is only half of it. Drupal reads `core_version_requirement` from each extension's `.info.yml` and refuses to enable one that excludes the running major, so after the update [scripts/provision.php](scripts/provision.php) appends `|| ^12` to that key across the installed contrib extensions. The rewrite touches the throwaway `build/` tree only, never the fixture sources.
 
-Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship.
+Drupal 12 removes `contact`, `history` and `shortcut` from core, so `d12/config/sync` carries neither those modules nor the config that depended on them, and the `ModuleTrait` scenarios use `syslog` and `contextual`, which both majors ship. 12.0.0-beta1 goes further: it moves Olivero, Claro and Search out of core, which the fixture installs from contrib under the same machine names, and removes Toolbar and the Syndicate block, which the fixture drops.
+
+To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
+
+```bash
+PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
+```
+
+The suites then run against it with `DRUPAL_VERSION=12 BEHAT=4` in front of `ahoy test-unit`, `ahoy test-kernel` and `ahoy test-bdd`.
 
 ### Patched contrib
 
@@ -491,14 +517,7 @@ A patch stops being needed the day its module ships a Drupal 12 release, at whic
 
 ### Coverage
 
-Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is an alpha.
-To take the Drupal 12 fixture as far as its legs do, set the 3 variables they set. `ahoy build` resets the containers, so the PHP version has to be on the build as well as the provisioning:
-
-```bash
-PHP_VERSION=8.5 DRUPAL_VERSION=12 BEHAT=4 ahoy build
-```
-
-That run installs Drupal 12 and then fails on the configuration check, which is the state this section describes.
+Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is a pre-release.
 
 ## Updating fixture site
 

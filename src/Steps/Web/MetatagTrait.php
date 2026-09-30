@@ -11,6 +11,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Selector\Xpath\Escaper;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * Assert `<meta>` tags and head/SEO markup in page markup.
@@ -21,7 +22,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Assert hreflang alternates are valid and reciprocal.
  * - Assert Open Graph and Twitter Card completeness.
  *
- * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait MetatagTrait {
 
@@ -522,7 +523,10 @@ trait MetatagTrait {
   }
 
   /**
-   * Fetch a URL out of band without disturbing the Mink session.
+   * Fetch a URL through the detached client, leaving the page untouched.
+   *
+   * The request carries the scenario's cookies and headers, so an alternate
+   * page behind a login or basic auth is fetched as the scenario sees it.
    *
    * @param string $url
    *   The absolute URL to fetch.
@@ -531,32 +535,23 @@ trait MetatagTrait {
    *   The response body.
    */
   protected function metatagFetchUrl(string $url): string {
-    $handle = curl_init($url);
+    $browser = $this->httpDetachedClient(['timeout' => 30]);
 
-    if ($handle === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to initialise a request for "%s".', $url));
-      // @codeCoverageIgnoreEnd
+    try {
+      $browser->request('GET', $url);
+    }
+    catch (TransportExceptionInterface $exception) {
+      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s": %s', $url, $exception->getMessage()), 0, $exception);
     }
 
-    curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($handle, CURLOPT_FOLLOWLOCATION, TRUE);
-    curl_setopt($handle, CURLOPT_TIMEOUT, 30);
-
-    $body = curl_exec($handle);
-    $status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-
-    if (!is_string($body)) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s".', $url));
-      // @codeCoverageIgnoreEnd
-    }
+    $response = $browser->getInternalResponse();
+    $status = $response->getStatusCode();
 
     if ($status >= 400) {
       throw new \RuntimeException(sprintf('The hreflang alternate page "%s" returned HTTP status %d.', $url, $status));
     }
 
-    return $body;
+    return $response->getContent();
   }
 
   /**

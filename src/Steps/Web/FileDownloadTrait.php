@@ -16,9 +16,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * Test file download functionality with content verification.
@@ -86,17 +86,7 @@ trait FileDownloadTrait {
       $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
     }
 
-    $cookie_list = [];
-
-    // The Cookie header carries wire-form values, which is the form the
-    // capability reports.
-    foreach ($this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll() as $cookie) {
-      $cookie_list[] = $cookie['name'] . '=' . $cookie['value'];
-    }
-
-    $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url, [
-      CURLOPT_COOKIE => implode('; ', $cookie_list),
-    ]);
+    $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url);
 
     // @codeCoverageIgnoreStart
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
@@ -348,51 +338,42 @@ trait FileDownloadTrait {
   /**
    * Download file.
    *
+   * The request goes through the detached client, so it carries the
+   * scenario's cookies and headers and leaves the page the session holds
+   * untouched.
+   *
    * @param string $url
    *   URL to download file from.
-   * @param array<int, mixed> $options
-   *   CURL options.
+   * @param array<string, mixed> $options
+   *   Symfony HttpClient options, merged over the trait's 'timeout'.
    *
    * @return array<string, string>
    *   Array of downloaded file information.
    */
   public function fileDownloadProcess(string $url, array $options = []): array {
-    $response_headers = [];
+    $browser = $this->httpDetachedClient($options + ['timeout' => $this->getOptionInt('file_download', 'timeout')]);
+    $browser->setMaxRedirects(10);
 
-    $options += [
-      CURLOPT_RETURNTRANSFER => TRUE,
-      CURLOPT_HEADER => FALSE,
-      CURLOPT_FOLLOWLOCATION => TRUE,
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_ENCODING => '',
-      CURLOPT_USERAGENT => 'test',
-      CURLOPT_AUTOREFERER => TRUE,
-      CURLOPT_CONNECTTIMEOUT => 120,
-      CURLOPT_TIMEOUT => 120,
-      CURLOPT_HEADERFUNCTION => function ($handle, $header) use (&$response_headers): int {
-        $response_headers[] = $header;
-
-        return strlen($header);
-      },
-    ];
-
-    $handle = curl_init($url);
-    curl_setopt_array($handle, $options);
-
-    $content = curl_exec($handle);
-    $status = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-
-    if (!$content) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
-      // @codeCoverageIgnoreEnd
+    try {
+      $browser->request('GET', $url);
     }
+    catch (TransportExceptionInterface $exception) {
+      throw new \RuntimeException(sprintf('Unable to download file from URL %s: %s', $url, $exception->getMessage()), 0, $exception);
+    }
+
+    $response = $browser->getInternalResponse();
+    $content = $response->getContent();
+    $status = $response->getStatusCode();
 
     if ($status >= 400) {
       throw new \RuntimeException(sprintf('The URL %s returned HTTP status %d.', $url, $status));
     }
 
-    $headers = $this->fileDownloadParseHeaders($response_headers);
+    if ($content === '') {
+      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
+    }
+
+    $headers = $this->fileDownloadParseHeaders($response->getHeaders());
 
     $dir = $this->fileDownloadGetTempDir();
 
@@ -422,8 +403,8 @@ trait FileDownloadTrait {
   /**
    * Extract downloaded file information from the response headers.
    *
-   * @param array<int, string> $headers
-   *   Array of headers from CURL.
+   * @param array<array-key, string|array<int, string>> $headers
+   *   Response headers keyed by name, each a value or a list of values.
    *
    * @return array<string, string>
    *   Array of parsed headers, if any.
@@ -431,15 +412,16 @@ trait FileDownloadTrait {
   protected function fileDownloadParseHeaders(array $headers): array {
     $parsed_headers = [];
 
-    foreach ($headers as $header) {
-      // @codeCoverageIgnoreStart
-      if (preg_match('/Content-Disposition:\s*attachment;\s*filename\s*=\s*\"([^"]+)"/', (string) $header, $matches) && !empty($matches[1])) {
+    foreach ($headers as $name => $values) {
+      $name = strtolower((string) $name);
+      $value = trim(implode(', ', (array) $values));
+
+      if ($name === 'content-disposition' && preg_match('/attachment;\s*filename\s*=\s*"([^"]+)"/', $value, $matches) === 1) {
         $parsed_headers['file_name'] = trim($matches[1]);
-        continue;
       }
-      // @codeCoverageIgnoreEnd
-      if (preg_match('/Content-Type:\s*(.+)/', (string) $header, $matches) && !empty($matches[1])) {
-        $parsed_headers['content_type'] = trim($matches[1]);
+
+      if ($name === 'content-type' && $value !== '') {
+        $parsed_headers['content_type'] = $value;
       }
     }
 
@@ -497,6 +479,7 @@ trait FileDownloadTrait {
     return [
       new Option('enabled', default: TRUE, description: 'Prepare and clean up the download directory around a `@download` scenario.'),
       new Option('temp_dir', default: '/tmp/behat_downloads', description: 'Directory a `@download` scenario writes downloaded files into.'),
+      new Option('timeout', default: 120, description: 'How long, in seconds, a file download may wait for data.'),
     ];
   }
 

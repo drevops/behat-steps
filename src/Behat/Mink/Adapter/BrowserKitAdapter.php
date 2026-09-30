@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Behat\Mink\BrowserAdapterBase;
 use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\RequestHeaderCapabilityInterface;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
@@ -69,7 +70,7 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function httpClient(): object {
+  public function httpClient(): AbstractBrowser {
     /** @var \Behat\Mink\Driver\BrowserKitDriver<object, object> $driver */
     $driver = $this->driver;
 

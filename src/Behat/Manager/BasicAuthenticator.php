@@ -36,7 +36,7 @@ class BasicAuthenticator implements BasicAuthenticatorInterface {
    * {@inheritdoc}
    */
   public function applyBasicAuth(): void {
-    $credentials = $this->resolveBasicAuth();
+    $credentials = $this->findCredentials();
 
     if ($credentials === NULL) {
       return;
@@ -52,16 +52,12 @@ class BasicAuthenticator implements BasicAuthenticatorInterface {
   }
 
   /**
-   * Resolves the HTTP Basic authentication credentials to apply.
+   * {@inheritdoc}
    *
    * Credentials are derived from the 'base_url' userinfo
    * ('http://user:pass@host').
-   *
-   * @return array{username: string, password: string}|null
-   *   The resolved credentials, or NULL when the 'base_url' carries no
-   *   username.
    */
-  protected function resolveBasicAuth(): ?array {
+  public function findCredentials(): ?array {
     $base_url = (string) $this->getMinkParameter('base_url');
     $name = parse_url($base_url, PHP_URL_USER);
 

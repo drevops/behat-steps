@@ -12,7 +12,6 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 
 /**
@@ -136,13 +135,16 @@ trait RestTrait {
   }
 
   /**
-   * Get the BrowserKit client from the current Mink driver.
+   * Get the page client REST requests are sent through.
+   *
+   * A REST response becomes the page, so the REST assertions read it from
+   * the session like any other page.
    *
    * @return mixed
-   *   The BrowserKit client.
+   *   The BrowserKit browser the Mink session drives.
    */
   public function restGetClient(): mixed {
-    return $this->browserDriverFor(HttpClientCapabilityInterface::class)->httpClient();
+    return $this->httpPageClient();
   }
 
   /**

@@ -9,11 +9,11 @@ use Behat\Config\GherkinOptions;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
 use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
-use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 

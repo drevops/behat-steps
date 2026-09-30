@@ -28,12 +28,16 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +getOptionArray(group, key) : array
     +getOptionResolver() : TraitOptionResolverInterface
     +getBasicAuthenticator() : BasicAuthenticatorInterface
+    +browserDriverFor(capability) : object
+    +httpPageClient() : AbstractBrowser
+    +httpDetachedClient(options) : AbstractBrowser
+    +httpBareClient(options) : AbstractBrowser
     --
     #skipTag(trait, scope) : bool
     #shouldCleanup() : bool
     #buildOptionResolver() : TraitOptionResolverInterface
     --
-    composes the 4 web helper traits
+    composes 3 of the web helper traits
   }
 
   class WebContext {
@@ -58,6 +62,15 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   UserAwareInterface <|.. DrupalContext
 }
 
+package "Behat\\MinkExtension\\Context" #ECEFF1 {
+  class RawMinkContext {
+    +getSession() : Session
+    +getMinkParameter(name) : mixed
+  }
+}
+
+RawMinkContext <|-- WebRawContext
+
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   interface DriverRegistryInterface {
     +getDriverFor(capability) : object
@@ -66,6 +79,7 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   }
   interface BasicAuthenticatorInterface {
     +applyBasicAuth() : void
+    +findCredentials() : array|null
   }
   interface AuthenticatorInterface {
     +logIn(user) : void
@@ -136,8 +150,6 @@ WebRawContext o--> BasicAuthenticatorInterface
 WebRawContext o--> TraitOptionResolverFactoryInterface
 TraitOptionResolverFactoryInterface o--> ConfigSchemaReader
 TraitOptionResolverInterface o--> ScenarioTagRegistryInterface
-AuthTrait o--> UserRegistryInterface
-AuthTrait o--> AuthenticatorInterface
 
 package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
@@ -156,9 +168,6 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
     #lastStepSetLine(scope) : void
     #lastStepReached(scope) : bool
   }
-  class JavascriptSupportTrait <<trait>> {
-    +javascriptSupportAvailable() : bool
-  }
   class TableTransposeTrait <<trait>> {
     +tableTransposeVertical(table) : array
     +tableTransposeHorizontal(entities) : TableNode
@@ -166,8 +175,7 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
 
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- LastStepTrait
-  LastStepTrait -[hidden]down- JavascriptSupportTrait
-  JavascriptSupportTrait -[hidden]down- TableTransposeTrait
+  LastStepTrait -[hidden]down- TableTransposeTrait
 }
 
 package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
@@ -212,8 +220,12 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
   FixtureFileTrait -[hidden]down- QueryTrait
 }
 
+AuthTrait o--> UserRegistryInterface
+AuthTrait o--> AuthenticatorInterface
+
 package "Steps\\Web" #E8F5E9 {
   class PathTrait <<trait>> {
+    +pathSetBasicAuth(username, password) : void
     +pathVisit(path) : void
     +pathGoBack() : void
     +pathAssertCurrent(path) : void
@@ -235,20 +247,16 @@ package "Steps\\Drupal" #E3F2FD {
 WebRawContext ..> RequestHeadersTrait : composes
 WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
-WebRawContext ..> JavascriptSupportTrait : composes
 AuthTrait ..> EntityLifecycleTrait : composes
 
-PathTrait ..> WebRawContext : requires
+PathTrait ..> RawMinkContext : requires
+PathTrait ..> RequestHeadersTrait : composes
+CommandTrait ..> WebRawContext : requires
 ContentTrait ..> WebRawContext : requires
 ContentTrait ..> EntityLifecycleTrait : composes
 ContentTrait ..> QueryTrait : composes
 ContentTrait ..> FixtureFileTrait : composes
 ContentTrait ..> TableTransposeTrait : composes
-
-PathTrait ..> ExpectationException : throws
-ContentTrait ..> ExpectationException : throws
-CommandTrait ..> AssertionException : throws
-CommandTrait ..> RuntimeException : throws
 
 package "Thrown on failure" #FFEBEE {
   class ExpectationException {
@@ -273,11 +281,15 @@ package "Thrown on failure" #FFEBEE {
   ExpectationException <|-- ElementNotFoundException
 }
 
+PathTrait ..> ExpectationException : throws
+ContentTrait ..> ExpectationException : throws
+CommandTrait ..> AssertionException : throws
+CommandTrait ..> RuntimeException : throws
+
 note right of CommandTrait
   Never calls getSession(), so it cannot
   pass a driver to ExpectationException.
-  It throws AssertionException instead,
-  and declares only RawMinkContext.
+  It throws AssertionException instead.
 end note
 
 note bottom of EntityLifecycleTrait
@@ -296,6 +308,10 @@ note bottom of RequestHeadersTrait
   A helper trait composed by a step trait and by
   the context under it holds one property slot,
   so both reach the same state.
+
+  PathTrait records basic-auth credentials here,
+  and the detached HTTP client sends every header
+  in it to the base_url host.
 end note
 
 note right of BasicAuthenticatorInterface
