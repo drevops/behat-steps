@@ -6,11 +6,12 @@ namespace DrevOps\BehatSteps\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
-use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
@@ -45,6 +46,7 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function initialize(ExtensionManager $extensionManager): void {
+    $this->initializeBrowserKitFactory($extensionManager);
   }
 
   /**
@@ -70,7 +72,6 @@ class BehatStepsExtension implements ExtensionInterface {
     $this->processDriverPass($container);
     $this->processDrivers($container);
     $this->processClassGenerator($container);
-    $this->processMinkAjaxTimeout($container);
   }
 
   /**
@@ -201,6 +202,42 @@ class BehatStepsExtension implements ExtensionInterface {
     ->end();
     // phpcs:enable
     // @formatter:on
+  }
+
+  /**
+   * Registers the first-party factory behind Mink's 'browserkit_http' driver.
+   *
+   * Mink keys its driver factories by driver name, so this registration
+   * replaces Mink's own. Behat initializes every extension before it builds
+   * any configuration tree, so the replacement is in place when Mink declares
+   * the session options.
+   *
+   * @param \Behat\Testwork\ServiceContainer\ExtensionManager $extension_manager
+   *   The manager holding every activated extension.
+   */
+  protected function initializeBrowserKitFactory(ExtensionManager $extension_manager): void {
+    $mink = $extension_manager->getExtension('mink');
+
+    if (!$mink instanceof MinkExtension) {
+      return;
+    }
+
+    $factory = $this->createBrowserKitFactory();
+
+    // A project without Drupal has no test browser to load, so Mink's own
+    // factory stays registered.
+    if (!$factory->isDrupalInstalled()) {
+      return;
+    }
+
+    $mink->registerDriverFactory($factory);
+  }
+
+  /**
+   * Creates the factory that builds the 'browserkit_http' driver.
+   */
+  protected function createBrowserKitFactory(): BrowserKitFactory {
+    return new BrowserKitFactory();
   }
 
   /**
@@ -460,35 +497,6 @@ class BehatStepsExtension implements ExtensionInterface {
     }
 
     return $tag;
-  }
-
-  /**
-   * Applies an 'ajax_timeout' the Mink configuration tree supplied.
-   *
-   * Runs as a process pass rather than during 'load()' because the two
-   * extensions load in whichever order the suite lists them.
-   */
-  protected function processMinkAjaxTimeout(ContainerBuilder $container): void {
-    if (!$container->hasParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER)) {
-      return;
-    }
-
-    $parameters = $container->getParameter('behat_steps.parameters');
-
-    if (!is_array($parameters)) {
-      return;
-    }
-
-    $steps = is_array($parameters['steps'] ?? NULL) ? $parameters['steps'] : [];
-    $wait = is_array($steps['wait'] ?? NULL) ? $steps['wait'] : [];
-
-    // A project migrating in steps can carry both paths at once, so the value
-    // at the path that replaces this one wins.
-    $wait['ajax_timeout'] ??= $container->getParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER);
-    $steps['wait'] = $wait;
-    $parameters['steps'] = $steps;
-
-    $container->setParameter('behat_steps.parameters', $parameters);
   }
 
   /**

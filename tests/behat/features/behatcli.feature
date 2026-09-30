@@ -34,7 +34,7 @@ Feature: Behat CLI context
       use Behat\Config\Profile;
       use Behat\Config\Suite;
       use Behat\MinkExtension\Context\MinkContext;
-      use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+      use Behat\MinkExtension\ServiceContainer\MinkExtension;
       use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
@@ -153,7 +153,7 @@ Feature: Behat CLI context
       use Behat\Config\Profile;
       use Behat\Config\Suite;
       use Behat\MinkExtension\Context\MinkContext;
-      use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+      use Behat\MinkExtension\ServiceContainer\MinkExtension;
       use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))

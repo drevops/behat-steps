@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
-use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension;
+use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ForeignMinkExtension;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableBrowserKitFactory;
+use Drupal\Tests\DrupalTestBrowser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Tests the config schema and the services the extension puts in the container.
@@ -65,7 +71,55 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame('behat_steps', (new BehatStepsExtension())->getConfigKey());
   }
 
-  public function testInitializeTouchesNoOtherExtension(): void {
+  /**
+   * Tests that the first-party factory displaces Mink's own.
+   *
+   * @param array<int, class-string<\Behat\Testwork\ServiceContainer\Extension>> $locators
+   *   The extensions to activate, in activation order.
+   */
+  #[DataProvider('dataProviderInitializeRegistersTheFirstPartyBrowserKitFactory')]
+  public function testInitializeRegistersTheFirstPartyBrowserKitFactory(array $locators): void {
+    $manager = new ExtensionManager([]);
+
+    foreach ($locators as $locator) {
+      $manager->activateExtension($locator);
+    }
+
+    $mink = $manager->getExtension('mink');
+    $this->assertInstanceOf(MinkExtension::class, $mink);
+    $before = $this->minkDriverFactories($mink);
+
+    $manager->initializeExtensions();
+
+    $after = $this->minkDriverFactories($mink);
+    $this->assertNotInstanceOf(BrowserKitFactory::class, $before['browserkit_http']);
+    $this->assertInstanceOf(BrowserKitFactory::class, $after['browserkit_http']);
+    $this->assertSame(array_keys($before), array_keys($after));
+  }
+
+  public static function dataProviderInitializeRegistersTheFirstPartyBrowserKitFactory(): \Iterator {
+    yield 'Mink activated first' => [[MinkExtension::class, BehatStepsExtension::class]];
+    yield 'Mink activated last' => [[BehatStepsExtension::class, MinkExtension::class]];
+  }
+
+  public function testInitializeBuildsTheBrowserKitSessionOnDrupalTestBrowser(): void {
+    $mink = $this->initializeMink();
+    $container = new ContainerBuilder();
+
+    $mink->load($container, $this->processMinkConfig($mink, ['base_url' => 'http://example.com', 'sessions' => ['default' => ['browserkit_http' => NULL]]]));
+
+    $session = $container->getDefinition('mink')->getMethodCalls()[0][1][1];
+    $this->assertInstanceOf(Definition::class, $session);
+    $driver = $session->getArgument(0);
+    $this->assertInstanceOf(Definition::class, $driver);
+    $client = $driver->getArgument(0);
+    $this->assertInstanceOf(Definition::class, $client);
+
+    $this->assertSame(BrowserKitDriver::class, $driver->getClass());
+    $this->assertSame(DrupalTestBrowser::class, $client->getClass());
+  }
+
+  public function testInitializeSkipsSuiteWithoutMink(): void {
     $manager = new ExtensionManager([]);
 
     (new BehatStepsExtension())->initialize($manager);
@@ -73,47 +127,39 @@ class BehatStepsExtensionTest extends TestCase {
     $this->assertSame([], $manager->getExtensions());
   }
 
-  public function testAnAjaxTimeoutFromTheMinkTreeReachesTheWaitOption(): void {
-    $container = $this->load([]);
-    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
+  public function testInitializeLeavesForeignExtensionUnderMinkKey(): void {
+    $foreign = new ForeignMinkExtension();
 
-    (new BehatStepsExtension())->process($container);
+    (new BehatStepsExtension())->initialize(new ExtensionManager([$foreign]));
 
-    $parameters = $container->getParameter('behat_steps.parameters');
-    $this->assertIsArray($parameters);
-    $this->assertSame(12, $parameters['steps']['wait']['ajax_timeout']);
+    $this->assertSame([], $foreign->driverFactories);
   }
 
-  public function testAnAjaxTimeoutFromTheMinkTreeJoinsTheConfiguredWaitGroup(): void {
-    $container = $this->load(['steps' => ['wait' => ['enabled' => FALSE]]]);
-    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 12);
+  public function testInitializeKeepsMinkFactoryWithoutDrupal(): void {
+    $mink = new MinkExtension();
+    $extension = new class extends BehatStepsExtension {
 
-    (new BehatStepsExtension())->process($container);
+      /**
+       * {@inheritdoc}
+       */
+      protected function createBrowserKitFactory(): BrowserKitFactory {
+        return new TestableBrowserKitFactory();
+      }
 
-    $parameters = $container->getParameter('behat_steps.parameters');
-    $this->assertIsArray($parameters);
-    $this->assertSame(['enabled' => FALSE, 'ajax_timeout' => 12], $parameters['steps']['wait']);
+    };
+
+    $extension->initialize(new ExtensionManager([$mink]));
+
+    $this->assertNotInstanceOf(BrowserKitFactory::class, $this->minkDriverFactories($mink)['browserkit_http']);
   }
 
-  public function testAnExplicitAjaxTimeoutSurvivesTheDeprecatedMinkOne(): void {
-    $container = $this->load(['steps' => ['wait' => ['ajax_timeout' => 10]]]);
-    $container->setParameter(MinkExtension::DEPRECATED_AJAX_TIMEOUT_PARAMETER, 5);
+  public function testInitializeAddsNoAjaxTimeoutToMinkConfiguration(): void {
+    $mink = $this->initializeMink();
 
-    (new BehatStepsExtension())->process($container);
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('Unrecognized option "ajax_timeout" under "mink"');
 
-    $parameters = $container->getParameter('behat_steps.parameters');
-    $this->assertIsArray($parameters);
-    $this->assertSame(10, $parameters['steps']['wait']['ajax_timeout']);
-  }
-
-  public function testNoWaitOptionIsWrittenWithoutTheMinkTree(): void {
-    $container = $this->load([]);
-
-    (new BehatStepsExtension())->process($container);
-
-    $parameters = $container->getParameter('behat_steps.parameters');
-    $this->assertIsArray($parameters);
-    $this->assertSame([], $parameters['steps']);
+    $this->processMinkConfig($mink, ['ajax_timeout' => 5, 'sessions' => ['default' => ['browserkit_http' => NULL]]]);
   }
 
   public function testBlackboxDriverIsAlwaysRegistered(): void {
@@ -252,6 +298,11 @@ class BehatStepsExtensionTest extends TestCase {
     yield 'a group no context composes is kept' => [
       ['steps' => ['nonexistent' => ['enabled' => FALSE]]],
       ['nonexistent' => ['enabled' => FALSE]],
+    ];
+
+    yield 'the AJAX timeout in the wait group' => [
+      ['steps' => ['wait' => ['ajax_timeout' => 10]]],
+      ['wait' => ['ajax_timeout' => 10]],
     ];
 
     yield 'no steps section yields an empty map' => [
@@ -485,6 +536,55 @@ class BehatStepsExtensionTest extends TestCase {
     $extension->load($container, $tree->finalize($tree->normalize($config)));
 
     return $container;
+  }
+
+  /**
+   * Returns Mink's extension after this extension has initialized against it.
+   */
+  protected function initializeMink(): MinkExtension {
+    $mink = new MinkExtension();
+
+    (new BehatStepsExtension())->initialize(new ExtensionManager([$mink]));
+
+    return $mink;
+  }
+
+  /**
+   * Runs a raw Mink configuration array through Mink's schema.
+   *
+   * @param \Behat\MinkExtension\ServiceContainer\MinkExtension $mink
+   *   The Mink extension whose schema to apply.
+   * @param array<string, mixed> $config
+   *   The Mink configuration, before schema normalisation.
+   *
+   * @return array<string, mixed>
+   *   The processed configuration.
+   */
+  protected function processMinkConfig(MinkExtension $mink, array $config): array {
+    $builder = new ArrayNodeDefinition('mink');
+    $mink->configure($builder);
+    $tree = $builder->getNode(TRUE);
+
+    $processed = $tree->finalize($tree->normalize($config));
+    $this->assertIsArray($processed);
+
+    return $processed;
+  }
+
+  /**
+   * Returns the driver factories Mink's extension holds, keyed by driver name.
+   *
+   * @param \Behat\MinkExtension\ServiceContainer\MinkExtension $mink
+   *   The Mink extension to read.
+   *
+   * @return array<string, \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory>
+   *   The registered factories.
+   */
+  protected function minkDriverFactories(MinkExtension $mink): array {
+    $factories = (new \ReflectionProperty(MinkExtension::class, 'driverFactories'))->getValue($mink);
+    $this->assertIsArray($factories);
+
+    return $factories;
   }
 
 }
