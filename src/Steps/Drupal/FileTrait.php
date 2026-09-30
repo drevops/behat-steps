@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -153,9 +154,7 @@ trait FileTrait {
     $field_name = (string) $field_name;
 
     foreach ($field_values as $field_value) {
-      $ids = $this->fileLoadMultiple([$field_name => (string) $field_value]);
-      $entities = $storage->loadMultiple($ids);
-      $storage->delete($entities);
+      $storage->delete($this->fileLoadMultiple([$field_name => (string) $field_value]));
     }
   }
 
@@ -361,11 +360,13 @@ trait FileTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, string>
-   *   Array of file ids.
+   * @return array<int, \Drupal\file\FileInterface>
+   *   The matching files keyed by ID, or an empty array when none match.
    */
   public function fileLoadMultiple(array $conditions = []): array {
-    return $this->queryEntityIds('file', $conditions);
+    $ids = $this->queryEntityIds('file', $conditions);
+
+    return $ids ? File::loadMultiple($ids) : [];
   }
 
   /**

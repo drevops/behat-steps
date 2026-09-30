@@ -24,7 +24,6 @@ use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
-use Drupal\file\Entity\File;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
@@ -466,13 +465,12 @@ trait FeatureContextTrait {
     $this->driverFor(CoreCapabilityInterface::class);
 
     $file_name = basename($file_name);
-    $fids = $this->fileLoadMultiple(['filename' => $file_name]);
-    if (empty($fids)) {
+    $files = $this->fileLoadMultiple(['filename' => $file_name]);
+    if (empty($files)) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
 
-    $fid = reset($fids);
-    $file = File::load($fid);
+    $file = reset($files);
 
     if ($file_name !== $file->label()) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
@@ -485,8 +483,8 @@ trait FeatureContextTrait {
   #[Then('no :file_name file object exists')]
   public function testAssertFileObjectNotExists(string $file_name): void {
     $file_name = basename($file_name);
-    $fids = $this->fileLoadMultiple(['filename' => $file_name]);
-    if ($fids) {
+    $files = $this->fileLoadMultiple(['filename' => $file_name]);
+    if ($files) {
       throw new \Exception(sprintf('"%s" file does exist in DB, but it should not', $file_name));
     }
   }

@@ -14,6 +14,7 @@ use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
@@ -95,12 +96,10 @@ trait TaxonomyTrait {
     }
 
     foreach ($terms_table->getColumn(0) as $term_name) {
-      $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties([
+      $terms = $this->taxonomyLoadMultiple($vocabulary, [
         'name' => $term_name,
-        'vid' => $vocabulary,
       ]);
 
-      /** @var \Drupal\taxonomy\Entity\Term $term */
       foreach ($terms as $term) {
         $term->delete();
       }
@@ -201,12 +200,9 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
     }
 
-    $found = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadByProperties([
-        'name' => $term_name,
-        'vid' => $vocabulary,
-      ]);
+    $found = $this->taxonomyLoadMultiple($vocabulary, [
+      'name' => $term_name,
+    ]);
 
     if (count($found) === 0) {
       throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary), $this->getSession()->getDriver());
@@ -230,12 +226,9 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
     }
 
-    $found = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadByProperties([
-        'name' => $term_name,
-        'vid' => $vocabulary,
-      ]);
+    $found = $this->taxonomyLoadMultiple($vocabulary, [
+      'name' => $term_name,
+    ]);
 
     if (count($found) > 0) {
       throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary), $this->getSession()->getDriver());
@@ -261,16 +254,16 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
     }
 
-    $tids = $this->taxonomyLoadMultiple($vocabulary, [
+    $terms = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $term_name,
     ]);
 
-    if (empty($tids)) {
+    if (empty($terms)) {
       throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary));
     }
 
-    ksort($tids);
-    $tid = end($tids);
+    ksort($terms);
+    $tid = end($terms)->id();
 
     $path = $this->locatePath('/taxonomy/term/' . $tid . $action_subpath);
 
@@ -285,11 +278,13 @@ trait TaxonomyTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, string>
-   *   Array of term ids.
+   * @return array<int, \Drupal\taxonomy\TermInterface>
+   *   The matching terms keyed by ID, or an empty array when none match.
    */
   public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
-    return $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
+    $ids = $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
+
+    return $ids ? Term::loadMultiple($ids) : [];
   }
 
 }
