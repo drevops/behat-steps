@@ -18,6 +18,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * Test file download functionality with content verification.
@@ -352,7 +353,13 @@ trait FileDownloadTrait {
   public function fileDownloadProcess(string $url, array $options = []): array {
     $browser = $this->httpDetachedClient($options + ['timeout' => $this->getOptionInt('file_download', 'timeout')]);
     $browser->setMaxRedirects(10);
-    $browser->request('GET', $url);
+
+    try {
+      $browser->request('GET', $url);
+    }
+    catch (TransportExceptionInterface $exception) {
+      throw new \RuntimeException(sprintf('Unable to download file from URL %s: %s', $url, $exception->getMessage()), 0, $exception);
+    }
 
     $response = $browser->getInternalResponse();
     $content = $response->getContent();
