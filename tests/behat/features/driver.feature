@@ -13,8 +13,25 @@ Feature: Check that the driver order resolves as documented
     And the Cache capability should resolve to the "DrevOps\BehatSteps\Driver\DrushDriver" driver
 
   @driver:blackbox @driver:drush
-  Scenario: Repeated tags keep the order they were written in
-    Then the scenario driver order should be "blackbox, drush, drupal"
+  Scenario: Repeated tags keep the configured order
+    Then the scenario driver order should be "drush, blackbox, drupal"
+
+  @driver:drush @driver:blackbox
+  Scenario: Repeated tags give the same order whichever is written first
+    Then the scenario driver order should be "drush, blackbox, drupal"
+
+  @driver:blackbox
+  Scenario Outline: An example ranks the outline's tags and its table's tags together
+    Then the scenario driver order should be "<order>"
+
+    @driver:drush
+    Examples:
+      | order                   |
+      | drush, blackbox, drupal |
+
+    Examples:
+      | order                   |
+      | blackbox, drupal, drush |
 
   @driver:blackbox
   Scenario: Resolution falls through a promoted driver that lacks the capability

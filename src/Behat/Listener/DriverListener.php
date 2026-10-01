@@ -58,8 +58,12 @@ class DriverListener implements EventSubscriberInterface {
    * Passes the registries the state for the scenario about to run.
    *
    * The configured list is both the allow-list and the precedence order. A
-   * '@driver:NAME' tag moves NAME to the front of that order for this
-   * scenario; it never adds a driver the configuration does not list.
+   * '@driver:NAME' tag moves NAME ahead of the drivers no tag names; it never
+   * adds a driver the configuration does not list.
+   *
+   * The drivers the scenario's tags name come first, then those its feature's
+   * tags name. Each group keeps the configured order, so the order the tags
+   * are written in never changes the result.
    *
    * The scenario's tags are published here rather than read from a hook scope,
    * so a tag that sets a trait option applies to a step as well as to a hook.
@@ -74,17 +78,11 @@ class DriverListener implements EventSubscriberInterface {
     $this->scenarioTagRegistry->setTags(Tag::all($event));
 
     $configured = $this->configuredDrivers();
-    $order = [];
+    $scenario = $event->getScenario();
+    $scenario_drivers = $scenario instanceof TaggedNodeInterface ? $this->promotedDrivers($scenario, $configured) : [];
+    $feature_drivers = $this->promotedDrivers($event->getFeature(), $configured);
 
-    foreach ($this->promotedNames($event) as $name) {
-      if (!isset($configured[$name])) {
-        throw new \RuntimeException(sprintf('The "@%s%s" tag names a driver that the configured driver list does not hold. Configured drivers: %s. The tag reorders that list; it never adds to it.', self::DRIVER_TAG_PREFIX, $name, implode(', ', array_keys($configured))));
-      }
-
-      $order[$name] = $configured[$name];
-    }
-
-    $this->driverRegistry->setScenarioDrivers($order + $configured);
+    $this->driverRegistry->setScenarioDrivers($scenario_drivers + $feature_drivers + $configured);
     $this->driverRegistry->setEnvironment($event->getEnvironment());
   }
 
@@ -116,28 +114,42 @@ class DriverListener implements EventSubscriberInterface {
   }
 
   /**
-   * Collects the driver names a scenario and its feature promote.
+   * Selects the configured entries the '@driver:' tags of a node name.
    *
-   * Scenario tags come first, so the more specific declaration takes the front
-   * of the order. Within one node the tags keep the order they were written in.
+   * An example of a scenario outline counts as 1 node: Gherkin merges the
+   * outline's tags and its 'Examples:' table's tags into the example's list.
    *
-   * @return array<int, string>
-   *   Promoted driver names, deduplicated, most specific first.
+   * @param \Behat\Gherkin\Node\TaggedNodeInterface $node
+   *   The scenario or the feature to read.
+   * @param array<string, string> $configured
+   *   The configured map of tag name to registered driver name.
+   *
+   * @return array<string, string>
+   *   The named entries of the configured map, in the configured order.
+   *
+   * @throws \RuntimeException
+   *   When a '@driver:' tag names a driver the configuration does not list.
    */
-  protected function promotedNames(BeforeScenarioTested $event): array {
-    $scenario = $event->getScenario();
-    $tags = $scenario instanceof TaggedNodeInterface ? Tag::on($scenario) : [];
-    $tags = array_merge($tags, Tag::on($event->getFeature()));
-
+  protected function promotedDrivers(TaggedNodeInterface $node, array $configured): array {
     $names = [];
 
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, self::DRIVER_TAG_PREFIX)) {
-        $names[] = strtolower(substr($tag, strlen(self::DRIVER_TAG_PREFIX)));
+    foreach (Tag::on($node) as $tag) {
+      if (!str_starts_with($tag, self::DRIVER_TAG_PREFIX)) {
+        continue;
       }
+
+      $name = strtolower(substr($tag, strlen(self::DRIVER_TAG_PREFIX)));
+
+      if (!isset($configured[$name])) {
+        throw new \RuntimeException(sprintf('The "@%s%s" tag names a driver that the configured driver list does not hold. Configured drivers: %s. The tag reorders that list; it never adds to it.', self::DRIVER_TAG_PREFIX, $name, implode(', ', array_keys($configured))));
+      }
+
+      $names[$name] = TRUE;
     }
 
-    return array_values(array_unique($names));
+    // 'array_intersect_key()' keeps the order of its first argument, so the
+    // order the tags are written in is discarded.
+    return array_intersect_key($configured, $names);
   }
 
 }
