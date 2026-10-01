@@ -1279,6 +1279,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function moduleInstall(string $module_name): void {
     \Drupal::service('module_installer')->install([$module_name]);
+    $this->allPermissions = NULL;
   }
 
   /**
@@ -1286,6 +1287,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function moduleUninstall(string $module_name): void {
     \Drupal::service('module_installer')->uninstall([$module_name]);
+    $this->allPermissions = NULL;
   }
 
   /**

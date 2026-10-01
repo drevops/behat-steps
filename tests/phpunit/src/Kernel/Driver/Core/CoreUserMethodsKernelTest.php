@@ -164,6 +164,34 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that installing a module forgets the permission list read earlier.
+   */
+  public function testModuleInstallForgetsThePermissionList(): void {
+    $this->core->roleCreate(['access user profiles']);
+
+    $this->core->moduleInstall('block');
+
+    $role = Role::load($this->core->roleCreate(['administer blocks']));
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertTrue($role->hasPermission('administer blocks'));
+  }
+
+  /**
+   * Tests that uninstalling a module forgets the permission list read earlier.
+   */
+  public function testModuleUninstallForgetsThePermissionList(): void {
+    $this->core->moduleInstall('block');
+    $this->core->roleCreate(['access user profiles']);
+
+    $this->core->moduleUninstall('block');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Invalid permission "administer blocks".');
+
+    $this->core->roleCreate(['administer blocks']);
+  }
+
+  /**
    * Tests 'roleCreate()' honours explicit id and label arguments.
    */
   public function testRoleCreateAcceptsExplicitIdAndLabel(): void {
