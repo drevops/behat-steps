@@ -22,10 +22,11 @@ class PrerequisiteReader {
   public const string METHOD_SUFFIX = 'Prerequisites';
 
   /**
-   * Declared prerequisites, keyed by trait name.
+   * Declared prerequisites, keyed by context class and trait name.
    *
    * Declarations are code, so they cannot change within a run, and a step
-   * that checks them would otherwise rebuild them on every call.
+   * that checks them would otherwise rebuild them on every call. A context
+   * can redeclare the declaring method, so the key includes its class.
    *
    * @var array<string, array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>>
    */
@@ -64,14 +65,16 @@ class PrerequisiteReader {
    *   prerequisites.
    */
   public function read(object $context, string $trait): array {
-    if (isset(self::$cache[$trait])) {
-      return self::$cache[$trait];
+    $key = $context::class . '|' . $trait;
+
+    if (isset(self::$cache[$key])) {
+      return self::$cache[$key];
     }
 
     $method = self::methodFor($trait);
 
     if (!method_exists($context, $method)) {
-      self::$cache[$trait] = [];
+      self::$cache[$key] = [];
 
       return [];
     }
@@ -93,7 +96,7 @@ class PrerequisiteReader {
       $prerequisites[] = $declaration;
     }
 
-    self::$cache[$trait] = $prerequisites;
+    self::$cache[$key] = $prerequisites;
 
     return $prerequisites;
   }

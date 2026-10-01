@@ -14,6 +14,7 @@ use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\CountedPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\NotListPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteReaderHost;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RedeclaringPrerequisiteReaderHost;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SamplePrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SampleConfigTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\WrongEntryPrerequisiteTrait;
@@ -26,6 +27,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversClass(PrerequisiteReader::class)]
 class PrerequisiteReaderTest extends UnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // The cache and the read counter are static, so another test reading the
+    // counted trait first would leave them populated.
+    (new \ReflectionProperty(PrerequisiteReader::class, 'cache'))->setValue(NULL, []);
+    PrerequisiteReaderHost::$countedPrerequisiteReads = 0;
+  }
 
   #[DataProvider('dataProviderMethodFor')]
   public function testMethodFor(string $trait, string $expected): void {
@@ -57,6 +70,16 @@ class PrerequisiteReaderTest extends UnitTestCase {
 
     $this->assertSame($first, $second);
     $this->assertSame(1, PrerequisiteReaderHost::$countedPrerequisiteReads);
+  }
+
+  public function testReadsEachContextClassSeparately(): void {
+    $reader = new PrerequisiteReader();
+
+    $declared = $reader->read(new PrerequisiteReaderHost(), CountedPrerequisiteTrait::class);
+    $redeclared = $reader->read(new RedeclaringPrerequisiteReaderHost(), CountedPrerequisiteTrait::class);
+
+    $this->assertSame([CoreCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $declared));
+    $this->assertSame([ModuleCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $redeclared));
   }
 
   #[DataProvider('dataProviderRejectsMalformedDeclarations')]

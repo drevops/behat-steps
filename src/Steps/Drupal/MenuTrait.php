@@ -85,6 +85,8 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
+    $this->driverFor(CoreCapabilityInterface::class);
+
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getColumn(0) as $title) {
