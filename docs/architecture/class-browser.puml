@@ -43,7 +43,7 @@ package "DrevOps\\BehatSteps\\Behat\\Mink" #F3E5F5 {
   }
 
   BrowserAdapterInterface <|.. BrowserAdapterBase
-  BrowserCapabilityResolver ..> BrowserAdapterInterface : offers each driver to,\nregistered adapters first
+  BrowserCapabilityResolver ..> BrowserAdapterInterface : offers each browser driver to,\nregistered adapters first
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Mink\\Adapter" #F3E5F5 {
@@ -63,7 +63,7 @@ package "DrevOps\\BehatSteps\\Behat\\Mink\\Capability" #F3E5F5 {
     +httpClient() : AbstractBrowser
   }
   interface JavascriptCapabilityInterface {
-    marker: the driver runs JavaScript
+    marker: the browser driver runs JavaScript
   }
   interface KeyboardCapabilityInterface {
     +keyboardTriggerKey(xpath, key) : void
@@ -123,6 +123,8 @@ package "DrevOps\\BehatSteps\\Behat\\Http" #F3E5F5 {
 
 package "DrevOps\\BehatSteps\\Behat\\ServiceContainer" #F3E5F5 {
   class BehatStepsExtension {
+    {static} +TRANSPORT_SERVICE : string
+    --
     +initialize(extensionManager) : void
     +process(container) : void
     --
@@ -133,8 +135,6 @@ package "DrevOps\\BehatSteps\\Behat\\ServiceContainer" #F3E5F5 {
 
 package "DrevOps\\BehatSteps\\Behat\\Mink\\ServiceContainer\\Driver" #F3E5F5 {
   class BrowserKitFactory {
-    {static} +TRANSPORT_SERVICE : string
-    --
     +configure(builder) : void
     +buildDriver(config) : Definition
     +getClientOptions() : array
@@ -162,10 +162,10 @@ WebRawContext ..> HttpIdentity : builds from cookies,\nthe header bag and\nthe b
 
 BrowserKitAdapter ..> HttpBrowser : lends out the\nsession's own
 HttpClientFactory ..> HttpBrowser : builds a fresh one\nper detached or bare client
-HttpClientFactory ..> ScopingHttpClient : applies site options\nto base_url only
+HttpClientFactory ..> ScopingHttpClient : applies site options to base_url only,\nand a client's own options over them
 
 UpstreamBrowserKitFactory <|-- BrowserKitFactory
-BrowserKitFactory ..> HttpBrowser : builds each browserkit_http\nsession on the shared transport
+BrowserKitFactory ..> HttpBrowser : builds each browserkit_http session\non a client of its own, as Mink does
 BehatStepsExtension ..> BrowserKitFactory : registers with Mink,\nreads the session options
 BehatStepsExtension ..> HttpClientFactory : defines behat_steps.http_client\nwith createTransport()
 

@@ -262,13 +262,13 @@ package "Thrown on failure" #FFEBEE {
   class ExpectationException {
     from Behat\\Mink
     --
-    +__construct(message, driver)
+    +__construct(message, browser driver)
   }
   class ElementNotFoundException
   class AssertionException {
     DrevOps\\BehatSteps\\Exception
     --
-    no driver required
+    no browser driver required
   }
   class UnsupportedDriverActionException {
     no driver in the scenario's
@@ -288,7 +288,7 @@ CommandTrait ..> RuntimeException : throws
 
 note right of CommandTrait
   Never calls getSession(), so it cannot
-  pass a driver to ExpectationException.
+  pass a browser driver to ExpectationException.
   It throws AssertionException instead.
 end note
 

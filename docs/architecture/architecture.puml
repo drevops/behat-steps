@@ -36,7 +36,7 @@ package "drevops/behat-steps" {
     component "Managers\nDriver, Authentication,\nUser, Scenario tags" as Managers
     component "Listeners\ndriver order and scenario tags,\nskip tags that name no trait" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
-    component "BrowserKitFactory\nbuilds every browserkit_http\nsession on the shared transport" as BrowserKit
+    component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
     component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
     component "HTTP clients\nsrc/Behat/Http: factory, identity,\nthe shared transport" as HttpClients
   }
@@ -84,14 +84,13 @@ Ext --> OptionConfig : registers
 Behat --> Listeners : before each scenario
 Listeners --> Managers : driver order,\nscenario tags
 Ext --> DriverIface : registers drivers
-Ext ..> BrowserKit : registers with Mink
+Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options
 Ext ..> Mink : aliases DocumentElement
 WebRawCtx --> Managers
 WebRawCtx --> OptionConfig : resolves trait options
 WebRawCtx --> BrowserCaps : browserDriverFor()
 WebRawCtx --> HttpClients : detached and\nbare clients
-BrowserKit --> HttpClients : sessions send\nthrough the transport
 OptionConfig --> Managers : reads the scenario's tags
 
 Managers --> DriverIface : resolves by capability
@@ -101,10 +100,10 @@ BlackboxDrv ..|> DriverIface
 DrupalDrv --> Core
 
 MinkExt --> Mink : builds sessions,\npicks one per scenario
-MinkExt ..> BrowserKit : builds the browserkit_http\ndriver with
+MinkExt ..> BrowserKit : builds the browserkit_http\nbrowser driver with
 Consumer --> Mink
 Mink --> Browser
-BrowserCaps --> Mink : adapts the\nsession's driver
+BrowserCaps --> Mink : adapts the session's\nbrowser driver
 Browser --> Site : page requests
 HttpClients --> Site : requests steps\nsend from PHP
 DrupalDrv --> Site

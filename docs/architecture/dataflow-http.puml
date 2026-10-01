@@ -20,7 +20,7 @@ participant "Mink extension" as MinkExt
 participant "BrowserKitFactory" as Factory
 participant "Step trait method" as Trait
 participant "WebRawContext" as Ctx
-participant "BrowserCapabilityResolver\nand the driver's adapter" as Adapter
+participant "BrowserCapabilityResolver\nand the browser driver's adapter" as Adapter
 participant "HttpClientFactory" as HttpFactory
 participant "HttpBrowser" as Browser
 participant "behat_steps.http_client\nshared transport" as Transport
@@ -31,7 +31,7 @@ participant "Site or\nthird-party host" as Site
 Behat -> Ext: initialize(extensionManager)
 activate Ext
 Ext -> MinkExt: registerDriverFactory(BrowserKitFactory)
-note right of MinkExt: keyed by driver name, so it\nreplaces Mink's own browserkit_http\nfactory whatever the extension order
+note right of MinkExt: keyed by browser driver name, so it\nreplaces Mink's own browserkit_http\nfactory whatever the extension order
 deactivate Ext
 
 Behat -> MinkExt: load()
@@ -40,7 +40,7 @@ loop every browserkit_http session
   MinkExt -> Factory: buildDriver(config)
   activate Factory
   Factory -> Factory: record the session's\nhttp_client_parameters
-  Factory --> MinkExt: BrowserKitDriver over an HttpBrowser\nthat references behat_steps.http_client
+  Factory --> MinkExt: what Mink's own factory builds: a BrowserKitDriver\nover an HttpBrowser on a client created from those options
   deactivate Factory
 end
 deactivate MinkExt
@@ -99,14 +99,21 @@ Ctx --> Trait: AbstractBrowser
 activate Trait
 Trait -> Browser: request('GET', url)
 activate Browser
-Browser -> Transport: the request
-activate Transport
-Transport -> Site: sent with the session options only\nwhen the host is the base_url host
-activate Site
-Site --> Transport: response
-deactivate Site
-Transport --> Browser: response
-deactivate Transport
+alt detached or bare
+  Browser -> Transport: the request
+  activate Transport
+  Transport -> Site: sent with the session options only\nwhen the host is the base_url host
+  activate Site
+  Site --> Transport: response
+  deactivate Site
+  Transport --> Browser: response
+  deactivate Transport
+else page
+  Browser -> Site: sent through the session's own client,\nwith the session options for every host
+  activate Site
+  Site --> Browser: response
+  deactivate Site
+end
 Browser --> Trait: getInternalResponse()
 deactivate Browser
 note over Trait: page client: the response is the new page.\ndetached or bare: it stays in the trait's own\nstate or the step, and the page is untouched.
