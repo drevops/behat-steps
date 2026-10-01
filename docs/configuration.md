@@ -308,7 +308,7 @@ The declared default carries the option's type, and the composing context reads 
 
 ## 3. Tags
 
-A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@driver:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
