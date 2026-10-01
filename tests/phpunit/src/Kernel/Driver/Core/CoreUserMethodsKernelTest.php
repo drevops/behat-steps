@@ -10,6 +10,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -137,6 +138,29 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessage('Invalid permission "definitely not a real permission"');
 
     $this->core->roleCreate(['definitely not a real permission']);
+  }
+
+  /**
+   * Tests that clearing caches forgets the permission list read earlier.
+   *
+   * @param string $method
+   *   The cache clearing method to call.
+   */
+  #[DataProvider('dataProviderClearingCachesForgetsThePermissionList')]
+  public function testClearingCachesForgetsThePermissionList(string $method): void {
+    $this->core->roleCreate(['access user profiles']);
+    $this->enableModules(['block']);
+
+    $this->core->{$method}();
+
+    $role = Role::load($this->core->roleCreate(['administer blocks']));
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertTrue($role->hasPermission('administer blocks'));
+  }
+
+  public static function dataProviderClearingCachesForgetsThePermissionList(): \Iterator {
+    yield 'the static caches' => ['cacheClearStatic'];
+    yield 'every cache' => ['cacheClear'];
   }
 
   /**

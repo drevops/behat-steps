@@ -243,6 +243,11 @@ trait UserTrait {
       'id' => $rid,
       'label' => $role_name,
     ]);
+
+    foreach ($permissions as $permission) {
+      $role->grantPermission($permission);
+    }
+
     $saved = $role->save();
 
     // @codeCoverageIgnoreStart
@@ -251,8 +256,6 @@ trait UserTrait {
     }
     // @codeCoverageIgnoreEnd
     $this->roles[] = (string) $role->id();
-
-    user_role_grant_permissions($role->id(), $permissions);
   }
 
   /**

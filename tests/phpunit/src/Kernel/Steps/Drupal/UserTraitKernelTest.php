@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
+use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -12,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test for loading users through 'UserTrait'.
+ * Kernel test for loading users and creating roles through 'UserTrait'.
  */
 #[CoversTrait(UserTrait::class)]
 #[Group('behat')]
@@ -55,6 +56,18 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $this->createUser('first', 1);
 
     $this->assertSame([], $this->context->userLoadMultiple(['name' => 'missing']));
+  }
+
+  /**
+   * Tests that a created role carries the permissions it was given.
+   */
+  public function testCreateRoleGrantsThePermissions(): void {
+    $this->context->userCreateRole('Editor', 'access user profiles, change own username');
+
+    $role = Role::load('editor');
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertSame('Editor', $role->label());
+    $this->assertSame(['access user profiles', 'change own username'], $role->getPermissions());
   }
 
   /**
