@@ -124,7 +124,7 @@ trait JavascriptTrait {
     }
 
     try {
-      $this->javascriptAssertNotHasErrors();
+      $this->javascriptAssertErrorsNotExist();
     }
     finally {
       $this->javascriptClearRegistry();
@@ -204,7 +204,7 @@ trait JavascriptTrait {
     // Asserted outside the collection block above so the blanket catch cannot
     // swallow the failure.
     $this->javascriptAsserted = TRUE;
-    $this->javascriptAssertNotHasErrors();
+    $this->javascriptAssertErrorsNotExist();
   }
 
   /**
@@ -305,7 +305,7 @@ JS;
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If JavaScript errors were detected.
    */
-  public function javascriptAssertNotHasErrors(): void {
+  public function javascriptAssertErrorsNotExist(): void {
     if (empty($this->javascriptErrorRegistry)) {
       return;
     }

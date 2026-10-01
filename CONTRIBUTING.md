@@ -57,20 +57,26 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Method naming conventions
 
-Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the negation, copula, lookup and spelling conventions below.
+Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, helper verb, lookup and spelling conventions below.
 
 `TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Driver` is composed into nothing.
 
 ### Assertions
 
-An assertion method reads `<trait>Assert<Subject><Predicate>`.
+An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
 
-- **Existence**:
+- **Existence**: never `Present`, `Absent` or `Missing`.
   - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
   - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
-- **Containment**: always `Contains` or `NotContains` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
-- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`.
+- **Containment**: always `Contains` or `NotContains`, never `Includes` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
+- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `the row :row_text should contain the value :value` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
+- **Qualifiers last**: a qualifier that narrows the subject, opened by a word such as `With`, `By`, `In`, `Within`, `Of` or `Containing`, follows the predicate, as in `mediaAssertExistsWithName()` and `blockAssertNotExistsInRegion()`. That keeps the slot after the subject free for `Not`: `cookieAssertNotExistsWithName()`, not `cookieAssertWithNameNotExists()`.
+- **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
 - **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
+
+A check that throws `\RuntimeException` on a bad step argument or a missing precondition isn't an assertion, so it isn't named `Assert`. It takes the verb for what it does instead: `commandParseInteger()` turns a step argument into an integer, and `commandRequireRun()` fails when no command has run yet.
+
+`TraitMethodNamingTest` reads every name for this shape: `Assert` right after the prefix with something after it, no qualifier ahead of `Not` or `Exists`, no `Includes` or `Present`, no `Has` before a compared value, and an assertion exception from every `Assert` method that throws one directly. A `Has` standing in for existence looks just like one naming something held, so review holds that half of the `Has` rule.
 
 ### Negation
 
@@ -82,12 +88,19 @@ An assertion method reads `<trait>Assert<Subject><Predicate>`.
 | `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
 | `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
+| `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
-The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out.
+The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. `TraitMethodNamingTest` pairs every `should not` step with its `should` twin in the same trait and fails a pair whose method names differ by anything but `Not`.
 
 ### Consumer override points
 
 A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityResolveTags()` or `restResolveUrl()`.
+
+### Helpers carry a verb
+
+Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.
+
+`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb the toolbox hasn't used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
 
 ### Lookups
 
@@ -202,7 +215,7 @@ These 5 style questions have no dominant form in this codebase. Every form liste
 - **Test method names**: `test<Scenario>` (~410 methods, as in `testAnUnsetParameterIsNull()`), `test<Method><Scenario>` (~290, as in `testApplyAfterCreateIgnoresNonArrayValues()`) and `test<Method>` (~85, as in `testNormalize()`) are all accepted. A third of the test classes mix shapes, so name a new test like the existing tests of the same method, or like the rest of its class when there are none.
 - **Data provider form**: a generator declared as `\Iterator` (~80 providers) and a plain array declared as `array` (~65) are both accepted. `iterable` is not - it has been converged away, so the return type always tells the 2 apart.
 
-Two call forms are settled rather than unsettled. An instance method is called through `$this->`. A static method a trait declares is called through `static::`, because `self::` binds at compile time to the class the trait was flattened into: a shipped context composes the trait and a project subclasses that context, so `self::` would reach past the project's override. `DateTrait::dateNow()` is the documented example.
+Two call forms are settled rather than unsettled. An instance method is called through `$this->`. A static method a trait declares is called through `static::`, because `self::` binds at compile time to the class the trait was flattened into: a shipped context composes the trait and a project subclasses that context, so `self::` would reach past the project's override. `DateTrait::dateGetNow()` is the documented example.
 
 Data provider naming and placement are settled too. A provider is named `dataProvider` followed by its test's name without the `test` prefix, and it's declared after that test, so each provider serves exactly 1 test and renaming a test renames its provider. `tests/phpunit/src/DataProviderConventionTest.php` enforces both, along with the return types above.
 

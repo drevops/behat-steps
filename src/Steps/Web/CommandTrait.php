@@ -169,7 +169,7 @@ trait CommandTrait {
    */
   #[Then('the command should succeed')]
   public function commandAssertSuccess(): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     $exit_code = (int) $this->commandExitCode;
 
@@ -188,7 +188,7 @@ trait CommandTrait {
    */
   #[Then('the command should fail')]
   public function commandAssertFailure(): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     if ((int) $this->commandExitCode === 0) {
       throw new AssertionException('Expected the command to fail, but it exited with code 0.');
@@ -205,9 +205,9 @@ trait CommandTrait {
    */
   #[Then('the command exit code should be :code')]
   public function commandAssertExitCode(string $code): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
-    $expected = $this->commandAssertInteger($code, 'expected exit code');
+    $expected = $this->commandParseInteger($code, 'expected exit code');
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== $expected) {
@@ -227,7 +227,7 @@ trait CommandTrait {
    */
   #[Then('the command output should contain the value :value')]
   public function commandAssertOutputContains(string $value): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     if (!str_contains($this->commandStdout, $value)) {
       throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $value, $this->commandStdout));
@@ -246,7 +246,7 @@ trait CommandTrait {
    */
   #[Then('the command output should not contain the value :value')]
   public function commandAssertOutputNotContains(string $value): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     if (str_contains($this->commandStdout, $value)) {
       throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $value, $this->commandStdout));
@@ -267,7 +267,7 @@ trait CommandTrait {
    */
   #[Then('the command output should be equal to the value :value')]
   public function commandAssertOutputEquals(string $value): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     if (trim($this->commandStdout) !== trim($value)) {
       throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($value), trim($this->commandStdout)));
@@ -286,7 +286,7 @@ trait CommandTrait {
    */
   #[Then('the command error output should contain the value :value')]
   public function commandAssertErrorOutputContains(string $value): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
     if (!str_contains($this->commandStderr, $value)) {
       throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $value, $this->commandStderr));
@@ -303,9 +303,9 @@ trait CommandTrait {
    */
   #[Then('the command should complete in less than :seconds second(s)')]
   public function commandAssertDurationLessThan(string $seconds): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
-    $limit = $this->commandAssertNumeric($seconds, 'expected duration');
+    $limit = $this->commandParseNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration >= $limit) {
       throw new AssertionException(sprintf('Expected the command to complete in less than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -322,9 +322,9 @@ trait CommandTrait {
    */
   #[Then('the command should complete in more than :seconds second(s)')]
   public function commandAssertDurationMoreThan(string $seconds): void {
-    $this->commandAssertHasRun();
+    $this->commandRequireRun();
 
-    $limit = $this->commandAssertNumeric($seconds, 'expected duration');
+    $limit = $this->commandParseNumeric($seconds, 'expected duration');
 
     if ($this->commandDuration <= $limit) {
       throw new AssertionException(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -342,24 +342,24 @@ trait CommandTrait {
   }
 
   /**
-   * Assert that a command has been run in the current scenario.
+   * Require a command to have run in the current scenario.
    *
    * @throws \RuntimeException
    *   When no command has been run yet.
    */
-  protected function commandAssertHasRun(): void {
+  protected function commandRequireRun(): void {
     if ($this->commandExitCode === NULL) {
       throw new \RuntimeException('No command has been run. Run a command before asserting on its result.');
     }
   }
 
   /**
-   * Assert that a step argument is numeric and return it as a float.
+   * Parse a numeric step argument into a float.
    *
    * @throws \RuntimeException
    *   When the value is not numeric.
    */
-  protected function commandAssertNumeric(string $value, string $label): float {
+  protected function commandParseNumeric(string $value, string $label): float {
     if (!is_numeric($value)) {
       throw new \RuntimeException(sprintf('The %s must be numeric, but got "%s".', $label, $value));
     }
@@ -368,12 +368,12 @@ trait CommandTrait {
   }
 
   /**
-   * Assert that a step argument is an integer and return it.
+   * Parse an integer step argument.
    *
    * @throws \RuntimeException
    *   When the value is not an integer.
    */
-  protected function commandAssertInteger(string $value, string $label): int {
+  protected function commandParseInteger(string $value, string $label): int {
     if (!preg_match('/^-?\d+$/', $value)) {
       throw new \RuntimeException(sprintf('The %s must be an integer, but got "%s".', $label, $value));
     }

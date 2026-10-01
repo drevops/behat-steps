@@ -145,7 +145,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should have the query parameter :name')]
-  public function pathAssertUrlHasParameter(string $name): void {
+  public function pathAssertUrlParameterExists(string $name): void {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (!array_key_exists($name, $query)) {
@@ -161,8 +161,8 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should have the query parameter :name with the value :value')]
-  public function pathAssertUrlHasParameterWithValue(string $name, string $value): void {
-    $this->pathAssertUrlHasParameter($name);
+  public function pathAssertUrlParameterEquals(string $name, string $value): void {
+    $this->pathAssertUrlParameterExists($name);
 
     $query = $this->pathGetCurrentUrlQuery();
 
@@ -181,7 +181,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should not have the query parameter :name')]
-  public function pathAssertUrlNotHasParameter(string $name): void {
+  public function pathAssertUrlParameterNotExists(string $name): void {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (array_key_exists($name, $query)) {
@@ -199,7 +199,7 @@ trait PathTrait {
    * @endcode
    */
   #[Then('the current URL should not have the query parameter :name with the value :value')]
-  public function pathAssertUrlNotHasParameterWithValue(string $name, string $value): void {
+  public function pathAssertUrlParameterNotEquals(string $name, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (!array_key_exists($name, $query)) {

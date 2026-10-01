@@ -38,7 +38,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    $this->drushOutput = $this->drushDriver()->drush($command);
+    $this->drushOutput = $this->drushGetDriver()->drush($command);
   }
 
   /**
@@ -54,7 +54,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    $this->drushOutput = $this->drushDriver()->drush($command, [$this->drushFixArgument($arguments)]);
+    $this->drushOutput = $this->drushGetDriver()->drush($command, [$this->drushFixArgument($arguments)]);
   }
 
   /**
@@ -168,7 +168,7 @@ trait DrushTrait {
    * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
    *   When no driver in the scenario's order can run Drush commands.
    */
-  public function drushDriver(): DrushCapabilityInterface {
+  public function drushGetDriver(): DrushCapabilityInterface {
     return $this->driverFor(DrushCapabilityInterface::class);
   }
 
@@ -185,7 +185,7 @@ trait DrushTrait {
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
     $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
-    $result = $this->drushDriver()->drushResult($command, $args);
+    $result = $this->drushGetDriver()->drushResult($command, $args);
 
     // Prefer stdout and fall back to stderr. The success path returns whatever
     // the command wrote, and the failure path matches it.

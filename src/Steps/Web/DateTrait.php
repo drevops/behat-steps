@@ -29,8 +29,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *
  * `dateRelativeProcessValue()` is public API. It and its helpers are static so
  * a token resolves without a context instance. Late static binding routes the
- * resolution through a `dateNow()` override in the composing context, which is
- * the supported seam for pinning the clock.
+ * resolution through a `dateGetNow()` override in the composing context,
+ * which is the supported seam for pinning the clock.
  *
  * Skip processing with tag: `@behat-steps-skip:DateTrait`.
  *
@@ -123,7 +123,7 @@ trait DateTrait {
 
     // An absent `now` truncates to the current minute, so every assertion in
     // a long-running scenario resolves against the same base timestamp.
-    $now = $now ?: strtotime(date('Y-m-d H:i:00', static::dateNow()));
+    $now = $now ?: strtotime(date('Y-m-d H:i:00', static::dateGetNow()));
     $now = $now ?: NULL;
 
     return (string) preg_replace_callback('/\[relative:([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {
@@ -159,7 +159,7 @@ trait DateTrait {
   /**
    * Get the current timestamp.
    */
-  public static function dateNow(): int {
+  public static function dateGetNow(): int {
     // @codeCoverageIgnoreStart
     return time();
     // @codeCoverageIgnoreEnd

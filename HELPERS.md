@@ -249,10 +249,19 @@ The maximum time, in seconds, a command may run before it is terminated
 > Verify and inspect browser cookies.
 
 <details>
-  <summary><code>public function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void</code></summary>
+  <summary><code>public function cookieAssertExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void</code></summary>
 
 <br/>
 Assert that a cookie exists
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function cookieAssertNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void</code></summary>
+
+<br/>
+Assert that a cookie does not exist
 <br/><br/>
 
 </details>
@@ -275,15 +284,6 @@ Get all cookies
 
 </details>
 
-<details>
-  <summary><code>public function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void</code></summary>
-
-<br/>
-Assert that a cookie does not exist
-<br/><br/>
-
-</details>
-
 ## DateTrait
 
 [Source](src/Steps/Web/DateTrait.php), [Steps](STEPS.md#datetrait)
@@ -291,7 +291,7 @@ Assert that a cookie does not exist
 > Convert relative date expressions into timestamps or formatted dates.
 
 <details>
-  <summary><code>public static function dateNow(): int</code></summary>
+  <summary><code>public static function dateGetNow(): int</code></summary>
 
 <br/>
 Get the current timestamp
@@ -576,7 +576,7 @@ Download file
 > Automatically detect JavaScript errors during test execution.
 
 <details>
-  <summary><code>public function javascriptAssertNotHasErrors(): void</code></summary>
+  <summary><code>public function javascriptAssertErrorsNotExist(): void</code></summary>
 
 <br/>
 Assert that no JavaScript errors were collected
@@ -675,7 +675,7 @@ Substitutes every mapping token found in a single string
 > Assert status, error, warning and success messages rendered on the page.
 
 <details>
-  <summary><code>public function messageAssert(string $message, string $type): void</code></summary>
+  <summary><code>public function messageAssertExistsOfType(string $message, string $type): void</code></summary>
 
 <br/>
 Assert that a message of the given type contains the expected text
@@ -684,7 +684,7 @@ Assert that a message of the given type contains the expected text
 </details>
 
 <details>
-  <summary><code>public function messageAssertNot(string $message, string $type): void</code></summary>
+  <summary><code>public function messageAssertNotExistsOfType(string $message, string $type): void</code></summary>
 
 <br/>
 Assert that no message of the given type contains the expected text
@@ -693,10 +693,10 @@ Assert that no message of the given type contains the expected text
 </details>
 
 <details>
-  <summary><code>public function messageSelector(string $type): string</code></summary>
+  <summary><code>public function messageGetSelector(string $type): string</code></summary>
 
 <br/>
-Resolve the configured CSS selector for a message type
+Return the configured CSS selector for a message type
 <br/><br/>
 
 </details>
@@ -708,7 +708,7 @@ Resolve the configured CSS selector for a message type
 > Assert `<meta>` tags and head/SEO markup in page markup.
 
 <details>
-  <summary><code>public function metatagAssertMetaSetPresent(array $names, string $label): void</code></summary>
+  <summary><code>public function metatagAssertMetaSetExists(array $names, string $label): void</code></summary>
 
 <br/>
 Assert that a set of meta tags is present and non-empty
@@ -753,6 +753,24 @@ Get the hreflang alternates present on the current page
 </details>
 
 <details>
+  <summary><code>public function metatagGetRequiredOpenGraphTags(): array</code></summary>
+
+<br/>
+The Open Graph meta tags required by "the Open Graph tags should be valid"
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function metatagGetRequiredTwitterCardTags(): array</code></summary>
+
+<br/>
+The Twitter Card tags required by "the Twitter Card tags should be valid"
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function metatagGetRobotsDirectives(): array</code></summary>
 
 <br/>
@@ -780,28 +798,10 @@ Determine whether a hreflang value is a well-formed language code
 </details>
 
 <details>
-  <summary><code>public function metatagOpenGraphRequired(): array</code></summary>
-
-<br/>
-The Open Graph meta tags required by "the Open Graph tags should be valid"
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function metatagResponseHasNoindexHeader(): bool</code></summary>
 
 <br/>
 Determine whether the X-Robots-Tag response header carries "noindex"
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function metatagTwitterCardRequired(): array</code></summary>
-
-<br/>
-The Twitter Card tags required by "the Twitter Card tags should be valid"
 <br/><br/>
 
 </details>
@@ -1447,7 +1447,7 @@ Find a node using provided conditions
 > Run Drush commands and assert their output.
 
 <details>
-  <summary><code>public function drushDriver(): DrushCapabilityInterface</code></summary>
+  <summary><code>public function drushGetDriver(): DrushCapabilityInterface</code></summary>
 
 <br/>
 Return the driver that runs Drush commands
@@ -1927,7 +1927,7 @@ Visit the password reset link for a given user object
 > Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 
 <details>
-  <summary><code>public function watchdogAssertNotHasErrors(string $context): void</code></summary>
+  <summary><code>public function watchdogAssertErrorsNotExist(string $context): void</code></summary>
 
 <br/>
 Assert no errors at or above the severity threshold were logged
@@ -1960,7 +1960,7 @@ Load all webforms whose title contains the given string
 </details>
 
 <details>
-  <summary><code>public function webformTemplates(string $title): array</code></summary>
+  <summary><code>public function webformLoadTemplates(string $title): array</code></summary>
 
 <br/>
 Load all webform templates whose title contains the given string
@@ -1993,7 +1993,7 @@ Returns the user registry
 </details>
 
 <details>
-  <summary><code>public function authLoggedIn(): bool</code></summary>
+  <summary><code>public function authIsLoggedIn(): bool</code></summary>
 
 <br/>
 Determines whether a user is logged in for this session

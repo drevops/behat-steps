@@ -136,7 +136,7 @@ trait StateTrait {
    * @endcode
    */
   #[Then('the state :name should have the value :value')]
-  public function stateAssertHasValue(string $name, string $value): void {
+  public function stateAssertValueEquals(string $name, string $value): void {
     $state_value = $this->stateReadValue($name);
     if (!$state_value['exists']) {
       throw new AssertionException(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));

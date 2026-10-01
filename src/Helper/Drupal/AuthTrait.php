@@ -218,7 +218,7 @@ trait AuthTrait {
   /**
    * Determines whether a user is logged in for this session.
    */
-  public function authLoggedIn(): bool {
+  public function authIsLoggedIn(): bool {
     return $this->authGetAuthenticator()->loggedIn();
   }
 

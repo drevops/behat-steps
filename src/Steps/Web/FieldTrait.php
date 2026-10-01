@@ -734,7 +734,7 @@ JS;
    * @endcode
    */
   #[Then('the color field :field should have the value :value')]
-  public function fieldAssertColorFieldHasValue(string $field, string $value): void {
+  public function fieldAssertColorFieldEquals(string $field, string $value): void {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $script = <<<JS
       (function() {

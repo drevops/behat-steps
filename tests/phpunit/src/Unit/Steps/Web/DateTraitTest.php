@@ -146,7 +146,7 @@ class DateTraitTestImplementation extends WebRawContext {
   /**
    * Returns fixed timestamp for testing.
    */
-  protected static function dateNow(): int {
+  protected static function dateGetNow(): int {
     return self::CLOCK;
   }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Step\Then;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -18,6 +19,69 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversNothing]
 class TraitMethodNamingTest extends UnitTestCase {
+
+  /**
+   * Words that open a qualifier narrowing the subject of an assertion.
+   *
+   * `To` is absent: in `SentToAddress` it completes the verb rather than
+   * narrowing the subject.
+   */
+  protected const QUALIFIERS = ['At', 'By', 'Containing', 'For', 'From', 'In', 'Of', 'On', 'With', 'Within', 'Without'];
+
+  /**
+   * Words that open the predicate of an assertion.
+   */
+  protected const PREDICATES = ['Contains', 'Equals', 'Exist', 'Exists', 'Matches', 'Not'];
+
+  /**
+   * Exceptions that report a failed assertion rather than an error.
+   */
+  protected const ASSERTION_EXCEPTIONS = ['AssertionException', 'ElementNotFoundException', 'ExpectationException'];
+
+  /**
+   * Verbs the published helpers name their action with.
+   */
+  protected const VERBS = [
+    'Apply',
+    'Assert',
+    'Assess',
+    'Assign',
+    'Attach',
+    'Build',
+    'Create',
+    'Decode',
+    'Disable',
+    'Enable',
+    'Execute',
+    'Exists',
+    'Expand',
+    'Extract',
+    'Fetch',
+    'Find',
+    'Generate',
+    'Get',
+    'Has',
+    'Is',
+    'Load',
+    'Login',
+    'Logout',
+    'Normalize',
+    'Open',
+    'Parse',
+    'Process',
+    'Query',
+    'Read',
+    'Register',
+    'Resize',
+    'Resolve',
+    'Run',
+    'Set',
+    'Substitute',
+    'Transpose',
+    'Validate',
+    'Visit',
+    'Wait',
+  ];
 
   /**
    * Assert that every method a trait declares carries the trait's prefix.
@@ -49,6 +113,93 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that an assertion carries `Assert` directly after the prefix.
+   *
+   * A `Then` step is an assertion, and so is a helper whose docblock opens
+   * with "Assert". A hook is named for its event even when it asserts.
+   * `Assert` appears nowhere else in a name, so the shape is always
+   * `<prefix>Assert<Subject><Predicate>`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsOpenWithAssert')]
+  public function testAssertionsOpenWithAssert(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $name = $method->getName();
+      $is_assertion = $method->getAttributes(Then::class) !== [] || (!self::isRegistered($method) && str_starts_with(self::docblockSummary($method), 'Assert'));
+
+      if ((!$is_assertion && preg_match('/Assert(?![a-z])/', $name) !== 1) || str_starts_with($name, $prefix . 'Assert')) {
+        continue;
+      }
+
+      $violations[] = $name;
+    }
+
+    $this->assertSame([], $violations, 'Name an assertion "<prefix>Assert<Subject><Predicate>", with "Assert" nowhere else: "cookieAssertExists", not "cookieExists".');
+  }
+
+  public static function dataProviderAssertionsOpenWithAssert(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that `Assert` is followed by what the assertion asserts.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsNameWhatTheyAssert')]
+  public function testAssertionsNameWhatTheyAssert(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Follow "Assert" with the subject or the predicate it asserts: "messageAssertExistsOfType", not "messageAssert".');
+  }
+
+  public static function dataProviderAssertionsNameWhatTheyAssert(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that an `Assert` method fails with an assertion exception.
+   *
+   * A method that throws only `\RuntimeException` guards an argument or a
+   * precondition, so it is named for what it does rather than as an
+   * assertion.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsFailWithAssertionException')]
+  public function testAssertionsFailWithAssertionException(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $thrown = self::thrownExceptionNames($method);
+
+      if (preg_match('/Assert(?![a-z])/', $method->getName()) !== 1 || $thrown === [] || array_intersect($thrown, static::ASSERTION_EXCEPTIONS) !== []) {
+        continue;
+      }
+
+      $violations[] = $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'An "Assert" method fails with ExpectationException, ElementNotFoundException or AssertionException. Name a check that throws only \RuntimeException for what it does: "commandParseInteger", not "commandAssertInteger".');
+  }
+
+  public static function dataProviderAssertionsFailWithAssertionException(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that a negative name reads `Assert<Subject>Not<Predicate>`.
    *
    * `Not` is the only negation particle, so neither the determiner `No` nor a
@@ -73,6 +224,72 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a qualifier follows the predicate it narrows.
+   *
+   * `Not` sits directly after the subject, so a qualifier placed before the
+   * predicate, as in `cookieAssertWithNameNotExists`, is reported. A
+   * qualifier right after `Not` is reported too, because `Not` negates a
+   * predicate.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderQualifiersFollowPredicate')]
+  public function testQualifiersFollowPredicate(string $trait, string $file): void {
+    $qualifiers = implode('|', static::QUALIFIERS);
+    $predicates = implode('|', static::PREDICATES);
+    $pattern = sprintf('/Assert(?:(?!%2$s)[A-Z][a-z0-9]*)*?(?:%1$s)(?=[A-Z])[A-Za-z0-9]*?(?:%2$s)(?![a-z])|Assert[A-Za-z0-9]*?Not(?:%1$s)(?=[A-Z])/', $qualifiers, $predicates);
+
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match($pattern, $name) === 1));
+
+    $this->assertSame([], $violations, 'Place a qualifier after the predicate so "Not" sits directly after the subject: "cookieAssertNotExistsWithName", not "cookieAssertWithNameNotExists", and "tableAssertLinkNotExistsInRow", not "tableAssertLinkNotInRow".');
+  }
+
+  public static function dataProviderQualifiersFollowPredicate(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a negative step is named as its positive with `Not` added.
+   *
+   * 2 steps whose text differs only by "should" and "should not" map to 2
+   * methods whose names differ only by `Not`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderNegativeMirrorsPositive')]
+  public function testNegativeMirrorsPositive(string $trait, string $file): void {
+    $names = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      foreach ($method->getAttributes(Then::class) as $attribute) {
+        $names[(string) $attribute->newInstance()->getPattern()] = $method->getName();
+      }
+    }
+
+    $violations = [];
+    foreach ($names as $step => $name) {
+      $positive = $names[preg_replace('/ should not /', ' should ', $step, 1)] ?? NULL;
+
+      if (!str_contains($step, ' should not ') || $positive === NULL || self::insertsNot($positive, $name)) {
+        continue;
+      }
+
+      $violations[] = sprintf('%s() for %s()', $name, $positive);
+    }
+
+    $this->assertSame([], $violations, 'Name a negative step as its positive with "Not" inserted and nothing else changed: "elementAssertNotVisible" for "elementAssertVisible".');
+  }
+
+  public static function dataProviderNegativeMirrorsPositive(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that an assertion name carries no copula.
    *
    * `Assert` already states that the subject is something, so a further `Is`
@@ -91,6 +308,51 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderAssertionsCarryNoCopula(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that `Has` names something the subject holds.
+   *
+   * A value compared against reads `Equals` or `Contains`, so in an assertion
+   * `Has` is followed by neither `Content`, `Value` or `Text`, nor by a
+   * `With` or `Containing` value qualifier.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderHasNamesWhatSubjectHolds')]
+  public function testHasNamesWhatSubjectHolds(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Keep "Has" for something the subject holds, and compare a value with "Equals" or "Contains": "stateAssertValueEquals", not "stateAssertHasValue", and "elementAssertCssPropertyEquals", not "elementAssertHasCssPropertyWithValue".');
+  }
+
+  public static function dataProviderHasNamesWhatSubjectHolds(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that existence and containment carry their documented words.
+   *
+   * Existence is `Exists` or `Exist` and containment is `Contains`, so an
+   * assertion names neither with a synonym.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderPredicatesSpelledExistsAndContains')]
+  public function testPredicatesSpelledExistsAndContains(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Spell existence "Exists" or "Exist" and containment "Contains": "metatagAssertRobotsContains", not "metatagAssertRobotsIncludes", and "metatagAssertMetaSetExists", not "metatagAssertMetaSetPresent".');
+  }
+
+  public static function dataProviderPredicatesSpelledExistsAndContains(): array {
     return static::discoverTraitFiles();
   }
 
@@ -203,6 +465,40 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderLoadReturnsSet(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a published helper names what it does with a verb.
+   *
+   * A step takes its verb from its step text and a hook is named for its
+   * event, so only the public helpers are read. A verb in the prefix counts,
+   * as `query` does in `queryEntityIds`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderHelpersCarryVerb')]
+  public function testHelpersCarryVerb(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      if (!$method->isPublic() || self::isRegistered($method)) {
+        continue;
+      }
+
+      preg_match_all('/[A-Z][a-z0-9]*/', ucfirst($method->getName()), $words);
+
+      if (array_intersect($words[0], static::VERBS) === []) {
+        $violations[] = $method->getName();
+      }
+    }
+
+    $this->assertSame([], $violations, 'Name a published helper with a verb: "messageGetSelector", not "messageSelector", and "authIsLoggedIn", not "authLoggedIn". Add a new verb to VERBS.');
+  }
+
+  public static function dataProviderHelpersCarryVerb(): array {
     return static::discoverTraitFiles();
   }
 
@@ -331,6 +627,61 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Check whether Behat registers a method as a step, transform or hook.
+   */
+  protected static function isRegistered(\ReflectionMethod $method): bool {
+    foreach ($method->getAttributes() as $attribute) {
+      $name = $attribute->getName();
+
+      if (str_starts_with($name, 'Behat\\') || str_contains($name, '\\Hook\\')) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Read the first line of text in a method's docblock.
+   *
+   * @param \ReflectionMethod $method
+   *   The method to read.
+   *
+   * @return string
+   *   The summary line, or an empty string when the method has no docblock.
+   */
+  protected static function docblockSummary(\ReflectionMethod $method): string {
+    foreach (explode("\n", (string) $method->getDocComment()) as $line) {
+      $text = trim((string) preg_replace('#^\s*/?\*+/?#', '', $line));
+
+      if ($text !== '') {
+        return $text;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * Collect the short names of the exceptions a method throws itself.
+   *
+   * @param \ReflectionMethod $method
+   *   The method to read.
+   *
+   * @return array<int, string>
+   *   The class names after each 'throw new' in the method body, without
+   *   their namespace.
+   */
+  protected static function thrownExceptionNames(\ReflectionMethod $method): array {
+    $lines = explode("\n", (string) file_get_contents((string) $method->getFileName()));
+    $body = implode("\n", array_slice($lines, (int) $method->getStartLine() - 1, (int) $method->getEndLine() - (int) $method->getStartLine() + 1));
+
+    preg_match_all('/throw new \\\\?(?:\w+\\\\)*(\w+)/', $body, $matches);
+
+    return $matches[1];
+  }
+
+  /**
    * Derive the method prefix a trait requires from its short name.
    */
   protected static function traitPrefix(string $short_name): string {
@@ -350,6 +701,23 @@ class TraitMethodNamingTest extends UnitTestCase {
     }
 
     return str_starts_with($method, $prefix) && ctype_upper($method[strlen($prefix)]);
+  }
+
+  /**
+   * Check that a negative name is the positive name with one `Not` added.
+   */
+  protected static function insertsNot(string $positive, string $negative): bool {
+    $offset = 0;
+
+    while (($position = strpos($negative, 'Not', $offset)) !== FALSE) {
+      if (substr($negative, 0, $position) . substr($negative, $position + strlen('Not')) === $positive) {
+        return TRUE;
+      }
+
+      $offset = $position + 1;
+    }
+
+    return FALSE;
   }
 
 }

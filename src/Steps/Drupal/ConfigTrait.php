@@ -147,7 +147,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should have the value :value')]
   public function configAssertValueEquals(string $name, string $key, string $value): void {
-    $this->configCompareEquals($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
+    $this->configAssertEquals($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
   }
 
   /**
@@ -159,7 +159,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should not have the value :value')]
   public function configAssertValueNotEquals(string $name, string $key, string $value): void {
-    $this->configCompareEquals($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
+    $this->configAssertEquals($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
   }
 
   /**
@@ -171,7 +171,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should contain the value :value')]
   public function configAssertValueContains(string $name, string $key, string $value): void {
-    $this->configCompareContains($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
+    $this->configAssertContains($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
   }
 
   /**
@@ -183,7 +183,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should not contain the value :value')]
   public function configAssertValueNotContains(string $name, string $key, string $value): void {
-    $this->configCompareContains($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
+    $this->configAssertContains($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
   }
 
   /**
@@ -197,7 +197,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should have the effective value :value')]
   public function configAssertEffectiveValueEquals(string $name, string $key, string $value): void {
-    $this->configCompareEquals($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
+    $this->configAssertEquals($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
 
   /**
@@ -211,7 +211,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should not have the effective value :value')]
   public function configAssertEffectiveValueNotEquals(string $name, string $key, string $value): void {
-    $this->configCompareEquals($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
+    $this->configAssertEquals($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
   }
 
   /**
@@ -225,7 +225,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should contain the effective value :value')]
   public function configAssertEffectiveValueContains(string $name, string $key, string $value): void {
-    $this->configCompareContains($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
+    $this->configAssertContains($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
 
   /**
@@ -239,7 +239,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name key :key should not contain the effective value :value')]
   public function configAssertEffectiveValueNotContains(string $name, string $key, string $value): void {
-    $this->configCompareContains($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
+    $this->configAssertContains($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
   }
 
   /**
@@ -310,7 +310,7 @@ trait ConfigTrait {
    *   How the value is described in error messages ("value" or
    *   "effective value").
    */
-  protected function configCompareEquals(mixed $actual, string $expected, bool $should_match, string $name, string $key, string $descriptor): void {
+  protected function configAssertEquals(mixed $actual, string $expected, bool $should_match, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
     $actual_string = $this->configStringifyValue($actual);
     $matches = $is_set && $actual_string === $expected;
@@ -349,7 +349,7 @@ trait ConfigTrait {
    *   How the value is described in error messages ("value" or
    *   "effective value").
    */
-  protected function configCompareContains(mixed $actual, string $expected, bool $should_contain, string $name, string $key, string $descriptor): void {
+  protected function configAssertContains(mixed $actual, string $expected, bool $should_contain, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
     $contains = $is_set && $this->configValueContains($actual, $expected);
     $actual_string = $this->configStringifyValue($actual);

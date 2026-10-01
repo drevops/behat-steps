@@ -23,13 +23,13 @@ class FeatureContext extends DrupalContext {
   use FeatureContextTrait;
 
   /**
-   * Override dateNow() method to return a preset value for testing.
+   * Override dateGetNow() method to return a preset value for testing.
    *
    * The override sits on the class, not in FeatureContextTrait: the generated
    * trait-tag context composes that trait beside the trait under test, and two
    * traits declaring the same method collide.
    */
-  public static function dateNow(): int {
+  public static function dateGetNow(): int {
     return strtotime('2024-07-15 12:00:00');
   }
 
