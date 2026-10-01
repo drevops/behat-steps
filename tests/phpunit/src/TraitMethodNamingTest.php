@@ -40,8 +40,6 @@ class TraitMethodNamingTest extends UnitTestCase {
 
   /**
    * Verbs the published helpers name their action with.
-   *
-   * A helper built on a verb missing here adds it.
    */
   protected const VERBS = [
     'Apply',
@@ -173,8 +171,8 @@ class TraitMethodNamingTest extends UnitTestCase {
    * Assert that an `Assert` method fails with an assertion exception.
    *
    * A method that throws only `\RuntimeException` guards an argument or a
-   * precondition, which fails the scenario as an error rather than as a
-   * broken expectation, so its name states what it does instead.
+   * precondition, so it is named for what it does rather than as an
+   * assertion.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -228,10 +226,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that a qualifier follows the predicate it narrows.
    *
-   * The subject comes first, so `Not` lands directly after it: a qualifier
-   * placed before the predicate takes that slot, as in
-   * `cookieAssertWithNameNotExists`. `Not` is also never followed by a
-   * qualifier, which leaves the negation with no predicate to negate.
+   * `Not` sits directly after the subject, so a qualifier placed before the
+   * predicate, as in `cookieAssertWithNameNotExists`, is reported. A
+   * qualifier right after `Not` is reported too, because `Not` negates a
+   * predicate.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -256,8 +254,8 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that a negative step is named as its positive with `Not` added.
    *
-   * A pair of steps whose text differs only by "should" and "should not"
-   * reaches 2 methods whose names differ only by `Not`.
+   * 2 steps whose text differs only by "should" and "should not" map to 2
+   * methods whose names differ only by `Not`.
    *
    * @param class-string $trait
    *   The trait to check.
