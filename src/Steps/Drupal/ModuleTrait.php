@@ -34,7 +34,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
 trait ModuleTrait {
 
   /**
-   * The switch tag that enables its module, or disables it after a '!'.
+   * The tag that enables the module it names, or disables it after a '!'.
    */
   protected const MODULE_TAG = 'module';
 
@@ -54,7 +54,7 @@ trait ModuleTrait {
       return;
     }
 
-    foreach (Tag::switches($scope, self::MODULE_TAG) as $module_name => $should_enable) {
+    foreach (Tag::valueStates($scope, self::MODULE_TAG) as $module_name => $should_enable) {
       $this->moduleStoreOriginalState($module_name);
 
       if ($should_enable) {

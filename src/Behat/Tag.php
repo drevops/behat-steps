@@ -15,10 +15,10 @@ use Behat\Gherkin\Node\TaggedNodeInterface;
  * 'TaggedNodeInterface::hasTag()' compares strictly. Every tag this library
  * reads goes through here, so a tag matches on both majors.
  *
- * 'has()', 'values()' and 'switches()' take a subject: a scenario scope or
+ * 'has()', 'values()' and 'valueStates()' take a subject: a scenario scope or
  * event reads the scenario together with its feature, and a node reads that
- * node alone. A parametrized tag reads '@<name>:<value>', and a switch tag
- * turns its value off with '!', as in '@module:!help'.
+ * node alone. A parametrized tag reads '@<name>:<value>', and a '!' before
+ * the value switches it off, as in '@module:!help'.
  */
 final class Tag {
 
@@ -33,7 +33,7 @@ final class Tag {
   public const string SEPARATOR = ':';
 
   /**
-   * Switches off the value of a switch tag it precedes.
+   * Switches off the value it precedes, as in '@module:!help'.
    */
   public const string NEGATION = '!';
 
@@ -135,7 +135,7 @@ final class Tag {
   }
 
   /**
-   * Resolves a switch tag into the state of each value it names.
+   * Resolves each value of a parametrized tag into an on/off state.
    *
    * '@module:help' switches 'help' on and '@module:!help' switches it off. A
    * later tag for a value replaces an earlier one, so a scenario tag
@@ -151,19 +151,19 @@ final class Tag {
    *   TRUE for a value switched on and FALSE for one switched off, keyed by
    *   value in the order each was first named.
    */
-  public static function switches(TaggedNodeInterface|ScenarioScope|BeforeScenarioTested $subject, string $name): array {
-    $switches = [];
+  public static function valueStates(TaggedNodeInterface|ScenarioScope|BeforeScenarioTested $subject, string $name): array {
+    $states = [];
 
     foreach (self::values($subject, $name) as $value) {
       $is_on = !str_starts_with($value, self::NEGATION);
       $key = $is_on ? $value : substr($value, strlen(self::NEGATION));
 
       if ($key !== '') {
-        $switches[$key] = $is_on;
+        $states[$key] = $is_on;
       }
     }
 
-    return $switches;
+    return $states;
   }
 
 }

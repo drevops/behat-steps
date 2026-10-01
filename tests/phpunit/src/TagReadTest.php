@@ -20,7 +20,7 @@ class TagReadTest extends UnitTestCase {
   /**
    * The Tag methods a trait reads a tag through.
    */
-  protected const READERS = ['has', 'values', 'switches'];
+  protected const READERS = ['has', 'values', 'valueStates'];
 
   /**
    * The Tag methods that return a raw list, which a trait does not call.
@@ -53,7 +53,7 @@ class TagReadTest extends UnitTestCase {
       $line = is_array($tokens[$index]) ? $tokens[$index][2] : 0;
 
       if (in_array($method, static::RAW_READERS, TRUE)) {
-        $violations[] = sprintf('Line %d calls Tag::%s(). Read a tag through Tag::has(), Tag::values() or Tag::switches().', $line, $method);
+        $violations[] = sprintf('Line %d calls Tag::%s(). Read a tag through Tag::has(), Tag::values() or Tag::valueStates().', $line, $method);
 
         continue;
       }
@@ -73,7 +73,7 @@ class TagReadTest extends UnitTestCase {
       }
     }
 
-    $this->assertSame([], $violations, 'A trait reads a tag through Tag::has(), Tag::values() or Tag::switches(), passing the scope and a constant naming the tag.');
+    $this->assertSame([], $violations, 'A trait reads a tag through Tag::has(), Tag::values() or Tag::valueStates(), passing the scope and a constant naming the tag.');
   }
 
   public static function dataProviderTraitReadsTagsThroughReaders(): array {

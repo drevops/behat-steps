@@ -286,13 +286,13 @@ if (Tag::has($scope, self::TESTMODE_TAG)) {
 // 'php' and 'cron', feature tags first.
 $types = Tag::values($scope, self::WATCHDOG_TAG);
 
-// A switch tag: '@module:help @module:!contextual' gives
+// The on/off state of each value: '@module:help @module:!contextual' gives
 // ['help' => TRUE, 'contextual' => FALSE]. A later tag for a value replaces
 // an earlier one, so a scenario tag overrides a feature tag.
-$modules = Tag::switches($scope, self::MODULE_TAG);
+$modules = Tag::valueStates($scope, self::MODULE_TAG);
 ```
 
-Every tag has the same syntax: a flag stands alone, a parametrized tag takes its value after `Tag::SEPARATOR` (`:`), and a switch tag turns its value off with `Tag::NEGATION` (`!`). A tag with nothing after the separator names no value.
+Every tag has the same syntax: a flag stands alone, a parametrized tag takes its value after `Tag::SEPARATOR` (`:`), and `Tag::NEGATION` (`!`) before a value switches it off. A tag with nothing after the separator names no value.
 
 A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a single node, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
 

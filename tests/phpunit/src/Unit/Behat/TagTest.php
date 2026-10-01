@@ -159,7 +159,7 @@ class TagTest extends UnitTestCase {
   }
 
   /**
-   * Tests the state a switch tag resolves each value to.
+   * Tests the on/off state each value of a parametrized tag resolves to.
    *
    * @param list<string> $scenario_tags
    *   Tags on the scenario.
@@ -168,12 +168,12 @@ class TagTest extends UnitTestCase {
    * @param array<string, bool> $expected
    *   The state expected for each value.
    */
-  #[DataProvider('dataProviderSwitches')]
-  public function testSwitches(array $scenario_tags, array $feature_tags, array $expected): void {
-    $this->assertSame($expected, Tag::switches($this->createBeforeScenarioScope($scenario_tags, $feature_tags), 'module'));
+  #[DataProvider('dataProviderValueStates')]
+  public function testValueStates(array $scenario_tags, array $feature_tags, array $expected): void {
+    $this->assertSame($expected, Tag::valueStates($this->createBeforeScenarioScope($scenario_tags, $feature_tags), 'module'));
   }
 
-  public static function dataProviderSwitches(): \Iterator {
+  public static function dataProviderValueStates(): \Iterator {
     yield 'no tags' => [[], [], []];
     yield 'unrelated tags' => [['api', 'modules:help'], [], []];
     yield 'switched on' => [['module:help'], [], ['help' => TRUE]];
