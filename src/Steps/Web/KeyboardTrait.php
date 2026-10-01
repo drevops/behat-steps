@@ -89,12 +89,12 @@ trait KeyboardTrait {
    *   element is focused.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
-   *   If method is used for invalid driver.
+   *   If method is used for invalid browser driver.
    */
   protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
-    // Resolved before the key map is built so a driver that cannot dispatch a
-    // key event fails naming the capability rather than the drivers that have
-    // it.
+    // Resolved before the key map is built so a browser driver that cannot
+    // dispatch a key event fails naming the capability rather than the ones
+    // that have it.
     $keyboard = $this->browserDriverFor(KeyboardCapabilityInterface::class);
 
     $keys = [

@@ -68,6 +68,18 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that 'cacheClearStatic()' empties the memory cache bin.
+   */
+  public function testCacheClearStaticEmptiesTheMemoryBin(): void {
+    \Drupal::cache('memory')->set('drupal_driver_test:memory', 'value');
+    $this->assertNotFalse(\Drupal::cache('memory')->get('drupal_driver_test:memory'));
+
+    $this->core->cacheClearStatic();
+
+    $this->assertFalse(\Drupal::cache('memory')->get('drupal_driver_test:memory'));
+  }
+
+  /**
    * Tests that 'getExtensionPathList()' includes the enabled system module.
    */
   public function testGetExtensionPathListIncludesEnabledModules(): void {

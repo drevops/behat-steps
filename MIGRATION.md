@@ -573,7 +573,7 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 | `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Steps\Drupal\*`) |
 | `softcreatr/jsonpath` | `JsonTrait` JSON path steps (`the JSON path ... should ...`) |
 
-`@javascript` scenarios need a JavaScript-capable Mink driver. The steps are driver agnostic, so install **one** of these interchangeable drivers - both run the full `@javascript` suite and both are exercised by this library's CI:
+`@javascript` scenarios need a JavaScript-capable browser driver. The steps work with either of these, so install **one** of them - both run the full `@javascript` suite and both are exercised by this library's CI:
 
 - `lullabot/mink-selenium2-driver` - drives a Selenium/WebDriver server.
 - `dmore/behat-chrome-extension` - drives headless Chrome directly over the Chrome DevTools Protocol, with no Selenium server.
@@ -635,7 +635,7 @@ $profile
 
 Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout` and the 3 driver-selection keys are the exceptions; see below and [Capability-based driver resolution](#capability-based-driver-resolution).
 
-`BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session on Mink's own `HttpBrowser` over 1 shared Symfony HttpClient transport, and the requests steps send from PHP go through the same transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
+`BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session exactly as Mink does, on Mink's own `HttpBrowser`, and records the session's options for the requests steps send from PHP, which go through 1 shared Symfony HttpClient transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
 
 ```yaml
 # Before.
@@ -670,7 +670,7 @@ The Guzzle options a suite most often sets map across like this:
 | `proxy` | `proxy` |
 | `headers` | `headers` |
 
-The options now reach only requests to `base_url`, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
+The page applies the options to every host, as it did with Guzzle. The requests steps send from PHP apply them to `base_url` only, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
 
 `ajax_timeout` moves from the `mink` key, where `Drupal\MinkExtension` accepted it, to the `wait` group under `steps` (see [Per-trait configuration](#per-trait-configuration)):
 
@@ -1033,7 +1033,6 @@ The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Web\JavascriptSupportTrait` | `javascriptSupportAvailable()` | `WebRawContext` and 3 step traits |
 | `Helper\Web\LastStepTrait` | `lastStepSetLine()`, `lastStepReached()` | `WebRawContext` and 3 step traits |
 | `Helper\Web\RequestHeadersTrait` | `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()`, `requestHeadersReset()` | `WebRawContext` and 2 step traits |
 | `Helper\Web\StringTrait` | `stringFixStepArgument()`, `stringNormalizeWhitespace()`, `stringSplitCommaSeparated()`, `stringSlug()` | `WebRawContext` and 6 step traits |
@@ -1118,7 +1117,7 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper\W
 
 A helper trait composed by a step trait and by the context under it holds one slot of state, so both reach the same bag.
 
-### The two `HelperTrait`s became 10 concern-named traits
+### The two `HelperTrait`s became 6 concern-named traits
 
 `Steps\Web\HelperTrait` and `Steps\Drupal\HelperTrait` are gone. Their members live under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each trait named for the one concern it holds, and every method carries its own trait's prefix in place of the shared `helper` one:
 
@@ -1136,7 +1135,7 @@ A helper trait composed by a step trait and by the context under it holds one sl
 | `helperNormalizeWhitespace()` | `Helper\Web\StringTrait::stringNormalizeWhitespace()` |
 | `helperSplitCommaSeparated()` | `Helper\Web\StringTrait::stringSplitCommaSeparated()` |
 | `helperSlug()` | `Helper\Web\StringTrait::stringSlug()` |
-| `helperIsJavascriptSupported()` | `Helper\Web\JavascriptSupportTrait::javascriptSupportAvailable()` |
+| `helperIsJavascriptSupported()` | `WebRawContext::browserDriverHas(JavascriptCapabilityInterface::class)` |
 | `helperTransposeVerticalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeVertical()` |
 | `helperBuildHorizontalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeHorizontal()` |
 | `helperExpandEntityFieldsFixtures()` | `Helper\Drupal\FixtureFileTrait::fixtureFileExpandEntityFields()` |
@@ -1157,9 +1156,9 @@ use DrevOps\BehatSteps\Steps\Web\HelperTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 ```
 
-Extending `WebRawContext` needs no `use` statement for the 4 web helper traits, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
+Extending `WebRawContext` needs no `use` statement for `LastStepTrait`, `RequestHeadersTrait` or `StringTrait`, which it composes, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
 
-`requestHeadersSet()`, `javascriptSupportAvailable()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
+`requestHeadersSet()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
 
 ## Trait methods prefixed with their trait name
 
@@ -1206,7 +1205,7 @@ Assertion steps used to throw whatever their trait happened to reach for: `Expec
 | Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 
-`ExpectationException` requires a Mink driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
+`ExpectationException` requires a browser driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
 
 If your project catches an exception from one of these steps, update the type:
 
@@ -1442,7 +1441,7 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `CommandTrait` | `commandTimeout()` | `commandGetTimeout()` |
 | `DiagnosticsTrait` | `diagnosticsHeader()` | `diagnosticsGetHeader()` |
 | `DiagnosticsTrait` | `diagnosticsRerunBinary()` | `diagnosticsGetRerunBinary()` |
-| `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowDriver()` |
+| `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowBrowserDriver()` |
 | `DiagnosticsTrait` | `diagnosticsShowJsErrors()` | `diagnosticsGetShowJsErrors()` |
 | `DiagnosticsTrait` | `diagnosticsShowRerun()` | `diagnosticsGetShowRerun()` |
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
@@ -1464,7 +1463,7 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `Drupal\EmailTrait` | `emailGetMailSystemOriginal()` (protected) | `emailFindMailSystemOriginal()` | returns `NULL` |
 | `Drupal\UserTrait` | `userLoadByName()` | `userGetByName()` | throws `\RuntimeException` |
 | `CookieTrait` | `cookieGetByName()` | `cookieFindByName()` | returns `NULL` |
-| `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindDriverName()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindBrowserDriverName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetRerunCommand()` | `diagnosticsFindRerunCommand()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetStatusCode()` | `diagnosticsFindStatusCode()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
@@ -1543,11 +1542,11 @@ $messages = $driver->mailGet();
 
 `MailManagerInterface` is removed with the class.
 
-## Browser capabilities for the Mink driver
+## Capabilities of the browser driver
 
-The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a driver, so a project registering its own Mink driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
+The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a browser driver, so a project registering its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
 
-`DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped driver family. A Mink driver comes from another package, so an adapter declares the capabilities on the driver's behalf rather than the driver implementing them.
+`DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped browser driver family. A browser driver comes from another package, so an adapter declares the capabilities on its behalf rather than the browser driver implementing them.
 
 | Capability | BrowserKit | Selenium2 | Chrome (CDP) |
 | --- | --- | --- | --- |
@@ -1561,7 +1560,7 @@ The Drupal half of the vocabulary resolves its drivers by capability. The browse
 
 ### `JavascriptSupportTrait` is gone
 
-`javascriptSupportAvailable()` probed the driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
+`javascriptSupportAvailable()` probed the browser driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
 
 ```php
 // Before.
@@ -1589,15 +1588,15 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 `I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
 
-`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a driver that cannot serve them, with the capability named in place of a hardcoded driver list.
+`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a browser driver that cannot serve them, with the capability named in place of a hardcoded list of browser drivers.
 
-### Registering an adapter for another driver
+### Registering an adapter for another browser driver
 
 ```php
 $this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-An adapter extends `BrowserAdapterBase`, implements the capability interfaces its driver can honour, and answers `supports()` for the driver it speaks for. A registered adapter is offered each driver ahead of the shipped ones.
+An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
 
 ## Steps send their own requests through 3 HTTP clients
 

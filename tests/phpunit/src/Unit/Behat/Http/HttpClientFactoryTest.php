@@ -146,6 +146,37 @@ class HttpClientFactoryTest extends UnitTestCase {
     $this->assertEqualsWithDelta(3.0, $this->requests[0]['options']['timeout'], 0.001);
   }
 
+  /**
+   * Tests that a browser's own options win over the site's.
+   *
+   * @param string $browser
+   *   The browser to build: 'bare' or 'detached'.
+   * @param string $url
+   *   The URL requested.
+   * @param string|null $site_header
+   *   The header only the site declares, or NULL when it is expected absent.
+   */
+  #[DataProvider('dataProviderBrowserOptionsWinOverTheSiteOptions')]
+  public function testBrowserOptionsWinOverTheSiteOptions(string $browser, string $url, ?string $site_header): void {
+    $transport = HttpClientFactory::createTransport(['timeout' => 30, 'headers' => ['X-Site' => 'yes', 'X-Shared' => 'site']], 'http://example.com', $this->recordingClient());
+    $factory = new HttpClientFactory($transport, 'http://example.com');
+    $options = ['timeout' => 7, 'headers' => ['X-Shared' => 'browser']];
+
+    $client = $browser === 'bare' ? $factory->createBare($options) : $factory->createDetached(new HttpIdentity(), $options);
+    $client->request('GET', $url);
+
+    $this->assertEqualsWithDelta(7.0, $this->requests[0]['options']['timeout'], 0.001);
+    $this->assertSame('browser', $this->requestHeader(0, 'X-Shared'));
+    $this->assertSame($site_header, $this->requestHeader(0, 'X-Site'));
+  }
+
+  public static function dataProviderBrowserOptionsWinOverTheSiteOptions(): \Iterator {
+    yield 'a bare browser requesting the site' => ['bare', 'http://example.com/file', 'yes'];
+    yield 'a bare browser requesting another host' => ['bare', 'https://cdn.example.org/engine.js', NULL];
+    yield 'a detached browser requesting the site' => ['detached', 'http://example.com/file', 'yes'];
+    yield 'a detached browser requesting another host' => ['detached', 'https://cdn.example.org/file', NULL];
+  }
+
   public function testWithTransportDecoratesEveryBrowserOfTheCopy(): void {
     $transport = $this->recordingClient();
     $factory = new HttpClientFactory($transport, 'http://example.com');

@@ -324,7 +324,7 @@ Scenario: Editor publishes a page
 | `@watchdog:VALUE` | Track the named Watchdog message type in addition to `php`, which is always tracked. |
 | `@disable-config-override:VALUE` | Disable `settings.php` overrides for the named configuration object for the duration of the scenario. |
 | `@accessibility:VALUE` | Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`. |
-| `@bigpipe` | Render BigPipe placeholders server-side, for a driver without JavaScript. |
+| `@bigpipe` | Render BigPipe placeholders server-side, for a browser driver without JavaScript. |
 | `@disable-form-validation` | Strip HTML5 validation from every form on the page so a scenario can submit values the browser would block. |
 | `@js-errors` | Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE. |
 | `@download` | Prepare the download directory for the scenario and clean it up afterwards. |
@@ -346,4 +346,4 @@ These vary a run without changing any committed configuration. Nothing else in t
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any value other than `0` to print a one-line accessibility summary per page to the console. |
 | `COMPOSER_BIN_DIR` | `DrushDriver` | Names the directory the Drush binary is resolved from, before the driver falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
 
-`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a driver's `api_url` somewhere else for one run.
+`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for one run.

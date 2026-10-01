@@ -7,19 +7,19 @@ namespace DrevOps\BehatSteps\Behat\Mink;
 use Behat\Mink\Driver\DriverInterface;
 
 /**
- * Declares which capabilities a Mink driver provides.
+ * Declares which capabilities a browser driver provides.
  *
- * Mink drivers ship from other packages, so a driver cannot implement the
- * capability interfaces itself. An adapter implements them on the driver's
- * behalf and states which driver it speaks for.
+ * Browser drivers ship from other packages, so one cannot implement the
+ * capability interfaces itself. An adapter implements them on its behalf and
+ * states which browser driver it speaks for.
  */
 interface BrowserAdapterInterface {
 
   /**
-   * Whether this adapter speaks for the given driver.
+   * Whether this adapter speaks for the given browser driver.
    *
    * @param \Behat\Mink\Driver\DriverInterface $driver
-   *   The driver a session is running.
+   *   The browser driver a session is running.
    */
   public static function supports(DriverInterface $driver): bool;
 

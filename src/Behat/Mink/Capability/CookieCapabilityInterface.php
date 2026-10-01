@@ -19,7 +19,7 @@ interface CookieCapabilityInterface {
    * The name and the value are the whole contract. A BrowserKit cookie jar
    * holds several objects per name across domains and paths and exposes only
    * the resolved value for a URL, not the object it resolved, so any further
-   * attribute would be reliable on some drivers and a guess on others.
+   * attribute would be reliable on some browser drivers and a guess on others.
    *
    * @return array<int, array{name: string, value: string}>
    *   One entry per cookie name.

@@ -27,16 +27,17 @@ use DrevOps\BehatSteps\Behat\Tag;
  * The wait is best-effort: on timeout the step still runs, so a placeholder
  * that is never replaced fails the following assertion rather than the wait.
  *
- * A driver that runs no JavaScript never replaces those placeholders, and does
- * not follow the `http-equiv=refresh` fallback either. An authenticated-user
- * assertion on such a driver silently misses whatever BigPipe deferred. A
- * scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, which makes
- * Drupal render the page in full server-side.
+ * A browser driver that runs no JavaScript never replaces those placeholders,
+ * and does not follow the `http-equiv=refresh` fallback either. An
+ * authenticated-user assertion on such a browser driver silently misses
+ * whatever BigPipe deferred. A scenario tagged `@bigpipe` gets the
+ * `big_pipe_nojs` cookie, which makes Drupal render the page in full
+ * server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *
  * Special tags:
- * - `@bigpipe` - render server-side on a driver without JavaScript.
+ * - `@bigpipe` - render server-side on a browser driver without JavaScript.
  *
  * Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
  * `$bigPipeWaitTimeout` to override it for one scenario.
@@ -64,7 +65,7 @@ trait BigPipeTrait {
   protected bool $bigPipeServerRenderEnabled = FALSE;
 
   /**
-   * Whether the driver runs JavaScript, NULL until first probed.
+   * Whether the browser driver runs JavaScript, NULL until first probed.
    */
   protected ?bool $bigPipeJavascriptProbe = NULL;
 
@@ -118,8 +119,8 @@ trait BigPipeTrait {
     }
     // @codeCoverageIgnoreStart
     catch (DriverException) {
-      // The driver session is not ready (e.g. no page has been visited yet),
-      // so there is nothing to synchronise.
+      // The browser driver session is not ready (e.g. no page has been visited
+      // yet), so there is nothing to synchronise.
     }
     // @codeCoverageIgnoreEnd
   }
@@ -127,8 +128,8 @@ trait BigPipeTrait {
   /**
    * Set the no-JS cookie when the scenario asked for server-side rendering.
    *
-   * A driver that runs JavaScript replaces the placeholders itself, so the
-   * cookie is only for the drivers that do not. 'setCookie()' is idempotent,
+   * A browser driver that runs JavaScript replaces the placeholders itself, so
+   * the cookie is only for the ones that do not. 'setCookie()' is idempotent,
    * so re-applying it on every step costs nothing.
    */
   protected function bigPipeApplyServerRenderCookie(): void {
@@ -136,8 +137,8 @@ trait BigPipeTrait {
       return;
     }
 
-    // The probe runs once a scenario: a driver does not gain or lose script
-    // support between steps.
+    // The probe runs once a scenario: a browser driver does not gain or lose
+    // script support between steps.
     $this->bigPipeJavascriptProbe ??= $this->bigPipeJavascriptIsSupported();
 
     if ($this->bigPipeJavascriptProbe === TRUE) {
@@ -155,9 +156,9 @@ trait BigPipeTrait {
   }
 
   /**
-   * Whether the active driver can run JavaScript.
+   * Whether the active browser driver can run JavaScript.
    *
-   * An unstarted driver counts as unable, and the probe is retried on the next
+   * An unstarted one counts as unable, and the probe is retried on the next
    * step once the session has started.
    */
   protected function bigPipeJavascriptIsSupported(): ?bool {

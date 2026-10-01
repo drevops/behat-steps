@@ -2,11 +2,11 @@
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
-3 terms stay apart throughout, because the codebase has more than one thing called a driver:
+3 terms stay apart throughout, and [CONTRIBUTING.md](../CONTRIBUTING.md#driver-browser-driver-and-http-client) holds them for the whole codebase:
 
-- **Backend driver** - Drupal, Drush or Blackbox under `src/Driver`, reached with `driverFor()`. Nothing on this page touches them.
-- **Browser driver** - the Mink driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - one of the 3 clients below. None of them is a driver.
+- **Driver** - Drupal, Drush or Blackbox under `src/Driver`, reached with `driverFor()`. Nothing on this page touches them.
+- **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
+- **HTTP client** - one of the 3 clients below. None of them is a driver of either kind.
 
 ## The 3 clients
 
@@ -50,11 +50,12 @@ Connection settings come from 1 place, and per-trait settings from another:
                │                                  accessibility.fetch_timeout
                ▼                                             │
  BrowserKitFactory::buildDriver()                            │
-               │                                             │
-               ▼                                             │
- behat_steps.http_client                                     │
- 1 transport; site settings apply to base_url only           │
-        │                   │                  │             │
+        │                   │                                │
+        ▼                   ▼                                │
+ Mink's own client   behat_steps.http_client                 │
+ settings for        1 transport; settings                   │
+ every host          for base_url only                       │
+        │                   ├──────────────────┐             │
         ▼                   ▼                  ▼             │
    page client       detached client      bare client        │
    HttpBrowser       HttpBrowser          HttpBrowser        │
@@ -65,7 +66,7 @@ Connection settings come from 1 place, and per-trait settings from another:
                               per-trait options, per request
 ```
 
-**Connection settings** are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. `BehatStepsExtension` then turns those options into 1 shared transport, the `behat_steps.http_client` service, and builds every `browserkit_http` session's `HttpBrowser` on it. The detached and bare clients send through the same transport, so a setting that lets the page load also lets the download through.
+**Connection settings** are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. It builds the session exactly as Mink does, so the page client applies the options to every host. It also records them, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
 
 To a project this looks like stock Mink: it registers Mink's own extension and `BehatStepsExtension`, nothing else, and never sees the factory.
 
@@ -79,13 +80,15 @@ To a project this looks like stock Mink: it registers Mink's own extension and `
 
 Both timeouts are idle timeouts: a slow download that keeps receiving data never hits one. The hreflang return-link check waits up to 30 seconds for data from each alternate.
 
-### The rules the transport follows
+### The rules the clients follow
 
-- **Site settings apply to the site only.** The options reach a request whose scheme, host and port match `base_url`. Credentials in the URL and the letter case of the host don't matter. A request to any other host gets Symfony's defaults, so `verify_peer: false` for a staging site never relaxes certificate checks on a CDN.
-- **The page client follows the same rule.** That's where this differs from stock Mink, which applies `http_client_parameters` to every host. A redirect to another host, such as a single sign-on provider, gets Symfony's defaults. A `proxy` is the other case to watch: a request to any other host doesn't go through it, the accessibility engine's fetch from the CDN included.
+- **The page client applies the settings to every host, as stock Mink does.** It's Mink's own client, so a redirect to a single sign-on provider on another domain, or a visit to another domain of a multi-domain site, gets the same `verify_peer`, `proxy` and `headers` as the site.
+- **The detached and bare clients apply them to the site only.** The options reach a request whose scheme, host and port match `base_url`. Credentials in the URL and the letter case of the host don't matter. A request to any other host gets Symfony's defaults, so `verify_peer: false` for a staging site never relaxes certificate checks on a CDN, and a header meant for the site never reaches a third party.
+- **A proxy that every host needs belongs in the environment.** Symfony reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` for any request that carries no `proxy` option, so a suite that reaches the internet only through a proxy sets those, and the accessibility engine's fetch from the CDN goes through it too.
+- **A step's own options win over the site's.** A download from the site waits `file_download.timeout` for data even when the session declares a `timeout` of its own.
 - **A `base_url` without a host** applies the options to every request.
 - **A suite without a `browserkit_http` session** sends every request with Symfony's defaults.
-- **Every `browserkit_http` session declares the same options.** Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` driver. All of them are built on the 1 transport, so they can't carry different options, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
+- **Every `browserkit_http` session declares the same options.** Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
 
   ```php
   'sessions' => [
@@ -136,7 +139,7 @@ Those PHP requests take their settings from `http_client_parameters`, which only
 ]))
 ```
 
-The Selenium driver doesn't need that session; the requests steps send from PHP do.
+The Selenium2 browser driver doesn't need that session; the requests steps send from PHP do.
 
 ## Where content lives
 
@@ -176,7 +179,7 @@ WebRawContext
 ```
 
 - **The page client is a browser capability.** Whether one exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
-- **The detached and bare clients come from a factory.** They exist under every browser driver, so there's nothing to resolve per driver. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
+- **The detached and bare clients come from a factory.** They exist under every browser driver, so there's nothing to resolve for each one. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
 
 ```php
 interface HttpClientFactoryInterface {
@@ -228,7 +231,7 @@ default:
                 staging.example.com: 172.18.0.5
 ```
 
-Page visits, downloads and the hreflang check all reach the container and accept its certificate. The accessibility engine's fetch from the CDN gets none of these settings, because they apply only to `base_url`.
+Page visits, downloads and the hreflang check all reach the container and accept its certificate. The accessibility engine's fetch from the CDN gets none of these settings, because the bare client applies them only to `base_url`.
 
 ### A per-trait option: an export that takes minutes to generate
 
@@ -294,10 +297,10 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-**Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another Mink driver a page client:
+**Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
 
 ```php
 $this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-[Browser capabilities](../MIGRATION.md#browser-capabilities-for-the-mink-driver) covers writing the adapter itself.
+[Capabilities of the browser driver](../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.

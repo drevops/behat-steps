@@ -4,22 +4,25 @@ Feature: Check that CacheTrait works
   So that users can clear specific caches in their tests without a full rebuild
 
   Scenario: Assert "Given the page cache for the path :path is empty" clears a single path
-    When I log in as a user with the role "administrator"
+    When I log in as a user with the role "administrator" and the following fields:
+      | name | cache_path_admin |
     And the page cache for the path "/user" is empty
     When I go to "/user"
-    Then I should see "Member for"
+    Then I should see "cache_path_admin"
 
   Scenario: Assert "Given the page cache for the paths matching :path_pattern is empty" clears matching paths
-    When I log in as a user with the role "administrator"
+    When I log in as a user with the role "administrator" and the following fields:
+      | name | cache_pattern_admin |
     And the page cache for the paths matching "/user*" is empty
     When I go to "/user"
-    Then I should see "Member for"
+    Then I should see "cache_pattern_admin"
 
   Scenario: Assert "Given the render cache is empty" clears the render cache
-    When I log in as a user with the role "administrator"
+    When I log in as a user with the role "administrator" and the following fields:
+      | name | cache_render_admin |
     And the render cache is empty
     When I go to "/user"
-    Then I should see "Member for"
+    Then I should see "cache_render_admin"
 
   Scenario: Assert "When I run cron" runs cron
     Given the watchdog is cleared

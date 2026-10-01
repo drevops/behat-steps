@@ -35,9 +35,9 @@ use Symfony\Component\HttpClient\HttpClient;
  * Root context carrying the plumbing every suite needs.
  *
  * Provides driver access, authentication delegation, option resolution and
- * the hook dispatcher, and composes the four helper traits the web half
- * shares. It registers no step definitions and references no Drupal class
- * beyond 'Random', which a layer lint holds.
+ * the hook dispatcher, and composes 3 of the web helper traits. It registers
+ * no step definitions and references no Drupal class beyond 'Random', which a
+ * layer lint holds.
  *
  * Extend this to compose a context out of a chosen set of traits; extend
  * 'WebContext' instead to get the whole web vocabulary, or 'DrupalContext'
@@ -191,7 +191,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * Returns the browser the Mink session drives.
    *
    * A request sent through it becomes the page the next steps read. Only a
-   * session on a PHP driver has one.
+   * session on a PHP browser driver has one.
    *
    * @return \Symfony\Component\BrowserKit\AbstractBrowser<covariant object, covariant object>
    *   The browser the session drives.
@@ -324,17 +324,17 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    * Returns the adapter providing a browser capability for this session.
    *
    * The browser half of the vocabulary resolves its capabilities separately
-   * from the Drupal half: a Mink session runs exactly 1 driver, so there is no
-   * ordered list to walk and no driver to bootstrap.
+   * from the Drupal half: a Mink session runs exactly 1 browser driver, so
+   * there is no ordered list to walk and nothing to bootstrap.
    *
    * @param class-string<T> $capability
    *   The browser capability interface the caller needs.
    *
    * @return T
-   *   The adapter speaking for the session's driver.
+   *   The adapter speaking for the session's browser driver.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
-   *   When the session's driver does not provide the capability.
+   *   When the session's browser driver does not provide the capability.
    *
    * @template T of object
    */
@@ -343,7 +343,7 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Whether this session's driver provides a browser capability.
+   * Whether this session's browser driver provides a browser capability.
    *
    * A step that degrades gracefully without the capability asks this; a step
    * that cannot proceed without it calls 'browserDriverFor()'.

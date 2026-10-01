@@ -346,7 +346,8 @@ Then the command should complete in more than 1 second
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.
->  - Support both WebDriver and BrowserKit drivers for test compatibility.
+>  - Support both WebDriver and BrowserKit browser drivers for test
+>  compatibility.
 
 
 <details>
@@ -562,17 +563,17 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  failed, appends a compact diagnostics block to the failure message:
 >  - `URL` - the current page URL.
 >  - `HTTP status` - the last response status code.
->  - `Mink driver` - the active Mink driver class.
+>  - `Browser driver` - the class of the browser driver behind the session.
 >  - `JS console errors` - collected JavaScript errors, when a JavaScript-capable
->  driver is active and errors were captured. Reads the buffer maintained by
+>  browser driver is active and errors were captured. Reads the buffer kept by
 >  `JavascriptTrait` when the context also uses it, and the live browser buffer.
 >  - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
 >  
 >  The trait is opt-in: `use` it in the context and it is active with no further
 >  configuration. Every field is individually toggleable by overriding its
 >  `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
->  to nothing when the driver cannot provide it, so a failed step is never
->  turned into a different failure.
+>  to nothing when the browser driver cannot provide it, so a failed step is
+>  never turned into a different failure.
 >  <br/><br/>
 >  Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
 >  <br/><br/>
@@ -584,7 +585,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >    # --- Failure diagnostics ---
 >    # URL: http://example.com/some-page
 >    # HTTP status: 200
->    # Mink driver: Behat\Mink\Driver\BrowserKitDriver
+>    # Browser driver: Behat\Mink\Driver\BrowserKitDriver
 >    # Re-run: vendor/bin/behat features/example.feature:3
 >  ```
 
@@ -598,7 +599,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 | `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | Binary named in the re-run command the block prints. |
 | `diagnostics.show_url` | boolean | `TRUE` | - | Include the current URL in the block. |
 | `diagnostics.show_status_code` | boolean | `TRUE` | - | Include the HTTP status code in the block. |
-| `diagnostics.show_driver` | boolean | `TRUE` | - | Include the Mink driver class in the block. |
+| `diagnostics.show_browser_driver` | boolean | `TRUE` | - | Include the browser driver class in the block. |
 | `diagnostics.show_js_errors` | boolean | `TRUE` | - | Include the JavaScript console errors in the block. |
 | `diagnostics.show_rerun` | boolean | `TRUE` | - | Include the command that re-runs the failing scenario in the block. |
 
@@ -2952,7 +2953,7 @@ Then the following Twitter Card tags should exist:
 >  
 >  Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
 >  modals, native HTML dialog element, custom modals) via overridable
->  selector methods. All steps require a JavaScript-enabled driver.
+>  selector methods. All steps require a JavaScript-enabled browser driver.
 
 
 ### Options
@@ -4582,16 +4583,17 @@ When I wait for the batch job to finish
 >  The wait is best-effort: on timeout the step still runs, so a placeholder
 >  that is never replaced fails the following assertion rather than the wait.
 >  <br/><br/>
->  A driver that runs no JavaScript never replaces those placeholders, and does
->  not follow the `http-equiv=refresh` fallback either. An authenticated-user
->  assertion on such a driver silently misses whatever BigPipe deferred. A
->  scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, which makes
->  Drupal render the page in full server-side.
+>  A browser driver that runs no JavaScript never replaces those placeholders,
+>  and does not follow the `http-equiv=refresh` fallback either. An
+>  authenticated-user assertion on such a browser driver silently misses
+>  whatever BigPipe deferred. A scenario tagged `@bigpipe` gets the
+>  `big_pipe_nojs` cookie, which makes Drupal render the page in full
+>  server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
 >  Special tags:
->  - `@bigpipe` - render server-side on a driver without JavaScript.
+>  - `@bigpipe` - render server-side on a browser driver without JavaScript.
 >  
 >  Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
 >  `$bigPipeWaitTimeout` to override it for one scenario.
@@ -4885,7 +4887,7 @@ When I run cron
 >  the scenario.
 >  <br/><br/>
 >  Limitations:
->  - The request header reaches the SUT only on a driver providing
+>  - The request header reaches the SUT only on a browser driver providing
 >  `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
 >  headers, so a scenario running on Selenium falls back to the `$_SERVER`
 >  entry and the environment variable alone.

@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 
 /**
- * Capabilities of the Selenium2 driver.
+ * Capabilities of the Selenium2 browser driver.
  *
  * A WebDriver session cannot add request headers, so this adapter declares no
  * request-header capability.
@@ -20,9 +20,9 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface {
 
   /**
-   * Driver methods this adapter reaches through reflection.
+   * Browser driver methods this adapter reaches through reflection.
    *
-   * The driver exposes no public equivalent, and
+   * The browser driver exposes no public equivalent, and
    * 'BrowserCapabilityResolverTest' asserts both names still exist so an
    * upstream rename fails a test rather than a scenario.
    */
@@ -57,7 +57,8 @@ class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInt
    * {@inheritdoc}
    *
    * Selenium dispatches synthetic events through the bundled Syn library,
-   * which the driver loads through methods it does not expose publicly.
+   * which the browser driver loads through methods it does not expose
+   * publicly.
    */
   public function keyboardTriggerKey(string $xpath, string $key): void {
     $reflection = new \ReflectionClass($this->driver);

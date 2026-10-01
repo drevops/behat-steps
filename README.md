@@ -147,7 +147,7 @@ composer require --dev drevops/behat-steps:^3
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
-- **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
+- **`@javascript` scenarios** need a JavaScript-capable browser driver - see [JavaScript browser drivers](#javascript-browser-drivers) below.
 
 ## 🚀 Quick start
 
@@ -181,7 +181,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and the 4 web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
+`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 
@@ -215,7 +215,7 @@ return (new Config())->withProfile($profile);
 
 The `drivers` list says which drivers a scenario may reach, and in what order. A step never names a driver - it names the capability it needs, and the first driver in the list providing that capability answers. See [Driver resolution](docs/configuration.md#driver-resolution).
 
-Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](behat.dist.php) shows. `BehatStepsExtension` builds every `browserkit_http` session on 1 shared Symfony HttpClient transport, and the requests steps send from PHP, such as a file download, go through it too. So the `http_client_parameters` a session declares reach both, and [HTTP clients](docs/http-clients.md) covers the rest.
+Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and sends the requests steps make from PHP, such as a file download, with the same options. So the page and the download reach the site with the same settings, and [HTTP clients](docs/http-clients.md) covers the rest.
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
@@ -259,12 +259,9 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 [Scenario styles](docs/scenario-styles.md) explains when each style earns its keep, and [HELPERS.md](HELPERS.md) lists every helper a domain step can build on.
 
-### JavaScript drivers
+### JavaScript browser drivers
 
-Steps that require a real browser (used by scenarios tagged `@javascript`) are
-driver agnostic: they work with a Selenium/WebDriver driver and with
-selenium-less drivers that talk to Chrome directly over the Chrome DevTools
-Protocol. Both are exercised by this library's own CI.
+Steps that require a real browser (used by scenarios tagged `@javascript`) work with any browser driver that runs one: a Selenium/WebDriver browser driver, or a Selenium-less one that talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI.
 
 To run `@javascript` scenarios without a Selenium server, add
 [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension)
@@ -300,12 +297,12 @@ This library reports failures with a small, fixed set of exception types, mostly
 | `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
 | `ExpectationException`             | Assertion fails (value mismatch, state verification) |
 | `AssertionException`               | Assertion fails in a step with no Mink session       |
-| `UnsupportedDriverActionException` | Feature requires specific driver (e.g., Selenium)    |
+| `UnsupportedDriverActionException` | The browser driver lacks a capability the step needs |
 | `\RuntimeException`                | Invalid input or processing error (not an assertion) |
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a browser driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 

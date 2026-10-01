@@ -14,10 +14,10 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
- * Capabilities of a BrowserKit-based driver.
+ * Capabilities of a BrowserKit-based browser driver.
  *
- * The driver is itself an HTTP client rather than a browser, so it reads
- * cookies, sets request headers and lends out its client, but runs no
+ * The browser driver is itself an HTTP client rather than a browser, so it
+ * reads cookies, sets request headers and lends out its client, but runs no
  * JavaScript and dispatches no key events.
  */
 class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, HttpClientCapabilityInterface, RequestHeaderCapabilityInterface {

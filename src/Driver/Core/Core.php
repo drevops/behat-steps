@@ -33,6 +33,7 @@ use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\TermInterface;
+use Drupal\user\AccountCancellation;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,6 +88,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Lazily created field shape classifier instance.
    */
   protected ?FieldShapeClassifierInterface $fieldShapeClassifier = NULL;
+
+  /**
+   * Permission definitions keyed by machine name, NULL until first read.
+   *
+   * @var array<string, mixed>|null
+   */
+  protected ?array $allPermissions = NULL;
 
   /**
    * Sets up the Core implementation.
@@ -447,6 +455,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function cacheClear(?string $type = NULL): void {
     drupal_flush_all_caches();
+    $this->allPermissions = NULL;
   }
 
   /**
@@ -626,15 +635,17 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $this->convertPermissions($permissions);
     $this->checkPermissions($permissions);
 
+    /** @var \Drupal\user\RoleInterface $role */
     $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
       'id' => $rid,
       'label' => $role_label,
     ]);
-    $role->save();
 
-    if (!empty($permissions)) {
-      user_role_grant_permissions($role->id(), $permissions);
+    foreach ($permissions as $permission) {
+      $role->grantPermission($permission);
     }
+
+    $role->save();
 
     return (string) $role->id();
   }
@@ -669,11 +680,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   Array of all defined permissions.
    */
   protected function getAllPermissions(): array {
-    $permissions = &drupal_static(__FUNCTION__);
+    $this->allPermissions ??= \Drupal::service('user.permissions')->getPermissions();
 
-    $permissions ??= \Drupal::service('user.permissions')->getPermissions();
-
-    return $permissions;
+    return $this->allPermissions;
   }
 
   /**
@@ -720,8 +729,20 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function userDelete(EntityStubInterface $stub): void {
-    user_cancel([], (int) $this->resolveUid($stub), 'user_cancel_delete');
-    // user_cancel() schedules the deletion via batch, so the batch runs to
+    $uid = (int) $this->resolveUid($stub);
+
+    // 'AccountCancellation' exists from Drupal 11.5, and 11.4 has only
+    // 'user_cancel()'.
+    if (class_exists(AccountCancellation::class)) {
+      // @codeCoverageIgnoreStart
+      \Drupal::service(AccountCancellation::class)->cancel([], $uid, 'user_cancel_delete');
+      // @codeCoverageIgnoreEnd
+    }
+    else {
+      user_cancel([], $uid, 'user_cancel_delete');
+    }
+
+    // Either call schedules the deletion via batch, so the batch runs to
     // completion here and the deletion is synchronous.
     $this->processBatch();
   }
@@ -1071,7 +1092,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function cacheClearStatic(): void {
+    // Drupal 11.4 keeps its statics in 'drupal_static()' and Drupal 12 keeps
+    // several of core's in the 'memory' bin, so both are cleared.
     drupal_static_reset();
+    \Drupal::cache('memory')->deleteAll();
+    $this->allPermissions = NULL;
     \Drupal::service('cache_tags.invalidator')->resetChecksums();
 
     foreach (\Drupal::entityTypeManager()->getDefinitions() as $definition) {
@@ -1254,6 +1279,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function moduleInstall(string $module_name): void {
     \Drupal::service('module_installer')->install([$module_name]);
+    $this->allPermissions = NULL;
   }
 
   /**
@@ -1261,6 +1287,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function moduleUninstall(string $module_name): void {
     \Drupal::service('module_installer')->uninstall([$module_name]);
+    $this->allPermissions = NULL;
   }
 
   /**

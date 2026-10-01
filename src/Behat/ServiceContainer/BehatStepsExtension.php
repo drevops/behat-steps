@@ -38,6 +38,11 @@ class BehatStepsExtension implements ExtensionInterface {
   public const DRIVERS_PARAMETER = 'behat_steps.drivers';
 
   /**
+   * Service ID of the transport the detached and bare browsers send through.
+   */
+  public const TRANSPORT_SERVICE = 'behat_steps.http_client';
+
+  /**
    * The factory registered with Mink, NULL when the suite registers no Mink.
    */
   protected ?BrowserKitFactory $browserKitFactory = NULL;
@@ -495,7 +500,7 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Defines the transport every browser sends through.
+   * Defines the transport the detached and bare browsers send through.
    *
    * Mink hands the 'browserkit_http' factory each session's options while the
    * extensions load, so they are read here, in the process pass after it.
@@ -510,7 +515,7 @@ class BehatStepsExtension implements ExtensionInterface {
     $definition = new Definition(HttpClientInterface::class, [$options, is_string($base_url) ? $base_url : NULL]);
     $definition->setFactory([HttpClientFactory::class, 'createTransport']);
 
-    $container->setDefinition(BrowserKitFactory::TRANSPORT_SERVICE, $definition);
+    $container->setDefinition(self::TRANSPORT_SERVICE, $definition);
   }
 
   /**

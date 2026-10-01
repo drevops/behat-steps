@@ -20,17 +20,17 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *
  * - `URL` - the current page URL.
  * - `HTTP status` - the last response status code.
- * - `Mink driver` - the active Mink driver class.
+ * - `Browser driver` - the class of the browser driver behind the session.
  * - `JS console errors` - collected JavaScript errors, when a JavaScript-capable
- *   driver is active and errors were captured. Reads the buffer maintained by
+ *   browser driver is active and errors were captured. Reads the buffer kept by
  *   `JavascriptTrait` when the context also uses it, and the live browser buffer.
  * - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
  *
  * The trait is opt-in: `use` it in the context and it is active with no further
  * configuration. Every field is individually toggleable by overriding its
  * `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
- * to nothing when the driver cannot provide it, so a failed step is never
- * turned into a different failure.
+ * to nothing when the browser driver cannot provide it, so a failed step is
+ * never turned into a different failure.
  *
  * Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
  *
@@ -42,7 +42,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *   # --- Failure diagnostics ---
  *   # URL: http://example.com/some-page
  *   # HTTP status: 200
- *   # Mink driver: Behat\Mink\Driver\BrowserKitDriver
+ *   # Browser driver: Behat\Mink\Driver\BrowserKitDriver
  *   # Re-run: vendor/bin/behat features/example.feature:3
  * @endcode
  *
@@ -141,10 +141,10 @@ trait DiagnosticsTrait {
       }
     }
 
-    if ($this->diagnosticsGetShowDriver()) {
-      $driver = $this->diagnosticsFindDriverName();
+    if ($this->diagnosticsGetShowBrowserDriver()) {
+      $driver = $this->diagnosticsFindBrowserDriverName();
       if ($driver !== NULL) {
-        $lines[] = 'Mink driver: ' . $driver;
+        $lines[] = 'Browser driver: ' . $driver;
       }
     }
 
@@ -196,9 +196,9 @@ trait DiagnosticsTrait {
   }
 
   /**
-   * Return the active Mink driver class, or NULL when it is unavailable.
+   * Return the browser driver's class, or NULL when it is unavailable.
    */
-  public function diagnosticsFindDriverName(): ?string {
+  public function diagnosticsFindBrowserDriverName(): ?string {
     try {
       return $this->getSession()->getDriver()::class;
     }
@@ -214,7 +214,7 @@ trait DiagnosticsTrait {
    * when the context also uses it, and the live browser buffer its collector
    * populates. The registry is detected at runtime, so there is no hard
    * dependency on that trait. Both are best-effort and yield nothing under a
-   * driver that cannot evaluate JavaScript.
+   * browser driver that cannot evaluate JavaScript.
    *
    * @return array<int, string>
    *   Distinct error messages, in the order first seen.
@@ -242,7 +242,8 @@ trait DiagnosticsTrait {
       }
     }
     catch (\Throwable) {
-      // A non-JavaScript driver or an unstarted session has no buffer to read.
+      // A non-JavaScript browser driver or an unstarted session has no buffer
+      // to read.
     }
 
     return array_values(array_unique($messages));
@@ -311,10 +312,10 @@ trait DiagnosticsTrait {
   }
 
   /**
-   * Return TRUE to include the Mink driver class. Override to suppress.
+   * Return TRUE to include the browser driver class. Override to suppress.
    */
-  public function diagnosticsGetShowDriver(): bool {
-    return $this->getOptionBool('diagnostics', 'show_driver');
+  public function diagnosticsGetShowBrowserDriver(): bool {
+    return $this->getOptionBool('diagnostics', 'show_browser_driver');
   }
 
   /**
@@ -344,7 +345,7 @@ trait DiagnosticsTrait {
       new Option('rerun_binary', default: 'vendor/bin/behat', description: 'Binary named in the re-run command the block prints.'),
       new Option('show_url', default: TRUE, description: 'Include the current URL in the block.'),
       new Option('show_status_code', default: TRUE, description: 'Include the HTTP status code in the block.'),
-      new Option('show_driver', default: TRUE, description: 'Include the Mink driver class in the block.'),
+      new Option('show_browser_driver', default: TRUE, description: 'Include the browser driver class in the block.'),
       new Option('show_js_errors', default: TRUE, description: 'Include the JavaScript console errors in the block.'),
       new Option('show_rerun', default: TRUE, description: 'Include the command that re-runs the failing scenario in the block.'),
     ];

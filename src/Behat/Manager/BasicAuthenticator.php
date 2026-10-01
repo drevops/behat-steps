@@ -46,8 +46,9 @@ class BasicAuthenticator implements BasicAuthenticatorInterface {
       $this->getSession()->setBasicAuth($credentials['username'], $credentials['password']);
     }
     catch (UnsupportedDriverActionException) {
-      // The active driver cannot set basic auth headers (a JavaScript driver,
-      // for example); those receive credentials via the 'base_url' userinfo.
+      // The active browser driver cannot set basic auth headers (a JavaScript
+      // one, for example); those receive credentials via the 'base_url'
+      // userinfo.
     }
   }
 

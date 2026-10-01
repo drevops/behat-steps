@@ -16,7 +16,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * Builds bare and detached browsers on 1 shared transport.
  *
  * The transport carries the connection options the 'browserkit_http' session
- * declares, and the Mink session's own browser sends through it as well.
+ * declares, scoped to the site's own host.
  *
  * @see \DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory
  */
@@ -26,7 +26,7 @@ class HttpClientFactory implements HttpClientFactoryInterface {
    * Constructs an HttpClientFactory object.
    *
    * @param \Symfony\Contracts\HttpClient\HttpClientInterface $transport
-   *   The transport every browser sends through.
+   *   The transport the detached and bare browsers send through.
    * @param string|null $baseUrl
    *   The site's base URL. A detached browser sends its headers and
    *   credentials to this host only.
@@ -38,7 +38,7 @@ class HttpClientFactory implements HttpClientFactoryInterface {
   }
 
   /**
-   * Creates the transport the page, detached and bare browsers share.
+   * Creates the transport the detached and bare browsers share.
    *
    * @param array<array-key, mixed> $options
    *   Symfony HttpClient options, as a 'browserkit_http' session declares
@@ -132,7 +132,17 @@ class HttpClientFactory implements HttpClientFactoryInterface {
    *   Symfony HttpClient options.
    */
   protected function withOptions(HttpClientInterface $client, array $options): HttpClientInterface {
-    return $options === [] ? $client : $client->withOptions($options);
+    if ($options === []) {
+      return $client;
+    }
+
+    $client = $client->withOptions($options);
+    $pattern = static::sitePattern($this->baseUrl);
+
+    // A scoping transport merges the site's options over those added through
+    // 'withOptions()'. Scoping the same options to the site on top restores
+    // their precedence there.
+    return $pattern === NULL ? $client : new ScopingHttpClient($client, [$pattern => $options]);
   }
 
   /**

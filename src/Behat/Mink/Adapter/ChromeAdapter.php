@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\RequestHeaderCapabilityInterface;
 
 /**
- * Capabilities of the CDP-based Chrome driver.
+ * Capabilities of the CDP-based Chrome browser driver.
  */
 class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
 

@@ -163,7 +163,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
       }
     }
     catch (DriverException) {
-      // The driver has not loaded a page yet.
+      // The browser driver has not loaded a page yet.
     }
 
     // Some themes do not add that class to the body, so fall back to the
@@ -238,7 +238,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   }
 
   /**
-   * Logs in on the backend driver if it supports authentication.
+   * Logs in on the driver if it supports authentication.
    */
   protected function backendLogin(EntityStubInterface $user): void {
     if ($this->driverRegistry->hasCapability(AuthenticationCapabilityInterface::class)) {
@@ -247,7 +247,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   }
 
   /**
-   * Logs out on the backend driver if it supports authentication.
+   * Logs out on the driver if it supports authentication.
    */
   protected function backendLogout(): void {
     // Only a driver the scenario already reached can hold a backend session,
