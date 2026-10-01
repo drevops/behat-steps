@@ -19,7 +19,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
                           |
                     WebRawContext
        driver access, configuration, hook dispatch,
-             the 4 web helper traits, no steps
+               3 web helper traits, no steps
                           |
                      WebContext
                 use Steps\Web\*  (28)
@@ -100,7 +100,7 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` also composes the 4 web helper traits, so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
+`WebRawContext` also composes 3 of the web helper traits - `LastStepTrait`, `RequestHeadersTrait` and `StringTrait` - so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
 
 ## The rules that govern composition
 

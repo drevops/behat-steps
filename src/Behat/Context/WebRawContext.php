@@ -35,9 +35,9 @@ use Symfony\Component\HttpClient\HttpClient;
  * Root context carrying the plumbing every suite needs.
  *
  * Provides driver access, authentication delegation, option resolution and
- * the hook dispatcher, and composes the four helper traits the web half
- * shares. It registers no step definitions and references no Drupal class
- * beyond 'Random', which a layer lint holds.
+ * the hook dispatcher, and composes 3 of the web helper traits. It registers
+ * no step definitions and references no Drupal class beyond 'Random', which a
+ * layer lint holds.
  *
  * Extend this to compose a context out of a chosen set of traits; extend
  * 'WebContext' instead to get the whole web vocabulary, or 'DrupalContext'

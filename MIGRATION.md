@@ -1033,7 +1033,6 @@ The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Web\JavascriptSupportTrait` | `javascriptSupportAvailable()` | `WebRawContext` and 3 step traits |
 | `Helper\Web\LastStepTrait` | `lastStepSetLine()`, `lastStepReached()` | `WebRawContext` and 3 step traits |
 | `Helper\Web\RequestHeadersTrait` | `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()`, `requestHeadersReset()` | `WebRawContext` and 2 step traits |
 | `Helper\Web\StringTrait` | `stringFixStepArgument()`, `stringNormalizeWhitespace()`, `stringSplitCommaSeparated()`, `stringSlug()` | `WebRawContext` and 6 step traits |
@@ -1118,7 +1117,7 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper\W
 
 A helper trait composed by a step trait and by the context under it holds one slot of state, so both reach the same bag.
 
-### The two `HelperTrait`s became 10 concern-named traits
+### The two `HelperTrait`s became 6 concern-named traits
 
 `Steps\Web\HelperTrait` and `Steps\Drupal\HelperTrait` are gone. Their members live under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each trait named for the one concern it holds, and every method carries its own trait's prefix in place of the shared `helper` one:
 
@@ -1136,7 +1135,7 @@ A helper trait composed by a step trait and by the context under it holds one sl
 | `helperNormalizeWhitespace()` | `Helper\Web\StringTrait::stringNormalizeWhitespace()` |
 | `helperSplitCommaSeparated()` | `Helper\Web\StringTrait::stringSplitCommaSeparated()` |
 | `helperSlug()` | `Helper\Web\StringTrait::stringSlug()` |
-| `helperIsJavascriptSupported()` | `Helper\Web\JavascriptSupportTrait::javascriptSupportAvailable()` |
+| `helperIsJavascriptSupported()` | `WebRawContext::browserDriverHas(JavascriptCapabilityInterface::class)` |
 | `helperTransposeVerticalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeVertical()` |
 | `helperBuildHorizontalTable()` | `Helper\Web\TableTransposeTrait::tableTransposeHorizontal()` |
 | `helperExpandEntityFieldsFixtures()` | `Helper\Drupal\FixtureFileTrait::fixtureFileExpandEntityFields()` |
@@ -1157,9 +1156,9 @@ use DrevOps\BehatSteps\Steps\Web\HelperTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 ```
 
-Extending `WebRawContext` needs no `use` statement for the 4 web helper traits, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
+Extending `WebRawContext` needs no `use` statement for `LastStepTrait`, `RequestHeadersTrait` or `StringTrait`, which it composes, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
 
-`requestHeadersSet()`, `javascriptSupportAvailable()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
+`requestHeadersSet()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
 
 ## Trait methods prefixed with their trait name
 
