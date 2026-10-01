@@ -139,9 +139,9 @@ class HttpClientFactory implements HttpClientFactoryInterface {
     $client = $client->withOptions($options);
     $pattern = static::sitePattern($this->baseUrl);
 
-    // A scoping transport merges the site's options over the ones added
-    // through 'withOptions()', so the options are scoped to the site again on
-    // top to take precedence there as well.
+    // A scoping transport merges the site's options over those added through
+    // 'withOptions()'. Scoping the same options to the site on top restores
+    // their precedence there.
     return $pattern === NULL ? $client : new ScopingHttpClient($client, [$pattern => $options]);
   }
 

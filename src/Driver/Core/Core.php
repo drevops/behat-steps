@@ -1092,8 +1092,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function cacheClearStatic(): void {
-    // Drupal 11.4 keeps its statics in 'drupal_static()', and Drupal 12 moves
-    // several of core's into the 'memory' bin, so both are cleared.
+    // Drupal 11.4 keeps its statics in 'drupal_static()' and Drupal 12 keeps
+    // several of core's in the 'memory' bin, so both are cleared.
     drupal_static_reset();
     \Drupal::cache('memory')->deleteAll();
     $this->allPermissions = NULL;
