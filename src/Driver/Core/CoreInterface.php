@@ -16,7 +16,6 @@ use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Driver\Core\Field\FieldShapeClassifierInterface;
@@ -45,8 +44,7 @@ interface CoreInterface extends
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
-  UserCapabilityInterface,
-  WatchdogCapabilityInterface {
+  UserCapabilityInterface {
 
   /**
    * Returns a random-value generator.

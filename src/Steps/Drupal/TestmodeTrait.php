@@ -9,9 +9,10 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use Drupal\testmode\Testmode;
 
 /**
@@ -26,7 +27,10 @@ use Drupal\testmode\Testmode;
  */
 trait TestmodeTrait {
 
-  use QueryTrait;
+  /**
+   * Whether this scenario enabled test mode.
+   */
+  protected bool $testmodeActive = FALSE;
 
   /**
    * Enable test mode before a scenario tagged with @testmode.
@@ -39,25 +43,27 @@ trait TestmodeTrait {
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('testmode', 'drupal/testmode');
+    $this->assertPrerequisites(__TRAIT__);
 
     static::testmodeEnableTestMode();
+
+    $this->testmodeActive = TRUE;
   }
 
   /**
-   * Disable test mode after a scenario tagged with @testmode.
+   * Disable test mode after a scenario that enabled it.
    */
   #[AfterScenario]
   public function testmodeAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->testmodeActive) {
       return;
     }
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('testmode', 'drupal/testmode');
-
     static::testmodeDisableTestMode();
+
+    $this->testmodeActive = FALSE;
   }
 
   /**
@@ -83,6 +89,19 @@ trait TestmodeTrait {
   protected function testmodeConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Enable the Testmode module for a `@testmode` scenario and disable it afterwards.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function testmodePrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('testmode'), 'the "testmode" module from the "drupal/testmode" package is enabled'),
     ];
   }
 

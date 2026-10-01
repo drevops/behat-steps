@@ -211,7 +211,7 @@ Data provider naming and placement are settled too. A provider is named `dataPro
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
 
 - **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
@@ -250,7 +250,7 @@ The page client exists only under BrowserKit, and throws `UnsupportedDriverActio
 
 In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/http-clients.md](docs/http-clients.md) covers the settings, the identity the detached client carries, and the extension points.
 
-A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists.
+A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
 
 [scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Driver` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and the 4 web helper traits exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 
@@ -316,6 +316,63 @@ A step hook's scope carries no scenario tags, so it reads a flag its trait's `Be
 - A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
 
 `tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that is neither guarded nor listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
+
+## Deciding whether a trait acts
+
+A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism. Keeping them apart is what lets a trait stay quiet where it should and fail where it should.
+
+| Question | Mechanism | When the answer is no |
+| --- | --- | --- |
+| Opt-in: is the trait switched on? | `skipTag(__TRAIT__, $scope)`, which reads the `enabled` option and the skip tag | The hook returns quietly |
+| Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope->getScenario(), 'testmode')` | The hook returns quietly |
+| Prerequisites: does the site provide what it needs? | The trait's `<prefix>Prerequisites()`, checked by `assertPrerequisites(__TRAIT__)` | The scenario fails, naming what's missing |
+
+Don't merge them into 1 boolean. Opted out means the trait does nothing, while opted in without its prerequisites means the scenario can't be trusted, so the first returns and the second throws.
+
+A setup hook applies them in that order:
+
+```php
+#[BeforeScenario]
+public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
+  if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'acme')) {
+    return;
+  }
+
+  $this->assertPrerequisites(__TRAIT__);
+
+  // ...
+}
+```
+
+### Declaring prerequisites
+
+A trait declares what it needs from the site in a `<prefix>Prerequisites()` method, named by its prefix like `<prefix>ConfigSchema()`, and states each prerequisite through a driver capability:
+
+```php
+protected function acmePrerequisites(): array {
+  return [
+    Prerequisite::capability(CoreCapabilityInterface::class),
+    Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+  ];
+}
+```
+
+- `Prerequisite::capability()` holds when a driver in the scenario's list provides the capability.
+- `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a driver providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
+- A description is a clause completing "requires that", in lower case with no closing period. It appears both in the failure message and in the Prerequisites table `docs.php` renders into [STEPS.md](STEPS.md).
+
+A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a driver the scenario already reached, so the question never starts a second driver the way `driverFor()` would under `@driver:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
+
+### Where a trait checks them
+
+- **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its driver. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`.
+- **A setup hook** checks at scenario start, straight after its guard.
+- **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
+- **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
+
+The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyDriverFor()`, which reuses a driver the scenario already reached before trying the first one listed, so checking never starts a second driver. A capability with no check still reaches its driver, so declaring `CoreCapabilityInterface` first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@driver:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
+
+`tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Helper`.
 
 ## Dependency policy
 

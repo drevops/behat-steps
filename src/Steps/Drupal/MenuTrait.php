@@ -6,9 +6,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -24,7 +25,6 @@ use Drupal\system\MenuInterface;
  */
 trait MenuTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
 
   /**
@@ -85,7 +85,9 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
-    $this->queryAssertModuleEnabled('menu_link_content');
+    $this->driverFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getColumn(0) as $title) {
       $menu_link = $this->menuFindLinkByTitle($title, $menu_name);
@@ -109,7 +111,7 @@ trait MenuTrait {
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('menu_link_content');
+    $this->assertPrerequisites(__TRAIT__);
 
     $menu = $this->menuFindByLabel($menu_name);
 
@@ -212,6 +214,19 @@ trait MenuTrait {
     $menu_link_id = reset($menu_link_ids);
 
     return MenuLinkContent::load($menu_link_id);
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function menuPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('menu_link_content'), 'the core "menu_link_content" module is enabled, for the menu link steps'),
+    ];
   }
 
 }

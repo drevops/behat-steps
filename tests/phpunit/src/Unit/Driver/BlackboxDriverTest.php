@@ -16,7 +16,6 @@ use DrevOps\BehatSteps\Driver\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\DriverInterface;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -103,7 +102,6 @@ class BlackboxDriverTest extends TestCase {
     yield 'module' => [ModuleCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
-    yield 'watchdog' => [WatchdogCapabilityInterface::class];
   }
 
 }

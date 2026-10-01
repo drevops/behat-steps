@@ -41,45 +41,6 @@ class CoreErrorPathsTest extends TestCase {
   }
 
   /**
-   * Tests that 'resolveSeverityLevel()' accepts symbolic and numeric input.
-   *
-   * @param string $input
-   *   Severity passed to 'resolveSeverityLevel()'.
-   * @param int $expected
-   *   Expected RFC 5424 log level.
-   */
-  #[DataProvider('dataProviderResolveSeverityLevel')]
-  public function testResolveSeverityLevel(string $input, int $expected): void {
-    $core = $this->createCore();
-    $reflection = new \ReflectionMethod($core, 'resolveSeverityLevel');
-    $this->assertSame($expected, $reflection->invoke($core, $input));
-  }
-
-  /**
-   * Data provider for 'testResolveSeverityLevel()'.
-   */
-  public static function dataProviderResolveSeverityLevel(): \Iterator {
-    yield 'symbolic emergency' => ['emergency', 0];
-    yield 'symbolic warning' => ['warning', 4];
-    yield 'symbolic uppercase' => ['ERROR', 3];
-    yield 'numeric string' => ['5', 5];
-    yield 'numeric zero' => ['0', 0];
-  }
-
-  /**
-   * Tests that 'resolveSeverityLevel()' rejects unknown severity names.
-   */
-  public function testResolveSeverityLevelRejectsUnknownName(): void {
-    $core = $this->createCore();
-    $reflection = new \ReflectionMethod($core, 'resolveSeverityLevel');
-
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches('/Unknown severity level: catastrophic/');
-
-    $reflection->invoke($core, 'catastrophic');
-  }
-
-  /**
    * Tests that 'entityCreate()' rejects an empty entity type before booting.
    *
    * The throw happens before any 'Drupal::service()' call, so no kernel is

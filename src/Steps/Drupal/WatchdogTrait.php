@@ -12,9 +12,10 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
@@ -24,6 +25,12 @@ use Drupal\Core\Database\Database;
  * - Check for Watchdog messages after scenario completion.
  * - Optionally check only for specific message types.
  * - Optionally skip error checking for specific scenarios.
+ *
+ * The check is on by default. An opted-in scenario whose prerequisites do not
+ * hold fails at its start.
+ *
+ * `watchdog.fail_on_errors` and `@error` decide what happens to errors that
+ * were read, so they do not cover an unmet prerequisite.
  *
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
@@ -65,9 +72,11 @@ trait WatchdogTrait {
    */
   #[BeforeScenario]
   public function watchdogSetScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
+    if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $scenario = $scope->getScenario();
 
@@ -94,11 +103,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    if (!Database::getConnection()->schema()->tableExists('watchdog')) {
-      throw new \RuntimeException('Watchdog table does not exist. Ensure the dblog module is enabled.');
-    }
+    $this->assertPrerequisites(__TRAIT__);
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
       $this->watchdogReadErrors();
@@ -123,16 +128,7 @@ trait WatchdogTrait {
    */
   #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->getDriverRegistry()->hasCapability(WatchdogCapabilityInterface::class)) {
-      return;
-    }
-
-    $this->driverFor(CoreCapabilityInterface::class);
-
-    // The step hook throws for a missing table because the step result is
-    // still open. This hook runs after the result is set, where throwing
-    // would replace a real scenario failure with a configuration error.
-    if (!Database::getConnection()->schema()->tableExists('watchdog')) {
+    if (!isset($this->watchdogScenarioStartTime) || !$this->prerequisitesMet(__TRAIT__)) {
       return;
     }
 
@@ -255,6 +251,19 @@ trait WatchdogTrait {
     return [
       new Option('enabled', default: TRUE, description: 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.'),
       new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.', tags: ['error' => FALSE]),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function watchdogPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('dblog'), 'the core "dblog" module is enabled'),
     ];
   }
 

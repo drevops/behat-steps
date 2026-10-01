@@ -14,7 +14,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | --- | --- | --- |
 | `architecture.puml` | `architecture.svg` | The 3 library layers, the consuming project, and the runtime around them |
 | `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
-| `class-context.puml` | `class-context.svg` | The context hierarchy, its services, the helper traits, representative step traits, and the exceptions a failing step throws |
+| `class-context.puml` | `class-context.svg` | The context hierarchy, its services and prerequisite declarations, the helper traits, representative step traits, and the exceptions a failing step throws |
 | `class-drivers.puml` | `class-drivers.svg` | The Behat-free driver layer: the base contract, the capability interfaces, the 3 drivers, and the Core bridge |
 | `class-browser.puml` | `class-browser.svg` | The browser capability layer, the HTTP client factory, and the `browserkit_http` browser driver factory |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
@@ -38,7 +38,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Driver/` - the driver layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, the entity-creation hooks, the browser capabilities, and the HTTP clients a step sends its own requests through.
+**`src/Behat/` - the integration layer.** Wires the driver layer into a Behat suite: the extension, the service container, the driver and user registries, the authenticators, the 3 context classes, option resolution, trait prerequisites, the entity-creation hooks, the browser capabilities, and the HTTP clients a step sends its own requests through.
 
 **`src/Helper/` - the shared internals.** 9 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches the driver and serves `DrupalContext`.
 
@@ -52,9 +52,9 @@ The dependency footprint reflects the shift. `composer.json` requires PHP 8.3+, 
 
 ## The driver layer
 
-A driver is the thing that actually talks to Drupal. `DriverInterface` is deliberately tiny - `getRandom()`, `bootstrap()`, `isBootstrapped()` - and everything else a driver can do is expressed as a separate capability interface in `Driver\Capability`: content, users, roles, config, modules, cache, cron, batch, language, mail, blocks, watchdog, authentication, creation aliases.
+A driver is the thing that actually talks to Drupal. `DriverInterface` is deliberately tiny - `getRandom()`, `bootstrap()`, `isBootstrapped()` - and everything else a driver can do is expressed as a separate capability interface in `Driver\Capability`: content, users, roles, config, modules, state, cache, cron, batch, language, mail, blocks, authentication, creation aliases, Drupal's API in this process, and Drush commands.
 
-3 drivers implement different slices of that set. `DrupalDriver` bootstraps Drupal in-process and implements all 14. `DrushDriver` shells out and implements the 8 Drush can service. `BlackboxDriver` implements the base contract only, for testing a remote site with no Drupal access at all.
+3 drivers implement different slices of that set. `DrupalDriver` bootstraps Drupal in-process and implements 15 of the 16, every one but Drush commands. `DrushDriver` shells out and implements the 10 Drush can service, Drush commands included. `BlackboxDriver` implements the base contract only, for testing a remote site with no Drupal access at all.
 
 ![Class structure: the driver layer](class-drivers.svg)
 
@@ -74,6 +74,8 @@ The order itself comes from the suite: its `drivers` setting is both the allow-l
 
 `Behat\Config` holds option resolution, which `WebRawContext` delegates to rather than carrying. `ConfigSchemaReader` is the only piece that reflects: it walks a context class for `<prefix>ConfigSchema()` methods and returns the `Option` objects they declare, cached per class. `TraitOptionResolver` layers the declaration defaults, the extension's `steps` section and the context's `config` argument, and exposes a typed read per declared type. `TagOverrides` applies the tags an option declares, plus the `@behat-steps-skip:<Trait>` tag every `enabled` option carries, and holds the pattern a skip tag's value has to match. A resolver depends on the context class that declared the options and on the `config` argument that context was given, so `TraitOptionResolverFactory` builds one per context; registering another factory under `behat_steps.config.resolver_factory` replaces resolution everywhere at once.
 
+`Behat\Prerequisite` holds what a trait needs from the site, which is a separate question from whether the trait is switched on. `Prerequisite` is 1 declaration: a capability interface, an optional static closure that takes a driver providing it and returns whether the prerequisite holds, and a description that both the failure message and `STEPS.md` quote. A trait returns its declarations from `<prefix>Prerequisites()`, named like its `<prefix>ConfigSchema()`, and `PrerequisiteReader` calls that method once per context class and trait for the run, since a context can redeclare it. It caches the declarations but never an answer, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
+
 Browser sessions come from Mink's own extension, which the suite registers alongside this one. `BehatStepsExtension::initialize()` hands it a `BrowserKitFactory`, and Mink keys its browser driver factories by name, so that factory replaces Mink's own for `browserkit_http`. Behat calls `initialize()` once every extension is activated and before it builds any configuration tree, so the swap holds whichever order the suite lists the 2 extensions - it's the same hook the Chrome extension uses to add its browser driver.
 
 The factory keeps Mink's configuration tree and builds each session exactly as Mink does: an `HttpBrowser` on a client of its own, carrying the session's `http_client_parameters` for every host. It adds 1 thing, which is recording those options. `BehatStepsExtension::process()` turns them into 1 transport service, `behat_steps.http_client`, once Mink has built every session, through `HttpClientFactory::createTransport()`, with the options scoped to the `base_url` host. The detached and bare clients send through that transport. Sessions that declare different options stop the run there, because the transport carries 1 set.
@@ -91,6 +93,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 - Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
 - Browser access: `browserDriverFor()` and `browserDriverHas()`, which resolve a browser capability.
 - HTTP clients: `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()`.
+- Prerequisite checks: `assertPrerequisites()` throws for the first declaration that doesn't hold, naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off. `prerequisitesMet()` answers the same question without throwing, for a teardown. Each check goes through `anyDriverFor()`, which returns a driver the scenario already reached before the first one listed, so checking never starts a second driver. A trait adapting to an optional module asks through it too.
 - The hook dispatcher and `skipTag()`.
 - 3 of the web helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 
@@ -121,7 +124,7 @@ That directory split isn't just tidiness. `docs.php` reads a trait's context str
 
 Each trait carries its steps as PHP attributes - `#[Given]`, `#[When]`, `#[Then]` from `Behat\Step\*` - sitting directly on the method that implements them. There's no `.yml` mapping and no separate registration step. The docblock above the method isn't decoration either: `docs.php` parses it, and the `@code` example inside it is mandatory.
 
-Every trait declares what it needs from its host with `@phpstan-require-extends`: 49 name `WebRawContext` because they reach for the driver, a browser capability or an HTTP client, and 8 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. `ContextCompositionTest` composes the 7 web ones into a bare `RawMinkContext` subclass and holds the fixture against the annotations, so a requirement that tightens is caught.
+Every trait declares what it needs from its host with `@phpstan-require-extends`: 49 name `WebRawContext` because they reach for the driver, the extension configuration, a browser capability or an HTTP client, and 8 name Mink's `RawMinkContext` because a session is all they touch. A Drupal trait additionally composes the helper traits its body calls, and `ContextCompositionTest` fails one that calls a helper member it has not composed. Mix a trait into a class without that ancestry and PHPStan says so before a test ever runs. The `BareMinkContext` fixture composes the 7 web ones into a bare `RawMinkContext` subclass, and `ContextCompositionTest` holds it against the annotations, so a requirement that tightens is caught.
 
 ![Class structure: step traits](class-traits.svg)
 
@@ -145,6 +148,8 @@ Assertions fail by throwing, and which exception is part of the public contract:
 - A capability the session's browser driver lacks throws Mink's `UnsupportedDriverActionException`. A capability no driver in the scenario's order provides throws the driver layer's own exception of the same name.
 
 A trait's hooks can be switched off from a feature file. `@behat-steps-skip:JavascriptTrait` on a scenario or a feature switches off every hook `JavascriptTrait` registers: each scenario hook opens with `skipTag(__TRAIT__, $scope)`, which reads the tag together with the trait's `enabled` option, and a step hook reads a flag its trait's `BeforeScenario` hook set behind that guard. A scenario hook that only resets its trait's own state has nothing to switch off and carries no guard; `SkipGuardTest` lists each one with the reason, and fails a new hook that is neither guarded nor listed. Entity cleanup honours the same convention through `@behat-steps-skip:EntityLifecycleTrait`, plus `@behat-steps-entity-cleanup-skip:<entity_type>` for leaving one type in place.
+
+Switching a trait off and failing on its prerequisites stay separate. A setup hook returns on `skipTag()` first, so an opted-out trait asks nothing of any driver, and only then calls `assertPrerequisites()`, so an opted-in trait whose prerequisites don't hold fails the scenario at its start and its steps are skipped. `WatchdogTrait` is the case in the diagram above: it needs `CoreCapabilityInterface` and the `dblog` module, so a profile listing only `drush` and `blackbox` fails at scenario start unless the trait is switched off. A step checks its trait's prerequisites as it runs, so a suite that never runs a webform step never needs `webform`, and a teardown asks `prerequisitesMet()` instead, so it can't replace a failure the scenario already recorded.
 
 Every one of those tags is read through `Tag`, which strips the leading `@` first. Behat 3 removes it by default and Behat 4 keeps it, so going through `Tag` is what lets the same tag match on both.
 
@@ -173,6 +178,8 @@ The same reflection pass yields both halves of the package, and visibility is wh
 ![Data flow: reference documentation generation](dataflow-docs.svg)
 
 The option and tag tables come from the code rather than from the reflection pass: the options are read off the config tree `BehatStepsExtension::configure()` builds, and the tags off `tag_registry()`. Neither can be added without appearing in the reference.
+
+Each trait's entry in `STEPS.md` also carries a Prerequisites table and an Options table, below its description. `docs.php` reads both through `PrerequisiteReader` and `ConfigSchemaReader`, the readers the runtime uses, so a malformed declaration fails generation with the runtime's own message instead of being documented.
 
 The validation half matters more than the rendering half. It's where the project's conventions stop being a style guide and start being enforced: a `@When` step without `I `, a `@Then` step whose method name lacks `Assert`, a placeholder placed before the noun it names, a `:value` that doesn't read `the value :value`, a method with 2 step attributes, a step with no `@code` example, a published helper with no summary, a `getenv()` name that `docs/configuration.md` never mentions - each is a hard error. `tag_registry()` does the same job for tags, guarding against separator drift so that `@module:views` never quietly becomes `@module-views`.
 

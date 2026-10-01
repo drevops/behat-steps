@@ -1027,7 +1027,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
-| `Helper\Drupal\QueryTrait` | `queryNodeIds()`, `queryAssertModuleEnabled()` | 9 step traits |
+| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
 
 The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names nothing Drupal:
 
@@ -1090,11 +1090,43 @@ There is no way to remove an inherited step, so a Drupal project cannot take the
 
 Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
 
+`DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even if your v3 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, and it reads it in the Behat process, so it needs a driver such as `drupal`. On a site without `dblog`, or under a profile that lists no such driver, such as `'drivers' => ['drush', 'blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile:
+
+```php
+'steps' => ['watchdog' => ['enabled' => FALSE]],
+```
+
+Setting `fail_on_errors` to `FALSE` or tagging a scenario `@error` doesn't cover an unmet prerequisite, because both only apply to errors that were read.
+
 ## Traits declare the host they need
 
 Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads the driver or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.
 
 Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
+
+## A trait declares its prerequisites
+
+A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a driver capability rather than a query of its own. The module checks the step traits ran through `queryAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
+
+```php
+protected function acmePrerequisites(): array {
+  return [
+    Prerequisite::capability(CoreCapabilityInterface::class),
+    Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+  ];
+}
+```
+
+A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off.
+
+| Before | After |
+| --- | --- |
+| `$this->queryAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
+| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
+
+The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
+
+`TestmodeTrait` still checks the `testmode` module when a `@testmode` scenario starts, but it no longer checks it again when the scenario ends: the teardown disables test mode only if the scenario enabled it.
 
 ## A trait's directory classifies it
 
@@ -1144,7 +1176,7 @@ A helper trait composed by a step trait and by the context under it holds one sl
 | `helperResolveFixtureFile()` | `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` |
 | `helperManagedFileExists()` | `Helper\Drupal\FixtureFileTrait::fixtureFileManagedExists()` |
 | `helperLoadNodeIds()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
-| `helperAssertModuleEnabled()` | `Helper\Drupal\QueryTrait::queryAssertModuleEnabled()` |
+| `helperAssertModuleEnabled()` | A `<prefix>Prerequisites()` declaration checked by `assertPrerequisites(__TRAIT__)`, as [A trait declares its prerequisites](#a-trait-declares-its-prerequisites) shows |
 
 A context that composed a `HelperTrait` to reach one of these composes the trait holding it instead:
 

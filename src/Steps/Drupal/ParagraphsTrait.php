@@ -6,7 +6,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -44,7 +46,7 @@ trait ParagraphsTrait {
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->assertPrerequisites(__TRAIT__);
 
     $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
 
@@ -83,7 +85,7 @@ trait ParagraphsTrait {
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
     $this->driverFor(CoreCapabilityInterface::class);
 
-    $this->queryAssertModuleEnabled('paragraphs', 'drupal/paragraphs');
+    $this->assertPrerequisites(__TRAIT__);
 
     $values = $stub->getValues();
     $values['type'] = $paragraph_type;
@@ -173,6 +175,19 @@ trait ParagraphsTrait {
     if (!array_key_exists($field_name, $field_info)) {
       throw new \RuntimeException(sprintf('The entity type "%s" with bundle "%s" does not have a field "%s".', $entity_type, $bundle, $field_name));
     }
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function paragraphsPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('paragraphs'), 'the "paragraphs" module from the "drupal/paragraphs" package is enabled'),
+    ];
   }
 
 }

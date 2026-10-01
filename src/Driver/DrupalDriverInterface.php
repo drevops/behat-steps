@@ -18,7 +18,6 @@ use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\WatchdogCapabilityInterface;
 use DrevOps\BehatSteps\Driver\Core\CoreInterface;
 
 /**
@@ -42,8 +41,7 @@ interface DrupalDriverInterface extends
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
-  UserCapabilityInterface,
-  WatchdogCapabilityInterface {
+  UserCapabilityInterface {
 
   /**
    * Injects the active Core implementation.

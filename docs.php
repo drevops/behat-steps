@@ -33,6 +33,8 @@ use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -392,6 +394,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       'context' => $context,
       'methods' => [],
       'options' => extract_trait_options($collected['host'], $trait_name),
+      'prerequisites' => extract_trait_prerequisites($collected['host'], $trait->getName()),
     ];
     $class_info += parse_class_comment($trait_name, (string) $trait->getDocComment());
 
@@ -478,6 +481,28 @@ function extract_trait_options(string $class_name, string $trait_name): array {
  */
 function trait_option_group(string $trait_name): string {
   return GroupName::fromTraitName($trait_name);
+}
+
+/**
+ * Read the prerequisite declarations of one trait.
+ *
+ * Discovery goes through the reader the runtime uses, so the generator rejects
+ * a malformed declaration with the same message.
+ *
+ * @param string $class_name
+ *   The context class composing the trait.
+ * @param string $trait
+ *   The fully qualified trait name.
+ *
+ * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+ *   The prerequisites in declaration order, empty when the trait declares
+ *   none.
+ */
+function extract_trait_prerequisites(string $class_name, string $trait): array {
+  /** @var class-string $class_name */
+  $context = (new \ReflectionClass($class_name))->newInstanceWithoutConstructor();
+
+  return (new PrerequisiteReader())->read($context, $trait);
 }
 
 /**
@@ -827,6 +852,36 @@ function render_trait_options(string $trait_name, mixed $options): string {
   }
 
   return '### Options' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+}
+
+/**
+ * Render a trait's prerequisite declarations as a markdown table.
+ *
+ * @param mixed $prerequisites
+ *   The prerequisites the trait declared, in declaration order.
+ *
+ * @return string
+ *   The table, or an empty string when the trait declares none.
+ */
+function render_trait_prerequisites(mixed $prerequisites): string {
+  $rows = [];
+
+  foreach (is_array($prerequisites) ? $prerequisites : [] as $prerequisite) {
+    if (!$prerequisite instanceof Prerequisite) {
+      continue;
+    }
+
+    $rows[] = [
+      str_replace('|', '\\|', ucfirst($prerequisite->description)),
+      sprintf('`%s`', basename(str_replace('\\', '/', $prerequisite->capability))),
+    ];
+  }
+
+  if ($rows === []) {
+    return '';
+  }
+
+  return '### Prerequisites' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -1283,6 +1338,8 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $description_full = preg_replace('/^/m', '>  ', $description_full);
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
+    // @phpstan-ignore-next-line
+    $content_output[$context] .= render_trait_prerequisites($trait_info['prerequisites'] ?? []);
     // @phpstan-ignore-next-line
     $content_output[$context] .= render_trait_options($trait, $trait_info['options'] ?? []);
     // @phpstan-ignore-next-line

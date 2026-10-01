@@ -9,10 +9,15 @@ use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\DocumentedOptionsContext;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\DocumentedPrerequisitesContext;
+use DrevOps\BehatSteps\Tests\Fixtures\Web\DocumentedPrerequisitesTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSampleTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\HelperSignatureTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
@@ -71,6 +76,8 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('trait_option_group')]
 #[CoversFunction('render_trait_options')]
 #[CoversFunction('trait_option_type')]
+#[CoversFunction('extract_trait_prerequisites')]
+#[CoversFunction('render_trait_prerequisites')]
 #[CoversFunction('validate_env_vars')]
 class DocsTest extends UnitTestCase {
 
@@ -3332,6 +3339,40 @@ EOD,
           new Option('limit', default: 7, description: 'Reads a | b.'),
         ],
         '### Options' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+      ],
+    ];
+  }
+
+  public function testExtractTraitPrerequisites(): void {
+    $prerequisites = extract_trait_prerequisites(DocumentedPrerequisitesContext::class, DocumentedPrerequisitesTrait::class);
+
+    $this->assertSame(['a driver in the scenario\'s list provides "CoreCapabilityInterface"', 'the "documented" module is enabled'], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->description, $prerequisites));
+  }
+
+  #[DataProvider('dataProviderRenderTraitPrerequisites')]
+  public function testRenderTraitPrerequisites(mixed $prerequisites, string $expected): void {
+    $this->assertSame($expected, render_trait_prerequisites($prerequisites));
+  }
+
+  public static function dataProviderRenderTraitPrerequisites(): array {
+    $table = implode("\n", [
+      '| Prerequisite | Capability |',
+      '| --- | --- |',
+      '| A driver in the scenario\'s list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |',
+      '| The "a \| b" module is enabled | `ModuleCapabilityInterface` |',
+    ]);
+
+    return [
+      'not a list' => ['not a list', ''],
+      'no prerequisite' => [[], ''],
+      'no entry that is a prerequisite' => [['not a prerequisite'], ''],
+      'a table skipping an entry that is not a prerequisite' => [
+        [
+          Prerequisite::capability(CoreCapabilityInterface::class),
+          'not a prerequisite',
+          Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
+        ],
+        '### Prerequisites' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
       ],
     ];
   }

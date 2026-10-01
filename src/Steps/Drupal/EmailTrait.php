@@ -15,6 +15,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
@@ -269,7 +270,7 @@ trait EmailTrait {
       if (!static::emailFindMailSystemOriginal($type)) {
         static::emailSetMailSystemOriginal($type, $original_test_system);
       }
-      static::emailSetMailSystemDefault($type, 'test_mail_collector');
+      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
     // Clearing here lets this step definition be reused to clear existing
@@ -290,7 +291,7 @@ trait EmailTrait {
 
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = static::emailFindMailSystemOriginal($type);
-      static::emailSetMailSystemDefault($type, $original_test_system);
+      $this->emailSetMailSystemDefault($type, $original_test_system);
     }
 
     static::emailDeleteMailSystemOriginal();
@@ -693,13 +694,13 @@ trait EmailTrait {
   /**
    * Set the default mail system value.
    */
-  protected static function emailSetMailSystemDefault(string $type, mixed $value): void {
+  protected function emailSetMailSystemDefault(string $type, mixed $value): void {
     \Drupal::configFactory()->getEditable('system.mail')->set('interface.' . $type, $value)->save();
 
     // The Mailsystem module replaces the default interface, so update its
     // configuration as well when the module is installed.
     // @codeCoverageIgnoreStart
-    if (\Drupal::service('module_handler')->moduleExists('mailsystem')) {
+    if ($this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
         ->save();
