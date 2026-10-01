@@ -328,7 +328,7 @@ trait MetatagTrait {
    * Assert the required Open Graph meta tags are present and non-empty.
    *
    * The required set defaults to the Open Graph basics and can be overridden by
-   * the consuming context via metatagOpenGraphRequired().
+   * the consuming context via metatagGetRequiredOpenGraphTags().
    *
    * @code
    * Then the Open Graph tags should be valid
@@ -336,7 +336,7 @@ trait MetatagTrait {
    */
   #[Then('the Open Graph tags should be valid')]
   public function metatagAssertOpenGraphValid(): void {
-    $this->metatagAssertMetaSetExists($this->metatagOpenGraphRequired(), 'Open Graph');
+    $this->metatagAssertMetaSetExists($this->metatagGetRequiredOpenGraphTags(), 'Open Graph');
   }
 
   /**
@@ -358,7 +358,7 @@ trait MetatagTrait {
    * Assert the required Twitter Card meta tags are present and non-empty.
    *
    * The required set defaults to the Twitter Card basics and can be overridden
-   * by the consuming context via metatagTwitterCardRequired().
+   * by the consuming context via metatagGetRequiredTwitterCardTags().
    *
    * @code
    * Then the Twitter Card tags should be valid
@@ -366,7 +366,7 @@ trait MetatagTrait {
    */
   #[Then('the Twitter Card tags should be valid')]
   public function metatagAssertTwitterCardValid(): void {
-    $this->metatagAssertMetaSetExists($this->metatagTwitterCardRequired(), 'Twitter Card');
+    $this->metatagAssertMetaSetExists($this->metatagGetRequiredTwitterCardTags(), 'Twitter Card');
   }
 
   /**
@@ -680,7 +680,7 @@ trait MetatagTrait {
    * @return array<int, string>
    *   The required Open Graph property names.
    */
-  public function metatagOpenGraphRequired(): array {
+  public function metatagGetRequiredOpenGraphTags(): array {
     return ['og:title', 'og:type', 'og:image', 'og:url'];
   }
 
@@ -690,7 +690,7 @@ trait MetatagTrait {
    * @return array<int, string>
    *   The required Twitter Card property names.
    */
-  public function metatagTwitterCardRequired(): array {
+  public function metatagGetRequiredTwitterCardTags(): array {
     return ['twitter:card', 'twitter:title', 'twitter:description'];
   }
 

@@ -723,7 +723,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
     $authenticator->method('loggedIn')->willReturn(TRUE);
 
-    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authLoggedIn());
+    $this->assertTrue($this->createContext($this->createMock(DriverInterface::class), NULL, $authenticator)->authIsLoggedIn());
   }
 
   /**

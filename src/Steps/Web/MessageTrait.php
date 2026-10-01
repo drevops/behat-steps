@@ -224,7 +224,7 @@ trait MessageTrait {
    *   expected text.
    */
   public function messageAssertExistsOfType(string $message, string $type): void {
-    $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
+    $elements = $this->getSession()->getPage()->findAll('css', $this->messageGetSelector($type));
 
     if ($elements === []) {
       throw new ExpectationException(sprintf('The page "%s" does not contain any "%s" messages.', $this->getSession()->getCurrentUrl(), $type), $this->getSession()->getDriver());
@@ -251,7 +251,7 @@ trait MessageTrait {
    *   When a message of that type contains the text.
    */
   public function messageAssertNotExistsOfType(string $message, string $type): void {
-    $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
+    $elements = $this->getSession()->getPage()->findAll('css', $this->messageGetSelector($type));
 
     foreach ($elements as $element) {
       if (str_contains(trim($element->getText()), $message)) {
@@ -261,7 +261,7 @@ trait MessageTrait {
   }
 
   /**
-   * Resolve the configured CSS selector for a message type.
+   * Return the configured CSS selector for a message type.
    *
    * @param string $type
    *   The message type: 'default', 'error', 'success' or 'warning'.
@@ -272,7 +272,7 @@ trait MessageTrait {
    * @throws \RuntimeException
    *   When the message type has no configured selector.
    */
-  public function messageSelector(string $type): string {
+  public function messageGetSelector(string $type): string {
     $selectors = $this->getOptionArray('message', 'selectors');
 
     if (!isset($selectors[$type]) || !is_string($selectors[$type])) {

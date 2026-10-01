@@ -39,6 +39,54 @@ class TraitMethodNamingTest extends UnitTestCase {
   protected const ASSERTION_EXCEPTIONS = ['AssertionException', 'ElementNotFoundException', 'ExpectationException'];
 
   /**
+   * Verbs the published helpers name their action with.
+   *
+   * A helper built on a verb missing here adds it.
+   */
+  protected const VERBS = [
+    'Apply',
+    'Assert',
+    'Assess',
+    'Assign',
+    'Attach',
+    'Build',
+    'Clear',
+    'Create',
+    'Decode',
+    'Disable',
+    'Enable',
+    'Execute',
+    'Exists',
+    'Expand',
+    'Extract',
+    'Fetch',
+    'Find',
+    'Generate',
+    'Get',
+    'Has',
+    'Is',
+    'Load',
+    'Login',
+    'Logout',
+    'Normalize',
+    'Open',
+    'Parse',
+    'Process',
+    'Query',
+    'Read',
+    'Register',
+    'Resize',
+    'Resolve',
+    'Run',
+    'Set',
+    'Substitute',
+    'Transpose',
+    'Validate',
+    'Visit',
+    'Wait',
+  ];
+
+  /**
    * Assert that every method a trait declares carries the trait's prefix.
    *
    * @param class-string $trait
@@ -70,9 +118,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that an assertion carries `Assert` directly after the prefix.
    *
-   * A `Then` step is an assertion, and so is any method other than a hook
-   * whose docblock opens with "Assert". `Assert` appears nowhere else in a
-   * name, so the shape is always `<prefix>Assert<Subject><Predicate>`.
+   * A `Then` step is an assertion, and so is a helper whose docblock opens
+   * with "Assert". A hook is named for its event even when it asserts.
+   * `Assert` appears nowhere else in a name, so the shape is always
+   * `<prefix>Assert<Subject><Predicate>`.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -86,7 +135,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $violations = [];
     foreach (self::traitOwnMethods($trait, $file) as $method) {
       $name = $method->getName();
-      $is_assertion = $method->getAttributes(Then::class) !== [] || (!self::isHook($method) && str_starts_with(self::docblockSummary($method), 'Assert'));
+      $is_assertion = $method->getAttributes(Then::class) !== [] || (!self::isRegistered($method) && str_starts_with(self::docblockSummary($method), 'Assert'));
 
       if ((!$is_assertion && preg_match('/Assert(?![a-z])/', $name) !== 1) || str_starts_with($name, $prefix . 'Assert')) {
         continue;
@@ -423,6 +472,40 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a published helper names what it does with a verb.
+   *
+   * A step takes its verb from its step text and a hook is named for its
+   * event, so only the public helpers are read. A verb in the prefix counts,
+   * as `query` does in `queryEntityIds`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderHelpersCarryVerb')]
+  public function testHelpersCarryVerb(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      if (!$method->isPublic() || self::isRegistered($method)) {
+        continue;
+      }
+
+      preg_match_all('/[A-Z][a-z0-9]*/', ucfirst($method->getName()), $words);
+
+      if (array_intersect($words[0], static::VERBS) === []) {
+        $violations[] = $method->getName();
+      }
+    }
+
+    $this->assertSame([], $violations, 'Name a published helper with a verb: "messageGetSelector", not "messageSelector", and "authIsLoggedIn", not "authLoggedIn". Add a new verb to VERBS.');
+  }
+
+  public static function dataProviderHelpersCarryVerb(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Pair every trait under `src/` with the file that declares it.
    *
    * @return array<string, array{string, string}>
@@ -547,13 +630,13 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
-   * Check whether a method is registered as a hook.
-   *
-   * A hook is named for the event it runs on rather than for what it does.
+   * Check whether Behat registers a method as a step, transform or hook.
    */
-  protected static function isHook(\ReflectionMethod $method): bool {
+  protected static function isRegistered(\ReflectionMethod $method): bool {
     foreach ($method->getAttributes() as $attribute) {
-      if (str_contains($attribute->getName(), '\\Hook\\')) {
+      $name = $attribute->getName();
+
+      if (str_starts_with($name, 'Behat\\') || str_contains($name, '\\Hook\\')) {
         return TRUE;
       }
     }

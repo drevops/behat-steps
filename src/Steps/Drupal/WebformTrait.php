@@ -66,7 +66,7 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $templates = $this->webformTemplates($template);
+    $templates = $this->webformLoadTemplates($template);
 
     if (empty($templates)) {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
@@ -93,7 +93,7 @@ trait WebformTrait {
    * @return \Drupal\webform\WebformInterface[]
    *   An array of matching webform template entities.
    */
-  public function webformTemplates(string $title): array {
+  public function webformLoadTemplates(string $title): array {
     $webforms = $this->webformLoadAll($title);
 
     return array_filter($webforms, static fn($webform): bool => $webform->isTemplate());
