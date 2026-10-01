@@ -1919,7 +1919,7 @@ A tag that was only meant for some of the scenarios in a feature moves down onto
 
 Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
 
-It's a rename with no change in behaviour, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name, so nothing keeps running against the old names by accident.
+Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name, so nothing keeps running against the old names by accident.
 
 ### Configuration and tags
 
