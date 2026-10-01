@@ -175,6 +175,29 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that `Has` names something the subject holds.
+   *
+   * A value compared against reads `Equals` or `Contains`, so in an assertion
+   * `Has` is followed by neither `Content`, `Value` or `Text`, nor by a
+   * `With` or `Containing` value qualifier.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderHasNamesWhatSubjectHolds')]
+  public function testHasNamesWhatSubjectHolds(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Keep "Has" for something the subject holds, and compare a value with "Equals" or "Contains": "stateAssertValueEquals", not "stateAssertHasValue", and "elementAssertCssPropertyEquals", not "elementAssertHasCssPropertyWithValue".');
+  }
+
+  public static function dataProviderHasNamesWhatSubjectHolds(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that names spell normalisation the American way.
    *
    * @param class-string $trait

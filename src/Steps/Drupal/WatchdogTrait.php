@@ -121,7 +121,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->watchdogAssertNotHasErrors(sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine));
+    $this->watchdogAssertErrorsNotExist(sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine));
   }
 
   /**
@@ -153,7 +153,7 @@ trait WatchdogTrait {
       $context = sprintf('during the teardown of scenario "%s" (line %s), which "behat --rerun" cannot record', $this->watchdogScenarioTitle, $this->watchdogScenarioLine);
     }
 
-    $this->watchdogAssertNotHasErrors($context);
+    $this->watchdogAssertErrorsNotExist($context);
   }
 
   /**
@@ -165,7 +165,7 @@ trait WatchdogTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If errors at or above the severity threshold were logged.
    */
-  public function watchdogAssertNotHasErrors(string $context): void {
+  public function watchdogAssertErrorsNotExist(string $context): void {
     $errors = $this->watchdogReadErrors();
 
     if ($errors === []) {

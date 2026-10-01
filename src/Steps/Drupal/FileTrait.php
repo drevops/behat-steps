@@ -235,7 +235,7 @@ trait FileTrait {
    * @endcode
    */
   #[Then('an unmanaged file at the URI :uri should contain :content')]
-  public function fileAssertUnmanagedHasContent(string $uri, string $content): void {
+  public function fileAssertUnmanagedContains(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
@@ -257,7 +257,7 @@ trait FileTrait {
    * @endcode
    */
   #[Then('an unmanaged file at the URI :uri should not contain :content')]
-  public function fileAssertUnmanagedNotHasContent(string $uri, string $content): void {
+  public function fileAssertUnmanagedNotContains(string $uri, string $content): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
